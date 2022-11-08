@@ -1,29 +1,18 @@
-<<<<<<< HEAD
-import { equals, or } from 'ramda';
-
-import { Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { equals, or } from 'ramda';
 
 import { Theme, makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { TabProps } from '..';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
-<<<<<<< HEAD
-import memoizeComponent from '../../../memoizedComponent';
-=======
 import { ResourceContext, useResourceContext } from '../../../Context';
 import memoizeComponent from '../../../memoizedComponent';
 import { GraphOptions } from '../../models';
 import useGraphOptions, {
   GraphOptionsContext,
 } from '../../../Graph/Performance/ExportableGraphWithTimeline/useGraphOptions';
->>>>>>> centreon/dev-21.10.x
 
 import HostGraph from './HostGraph';
 
@@ -50,11 +39,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-<<<<<<< HEAD
-const GraphTabContent = ({ details }: TabProps): JSX.Element => {
-  const classes = useStyles();
-
-=======
 type GraphTabContentProps = TabProps &
   Pick<ResourceContext, 'tabParameters' | 'setGraphTabParameters'>;
 
@@ -77,7 +61,6 @@ const GraphTabContent = ({
     options: tabParameters.graph?.options,
   });
 
->>>>>>> centreon/dev-21.10.x
   const type = details?.type as string;
   const equalsService = equals('service');
   const equalsMetaService = equals('metaservice');
@@ -85,31 +68,6 @@ const GraphTabContent = ({
   const isService = or(equalsService(type), equalsMetaService(type));
 
   return (
-<<<<<<< HEAD
-    <div className={classes.container}>
-      {isService ? (
-        <>
-          <TimePeriodButtonGroup />
-          <ExportablePerformanceGraphWithTimeline
-            graphHeight={280}
-            resource={details}
-          />
-        </>
-      ) : (
-        <HostGraph details={details} />
-      )}
-    </div>
-  );
-};
-
-const MemoizedGraphTabContent = memoizeComponent<TabProps>({
-  Component: GraphTabContent,
-  memoProps: ['details', 'ariaLabel'],
-});
-
-const GraphTab = ({ details }: TabProps): JSX.Element => {
-  return <MemoizedGraphTabContent details={details} />;
-=======
     <GraphOptionsContext.Provider value={graphOptions}>
       <div className={classes.container}>
         {isService ? (
@@ -143,7 +101,6 @@ const GraphTab = ({ details }: TabProps): JSX.Element => {
       tabParameters={tabParameters}
     />
   );
->>>>>>> centreon/dev-21.10.x
 };
 
 export default GraphTab;

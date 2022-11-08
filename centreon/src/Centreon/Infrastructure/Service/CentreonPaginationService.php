@@ -47,12 +47,8 @@ use RuntimeException;
 
 class CentreonPaginationService
 {
-<<<<<<< HEAD
-    public const LIMIT_MAX = 500;
-=======
 
     const LIMIT_MAX = 500;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @var \Centreon\Infrastructure\Service\CentreonDBManagerService

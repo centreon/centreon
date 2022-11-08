@@ -55,12 +55,7 @@ class Broker extends AbstractObjectJSON
         log_directory,
         log_filename,
         log_max_size,
-<<<<<<< HEAD
-        pool_size,
-        bbdo_version
-=======
         pool_size
->>>>>>> centreon/dev-21.10.x
     ';
     protected $attributes_select_parameters = '
         config_group,
@@ -95,11 +90,8 @@ class Broker extends AbstractObjectJSON
 
     private function getExternalValues()
     {
-<<<<<<< HEAD
-=======
         global $pearDB;
 
->>>>>>> centreon/dev-21.10.x
         if (!is_null($this->cacheExternalValue)) {
             return;
         }
@@ -160,10 +152,7 @@ class Broker extends AbstractObjectJSON
               $this->attributes_select_parameters
             FROM cfg_centreonbroker_info
             WHERE config_id = :config_id
-<<<<<<< HEAD
-=======
             AND config_group <> 'logger'
->>>>>>> centreon/dev-21.10.x
             ORDER BY config_group, config_group_id
             ");
         }
@@ -191,10 +180,6 @@ class Broker extends AbstractObjectJSON
             $object['event_queue_max_size'] = (int)$row['event_queue_max_size'];
             $object['command_file'] = (string) $row['command_file'];
             $object['cache_directory'] = (string) $cache_directory;
-<<<<<<< HEAD
-            $object['bbdo_version'] = (string) $row['bbdo_version'];
-=======
->>>>>>> centreon/dev-21.10.x
             if (!empty($row['pool_size'])) {
                 $object['pool_size'] = (int)$row['pool_size'];
             }
@@ -224,10 +209,7 @@ class Broker extends AbstractObjectJSON
             foreach ($resultParameters as $key => $value) {
                 // We search the BlockId
                 $blockId = 0;
-<<<<<<< HEAD
-=======
                 $configGroupdId = null;
->>>>>>> centreon/dev-21.10.x
                 for ($i = count($value); $i > 0; $i--) {
                     if (isset($value[$i]['config_key']) && $value[$i]['config_key'] == 'blockId') {
                         $blockId = $value[$i]['config_value'];
@@ -237,21 +219,12 @@ class Broker extends AbstractObjectJSON
                 }
 
                 $subValuesToCastInArray = [];
-<<<<<<< HEAD
-                $rrdCacheOption = 'disable';
-                foreach ($value as $subvalue) {
-                    if (
-                        !isset($subvalue['fieldIndex'])
-                        || $subvalue['fieldIndex'] == ""
-                        || is_null($subvalue['fieldIndex'])
-=======
                 $rrdCacheOption = null;
                 $rrdCached = null;
                 foreach ($value as $subvalue) {
                     if (!isset($subvalue['fieldIndex']) ||
                         $subvalue['fieldIndex'] == "" ||
                         is_null($subvalue['fieldIndex'])
->>>>>>> centreon/dev-21.10.x
                     ) {
                         if (in_array($subvalue['config_key'], $this->exclude_parameters)) {
                             continue;
@@ -265,23 +238,6 @@ class Broker extends AbstractObjectJSON
                         } elseif ($subvalue['config_key'] === 'category') {
                             $object[$key][$subvalue['config_group_id']]['filters'][$subvalue['config_key']][] =
                                 $subvalue['config_value'];
-<<<<<<< HEAD
-                        } else {
-                            if ($subvalue['config_key'] === 'rrd_cached_option') {
-                                $rrdCacheOption = $subvalue['config_value'];
-                                continue;
-                            }
-
-                            if ($subvalue['config_key'] === 'rrd_cached') {
-                                if ($rrdCacheOption === 'tcp') {
-                                    $object[$key][$subvalue['config_group_id']]['port'] = $subvalue['config_value'];
-                                } elseif ($rrdCacheOption === 'unix') {
-                                    $object[$key][$subvalue['config_group_id']]['path'] = $subvalue['config_value'];
-                                }
-                                continue;
-                            }
-
-=======
                         } elseif (in_array($subvalue['config_key'], ['rrd_cached_option', 'rrd_cached'])) {
                             if ($subvalue['config_key'] === 'rrd_cached_option') {
                                 $rrdCacheOption = $subvalue['config_value'];
@@ -296,31 +252,17 @@ class Broker extends AbstractObjectJSON
                                 }
                             }
                         } else {
->>>>>>> centreon/dev-21.10.x
                             $object[$key][$subvalue['config_group_id']][$subvalue['config_key']] =
                                 $subvalue['config_value'];
 
                             // We override with external values
                             if (isset($this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId])) {
                                 $object[$key][$subvalue['config_group_id']][$subvalue['config_key']] =
-<<<<<<< HEAD
-                                    $this->getInfoDb(
-                                        $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
-                                    );
-                            }
-                            // Let broker insert in index data in pollers
-                            if (
-                                $subvalue['config_key'] === 'type'
-                                && $subvalue['config_value'] === 'storage'
-                                && !$localhost
-                            ) {
-=======
                                     $this->getInfoDb($this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]);
                             }
                             // Let broker insert in index data in pollers
                             if ($subvalue['config_key'] == 'type' && $subvalue['config_value'] == 'storage'
                                 && !$localhost) {
->>>>>>> centreon/dev-21.10.x
                                 $object[$key][$subvalue['config_group_id']]['insert_in_index_data'] = 'yes';
                             }
                         }
@@ -355,20 +297,13 @@ class Broker extends AbstractObjectJSON
                 }
 
                 // cast into arrays instead of objects with integer as key
-<<<<<<< HEAD
-=======
                 $object[$key] = array_values($object[$key]);
->>>>>>> centreon/dev-21.10.x
                 foreach ($subValuesToCastInArray as $configGroupId => $subValues) {
                     foreach ($subValues as $subValue) {
                         $object[$key][$configGroupId][$subValue] =
                             array_values($object[$key][$configGroupId][$subValue]);
                     }
                 }
-<<<<<<< HEAD
-                $object[$key] = array_values($object[$key]);
-=======
->>>>>>> centreon/dev-21.10.x
             }
 
             // Stats parameters

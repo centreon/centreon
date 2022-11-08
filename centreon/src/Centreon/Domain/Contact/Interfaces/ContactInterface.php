@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -94,15 +90,9 @@ interface ContactInterface
     /**
      * Contact template id.
      *
-<<<<<<< HEAD
-     * @return int|null
-     */
-    public function getTemplateId(): ?int;
-=======
      * @return int
      */
     public function getTemplateId(): int;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Contact token.
@@ -114,15 +104,9 @@ interface ContactInterface
     /**
      * Contact encoded password.
      *
-<<<<<<< HEAD
-     * @return string|null
-     */
-    public function getEncodedPassword(): ?string;
-=======
      * @return string
      */
     public function getEncodedPassword(): string;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Returns the roles granted to the user.
@@ -141,25 +125,6 @@ interface ContactInterface
     public function getRoles(): array;
 
     /**
-<<<<<<< HEAD
-     * Indicates if this user has a role.
-     *
-     * @param string $role Role name to find
-     * @return bool
-     */
-    public function hasRole(string $role): bool;
-
-    /**
-     * Indicates if this user has a topology access.
-     *
-     * @param string $role Role name to find
-     * @return bool
-     */
-    public function hasTopologyRole(string $role): bool;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Contact timezone.
      *
      * @return \DateTimeZone
@@ -185,42 +150,4 @@ interface ContactInterface
      * @return static
      */
     public function setDefaultPage(?Page $defaultPage): static;
-<<<<<<< HEAD
-
-    /**
-     * Indicates if user uses deprecated pages
-     *
-     * @return bool
-     */
-    public function isUsingDeprecatedPages(): bool;
-
-    /**
-     * @param bool  $useDeprecatedPages  Indicates if user uses deprecated pages
-     * @return static
-     */
-    public function setUseDeprecatedPages(bool $useDeprecatedPages): static;
-
-    /**
-     * @return bool
-     */
-    public function hasAccessToApiConfiguration(): bool;
-
-    /**
-     * @param bool $hasAccessToApiConfiguration
-     * @return static
-     */
-    public function setAccessToApiConfiguration(bool $hasAccessToApiConfiguration): static;
-
-    /**
-     * @return bool
-     */
-    public function hasAccessToApiRealTime(): bool;
-
-    /**
-     * @param bool $hasAccessToApiRealTime
-     * @return static
-     */
-    public function setAccessToApiRealTime(bool $hasAccessToApiRealTime): static;
-=======
->>>>>>> centreon/dev-21.10.x
 }

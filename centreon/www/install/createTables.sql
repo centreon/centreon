@@ -452,10 +452,6 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-<<<<<<< HEAD
-  `bbdo_version` varchar(50) DEFAULT '3.0.0',
-=======
->>>>>>> centreon/dev-21.10.x
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -495,11 +491,8 @@ CREATE TABLE `cfg_nagios` (
   `execute_host_checks` enum('0','1','2') DEFAULT NULL,
   `accept_passive_host_checks` enum('0','1','2') DEFAULT NULL,
   `enable_event_handlers` enum('0','1','2') DEFAULT NULL,
-<<<<<<< HEAD
-=======
   `log_rotation_method` varchar(255) DEFAULT NULL,
   `log_archive_path` varchar(255) DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `check_external_commands` enum('0','1','2') DEFAULT NULL,
   `external_command_buffer_slots` int(11) DEFAULT NULL,
   `command_check_interval` varchar(255) DEFAULT NULL,
@@ -605,18 +598,11 @@ CREATE TABLE `cfg_nagios` (
   `debug_level_opt` varchar(200) DEFAULT '0',
   `debug_verbosity` enum('0','1','2') DEFAULT NULL,
   `max_debug_file_size` int(11) DEFAULT NULL,
-<<<<<<< HEAD
-=======
   `daemon_dumps_core` enum('0','1') DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `cfg_file` varchar(255) NOT NULL DEFAULT 'centengine.cfg',
   `log_pid` enum('0','1') DEFAULT '1',
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
   `macros_filter` TEXT DEFAULT '',
-<<<<<<< HEAD
-  `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
-=======
->>>>>>> centreon/dev-21.10.x
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
   KEY `cmd2_index` (`global_service_event_handler`),
@@ -743,10 +729,7 @@ CREATE TABLE `contact` (
   `timeperiod_tp_id2` int(11) DEFAULT NULL,
   `contact_name` varchar(200) DEFAULT NULL,
   `contact_alias` varchar(200) DEFAULT NULL,
-<<<<<<< HEAD
-=======
   `contact_passwd` varchar(255) DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `contact_lang` varchar(255) DEFAULT 'browser',
   `contact_host_notification_options` varchar(200) DEFAULT NULL,
   `contact_service_notification_options` varchar(200) DEFAULT NULL,
@@ -760,10 +743,6 @@ CREATE TABLE `contact` (
   `contact_address6` varchar(200) DEFAULT NULL,
   `contact_comment` text,
   `contact_js_effects` enum('0','1') DEFAULT '0',
-<<<<<<< HEAD
-  `contact_theme` enum('light','dark') DEFAULT 'light',
-=======
->>>>>>> centreon/dev-21.10.x
   `contact_location` int(11) DEFAULT '0',
   `contact_oreon` enum('0','1') DEFAULT NULL,
   `reach_api` int(11) DEFAULT '0',
@@ -785,11 +764,6 @@ CREATE TABLE `contact` (
   `contact_ldap_last_sync` int(11) NOT NULL DEFAULT 0,
   `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0',
   `enable_one_click_export` enum('0','1') DEFAULT '0',
-<<<<<<< HEAD
-  `login_attempts` INT(11) UNSIGNED DEFAULT NULL,
-  `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL,
-=======
->>>>>>> centreon/dev-21.10.x
   PRIMARY KEY (`contact_id`),
   KEY `name_index` (`contact_name`),
   KEY `alias_index` (`contact_alias`),
@@ -2355,13 +2329,9 @@ CREATE TABLE IF NOT EXISTS `remote_servers` (
   `http_method` enum('http','https') NOT NULL DEFAULT 'http',
   `http_port` int(11) DEFAULT NULL,
   `no_check_certificate` enum('0','1') NOT NULL DEFAULT '0',
-<<<<<<< HEAD
-  `no_proxy` enum('0','1') NOT NULL DEFAULT '0'
-=======
   `no_proxy` enum('0','1') NOT NULL DEFAULT '0',
   `server_id` int(11) NOT NULL,
   CONSTRAINT `remote_server_nagios_server_ibfk_1` FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
->>>>>>> centreon/dev-21.10.x
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create rs_poller_relation for the additional relationship between poller and remote servers
@@ -2415,45 +2385,21 @@ CREATE TABLE `provider_configuration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
-<<<<<<< HEAD
-  `custom_configuration` JSON NOT NULL,
-=======
->>>>>>> centreon/dev-21.10.x
   `is_active` BOOLEAN NOT NULL DEFAULT 1,
   `is_forced` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-<<<<<<< HEAD
-CREATE TABLE `password_expiration_excluded_users` (
-  `provider_configuration_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  PRIMARY KEY (`provider_configuration_id`, `user_id`),
-  CONSTRAINT `password_expiration_excluded_users_provider_configuration_id_fk` FOREIGN KEY (`provider_configuration_id`)
-  REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `password_expiration_excluded_users_provider_user_id_fk` FOREIGN KEY (`user_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `security_token` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` varchar(4096) NOT NULL,
-=======
 CREATE TABLE `security_token` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` varchar(255) NOT NULL,
->>>>>>> centreon/dev-21.10.x
   `creation_date` bigint UNSIGNED NOT NULL,
   `expiration_date` bigint UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `token_index` (`token`),
-<<<<<<< HEAD
-  INDEX `expiration_index` (`expiration_date`)
-=======
   INDEX `expiration_index` (`expiration_date`),
   UNIQUE KEY `unique_token` (`token`)
->>>>>>> centreon/dev-21.10.x
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `security_authentication_tokens` (
@@ -2478,45 +2424,6 @@ CREATE TABLE `security_authentication_tokens` (
   REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-<<<<<<< HEAD
-CREATE TABLE `contact_password` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `password` varchar(255) NOT NULL,
-  `contact_id` int(11) NOT NULL,
-  `creation_date` BIGINT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `contact_password_contact_id_fk` (`contact_id`),
-  INDEX `creation_date_index` (`creation_date`),
-  CONSTRAINT `contact_password_contact_id_fk` FOREIGN KEY (`contact_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `cfg_nagios_logger` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `cfg_nagios_id` int(11) NOT NULL,
-  `log_v2_logger` enum('file', 'syslog') DEFAULT 'file',
-  `log_level_functions` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_config` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
-  `log_level_events` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
-  `log_level_checks` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
-  `log_level_notifications` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_eventbroker` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_external_command` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
-  `log_level_commands` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_downtimes` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_comments` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_macros` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  `log_level_process` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
-  `log_level_runtime` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
-  PRIMARY KEY (`id`),
-  CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
-    FOREIGN KEY (`cfg_nagios_id`)
-    REFERENCES `cfg_nagios` (`nagios_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

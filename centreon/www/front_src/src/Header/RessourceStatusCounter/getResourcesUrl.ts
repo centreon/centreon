@@ -85,11 +85,6 @@ const getServiceResourcesUrl = ({
 };
 
 export {
-<<<<<<< HEAD
-  hostCriterias,
-  serviceCriteria,
-=======
->>>>>>> centreon/dev-21.10.x
   downCriterias,
   unreachableCriterias,
   upCriterias,

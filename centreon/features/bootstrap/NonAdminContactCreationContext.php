@@ -14,13 +14,8 @@ class NonAdminContactCreationContext extends CentreonContext
         'name' => 'contactName',
         'alias' => 'contactAlias',
         'email' => 'contact@localhost',
-<<<<<<< HEAD
-        'password' => 'Centreon!2021',
-        'password2' => 'Centreon!2021',
-=======
         'password' => 'contactpwd',
         'password2' => 'contactpwd',
->>>>>>> centreon/dev-21.10.x
         'admin' => 1
     );
 

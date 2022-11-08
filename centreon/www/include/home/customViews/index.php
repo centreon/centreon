@@ -328,55 +328,6 @@ try {
     $formAddWidget->accept($rendererAddWidget);
     $template->assign('formAddWidget', $rendererAddWidget->toArray());
     $template->assign('rotationTimer', $rotationTimer);
-<<<<<<< HEAD
-    $template->assign(
-        'editModeIcon',
-        returnSvg(
-            "www/img/icons/edit_mode.svg",
-            "var(--icons-fill-color)",
-            20,
-            20
-        )
-    );
-    $template->assign(
-        'noEditModeIcon',
-        returnSvg(
-            "www/img/icons/no_edit_mode.svg",
-            "var(--icons-fill-color)",
-            20,
-            20
-        )
-    );
-    $template->assign(
-        'addIcon',
-        returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 14, 16)
-    );
-    $template->assign(
-        'deleteIcon',
-        returnSvg("www/img/icons/trash.svg", "var(--button-icons-fill-color)", 14, 16)
-    );
-    $template->assign(
-        'editIcon',
-        returnSvg("www/img/icons/edit.svg", "var(--button-icons-fill-color)", 14, 14)
-    );
-    $template->assign(
-        'returnIcon',
-        returnSvg("www/img/icons/return.svg", "var(--button-icons-fill-color)", 14, 14)
-    );
-    $template->assign(
-        'folderIcon',
-        returnSvg("www/img/icons/folder.svg", "var(--button-icons-fill-color)", 14, 14)
-    );
-    $template->assign(
-        'playIcon',
-        returnSvg("www/img/icons/play.svg", "var(--button-icons-fill-color)", 14, 14)
-    );
-    $template->assign(
-        'helpIcon',
-        returnSvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
-    );
-=======
->>>>>>> centreon/dev-21.10.x
 
     $template->display("index.ihtml");
 } catch (CentreonCustomViewException $e) {

@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
-=======
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
->>>>>>> centreon/dev-21.10.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,25 +159,15 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             };
 
         $pimple[static::CENTREON_REMOTE_EXPORTER_CACHE] =
-<<<<<<< HEAD
-            function (): Infrastructure\Service\ExporterCacheService {
-                $service = new Infrastructure\Service\ExporterCacheService();
-=======
             function (Container $container): Infrastructure\Service\ExporterCacheService {
                 $service = new Infrastructure\Service\ExporterCacheService($container);
->>>>>>> centreon/dev-21.10.x
 
                 return $service;
             };
 
         $pimple[static::CENTREON_REMOTE_EXPORTER] =
-<<<<<<< HEAD
-            function (): Infrastructure\Service\ExporterService {
-                $service = new Infrastructure\Service\ExporterService();
-=======
             function (Container $container): Infrastructure\Service\ExporterService {
                 $service = new Infrastructure\Service\ExporterService($container);
->>>>>>> centreon/dev-21.10.x
 
                 return $service;
             };

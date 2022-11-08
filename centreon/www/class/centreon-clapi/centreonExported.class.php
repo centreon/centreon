@@ -37,10 +37,6 @@ namespace CentreonClapi;
 
 class CentreonExported
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     private $exported = array();
     private $ariane = array();
     private $filter = 0;
@@ -52,11 +48,7 @@ class CentreonExported
      * @access private
      * @static
      */
-<<<<<<< HEAD
-    private static $instance = null;
-=======
     private static $_instance = null;
->>>>>>> centreon/dev-21.10.x
 
     /**    *
      * @param void
@@ -66,38 +58,22 @@ class CentreonExported
     {
     }
 
-<<<<<<< HEAD
-    public function arianePush($object, $id, $name)
-=======
     public function ariane_push($object, $id, $name)
->>>>>>> centreon/dev-21.10.x
     {
         array_push($this->ariane, $object . ':' . $name . ':' . $id);
     }
 
-<<<<<<< HEAD
-    public function arianePop()
-=======
     public function ariane_pop()
->>>>>>> centreon/dev-21.10.x
     {
         array_pop($this->ariane);
     }
 
-<<<<<<< HEAD
-    public function setFilter($value = 1)
-=======
     public function set_filter($value = 1)
->>>>>>> centreon/dev-21.10.x
     {
         $this->filter = $value;
     }
 
-<<<<<<< HEAD
-    public function setOptions($options)
-=======
     public function set_options($options)
->>>>>>> centreon/dev-21.10.x
     {
         if (isset($options['filter-type'])) {
             $this->filter_type = $options['filter-type'];
@@ -114,11 +90,7 @@ class CentreonExported
         }
     }
 
-<<<<<<< HEAD
-    private function checkAriane($object, $id, $name)
-=======
     private function check_ariane($object, $id, $name)
->>>>>>> centreon/dev-21.10.x
     {
         if (!is_null($this->filter_ariane)) {
             $ariane = join('#', $this->ariane);
@@ -133,11 +105,7 @@ class CentreonExported
         return 0;
     }
 
-<<<<<<< HEAD
-    private function checkFilter($object, $id, $name)
-=======
     private function check_filter($object, $id, $name)
->>>>>>> centreon/dev-21.10.x
     {
         if (!is_null($this->filter_type)) {
             foreach ($this->filter_type as $filter) {
@@ -151,11 +119,7 @@ class CentreonExported
         return 0;
     }
 
-<<<<<<< HEAD
-    public function isExported($object, $id, $name)
-=======
     public function is_exported($object, $id, $name)
->>>>>>> centreon/dev-21.10.x
     {
         if ($this->filter == 0) {
             return 1;
@@ -166,17 +130,10 @@ class CentreonExported
         }
 
         # check if there is some filters
-<<<<<<< HEAD
-        if ($this->checkFilter($object, $id, $name)) {
-            return 1;
-        }
-        if ($this->checkAriane($object, $id, $name)) {
-=======
         if ($this->check_filter($object, $id, $name)) {
             return 1;
         }
         if ($this->check_ariane($object, $id, $name)) {
->>>>>>> centreon/dev-21.10.x
             return 1;
         }
 
@@ -194,18 +151,10 @@ class CentreonExported
      */
     public static function getInstance()
     {
-<<<<<<< HEAD
-        if (is_null(self::$instance)) {
-            self::$instance = new CentreonExported();
-        }
-
-        return self::$instance;
-=======
         if (is_null(self::$_instance)) {
             self::$_instance = new CentreonExported();
         }
 
         return self::$_instance;
->>>>>>> centreon/dev-21.10.x
     }
 }

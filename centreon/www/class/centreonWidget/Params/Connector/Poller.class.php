@@ -1,14 +1,8 @@
 <?php
-<<<<<<< HEAD
-/**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
-=======
 
 /**
  * Copyright 2005-2022 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
->>>>>>> centreon/dev-21.10.x
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -53,22 +47,6 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
     {
         static $tab;
 
-<<<<<<< HEAD
-        if (!isset($tab)) {
-            $query = "SELECT id, name FROM nagios_server WHERE ns_activate = '1' ";
-            $query .= $this->acl->queryBuilder(
-                'AND',
-                'id',
-                $this->acl->getPollerString('ID', $this->monitoringDb)
-            );
-            $query .= " ORDER BY name";
-            $res = $this->db->query($query);
-            $tab = array(null => null);
-            while ($row = $res->fetchRow()) {
-                $tab[$row['id']] = $row['name'];
-            }
-        }
-=======
         if (! isset($tab)) {
             $tab = [null => null];
             $userACL = new CentreonACL($this->userId);
@@ -118,7 +96,6 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
             }
         }
 
->>>>>>> centreon/dev-21.10.x
         return $tab;
     }
 }

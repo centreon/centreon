@@ -1727,14 +1727,6 @@ class CentreonService
         } else {
             $alreadyProcessed[] = $svcId;
 
-<<<<<<< HEAD
-            $res = $this->db->query(
-                "SELECT service_template_model_stm_id FROM service WHERE service_id = " . $this->db->escape($svcId)
-            );
-
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-=======
             $statement = $this->db->prepare(
                 "SELECT service_template_model_stm_id FROM service WHERE service_id = :service_id"
             );
@@ -1743,7 +1735,6 @@ class CentreonService
 
             if ($statement->rowCount()) {
                 $row = $statement->fetch(\PDO::FETCH_ASSOC);
->>>>>>> centreon/dev-21.10.x
                 if (!empty($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] !== null) {
                     $svcTmpl = array_merge(
                         $svcTmpl,

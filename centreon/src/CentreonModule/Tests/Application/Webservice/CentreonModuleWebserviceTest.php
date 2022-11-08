@@ -57,18 +57,6 @@ class CentreonModuleWebserviceTest extends TestCase
     public const METHOD_POST_UPDATE = 'postUpdate';
     public const METHOD_DELETE_REMOVE = 'deleteRemove';
 
-<<<<<<< HEAD
-    /**
-     * @var CentreonModuleWebservice|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $webservice;
-
-    protected function setUp(): void
-    {
-        // dependencies
-        $container = new Container();
-        $container[ServiceProvider::CENTREON_MODULE] = $this->createMock(CentreonModuleService::class);
-=======
     protected function setUp(): void
     {
         // dependencies
@@ -80,7 +68,6 @@ class CentreonModuleWebserviceTest extends TestCase
             'update',
             'remove',
         ]);
->>>>>>> centreon/dev-21.10.x
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('getList')
             ->will($this->returnCallback(function () {
@@ -93,11 +80,7 @@ class CentreonModuleWebserviceTest extends TestCase
                     $funcArgs[3] = $funcArgs[3] ? implode('|', $funcArgs[3]) : '-';
                     $name = implode(',', $funcArgs);
 
-<<<<<<< HEAD
-                    $module = new Module();
-=======
                     $module = new Module;
->>>>>>> centreon/dev-21.10.x
                     $module->setId(ModuleSourceTest::$moduleName);
                     $module->setName($name);
                     $module->setAuthor('');
@@ -217,22 +200,14 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->fixturePath = __DIR__ . '/../../Resources/Fixture/';
     }
 
-<<<<<<< HEAD
-    public function testGetList(): void
-=======
     public function testGetList()
->>>>>>> centreon/dev-21.10.x
     {
         // without applied filters
         $this->mockQuery();
         $this->executeTest(static::METHOD_GET_LIST, 'response-list-1.json');
     }
 
-<<<<<<< HEAD
-    public function testGetList2(): void
-=======
     public function testGetList2()
->>>>>>> centreon/dev-21.10.x
     {
         // with search, installed, updated, and selected type filter
         $this->mockQuery([
@@ -244,11 +219,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_GET_LIST, 'response-list-2.json');
     }
 
-<<<<<<< HEAD
-    public function testGetList3(): void
-=======
     public function testGetList3()
->>>>>>> centreon/dev-21.10.x
     {
         // with not installed, not updated and not selected type filter
         $this->mockQuery([
@@ -259,11 +230,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_GET_LIST, 'response-list-3.json');
     }
 
-<<<<<<< HEAD
-    public function testGetList4(): void
-=======
     public function testGetList4()
->>>>>>> centreon/dev-21.10.x
     {
         // with wrong values of installed and updated filters
         $this->mockQuery([
@@ -273,11 +240,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_GET_LIST, 'response-list-4.json');
     }
 
-<<<<<<< HEAD
-    public function testGetDetails(): void
-=======
     public function testGetDetails()
->>>>>>> centreon/dev-21.10.x
     {
         // find module by id and type
         $this->mockQuery([
@@ -287,11 +250,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_GET_DETAILS, 'response-details-1.json');
     }
 
-<<<<<<< HEAD
-    public function testGetDetails2(): void
-=======
     public function testGetDetails2()
->>>>>>> centreon/dev-21.10.x
     {
         // try to find missing module applied filters
         $this->mockQuery([
@@ -301,21 +260,13 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_GET_DETAILS, 'response-details-2.json');
     }
 
-<<<<<<< HEAD
-    public function testPostInstall(): void
-=======
     public function testPostInstall()
->>>>>>> centreon/dev-21.10.x
     {
         $this->mockQuery();
         $this->executeTest(static::METHOD_POST_INSTALL, 'response-install-1.json');
     }
 
-<<<<<<< HEAD
-    public function testPostInstall2(): void
-=======
     public function testPostInstall2()
->>>>>>> centreon/dev-21.10.x
     {
         // find module by id and type
         $this->mockQuery([
@@ -325,21 +276,13 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_POST_INSTALL, 'response-install-2.json');
     }
 
-<<<<<<< HEAD
-    public function testPostUpdate(): void
-=======
     public function testPostUpdate()
->>>>>>> centreon/dev-21.10.x
     {
         $this->mockQuery();
         $this->executeTest(static::METHOD_POST_UPDATE, 'response-update-1.json');
     }
 
-<<<<<<< HEAD
-    public function testPostUpdate2(): void
-=======
     public function testPostUpdate2()
->>>>>>> centreon/dev-21.10.x
     {
         // find module by id and type
         $this->mockQuery([
@@ -349,21 +292,13 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_POST_UPDATE, 'response-update-2.json');
     }
 
-<<<<<<< HEAD
-    public function testPostRemove(): void
-=======
     public function testPostRemove()
->>>>>>> centreon/dev-21.10.x
     {
         $this->mockQuery();
         $this->executeTest(static::METHOD_DELETE_REMOVE, 'response-remove-1.json');
     }
 
-<<<<<<< HEAD
-    public function testPostRemove2(): void
-=======
     public function testPostRemove2()
->>>>>>> centreon/dev-21.10.x
     {
         // find module by id and type
         $this->mockQuery([
@@ -373,11 +308,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->executeTest(static::METHOD_DELETE_REMOVE, 'response-remove-2.json');
     }
 
-<<<<<<< HEAD
-    public function testGetName(): void
-=======
     public function testGetName()
->>>>>>> centreon/dev-21.10.x
     {
         $this->assertEquals('centreon_module', CentreonModuleWebservice::getName());
     }

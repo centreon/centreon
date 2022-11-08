@@ -370,20 +370,11 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         }
 
         // Check icon
-<<<<<<< HEAD
-        $host_icone = returnSvg("www/img/icons/host.svg", "var(--icons-fill-color)", 21, 21);
-        $isSvgFile = true;
-=======
         $host_icone = "./img/icons/host.png";
->>>>>>> centreon/dev-21.10.x
         if (
             isset($ehiCache[$host["host_id"]])
             && $ehiCache[$host["host_id"]]
         ) {
-<<<<<<< HEAD
-            $isSvgFile = false;
-=======
->>>>>>> centreon/dev-21.10.x
             $host_icone = "./img/media/" . $mediaObj->getFilename($ehiCache[$host["host_id"]]);
         } else {
             $icone = $host_method->replaceMacroInString(
@@ -395,10 +386,6 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
                 )
             );
             if ($icone) {
-<<<<<<< HEAD
-                $isSvgFile = false;
-=======
->>>>>>> centreon/dev-21.10.x
                 $host_icone = "./img/media/" . $icone;
             }
         }
@@ -419,12 +406,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
             "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
             "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"),
             "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical",
-<<<<<<< HEAD
-            "RowMenu_options" => $moptions,
-            "isSvgFile" => $isSvgFile
-=======
             "RowMenu_options" => $moptions
->>>>>>> centreon/dev-21.10.x
         );
 
         $style != "two"
@@ -503,8 +485,4 @@ $tpl->assign('Poller', _("Poller"));
 $tpl->assign('Hostgroup', _("Hostgroup"));
 $tpl->assign('HelpServices', _("Display all Services for this host"));
 $tpl->assign('Template', _("Template"));
-<<<<<<< HEAD
-$tpl->assign('listServicesIcon', returnSvg("www/img/icons/all_services.svg", "var(--icons-fill-color)", 18, 18));
-=======
->>>>>>> centreon/dev-21.10.x
 $tpl->display("listHost.ihtml");

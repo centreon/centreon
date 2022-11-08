@@ -38,13 +38,8 @@ class Engine extends AbstractObject
     protected $engine = null;
     protected $generate_filename = null; # it's in 'cfg_nagios' table
     protected $object_name = null;
-<<<<<<< HEAD
-    # skipped nagios parameters : temp_file, nagios_user, nagios_group,
-    # lock_file
-=======
     # skipped nagios parameters : temp_file, nagios_user, nagios_group, log_rotation_method, log_archive_path,
     # lock_file, daemon_dumps_core
->>>>>>> centreon/dev-21.10.x
     protected $attributes_select = '
         nagios_id,
         use_timezone,
@@ -156,12 +151,7 @@ class Engine extends AbstractObject
         enable_environment_macros,
         use_setpgid,
         enable_macros_filter,
-<<<<<<< HEAD
-        macros_filter,
-        logger_version
-=======
         macros_filter
->>>>>>> centreon/dev-21.10.x
     ';
     protected $attributes_write = array(
         'use_timezone',
@@ -236,27 +226,7 @@ class Engine extends AbstractObject
         'service_perfdata_file_processing_command',
         'macros_filter',
         'enable_macros_filter',
-<<<<<<< HEAD
-        'grpc_port',
-        'log_v2_enabled',
-        'log_legacy_enabled',
-        'log_v2_logger',
-        'log_level_functions',
-        'log_level_config',
-        'log_level_events',
-        'log_level_checks',
-        'log_level_notifications',
-        'log_level_eventbroker',
-        'log_level_external_command',
-        'log_level_commands',
-        'log_level_downtimes',
-        'log_level_comments',
-        'log_level_macros',
-        'log_level_process',
-        'log_level_runtime',
-=======
         'grpc_port'
->>>>>>> centreon/dev-21.10.x
     );
     protected $attributes_default = array(
         'instance_heartbeat_interval',
@@ -339,11 +309,6 @@ class Engine extends AbstractObject
             $value['cfg_file'][] = $value['path'] . '/meta_timeperiod.cfg';
             $value['cfg_file'][] = $value['path'] . '/meta_host.cfg';
             $value['cfg_file'][] = $value['path'] . '/meta_services.cfg';
-<<<<<<< HEAD
-            $value['cfg_file'][] = $value['path'] . '/tags.cfg';
-            $value['cfg_file'][] = $value['path'] . '/severities.cfg';
-=======
->>>>>>> centreon/dev-21.10.x
 
             foreach ($this->add_cfg_files as $add_cfg_file) {
                 $value['cfg_file'][] = $value['path'] . '/' . $add_cfg_file;
@@ -377,34 +342,6 @@ class Engine extends AbstractObject
         $this->engine['interval_length'] = $this->stmt_interval_length->fetchAll(PDO::FETCH_COLUMN);
     }
 
-<<<<<<< HEAD
-    /**
-     *  If log V2 enabled, set logger V2 configuration and unset logger legacy elements
-     */
-    private function setLoggerCfg(): void
-    {
-        $this->engine['log_v2_enabled'] = $this->engine['logger_version'] === 'log_v2_enabled' ? 1 : 0;
-        $this->engine['log_legacy_enabled'] = $this->engine['logger_version'] === 'log_legacy_enabled' ? 1 : 0;
-
-        if ($this->engine['log_v2_enabled'] === 1) {
-            $stmt = $this->backend_instance->db->prepare(
-                'SELECT log_v2_logger, log_level_functions, log_level_config, log_level_events, log_level_checks,
-                    log_level_notifications, log_level_eventbroker, log_level_external_command, log_level_commands,
-                    log_level_downtimes, log_level_comments, log_level_macros, log_level_process, log_level_runtime
-                FROM cfg_nagios_logger
-                WHERE cfg_nagios_id = :id'
-            );
-            $stmt->bindParam(':id', $this->engine['nagios_id'], PDO::PARAM_INT);
-            $stmt->execute();
-
-            $loggerCfg = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $this->engine = array_merge($this->engine, $loggerCfg);
-        }
-    }
-
-=======
->>>>>>> centreon/dev-21.10.x
     private function generate($poller_id)
     {
         if (is_null($this->stmt_engine)) {
@@ -425,10 +362,6 @@ class Engine extends AbstractObject
         }
 
         $this->buildCfgFile($poller_id);
-<<<<<<< HEAD
-        $this->setLoggerCfg();
-=======
->>>>>>> centreon/dev-21.10.x
         $this->getBrokerModules();
         $this->getIntervalLength();
 

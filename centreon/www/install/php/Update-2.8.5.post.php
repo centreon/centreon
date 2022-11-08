@@ -14,17 +14,11 @@ if (isset($pearDB)) {
             $daemon = 1;
         }
         $query = 'UPDATE cfg_centreonbroker '
-<<<<<<< HEAD
-            . 'SET daemon = ' . $daemon . ' '
-            . 'WHERE config_id = ' . $row['config_id'];
-        $pearDB->query($query);
-=======
             . 'SET daemon = :daemon '
             . 'WHERE config_id = :config_id ';
         $statement = $pearDB->prepare($query);
         $statement->bindValue(":daemon", $daemon, \PDO::PARAM_INT);
         $statement->bindValue(":config_id", (int) $row['config_id'], \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
     }
 }

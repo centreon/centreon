@@ -6,10 +6,6 @@ use Centreon\Test\Behat\Configuration\BrokerConfigurationPage;
 
 class BrokerConfigurationContext extends CentreonContext
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     private $currentPage;
 
     private $initialProperties = array(

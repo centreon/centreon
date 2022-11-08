@@ -11,10 +11,6 @@ import isYesterday from 'dayjs/plugin/isYesterday';
 import weekday from 'dayjs/plugin/weekday';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-<<<<<<< HEAD
-import duration from 'dayjs/plugin/duration';
-=======
->>>>>>> centreon/dev-21.10.x
 import ResizeObserver from 'resize-observer-polyfill';
 
 window.ResizeObserver = ResizeObserver;
@@ -29,9 +25,6 @@ dayjs.extend(isYesterday);
 dayjs.extend(weekday);
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
-<<<<<<< HEAD
-dayjs.extend(duration);
-=======
 
 document.createRange = () => ({
   commonAncestorContainer: {
@@ -41,7 +34,6 @@ document.createRange = () => ({
   setEnd: () => {},
   setStart: () => {},
 });
->>>>>>> centreon/dev-21.10.x
 
 class IntersectionObserver {
   observe = jest.fn();
@@ -72,11 +64,3 @@ i18n.use(initReactI18next).init({
   nsSeparator: false,
   resources: {},
 });
-<<<<<<< HEAD
-
-jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('centreon-frontend/packages/ui-context'),
-  ThemeMode: 'light',
-}));
-=======
->>>>>>> centreon/dev-21.10.x

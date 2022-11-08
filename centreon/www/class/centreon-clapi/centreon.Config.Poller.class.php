@@ -36,21 +36,12 @@
 
 namespace CentreonClapi;
 
-<<<<<<< HEAD
-use App\Kernel;
-=======
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Entity\Task;
 use CentreonRemote\ServiceProvider;
 use CentreonRemote\Domain\Service\TaskService;
 use Centreon\Domain\Service\AppKeyGeneratorService;
 use Centreon\Infrastructure\Service\CentcoreCommandService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-<<<<<<< HEAD
-use Core\Domain\Engine\Model\EngineCommandGenerator;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-=======
->>>>>>> centreon/dev-21.10.x
 
 require_once "centreonUtils.class.php";
 require_once "centreonClapiException.class.php";
@@ -71,19 +62,6 @@ class CentreonConfigPoller
     private $engineCachePath;
     private $centreon_path;
     private $centcore_pipe;
-<<<<<<< HEAD
-    /**
-     * @var EngineCommandGenerator|null
-     */
-    private ?EngineCommandGenerator $commandGenerator;
-
-    /**
-     * @var ContainerInterface
-     */
-    private ContainerInterface $container;
-
-=======
->>>>>>> centreon/dev-21.10.x
     public const MISSING_POLLER_ID = "Missing poller ID";
     public const UNKNOWN_POLLER_ID = "Unknown poller ID";
 
@@ -105,13 +83,6 @@ class CentreonConfigPoller
         $this->centreon_path = $centreon_path;
         $this->resultTest = array("warning" => 0, "errors" => 0);
         $this->centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
-<<<<<<< HEAD
-
-        $kernel = new Kernel('prod', false);
-        $kernel->boot();
-        $this->container = $kernel->getContainer();
-=======
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -204,28 +175,6 @@ class CentreonConfigPoller
         $poller_id = $this->getPollerId($variables);
         $this->testPollerId($poller_id);
 
-<<<<<<< HEAD
-        $result = $this->DB->query(
-            "SELECT * FROM `nagios_server` WHERE `id` = '" . $this->DB->escape($poller_id) . "'  LIMIT 1"
-        );
-        $host = $result->fetch();
-        $result->closeCursor();
-
-        $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
-        $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $reloadCommand, $host["id"], $this->centcore_pipe),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->centcore_pipe, $stdout, $return_code);
-        $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
-        print $msg_restart . "\n";
-        $this->DB->query(
-            "UPDATE `nagios_server` SET `last_restart` = '" . time()
-            . "' WHERE `id` = '" . $this->DB->escape($poller_id) . "' LIMIT 1"
-        );
-=======
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
         );
@@ -244,7 +193,6 @@ class CentreonConfigPoller
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
         return $return_code;
     }
 
@@ -299,28 +247,6 @@ class CentreonConfigPoller
         $this->testPollerId($variables);
         $poller_id = $this->getPollerId($variables);
 
-<<<<<<< HEAD
-        $result = $this->DB->query(
-            "SELECT * FROM `nagios_server` WHERE `id` = '" . $this->DB->escape($poller_id) . "'  LIMIT 1"
-        );
-        $host = $result->fetch();
-        $result->closeCursor();
-
-        $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
-        $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $restartCommand, $host["id"], $this->centcore_pipe),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->centcore_pipe, $stdout, $return_code);
-        $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
-        print $msg_restart . "\n";
-        $this->DB->query(
-            "UPDATE `nagios_server` SET `last_restart` = '" . time()
-            . "' WHERE `id` = '" . $this->DB->escape($poller_id) . "' LIMIT 1"
-        );
-=======
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
         );
@@ -339,7 +265,6 @@ class CentreonConfigPoller
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
         return $return_code;
     }
 
@@ -544,11 +469,7 @@ class CentreonConfigPoller
             $Nagioscfg = $statement->fetchRow();
             $statement->closeCursor();
 
-<<<<<<< HEAD
-            foreach (glob($this->engineCachePath . '/' . $pollerId . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
-=======
             foreach (glob($this->engineCachePath . '/' . $pollerId . "/*.cfg") as $filename) {
->>>>>>> centreon/dev-21.10.x
                 $bool = @copy($filename, $Nagioscfg["cfg_dir"] . "/" . basename($filename));
                 $result = explode("/", $filename);
                 $filename = array_pop($result);
@@ -560,11 +481,7 @@ class CentreonConfigPoller
 
             /* Change files owner */
             if ($apacheUser != "") {
-<<<<<<< HEAD
-                foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
-=======
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.cfg") as $file) {
->>>>>>> centreon/dev-21.10.x
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }

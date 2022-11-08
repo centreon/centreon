@@ -308,11 +308,7 @@ class MonitoringHostsController extends AbstractController
     /**
      * Entry point to get all hostgroups.
      *
-<<<<<<< HEAD
-     * @param int $hostId Id of host to search hostgroups for
-=======
      * @param int hostId Id of host to search hostgroups for
->>>>>>> centreon/dev-21.10.x
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
      * @return \FOS\RestBundle\View\View
      * @throws \Exception

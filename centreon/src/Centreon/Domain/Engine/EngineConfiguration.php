@@ -22,25 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Engine;
 
-<<<<<<< HEAD
-use Centreon\Domain\Common\Assertion\Assertion;
-
 class EngineConfiguration
 {
-    public const NOTIFICATIONS_OPTION_DISABLED = 0,
-                 NOTIFICATIONS_OPTION_ENABLED = 1,
-                 NOTIFICATIONS_OPTION_DEFAULT = 2;
-
-    private const AVAILABLE_NOTIFICATION_OPTIONS = [
-        self::NOTIFICATIONS_OPTION_DISABLED,
-        self::NOTIFICATIONS_OPTION_ENABLED,
-        self::NOTIFICATIONS_OPTION_DEFAULT,
-    ];
-
-=======
-class EngineConfiguration
-{
->>>>>>> centreon/dev-21.10.x
     /**
      * @var int|null
      */
@@ -62,14 +45,6 @@ class EngineConfiguration
     private $name;
 
     /**
-<<<<<<< HEAD
-     * @var int
-     */
-    private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_ENABLED;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * @return int|null
      */
     public function getId(): ?int
@@ -166,32 +141,4 @@ class EngineConfiguration
     {
         return $stringToCheck !== $this->removeIllegalCharacters($stringToCheck);
     }
-<<<<<<< HEAD
-
-    /**
-     * @return int
-     */
-    public function getNotificationsEnabledOption(): int
-    {
-        return $this->notificationsEnabledOption;
-    }
-
-    /**
-     * @param int $notificationsEnabledOption
-     * @return self
-     */
-    public function setNotificationsEnabledOption(int $notificationsEnabledOption): self
-    {
-        Assertion::inArray(
-            $notificationsEnabledOption,
-            self::AVAILABLE_NOTIFICATION_OPTIONS,
-            'Engine::notificationsEnabledOption',
-        );
-
-        $this->notificationsEnabledOption = $notificationsEnabledOption;
-
-        return $this;
-    }
-=======
->>>>>>> centreon/dev-21.10.x
 }

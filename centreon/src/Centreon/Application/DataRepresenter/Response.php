@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -47,10 +43,6 @@ use JsonSerializable;
  */
 class Response implements JsonSerializable
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var bool
      */

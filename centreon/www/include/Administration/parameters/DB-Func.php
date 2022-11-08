@@ -679,8 +679,6 @@ function updateGeneralConfigData($gopt_id = null)
     );
     updateOption(
         $pearDB,
-<<<<<<< HEAD
-=======
         "sso_enable",
         isset($ret["sso_enable"]["yes"]) && $ret["sso_enable"]["yes"] != null ? 1 : 0
     );
@@ -831,7 +829,6 @@ function updateGeneralConfigData($gopt_id = null)
     );
     updateOption(
         $pearDB,
->>>>>>> centreon/dev-21.10.x
         "centreon_support_email",
         isset($ret["centreon_support_email"]) && $ret["centreon_support_email"] != null
             ? htmlentities($ret["centreon_support_email"], ENT_QUOTES, "UTF-8") : null

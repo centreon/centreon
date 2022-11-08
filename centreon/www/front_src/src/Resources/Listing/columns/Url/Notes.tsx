@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { path } from 'ramda';
-
-import IconLink from '@mui/icons-material/Link';
-=======
 import * as React from 'react';
 
 import { path } from 'ramda';
 
 import IconLink from '@material-ui/icons/Link';
->>>>>>> centreon/dev-21.10.x
 
 import { ComponentColumnProps } from '@centreon/ui';
 

@@ -72,11 +72,6 @@ function enableNagiosInDB($nagiosId = null)
     );
     $data = $dbResult->fetch();
 
-<<<<<<< HEAD
-    $pearDB->query(
-        "UPDATE `cfg_nagios` SET `nagios_activate` = '0' WHERE `nagios_server_id` = '" . $data["nagios_server_id"] . "'"
-    );
-=======
     $statement = $pearDB->prepare(
         "UPDATE `cfg_nagios` 
         SET `nagios_activate` = '0' 
@@ -84,21 +79,12 @@ function enableNagiosInDB($nagiosId = null)
     );
     $statement->bindValue(':nagios_server_id', (int) $data["nagios_server_id"], \PDO::PARAM_INT);
     $statement->execute();
->>>>>>> centreon/dev-21.10.x
 
     $pearDB->query(
         "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = '" . $nagiosId . "'"
     );
 
     $query = "SELECT `id`, `name` FROM nagios_server WHERE `ns_activate` = '0' " .
-<<<<<<< HEAD
-        "AND `id` = '" . $data["nagios_server_id"] . "'";
-    $dbResult = $pearDB->query($query);
-    $activate = $dbResult->fetch();
-    if ($activate && $activate["name"]) {
-        $query = "UPDATE `nagios_server` SET `ns_activate` = '1' WHERE `id` = '" . $activate['id'] . "'";
-        $pearDB->query($query);
-=======
              "AND `id` = :id";
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':id', (int) $data["nagios_server_id"], \PDO::PARAM_INT);
@@ -109,7 +95,6 @@ function enableNagiosInDB($nagiosId = null)
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':id', (int) $activate['id'], \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
         $centreon->CentreonLogAction->insertLog("poller", $activate['id'], $activate['name'], "enable");
     }
 }
@@ -136,19 +121,6 @@ function disableNagiosInDB($nagiosId = null)
     );
 
     $query = "SELECT `nagios_id` FROM cfg_nagios WHERE `nagios_activate` = '1' " .
-<<<<<<< HEAD
-        "AND `nagios_server_id` = '" . $data["nagios_server_id"] . "'";
-    $dbResult = $pearDB->query($query);
-    $activate = $dbResult->fetch();
-
-    if (!$activate["nagios_id"]) {
-        $query = "UPDATE `nagios_server` SET `ns_activate` = '0' WHERE `id` = '" . $data["nagios_server_id"] . "'";
-        $pearDB->query($query);
-
-        $query = "SELECT `id`, `name` FROM nagios_server WHERE `id` = '" . $data["nagios_server_id"] . "'";
-        $dbResult = $pearDB->query($query);
-        $poller = $dbResult->fetch();
-=======
              "AND `nagios_server_id` = :nagios_server_id";
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':nagios_server_id', (int) $data["nagios_server_id"], \PDO::PARAM_INT);
@@ -166,7 +138,6 @@ function disableNagiosInDB($nagiosId = null)
         $statement->bindValue(':id', (int) $data["nagios_server_id"], \PDO::PARAM_INT);
         $statement->execute();
         $poller = $statement->fetch(\PDO::FETCH_ASSOC);
->>>>>>> centreon/dev-21.10.x
 
         $centreon->CentreonLogAction->insertLog("poller", $poller['id'], $poller['name'], "disable");
     }
@@ -192,17 +163,11 @@ function deleteNagiosInDB($nagios = array())
             "SELECT MAX(nagios_id) FROM cfg_nagios"
         );
         $nagios_id = $dbResult2->fetch();
-<<<<<<< HEAD
-        $pearDB->query(
-            "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = '" . $nagios_id["MAX(nagios_id)"] . "'"
-        );
-=======
         $statement = $pearDB->prepare(
             "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
         );
         $statement->bindValue(':nagios_id', (int) $nagios_id["MAX(nagios_id)"], \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
     }
     $dbResult->closeCursor();
 }
@@ -255,50 +220,11 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
                         $stmt->execute();
                     }
                 }
-<<<<<<< HEAD
-                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $nagiosId["MAX(nagios_id)"]);
-=======
->>>>>>> centreon/dev-21.10.x
             }
         }
     }
 }
 
-<<<<<<< HEAD
-/**
- * @param CentreonDB $pearDB
- * @param int $originalNagiosId
- * @param int $duplicatedNagiosId
- */
-function duplicateLoggerV2Cfg(CentreonDB $pearDB, int $originalNagiosId, int $duplicatedNagiosId): void
-{
-    $statement = $pearDB->prepare("SELECT * FROM cfg_nagios_logger WHERE cfg_nagios_id=:nagiosId");
-    $statement->bindValue('nagiosId', $originalNagiosId, \PDO::PARAM_INT);
-    $statement->execute();
-    $loggerCfg = $statement->fetch(\PDO::FETCH_ASSOC);
-
-    if (! empty($loggerCfg)) {
-        unset($loggerCfg['id']);
-        $loggerCfg['cfg_nagios_id'] = $duplicatedNagiosId;
-        $columnNames = array_keys($loggerCfg);
-
-        $statement = $pearDB->prepare(
-            'INSERT INTO cfg_nagios_logger ( `' . implode('`, `', $columnNames) . '`) VALUES
-            ( :' . implode(', :', $columnNames) . ' )'
-        );
-        foreach ($loggerCfg as $columnName => $value) {
-            if ($columnName === 'cfg_nagios_id') {
-                $statement->bindValue(":{$columnName}", $value, \PDO::PARAM_INT);
-            } else {
-                $statement->bindValue(":{$columnName}", $value, \PDO::PARAM_STR);
-            }
-        }
-        $statement->execute();
-    }
-}
-
-=======
->>>>>>> centreon/dev-21.10.x
 function updateNagiosInDB($nagios_id = null)
 {
     if (!$nagios_id) {
@@ -341,308 +267,6 @@ function calculateBitwise($list)
     return $bitwise;
 }
 
-<<<<<<< HEAD
-/**
- * @param array $levels
- * @return int
- */
-function calculateDebugLevel(array $levels): int
-{
-    $level = 0;
-    foreach ($levels as $key => $value) {
-        $level += (int) $key;
-    }
-    return $level;
-}
-
-/**
- * @param array $levels
- * @return string
- */
-function implodeDebugLevel(array $levels): string
-{
-    return implode(",", array_keys($levels));
-}
-
-/**
- * @param array $macros
- * @return string
- */
-function concatMacrosWhitelist(array $macros): string
-{
-    return trim(
-        implode(
-            ',',
-            array_map(function ($macro) {
-                return CentreonDB::escape($macro);
-            }, $macros)
-        )
-    );
-}
-
-/**
- * @return array<string,mixed>
- */
-function getNagiosCfgColumnsDetails(): array
-{
-    return [
-        'additional_freshness_latency' => ['default' => null],
-        'admin_email' => ['default' => null],
-        'admin_pager' => ['default' => null],
-        'auto_rescheduling_interval' => ['default' => null],
-        'auto_rescheduling_window' => ['default' => null],
-        'cached_host_check_horizon' => ['default' => null],
-        'cached_service_check_horizon' => ['default' => null],
-        'cfg_dir' => ['default' => null],
-        'cfg_file' => ['default' => null],
-        'command_check_interval' => ['default' => null],
-        'command_file' => ['default' => null],
-        'comment_file' => ['default' => null],
-        'check_result_reaper_frequency' => ['default' => null],
-        'date_format' => ['default' => null],
-        'debug_level' => ['callback' => 'calculateDebugLevel', 'default' => '0'],
-        'debug_log_opt' => ['callback' => 'implodeDebugLevel', 'default' => '0'],
-        'debug_file' => ['default' => null],
-        'debug_verbosity' => ['default' => '2'],
-        'downtime_file' => ['default' => null],
-        'event_broker_options' => ['callback' => 'calculateBitwise', 'default' => '-1'],
-        'event_handler_timeout' => ['default' => null],
-        'external_command_buffer_slots' => ['default' => null],
-        'global_host_event_handler' => ['default' => null],
-        'global_service_event_handler' => ['default' => null],
-        'high_host_flap_threshold' => ['default' => null],
-        'high_service_flap_threshold' => ['default' => null],
-        'host_check_timeout' => ['default' => null],
-        'host_freshness_check_interval' => ['default' => null],
-        'host_inter_check_delay_method' => ['default' => null],
-        'host_perfdata_command' => ['default' => null],
-        'host_perfdata_file' => ['default' => null],
-        'host_perfdata_file_processing_command' => ['default' => null],
-        'host_perfdata_file_processing_interval' => ['default' => null],
-        'host_perfdata_file_template' => ['default' => null],
-        'lock_file' => ['default' => null],
-        'log_file' => ['default' => null],
-        'low_host_flap_threshold' => ['default' => null],
-        'low_service_flap_threshold' => ['default' => null],
-        'macros_filter' => ['callback' => 'concatMacrosWhitelist', 'default' => null],
-        'max_debug_file_size' => ['default' => null],
-        'max_concurrent_checks' => ['default' => null],
-        'max_check_result_reaper_time' => ['default' => null],
-        'max_host_check_spread' => ['default' => null],
-        'max_service_check_spread' => ['default' => null],
-        'nagios_comment' => ['default' => null],
-        'nagios_group' => ['default' => null],
-        'nagios_name' => ['default' => null],
-        'nagios_server_id' => ['default' => null],
-        'nagios_user' => ['default' => null],
-        'notification_timeout' => ['default' => null],
-        'ochp_command' => ['default' => null],
-        'ochp_timeout' => ['default' => null],
-        'ocsp_command' => ['default' => null],
-        'ocsp_timeout' => ['default' => null],
-        'perfdata_timeout' => ['default' => null],
-        'use_timezone' => ['default' => null],
-        'retained_contact_host_attribute_mask' => ['default' => null],
-        'retained_contact_service_attribute_mask' => ['default' => null],
-        'retained_host_attribute_mask' => ['default' => null],
-        'retained_process_host_attribute_mask' => ['default' => null],
-        'retained_process_service_attribute_mask' => ['default' => null],
-        'retained_service_attribute_mask' => ['default' => null],
-        'retention_update_interval' => ['default' => null],
-        'service_check_timeout' => ['default' => null],
-        'service_freshness_check_interval' => ['default' => null],
-        'service_inter_check_delay_method' => ['default' => null],
-        'service_interleave_factor' => ['default' => '2'],
-        'service_perfdata_command' => ['default' => null],
-        'service_perfdata_file' => ['default' => null],
-        'service_perfdata_file_processing_command' => ['default' => null],
-        'service_perfdata_file_processing_interval' => ['default' => null],
-        'service_perfdata_file_template' => ['default' => null],
-        'status_file' => ['default' => null],
-        'status_update_interval' => ['default' => null],
-        'state_retention_file' => ['default' => null],
-        'sleep_time' => ['default' => null],
-        'temp_file' => ['default' => null],
-        'illegal_macro_output_chars' => ['default' => null],
-        'illegal_object_name_chars' => ['default' => null],
-        'instance_heartbeat_interval' => ['default' => '30'],
-        // Radio inputs
-        'accept_passive_host_checks' => ['isRadio' => true, 'default' => '2'],
-        'accept_passive_service_checks' => ['isRadio' => true, 'default' => '2'],
-        'auto_reschedule_checks' => ['isRadio' => true, 'default' => '2'],
-        'check_external_commands' => ['isRadio' => true, 'default' => '2'],
-        'check_for_orphaned_hosts' => ['isRadio' => true, 'default' => '2'],
-        'check_for_orphaned_services' => ['isRadio' => true, 'default' => '2'],
-        'check_host_freshness' => ['isRadio' => true, 'default' => '2'],
-        'check_service_freshness' => ['isRadio' => true, 'default' => '2'],
-        'enable_environment_macros' => ['isRadio' => true, 'default' => '2'],
-        'enable_event_handlers' => ['isRadio' => true, 'default' => '2'],
-        'enable_flap_detection' => ['isRadio' => true, 'default' => '2'],
-        'enable_macros_filter' => ['isRadio' => true, 'default' => '0'],
-        'enable_notifications' => ['isRadio' => true, 'default' => '2'],
-        'enable_predictive_host_dependency_checks' => ['isRadio' => true, 'default' => '2'],
-        'enable_predictive_service_dependency_checks' => ['isRadio' => true, 'default' => '2'],
-        'execute_host_checks' => ['isRadio' => true, 'default' => '2'],
-        'execute_service_checks' => ['isRadio' => true, 'default' => '2'],
-        'host_perfdata_file_mode' => ['isRadio' => true, 'default' => '2'],
-        'log_event_handlers' => ['isRadio' => true, 'default' => '2'],
-        'log_external_commands' => ['isRadio' => true, 'default' => '2'],
-        'log_host_retries' => ['isRadio' => true, 'default' => '2'],
-        'log_notifications' => ['isRadio' => true, 'default' => '2'],
-        'log_passive_checks' => ['isRadio' => true, 'default' => '2'],
-        'log_pid' => ['isRadio' => true, 'default' => '0'],
-        'log_service_retries' => ['isRadio' => true, 'default' => '2'],
-        'nagios_activate' => ['isRadio' => true, 'default' => '0'],
-        'obsess_over_hosts' => ['isRadio' => true, 'default' => '2'],
-        'obsess_over_services' => ['isRadio' => true, 'default' => '2'],
-        'passive_host_checks_are_soft' => ['isRadio' => true, 'default' => '2'],
-        'process_performance_data' => ['isRadio' => true, 'default' => '2'],
-        'retain_state_information' => ['isRadio' => true, 'default' => '2'],
-        'service_perfdata_file_mode' => ['isRadio' => true, 'default' => '2'],
-        'soft_state_dependencies' => ['isRadio' => true, 'default' => '2'],
-        'translate_passive_host_checks' => ['isRadio' => true, 'default' => '2'],
-        'use_large_installation_tweaks' => ['isRadio' => true, 'default' => '2'],
-        'use_setpgid' => ['isRadio' => true, 'default' => '2'],
-        'use_regexp_matching' => ['isRadio' => true, 'default' => '2'],
-        'use_retained_program_state' => ['isRadio' => true, 'default' => '2'],
-        'use_retained_scheduling_info' => ['isRadio' => true, 'default' => '2'],
-        'use_syslog' => ['isRadio' => true, 'default' => '2'],
-        'use_true_regexp_matching' => ['isRadio' => true, 'default' => '2'],
-        'logger_version' => ['isRadio' => true, 'default' => 'log_v2_enabled'],
-    ];
-}
-
-/**
- * @return string[]
- */
-function getLoggerV2Columns(): array
-{
-    return [
-        'log_v2_logger',
-        'log_level_functions',
-        'log_level_config',
-        'log_level_events',
-        'log_level_checks',
-        'log_level_notifications',
-        'log_level_eventbroker',
-        'log_level_external_command',
-        'log_level_commands',
-        'log_level_downtimes',
-        'log_level_comments',
-        'log_level_macros',
-        'log_level_process',
-        'log_level_runtime',
-    ];
-}
-
-/**
- * @param CentreonDB $pearDB
- * @param array $data
- * @param int $nagiosId
- */
-function insertLoggerV2Cfg(CentreonDB $pearDB, array $data, int $nagiosId): void
-{
-    $loggerCfg = getLoggerV2Columns();
-
-    $statement = $pearDB->prepare(
-        'INSERT INTO cfg_nagios_logger (`cfg_nagios_id`, `' . implode('`, `', $loggerCfg) . '`)
-        VALUES (:cfg_nagios_id, :' . implode(', :', $loggerCfg) . ')'
-    );
-
-    $statement->bindValue(':cfg_nagios_id', $nagiosId, \PDO::PARAM_INT);
-    foreach ($loggerCfg as $columnName) {
-        $statement->bindValue(':' . $columnName, $data[$columnName] ?? null, \PDO::PARAM_STR);
-    }
-    $statement->execute();
-}
-
-/**
- * @param CentreonDB $pearDB
- * @param array<string,mixed> $data
- * @param int $nagiosId
- */
-function updateLoggerV2Cfg(CentreonDB $pearDB, array $data, int $nagiosId): void
-{
-    $loggerCfg = getLoggerV2Columns();
-
-    $queryPieces = array_map(fn($columnName) => "`{$columnName}` = :{$columnName}", $loggerCfg);
-    $statement = $pearDB->prepare(
-        'UPDATE cfg_nagios_logger SET ' . implode(', ', $queryPieces) . ' WHERE cfg_nagios_id = :cfg_nagios_id'
-    );
-
-    $statement->bindValue(':cfg_nagios_id', $nagiosId, \PDO::PARAM_INT);
-    foreach ($loggerCfg as $columnName) {
-        $statement->bindValue(':' . $columnName, $data[$columnName] ?? null, \PDO::PARAM_STR);
-    }
-    $statement->execute();
-}
-
-/**
- * Insert logger V2 config if doesn't exist, otherwise update it
- *
- * @param CentreonDB $pearDB
- * @param array<string,mixed> $data
- * @param int $nagiosId
- */
-function insertOrUpdateLogger(CentreonDB $pearDB, array $data, int $nagiosId): void
-{
-    $statement = $pearDB->prepare('SELECT id FROM cfg_nagios_logger WHERE cfg_nagios_id = :cfg_nagios_id');
-    $statement->bindValue(':cfg_nagios_id', $nagiosId, \PDO::PARAM_INT);
-    $statement->execute();
-
-    if ($statement->fetch()) {
-        updateLoggerV2Cfg($pearDB, $data, $nagiosId);
-    } else {
-        insertLoggerV2Cfg($pearDB, $data, $nagiosId);
-    }
-}
-
-function insertNagios($data = array(), $brokerTab = array())
-{
-    global $form, $pearDB, $centreon;
-
-    if (! count($data)) {
-        $data = $form->getSubmitValues();
-    }
-
-    $nagiosColumns = getNagiosCfgColumnsDetails();
-
-    $nagiosCfg = [];
-    foreach ($data as $columnName => $rawValue) {
-        if (! array_key_exists($columnName, $nagiosColumns)) {
-            continue;
-        }
-
-        if (! empty($nagiosColumns[$columnName]['callback'])) {
-            $value = isset($rawValue)
-                ? ($nagiosColumns[$columnName]['callback'])($rawValue)
-                : $nagiosColumns[$columnName]['default'] ;
-        } elseif (! empty($nagiosColumns[$columnName]['isRadio'])) {
-            $value = isset($rawValue[$columnName])
-                ? htmlentities($rawValue[$columnName], ENT_QUOTES, "UTF-8")
-                : $nagiosColumns[$columnName]['default'];
-        } else {
-            $value = isset($rawValue) && $rawValue !== ''
-                ? htmlentities($rawValue, ENT_QUOTES, "UTF-8")
-                : $nagiosColumns[$columnName]['default'];
-        }
-        $nagiosCfg[$columnName] = $value;
-    }
-
-    $statement = $pearDB->prepare(
-        'INSERT INTO cfg_nagios (`' . implode('`, `', array_keys($nagiosCfg)) . '`)
-        VALUES (:' . implode(', :', array_keys($nagiosCfg)) . ')'
-    );
-
-    array_walk(
-        $nagiosCfg,
-        fn($value, $param, $statement) => $statement->bindValue(':' . $param, $value, \PDO::PARAM_STR),
-        $statement
-    );
-
-    $statement->execute();
-
-=======
 function insertNagios($ret = array(), $brokerTab = array())
 {
     global $form, $pearDB, $centreon;
@@ -1591,40 +1215,16 @@ function insertNagios($ret = array(), $brokerTab = array())
     }
 
     $dbResult = $pearDB->query($rq);
->>>>>>> centreon/dev-21.10.x
     $dbResult = $pearDB->query("SELECT MAX(nagios_id) FROM cfg_nagios");
     $nagios_id = $dbResult->fetch();
     $dbResult->closeCursor();
 
-<<<<<<< HEAD
-    if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertLoggerV2Cfg($pearDB, $data, $nagios_id["MAX(nagios_id)"]);
-    }
-
-=======
->>>>>>> centreon/dev-21.10.x
     if (isset($_REQUEST['in_broker'])) {
         $mainCfg = new CentreonConfigEngine($pearDB);
         $mainCfg->insertBrokerDirectives($nagios_id["MAX(nagios_id)"], $_REQUEST['in_broker']);
     }
 
     /* Manage the case where you have to main.cfg on the same poller */
-<<<<<<< HEAD
-    if (isset($data["nagios_activate"]["nagios_activate"]) && $data["nagios_activate"]["nagios_activate"]) {
-        $dbResult = $pearDB->query(
-            "UPDATE cfg_nagios SET nagios_activate = '0' WHERE nagios_id != '"
-            . $nagios_id["MAX(nagios_id)"]
-            . "' AND nagios_server_id = '" . $data['nagios_server_id'] . "'"
-        );
-    }
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog(
-        "engine",
-        $nagios_id["MAX(nagios_id)"],
-        $pearDB->escape($data["nagios_name"]),
-=======
     if (isset($ret["nagios_activate"]["nagios_activate"]) && $ret["nagios_activate"]["nagios_activate"]) {
         $statement = $pearDB->prepare(
             "UPDATE cfg_nagios SET nagios_activate = '0' 
@@ -1642,7 +1242,6 @@ function insertNagios($ret = array(), $brokerTab = array())
         "engine",
         $nagios_id["MAX(nagios_id)"],
         $pearDB->escape($ret["nagios_name"]),
->>>>>>> centreon/dev-21.10.x
         "a",
         $fields
     );
@@ -1650,77 +1249,6 @@ function insertNagios($ret = array(), $brokerTab = array())
     return ($nagios_id["MAX(nagios_id)"]);
 }
 
-<<<<<<< HEAD
-function updateNagios($nagiosId = null)
-{
-    global $form, $pearDB, $centreon;
-
-    if (!$nagiosId) {
-        return;
-    }
-
-    $data = [];
-    $data = $form->getSubmitValues();
-    $nagiosColumns = getNagiosCfgColumnsDetails();
-
-    $nagiosCfg = [];
-    foreach ($data as $columnName => $rawValue) {
-        if (! array_key_exists($columnName, $nagiosColumns)) {
-            continue;
-        }
-
-        if (! empty($nagiosColumns[$columnName]['callback'])) {
-            $value = isset($rawValue)
-                ? ($nagiosColumns[$columnName]['callback'])($rawValue)
-                : $nagiosColumns[$columnName]['default'] ;
-        } elseif (! empty($nagiosColumns[$columnName]['isRadio'])) {
-            $value = isset($rawValue[$columnName])
-                ? htmlentities($rawValue[$columnName], ENT_QUOTES, "UTF-8")
-                : $nagiosColumns[$columnName]['default'];
-        } else {
-            $value = isset($rawValue) && $rawValue !== ''
-                ? htmlentities($rawValue, ENT_QUOTES, "UTF-8")
-                : $nagiosColumns[$columnName]['default'];
-        }
-        $nagiosCfg[$columnName] = $value;
-    }
-
-    $queryPieces = array_map(fn($columnName) => "`{$columnName}` = :{$columnName}", array_keys($nagiosCfg));
-
-    $statement = $pearDB->prepare(
-        'UPDATE cfg_nagios SET ' . implode(', ', $queryPieces) . " WHERE nagios_id = {$nagiosId}"
-    );
-
-    array_walk(
-        $nagiosCfg,
-        fn($value, $param, $statement) => $statement->bindValue(':' . $param, $value, \PDO::PARAM_STR),
-        $statement
-    );
-
-    $statement->execute();
-
-    if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertOrUpdateLogger($pearDB, $data, $nagiosId);
-    }
-
-    $mainCfg = new CentreonConfigEngine($pearDB);
-    if (isset($_REQUEST['in_broker'])) {
-        $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
-    } else {
-        $mainCfg->insertBrokerDirectives($nagiosId);
-    }
-
-    if ($data["nagios_activate"]["nagios_activate"]) {
-        enableNagiosInDB($nagiosId);
-    }
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog(
-        "engine",
-        $nagiosId,
-        $pearDB->escape($data["nagios_name"]),
-=======
 function updateNagios($nagios_id = null)
 {
     global $form, $pearDB, $centreon;
@@ -2729,7 +2257,6 @@ function updateNagios($nagios_id = null)
         "engine",
         $nagios_id,
         $pearDB->escape($ret["nagios_name"]),
->>>>>>> centreon/dev-21.10.x
         "c",
         $fields
     );

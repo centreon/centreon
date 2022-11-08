@@ -24,11 +24,8 @@ namespace Security\Domain\Authentication\Interfaces;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
-<<<<<<< HEAD
-=======
 use Security\Domain\Authentication\Model\ProviderToken;
 use Security\Domain\Authentication\Model\ProviderConfiguration;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Security\Authentication\Interfaces
@@ -36,15 +33,12 @@ use Security\Domain\Authentication\Model\ProviderConfiguration;
 interface ProviderInterface
 {
     /**
-<<<<<<< HEAD
-=======
      * @param array<string, mixed> $data
      * @throw \Exception
      */
     public function authenticate(array $data): void;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Get legacy Centreon session
      *
      * @return \Centreon
@@ -80,8 +74,6 @@ interface ProviderInterface
     public function getName(): string;
 
     /**
-<<<<<<< HEAD
-=======
      * Return the provider token
      *
      * @param string $token
@@ -100,19 +92,11 @@ interface ProviderInterface
     /**
      * Retrieve the contact.
      *
->>>>>>> centreon/dev-21.10.x
      * @return ContactInterface|null
      */
     public function getUser(): ?ContactInterface;
 
     /**
-<<<<<<< HEAD
-     * Set the provider's configuration to initialize it (ex: client_id, client_secret, grant_type, ...).
-     *
-     * @param ProviderConfigurationInterface $configuration
-     */
-    public function setConfiguration(ProviderConfigurationInterface $configuration): void;
-=======
      * Get the provider's configuration (ex: client_id, client_secret, grant_type, ...).
      *
      * @return ProviderConfiguration
@@ -132,7 +116,6 @@ interface ProviderInterface
      * @return bool
      */
     public function isAuthenticated(): bool;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Refresh the provider token.

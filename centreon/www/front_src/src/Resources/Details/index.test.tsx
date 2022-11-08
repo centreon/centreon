@@ -1,32 +1,14 @@
-<<<<<<< HEAD
-import { equals, reject, path } from 'ramda';
-import axios from 'axios';
-import mockDate from 'mockdate';
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-
-=======
 import * as React from 'react';
 
 import { equals, reject, path, isNil } from 'ramda';
 import axios from 'axios';
 import mockDate from 'mockdate';
->>>>>>> centreon/dev-21.10.x
 import {
   render,
   waitFor,
   fireEvent,
   RenderResult,
   act,
-<<<<<<< HEAD
-  setUrlQueryParameters,
-  getUrlQueryParameters,
-  copyToClipboard,
-  screen,
-} from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
-=======
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -36,7 +18,6 @@ import {
   getUrlQueryParameters,
   copyToClipboard,
 } from '@centreon/ui';
->>>>>>> centreon/dev-21.10.x
 
 import {
   labelMore,
@@ -94,28 +75,12 @@ import {
   labelLastYear,
   labelBeforeLastYear,
   labelLastCheckWithOkStatus,
-<<<<<<< HEAD
-  labelGraph,
-  labelNotificationStatus,
-} from '../translatedLabels';
-import Context, { ResourceContext } from '../testUtils/Context';
-=======
 } from '../translatedLabels';
 import Context, { ResourceContext } from '../Context';
->>>>>>> centreon/dev-21.10.x
 import useListing from '../Listing/useListing';
 import { resourcesEndpoint } from '../api/endpoint';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
 import { cancelTokenRequestParam } from '../testUtils';
-<<<<<<< HEAD
-import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
-import useFilter from '../testUtils/useFilter';
-import { CriteriaNames } from '../Filter/Criterias/models';
-import { ResourceType } from '../models';
-import useLoadDetails from '../testUtils/useLoadDetails';
-
-import { CustomTimePeriodProperty } from './tabs/Graph/models';
-=======
 import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/useGraphOptions';
 import useFilter from '../Filter/useFilter';
 import { CriteriaNames } from '../Filter/Criterias/models';
@@ -128,7 +93,6 @@ import {
 } from './tabs/Graph/models';
 import { graphTabId, timelineTabId, servicesTabId, metricsTabId } from './tabs';
 import { TabId } from './tabs/models';
->>>>>>> centreon/dev-21.10.x
 import { buildListTimelineEventsEndpoint } from './tabs/Timeline/api';
 import useDetails from './useDetails';
 import { getTypeIds } from './tabs/Timeline/Event';
@@ -139,14 +103,9 @@ import Details from '.';
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 jest.mock('../icons/Downtime');
-<<<<<<< HEAD
-jest.mock('centreon-frontend/packages/centreon-ui/src/utils/copy', () =>
-  jest.fn(),
-=======
 jest.mock(
   '@centreon/centreon-frontend/packages/centreon-ui/src/utils/copy',
   () => jest.fn(),
->>>>>>> centreon/dev-21.10.x
 );
 
 jest.mock('@visx/visx', () => {
@@ -160,14 +119,10 @@ jest.mock('@visx/visx', () => {
 
 const resourceServiceUuid = 'h1-s1';
 const resourceServiceId = 1;
-<<<<<<< HEAD
-const resourceServiceType = ResourceType.service;
-=======
 const resourceServiceType = 'service';
 const metaServiceResourceType = 'metaservice';
 
 const resourceHostUuid = 'h1';
->>>>>>> centreon/dev-21.10.x
 const resourceHostId = 1;
 const resourceHostType = 'host';
 const groups = [
@@ -187,80 +142,12 @@ const serviceDetailsUrlParameters = {
   uuid: 'h1-s1',
 };
 
-<<<<<<< HEAD
-const serviceDetailsGraphUrlParameters = {
-  id: 1,
-  parentId: 1,
-  parentType: 'host',
-  tab: 'graph',
-  type: 'service',
-  uuid: 'h1-s1',
-};
-
-const serviceDetailsTimelineUrlParameters = {
-  id: 1,
-  parentId: 1,
-  parentType: 'host',
-  tab: 'timeline',
-  type: 'service',
-  uuid: 'h1-s1',
-};
-
-const hostDetailsServicesUrlParameters = {
-  id: 1,
-  tab: 'services',
-  type: 'host',
-  uuid: 'h1',
-};
-
-const metaserviceDetailsMetricsUrlParameters = {
-  id: 1,
-  tab: 'metrics',
-  type: 'metaservice',
-  uuid: 'ms1',
-};
-
-const serviceDetailsNotificationUrlParameters = {
-  id: 1,
-  parentId: 1,
-  parentType: 'host',
-  tab: 'notification',
-  type: 'service',
-  uuid: 'h1-s1',
-};
-
-const retrievedNotificationContacts = {
-  contact_groups: [
-    {
-      alias: 'admin admin',
-      configuration_uri: '/centreon/main.php?p=60301&o=c&cg_id=1',
-      name: 'admin',
-    },
-  ],
-  contacts: [
-    {
-      alias: 'Guest Guest',
-      configuration_uri: '/centreon/main.php?p=60301&o=c&contact_id=1',
-      email: 'localhost@centreon.com',
-      name: 'Guest',
-    },
-  ],
-  is_notification_enabled: true,
-};
-
-=======
->>>>>>> centreon/dev-21.10.x
 const retrievedDetails = {
   acknowledged: false,
   acknowledgement: {
     author_name: 'Admin',
     comment: 'Acknowledged by Admin',
     entry_time: '2020-03-18T18:57:59Z',
-<<<<<<< HEAD
-    is_persistent: true,
-    is_sticky: true,
-=======
->>>>>>> centreon/dev-21.10.x
   },
   active_checks: false,
   alias: 'Central-Centreon',
@@ -268,19 +155,6 @@ const retrievedDetails = {
   command_line: 'base_host_alive',
   downtimes: [
     {
-<<<<<<< HEAD
-      author_name: 'admin',
-      comment: 'First downtime set by Admin',
-      end_time: '2020-01-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-      start_time: '2020-01-18T17:57:59Z',
-    },
-    {
-      author_name: 'admin',
-      comment: 'Second downtime set by Admin',
-      end_time: '2020-02-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-=======
       comment: 'First downtime set by Admin',
       end_time: '2020-01-18T18:57:59Z',
       start_time: '2020-01-18T17:57:59Z',
@@ -288,7 +162,6 @@ const retrievedDetails = {
     {
       comment: 'Second downtime set by Admin',
       end_time: '2020-02-18T18:57:59Z',
->>>>>>> centreon/dev-21.10.x
       start_time: '2020-02-18T17:57:59Z',
     },
   ],
@@ -308,20 +181,9 @@ const retrievedDetails = {
   latency: 0.005,
   links: {
     endpoints: {
-<<<<<<< HEAD
-      notification_policy: 'notification_policy',
       performance_graph: 'performance_graph',
       timeline: 'timeline',
     },
-    externals: {
-      action_url: undefined,
-      notes: undefined,
-    },
-=======
-      performance_graph: 'performance_graph',
-      timeline: 'timeline',
-    },
->>>>>>> centreon/dev-21.10.x
     uris: {
       configuration: undefined,
       logs: undefined,
@@ -335,17 +197,6 @@ const retrievedDetails = {
   parent: {
     id: resourceHostId,
     links: {
-<<<<<<< HEAD
-      endpoints: {
-        performance_graph: 'performance_graph',
-        timeline: 'timeline',
-      },
-      externals: {
-        action_url: undefined,
-        notes: undefined,
-      },
-=======
->>>>>>> centreon/dev-21.10.x
       uris: {
         configuration: undefined,
         logs: undefined,
@@ -353,15 +204,8 @@ const retrievedDetails = {
       },
     },
     name: 'Centreon',
-<<<<<<< HEAD
-    short_type: 'h',
-    status: { name: 'S1', severity_code: 1 },
-    type: resourceHostType,
-    uuid: 'h1',
-=======
     status: { severity_code: 1 },
     type: resourceHostType,
->>>>>>> centreon/dev-21.10.x
   },
   passive_checks: false,
   percent_state_change: 3.5,
@@ -597,18 +441,6 @@ const retrievedFilters = {
   },
 };
 
-<<<<<<< HEAD
-let context: ResourceContext;
-
-const currentDateIsoString = '2020-01-21T06:00:00.000Z';
-
-const DetailsTest = (): JSX.Element => {
-  const listingState = useListing();
-  const detailState = useLoadDetails();
-  const filterState = useFilter();
-
-  useDetails();
-=======
 const currentDateIsoString = '2020-01-21T06:00:00.000Z';
 
 let context: ResourceContext;
@@ -649,7 +481,6 @@ const DetailsTest = ({ openTabId }: Props): JSX.Element => {
   if (openTabId) {
     detailState.openDetailsTabId = openTabId;
   }
->>>>>>> centreon/dev-21.10.x
 
   context = {
     ...listingState,
@@ -658,35 +489,6 @@ const DetailsTest = ({ openTabId }: Props): JSX.Element => {
   } as ResourceContext;
 
   return (
-<<<<<<< HEAD
-    <BrowserRouter>
-      <Context.Provider value={context}>
-        <Details />
-      </Context.Provider>
-    </BrowserRouter>
-  );
-};
-
-const mockUser = {
-  isExportButtonEnabled: true,
-  locale: 'en',
-  timezone: 'Europe/Paris',
-};
-const mockRefreshInterval = 60;
-
-const DetailsWithJotai = (): JSX.Element => (
-  <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval],
-    ]}
-  >
-    <DetailsTest />
-  </Provider>
-);
-
-const renderDetails = (): RenderResult => render(<DetailsWithJotai />);
-=======
     <ThemeProvider>
       <Context.Provider value={context}>
         <Details />
@@ -702,7 +504,6 @@ interface RenderDetailsProps {
 const renderDetails = (
   { openTabId }: RenderDetailsProps = { openTabId: undefined },
 ): RenderResult => render(<DetailsTest openTabId={openTabId} />);
->>>>>>> centreon/dev-21.10.x
 
 const mockedLocalStorageGetItem = jest.fn();
 const mockedLocalStorageSetItem = jest.fn();
@@ -721,35 +522,17 @@ describe(Details, () => {
     mockedAxios.get.mockReset();
     mockedLocalStorageSetItem.mockReset();
     mockedLocalStorageGetItem.mockReset();
-<<<<<<< HEAD
-=======
     act(() => {
       context.clearSelectedResource();
     });
     act(() => {
       context.changeSelectedTimePeriod(lastDayPeriod.id);
     });
->>>>>>> centreon/dev-21.10.x
   });
 
   it('displays resource details information', async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters,
-      },
-    ]);
-
-    const { getByText, queryByText, getAllByText, findByText } =
-      renderDetails();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        './api/latest/monitoring/resources/hosts/1/services/1' as string,
-=======
     const { getByText, queryByText, getAllByText, findByText } =
       renderDetails();
 
@@ -760,21 +543,12 @@ describe(Details, () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         context.getSelectedResourceDetailsEndpoint() as string,
->>>>>>> centreon/dev-21.10.x
         expect.anything(),
       );
     });
 
-<<<<<<< HEAD
-    await waitFor(() => {
-      expect(getByText('10')).toBeInTheDocument();
-    });
-
-    expect(getByText('Critical')).toBeInTheDocument();
-=======
     expect(getByText('10')).toBeInTheDocument();
     expect(getByText('CRITICAL')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('Centreon')).toBeInTheDocument();
 
     const fqdnText = await findByText(labelFqdn);
@@ -860,39 +634,16 @@ describe(Details, () => {
   });
 
   it.each([
-<<<<<<< HEAD
-    [label1Day, '2020-01-20T06:00:00.000Z', 20],
-    [label7Days, '2020-01-14T06:00:00.000Z', 100],
-    [label31Days, '2019-12-21T06:00:00.000Z', 500],
-  ])(
-    `queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`,
-    async (period, startIsoString, timelineEventsLimit) => {
-=======
     [label1Day, '2020-01-20T06:00:00.000Z', 20, undefined],
     [label7Days, '2020-01-14T06:00:00.000Z', 100, last7Days.id],
     [label31Days, '2019-12-21T06:00:00.000Z', 500, last31Days.id],
   ])(
     `queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`,
     async (period, startIsoString, timelineEventsLimit, periodId) => {
->>>>>>> centreon/dev-21.10.x
       mockedAxios.get
         .mockResolvedValueOnce({ data: retrievedDetails })
         .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
 
-<<<<<<< HEAD
-      mockedAxios.get
-        .mockResolvedValueOnce({ data: retrievedTimeline })
-        .mockResolvedValueOnce({ data: retrievedTimeline });
-
-      setUrlQueryParameters([
-        {
-          name: 'details',
-          value: serviceDetailsGraphUrlParameters,
-        },
-      ]);
-
-      const { getByText, getByLabelText, findByText } = renderDetails();
-=======
       if (!isNil(periodId)) {
         mockedAxios.get.mockResolvedValueOnce({
           data: retrievedPerformanceGraphData,
@@ -911,7 +662,6 @@ describe(Details, () => {
       act(() => {
         setSelectedServiceResource();
       });
->>>>>>> centreon/dev-21.10.x
 
       await waitFor(() => {
         expect(getByText(period) as HTMLElement).toBeEnabled();
@@ -951,13 +701,10 @@ describe(Details, () => {
           }),
           expect.anything(),
         );
-<<<<<<< HEAD
-=======
 
         if (!isNil(periodId)) {
           expect(context.selectedTimePeriod?.id).toEqual(periodId);
         }
->>>>>>> centreon/dev-21.10.x
       });
     },
   );
@@ -970,25 +717,12 @@ describe(Details, () => {
         data: retrievedTimeline,
       });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters,
-      },
-    ]);
-
-=======
->>>>>>> centreon/dev-21.10.x
     const {
       findAllByLabelText,
       queryByLabelText,
       getByLabelText,
       getByText,
       findByText,
-<<<<<<< HEAD
-    } = renderDetails();
-=======
     } = renderDetails({
       openTabId: graphTabId,
     });
@@ -996,7 +730,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2);
@@ -1026,22 +759,6 @@ describe(Details, () => {
   it('copies the command line to clipboard when the copy button is clicked', async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters,
-      },
-    ]);
-
-    const { getByLabelText } = renderDetails();
-
-    await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
-
-    await waitFor(() => expect(getByLabelText(labelCopy)).toBeInTheDocument());
-
-    fireEvent.click(getByLabelText(labelCopy));
-=======
     const { getByTitle } = renderDetails();
 
     act(() => {
@@ -1051,7 +768,6 @@ describe(Details, () => {
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
     fireEvent.click(getByTitle(labelCopy));
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() =>
       expect(copyToClipboard).toHaveBeenCalledWith(
@@ -1065,13 +781,6 @@ describe(Details, () => {
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedTimeline });
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedTimeline });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      { name: 'details', value: serviceDetailsTimelineUrlParameters },
-    ]);
-
-    const { getByText, getAllByLabelText, baseElement } = renderDetails();
-=======
     const { getByText, getAllByLabelText, baseElement } = renderDetails({
       openTabId: timelineTabId,
     });
@@ -1079,7 +788,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -1111,11 +819,7 @@ describe(Details, () => {
       ),
     );
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText(labelToday)).toBeInTheDocument());
-=======
     expect(getByText(labelToday)).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
 
     expect(getByText('Tuesday, January 21, 2020 9:40 AM')).toBeInTheDocument();
     expect(getAllByLabelText('Event')).toHaveLength(3); // 2 events + 1 selected option
@@ -1241,32 +945,16 @@ describe(Details, () => {
       },
     });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      { name: 'details', value: serviceDetailsUrlParameters },
-    ]);
-
-    const { getByLabelText, getAllByLabelText } = renderDetails();
-
-=======
     const { getByLabelText, getAllByLabelText } = renderDetails();
 
     act(() => {
       setSelectedServiceResource();
     });
 
->>>>>>> centreon/dev-21.10.x
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
-<<<<<<< HEAD
-    await waitFor(() =>
-      expect(getByLabelText(labelShortcuts)).toBeInTheDocument(),
-    );
-
-=======
->>>>>>> centreon/dev-21.10.x
     userEvent.click(getByLabelText(labelShortcuts).firstChild as HTMLElement);
 
     expect(getAllByLabelText(labelViewLogs)[0]).toHaveAttribute(
@@ -1284,13 +972,8 @@ describe(Details, () => {
       .mockResolvedValueOnce({
         data: retrievedDetails,
       })
-<<<<<<< HEAD
-      .mockResolvedValue({
-        data: retrievedPerformanceGraphData,
-=======
       .mockResolvedValueOnce({
         data: retrievedDetails,
->>>>>>> centreon/dev-21.10.x
       });
 
     const retrievedServiceDetails = {
@@ -1298,17 +981,6 @@ describe(Details, () => {
       parentId: 3,
       parentType: 'host',
       tab: 'details',
-<<<<<<< HEAD
-      tabParameters: {
-        graph: {
-          options: defaultGraphOptions,
-        },
-        services: {
-          options: defaultGraphOptions,
-        },
-      },
-=======
->>>>>>> centreon/dev-21.10.x
       type: 'service',
       uuid: 'h3-s2',
     };
@@ -1329,11 +1001,6 @@ describe(Details, () => {
       );
     });
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText(labelDetails)).toBeInTheDocument());
-
-=======
->>>>>>> centreon/dev-21.10.x
     fireEvent.click(getByText(labelDetails));
 
     const tabFromUrlQueryParameters = path(
@@ -1345,11 +1012,6 @@ describe(Details, () => {
       expect(tabFromUrlQueryParameters).toEqual('details');
     });
 
-<<<<<<< HEAD
-    userEvent.click(getByText(labelGraph));
-
-    userEvent.click(getByText(label7Days));
-=======
     act(() => {
       setSelectedHostResource();
       context.setGraphTabParameters({
@@ -1366,7 +1028,6 @@ describe(Details, () => {
     act(() => {
       context.changeSelectedTimePeriod(last7Days.id);
     });
->>>>>>> centreon/dev-21.10.x
 
     const updatedDetailsFromQueryParameters = getUrlQueryParameters()
       .details as DetailsUrlQueryParameters;
@@ -1377,17 +1038,9 @@ describe(Details, () => {
           end: '2020-01-21T06:00:00.000Z',
           start: '2020-01-14T06:00:00.000Z',
         },
-<<<<<<< HEAD
-        id: 2,
-        parentId: 3,
-        parentType: 'host',
-        selectedTimePeriodId: 'last_7_days',
-        tab: 'graph',
-=======
         id: 1,
         selectedTimePeriodId: 'last_7_days',
         tab: 'details',
->>>>>>> centreon/dev-21.10.x
         tabParameters: {
           graph: {
             options: {
@@ -1408,11 +1061,6 @@ describe(Details, () => {
             },
           },
         },
-<<<<<<< HEAD
-        type: 'service',
-        uuid: 'h3-s2',
-      });
-=======
         type: 'host',
         uuid: 'h1',
       });
@@ -1421,7 +1069,6 @@ describe(Details, () => {
         `${resourcesEndpoint}/${updatedDetailsFromQueryParameters.type}s/${updatedDetailsFromQueryParameters.id}`,
         expect.anything(),
       );
->>>>>>> centreon/dev-21.10.x
     });
   });
 
@@ -1430,35 +1077,16 @@ describe(Details, () => {
       data: retrievedDetails,
     });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters,
-      },
-    ]);
-
-    const { getByLabelText } = renderDetails();
-
-=======
     const { getByLabelText } = renderDetails();
 
     act(() => {
       setSelectedServiceResource();
     });
 
->>>>>>> centreon/dev-21.10.x
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
-<<<<<<< HEAD
-    await waitFor(() =>
-      expect(getByLabelText(labelCopyLink)).toBeInTheDocument(),
-    );
-
-=======
->>>>>>> centreon/dev-21.10.x
     act(() => {
       fireEvent.click(
         getByLabelText(labelCopyLink).firstElementChild as HTMLElement,
@@ -1485,18 +1113,6 @@ describe(Details, () => {
         data: { ...retrievedDetails, type: 'service' },
       });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: hostDetailsServicesUrlParameters,
-      },
-    ]);
-    const { getByText, queryByText } = renderDetails();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledTimes(3);
-=======
     const { getByText, queryByText } = renderDetails({
       openTabId: servicesTabId,
     });
@@ -1507,7 +1123,6 @@ describe(Details, () => {
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2);
->>>>>>> centreon/dev-21.10.x
     });
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -1535,21 +1150,13 @@ describe(Details, () => {
       expect.anything(),
     );
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText('Ok')).toBeInTheDocument());
-=======
     expect(getByText('OK')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('Ping')).toBeInTheDocument();
     expect(getByText('OK - 127.0.0.1 rta 0ms lost 0%'));
     expect(getByText('22m')).toBeInTheDocument();
 
     expect(getByText('Disk')).toBeInTheDocument();
-<<<<<<< HEAD
-    expect(getByText('Unknown')).toBeInTheDocument();
-=======
     expect(getByText('UNKNOWN')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('No output'));
     expect(getByText('21m')).toBeInTheDocument();
 
@@ -1558,17 +1165,6 @@ describe(Details, () => {
     const [pingService] = retrievedServices.result;
 
     await waitFor(() => {
-<<<<<<< HEAD
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `./api/latest/monitoring/resources/services/${pingService.id}`,
-        expect.anything(),
-      );
-    });
-
-    await waitFor(() => {
-      expect(queryByText(labelServices)).toBeNull();
-    });
-=======
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
@@ -1583,7 +1179,6 @@ describe(Details, () => {
         options: defaultGraphOptions,
       });
     });
->>>>>>> centreon/dev-21.10.x
   });
 
   it('displays the linked service graphs when the Graph tab of a host is clicked', async () => {
@@ -1604,16 +1199,6 @@ describe(Details, () => {
         data: retrievedPerformanceGraphData,
       });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters,
-      },
-    ]);
-
-    const { findByText, getByText } = renderDetails();
-=======
     const { findByText, getByText } = renderDetails({
       openTabId: graphTabId,
     });
@@ -1621,7 +1206,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2);
@@ -1629,11 +1213,7 @@ describe(Details, () => {
 
     await findByText(retrievedPerformanceGraphData.global.title);
 
-<<<<<<< HEAD
-    userEvent.click(getByText(label7Days) as HTMLElement);
-=======
     userEvent.click(getByText(label7Days).parentElement as HTMLElement);
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -1646,35 +1226,20 @@ describe(Details, () => {
   it('queries performance graphs with a custom timeperiod when the Graph tab is selected and a custom time period is selected', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({ data: retrievedDetails })
-<<<<<<< HEAD
-      .mockResolvedValue({ data: retrievedPerformanceGraphData });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters,
-      },
-    ]);
-    renderDetails();
-=======
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
 
     renderDetails({
       openTabId: graphTabId,
     });
->>>>>>> centreon/dev-21.10.x
 
     const startISOString = '2020-01-19T06:00:00.000Z';
     const endISOString = '2020-01-21T06:00:00.000Z';
 
-<<<<<<< HEAD
-=======
     act(() => {
       setSelectedServiceResource();
     });
 
->>>>>>> centreon/dev-21.10.x
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
@@ -1683,21 +1248,13 @@ describe(Details, () => {
     });
 
     act(() => {
-<<<<<<< HEAD
-      context.changeCustomTimePeriod?.({
-=======
       context.changeCustomTimePeriod({
->>>>>>> centreon/dev-21.10.x
         date: new Date(startISOString),
         property: CustomTimePeriodProperty.start,
       });
     });
     act(() => {
-<<<<<<< HEAD
-      context.changeCustomTimePeriod?.({
-=======
       context.changeCustomTimePeriod({
->>>>>>> centreon/dev-21.10.x
         date: new Date(endISOString),
         property: CustomTimePeriodProperty.end,
       });
@@ -1717,38 +1274,12 @@ describe(Details, () => {
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters,
-      },
-    ]);
-
-    const { getByText } = renderDetails();
-
-    const startISOString = '2020-01-20T06:00:00.000Z';
-    const endISOString = '2020-01-21T06:00:00.000Z';
-
-    act(() => {
-      context.changeCustomTimePeriod?.({
-        date: new Date(startISOString),
-        property: CustomTimePeriodProperty.start,
-      });
-    });
-    act(() => {
-      context.changeCustomTimePeriod?.({
-        date: new Date(endISOString),
-        property: CustomTimePeriodProperty.end,
-      });
-=======
     const { getByText } = renderDetails({
       openTabId: graphTabId,
     });
 
     act(() => {
       setSelectedServiceResource();
->>>>>>> centreon/dev-21.10.x
     });
 
     await waitFor(() => {
@@ -1761,11 +1292,7 @@ describe(Details, () => {
     expect(getByText('01/20/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
 
-<<<<<<< HEAD
-    userEvent.click(getByText(label7Days) as HTMLElement);
-=======
     userEvent.click(getByText(label7Days).parentElement as HTMLElement);
->>>>>>> centreon/dev-21.10.x
 
     expect(getByText('01/14/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
@@ -1784,24 +1311,6 @@ describe(Details, () => {
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: {
-          ...serviceDetailsGraphUrlParameters,
-          customTimePeriod: {
-            end: '2021-11-02T21:00:00.000Z',
-            start: '2021-11-02T21:00:00.000Z',
-            timelineLimit: 20,
-            xAxisTickFormat: 'LT',
-          },
-        },
-      },
-    ]);
-
-    const { getByLabelText, getByText } = renderDetails();
-=======
     const { getByLabelText, getByText } = renderDetails({
       openTabId: graphTabId,
     });
@@ -1818,7 +1327,6 @@ describe(Details, () => {
         property: CustomTimePeriodProperty.end,
       });
     });
->>>>>>> centreon/dev-21.10.x
 
     userEvent.click(getByLabelText(labelCompactTimePeriod));
 
@@ -1838,36 +1346,12 @@ describe(Details, () => {
         .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
         .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
 
-<<<<<<< HEAD
-      setUrlQueryParameters([
-        {
-          name: 'details',
-          value: serviceDetailsGraphUrlParameters,
-        },
-      ]);
-
-      const { getByLabelText } = renderDetails();
-
-      act(() => {
-        context.changeCustomTimePeriod?.({
-          date: new Date('2020-01-20T06:00:00.000Z'),
-          property: CustomTimePeriodProperty.start,
-        });
-      });
-
-      act(() => {
-        context.changeCustomTimePeriod?.({
-          date: new Date('2020-01-21T06:00:00.000Z'),
-          property: CustomTimePeriodProperty.end,
-        });
-=======
       const { getByLabelText } = renderDetails({
         openTabId: graphTabId,
       });
 
       act(() => {
         setSelectedServiceResource();
->>>>>>> centreon/dev-21.10.x
       });
 
       await waitFor(() => {
@@ -1877,13 +1361,6 @@ describe(Details, () => {
         );
       });
 
-<<<<<<< HEAD
-      await waitFor(() =>
-        expect(getByLabelText(iconLabel)).toBeInTheDocument(),
-      );
-
-=======
->>>>>>> centreon/dev-21.10.x
       userEvent.click(getByLabelText(iconLabel));
 
       await waitFor(() => {
@@ -1895,11 +1372,7 @@ describe(Details, () => {
     },
   );
 
-<<<<<<< HEAD
-  it('displays retrieved metrics when the selected Resource is a meta service and the metrics tab is selected', async () => {
-=======
   it('display retrieved metrics when the selected Resource is a meta service and the metrics tab is selected', async () => {
->>>>>>> centreon/dev-21.10.x
     const service = retrievedServices.result[0];
 
     const retrievedMetrics = {
@@ -1930,16 +1403,6 @@ describe(Details, () => {
         data: retrievedMetrics,
       });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: metaserviceDetailsMetricsUrlParameters,
-      },
-    ]);
-
-    const { getByText } = renderDetails();
-=======
     const { getByText } = renderDetails({
       openTabId: metricsTabId,
     });
@@ -1947,17 +1410,12 @@ describe(Details, () => {
     act(() => {
       setSelectedMetaServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2);
     });
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText('pl')).toBeInTheDocument());
-=======
     expect(getByText('pl')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('3 (%)')).toBeInTheDocument();
     expect(getByText(service.name)).toBeInTheDocument();
   });
@@ -1968,16 +1426,6 @@ describe(Details, () => {
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
       .mockResolvedValueOnce({ data: retrievedTimeline });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters,
-      },
-    ]);
-
-    const { getByLabelText, getByText } = renderDetails();
-=======
     const { getByLabelText, getByText } = renderDetails({
       openTabId: graphTabId,
     });
@@ -1985,7 +1433,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -1994,11 +1441,7 @@ describe(Details, () => {
       );
     });
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByLabelText(labelMin)).toBeInTheDocument());
-=======
     expect(getByLabelText(labelMin)).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('N/A')).toBeInTheDocument();
     expect(getByLabelText(labelMax)).toBeInTheDocument();
     expect(getByText('2.46k')).toBeInTheDocument();
@@ -2006,11 +1449,7 @@ describe(Details, () => {
     expect(getByText('1.23k')).toBeInTheDocument();
   });
 
-<<<<<<< HEAD
-  it('filters on a group when the corresponding chip is clicked and the Details tab is selected', async () => {
-=======
   it('Filters on a group when the corresponding chip is clicked and the Details tab is selected', async () => {
->>>>>>> centreon/dev-21.10.x
     mockedAxios.get.mockResolvedValueOnce({
       data: retrievedDetails,
     });
@@ -2024,33 +1463,19 @@ describe(Details, () => {
 
     const { getByLabelText } = renderDetails();
 
-<<<<<<< HEAD
-=======
     act(() => {
       setSelectedServiceResource();
     });
 
->>>>>>> centreon/dev-21.10.x
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
-<<<<<<< HEAD
-    await waitFor(() =>
-      expect(getByLabelText('Linux-servers Chip')).toBeInTheDocument(),
-    );
-
-=======
->>>>>>> centreon/dev-21.10.x
     userEvent.hover(getByLabelText('Linux-servers Chip'));
     userEvent.click(getByLabelText('Linux-servers Filter'));
 
     await waitFor(() => {
-<<<<<<< HEAD
-      expect(context.getCriteriaValue?.(CriteriaNames.serviceGroups)).toEqual([
-=======
       expect(context.getCriteriaValue(CriteriaNames.serviceGroups)).toEqual([
->>>>>>> centreon/dev-21.10.x
         { id: 0, name: 'Linux-servers' },
       ]);
     });
@@ -2071,20 +1496,6 @@ describe(Details, () => {
       },
     });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters,
-      },
-    ]);
-
-    const { getByText, getByLabelText } = renderDetails();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        './api/latest/monitoring/resources/hosts/1/services/1',
-=======
     const { getByText, getByLabelText } = renderDetails();
 
     act(() => {
@@ -2094,18 +1505,10 @@ describe(Details, () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         context.getSelectedResourceDetailsEndpoint() as string,
->>>>>>> centreon/dev-21.10.x
         expect.anything(),
       );
     });
 
-<<<<<<< HEAD
-    await waitFor(() =>
-      expect(getByText(retrievedDetails.name)).toBeInTheDocument(),
-    );
-
-=======
->>>>>>> centreon/dev-21.10.x
     userEvent.hover(getByText(retrievedDetails.name));
 
     expect(
@@ -2122,46 +1525,24 @@ describe(Details, () => {
       data: retrievedDetails,
     });
 
-<<<<<<< HEAD
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters,
-      },
-    ]);
-
-    const { getByText, queryByText } = renderDetails();
-
-=======
     const { getByText, queryByText } = renderDetails();
 
     act(() => {
       setSelectedServiceResource();
     });
 
->>>>>>> centreon/dev-21.10.x
     mockedLocalStorageGetItem.mockReturnValue(
       JSON.stringify([labelMonitoringServer, labelStatusInformation]),
     );
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
-<<<<<<< HEAD
-        './api/latest/monitoring/resources/hosts/1/services/1',
-=======
         context.getSelectedResourceDetailsEndpoint() as string,
->>>>>>> centreon/dev-21.10.x
         expect.anything(),
       );
     });
 
-<<<<<<< HEAD
-    await waitFor(() =>
-      expect(getByText(labelMonitoringServer)).toBeInTheDocument(),
-    );
-=======
     expect(getByText(labelMonitoringServer)).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText(labelStatusInformation)).toBeInTheDocument();
 
     expect(queryByText(labelLastCheck)).toBeInTheDocument();
@@ -2175,18 +1556,6 @@ describe(Details, () => {
       .mockResolvedValueOnce({ data: retrievedTimeline })
       .mockResolvedValueOnce(retrievedFilters)
       .mockResolvedValueOnce({ data: retrievedDetails })
-<<<<<<< HEAD
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsTimelineUrlParameters,
-      },
-    ]);
-
-    const { getByText } = renderDetails();
-=======
       .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
       .mockResolvedValueOnce({ data: retrievedTimeline });
 
@@ -2197,7 +1566,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -2225,25 +1593,11 @@ describe(Details, () => {
             },
           },
         }),
-<<<<<<< HEAD
-        cancelTokenRequestParam,
-      ),
-    );
-
-    await waitFor(() =>
-      expect(
-        screen.getByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;'),
-      ).toBeInTheDocument(),
-    );
-
-    userEvent.click(getByText(label7Days) as HTMLElement);
-=======
         expect.anything(),
       ),
     );
 
     userEvent.click(getByText(label7Days).parentElement as HTMLElement);
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -2275,9 +1629,6 @@ describe(Details, () => {
       ),
     );
 
-<<<<<<< HEAD
-    userEvent.click(getByText(labelGraph));
-=======
     expect(context.selectedTimePeriod?.id).toEqual(last7Days.id);
 
     act(() => {
@@ -2291,7 +1642,6 @@ describe(Details, () => {
     act(() => {
       setSelectedServiceResource();
     });
->>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -2300,47 +1650,4 @@ describe(Details, () => {
       );
     });
   });
-<<<<<<< HEAD
-
-  it('displays contacts and contact groups when the notification tab is clicked', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
-    mockedAxios.get.mockResolvedValueOnce({
-      data: retrievedNotificationContacts,
-    });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsNotificationUrlParameters,
-      },
-    ]);
-
-    const { getByText, getByTestId } = renderDetails();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        retrievedDetails.links.endpoints.notification_policy,
-        expect.anything(),
-      );
-    });
-
-    await waitFor(() => {
-      expect(getByText(labelNotificationStatus)).toBeInTheDocument();
-    });
-
-    expect(getByTestId('NotificationsActiveIcon')).toBeInTheDocument();
-
-    retrievedNotificationContacts.contact_groups.forEach(({ name, alias }) => {
-      expect(getByText(name)).toBeInTheDocument();
-      expect(getByText(alias)).toBeInTheDocument();
-    });
-
-    retrievedNotificationContacts.contacts.forEach(({ name, alias, email }) => {
-      expect(getByText(name)).toBeInTheDocument();
-      expect(getByText(alias)).toBeInTheDocument();
-      expect(getByText(email)).toBeInTheDocument();
-    });
-  });
-=======
->>>>>>> centreon/dev-21.10.x
 });

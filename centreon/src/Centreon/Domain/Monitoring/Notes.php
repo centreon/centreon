@@ -29,10 +29,6 @@ namespace Centreon\Domain\Monitoring;
  */
 class Notes
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var string|null
      */

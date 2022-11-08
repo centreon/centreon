@@ -43,10 +43,6 @@ require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
 require_once realpath(__DIR__ . "/../../../../../bootstrap.php");
 require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
-<<<<<<< HEAD
-require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/common-Func.php";
-=======
->>>>>>> centreon/dev-21.10.x
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonContactgroup.class.php";
@@ -55,12 +51,6 @@ require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 
-<<<<<<< HEAD
-global $dependencyInjector;
-global $pearDB;
-
-=======
->>>>>>> centreon/dev-21.10.x
 $pearDB = $dependencyInjector["configuration_db"];
 
 $xml = new CentreonXML();
@@ -84,19 +74,10 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         $xml->writeElement("error", 'Contact not found');
         $xml->endElement();
 
-<<<<<<< HEAD
-        if (!headers_sent()) {
-            header('Content-Type: application/xml');
-            header('Cache-Control: no-cache');
-            header('Expires: 0');
-            header('Cache-Control: no-cache, must-revalidate');
-        }
-=======
         header('Content-Type: application/xml');
         header('Cache-Control: no-cache');
         header('Expires: 0');
         header('Cache-Control: no-cache, must-revalidate');
->>>>>>> centreon/dev-21.10.x
 
         $xml->output();
         exit();
@@ -152,39 +133,8 @@ $ret = array();
 $ret['host'] = $pollers;
 $ret['debug'] = $debug;
 
-<<<<<<< HEAD
-/**
- * The error handler for get error from PHP
- *
- * @see set_error_handler
- */
-$log_error = function ($errno, $errstr, $errfile, $errline) {
-    global $generatePhpErrors;
-    if (!(error_reporting() && $errno)) {
-        return;
-    }
-
-    switch ($errno) {
-        case E_ERROR:
-        case E_USER_ERROR:
-        case E_CORE_ERROR:
-            $generatePhpErrors[] = array('error', $errstr);
-            break;
-        case E_WARNING:
-        case E_USER_WARNING:
-        case E_CORE_WARNING:
-            $generatePhpErrors[] = array('warning', $errstr);
-            break;
-    }
-    return true;
-};
-
-// Set new error handler
-set_error_handler($log_error);
-=======
 // Set new error handler
 set_error_handler('log_error');
->>>>>>> centreon/dev-21.10.x
 
 $xml->startElement("response");
 try {
@@ -246,16 +196,6 @@ foreach ($generatePhpErrors as $error) {
 }
 $xml->endElement();
 
-<<<<<<< HEAD
-if (!headers_sent()) {
-    header('Content-Type: application/xml');
-    header('Cache-Control: no-cache');
-    header('Expires: 0');
-    header('Cache-Control: no-cache, must-revalidate');
-}
-
-$xml->output();
-=======
 header('Content-Type: application/xml');
 header('Cache-Control: no-cache');
 header('Expires: 0');
@@ -400,4 +340,3 @@ function printDebug($xml, $tabs)
     $xml->endElement();
     return $returnCode;
 }
->>>>>>> centreon/dev-21.10.x

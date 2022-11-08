@@ -1,15 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-<<<<<<< HEAD
-import { RefObject } from 'react';
-
-import { equals, last } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
-
-import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
-
-=======
 import * as React from 'react';
 
 import { equals, last } from 'ramda';
@@ -18,15 +7,10 @@ import { makeStyles, Typography } from '@material-ui/core';
 import ShowChartOutlinedIcon from '@material-ui/icons/ShowChartOutlined';
 
 import { ResourceContext } from '../../../Context';
->>>>>>> centreon/dev-21.10.x
 import Card from '../Details/Card';
 import SelectableResourceName from '../Details/SelectableResourceName';
 import { Resource } from '../../../models';
 import ShortTypeChip from '../../../ShortTypeChip';
-<<<<<<< HEAD
-import { selectResourceDerivedAtom } from '../../detailsAtoms';
-=======
->>>>>>> centreon/dev-21.10.x
 
 import { MetaServiceMetric } from './models';
 
@@ -57,18 +41,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-<<<<<<< HEAD
-interface Props {
-  infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
-  metrics: Array<MetaServiceMetric>;
-}
-
-const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
-  const classes = useStyles();
-
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
-
-=======
 type Props = {
   infiniteScrollTriggerRef: React.RefObject<HTMLDivElement>;
   metrics: Array<MetaServiceMetric>;
@@ -81,7 +53,6 @@ const Metrics = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
->>>>>>> centreon/dev-21.10.x
   return (
     <>
       {metrics.map((metric) => {

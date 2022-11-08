@@ -23,11 +23,8 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring;
 
 use Centreon\Domain\Entity\EntityValidator;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\ResourceGroup;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\Service\AbstractCentreonService;
@@ -38,14 +35,11 @@ use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
 use Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface;
 use Centreon\Domain\Security\Interfaces\AccessGroupRepositoryInterface;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * Service manage the resources in real-time monitoring : hosts and services.
@@ -54,11 +48,8 @@ use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfiguration
  */
 class ResourceService extends AbstractCentreonService implements ResourceServiceInterface
 {
-<<<<<<< HEAD
-=======
     use LoggerTrait;
 
->>>>>>> centreon/dev-21.10.x
     /**
      * @var ResourceRepositoryInterface
      */
@@ -75,11 +66,6 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     private $accessGroupRepository;
 
     /**
-<<<<<<< HEAD
-     * @param ResourceRepositoryInterface $resourceRepository
-     * @param MonitoringRepositoryInterface $monitoringRepository,
-     * @param AccessGroupRepositoryInterface $accessGroupRepository
-=======
      * @var MetaServiceConfigurationReadRepositoryInterface
      */
     private $metaServiceConfigurationRepository;
@@ -101,29 +87,21 @@ class ResourceService extends AbstractCentreonService implements ResourceService
      * @param MetaServiceConfigurationReadRepositoryInterface $metaServiceConfigurationRepository
      * @param HostMacroReadRepositoryInterface $hostMacroConfigurationRepository
      * @param ServiceConfigurationRepositoryInterface $serviceMacroConfigurationRepository
->>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         ResourceRepositoryInterface $resourceRepository,
         MonitoringRepositoryInterface $monitoringRepository,
-<<<<<<< HEAD
-        AccessGroupRepositoryInterface $accessGroupRepository
-=======
         AccessGroupRepositoryInterface $accessGroupRepository,
         MetaServiceConfigurationReadRepositoryInterface $metaServiceConfigurationRepository,
         HostMacroReadRepositoryInterface $hostMacroConfigurationRepository,
         ServiceConfigurationRepositoryInterface $serviceMacroConfigurationRepository
->>>>>>> centreon/dev-21.10.x
     ) {
         $this->resourceRepository = $resourceRepository;
         $this->monitoringRepository = $monitoringRepository;
         $this->accessGroupRepository = $accessGroupRepository;
-<<<<<<< HEAD
-=======
         $this->metaServiceConfigurationRepository = $metaServiceConfigurationRepository;
         $this->hostMacroConfigurationRepository = $hostMacroConfigurationRepository;
         $this->serviceMacroConfigurationRepository = $serviceMacroConfigurationRepository;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -161,24 +139,12 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     {
         // try to avoid exception from the regexp bad syntax in search criteria
         try {
-<<<<<<< HEAD
-            $list = $this->resourceRepository->findResources($filter);
-            // replace macros in external links
-            foreach ($list as $resource) {
-                $this->replaceMacrosInExternalLinks($resource);
-            }
-=======
             return $this->resourceRepository->findResources($filter);
->>>>>>> centreon/dev-21.10.x
         } catch (RepositoryException $ex) {
             throw new ResourceException($ex->getMessage(), 0, $ex);
         } catch (\Exception $ex) {
             throw new ResourceException($ex->getMessage(), 0, $ex);
         }
-<<<<<<< HEAD
-
-        return $list;
-=======
     }
 
     /**
@@ -296,7 +262,6 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         if (!is_null($metaConfiguration)) {
             $resource->setCalculationType($metaConfiguration->getCalculationType());
         }
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -309,14 +274,7 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         $hostId = null;
         if ($resource->getType() === ResourceEntity::TYPE_HOST) {
             $hostId = (int) $resource->getId();
-<<<<<<< HEAD
-        } elseif (
-            $resource->getParent() !== null
-            && $resource->getType() === ResourceEntity::TYPE_SERVICE
-        ) {
-=======
         } elseif ($resource->getType() === ResourceEntity::TYPE_SERVICE) {
->>>>>>> centreon/dev-21.10.x
             $hostId = (int) $resource->getParent()->getId();
         }
 
@@ -324,22 +282,6 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     }
 
     /**
-<<<<<<< HEAD
-     * Replaces macros in the URL for host resource type
-     *
-     * @param ResourceEntity $resource
-     * @param string $url
-     * @return string
-     */
-    private function replaceMacrosInUrlsForHostResource(ResourceEntity $resource, string $url): string
-    {
-        $url = str_replace('$HOSTADDRESS$', $resource->getFqdn() ?? '', $url);
-        $url = str_replace('$HOSTNAME$', $resource->getName(), $url);
-        $url = str_replace('$HOSTSTATE$', $resource->getStatus()->getName(), $url);
-        $url = str_replace('$HOSTSTATEID$', (string) $resource->getStatus()->getCode(), $url);
-        $url = str_replace('$HOSTALIAS$', $resource->getAlias() ?? '', $url);
-
-=======
      * Replace macros in the provided URL
      *
      * @param string $url
@@ -351,60 +293,10 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         foreach ($macros as $name => $value) {
             $url = str_replace($name, (string) $value, $url);
         }
->>>>>>> centreon/dev-21.10.x
         return $url;
     }
 
     /**
-<<<<<<< HEAD
-     * Replaces macros in the URL for service resource type
-     *
-     * @param ResourceEntity $resource
-     * @param string $url
-     * @return string
-     */
-    private function replaceMacrosInUrlsForServiceResource(ResourceEntity $resource, string $url): string
-    {
-        $url = str_replace('$HOSTADDRESS$', $resource->getParent()?->getFqdn() ?? '', $url);
-        $url = str_replace('$HOSTNAME$', $resource->getParent()?->getName() ?? '', $url);
-        $url = str_replace('$HOSTSTATE$', $resource->getParent()?->getStatus()->getName() ?? '', $url);
-        $url = str_replace('$HOSTSTATEID$', (string) $resource->getParent()?->getStatus()->getCode(), $url);
-        $url = str_replace('$HOSTALIAS$', $resource->getParent()?->getAlias() ?? '', $url);
-        $url = str_replace('$SERVICEDESC$', $resource->getName(), $url);
-        $url = str_replace('$SERVICESTATE$', $resource->getStatus()->getName(), $url);
-        $url = str_replace('$SERVICESTATEID$', (string) $resource->getStatus()->getCode(), $url);
-
-        return $url;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function replaceMacrosInExternalLinks(ResourceEntity $resource): void
-    {
-        $actionUrl = $resource->getLinks()->getExternals()->getActionUrl();
-        $notesObject = $resource->getLinks()->getExternals()->getNotes();
-        $notesUrl = ($notesObject !== null) ? $notesObject->getUrl() : null;
-        $resourceType = $resource->getType();
-
-        if (! empty($actionUrl)) {
-            if ($resourceType === ResourceEntity::TYPE_HOST) {
-                $actionUrl = $this->replaceMacrosInUrlsForHostResource($resource, $actionUrl);
-            } elseif ($resourceType === ResourceEntity::TYPE_SERVICE) {
-                $actionUrl = $this->replaceMacrosInUrlsForServiceResource($resource, $actionUrl);
-            }
-            $resource->getLinks()->getExternals()->setActionUrl($actionUrl);
-        }
-
-        if (! empty($notesUrl)) {
-            if ($resourceType === ResourceEntity::TYPE_HOST) {
-                $notesUrl = $this->replaceMacrosInUrlsForHostResource($resource, $notesUrl);
-            } elseif ($resourceType === ResourceEntity::TYPE_SERVICE) {
-                $notesUrl = $this->replaceMacrosInUrlsForServiceResource($resource, $notesUrl);
-            }
-            $resource->getLinks()->getExternals()->getNotes()?->setUrl($notesUrl);
-        }
-=======
      * Returns possible standard macros for Service
      *
      * @param Service $service
@@ -595,18 +487,13 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         }
 
         return $customMacros;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * Validates input for resource based on groups
      * @param EntityValidator $validator
      * @param ResourceEntity $resource
-<<<<<<< HEAD
-     * @param array<string> $contextGroups
-=======
      * @param array<string, mixed> $contextGroups
->>>>>>> centreon/dev-21.10.x
      * @return ConstraintViolationListInterface<mixed>
      */
     public static function validateResource(

@@ -41,14 +41,11 @@ class PlatformInformation
     private $platformName;
 
     /**
-<<<<<<< HEAD
-=======
      * @var string server address
      */
     private string $address = '127.0.0.1';
 
     /**
->>>>>>> centreon/dev-21.10.x
      * @var string|null central's address
      */
     private $centralServerAddress;
@@ -135,8 +132,6 @@ class PlatformInformation
     }
 
     /**
-<<<<<<< HEAD
-=======
      * @return string
      */
     public function getAddress(): string
@@ -156,7 +151,6 @@ class PlatformInformation
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * @return string|null
      */
     public function getCentralServerAddress(): ?string

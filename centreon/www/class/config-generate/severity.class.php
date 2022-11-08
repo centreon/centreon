@@ -45,42 +45,12 @@ class Severity extends AbstractObject
 
     private $host_severity_cache = array();
     private $host_linked_cache = array();
-<<<<<<< HEAD
-    private $host_severities = [];
-    private $service_severities = [];
-
-    protected $stmt_host = null;
-    protected $stmt_service = null;
-    protected $stmt_hc_name = null;
-    protected $generate_filename =  'severities.cfg';
-    protected $object_name = 'severity';
-    protected $attributesSelectHost = [
-        'hc_id' => 'id',
-        'hc_name' => 'name',
-        'level' => 'level',
-        'icon_id' => 'icon_id',
-    ];
-    protected $attributesSelectService = [
-        'sc_id' => 'id',
-        'sc_name' => 'name',
-        'level' => 'level',
-        'icon_id' => 'icon_id',
-    ];
-    protected $attributes_write = [
-        'id',
-        'name',
-        'level',
-        'icon_id',
-        'type',
-    ];
-=======
 
     protected $generate_filename = null;
     protected $object_name = null;
     protected $stmt_host = null;
     protected $stmt_service = null;
     protected $stmt_hc_name = null;
->>>>>>> centreon/dev-21.10.x
 
     public function __construct(\Pimple\Container $dependencyInjector)
     {
@@ -90,19 +60,11 @@ class Severity extends AbstractObject
 
     private function cacheHostSeverity()
     {
-<<<<<<< HEAD
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT hc_name, hc_id, level, icon_id
-            FROM hostcategories
-            WHERE level IS NOT NULL AND hc_activate = '1'"
-        );
-=======
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     hc_name, hc_id, level
                 FROM hostcategories
                 WHERE level IS NOT NULL AND hc_activate = '1'
         ");
->>>>>>> centreon/dev-21.10.x
 
         $stmt->execute();
         $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -124,14 +86,8 @@ class Severity extends AbstractObject
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if (isset($this->host_linked_cache[$value['host_host_id']])) {
-<<<<<<< HEAD
-                if (
-                    $this->host_severity_cache[$value['hc_id']]['level']
-                    < $this->host_severity_cache[$this->host_linked_cache[$value['host_host_id']]]
-=======
                 if ($this->host_severity_cache[$value['hc_id']]['level'] <
                     $this->host_severity_cache[$this->host_linked_cache[$value['host_host_id']]]
->>>>>>> centreon/dev-21.10.x
                 ) {
                     $this->host_linked_cache[$value['host_host_id']] = $value['hc_id'];
                 }
@@ -153,17 +109,6 @@ class Severity extends AbstractObject
 
         # We get unitary
         if (is_null($this->stmt_host)) {
-<<<<<<< HEAD
-            $this->stmt_host = $this->backend_instance->db->prepare(
-                "SELECT hc_id, hc_name, level
-                FROM hostcategories_relation, hostcategories
-                WHERE hostcategories_relation.host_host_id = :host_id
-                    AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id
-                    AND level IS NOT NULL AND hc_activate = '1'
-                ORDER BY level DESC
-                LIMIT 1"
-            );
-=======
             $this->stmt_host = $this->backend_instance->db->prepare("SELECT 
                     hc_id, hc_name, level
                 FROM hostcategories_relation, hostcategories
@@ -173,7 +118,6 @@ class Severity extends AbstractObject
                 ORDER BY level DESC
                 LIMIT 1
                 ");
->>>>>>> centreon/dev-21.10.x
         }
 
         $this->stmt_host->bindParam(':host_id', $host_id, PDO::PARAM_INT);
@@ -183,11 +127,7 @@ class Severity extends AbstractObject
             $this->host_linked_cache[$host_id] = null;
             return null;
         }
-<<<<<<< HEAD
-        $this->host_linked_cache[$host_id] = $severity['hc_id'];
-=======
         $this->host_linked_cache[$service_id] = $severity['hc_id'];
->>>>>>> centreon/dev-21.10.x
         $this->host_severity_cache[$severity['hc_id']] = &$severity;
         return $severity['hc_id'];
     }
@@ -201,28 +141,16 @@ class Severity extends AbstractObject
             return null;
         }
 
-<<<<<<< HEAD
-        $this->host_severities[$hc_id] = $this->host_severity_cache[$hc_id];
-=======
->>>>>>> centreon/dev-21.10.x
         return $this->host_severity_cache[$hc_id];
     }
 
     private function cacheServiceSeverity()
     {
-<<<<<<< HEAD
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT sc_name, sc_id, level, icon_id
-            FROM service_categories
-            WHERE level IS NOT NULL AND sc_activate = '1'"
-        );
-=======
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     sc_name, sc_id, level
                 FROM service_categories
                 WHERE level IS NOT NULL AND sc_activate = '1'
         ");
->>>>>>> centreon/dev-21.10.x
 
         $stmt->execute();
         $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -245,14 +173,8 @@ class Severity extends AbstractObject
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if (isset($this->service_linked_cache[$value['service_service_id']])) {
-<<<<<<< HEAD
-                if (
-                    $this->service_severity_cache[$value['sc_id']]['level']
-                    < $this->service_severity_cache[$this->service_linked_cache[$value['service_service_id']]]
-=======
                 if ($this->service_severity_cache[$value['sc_id']]['level'] <
                     $this->service_severity_cache[$this->service_linked_cache[$value['service_service_id']]]
->>>>>>> centreon/dev-21.10.x
                 ) {
                     $this->service_linked_cache[$value['service_service_id']] = $value['sc_id'];
                 }
@@ -287,17 +209,6 @@ class Severity extends AbstractObject
 
         # We get unitary
         if (is_null($this->stmt_service)) {
-<<<<<<< HEAD
-            $this->stmt_service = $this->backend_instance->db->prepare(
-                "SELECT service_categories.sc_id, sc_name, level
-                FROM service_categories_relation, service_categories
-                WHERE service_categories_relation.service_service_id = :service_id
-                    AND service_categories_relation.sc_id = service_categories.sc_id
-                    AND level IS NOT NULL AND sc_activate = '1'
-                ORDER BY level DESC
-                LIMIT 1"
-            );
-=======
             $this->stmt_service = $this->backend_instance->db->prepare("SELECT 
                     service_categories.sc_id, sc_name, level
                 FROM service_categories_relation, service_categories
@@ -307,7 +218,6 @@ class Severity extends AbstractObject
                 ORDER BY level DESC
                 LIMIT 1
                 ");
->>>>>>> centreon/dev-21.10.x
         }
 
         $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
@@ -333,10 +243,6 @@ class Severity extends AbstractObject
             return null;
         }
 
-<<<<<<< HEAD
-        $this->service_severities[$sc_id] = $this->service_severity_cache[$sc_id];
-=======
->>>>>>> centreon/dev-21.10.x
         return $this->service_severity_cache[$sc_id];
     }
 
@@ -351,19 +257,11 @@ class Severity extends AbstractObject
 
         # We get unitary
         if (is_null($this->stmt_hc_name)) {
-<<<<<<< HEAD
-            $this->stmt_hc_name = $this->backend_instance->db->prepare(
-                "SELECT sc_name, sc_id, level
-                FROM service_categories
-                WHERE sc_name = :sc_name AND level IS NOT NULL AND sc_activate = '1'"
-            );
-=======
             $this->stmt_hc_name = $this->backend_instance->db->prepare("SELECT 
                     sc_name, sc_id, level
                 FROM service_categories
                 WHERE sc_name = :sc_name AND level IS NOT NULL AND sc_activate = '1'
                 ");
->>>>>>> centreon/dev-21.10.x
         }
 
         $this->stmt_hc_name->bindParam(':sc_name', $hc_name, PDO::PARAM_STR);
@@ -378,61 +276,4 @@ class Severity extends AbstractObject
         $this->service_severity_cache[$hc_name] = &$severity;
         return $severity['sc_id'];
     }
-<<<<<<< HEAD
-
-    /**
-     * Export cached objects in corresponding export file
-     */
-    public function generateObjects(): void
-    {
-        $this->generateServiceSeverityObjects();
-
-        $this->generateHostSeverityObjects();
-    }
-
-    /**
-     * Export service severities in corresponding export file
-     */
-    private function generateServiceSeverityObjects(): void
-    {
-        foreach ($this->service_severities as $id => $value) {
-            if (is_null($value)) {
-                continue;
-            }
-            $severity = ['type' => 'service'];
-            foreach ($this->attributesSelectService as $selectAttr => $writeAttr) {
-                $severity[$writeAttr] = $value[$selectAttr];
-            }
-            $this->generateObjectInFile($severity, $id);
-        }
-    }
-
-    /**
-     * Export host severities in corresponding export file
-     */
-    private function generateHostSeverityObjects(): void
-    {
-        foreach ($this->host_severities as $id => $value) {
-            if (is_null($value)) {
-                continue;
-            }
-            $severity = ['type' => 'host'];
-            foreach ($this->attributesSelectHost as $selectAttr => $writeAttr) {
-                $severity[$writeAttr] = $value[$selectAttr];
-            }
-            $this->generateObjectInFile($severity, $id);
-        }
-    }
-
-    /**
-     * Reset instance
-     */
-    public function reset(): void
-    {
-        $this->host_severities = [];
-        $this->service_severities = [];
-        parent::reset();
-    }
-=======
->>>>>>> centreon/dev-21.10.x
 }

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { map, nth, pipe, path, all, not, isNil, prop } from 'ramda';
 import { Shape, Curve } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -17,10 +14,6 @@ import StackedAnchorPoint, {
 import { getFillColor } from '.';
 
 interface Props {
-<<<<<<< HEAD
-  displayTimeValues: boolean;
-=======
->>>>>>> centreon/dev-21.10.x
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   timeTick: Date | null;
@@ -34,10 +27,6 @@ const StackLines = ({
   yScale,
   xScale,
   timeTick,
-<<<<<<< HEAD
-  displayTimeValues,
-=======
->>>>>>> centreon/dev-21.10.x
 }: Props): JSX.Element => (
   <Shape.AreaStack
     curve={Curve.curveLinear}
@@ -61,16 +50,9 @@ const StackLines = ({
         ) as Line;
 
         return (
-<<<<<<< HEAD
-          <g key={`stack-${prop('key', stack)}`}>
-            <StackedAnchorPoint
-              areaColor={areaColor}
-              displayTimeValues={displayTimeValues}
-=======
           <React.Fragment key={`stack-${prop('key', stack)}`}>
             <StackedAnchorPoint
               areaColor={areaColor}
->>>>>>> centreon/dev-21.10.x
               lineColor={lineColor}
               stackValues={stack as unknown as Array<StackValue>}
               timeTick={timeTick}
@@ -85,11 +67,7 @@ const StackLines = ({
               stroke={lineColor}
               strokeWidth={highlight ? 2 : 1}
             />
-<<<<<<< HEAD
-          </g>
-=======
           </React.Fragment>
->>>>>>> centreon/dev-21.10.x
         );
       });
     }}

@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import { Typography, TypographyVariant } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { makeStyles, Typography, TypographyVariant } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles(() => ({
   name: {

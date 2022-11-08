@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
-
-import { Grid } from '@mui/material';
-import IconRefresh from '@mui/icons-material/Refresh';
-import IconPlay from '@mui/icons-material/PlayArrow';
-import IconPause from '@mui/icons-material/Pause';
-
-import { IconButton } from '@centreon/ui';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
@@ -20,21 +8,13 @@ import IconPlay from '@material-ui/icons/PlayArrow';
 import IconPause from '@material-ui/icons/Pause';
 
 import { IconButton, useMemoComponent } from '@centreon/ui';
->>>>>>> centreon/dev-21.10.x
 
 import {
   labelRefresh,
   labelDisableAutorefresh,
   labelEnableAutorefresh,
 } from '../../translatedLabels';
-<<<<<<< HEAD
-import {
-  enabledAutorefreshAtom,
-  sendingAtom,
-} from '../../Listing/listingAtoms';
-=======
 import { ResourceContext, useResourceContext } from '../../Context';
->>>>>>> centreon/dev-21.10.x
 
 interface AutorefreshProps {
   enabledAutorefresh: boolean;
@@ -63,19 +43,6 @@ const AutorefreshButton = ({
   );
 };
 
-<<<<<<< HEAD
-export interface Props {
-  onRefresh: () => void;
-}
-
-const RefreshActions = ({ onRefresh }: Props): JSX.Element => {
-  const { t } = useTranslation();
-
-  const [enabledAutorefresh, setEnabledAutorefresh] = useAtom(
-    enabledAutorefreshAtom,
-  );
-  const sending = useAtomValue(sendingAtom);
-=======
 export interface ActionsProps {
   onRefresh: () => void;
 }
@@ -95,7 +62,6 @@ const RefreshActionsContent = ({
   sending,
 }: ActionsProps & ResourceContextProps): JSX.Element => {
   const { t } = useTranslation();
->>>>>>> centreon/dev-21.10.x
 
   const toggleAutorefresh = (): void => {
     setEnabledAutorefresh(!enabledAutorefresh);
@@ -125,8 +91,6 @@ const RefreshActionsContent = ({
   );
 };
 
-<<<<<<< HEAD
-=======
 const RefreshActions = ({ onRefresh }: ActionsProps): JSX.Element => {
   const {
     enabledAutorefresh,
@@ -148,5 +112,4 @@ const RefreshActions = ({ onRefresh }: ActionsProps): JSX.Element => {
   });
 };
 
->>>>>>> centreon/dev-21.10.x
 export default RefreshActions;

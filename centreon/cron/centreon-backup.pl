@@ -342,11 +342,7 @@ sub databasesBackup() {
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
     my $today = sprintf("%d-%02d-%02d", (1900 + $year), ($mon + 1), $mday);
 
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $year), ($mon + 1), $mday, $hour, $min, $sec) . "] Start database backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $year), ($mon + 1), $mday, $hour, $min, $sec) . "] Start database backup processus\n";
->>>>>>> centreon/dev-21.10.x
 
     # Create path
     mkpath($TEMP_DB_DIR, { mode => 0755, error => \my $err_list });
@@ -467,21 +463,13 @@ sub databasesBackup() {
     }
 
     my ($tsec, $tmin, $thour, $tmday, $tmon, $tyear, $twday, $tyday, $tisdst) = localtime(time);
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $tyear), ($tmon + 1), $tmday, $thour, $tmin, $tsec) . "] Finish database backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $tyear), ($tmon + 1), $tmday, $thour, $tmin, $tsec) . "] Finish database backup processus\n";
->>>>>>> centreon/dev-21.10.x
 }
 
 sub centralBackup() {
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
     my $today = sprintf("%d-%02d-%02d", (1900 + $year), ($mon + 1), $mday);
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $year), ($mon + 1), $mday, $hour, $min, $sec) . "] Start central backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $year), ($mon + 1), $mday, $hour, $min, $sec) . "] Start central backup processus\n";
->>>>>>> centreon/dev-21.10.x
 
     ###################################
     # Get configuration program files #
@@ -730,30 +718,18 @@ sub centralBackup() {
     }
 
     my ($tsec, $tmin, $thour, $tmday, $tmon, $tyear, $twday, $tyday, $tisdst) = localtime(time);
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $tyear), ($tmon + 1), $tmday, $thour, $tmin, $tsec) . "] Finish central backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900 + $tyear), ($tmon + 1), $tmday, $thour, $tmin, $tsec) . "] Finish central backup processus\n";
->>>>>>> centreon/dev-21.10.x
 }
 
 sub monitoringengineBackup() {
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
     my $today = sprintf("%d-%02d-%02d",(1900+$year),($mon+1),$mday);
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900+$year), ($mon+1), $mday, $hour, $min, $sec) . "] Start monitoring engine backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900+$year), ($mon+1), $mday, $hour, $min, $sec) . "] Start monitoring engine backup processus\n";
->>>>>>> centreon/dev-21.10.x
 
     # create path
     mkpath($TEMP_CENTRAL_DIR, {mode => 0755, error => \my $err_list});
 
-<<<<<<< HEAD
-    my $sth2 = $dbh->prepare("SELECT n.nagios_name, n.cfg_dir, n.log_file, ns.* FROM nagios_server ns, cfg_nagios n WHERE ns.id = n.nagios_server_id AND n.nagios_activate = '1' AND ns.localhost = '1';");
-=======
     my $sth2 = $dbh->prepare("SELECT n.nagios_name, n.cfg_dir, n.log_file, n.log_archive_path, ns.* FROM nagios_server ns, cfg_nagios n WHERE ns.id = n.nagios_server_id AND n.nagios_activate = '1' AND ns.localhost = '1';");
->>>>>>> centreon/dev-21.10.x
     if (!$sth2->execute()) {
         print STDERR "Error: " . $dbh->errstr . "\n";
         return 1;
@@ -766,11 +742,6 @@ sub monitoringengineBackup() {
         return 1;
     } else {
         $nagios_server = $sth2->fetchrow_hashref;
-<<<<<<< HEAD
-        $nagios_server->{log_archive_path} = $nagios_server->{log_file};
-        $nagios_server->{log_archive_path} =~ s#(.*)/.*#$1/archives/#;;
-=======
->>>>>>> centreon/dev-21.10.x
         $poller_name = $nagios_server->{nagios_name};
         $sth2->finish();
     }
@@ -935,11 +906,7 @@ sub monitoringengineBackup() {
     $dbh->disconnect;
 
     my ($tsec,$tmin,$thour,$tmday,$tmon,$tyear,$twday,$tyday,$tisdst) = localtime(time);
-<<<<<<< HEAD
-    print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900+$tyear), ($tmon+1), $tmday, $thour, $tmin, $tsec) . "] Finish monitoring engine backup process\n";
-=======
     print "[" . sprintf("%4d-%02d-%02d %02d:%02d:%02d", (1900+$tyear), ($tmon+1), $tmday, $thour, $tmin, $tsec) . "] Finish monitoring engine backup processus\n";
->>>>>>> centreon/dev-21.10.x
 }
 
 ################

@@ -359,11 +359,7 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === ADD_COMPONENT_TEMPLATE) {
             var e_input = document.Form.ds_name;
             var e_select = document.getElementById('sl_list_metrics');
             var sd_o = e_select.selectedIndex;
-<<<<<<< HEAD
-            if (sd_o != 0) {
-=======
             if (sd_o != -1) {
->>>>>>> centreon/dev-21.10.x
                 var chaineAj = '';
                 chaineAj = e_select.options[sd_o].text;
                 chaineAj = chaineAj.replace(/\s(\[[CV]DEF\]|)\s*$/, "");
@@ -435,10 +431,6 @@ if ($valid) {
 }
 $vdef = 0; /* don't list VDEF in metrics list */
 
-<<<<<<< HEAD
-include_once('./include/views/graphs/common/makeJS_formMetricsList.php');
-=======
->>>>>>> centreon/dev-21.10.x
 if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
     $host_service_id = filter_var(
         $_POST['host_service_id'] ?? ($compo["host_id"] . '-' . $compo['service_id']),
@@ -453,12 +445,6 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
 ?>
 
 <script type="text/javascript">
-<<<<<<< HEAD
-    update_select_list('<?php echo $host_service_id;?>');
-
-    jQuery("#host_id").on('change', function () {
-        update_select_list(this.value);
-=======
     jQuery(function () {
         jQuery('#sl_list_metrics').centreonSelect2({
             select2: {
@@ -474,6 +460,5 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
                 id: '#host_id',
             }
         });
->>>>>>> centreon/dev-21.10.x
     });
 </script>

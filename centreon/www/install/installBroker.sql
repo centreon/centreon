@@ -204,11 +204,7 @@ CREATE TABLE `hosts` (
   `instance_id` int(11) NOT NULL,
   `acknowledged` tinyint(1) DEFAULT NULL,
   `acknowledgement_type` smallint(6) DEFAULT NULL,
-<<<<<<< HEAD
-  `action_url` varchar(255) DEFAULT NULL,
-=======
   `action_url` varchar(2048) DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `active_checks` tinyint(1) DEFAULT NULL,
   `address` varchar(75) DEFAULT NULL,
   `alias` varchar(100) DEFAULT NULL,
@@ -259,17 +255,10 @@ CREATE TABLE `hosts` (
   `next_check` int(11) DEFAULT NULL,
   `next_host_notification` int(11) DEFAULT NULL,
   `no_more_notifications` tinyint(1) DEFAULT NULL,
-<<<<<<< HEAD
-  `notes` varchar(255) DEFAULT NULL,
-  `notes_url` varchar(255) DEFAULT NULL,
-  `notification_interval` double DEFAULT NULL,
-  `notification_number` smallint(6) DEFAULT NULL,
-=======
   `notes` varchar(512) DEFAULT NULL,
   `notes_url` varchar(2048) DEFAULT NULL,
   `notification_interval` double DEFAULT NULL,
   `notification_number` bigint(20) unsigned DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `notification_period` varchar(75) DEFAULT NULL,
   `notify` tinyint(1) DEFAULT NULL,
   `notify_on_down` tinyint(1) DEFAULT NULL,
@@ -547,11 +536,7 @@ CREATE TABLE `services` (
   `service_id` int(11) NOT NULL,
   `acknowledged` tinyint(1) DEFAULT NULL,
   `acknowledgement_type` smallint(6) DEFAULT NULL,
-<<<<<<< HEAD
-  `action_url` varchar(255) DEFAULT NULL,
-=======
   `action_url` varchar(2048) DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `active_checks` tinyint(1) DEFAULT NULL,
   `check_attempt` smallint(6) DEFAULT NULL,
   `check_command` text,
@@ -603,17 +588,10 @@ CREATE TABLE `services` (
   `next_check` int(11) DEFAULT NULL,
   `next_notification` int(11) DEFAULT NULL,
   `no_more_notifications` tinyint(1) DEFAULT NULL,
-<<<<<<< HEAD
-  `notes` varchar(255) DEFAULT NULL,
-  `notes_url` varchar(255) DEFAULT NULL,
-  `notification_interval` double DEFAULT NULL,
-  `notification_number` smallint(6) DEFAULT NULL,
-=======
   `notes` varchar(512) DEFAULT NULL,
   `notes_url` varchar(2048) DEFAULT NULL,
   `notification_interval` double DEFAULT NULL,
   `notification_number` bigint(20) unsigned DEFAULT NULL,
->>>>>>> centreon/dev-21.10.x
   `notification_period` varchar(75) DEFAULT NULL,
   `notify` tinyint(1) DEFAULT NULL,
   `notify_on_critical` tinyint(1) DEFAULT NULL,

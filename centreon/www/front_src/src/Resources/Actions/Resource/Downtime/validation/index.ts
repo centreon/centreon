@@ -1,28 +1,9 @@
 import dayjs from 'dayjs';
-<<<<<<< HEAD
-import { isNil } from 'ramda';
-=======
 import { FormikErrors } from 'formik';
->>>>>>> centreon/dev-21.10.x
 import * as Yup from 'yup';
 
 import {
   labelEndDateGreaterThanStartDate,
-<<<<<<< HEAD
-  labelInvalidFormat,
-  labelMaxDuration1Year,
-  labelRequired,
-} from '../../../../translatedLabels';
-
-const getValidationSchema = (t: (string) => string): unknown => {
-  const dateSchema = Yup.date()
-    .typeError(t(labelInvalidFormat))
-    .required(t(labelRequired))
-    .nullable();
-
-  return Yup.object().shape({
-    comment: Yup.string().required(t(labelRequired)),
-=======
   labelMaxDuration1Year,
   labelRequired,
 } from '../../../../translatedLabels';
@@ -74,7 +55,6 @@ const getValidationSchema = (t: (string) => string): unknown =>
     comment: Yup.string().required(t(labelRequired)),
     dateEnd: Yup.string().required(t(labelRequired)).nullable(),
     dateStart: Yup.string().required(t(labelRequired)).nullable(),
->>>>>>> centreon/dev-21.10.x
     duration: Yup.object().when('fixed', (fixed, schema) => {
       return !fixed
         ? schema.shape({
@@ -83,36 +63,9 @@ const getValidationSchema = (t: (string) => string): unknown =>
           })
         : schema;
     }),
-<<<<<<< HEAD
-    endTime: dateSchema.when(
-      'startTime',
-      (startTime: Date | null): Yup.AnySchema => {
-        if (isNil(startTime) || !dayjs(startTime).isValid()) {
-          return dateSchema;
-        }
-
-        return dateSchema
-          .min(
-            dayjs(startTime).add(dayjs.duration({ minutes: 1 })),
-            t(labelEndDateGreaterThanStartDate),
-          )
-          .max(
-            dayjs(startTime).add(dayjs.duration({ years: 1 })),
-            t(labelMaxDuration1Year),
-          );
-      },
-    ),
-    fixed: Yup.boolean(),
-    startTime: dateSchema,
-  });
-};
-
-export { getValidationSchema };
-=======
     fixed: Yup.boolean(),
     timeEnd: Yup.string().required(t(labelRequired)).nullable(),
     timeStart: Yup.string().required(t(labelRequired)).nullable(),
   });
 
 export { validate, getValidationSchema };
->>>>>>> centreon/dev-21.10.x

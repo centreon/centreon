@@ -46,20 +46,12 @@ require_once "Centreon/Object/Relation/Instance/Resource.php";
  */
 class CentreonResourceCfg extends CentreonObject
 {
-<<<<<<< HEAD
-    public const ORDER_UNIQUENAME = 0;
-    public const ORDER_VALUE = 1;
-    public const ORDER_INSTANCE = 2;
-    public const ORDER_COMMENT = 3;
-    public const MACRO_ALREADY_IN_USE = "Resource is already tied to instance";
-=======
 
     const ORDER_UNIQUENAME = 0;
     const ORDER_VALUE = 1;
     const ORDER_INSTANCE = 2;
     const ORDER_COMMENT = 3;
     const MACRO_ALREADY_IN_USE = "Resource is already tied to instance";
->>>>>>> centreon/dev-21.10.x
 
     protected $instanceObj;
     protected $relObj;
@@ -170,11 +162,7 @@ class CentreonResourceCfg extends CentreonObject
     /**
      * @param $resourceId
      */
-<<<<<<< HEAD
-    public function insertRelations($resourceId)
-=======
     function insertRelations($resourceId)
->>>>>>> centreon/dev-21.10.x
     {
         $this->setRelations($resourceId, $this->instanceIds);
     }

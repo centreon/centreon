@@ -42,10 +42,6 @@ require_once __DIR__ . '/../../../class/centreon.class.php';
 require_once "./include/common/common-Func.php";
 
 require_once './class/centreonFeature.class.php';
-<<<<<<< HEAD
-require_once __DIR__ . '/../../../class/centreonContact.class.php';
-=======
->>>>>>> centreon/dev-21.10.x
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 
@@ -61,15 +57,6 @@ if (!isset($centreonFeature)) {
     $centreonFeature = new CentreonFeature($pearDB);
 }
 
-<<<<<<< HEAD
-/**
- * Get the Security Policy for automatic generation password.
- */
-$passwordSecurityPolicy = (new CentreonContact($pearDB))->getPasswordSecurityPolicy();
-$encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * Database retrieve information for the User
  */
@@ -77,11 +64,7 @@ $cct = array();
 if ($o == "c") {
     $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
         contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type,
-<<<<<<< HEAD
-        contact_theme, enable_one_click_export
-=======
         enable_one_click_export
->>>>>>> centreon/dev-21.10.x
         FROM contact WHERE contact_id = :id";
     $DBRESULT = $pearDB->prepare($query);
     $DBRESULT->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
@@ -125,40 +108,7 @@ if ($cct["contact_auth_type"] != 'ldap') {
 }
 $form->addElement('text', 'contact_email', _("Email"), $attrsText);
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
-<<<<<<< HEAD
-
-$tab = array();
-$tab[] = $form->createElement('radio', 'contact_theme', null, _("Light"), 'light');
-$tab[] = $form->createElement('radio', 'contact_theme', null, _("Dark"), 'dark');
-$form->addGroup($tab, 'contact_theme', _("Front-end Theme"), '&nbsp;');
-
 if ($cct["contact_auth_type"] != 'ldap') {
-    $form->addFormRule('validatePasswordModification');
-    $statement = $pearDB->prepare(
-        "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
-    );
-    $statement->bindValue(':contactId', $centreon->user->get_id(), \PDO::PARAM_INT);
-    $statement->execute();
-    $result = $statement->fetchColumn();
-    if ($result) {
-        $passwordCreationDate = (int) $result;
-        $passwordExpirationDate =
-            $passwordCreationDate + $passwordSecurityPolicy['password_expiration']['expiration_delay'];
-        $isPasswordExpired = time() > $passwordExpirationDate;
-        if (!in_array($centreon->user->get_alias(), $passwordSecurityPolicy['password_expiration']['excluded_users'])) {
-            if ($isPasswordExpired) {
-                $expirationMessage = _("Your password has expired. Please change it.");
-            } else {
-                $expirationMessage = sprintf(
-                    _("Your password will expire in %s days."),
-                    ceil(($passwordExpirationDate - time()) / 86400)
-                );
-            }
-        }
-    }
-=======
-if ($cct["contact_auth_type"] != 'ldap') {
->>>>>>> centreon/dev-21.10.x
     $form->addElement(
         'password',
         'contact_passwd',
@@ -175,11 +125,7 @@ if ($cct["contact_auth_type"] != 'ldap') {
         'button',
         'contact_gen_passwd',
         _("Generate"),
-<<<<<<< HEAD
-        ['onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
-=======
         array('onclick' => 'generatePassword("passwd");', 'class' => 'btc bt_info')
->>>>>>> centreon/dev-21.10.x
     );
 }
 $form->addElement('text', 'contact_autologin_key', _("Autologin Key"), array("size" => "30", "id" => "aKey"));
@@ -187,11 +133,7 @@ $form->addElement(
     'button',
     'contact_gen_akey',
     _("Generate"),
-<<<<<<< HEAD
-    ['onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
-=======
     array('onclick' => 'generatePassword("aKey");', 'class' => 'btc bt_info')
->>>>>>> centreon/dev-21.10.x
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
 $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
@@ -451,12 +393,6 @@ $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
     updateContactInDB($centreon->user->get_id());
-<<<<<<< HEAD
-    if ($form->getSubmitValue("contact_passwd")) {
-        $centreon->user->passwd = md5($form->getSubmitValue("contact_passwd"));
-    }
-=======
->>>>>>> centreon/dev-21.10.x
     $o = null;
     $features = $form->getSubmitValue('features');
 
@@ -511,12 +447,6 @@ $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-<<<<<<< HEAD
-if (isset($expirationMessage)) {
-    $tpl->assign('expirationMessage', $expirationMessage);
-}
-=======
->>>>>>> centreon/dev-21.10.x
 $tpl->assign('cct', $cct);
 $tpl->assign('o', $o);
 $tpl->assign('featuresFlipping', (count($features) > 0));

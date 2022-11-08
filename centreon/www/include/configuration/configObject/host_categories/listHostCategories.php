@@ -141,18 +141,6 @@ for ($i = 0; $hc = $DBRESULT->fetch(); $i++) {
         $aclFrom = ", $aclDbName.centreon_acl acl ";
         $aclCond = " AND h.host_id = acl.host_id AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
     }
-<<<<<<< HEAD
-    $DBRESULT2 = $pearDB->query(
-        "SELECT h.host_id, h.host_activate " .
-        "FROM hostcategories_relation hcr, host h " . $aclFrom .
-        " WHERE hostcategories_hc_id = '" . $hc['hc_id'] . "'" .
-        " AND h.host_id = hcr.host_host_id " . $aclCond .
-        " AND h.host_register = '1' "
-    );
-    $nbrhostActArr = array();
-    $nbrhostDeactArr = array();
-    while ($row = $DBRESULT2->fetch()) {
-=======
     $hcStatement = $pearDB->prepare("SELECT h.host_id, h.host_activate " .
         "FROM hostcategories_relation hcr, host h " . $aclFrom .
         " WHERE hostcategories_hc_id = :hcId" .
@@ -163,7 +151,6 @@ for ($i = 0; $hc = $DBRESULT->fetch(); $i++) {
     $nbrhostActArr = array();
     $nbrhostDeactArr = array();
     while ($row = $hcStatement->fetch()) {
->>>>>>> centreon/dev-21.10.x
         if ($row['host_activate']) {
             $nbrhostActArr[$row['host_id']] = true;
         } else {

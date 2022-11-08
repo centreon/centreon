@@ -26,10 +26,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Downtime\Interfaces\DowntimeRepositoryInterface;
 use Centreon\Domain\Downtime\Interfaces\DowntimeServiceInterface;
 use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Entity\EntityValidator;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
@@ -58,14 +55,10 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
      * @var EngineServiceInterface For all downtimes requests except reading
      */
     private $engineService;
-<<<<<<< HEAD
-
-=======
     /**
      * @var EntityValidator
      */
     private $validator;
->>>>>>> centreon/dev-21.10.x
     /**
      * @var DowntimeRepositoryInterface
      */
@@ -85,29 +78,20 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
      *
      * @param AccessGroupRepositoryInterface $accessGroupRepository
      * @param EngineServiceInterface $engineService
-<<<<<<< HEAD
-=======
      * @param EntityValidator $validator
->>>>>>> centreon/dev-21.10.x
      * @param DowntimeRepositoryInterface $downtimeRepository
      * @param MonitoringRepositoryInterface $monitoringRepository
      */
     public function __construct(
         AccessGroupRepositoryInterface $accessGroupRepository,
         EngineServiceInterface $engineService,
-<<<<<<< HEAD
-=======
         EntityValidator $validator,
->>>>>>> centreon/dev-21.10.x
         DowntimeRepositoryInterface $downtimeRepository,
         MonitoringRepositoryInterface $monitoringRepository
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->engineService = $engineService;
-<<<<<<< HEAD
-=======
         $this->validator = $validator;
->>>>>>> centreon/dev-21.10.x
         $this->downtimeRepository = $downtimeRepository;
         $this->monitoringRepository = $monitoringRepository;
     }

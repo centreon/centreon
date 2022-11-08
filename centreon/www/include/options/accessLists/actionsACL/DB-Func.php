@@ -170,38 +170,24 @@ function multipleActionInDB($actions = array(), $nbrDup = array())
                     $query = "SELECT DISTINCT acl_group_id,acl_action_id FROM acl_group_actions_relations " .
                         " WHERE acl_action_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
-<<<<<<< HEAD
-                    while ($cct = $dbResult->fetch()) {
-                        $query = "INSERT INTO acl_group_actions_relations VALUES ('" .
-                            $maxId["MAX(acl_action_id)"] . "', '" . $cct["acl_group_id"] . "')";
-                        $pearDB->query($query);
-=======
                     $query = "INSERT INTO acl_group_actions_relations VALUES (:acl_action_id, :acl_group_id)";
                     $statement =  $pearDB->prepare($query);
                     while ($cct = $dbResult->fetch()) {
                         $statement->bindValue(':acl_action_id', (int) $maxId["MAX(acl_action_id)"], \PDO::PARAM_INT);
                         $statement->bindValue(':acl_group_id', (int) $cct["acl_group_id"], \PDO::PARAM_INT);
                         $statement->execute();
->>>>>>> centreon/dev-21.10.x
                     }
 
                     # Duplicate Actions
                     $query = "SELECT acl_action_rule_id,acl_action_name FROM acl_actions_rules " .
                         "WHERE acl_action_rule_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
-<<<<<<< HEAD
-                    while ($acl = $dbResult->fetch()) {
-                        $query = "INSERT INTO acl_actions_rules VALUES (NULL, '" . $maxId["MAX(acl_action_id)"] .
-                            "', '" . $acl["acl_action_name"] . "')";
-                        $pearDB->query($query);
-=======
                     $query = "INSERT INTO acl_actions_rules VALUES (NULL, :acl_action_id, :acl_action_name)";
                     $statement = $pearDB->prepare($query);
                     while ($acl = $dbResult->fetch()) {
                         $statement->bindValue(':acl_action_id', (int) $maxId["MAX(acl_action_id)"], \PDO::PARAM_INT);
                         $statement->bindValue(':acl_action_name', $acl["acl_action_name"], \PDO::PARAM_STR);
                         $statement->execute();
->>>>>>> centreon/dev-21.10.x
                     }
 
                     $dbResult->closeCursor();
@@ -316,15 +302,10 @@ function updateGroupActions($aclActionId, $ret = array())
     }
     global $form, $pearDB;
 
-<<<<<<< HEAD
-    $rq = "DELETE FROM acl_group_actions_relations WHERE acl_action_id = '" . $aclActionId . "'";
-    $dbResult = $pearDB->query($rq);
-=======
     $rq = "DELETE FROM acl_group_actions_relations WHERE acl_action_id = :acl_action_id";
     $statement = $pearDB->prepare($rq);
     $statement->bindValue(':acl_action_id', (int) $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
->>>>>>> centreon/dev-21.10.x
     if (isset($_POST["acl_groups"])) {
         foreach ($_POST["acl_groups"] as $id) {
             $rq = "INSERT INTO acl_group_actions_relations ";
@@ -350,15 +331,10 @@ function updateRulesActions($aclActionId, $ret = array())
         return;
     }
 
-<<<<<<< HEAD
-    $rq = "DELETE FROM acl_actions_rules WHERE acl_action_rule_id = '" . $aclActionId . "'";
-    $dbResult = $pearDB->query($rq);
-=======
     $rq = "DELETE FROM acl_actions_rules WHERE acl_action_rule_id = :acl_action_rule_id";
     $statement = $pearDB->prepare($rq);
     $statement->bindValue(':acl_action_rule_id', (int) $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
->>>>>>> centreon/dev-21.10.x
 
     $actions = array();
     $actions = listActions();

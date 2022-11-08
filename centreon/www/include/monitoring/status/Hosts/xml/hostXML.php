@@ -458,11 +458,6 @@ while ($data = $dbResult->fetch()) {
     } else {
         $obj->XML->writeElement("hau", "none");
     }
-<<<<<<< HEAD
-    $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
-=======
-
->>>>>>> centreon/dev-21.10.x
     $obj->XML->endElement();
 }
 $dbResult->closeCursor();

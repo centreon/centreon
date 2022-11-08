@@ -42,12 +42,8 @@ use CentreonModule\Application\DataRepresenter\ModuleEntity;
 
 class ModuleEntityTest extends TestCase
 {
-<<<<<<< HEAD
-    public function testJsonSerialize(): void
-=======
 
     public function testJsonSerialize()
->>>>>>> centreon/dev-21.10.x
     {
         $data = [
             'id' => '1',

@@ -43,10 +43,6 @@
  */
 class MysqlTable
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     private $db;
     private $name;
     private $schema;
@@ -426,11 +422,7 @@ class MysqlTable
     public function exists()
     {
         try {
-<<<<<<< HEAD
-            $DBRESULT = $this->db->query("use " . $this->schema);
-=======
             $DBRESULT = $this->db->query("use `" . $this->schema . "`");
->>>>>>> centreon/dev-21.10.x
         } catch (\PDOException $e) {
             throw new Exception(
                 "SQL Error: Cannot use database "

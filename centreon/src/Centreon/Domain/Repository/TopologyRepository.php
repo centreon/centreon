@@ -75,11 +75,6 @@ class TopologyRepository extends ServiceEntityRepository
     /**
      * Get Topologies according to ACL for user
      * @todo refactor this into function below it
-<<<<<<< HEAD
-     * @param mixed $user
-     * @return mixed[]
-=======
->>>>>>> centreon/dev-21.10.x
      */
     public function getReactTopologiesPerUserWithAcl($user)
     {
@@ -108,16 +103,6 @@ class TopologyRepository extends ServiceEntityRepository
                 if ($DBRESULT->rowCount()) {
                     $topology = array();
                     $tmp_topo_page = array();
-<<<<<<< HEAD
-                    while ($topo_group = $DBRESULT->fetchRow()) {
-                        $query2 = "SELECT topology_topology_id, acl_topology_relations.access_right "
-                            . "FROM acl_topology_relations, acl_topology "
-                            . "WHERE acl_topology.acl_topo_activate = '1' "
-                            . "AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id "
-                            . "AND acl_topology_relations.acl_topo_id = '" . $topo_group["acl_topology_id"] . "' ";
-                        $DBRESULT2 = $this->db->query($query2);
-                        while ($topo_page = $DBRESULT2->fetchRow()) {
-=======
                     $statement = $this->db->prepare("SELECT topology_topology_id, acl_topology_relations.access_right "
                         . "FROM acl_topology_relations, acl_topology "
                         . "WHERE acl_topology.acl_topo_activate = '1' "
@@ -127,7 +112,6 @@ class TopologyRepository extends ServiceEntityRepository
                         $statement->bindValue(':acl_topo_id', $topo_group["acl_topology_id"], \PDO::PARAM_INT);
                         $statement->execute();
                         while ($topo_page = $statement->fetch(\PDO::FETCH_ASSOC)) {
->>>>>>> centreon/dev-21.10.x
                             $topology[] = (int)$topo_page["topology_topology_id"];
                             if (!isset($tmp_topo_page[$topo_page['topology_topology_id']])) {
                                 $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
@@ -142,11 +126,7 @@ class TopologyRepository extends ServiceEntityRepository
                                 }
                             }
                         }
-<<<<<<< HEAD
-                        $DBRESULT2->closeCursor();
-=======
                         $statement->closeCursor();
->>>>>>> centreon/dev-21.10.x
                     }
                     $DBRESULT->closeCursor();
 
@@ -172,15 +152,9 @@ class TopologyRepository extends ServiceEntityRepository
     /**
      * Get list of topologies per user and filter by react pages if specified
      * @param CentreonUser $user
-<<<<<<< HEAD
-     * @return array<mixed>|false
-     */
-    public function getTopologyList(CentreonUser $user)
-=======
      * @return array
      */
     public function getTopologyList(CentreonUser $user): array
->>>>>>> centreon/dev-21.10.x
     {
         $topologies = [];
 
@@ -212,21 +186,13 @@ class TopologyRepository extends ServiceEntityRepository
     /**
      * Find Topology entity by criteria
      *
-<<<<<<< HEAD
-     * @param mixed[] $params
-=======
      * @param array $params
->>>>>>> centreon/dev-21.10.x
      * @return Topology|null
      */
     public function findOneBy($params = []): ?Topology
     {
         $sql = static::baseSqlQueryForEntity();
-<<<<<<< HEAD
-        $collector = new StatementCollector();
-=======
         $collector = new StatementCollector;
->>>>>>> centreon/dev-21.10.x
         $isWhere = false;
         foreach ($params as $column => $value) {
             $key = ":{$column}Val";

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-/* eslint-disable default-param-last */
-=======
->>>>>>> centreon/dev-21.10.x
 import * as actions from '../actions/pollerWizardActions';
 
 const initialState = {};

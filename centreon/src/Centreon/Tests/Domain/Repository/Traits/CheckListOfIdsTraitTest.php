@@ -44,23 +44,6 @@ use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
 
 class CheckListOfIdsTraitTest extends TestCase
 {
-<<<<<<< HEAD
-    public function testCheckListOfIdsTrait(): void
-    {
-        $ids = [1, 3, 4];
-
-        $db = new CentreonDB();
-        $manager = new CentreonDBManagerService();
-        $trait = new class ($db, $manager) extends RepositoryMock {
-            use checkListOfIdsTrait;
-
-            /**
-             * @param int[] $ids
-             * @param string|null $tableName
-             * @param string|null $columnNameOfIdentificator
-             * @return boolean
-             */
-=======
 
     public function testCheckListOfIdsTrait()
     {
@@ -72,7 +55,6 @@ class CheckListOfIdsTraitTest extends TestCase
 
             use checkListOfIdsTrait;
 
->>>>>>> centreon/dev-21.10.x
             public function checkListOfIds(
                 array $ids,
                 string $tableName = null,

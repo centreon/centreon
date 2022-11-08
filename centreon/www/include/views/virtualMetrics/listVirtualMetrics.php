@@ -130,33 +130,6 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $vmetric['vmetric_id'] . "]' />";
 
-<<<<<<< HEAD
-    try {
-        $query = "SELECT id,host_id,service_id FROM index_data WHERE id = '" . $vmetric['index_id'] . "'";
-        $dbindd = $pearDBO->query($query);
-    } catch (\PDOException $e) {
-        print "DB Error : " . $e->getMessage() . "<br />";
-    }
-    $indd = $dbindd->fetchRow();
-    $dbindd->closeCursor();
-    if ($indd !== false) {
-        try {
-            $query = "(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
-                "FROM host_service_relation AS hsr, host AS h, service AS s WHERE hsr.host_host_id = h.host_id " .
-                "AND hsr.service_service_id = s.service_id AND h.host_id = '" . $indd["host_id"] .
-                "' AND s.service_id = '" . $indd["service_id"] . "') UNION " .
-                "(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
-                "FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr " .
-                "WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id AND hr.host_host_id = h.host_id " .
-                "AND hsr.service_service_id = s.Service_id AND h.host_id = '" . $indd["host_id"] .
-                "' AND s.service_id = '" . $indd["service_id"] . "') ORDER BY full_name";
-            $dbhsrname = $pearDB->query($query);
-        } catch (\PDOException $e) {
-            print "DB Error : " . $e->getMessage() . "<br />";
-        }
-        $hsrname = $dbhsrname->fetchRow();
-        $dbhsrname->closeCursor();
-=======
     $indexDataStatement = $pearDBO->prepare("SELECT id,host_id,service_id FROM index_data " .
         "WHERE id = :indexId ");
     try {
@@ -188,7 +161,6 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         }
         $hsrname = $hsrStatement->fetchRow();
         $hsrStatement->closeCursor();
->>>>>>> centreon/dev-21.10.x
         $hsrname["full_name"] = str_replace('#S#', "/", $hsrname["full_name"]);
         $hsrname["full_name"] = str_replace('#BS#', "\\", $hsrname["full_name"]);
     }

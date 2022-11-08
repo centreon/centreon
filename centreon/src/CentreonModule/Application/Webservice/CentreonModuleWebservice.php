@@ -170,11 +170,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements
      * Get list of modules and widgets
      *
      * @throws \RestBadRequestException
-<<<<<<< HEAD
-     * @return Response
-=======
      * @return []
->>>>>>> centreon/dev-21.10.x
      */
     public function getList()
     {
@@ -277,11 +273,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements
      * Get details of module/widget
      *
      * @throws \RestBadRequestException
-<<<<<<< HEAD
-     * @return Response
-=======
      * @return []
->>>>>>> centreon/dev-21.10.x
      */
     public function getDetails()
     {
@@ -369,11 +361,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements
      * Install module or widget
      *
      * @throws \RestBadRequestException
-<<<<<<< HEAD
-     * @return Response
-=======
      * @return []
->>>>>>> centreon/dev-21.10.x
      */
     public function postInstall()
     {
@@ -466,11 +454,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements
      * Update module or widget
      *
      * @throws \RestBadRequestException
-<<<<<<< HEAD
-     * @return Response
-=======
      * @return []
->>>>>>> centreon/dev-21.10.x
      */
     public function postUpdate()
     {
@@ -563,11 +547,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements
      * Remove module or widget
      *
      * @throws \RestBadRequestException
-<<<<<<< HEAD
-     * @return Response
-=======
      * @return []
->>>>>>> centreon/dev-21.10.x
      */
     public function deleteRemove()
     {

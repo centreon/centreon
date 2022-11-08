@@ -23,22 +23,11 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Authentication\Model\Credentials;
->>>>>>> centreon/dev-21.10.x
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Centreon\Domain\Authentication\UseCase\Logout;
-<<<<<<< HEAD
-use Centreon\Domain\Authentication\UseCase\LogoutRequest;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApiRequest;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
-use Core\Domain\Security\Authentication\AuthenticationException;
-use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
-=======
 use Centreon\Domain\Authentication\UseCase\Authenticate;
 use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
@@ -51,7 +40,6 @@ use Centreon\Domain\Authentication\UseCase\FindProvidersConfigurationsResponse;
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
 use Security\Infrastructure\Authentication\API\Model_2110\ProvidersConfigurationsFactory;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Centreon\Application\Controller
@@ -120,8 +108,6 @@ class AuthenticationController extends AbstractController
             'message' => 'Successful logout'
         ]);
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Returns the list of available providers.
@@ -184,5 +170,4 @@ class AuthenticationController extends AbstractController
 
         return $this->view($response->getRedirectionUriApi());
     }
->>>>>>> centreon/dev-21.10.x
 }

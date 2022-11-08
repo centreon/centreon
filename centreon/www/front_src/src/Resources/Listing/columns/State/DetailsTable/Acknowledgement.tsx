@@ -1,20 +1,13 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unused-prop-types */
 
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 
-<<<<<<< HEAD
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import { makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -89,10 +82,6 @@ const AcknowledgementDetailsTable = ({
     },
 
     {
-<<<<<<< HEAD
-      // eslint-disable-next-line react/no-unstable-nested-components
-=======
->>>>>>> centreon/dev-21.10.x
       getContent: ({ comment }: AcknowledgementDetails): JSX.Element => {
         return (
           <span className={classes.comment}>

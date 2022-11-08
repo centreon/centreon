@@ -43,12 +43,8 @@ use Centreon\Tests\Resources\Mock\EntityMock;
 
 class EntityPersisterTest extends TestCase
 {
-<<<<<<< HEAD
-    public function testLoad(): void
-=======
 
     public function testLoad()
->>>>>>> centreon/dev-21.10.x
     {
         $metadata = new ClassMetadata();
         EntityMock::loadMetadata($metadata);
@@ -57,22 +53,13 @@ class EntityPersisterTest extends TestCase
         $metadata->add('name', 'name_column', \PDO::PARAM_STR, function ($value) {
             return "{$value} with formatter";
         });
-<<<<<<< HEAD
-
-        $entity = new EntityMock();
-=======
         
         $entity = new EntityMock;
->>>>>>> centreon/dev-21.10.x
         $entity->setId(2);
         $entity->setName('test name with formatter');
 
         $entityPersister = new EntityPersister(EntityMock::class, $metadata);
-<<<<<<< HEAD
-
-=======
         
->>>>>>> centreon/dev-21.10.x
         $this->assertEquals($entity, $entityPersister->load([
             'id_column' => '2',
             'name_column' => 'test name',

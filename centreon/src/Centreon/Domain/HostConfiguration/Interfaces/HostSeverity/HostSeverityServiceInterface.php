@@ -34,10 +34,6 @@ use Centreon\Domain\Repository\RepositoryException;
  */
 interface HostSeverityServiceInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Find all host severities (for non admin user).
      *

@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { ComponentColumnProps } from '@centreon/ui';
 
 import ShortTypeChip from '../../ShortTypeChip';

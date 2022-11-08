@@ -48,77 +48,6 @@ require_once __DIR__ . '/centreonLog.class.php';
  */
 class CentreonDB extends \PDO
 {
-<<<<<<< HEAD
-    /**
-     * @var string
-     */
-    public const LABEL_DB_CONFIGURATION = 'centreon';
-
-    /**
-     * @var string
-     */
-    public const LABEL_DB_REALTIME = 'centstorage';
-
-    /**
-     * @var array<string,\CentreonDB>
-     */
-    private static $instance = [];
-
-    /**
-     * @var string
-     */
-    protected $db_type = "mysql";
-
-    /**
-     * @var string
-     */
-    protected $db_port = "3306";
-
-    /**
-     * @var int
-     */
-    protected $retry;
-
-    /**
-     * @var array<string,mixed>
-     */
-    protected $dsn;
-
-    /**
-     * @var array<int, array<int, mixed>|int|bool|string>
-     */
-    protected $options;
-
-    /**
-     * @var string
-     */
-    protected $centreon_path;
-
-    /**
-     * @var \CentreonLog
-     */
-    protected $log;
-
-
-    /*
-     * Statistics
-     */
-
-    /**
-     * @var int
-     */
-    protected $requestExecuted;
-
-    /**
-     * @var int
-     */
-    protected $requestSuccessful;
-
-    /**
-     * @var int
-     */
-    protected $lineRead;
-=======
     public const LABEL_DB_CONFIGURATION = 'centreon';
     public const LABEL_DB_REALTIME = 'centstorage';
     private static $instance = [];
@@ -136,7 +65,6 @@ class CentreonDB extends \PDO
     protected $requestSuccessful;
     protected $lineRead;
     protected $debug;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @var int
@@ -153,19 +81,12 @@ class CentreonDB extends \PDO
      *
      * @param string $db | centreon, centstorage
      * @param int $retry
-<<<<<<< HEAD
-     *
-     * @throws Exception
-     */
-    public function __construct($db = self::LABEL_DB_CONFIGURATION, $retry = 3)
-=======
      * @param bool $silent | when silent is set to false, it will display an HTML error msg,
      *                       otherwise it will throw an Exception
      *
      * @throws Exception
      */
     public function __construct($db = self::LABEL_DB_CONFIGURATION, $retry = 3, $silent = false)
->>>>>>> centreon/dev-21.10.x
     {
         try {
             $conf_centreon['hostCentreon'] = hostCentreon;
@@ -181,23 +102,16 @@ class CentreonDB extends \PDO
             $this->centreon_path = _CENTREON_PATH_;
             $this->retry = $retry;
 
-<<<<<<< HEAD
-=======
             $this->debug = 0;
             if (false === $silent) {
                 $this->debug = 1;
             }
 
->>>>>>> centreon/dev-21.10.x
             $this->options = [
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_STATEMENT_CLASS => [
                     CentreonDBStatement::class,
-<<<<<<< HEAD
-                    [$this->log],
-=======
                     [$this, $this->log, $this->debug],
->>>>>>> centreon/dev-21.10.x
                 ],
                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
@@ -220,14 +134,6 @@ class CentreonDB extends \PDO
                 'port' => $this->db_port
             ];
 
-<<<<<<< HEAD
-            if (strtolower($db) === self::LABEL_DB_REALTIME) {
-                $this->dsn['hostspec'] = $conf_centreon["hostCentstorage"];
-                $this->dsn['database'] = $conf_centreon["dbcstg"];
-            } else {
-                $this->dsn['hostspec'] = $conf_centreon["hostCentreon"];
-                $this->dsn['database'] = $conf_centreon["db"];
-=======
             switch (strtolower($db)) {
                 case self::LABEL_DB_REALTIME:
                     $this->dsn['hostspec'] = $conf_centreon["hostCentstorage"];
@@ -237,7 +143,6 @@ class CentreonDB extends \PDO
                     $this->dsn['hostspec'] = $conf_centreon["hostCentreon"];
                     $this->dsn['database'] = $conf_centreon["db"];
                     break;
->>>>>>> centreon/dev-21.10.x
             }
 
             /*
@@ -255,11 +160,7 @@ class CentreonDB extends \PDO
                 $this->options
             );
         } catch (Exception $e) {
-<<<<<<< HEAD
-            if (php_sapi_name() !== "cli") {
-=======
             if (false === $silent && php_sapi_name() != "cli") {
->>>>>>> centreon/dev-21.10.x
                 $this->displayConnectionErrorPage($e->getMessage());
             } else {
                 throw new Exception($e->getMessage());
@@ -267,13 +168,6 @@ class CentreonDB extends \PDO
         }
     }
 
-<<<<<<< HEAD
-    /**
-     * @param mixed $val
-     * @return void
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function autoCommit($val)
     {
         /* Deprecated */
@@ -281,17 +175,10 @@ class CentreonDB extends \PDO
 
     /**
      *
-<<<<<<< HEAD
-     * @param PDOStatement|false $stmt
-     * @param string[] $arrayValues
-     *
-     * @return bool
-=======
      * @param type $stmt
      * @param type $arrayValues
      *
      * @return type
->>>>>>> centreon/dev-21.10.x
      */
     public function execute($stmt, $arrayValues)
     {
@@ -301,16 +188,10 @@ class CentreonDB extends \PDO
     /**
      * Display error page
      *
-<<<<<<< HEAD
-     * @param mixed $msg
-     */
-    protected function displayConnectionErrorPage($msg = null): void
-=======
      * @access protected
      * @return  void
      */
     protected function displayConnectionErrorPage($msg = null)
->>>>>>> centreon/dev-21.10.x
     {
         if (!$msg) {
             $msg = _("Connection failed, please contact your administrator");
@@ -357,26 +238,15 @@ class CentreonDB extends \PDO
             $str = htmlspecialchars($str);
         }
 
-<<<<<<< HEAD
-        return addslashes($str);
-=======
         $escapedStr = addslashes($str);
 
         return $escapedStr;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * Query
      *
-<<<<<<< HEAD
-     * @return PDOStatement|null
-     * @param string $queryString
-     * @param mixed $parameters
-     * @param mixed $parametersArgs
-=======
      * @return CentreonDBStatement
->>>>>>> centreon/dev-21.10.x
      */
     public function query($queryString, $parameters = null, ...$parametersArgs)
     {
@@ -397,17 +267,10 @@ class CentreonDB extends \PDO
             }
         } catch (\PDOException $e) {
             // skip if we use CentreonDBStatement::execute method
-<<<<<<< HEAD
-            if (is_null($parameters)) {
-                $string = str_replace("`", "", $queryString);
-                $string = str_replace('*', "\*", $string);
-                $this->logSqlError($string, $e->getMessage());
-=======
             if ($this->debug && is_null($parameters)) {
                 $string = str_replace("`", "", $queryString);
                 $string = str_replace('*', "\*", $string);
                 $this->log->insertLog(2, " QUERY : " . $string);
->>>>>>> centreon/dev-21.10.x
             }
 
             throw $e;
@@ -423,18 +286,10 @@ class CentreonDB extends \PDO
      * launch a getAll
      *
      * @access public
-<<<<<<< HEAD
-     * @throws \PDOException
-     * @param string $query_string query
-     * @param array<mixed> $placeHolders
-     *
-     * @return mixed[]|false  getAll result
-=======
      *
      * @param string $query_string query
      *
      * @return  object  getAll result
->>>>>>> centreon/dev-21.10.x
      */
     public function getAll($query_string = null, $placeHolders = [])
     {
@@ -446,13 +301,9 @@ class CentreonDB extends \PDO
             $rows = $result->fetchAll();
             $this->requestSuccessful++;
         } catch (\PDOException $e) {
-<<<<<<< HEAD
-            $this->logSqlError($query_string, $e->getMessage());
-=======
             if ($this->debug) {
                 $this->log->insertLog(2, $e->getMessage() . " QUERY : " . $query_string);
             }
->>>>>>> centreon/dev-21.10.x
             throw new \PDOException($e->getMessage(), hexdec($e->getCode()));
         }
 
@@ -482,11 +333,7 @@ class CentreonDB extends \PDO
      * return number of rows
      *
      */
-<<<<<<< HEAD
-    public function numberRows(): int
-=======
     public function numberRows()
->>>>>>> centreon/dev-21.10.x
     {
         $number = 0;
         $dbResult = $this->query("SELECT FOUND_ROWS() AS number");
@@ -494,23 +341,13 @@ class CentreonDB extends \PDO
         if (isset($data["number"])) {
             $number = $data["number"];
         }
-<<<<<<< HEAD
-        return (int) $number;
-=======
         return $number;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * checks if there is malicious injection
-<<<<<<< HEAD
-     * @param string $sString
-     */
-    public static function checkInjection($sString): int
-=======
      */
     public static function checkInjection($sString)
->>>>>>> centreon/dev-21.10.x
     {
         return 0;
     }
@@ -522,11 +359,7 @@ class CentreonDB extends \PDO
      * $dataCentreon = getProperties();
      * </code>
      *
-<<<<<<< HEAD
-     * @return array<mixed> dbsize, numberOfRow, freeSize
-=======
      * @return array dbsize, numberOfRow, freeSize
->>>>>>> centreon/dev-21.10.x
      */
     public function getProperties()
     {
@@ -545,10 +378,7 @@ class CentreonDB extends \PDO
          */
         if ($res = $this->query("SELECT VERSION() AS mysql_version")) {
             $row = $res->fetch();
-<<<<<<< HEAD
-=======
             $version = $row['mysql_version'];
->>>>>>> centreon/dev-21.10.x
             $info['version'] = $row['mysql_version'];
             if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dsn['database'] . "`")) {
                 while ($data = $dbResult->fetch()) {
@@ -611,13 +441,9 @@ class CentreonDB extends \PDO
             }
             return 0; // column to add
         } catch (\PDOException $e) {
-<<<<<<< HEAD
-            $this->logSqlError($query, $e->getMessage());
-=======
             if ($this->debug) {
                 $this->log->insertLog(2, $e->getMessage() . " QUERY : " . $query);
             }
->>>>>>> centreon/dev-21.10.x
             return -1;
         }
     }
@@ -632,8 +458,6 @@ class CentreonDB extends \PDO
     {
         $this->log->insertLog(2, $message . " QUERY : " . $query);
     }
-<<<<<<< HEAD
-=======
 
     /**
      * This method returns a column type from a given table and column.
@@ -666,5 +490,4 @@ class CentreonDB extends \PDO
             $this->logSqlError($query, $e->getMessage());
         }
     }
->>>>>>> centreon/dev-21.10.x
 }

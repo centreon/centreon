@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import { MouseEvent, MutableRefObject, useState } from 'react';
-
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-
-import { Menu, MenuItem } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
-import LaunchIcon from '@mui/icons-material/Launch';
-=======
 import * as React from 'react';
 
 import { isNil } from 'ramda';
@@ -19,7 +7,6 @@ import { useHistory } from 'react-router';
 import { makeStyles, Menu, MenuItem } from '@material-ui/core';
 import SaveAsImageIcon from '@material-ui/icons/SaveAlt';
 import LaunchIcon from '@material-ui/icons/Launch';
->>>>>>> centreon/dev-21.10.x
 
 import {
   ContentWithCircularLoading,
@@ -42,11 +29,7 @@ import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
 interface Props {
   customTimePeriod?: CustomTimePeriod;
-<<<<<<< HEAD
-  performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
-=======
   performanceGraphRef: React.MutableRefObject<HTMLDivElement | null>;
->>>>>>> centreon/dev-21.10.x
   resourceName: string;
   resourceParentName?: string;
   timeline?: Array<TimelineEvent>;
@@ -54,11 +37,7 @@ interface Props {
 
 const useStyles = makeStyles((theme) => ({
   buttonGroup: {
-<<<<<<< HEAD
-    columnGap: theme.spacing(1),
-=======
     columnGap: `${theme.spacing(1)}px`,
->>>>>>> centreon/dev-21.10.x
     display: 'flex',
     flexDirection: 'row',
   },
@@ -77,21 +56,12 @@ const GraphActions = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
-<<<<<<< HEAD
-  const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
-  const [exporting, setExporting] = useState<boolean>(false);
-  const { format } = useLocaleDateTimeFormat();
-  const navigate = useNavigate();
-
-  const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
-=======
   const [menuAnchor, setMenuAnchor] = React.useState<Element | null>(null);
   const [exporting, setExporting] = React.useState<boolean>(false);
   const { format } = useLocaleDateTimeFormat();
   const history = useHistory();
 
   const openSizeExportMenu = (event: React.MouseEvent): void => {
->>>>>>> centreon/dev-21.10.x
     setMenuAnchor(event.currentTarget);
   };
   const closeSizeExportMenu = (): void => {
@@ -118,11 +88,7 @@ const GraphActions = ({
       return params.toString();
     };
 
-<<<<<<< HEAD
-    navigate(`/main.php?p=204&${urlParameters()}`);
-=======
     history.push(`/main.php?p=204&${urlParameters()}`);
->>>>>>> centreon/dev-21.10.x
   };
 
   const convertToPng = (ratio: number): void => {
@@ -162,10 +128,6 @@ const GraphActions = ({
             ariaLabel={t(labelExportToPng)}
             data-testid={labelExportToPng}
             disabled={isNil(timeline)}
-<<<<<<< HEAD
-            size="large"
-=======
->>>>>>> centreon/dev-21.10.x
             title={t(labelExportToPng)}
             onClick={openSizeExportMenu}
           >

@@ -1,18 +1,10 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-=======
 import * as React from 'react';
->>>>>>> centreon/dev-21.10.x
 
 import { useTranslation } from 'react-i18next';
 import { propEq } from 'ramda';
 
-<<<<<<< HEAD
-import { Alert, FormControlLabel, Checkbox, Grid } from '@mui/material';
-=======
 import { Alert } from '@material-ui/lab';
 import { FormControlLabel, Checkbox, Grid } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { useSnackbar, useRequest, Dialog } from '@centreon/ui';
 
@@ -41,11 +33,7 @@ const DisacknowledgeForm = ({
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const [disacknowledgeAttachedResources, setDisacknowledgeAttachedResources] =
-<<<<<<< HEAD
-    useState(true);
-=======
     React.useState(true);
->>>>>>> centreon/dev-21.10.x
 
   const {
     sendRequest: sendDisacknowledgeResources,
@@ -59,11 +47,7 @@ const DisacknowledgeForm = ({
 
   const deniedTypeAlert = getDisacknowledgementDeniedTypeAlert(resources);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (canDisacknowledgeServices()) {
       return;
     }
@@ -121,11 +105,7 @@ const DisacknowledgeForm = ({
                   onChange={changeDisacknowledgeAttachedRessources}
                 />
               }
-<<<<<<< HEAD
-              label={t(labelDisacknowledgeServices) as string}
-=======
               label={t(labelDisacknowledgeServices)}
->>>>>>> centreon/dev-21.10.x
             />
           </Grid>
         )}

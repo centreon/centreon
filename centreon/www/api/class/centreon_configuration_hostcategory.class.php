@@ -39,10 +39,6 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
 class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var CentreonDB
      */
@@ -78,20 +74,12 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
                 $aclHostCategories .= 'AND hc.hc_id IN (' . $aclHostCategoryIds . ') ';
             }
         }
-<<<<<<< HEAD
-        /* Check for select2
-        't' argument
-        'a' or empty = category and severitiy
-        'c' = catagory only
-        's' = severity only */
-=======
         /*
 		 * Check for select2 't' argument
 		 * 'a' or empty = category and severitiy
 		 * 'c' = catagory only
 		 * 's' = severity only
 		 */
->>>>>>> centreon/dev-21.10.x
         if (isset($this->arguments['t'])) {
             $selectList = array('a', 'c', 's');
             if (in_array(strtolower($this->arguments['t']), $selectList)) {

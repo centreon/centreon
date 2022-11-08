@@ -119,21 +119,12 @@ $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 $elemArr = array();
 $centreonToken = createCSRFToken();
 
-<<<<<<< HEAD
-for ($i = 0; $sc = $dbResult->fetch(); $i++) {
-    $moptions = "";
-    $dbResult2 = $pearDB->query(
-        "SELECT COUNT(*) FROM `service_categories_relation` WHERE `sc_id` = '" . $sc['sc_id'] . "'"
-    );
-    $nb_svc = $dbResult2->fetch();
-=======
 $statement = $pearDB->prepare("SELECT COUNT(*) FROM `service_categories_relation` WHERE `sc_id` = :sc_id");
 for ($i = 0; $sc = $dbResult->fetch(); $i++) {
     $moptions = "";
     $statement->bindValue(':sc_id', (int) $sc['sc_id'], \PDO::PARAM_INT);
     $statement->execute();
     $nb_svc = $statement->fetch();
->>>>>>> centreon/dev-21.10.x
 
     $selectedElements = $form->addElement('checkbox', "select[" . $sc['sc_id'] . "]");
 

@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-
-import { Card, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { Card, Typography, makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { labelComment } from '../../../translatedLabels';
 

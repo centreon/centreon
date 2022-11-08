@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-import { useState } from 'react';
-
-import { useUpdateAtom } from 'jotai/utils';
-import { useTranslation } from 'react-i18next';
-import clsx from 'clsx';
-
-import { Grid, Chip, Tooltip, Typography } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import makeStyles from '@mui/styles/makeStyles';
-import IconButton from '@mui/material/IconButton';
-
-import { labelConfigure, labelFilter } from '../../../../translatedLabels';
-import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
-import { Group } from '../../../models';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
@@ -34,7 +17,6 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { labelConfigure, labelFilter } from '../../../../translatedLabels';
 import { Group } from '../../../models';
 import { useResourceContext } from '../../../../Context';
->>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   chip: {
@@ -74,17 +56,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-<<<<<<< HEAD
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  const setCriteriaAndNewFilter = useUpdateAtom(
-    setCriteriaAndNewFilterDerivedAtom,
-  );
-=======
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
 
   const { setCriteriaAndNewFilter } = useResourceContext();
->>>>>>> centreon/dev-21.10.x
 
   const filterByGroup = (): void => {
     setCriteriaAndNewFilter({

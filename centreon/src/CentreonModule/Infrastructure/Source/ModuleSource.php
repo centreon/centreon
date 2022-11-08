@@ -44,16 +44,6 @@ use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
 
 class ModuleSource extends SourceAbstract
 {
-<<<<<<< HEAD
-    public const TYPE = 'module';
-    public const PATH = 'www/modules/';
-    public const PATH_WEB = 'modules/';
-    public const CONFIG_FILE = 'conf.php';
-    public const LICENSE_FILE = 'license/merethis_lic.zl';
-
-    /**
-     * @var array<string,mixed>
-=======
 
     const TYPE = 'module';
     const PATH = 'www/modules/';
@@ -63,13 +53,10 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @var array
->>>>>>> centreon/dev-21.10.x
      */
     protected $info;
 
     /**
-<<<<<<< HEAD
-=======
      * @var \CentreonLegacy\Core\Module\Installer
      */
     protected $installer;
@@ -85,7 +72,6 @@ class ModuleSource extends SourceAbstract
     protected $license;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Construct
      *
      * @param \Psr\Container\ContainerInterface $services
@@ -100,11 +86,7 @@ class ModuleSource extends SourceAbstract
         parent::__construct($services);
     }
 
-<<<<<<< HEAD
-    public function initInfo(): void
-=======
     public function initInfo()
->>>>>>> centreon/dev-21.10.x
     {
         $this->info = $this->db
             ->getRepository(ModulesInformationsRepository::class)
@@ -112,14 +94,7 @@ class ModuleSource extends SourceAbstract
         ;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     */
-    public function remove(string $id): void
-=======
     public function remove(string $id)
->>>>>>> centreon/dev-21.10.x
     {
         $recordId = $this->db
             ->getRepository(ModulesInformationsRepository::class)
@@ -129,12 +104,6 @@ class ModuleSource extends SourceAbstract
         ($this->remover)($id, $recordId)->remove();
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function update(string $id): ?Module
     {
         $recordId = $this->db
@@ -149,17 +118,7 @@ class ModuleSource extends SourceAbstract
         return $this->getDetail($id);
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string|null $search
-     * @param boolean|null $installed
-     * @param boolean|null $updated
-     * @return array<int,\CentreonModule\Infrastructure\Entity\Module>
-     */
-    public function getList(string $search = null, bool $installed = null, bool $updated = null): array
-=======
     public function getList(string $search = null, bool $installed = null, bool $updated = null) : array
->>>>>>> centreon/dev-21.10.x
     {
         $files = $this->finder
             ->files()
@@ -183,13 +142,6 @@ class ModuleSource extends SourceAbstract
         return $result;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     * @return Module|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getDetail(string $id): ?Module
     {
         $result = null;
@@ -214,13 +166,6 @@ class ModuleSource extends SourceAbstract
         return $result;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $configFile
-     * @return Module
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function createEntityFromConfig(string $configFile): Module
     {
         $module_conf = [];
@@ -229,11 +174,7 @@ class ModuleSource extends SourceAbstract
 
         $info = current($module_conf);
 
-<<<<<<< HEAD
-        $entity = new Module();
-=======
         $entity = new Module;
->>>>>>> centreon/dev-21.10.x
         $entity->setId(basename(dirname($configFile)));
         $entity->setPath(dirname($configFile));
         $entity->setType(static::TYPE);
@@ -284,12 +225,7 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @codeCoverageIgnore
-<<<<<<< HEAD
-     * @param string $configFile
-     * @return array<mixed>
-=======
      * @return array
->>>>>>> centreon/dev-21.10.x
      */
     protected function getModuleConf(string $configFile): array
     {
@@ -303,17 +239,10 @@ class ModuleSource extends SourceAbstract
     /**
      * Process license check and return license information
      * @param string $moduleId the module id (slug)
-<<<<<<< HEAD
-     * @param array<string,mixed> $info the info of the module from conf.php
-     * @return array<string,string|bool> the license information (required, expiration_date)
-     */
-    protected function processLicense(string $moduleId, array $info): array
-=======
      * @param array $info the info of the module from conf.php
      * @return array the license information (required, expiration_date)
      */
     protected function processLicense(string $moduleId, array $info) : array
->>>>>>> centreon/dev-21.10.x
     {
         $license = [
             'required' => false

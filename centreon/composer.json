@@ -9,35 +9,11 @@
             "php": "8.0"
         },
         "allow-plugins": {
-<<<<<<< HEAD
-            "pestphp/pest-plugin": false,
-            "symfony/flex": false
-=======
             "symfony/flex": true
->>>>>>> centreon/dev-21.10.x
         }
     },
     "require-dev": {
         "adlawson/vfs": "^0.12.1",
-<<<<<<< HEAD
-        "behat/behat": "^3.10",
-        "behat/mink-selenium2-driver": "^1.5",
-        "friends-of-behat/mink": "^1.9",
-        "friends-of-behat/mink-extension": "^2.5",
-        "centreon/centreon-test-lib": "dev-master",
-        "phpstan/phpstan": "^1.3.0",
-        "phpstan/phpstan-beberlei-assert": "^1.0.0",
-        "squizlabs/php_codesniffer": "3.6.2",
-        "symfony/phpunit-bridge": "6.0.*",
-        "symfony/stopwatch": "^5.4",
-        "symfony/twig-bundle": "^5.4",
-        "symfony/var-dumper": "5.4.*",
-        "symfony/web-profiler-bundle": "^5.4",
-        "twig/twig": "^3.3",
-        "webmozart/assert": "^1.8",
-        "zircote/swagger-php": "^4.0",
-        "pestphp/pest": "^1.21"
-=======
         "behat/behat": "^3.8",
         "behat/mink": "dev-master#a534fe7dac9525e8e10ca68e737c3d7e5058ec83",
         "behat/mink-extension": "^2.3",
@@ -56,7 +32,6 @@
         "twig/twig": "2.*",
         "webmozart/assert": "^1.8",
         "zircote/swagger-php": "^3.0"
->>>>>>> centreon/dev-21.10.x
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -69,45 +44,12 @@
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-phar": "*",
-<<<<<<< HEAD
-        "friendsofsymfony/rest-bundle": "^3.0",
-        "jms/serializer-bundle": "^4.0",
-=======
         "friendsofsymfony/rest-bundle": "^2.5",
         "jms/serializer-bundle": "^3.9",
->>>>>>> centreon/dev-21.10.x
         "justinrainbow/json-schema": "^5.2",
         "nelmio/cors-bundle": "^2.1",
         "openpsa/quickform": "3.3.*",
         "pear/pear-core-minimal": "^1.10",
-<<<<<<< HEAD
-        "phpdocumentor/reflection-docblock": "^5.2",
-        "pimple/pimple": "^3.2",
-        "sensio/framework-extra-bundle": "^6.2",
-        "smarty/smarty": "^3.1",
-        "smarty-gettext/smarty-gettext": "^1.6",
-        "symfony/config": "5.4.*",
-        "symfony/console": "5.4.*",
-        "symfony/dotenv": "5.4.*",
-        "symfony/expression-language": "5.4.*",
-        "symfony/filesystem": "5.4.*",
-        "symfony/finder": "5.4.*",
-        "symfony/flex": "^1.17",
-        "symfony/framework-bundle": "5.4.*",
-        "symfony/http-client": "5.4.*",
-        "symfony/http-kernel": "5.4.*",
-        "symfony/maker-bundle": "^1.11",
-        "symfony/monolog-bundle": "^3.7",
-        "symfony/options-resolver": "5.4.*",
-        "symfony/property-access": "5.4.*",
-        "symfony/property-info": "5.4.*",
-        "symfony/security-bundle": "5.4.*",
-        "symfony/serializer": "5.4.*",
-        "symfony/translation": "5.4.*",
-        "symfony/validator": "5.4.*",
-        "symfony/yaml": "5.4.*",
-        "psr/container": "1.1.1"
-=======
         "php": ">=7.2.24",
         "phpdocumentor/reflection-docblock": "^5.2",
         "pimple/pimple": "^3.2",
@@ -132,7 +74,6 @@
         "symfony/translation": "4.4.*",
         "symfony/validator": "4.4.*",
         "symfony/yaml": "4.4.*"
->>>>>>> centreon/dev-21.10.x
     },
     "autoload": {
         "psr-4": {
@@ -172,23 +113,11 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-<<<<<<< HEAD
-            "require": "5.4.*"
-=======
             "require": "4.4.*"
->>>>>>> centreon/dev-21.10.x
         }
     },
     "scripts": {
         "auto-scripts": {
-<<<<<<< HEAD
-            "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "test": "pest",
-        "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction --do-not-cache-result",
-        "codestyle": "phpcs --config-set ignore_warnings_on_exit 1 --extensions=php --standard=./ruleset.xml ./",
-=======
             "security-checker security:check": "script",
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -196,7 +125,6 @@
         "test": "phpunit --bootstrap ./tests/php/bootstrap.php",
         "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction --do-not-cache-result",
         "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
->>>>>>> centreon/dev-21.10.x
         "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle-be.xml --no-cache",
         "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
         "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress"

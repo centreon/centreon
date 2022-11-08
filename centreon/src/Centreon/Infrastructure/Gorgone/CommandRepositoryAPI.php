@@ -24,10 +24,7 @@ namespace Centreon\Infrastructure\Gorgone;
 
 use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 use Centreon\Domain\Gorgone\Interfaces\CommandRepositoryInterface;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -46,25 +43,15 @@ class CommandRepositoryAPI implements CommandRepositoryInterface
     private $client;
 
     /**
-<<<<<<< HEAD
-=======
      * @var OptionServiceInterface
      */
     private $optionService;
     /**
->>>>>>> centreon/dev-21.10.x
      * @var ConfigurationLoaderApiInterface
      */
     private $configuration;
 
     /**
-<<<<<<< HEAD
-     * @param ConfigurationLoaderApiInterface $configuration
-     */
-    public function __construct(ConfigurationLoaderApiInterface $configuration)
-    {
-        $this->client = new CurlHttpClient();
-=======
      * @param OptionServiceInterface $optionService
      * @param ConfigurationLoaderApiInterface $configuration
      */
@@ -72,7 +59,6 @@ class CommandRepositoryAPI implements CommandRepositoryInterface
     {
         $this->client = new CurlHttpClient();
         $this->optionService = $optionService;
->>>>>>> centreon/dev-21.10.x
         $this->configuration = $configuration;
     }
 

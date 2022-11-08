@@ -46,11 +46,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     private $hosts = [];
 
     /**
-<<<<<<< HEAD
-     * @var string|null
-=======
      * @var string
->>>>>>> centreon/dev-21.10.x
      */
     private $name;
 
@@ -128,31 +124,18 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @return string|null
-     */
-    public function getName(): ?string
-=======
      * @return string
      */
     public function getName(): string
->>>>>>> centreon/dev-21.10.x
     {
         return $this->name;
     }
 
     /**
-<<<<<<< HEAD
-     * @param string|null $name
-     * @return ServiceGroup
-     */
-    public function setName(?string $name): ServiceGroup
-=======
      * @param string $name
      * @return ServiceGroup
      */
     public function setName(string $name): ServiceGroup
->>>>>>> centreon/dev-21.10.x
     {
         $this->name = $name;
         return $this;

@@ -1,40 +1,3 @@
-<<<<<<< HEAD
-import { useState, useRef, useEffect } from 'react';
-
-import axios from 'axios';
-import * as yup from 'yup';
-import { useAtomValue } from 'jotai/utils';
-
-import { ClickAwayListener } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-
-import { refreshIntervalAtom } from '@centreon/ui-context';
-
-import MenuLoader from '../../components/MenuLoader';
-
-export const useStyles = makeStyles((theme) => ({
-  link: {
-    textDecoration: 'none',
-  },
-  subMenuToggle: {
-    backgroundColor: theme.palette.common.black,
-    boxSizing: 'border-box',
-    display: 'none',
-    left: theme.spacing(0),
-    padding: theme.spacing(1),
-    position: 'absolute',
-    textAlign: 'left',
-    top: '100%',
-    width: '100%',
-    zIndex: theme.zIndex.mobileStepper,
-  },
-  subMenuToggleActive: {
-    display: 'block',
-  },
-  wrapMiddleIcon: {
-    display: 'flex',
-  },
-=======
 import * as React from 'react';
 
 import axios from 'axios';
@@ -50,7 +13,6 @@ export const useStyles = makeStyles(() => ({
   link: {
     textDecoration: 'none',
   },
->>>>>>> centreon/dev-21.10.x
 }));
 
 interface Props {
@@ -70,15 +32,6 @@ const RessourceStatusCounter = <
   children,
   loaderWidth,
 }: Props): JSX.Element | null => {
-<<<<<<< HEAD
-  const [data, setData] = useState<StatusCount>();
-  const [toggled, setToggled] = useState<boolean>();
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
-
-  const interval = useRef<number>();
-
-  const refreshInterval = useAtomValue(refreshIntervalAtom);
-=======
   const [data, setData] = React.useState<StatusCount>();
   const [toggled, setToggled] = React.useState<boolean>();
   const [isAllowed, setIsAllowed] = React.useState<boolean>(true);
@@ -86,7 +39,6 @@ const RessourceStatusCounter = <
   const interval = React.useRef<number>();
 
   const { refreshInterval } = useUserContext();
->>>>>>> centreon/dev-21.10.x
 
   const getData = (): void => {
     axios
@@ -103,11 +55,7 @@ const RessourceStatusCounter = <
       });
   };
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     getData();
 
     interval.current = window.setInterval(() => {

@@ -26,10 +26,6 @@ use Centreon\Domain\RemoteServer\Interfaces\RemoteServerLocalConfigurationReposi
 
 class RemoteServerRepositoryFile implements RemoteServerLocalConfigurationRepositoryInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var string
      */

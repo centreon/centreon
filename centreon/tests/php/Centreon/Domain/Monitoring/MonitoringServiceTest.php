@@ -53,13 +53,10 @@ class MonitoringServiceTest extends TestCase
      * @var HostConfigurationServiceInterface&\PHPUnit\Framework\MockObject\MockObject
      */
     private $hostConfiguration;
-<<<<<<< HEAD
-=======
     /**
      * @var MonitoringServerServiceInterface&\PHPUnit\Framework\MockObject\MockObject
      */
     private $monitoringServerService;
->>>>>>> centreon/dev-21.10.x
 
     protected function setUp(): void
     {
@@ -67,20 +64,13 @@ class MonitoringServiceTest extends TestCase
         $this->accessGroupRepository = $this->createMock(AccessGroupRepositoryInterface::class);
         $this->serviceConfiguration = $this->createMock(ServiceConfigurationServiceInterface::class);
         $this->hostConfiguration = $this->createMock(HostConfigurationServiceInterface::class);
-<<<<<<< HEAD
-=======
         $this->monitoringServerService = $this->createMock(MonitoringServerServiceInterface::class);
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindServices(): void
-=======
     public function testFindServices()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -94,12 +84,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         $servicesFound = $monitoringService->findServices();
@@ -113,11 +99,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindServicesByHost(): void
-=======
     public function testFindServicesByHost()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -133,12 +115,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         $servicesFound = $monitoringService->findServicesByHost($hostId);
@@ -152,11 +130,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindHosts(): void
-=======
     public function testFindHosts()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -179,12 +153,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         /**
@@ -211,11 +181,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindServiceGroups(): void
-=======
     public function testFindServiceGroups()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -238,12 +204,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         /**
@@ -263,11 +225,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindOneService(): void
-=======
     public function testFindOneService()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -286,12 +244,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         $oneService = $monitoringService->findOneService($host->getId(), $service->getId());
@@ -306,11 +260,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindOneHost(): void
-=======
     public function testFindOneHost()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -330,12 +280,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         $hostFound = $monitoringService->findOneHost($host->getId());
@@ -350,11 +296,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindHostGroups(): void
-=======
     public function testFindHostGroups()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(3)
@@ -377,12 +319,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         /**
@@ -402,11 +340,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testIsHostExist(): void
-=======
     public function testIsHostExist()
->>>>>>> centreon/dev-21.10.x
     {
         $host = (new Host())
             ->setId(1)
@@ -421,12 +355,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         // First test when the 'findOneHost' returns one host
@@ -441,11 +371,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testIsServiceExist(): void
-=======
     public function testIsServiceExist()
->>>>>>> centreon/dev-21.10.x
     {
         $host = (new Host())
             ->setId(1)
@@ -464,12 +390,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         $exists = $monitoringService->isServiceExists($host->getId(), $service->getId());
@@ -479,11 +401,7 @@ class MonitoringServiceTest extends TestCase
     /**
      * @throws \Exception
      */
-<<<<<<< HEAD
-    public function testFindServiceGroupsByHostAndService(): void
-=======
     public function testFindServiceGroupsByHostAndService()
->>>>>>> centreon/dev-21.10.x
     {
         $service = (new Service())
             ->setId(1)
@@ -507,12 +425,8 @@ class MonitoringServiceTest extends TestCase
             $this->monitoringRepository,
             $this->accessGroupRepository,
             $this->serviceConfiguration,
-<<<<<<< HEAD
-            $this->hostConfiguration
-=======
             $this->hostConfiguration,
             $this->monitoringServerService
->>>>>>> centreon/dev-21.10.x
         );
 
         /**

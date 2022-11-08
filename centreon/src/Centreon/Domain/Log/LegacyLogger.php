@@ -44,11 +44,7 @@ class LegacyLogger implements LoggerInterface
         log as traitLog;
     }
 
-<<<<<<< HEAD
-    public function emergency($message, array $context = []): void
-=======
     public function emergency($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitEmergency($message, $context);
     }
@@ -56,11 +52,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function alert($message, array $context = []): void
-=======
     public function alert($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitAlert($message, $context);
     }
@@ -68,11 +60,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function critical($message, array $context = []): void
-=======
     public function critical($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitCritical($message, $context);
     }
@@ -80,11 +68,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function error($message, array $context = []): void
-=======
     public function error($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitError($message, $context);
     }
@@ -92,11 +76,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function warning($message, array $context = []): void
-=======
     public function warning($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitWarning($message, $context);
     }
@@ -104,11 +84,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function notice($message, array $context = []): void
-=======
     public function notice($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitNotice($message, $context);
     }
@@ -116,11 +92,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function info($message, array $context = []): void
-=======
     public function info($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitInfo($message, $context);
     }
@@ -128,11 +100,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function debug($message, array $context = []): void
-=======
     public function debug($message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitDebug($message, $context);
     }
@@ -140,11 +108,7 @@ class LegacyLogger implements LoggerInterface
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function log($level, $message, array $context = []): void
-=======
     public function log($level, $message, array $context = [])
->>>>>>> centreon/dev-21.10.x
     {
         $this->traitLog($level, $message, $context);
     }

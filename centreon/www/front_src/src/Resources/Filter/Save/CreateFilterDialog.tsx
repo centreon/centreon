@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { ChangeEvent, KeyboardEvent } from 'react';
-=======
 import React from 'react';
->>>>>>> centreon/dev-21.10.x
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -21,11 +17,7 @@ import {
 import { createFilter } from '../api';
 import { Filter } from '../models';
 
-<<<<<<< HEAD
-type InputChangeEvent = (event: ChangeEvent<HTMLInputElement>) => void;
-=======
 type InputChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => void;
->>>>>>> centreon/dev-21.10.x
 
 interface Props {
   filter: Filter;
@@ -64,11 +56,7 @@ const CreateFilterDialog = ({
     }),
   });
 
-<<<<<<< HEAD
-  const submitFormOnEnterKey = (event: KeyboardEvent<HTMLDivElement>): void => {
-=======
   const submitFormOnEnterKey = (event: React.KeyboardEvent): void => {
->>>>>>> centreon/dev-21.10.x
     const enterKeyPressed = event.keyCode === 13;
 
     if (enterKeyPressed) {

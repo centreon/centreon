@@ -23,10 +23,6 @@ declare(strict_types=1);
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostSeverity;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-<<<<<<< HEAD
-use Centreon\Domain\HostConfiguration\Host;
-=======
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Model\HostSeverity;
 use Centreon\Domain\Repository\RepositoryException;
 
@@ -74,15 +70,4 @@ interface HostSeverityReadRepositoryInterface
      * @throws \Exception
      */
     public function findByIdAndContact(int $hostSeverityId, ContactInterface $contact): ?HostSeverity;
-<<<<<<< HEAD
-
-    /**
-     * Find a host severity by host
-     *
-     * @param Host $host
-     * @return HostSeverity|null
-     */
-    public function findByHost(Host $host): ?HostSeverity;
-=======
->>>>>>> centreon/dev-21.10.x
 }

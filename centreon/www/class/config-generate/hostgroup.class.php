@@ -36,21 +36,9 @@
 
 class Hostgroup extends AbstractObject
 {
-<<<<<<< HEAD
-    private const TAG_TYPE = 'hostgroup';
-    private const HOSTGROUP_FILENAME = 'hostgroups.cfg';
-    private const HOSTGROUP_OBJECT_NAME = 'hostgroup';
-    private const TAG_FILENAME = 'tags.cfg';
-    private const TAG_OBJECT_NAME = 'tag';
-
-    private $hg = array();
-    protected $generate_filename = self::HOSTGROUP_FILENAME;
-    protected $object_name = self::HOSTGROUP_OBJECT_NAME;
-=======
     private $hg = array();
     protected $generate_filename = 'hostgroups.cfg';
     protected $object_name = 'hostgroup';
->>>>>>> centreon/dev-21.10.x
     protected $attributes_select = '
         hg_id,
         hg_name as hostgroup_name,
@@ -59,8 +47,6 @@ class Hostgroup extends AbstractObject
         hg_notes_url as notes_url,
         hg_action_url as action_url
     ';
-<<<<<<< HEAD
-=======
     protected $attributes_write = array(
         'hostgroup_id',
         'hostgroup_name',
@@ -72,28 +58,11 @@ class Hostgroup extends AbstractObject
     protected $attributes_array = array(
         'members'
     );
->>>>>>> centreon/dev-21.10.x
     protected $stmt_hg = null;
 
     private function getHostgroupFromId($hg_id)
     {
         if (is_null($this->stmt_hg)) {
-<<<<<<< HEAD
-            $this->stmt_hg = $this->backend_instance->db->prepare("SELECT 
-                    $this->attributes_select
-                FROM hostgroup
-                WHERE hg_id = :hg_id AND hg_activate = '1'
-                ");
-        }
-        $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
-        $this->stmt_hg->execute();
-        $results = $this->stmt_hg->fetchAll(PDO::FETCH_ASSOC);
-        $this->hg[$hg_id] = array_pop($results);
-        if (is_null($this->hg[$hg_id])) {
-            return null;
-        }
-        $this->hg[$hg_id]['members'] = array();
-=======
             $this->stmt_hg = $this->backend_instance->db->prepare(
                 "SELECT  $this->attributes_select
                 FROM hostgroup
@@ -106,7 +75,6 @@ class Hostgroup extends AbstractObject
             $this->hg[$hg_id] = $hostGroup;
             $this->hg[$hg_id]['members'] = [];
         }
->>>>>>> centreon/dev-21.10.x
     }
 
     public function addHostInHg($hg_id, $host_id, $host_name)
@@ -122,42 +90,8 @@ class Hostgroup extends AbstractObject
         return 0;
     }
 
-<<<<<<< HEAD
-    /**
-     * Generate host groups / tags and write in file
-     */
-    public function generateObjects(): void
-    {
-        $this->generateHostGroups();
-        $this->generateTags();
-    }
-
-    /**
-     * Generate host groups and write in file
-     */
-    private function generateHostGroups(): void
-    {
-        $this->generate_filename = self::HOSTGROUP_FILENAME;
-        $this->object_name = self::HOSTGROUP_OBJECT_NAME;
-        $this->attributes_write = [
-            'hostgroup_id',
-            'hostgroup_name',
-            'alias',
-            'notes',
-            'notes_url',
-            'action_url',
-        ];
-        $this->attributes_array = [
-            'members',
-        ];
-
-        // reset cache to allow export of same ids
-        parent::reset();
-
-=======
     public function generateObjects()
     {
->>>>>>> centreon/dev-21.10.x
         foreach ($this->hg as $id => &$value) {
             if (count($value['members']) == 0) {
                 continue;
@@ -168,41 +102,6 @@ class Hostgroup extends AbstractObject
         }
     }
 
-<<<<<<< HEAD
-    /**
-     * Generate tags and write in file
-     */
-    private function generateTags(): void
-    {
-        $this->generate_filename = self::TAG_FILENAME;
-        $this->object_name = self::TAG_OBJECT_NAME;
-        $this->attributes_write = [
-            'id',
-            'name',
-            'type',
-        ];
-        $this->attributes_array = [];
-
-        // reset cache to allow export of same ids
-        parent::reset();
-
-        foreach ($this->hg as $id => $value) {
-            if (count($value['members']) == 0) {
-                continue;
-            }
-
-            $tag = [
-                'id' => $value['hostgroup_id'],
-                'name' => $value['hostgroup_name'],
-                'type' => self::TAG_TYPE,
-            ];
-
-            $this->generateObjectInFile($tag, $id);
-        }
-    }
-
-=======
->>>>>>> centreon/dev-21.10.x
     public function getHostgroups()
     {
         $result = array();

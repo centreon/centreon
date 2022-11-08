@@ -38,10 +38,6 @@ namespace Centreon\Tests\Resources\Traits;
 
 trait PaginationListTrait
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var \Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface
      */

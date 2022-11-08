@@ -43,15 +43,9 @@ include_once "./class/centreonUtils.class.php";
 include "./include/common/autoNumLimit.php";
 
 $contactTypeIcone = array(
-<<<<<<< HEAD
-    1 => returnSvg("www/img/icons/admin.svg", "var(--icons-fill-color)", 22, 22),
-    2 => returnSvg("www/img/icons/user.svg", "var(--icons-fill-color)", 22, 22),
-    3 => returnSvg("www/img/icons/user-template.svg", "var(--icons-fill-color)", 22, 22)
-=======
     1 => "./img/icons/admin.png",
     2 => "./img/icons/user.png",
     3 => "./img/icons/user_template.png"
->>>>>>> centreon/dev-21.10.x
 );
 
 /*

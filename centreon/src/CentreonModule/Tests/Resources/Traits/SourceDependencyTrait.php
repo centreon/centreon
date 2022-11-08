@@ -48,15 +48,8 @@ use CentreonModule\Tests\Infrastructure\Source\ModuleSourceTest;
  */
 trait SourceDependencyTrait
 {
-<<<<<<< HEAD
-    /**
-     * @param array<ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE> $container
-     */
-    public function setUpSourceDependency(&$container): void
-=======
 
     public function setUpSourceDependency(&$container)
->>>>>>> centreon/dev-21.10.x
     {
         // Legacy dependency
         $container[ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE] = $this

@@ -36,12 +36,7 @@
 
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
-<<<<<<< HEAD
-require_once __DIR__ . '/../functions.php';
-require_once __DIR__ . '/../../functions.php';
-=======
 require_once '../functions.php';
->>>>>>> centreon/dev-21.10.x
 
 $return = [
     'id' => 'configfile',
@@ -53,11 +48,6 @@ $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 $configuration = $step->getBaseConfiguration();
 $engine = $step->getEngineConfiguration();
-<<<<<<< HEAD
-$gorgonePassword = generatePassword();
-
-$host = $parameters['address'] ?: 'localhost';
-=======
 
 if ($parameters['address']) {
     $host = $parameters['address'];
@@ -78,36 +68,12 @@ $patterns = [
     '/--INSTANCEMODE--/',
     '/--CENTREON_VARLIB--/',
 ];
->>>>>>> centreon/dev-21.10.x
 
 // escape double quotes and backslashes
 $needle = ['\\', '"'];
 $escape = ['\\\\', '\"'];
 $password = str_replace($needle, $escape, $parameters['db_password']);
 
-<<<<<<< HEAD
-$macroReplacements = [
-    '--ADDRESS--' => $host,
-    '--DBUSER--' => $parameters['db_user'],
-    '--DBPASS--' => $password,
-    '--CONFDB--' => $parameters['db_configuration'],
-    '--STORAGEDB--' => $parameters['db_storage'],
-    '--CENTREONDIR--' => $configuration['centreon_dir'],
-    '--CENTREON_CACHEDIR--' => $configuration['centreon_cachedir'],
-    '--DBPORT--' => $parameters['port'],
-    '--INSTANCEMODE--' => 'central',
-    '--CENTREON_VARLIB--' => $configuration['centreon_varlib'],
-    // specific additional mandatory parameters used by Gorgone.d in a full ZMQ mode
-    '--CENTREON_SPOOL--' => '/var/spool/centreon',
-    '--HTTPSERVERADDRESS--' => '0.0.0.0',
-    '--HTTPSERVERPORT--' => '8085',
-    '--SSLMODE--' => 'false',
-    '--CENTREON_TRAPDIR--' => '/etc/snmp/centreon_traps',
-    '--GORGONE_VARLIB--' => '/var/lib/centreon-gorgone',
-    '--ENGINE_COMMAND--' => $engine['monitoring_var_lib'] . '/rw/centengine.cmd',
-    '@GORGONE_USER@' => 'centreon-gorgone',
-    '@GORGONE_PASSWORD@' => $gorgonePassword,
-=======
 
 $replacements = [
     $host,
@@ -120,7 +86,6 @@ $replacements = [
     $parameters['port'],
     'central',
     $configuration['centreon_varlib'],
->>>>>>> centreon/dev-21.10.x
 ];
 
 $centreonEtcPath = rtrim($configuration['centreon_etc'], '/');
@@ -130,11 +95,7 @@ $centreonEtcPath = rtrim($configuration['centreon_etc'], '/');
  */
 $centreonConfFile = $centreonEtcPath . '/centreon.conf.php';
 $contents = file_get_contents('../../var/configFileTemplate');
-<<<<<<< HEAD
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
-=======
 $contents = preg_replace($patterns, $replacements, $contents);
->>>>>>> centreon/dev-21.10.x
 file_put_contents($centreonConfFile, $contents);
 chmod($centreonConfFile, 0660);
 
@@ -143,11 +104,6 @@ chmod($centreonConfFile, 0660);
  */
 $centreonConfPmFile = $centreonEtcPath . '/conf.pm';
 $contents = file_get_contents('../../var/configFilePmTemplate');
-<<<<<<< HEAD
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
-file_put_contents($centreonConfPmFile, $contents);
-
-=======
 $contents = preg_replace($patterns, $replacements, $contents);
 file_put_contents($centreonConfPmFile, $contents);
 
@@ -174,48 +130,20 @@ array_push(
     $engine['monitoring_var_lib'] . '/rw/centengine.cmd'
 );
 
->>>>>>> centreon/dev-21.10.x
 /**
  * Database configuration file
  */
 $gorgoneDatabaseFile = $centreonEtcPath . '/config.d/10-database.yaml';
 $contents = file_get_contents('../../var/databaseTemplate.yaml');
-<<<<<<< HEAD
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
-file_put_contents($gorgoneDatabaseFile, $contents);
-
-/**
- * Gorgone API configuration file
- */
-$apiConfigurationFile = $centreonEtcPath . '/../centreon-gorgone/config.d/31-centreon-api.yaml';
-if (file_exists($apiConfigurationFile) && is_writable($apiConfigurationFile)) {
-    file_put_contents(
-        $apiConfigurationFile,
-        str_replace(
-            array_keys($macroReplacements),
-            array_values($macroReplacements),
-            file_get_contents($apiConfigurationFile)
-        ),
-    );
-}
-
-
-/**
-=======
 $contents = preg_replace($patterns, $replacements, $contents);
 file_put_contents($gorgoneDatabaseFile, $contents);
 
 /**
->>>>>>> centreon/dev-21.10.x
  * Gorgone daemon configuration file for a central
  */
 $gorgoneCoreFileForCentral = $centreonEtcPath . '/../centreon-gorgone/config.d/40-gorgoned.yaml';
 $contents = file_get_contents('../../var/gorgone/gorgoneCentralTemplate.yaml');
-<<<<<<< HEAD
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
-=======
 $contents = preg_replace($patterns, $replacements, $contents);
->>>>>>> centreon/dev-21.10.x
 file_put_contents($gorgoneCoreFileForCentral, $contents);
 
 $return['result'] = 0;

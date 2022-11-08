@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
-import { Grid } from '@mui/material';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { Grid } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import {
   useSnackbar,
@@ -54,15 +46,9 @@ const SubmitStatusForm = ({
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
-<<<<<<< HEAD
-  const [selectedStatusId, setSelectedStatusId] = useState(0);
-  const [output, setOutput] = useState('');
-  const [performanceData, setPerformanceData] = useState('');
-=======
   const [selectedStatusId, setSelectedStatusId] = React.useState(0);
   const [output, setOutput] = React.useState('');
   const [performanceData, setPerformanceData] = React.useState('');
->>>>>>> centreon/dev-21.10.x
 
   const serviceStatuses = [
     {

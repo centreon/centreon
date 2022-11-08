@@ -27,10 +27,6 @@ use Centreon\Domain\HostConfiguration\Model\HostGroup;
 use Centreon\Domain\HostConfiguration\Model\HostSeverity;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\Annotation\EntityDescriptor;
-<<<<<<< HEAD
-use Centreon\Domain\Common\Assertion\Assertion;
-=======
->>>>>>> centreon/dev-21.10.x
 
 /***
  * This class is designed to represent a host configuration.
@@ -39,13 +35,6 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class Host
 {
-<<<<<<< HEAD
-    public const OPTION_NO = 0,
-                 OPTION_YES = 1,
-                 OPTION_DEFAULT = 2;
-
-=======
->>>>>>> centreon/dev-21.10.x
     /**
      * Host template
      */
@@ -59,19 +48,6 @@ class Host
      */
     public const TYPE_META = 2;
 
-<<<<<<< HEAD
-    public const NOTIFICATIONS_OPTION_DISABLED = 0,
-                 NOTIFICATIONS_OPTION_ENABLED = 1,
-                 NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE = 2;
-
-    private const AVAILABLE_NOTIFICATION_OPTIONS = [
-        self::NOTIFICATIONS_OPTION_DISABLED,
-        self::NOTIFICATIONS_OPTION_ENABLED,
-        self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE,
-    ];
-
-=======
->>>>>>> centreon/dev-21.10.x
     /**
      * @var int|null
      */
@@ -152,20 +128,9 @@ class Host
     private $groups = [];
 
     /**
-<<<<<<< HEAD
-     * @var HostSeverity|null
-     */
-    private $severity;
-
-    /**
-     * @var int
-     */
-    private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE;
-=======
      * @var HostSeverity[]
      */
     private $severities = [];
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @return int|null
@@ -505,56 +470,16 @@ class Host
     }
 
     /**
-<<<<<<< HEAD
-     * @param HostSeverity|null $hostSeverity
-     * @return self
-     */
-    public function setSeverity(?HostSeverity $hostSeverity): self
-    {
-        $this->severity = $hostSeverity;
-=======
      * @param HostSeverity $hostSeverity
      * @return self
      */
     public function addSeverity(HostSeverity $hostSeverity): self
     {
         $this->severities[] = $hostSeverity;
->>>>>>> centreon/dev-21.10.x
         return $this;
     }
 
     /**
-<<<<<<< HEAD
-     * @return HostSeverity|null
-     */
-    public function getSeverity(): ?HostSeverity
-    {
-        return $this->severity;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNotificationsEnabledOption(): int
-    {
-        return $this->notificationsEnabledOption;
-    }
-
-    /**
-     * @param int $notificationsEnabledOption
-     * @return self
-     */
-    public function setNotificationsEnabledOption(int $notificationsEnabledOption): self
-    {
-        Assertion::inArray(
-            $notificationsEnabledOption,
-            self::AVAILABLE_NOTIFICATION_OPTIONS,
-            'Engine::notificationsEnabledOption',
-        );
-
-        $this->notificationsEnabledOption = $notificationsEnabledOption;
-
-=======
      * @return HostSeverity[]
      */
     public function getSeverities(): array
@@ -568,7 +493,6 @@ class Host
     public function clearSeverities(): self
     {
         $this->severities = [];
->>>>>>> centreon/dev-21.10.x
         return $this;
     }
 }

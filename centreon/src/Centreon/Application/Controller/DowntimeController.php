@@ -663,11 +663,7 @@ class DowntimeController extends AbstractController
         $errorList = new ConstraintViolationList();
 
         //validate resources
-<<<<<<< HEAD
-        $resources = $dtRequest->getResources();
-=======
         $resources = $dtRequest->getResources() ?? [];
->>>>>>> centreon/dev-21.10.x
 
         foreach ($resources as $resource) {
             switch ($resource->getType()) {

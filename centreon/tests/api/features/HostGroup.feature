@@ -5,11 +5,7 @@ Feature:
 
   Background:
     Given a running instance of Centreon Web API
-<<<<<<< HEAD
-    And the endpoints are described in Centreon Web API documentation
-=======
     And the endpoints are described in Centreon Web API documentation (version: 21.10)
->>>>>>> centreon/dev-21.10.x
 
   Scenario: Host group listing
     Given I am logged in

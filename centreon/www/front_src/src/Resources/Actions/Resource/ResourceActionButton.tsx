@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-
-import { Tooltip, useMediaQuery, useTheme } from '@mui/material';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { IconButton } from '@centreon/ui';
 
@@ -42,18 +36,10 @@ const ResourceActionButton = ({
       <IconButton
         data-testid={label}
         disabled={disabled}
-<<<<<<< HEAD
-        size="large"
-        title={title}
-        onClick={onClick}
-      >
-        <div aria-label={label}>{icon}</div>
-=======
         title={title}
         onClick={onClick}
       >
         {icon}
->>>>>>> centreon/dev-21.10.x
       </IconButton>
     );
   }

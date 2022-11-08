@@ -172,19 +172,12 @@ function insertTrapGroup($ret = array())
 
     $fields = array();
     if (isset($ret['traps'])) {
-<<<<<<< HEAD
-        foreach ($ret['traps'] as $trap_id) {
-            $query = "INSERT INTO traps_group_relation (traps_group_id, traps_id) VALUES (" .
-                $pearDB->escape($trap_group_id['max_id']) . ",'" . $pearDB->escape($trap_id) . "')";
-            $pearDB->query($query);
-=======
         $query = "INSERT INTO traps_group_relation (traps_group_id, traps_id) VALUES (:traps_group_id, :traps_id)";
         $statement = $pearDB->prepare($query);
         foreach ($ret['traps'] as $trap_id) {
             $statement->bindValue(':traps_group_id', $trap_group_id['max_id'], \PDO::PARAM_INT);
             $statement->bindValue(':traps_id', (int) $trap_id, \PDO::PARAM_INT);
             $statement->execute();
->>>>>>> centreon/dev-21.10.x
         }
     }
 

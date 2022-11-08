@@ -1,27 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * For more information : contact@centreon.com
- *
- */
-
-=======
->>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Service;
 
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
@@ -31,18 +8,9 @@ use Centreon\Infrastructure\Service\Traits\ServiceContainerTrait;
 
 class ExporterService implements ContainerInterface
 {
-<<<<<<< HEAD
-    use ServiceContainerTrait;
-
-    /**
-     * @param string $object
-     * @param callable $factory
-     */
-=======
 
     use ServiceContainerTrait;
 
->>>>>>> centreon/dev-21.10.x
     public function add(string $object, callable $factory): void
     {
         $interface = ExporterServiceInterface::class;
@@ -63,13 +31,6 @@ class ExporterService implements ContainerInterface
         $this->sort();
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     * @return bool
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function has($id): bool
     {
         $result = $this->getKey($id);
@@ -77,13 +38,6 @@ class ExporterService implements ContainerInterface
         return $result !== null;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     * @return int[]
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function get($id): array
     {
         $key = $this->getKey($id);
@@ -96,13 +50,6 @@ class ExporterService implements ContainerInterface
         return $result;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     * @return int|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     private function getKey($id): ?int
     {
         foreach ($this->objects as $key => $object) {

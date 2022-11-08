@@ -28,18 +28,7 @@
 			<td>{$form.template.html}</td>
 			<td>{$form.status.html}</td>
 			{if (! isset($hostgroupsFilter))}
-<<<<<<< HEAD
-				<td>
-                    <h4>
-                        <div class="md-checkbox md-checkbox-inline">
-                            <input type="checkbox" id="statusHostFilter" name='statusHostFilter' {$hostStatusChecked}/>&nbsp;{$HostStatus}
-                            <label class="empty-label" for="statusHostFilter"></label>
-                        </div>
-                    </h4>
-                </td>
-=======
 				<td><h4><input type="checkbox" name='statusHostFilter' {$hostStatusChecked}/>{$HostStatus}</h4></td>
->>>>>>> centreon/dev-21.10.x
 			{/if}
 			<td>{$form.Search.html}</td>
         </tr>
@@ -82,33 +71,14 @@
 						$elemArr[elem].RowMenu_name != ""
 						&& isset($elemArr[elem].RowMenu_icone)
 						&& $elemArr[elem].RowMenu_icone != ""}
-<<<<<<< HEAD
-                        {if $elemArr[elem].isHostSvgFile}
-                            <span class="ico-18  margin_right">
-                                {$elemArr[elem].RowMenu_icone}
-                            </span>
-                        {else}
-                            <img src="{$elemArr[elem].RowMenu_icone}" class="ico-18" />
-                        {/if}
-=======
 						<img src="{$elemArr[elem].RowMenu_icone}" class="ico-18" />
->>>>>>> centreon/dev-21.10.x
 					{/if}
 					<a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a>
 				</td>
 				<td class="ListColLeft resizeTitle">
 					<a href="{$elemArr[elem].RowMenu_link2}">
-<<<<<<< HEAD
-						{if $elemArr[elem].RowMenu_sicon != "" && !$elemArr[elem].isServiceSvgFile}
-							<img src="{$elemArr[elem].RowMenu_sicon}" class="ico-14 margin_right"/>
-                        {else}
-                            <span class="ico-14  margin_right">
-                                {$elemArr[elem].RowMenu_sicon}
-                            </span>
-=======
 						{if $elemArr[elem].RowMenu_sicon != ""}
 							<img src="{$elemArr[elem].RowMenu_sicon}" class="ico-14 margin_right"/>
->>>>>>> centreon/dev-21.10.x
 						{/if}{$elemArr[elem].RowMenu_desc}
 					</a>
 				</td>

@@ -380,15 +380,8 @@ $form->addRule('traps_name', _("Compulsory Name"), 'required');
 $form->addRule('traps_oid', _("Compulsory Name"), 'required');
 $form->addRule('manufacturer_id', _("Compulsory Name"), 'required');
 $form->addRule('traps_args', _("Compulsory Name"), 'required');
-<<<<<<< HEAD
-$form->registerRule('exist', 'callback', [$trapObj, "testTrapExistence"]);
 $form->registerRule('wellFormated', 'callback', [$trapObj, "testOidFormat"]);
 $form->addRule('traps_oid', _("Bad OID Format"), 'wellFormated');
-$form->addRule('traps_oid', _("The same OID element already exists"), 'exist');
-=======
-$form->registerRule('wellFormated', 'callback', [$trapObj, "testOidFormat"]);
-$form->addRule('traps_oid', _("Bad OID Format"), 'wellFormated');
->>>>>>> centreon/dev-21.10.x
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
 /*

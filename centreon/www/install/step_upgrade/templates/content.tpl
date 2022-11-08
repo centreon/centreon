@@ -33,11 +33,7 @@
 
         <td align='right'>
             {if ($step-1 && !$blockPreview)}
-<<<<<<< HEAD
-                <input class='btc bt_back_install' type='button' id='previous' value='Back' onClick='jumpTo({$step-1});'/>
-=======
                 <input class='btc bt_info' type='button' id='previous' value='Back' onClick='jumpTo({$step-1});'/>
->>>>>>> centreon/dev-21.10.x
             {/if}
             <input class='btc bt_default' type='button' id='refresh' value='Refresh' onClick='jumpTo({$step});'/>
             {if (!isset($valid) || $valid)}

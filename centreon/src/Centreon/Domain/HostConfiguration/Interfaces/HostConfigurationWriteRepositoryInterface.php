@@ -42,17 +42,6 @@ interface HostConfigurationWriteRepositoryInterface
     public function addHost(Host $host): void;
 
     /**
-<<<<<<< HEAD
-     * Update a host.
-     *
-     * @param Host $host
-     * @throws \Throwable
-     */
-    public function updateHost(Host $host): void;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Change the activation status of host.
      *
      * @param int $hostId Host id for which we want to change the activation status

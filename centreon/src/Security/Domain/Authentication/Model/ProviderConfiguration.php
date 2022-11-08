@@ -23,19 +23,11 @@ declare(strict_types=1);
 namespace Security\Domain\Authentication\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-<<<<<<< HEAD
-use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
-=======
->>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Security\Authentication\Model
  */
-<<<<<<< HEAD
-class ProviderConfiguration implements ProviderConfigurationInterface
-=======
 class ProviderConfiguration
->>>>>>> centreon/dev-21.10.x
 {
     /**
      * @var int|null
@@ -81,11 +73,7 @@ class ProviderConfiguration
         string $name,
         bool $isActive,
         bool $isForced,
-<<<<<<< HEAD
-        string $centreonBaseUri = '/centreon',
-=======
         string $centreonBaseUri = '/centreon'
->>>>>>> centreon/dev-21.10.x
     ) {
         Assertion::minLength($type, 1, 'ConfigurationProvider::type');
         Assertion::minLength($name, 1, 'ConfigurationProvider::name');

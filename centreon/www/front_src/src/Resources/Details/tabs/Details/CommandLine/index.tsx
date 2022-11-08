@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { isNil } from 'ramda';
-
-import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { isNil } from 'ramda';
 
 import { makeStyles, Typography } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { getCommandsWithArguments } from './utils';
 

@@ -202,8 +202,6 @@ $tpl->assign("headerMenu_options", _("Options"));
  * HostGroup/service list
  */
 if ($searchS || $searchHG) {
-<<<<<<< HEAD
-=======
     //preparing tmp binds
     $tmpIds = explode(',', $tmp);
     $tmpQueryBinds = [];
@@ -219,18 +217,10 @@ if ($searchS || $searchHG) {
     }
     $tmp2Binds = implode(',', array_keys($tmp2QueryBinds));
 
->>>>>>> centreon/dev-21.10.x
     $query = "SELECT $distinct @nbr:=(SELECT COUNT(*) FROM host_service_relation " .
         "WHERE service_service_id = sv.service_id GROUP BY sv.service_id ) AS nbr, sv.service_id, " .
         "sv.service_description, sv.service_activate, sv.service_template_model_stm_id, hg.hg_id, hg.hg_name " .
         "FROM service sv, hostgroup hg, host_service_relation hsr $aclFrom " .
-<<<<<<< HEAD
-        "WHERE sv.service_register = '1' $sqlFilterCase AND sv.service_id IN (" . ($tmp ? $tmp : 'NULL') .
-        ") AND hsr.hostgroup_hg_id IN (" . ($tmp2 ? $tmp2 : 'NULL') . ") " .
-        ((isset($template) && $template) ? " AND service_template_model_stm_id = '$template' " : "") .
-        " AND hsr.service_service_id = sv.service_id AND hg.hg_id = hsr.hostgroup_hg_id " . $aclCond .
-        "ORDER BY hg.hg_name, sv.service_description LIMIT " . $num * $limit . ", " . $limit;
-=======
         "WHERE sv.service_register = '1' $sqlFilterCase AND sv.service_id " .
         "IN ($tmpBinds) AND hsr.hostgroup_hg_id IN ($tmp2Binds) " .
         ((isset($template) && $template) ? " AND service_template_model_stm_id = :template " : "") .
@@ -245,21 +235,12 @@ if ($searchS || $searchHG) {
     foreach ($tmp2QueryBinds as $key => $value) {
         $statement->bindValue($key, (int) $value, PDO::PARAM_INT);
     }
->>>>>>> centreon/dev-21.10.x
 } else {
     $query = "SELECT $distinct @nbr:=(SELECT COUNT(*) FROM host_service_relation " .
         "WHERE service_service_id = sv.service_id GROUP BY sv.service_id ) AS nbr, sv.service_id, " .
         "sv.service_description, sv.service_activate, sv.service_template_model_stm_id, hg.hg_id, hg.hg_name " .
         "FROM service sv, hostgroup hg, host_service_relation hsr $aclFrom " .
         "WHERE sv.service_register = '1' $sqlFilterCase " .
-<<<<<<< HEAD
-        ((isset($template) && $template) ? " AND service_template_model_stm_id = '$template' " : "") .
-        " AND hsr.service_service_id = sv.service_id AND hg.hg_id = hsr.hostgroup_hg_id " . $aclCond .
-        "ORDER BY hg.hg_name, sv.service_description LIMIT " . $num * $limit . ", " . $limit;
-}
-$dbResult = $pearDB->query($query);
-
-=======
         ((isset($template) && $template) ? " AND service_template_model_stm_id = :template " : "") .
         " AND hsr.service_service_id = sv.service_id AND hg.hg_id = hsr.hostgroup_hg_id " . $aclCond .
         "ORDER BY hg.hg_name, sv.service_description LIMIT :offset_, :limit";
@@ -271,7 +252,6 @@ if ((isset($template) && $template)) {
     $statement->bindValue(':template', (int) $template, \PDO::PARAM_INT);
 }
 $statement->execute();
->>>>>>> centreon/dev-21.10.x
 $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 
 // Different style between each lines
@@ -312,11 +292,7 @@ $fgHostgroup = array("value" => null, "print" => null);
 
 $centreonToken = createCSRFToken();
 
-<<<<<<< HEAD
-for ($i = 0; $service = $dbResult->fetch(); $i++) {
-=======
 for ($i = 0; $service = $statement->fetch(); $i++) {
->>>>>>> centreon/dev-21.10.x
     $moptions = "";
     $fgHostgroup["value"] != $service["hg_name"]
         ? ($fgHostgroup["print"] = true && $fgHostgroup["value"] = $service["hg_name"])
@@ -357,14 +333,8 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
             $tplStr .= "&nbsp;>&nbsp;<a href='main.php?p=60206&o=c&service_id=" . $key . "'>" . $value . "</a>";
         }
     }
-<<<<<<< HEAD
-    $isServiceSvgFile = true;
-    if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
-        $isServiceSvgFile = false;
-=======
 
     if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
->>>>>>> centreon/dev-21.10.x
         $svc_icon = "./img/media/" . $mediaObj->getFilename($service['esi_icon_image']);
     } elseif (
         $icone = $mediaObj->getFilename(
@@ -374,17 +344,9 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
             )
         )
     ) {
-<<<<<<< HEAD
-        $isServiceSvgFile = false;
-        $svc_icon = "./img/media/" . $icone;
-    } else {
-        $isServiceSvgFile = true;
-        $svc_icon = returnSvg("www/img/icons/service.svg", "var(--icons-fill-color)", 14, 14);
-=======
         $svc_icon = "./img/media/" . $icone;
     } else {
         $svc_icon = "./img/icons/service.png ";
->>>>>>> centreon/dev-21.10.x
     }
 
     //Get service intervals in seconds
@@ -426,12 +388,7 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
         "RowMenu_desc" => CentreonUtils::escapeSecure($service["service_description"]),
         "RowMenu_status" => $service["service_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_badge" => $service["service_activate"] ? "service_ok" : "service_critical",
-<<<<<<< HEAD
-        "RowMenu_options" => $moptions,
-        "isServiceSvgFile" => $isServiceSvgFile
-=======
         "RowMenu_options" => $moptions
->>>>>>> centreon/dev-21.10.x
     );
 
     $fgHostgroup["print"] ? null : $elemArr[$i]["RowMenu_name"] = null;

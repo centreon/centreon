@@ -25,27 +25,19 @@ namespace Centreon\Application\Controller;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Context\Context;
 use Centreon\Domain\Contact\Contact;
-<<<<<<< HEAD
-use Centreon\Domain\Monitoring\Icon;
-=======
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Icon;
 use Centreon\Domain\Downtime\Downtime;
 use Centreon\Domain\Monitoring\Service;
->>>>>>> centreon/dev-21.10.x
 use JMS\Serializer\SerializerInterface;
 use Centreon\Domain\Entity\EntityValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Monitoring\ResourceStatus;
-<<<<<<< HEAD
-use Centreon\Application\Normalizer\IconUrlNormalizer;
-=======
 use Symfony\Component\HttpFoundation\Response;
 use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Application\Normalizer\IconUrlNormalizer;
 use Centreon\Domain\Exception\EntityNotFoundException;
->>>>>>> centreon/dev-21.10.x
 use JMS\Serializer\Exception\ValidationFailedException;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
@@ -53,16 +45,12 @@ use Centreon\Domain\Monitoring\Exception\ResourceException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
 use Centreon\Domain\Monitoring\Serializer\ResourceExclusionStrategy;
-<<<<<<< HEAD
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-=======
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\ResourceGroup;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use JsonSchema\Validator;
 use JsonSchema\Constraints\Constraint;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * Resource APIs for the Unified View page
@@ -74,11 +62,7 @@ class MonitoringResourceController extends AbstractController
     /**
      * List of external parameters for list action
      *
-<<<<<<< HEAD
-     * @var array<string>
-=======
      * @var string[]
->>>>>>> centreon/dev-21.10.x
      */
     public const EXTRA_PARAMETERS_LIST = [
         'types',
@@ -111,13 +95,10 @@ class MonitoringResourceController extends AbstractController
     private const HOST_REPORTING_URI = '/main.php?p=307&host={resource_id}';
     private const SERVICE_REPORTING_URI =
         '/main.php?p=30702&period=yesterday&start=&end=&host_id={parent_resource_id}&item={resource_id}';
-<<<<<<< HEAD
-=======
     private const SERVICE_REDIRECT_URL_ENDPOINT = 'centreon_application_monitoring_resource_redirect_url_service';
     private const HOST_REDIRECT_URL_ENDPOINT = 'centreon_application_monitoring_resource_redirect_url_host';
     private const HOSTGROUP_CONFIGURATION_URI = '/main.php?p=60102&o=c&hg_id={resource_group_id}';
     private const SERVICEGROUP_CONFIGURATION_URI = '/main.php?p=60203&o=c&sg_id={resource_group_id}';
->>>>>>> centreon/dev-21.10.x
 
     private const RESOURCE_LISTING_URI = '/monitoring/resources';
 
@@ -145,18 +126,10 @@ class MonitoringResourceController extends AbstractController
     private const SERVICE_TIMELINE_ROUTE = 'centreon_application_monitoring_gettimelinebyhostandservice';
     private const SERVICE_STATUS_GRAPH_ROUTE = 'monitoring.metric.getServiceStatusMetrics';
     private const SERVICE_PERFORMANCE_GRAPH_ROUTE = 'monitoring.metric.getServicePerformanceMetrics';
-<<<<<<< HEAD
-    private const HOST_NOTIFICATION_POLICY_ROUTE = 'configuration.host.notification-policy';
-    private const SERVICE_NOTIFICATION_POLICY_ROUTE = 'configuration.service.notification-policy';
-    private const META_SERVICE_NOTIFICATION_POLICY_ROUTE = 'configuration.metaservice.notification-policy';
-
-    // Groups for serialization
-=======
 
     /**
      * @var string[]
      */
->>>>>>> centreon/dev-21.10.x
     public const SERIALIZER_GROUPS_LISTING = [
         ResourceEntity::SERIALIZER_GROUP_MAIN,
         ResourceEntity::SERIALIZER_GROUP_PARENT,
@@ -168,14 +141,11 @@ class MonitoringResourceController extends AbstractController
     public const VALIDATION_GROUP_MAIN = 'resource_id_main';
 
     /**
-<<<<<<< HEAD
-=======
      * @var MonitoringServiceInterface
      */
     private $monitoring;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * @var ResourceServiceInterface
      */
     protected $resource;
@@ -191,27 +161,18 @@ class MonitoringResourceController extends AbstractController
     protected $iconUrlNormalizer;
 
     /**
-<<<<<<< HEAD
-=======
      * @param MonitoringServiceInterface $monitoringService
->>>>>>> centreon/dev-21.10.x
      * @param ResourceServiceInterface $resource
      * @param UrlGeneratorInterface $router
      * @param IconUrlNormalizer $iconUrlNormalizer
      */
     public function __construct(
-<<<<<<< HEAD
-=======
         MonitoringServiceInterface $monitoringService,
->>>>>>> centreon/dev-21.10.x
         ResourceServiceInterface $resource,
         UrlGeneratorInterface $router,
         IconUrlNormalizer $iconUrlNormalizer
     ) {
-<<<<<<< HEAD
-=======
         $this->monitoring = $monitoringService;
->>>>>>> centreon/dev-21.10.x
         $this->resource = $resource;
         $this->router = $router;
         $this->iconUrlNormalizer = $iconUrlNormalizer;
@@ -242,19 +203,11 @@ class MonitoringResourceController extends AbstractController
 
         // set default values of filter data
         $filterData = [];
-<<<<<<< HEAD
-        foreach (self::EXTRA_PARAMETERS_LIST as $param) {
-            $filterData[$param] = [];
-        }
-
-        $filterData[self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY] = false;
-=======
         foreach (static::EXTRA_PARAMETERS_LIST as $param) {
             $filterData[$param] = [];
         }
 
         $filterData[static::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY] = false;
->>>>>>> centreon/dev-21.10.x
 
         // load filter data with the query parameters
         foreach ($request->query->all() as $param => $data) {
@@ -278,11 +231,6 @@ class MonitoringResourceController extends AbstractController
             throw new ValidationFailedException($errors);
         }
 
-<<<<<<< HEAD
-        // Parse the filter data into filter object
-        $filter = $serializer->deserialize(
-            json_encode($filterData),
-=======
         $content = json_encode($filterData);
 
         if ($content === false) {
@@ -292,17 +240,12 @@ class MonitoringResourceController extends AbstractController
         // Parse the filter data into filter object
         $filter = $serializer->deserialize(
             $content,
->>>>>>> centreon/dev-21.10.x
             ResourceFilter::class,
             'json'
         );
 
         $context = (new Context())
-<<<<<<< HEAD
-            ->setGroups(self::SERIALIZER_GROUPS_LISTING)
-=======
             ->setGroups(static::SERIALIZER_GROUPS_LISTING)
->>>>>>> centreon/dev-21.10.x
             ->enableMaxDepth();
 
         $context->addExclusionStrategy(new ResourceExclusionStrategy());
@@ -333,8 +276,6 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
-<<<<<<< HEAD
-=======
      * Get resource details related to the host
      *
      * @return View
@@ -525,7 +466,6 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Add performance graph endpoint on resources which have performance data
      *
      * @param ResourceEntity[] $resources
@@ -540,10 +480,7 @@ class MonitoringResourceController extends AbstractController
                 if (
                     $resource->getType() === ResourceEntity::TYPE_SERVICE
                     && $resourceWithGraphData->getType() === ResourceEntity::TYPE_SERVICE
-<<<<<<< HEAD
-=======
                     && $resource->getParent() !== null && $resourceWithGraphData->getParent() !== null
->>>>>>> centreon/dev-21.10.x
                     && $resource->getParent()->getId() === $resourceWithGraphData->getParent()->getId()
                     && $resource->getId() === $resourceWithGraphData->getId()
                 ) {
@@ -624,14 +561,8 @@ class MonitoringResourceController extends AbstractController
 
         if ($resource->getType() === ResourceEntity::TYPE_HOST) {
             $hostResource = $resource;
-<<<<<<< HEAD
-        } elseif ($resource->getType() === ResourceEntity::TYPE_SERVICE && $resource->getParent()) {
-            $hostResource = $resource->getParent();
-
-=======
         } elseif ($resource->getType() === ResourceEntity::TYPE_SERVICE && $resource->getParent() !== null) {
             $hostResource = $resource->getParent();
->>>>>>> centreon/dev-21.10.x
             $parameters = [
                 'hostId' => $resource->getParent()->getId(),
                 'serviceId' => $resource->getId(),
@@ -639,67 +570,39 @@ class MonitoringResourceController extends AbstractController
 
             $resource->getLinks()->getEndpoints()->setDetails(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::SERVICE_DETAILS_ROUTE,
-=======
                     static::SERVICE_DETAILS_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setTimeline(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::SERVICE_TIMELINE_ROUTE,
-=======
                     static::SERVICE_TIMELINE_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setAcknowledgement(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::SERVICE_ACKNOWLEDGEMENT_ROUTE,
-=======
                     static::SERVICE_ACKNOWLEDGEMENT_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $acknowledgementFilter)
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setDowntime(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::SERVICE_DOWNTIME_ROUTE,
-=======
                     static::SERVICE_DOWNTIME_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $downtimeFilter)
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setStatusGraph(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::SERVICE_STATUS_GRAPH_ROUTE,
-=======
                     static::SERVICE_STATUS_GRAPH_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
-<<<<<<< HEAD
-            $resource->getLinks()->getEndpoints()->setNotificationPolicy(
-                $this->router->generate(
-                    self::SERVICE_NOTIFICATION_POLICY_ROUTE,
-                    $parameters
-                )
-            );
-=======
             if (empty($resource->getLinks()->getExternals()->getActionUrl()) === false) {
                 $resource->getLinks()->getExternals()->setActionUrl(
                     $this->router->generate(
@@ -720,7 +623,6 @@ class MonitoringResourceController extends AbstractController
                     )
                 );
             }
->>>>>>> centreon/dev-21.10.x
         } elseif ($resource->getType() === ResourceEntity::TYPE_META) {
             $parameters = [
                 'metaId' => $resource->getId(),
@@ -728,79 +630,45 @@ class MonitoringResourceController extends AbstractController
 
             $resource->getLinks()->getEndpoints()->setDetails(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_DETAILS_ROUTE,
-=======
                     static::META_SERVICE_DETAILS_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setTimeline(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_TIMELINE_ROUTE,
-=======
                     static::META_SERVICE_TIMELINE_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setAcknowledgement(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_ACKNOWLEDGEMENT_ROUTE,
-=======
                     static::META_SERVICE_ACKNOWLEDGEMENT_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $acknowledgementFilter)
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setDowntime(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_DOWNTIME_ROUTE,
-=======
                     static::META_SERVICE_DOWNTIME_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $downtimeFilter)
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setStatusGraph(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_STATUS_GRAPH_ROUTE,
-=======
                     static::META_SERVICE_STATUS_GRAPH_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $resource->getLinks()->getEndpoints()->setMetrics(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::META_SERVICE_METRIC_LIST_ROUTE,
-                    $parameters
-                )
-            );
-
-            $resource->getLinks()->getEndpoints()->setNotificationPolicy(
-                $this->router->generate(
-                    self::META_SERVICE_NOTIFICATION_POLICY_ROUTE,
-                    ['metaServiceId' => $resource->getId()]
-                )
-            );
-=======
                     static::META_SERVICE_METRIC_LIST_ROUTE,
                     $parameters
                 )
             );
->>>>>>> centreon/dev-21.10.x
         }
 
         if ($hostResource !== null) {
@@ -810,56 +678,32 @@ class MonitoringResourceController extends AbstractController
 
             $hostResource->getLinks()->getEndpoints()->setDetails(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::HOST_DETAILS_ROUTE,
-=======
                     static::HOST_DETAILS_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $hostResource->getLinks()->getEndpoints()->setTimeline(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::HOST_TIMELINE_ROUTE,
-=======
                     static::HOST_TIMELINE_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     $parameters
                 )
             );
 
             $hostResource->getLinks()->getEndpoints()->setAcknowledgement(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::HOST_ACKNOWLEDGEMENT_ROUTE,
-=======
                     static::HOST_ACKNOWLEDGEMENT_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $acknowledgementFilter)
                 )
             );
 
             $hostResource->getLinks()->getEndpoints()->setDowntime(
                 $this->router->generate(
-<<<<<<< HEAD
-                    self::HOST_DOWNTIME_ROUTE,
-=======
                     static::HOST_DOWNTIME_ROUTE,
->>>>>>> centreon/dev-21.10.x
                     array_merge($parameters, $downtimeFilter)
                 )
             );
 
-<<<<<<< HEAD
-            $hostResource->getLinks()->getEndpoints()->setNotificationPolicy(
-                $this->router->generate(
-                    self::HOST_NOTIFICATION_POLICY_ROUTE,
-                    $parameters
-                )
-            );
-=======
             if (empty($hostResource->getLinks()->getExternals()->getActionUrl()) === false) {
                 $hostResource->getLinks()->getExternals()->setActionUrl(
                     $this->router->generate(
@@ -881,7 +725,6 @@ class MonitoringResourceController extends AbstractController
                     )
                 );
             }
->>>>>>> centreon/dev-21.10.x
         }
     }
 
@@ -894,11 +737,7 @@ class MonitoringResourceController extends AbstractController
      */
     private function provideInternalUris(ResourceEntity $resource, Contact $contact): void
     {
-<<<<<<< HEAD
-        if ($resource->getType() === ResourceEntity::TYPE_SERVICE && $resource->getParent()) {
-=======
         if ($resource->getType() === ResourceEntity::TYPE_SERVICE && $resource->getParent() !== null) {
->>>>>>> centreon/dev-21.10.x
             $this->provideHostInternalUris($resource->getParent(), $contact);
             $this->provideServiceInternalUris($resource, $contact);
         } elseif ($resource->getType() === ResourceEntity::TYPE_META) {
@@ -922,31 +761,19 @@ class MonitoringResourceController extends AbstractController
             || $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)
         ) {
             $resource->getLinks()->getUris()->setConfiguration(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::HOST_CONFIGURATION_URI)
-=======
                 $this->generateResourceUri($resource, static::HOST_CONFIGURATION_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
 
         if ($contact->hasTopologyRole(Contact::ROLE_MONITORING_EVENT_LOGS)) {
             $resource->getLinks()->getUris()->setLogs(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::HOST_LOGS_URI)
-=======
                 $this->generateResourceUri($resource, static::HOST_LOGS_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
 
         if ($contact->hasTopologyRole(Contact::ROLE_REPORTING_DASHBOARD_HOSTS)) {
             $resource->getLinks()->getUris()->setReporting(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::HOST_REPORTING_URI)
-=======
                 $this->generateResourceUri($resource, static::HOST_REPORTING_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
     }
@@ -965,31 +792,19 @@ class MonitoringResourceController extends AbstractController
             || $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_READ)
         ) {
             $resource->getLinks()->getUris()->setConfiguration(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::SERVICE_CONFIGURATION_URI)
-=======
                 $this->generateResourceUri($resource, static::SERVICE_CONFIGURATION_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
 
         if ($contact->hasTopologyRole(Contact::ROLE_MONITORING_EVENT_LOGS)) {
             $resource->getLinks()->getUris()->setLogs(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::SERVICE_LOGS_URI)
-=======
                 $this->generateResourceUri($resource, static::SERVICE_LOGS_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
 
         if ($contact->hasTopologyRole(Contact::ROLE_REPORTING_DASHBOARD_SERVICES)) {
             $resource->getLinks()->getUris()->setReporting(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::SERVICE_REPORTING_URI)
-=======
                 $this->generateResourceUri($resource, static::SERVICE_REPORTING_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
     }
@@ -1009,28 +824,18 @@ class MonitoringResourceController extends AbstractController
             || $contact->isAdmin()
         ) {
             $resource->getLinks()->getUris()->setConfiguration(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::META_SERVICE_CONFIGURATION_URI)
-=======
                 $this->generateResourceUri($resource, static::META_SERVICE_CONFIGURATION_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
 
         if ($contact->hasTopologyRole(Contact::ROLE_MONITORING_EVENT_LOGS)) {
             $resource->getLinks()->getUris()->setLogs(
-<<<<<<< HEAD
-                $this->generateResourceUri($resource, self::META_SERVICE_LOGS_URI)
-=======
                 $this->generateResourceUri($resource, static::META_SERVICE_LOGS_URI)
->>>>>>> centreon/dev-21.10.x
             );
         }
     }
 
     /**
-<<<<<<< HEAD
-=======
      * This function adds to the group the redirection URI to the configuration
      *
      * @param ResourceEntity $resource
@@ -1073,7 +878,6 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Generate full uri from relative path
      *
      * @param ResourceEntity $resource
@@ -1094,8 +898,6 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
-<<<<<<< HEAD
-=======
      * Generate full uri from relative path for ResourceGroup
      *
      * @param ResourceGroup $group
@@ -1109,7 +911,6 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Build uri to access host panel with details tab
      *
      * @param integer $hostId
@@ -1129,11 +930,7 @@ class MonitoringResourceController extends AbstractController
      */
     public function buildHostUri(int $hostId, string $tab = self::TAB_DETAILS_NAME): string
     {
-<<<<<<< HEAD
-        if (!in_array($tab, self::ALLOWED_TABS)) {
-=======
         if (!in_array($tab, static::ALLOWED_TABS)) {
->>>>>>> centreon/dev-21.10.x
             throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
         }
 
@@ -1169,11 +966,7 @@ class MonitoringResourceController extends AbstractController
      */
     public function buildServiceUri(int $hostId, int $serviceId, string $tab = self::TAB_DETAILS_NAME): string
     {
-<<<<<<< HEAD
-        if (!in_array($tab, self::ALLOWED_TABS)) {
-=======
         if (!in_array($tab, static::ALLOWED_TABS)) {
->>>>>>> centreon/dev-21.10.x
             throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
         }
 
@@ -1198,11 +991,7 @@ class MonitoringResourceController extends AbstractController
      */
     public function buildMetaServiceDetailsUri(int $metaId, string $tab = self::TAB_DETAILS_NAME): string
     {
-<<<<<<< HEAD
-        if (!in_array($tab, self::ALLOWED_TABS)) {
-=======
         if (!in_array($tab, static::ALLOWED_TABS)) {
->>>>>>> centreon/dev-21.10.x
             throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
         }
 
@@ -1221,11 +1010,7 @@ class MonitoringResourceController extends AbstractController
     /**
      * Build uri to access listing page of resources with specific parameters
      *
-<<<<<<< HEAD
-     * @param string[] $parameters
-=======
      * @param array<string, mixed> $parameters
->>>>>>> centreon/dev-21.10.x
      * @return string
      */
     public function buildListingUri(array $parameters): string
@@ -1238,8 +1023,6 @@ class MonitoringResourceController extends AbstractController
 
         return $baseListingUri;
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Endpoint: Replaces macros in the URL provided and redirect to it.
@@ -1289,5 +1072,4 @@ class MonitoringResourceController extends AbstractController
 
         return View::createRedirect($redirectUrl);
     }
->>>>>>> centreon/dev-21.10.x
 }

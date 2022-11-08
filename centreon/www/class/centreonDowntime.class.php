@@ -496,84 +496,18 @@ class CentreonDowntime
         }
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
-<<<<<<< HEAD
-                $query = "SELECT dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = " . $id;
-=======
                 $query = "SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = " . $id;
->>>>>>> centreon/dev-21.10.x
                 try {
                     $res = $this->db->query($query);
                 } catch (\PDOException $e) {
                     return;
                 }
                 $row = $res->fetch();
-<<<<<<< HEAD
-                $dt_name = $row['dt_name'];
-                $dt_desc = $row['dt_description'];
-                $dt_activate = $row['dt_activate'];
-                $index = $i = 1;
-                while ($i <= $nb[$id]) {
-                    /* Find the index for duplicate name */
-                    $query = "SELECT COUNT(*) as nb FROM downtime WHERE dt_name = '" . $dt_name . "_" . $index . "'";
-                    $res = $this->db->query($query);
-                    $row = $res->fetch();
-                    if ($row["nb"] == 0) {
-                        /* Insert the new downtime */
-                        $rq = "INSERT INTO downtime (dt_name, dt_description, dt_activate)
-								VALUES ('" . $dt_name . "_" . $index . "', '" . $dt_desc . "', '" . $dt_activate . "')";
-                        try {
-                            $res = $this->db->query($rq);
-                        } catch (\PDOException $e) {
-                            return;
-                        }
-                        /* Get the new downtime id */
-                        $query = "SELECT dt_id FROM downtime WHERE dt_name = '" . $dt_name . "_" . $index . "'";
-                        $res = $this->db->query($query);
-                        $row = $res->fetch();
-                        $res->closeCursor();
-                        $id_new = $row['dt_id'];
-                        /* Copy the periods for new downtime */
-                        $query = "INSERT INTO downtime_period (dt_id, dtp_start_time, dtp_end_time,
-                            dtp_day_of_week, dtp_month_cycle, dtp_day_of_month, dtp_fixed, dtp_duration,
-                            dtp_activate)
-                            SELECT " . $id_new . ", dtp_start_time, dtp_end_time, dtp_day_of_week, dtp_month_cycle,
-                            dtp_day_of_month, dtp_fixed, dtp_duration, dtp_activate
-                            FROM downtime_period WHERE dt_id = " . $id;
-                        $this->db->query($query);
-
-                        /*
-                         * Duplicate Relations for hosts
-                         */
-                        $this->db->query("INSERT INTO downtime_host_relation (dt_id, host_host_id)
-                            SELECT $id_new, host_host_id FROM downtime_host_relation WHERE dt_id = '$id'");
-
-                        /*
-                         * Duplicate Relations for hostgroups
-                         */
-                        $this->db->query("INSERT INTO downtime_hostgroup_relation (dt_id, hg_hg_id)
-                            SELECT $id_new, hg_hg_id FROM downtime_hostgroup_relation WHERE dt_id = '$id'");
-
-                        /*
-                         * Duplicate Relations for services
-                         */
-                        $this->db->query("INSERT INTO downtime_service_relation
-                            (dt_id, host_host_id, service_service_id)
-                            SELECT $id_new, host_host_id, service_service_id
-                            FROM downtime_service_relation WHERE dt_id = '$id'");
-
-                        /*
-                         * Duplicate Relations for servicegroups
-                         */
-                        $this->db->query("INSERT INTO downtime_servicegroup_relation (dt_id, sg_sg_id)
-                            SELECT $id_new, sg_sg_id FROM downtime_servicegroup_relation WHERE dt_id = '$id'");
-
-=======
                 $index = $i = 1;
                 while ($i <= $nb[$id]) {
                     if (!$this->downtimeExists($row['dt_name'] . '_' . $index)) {
                         $row['index'] = $index;
                         $this->duplicateDowntime($row);
->>>>>>> centreon/dev-21.10.x
                         $i++;
                     }
                     $index++;
@@ -953,8 +887,6 @@ class CentreonDowntime
 
         return $parameters;
     }
-<<<<<<< HEAD
-=======
 
     /**
      * All in one function to duplicate downtime.
@@ -1100,5 +1032,4 @@ class CentreonDowntime
         $statement->bindValue(':dt_id', (int) $params['dt_id'], \PDO::PARAM_INT);
         $statement->execute();
     }
->>>>>>> centreon/dev-21.10.x
 }

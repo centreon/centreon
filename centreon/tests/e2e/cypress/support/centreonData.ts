@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-/* eslint-disable import/no-mutable-exports */
-import { apiActionV1, executeActionViaClapi, insertFixture } from '../commons';
-import { refreshButton } from '../integration/Resources-status/common';
-
-const refreshListing = (): Cypress.Chainable => {
-  return cy.get(refreshButton).click();
-};
-
-=======
 import { refreshButton } from '../integration/Resources-status/common';
 
 import { apiActionV1, apiLoginV2, apiFilterResources } from './model';
@@ -87,7 +77,6 @@ const executeActionViaClapi = (
   });
 };
 
->>>>>>> centreon/dev-21.10.x
 const setUserTokenApiV1 = (): Cypress.Chainable => {
   return cy.fixture('users/admin.json').then((userAdmin) => {
     return cy
@@ -108,8 +97,6 @@ const setUserTokenApiV1 = (): Cypress.Chainable => {
   });
 };
 
-<<<<<<< HEAD
-=======
 const setUserTokenApiV2 = (): Cypress.Chainable => {
   return cy.fixture('users/admin.json').then((userAdmin) => {
     return cy
@@ -195,7 +182,6 @@ const insertFixture = (file: string): Cypress.Chainable => {
   return cy.fixture(file).then(executeActionViaClapi);
 };
 
->>>>>>> centreon/dev-21.10.x
 const initializeResourceData = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host1/01-add.json',
@@ -207,13 +193,6 @@ const initializeResourceData = (): Cypress.Chainable => {
     'resources/clapi/service2/02-set-max-check.json',
     'resources/clapi/service2/03-disable-active-check.json',
     'resources/clapi/service2/04-enable-passive-check.json',
-<<<<<<< HEAD
-    'resources/clapi/service3/01-add.json',
-    'resources/clapi/service3/02-set-max-check.json',
-    'resources/clapi/service3/03-disable-active-check.json',
-    'resources/clapi/service3/04-enable-passive-check.json',
-=======
->>>>>>> centreon/dev-21.10.x
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
@@ -227,13 +206,6 @@ const removeResourceData = (): Cypress.Chainable => {
   });
 };
 
-<<<<<<< HEAD
-export {
-  setUserTokenApiV1,
-  executeActionViaClapi,
-  initializeResourceData,
-  removeResourceData,
-=======
 const applyConfigurationViaClapi = (): Cypress.Chainable => {
   return executeActionViaClapi({
     action: 'APPLYCFG',
@@ -252,6 +224,5 @@ export {
   removeResourceData,
   applyConfigurationViaClapi,
   fixtureResourcesShouldBeDisplayed,
->>>>>>> centreon/dev-21.10.x
   refreshListing,
 };

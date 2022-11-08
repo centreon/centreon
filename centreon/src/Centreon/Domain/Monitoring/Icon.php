@@ -33,14 +33,6 @@ class Icon
     public const SERIALIZER_GROUP_MAIN = 'icon_main';
 
     /**
-<<<<<<< HEAD
-     * @var int|null
-     */
-    private $id;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * @var string|null
      */
     private $name;
@@ -51,28 +43,6 @@ class Icon
     private $url;
 
     /**
-<<<<<<< HEAD
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int|null $id
-     * @return self
-     */
-    public function setId(?int $id): self
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * @return string|null
      */
     public function getName(): ?string

@@ -35,10 +35,6 @@
  */
 
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
-<<<<<<< HEAD
-require_once _CENTREON_PATH_ . 'www/class/CentreonLDAPAdmin.class.php';
-=======
->>>>>>> centreon/dev-21.10.x
 $tpl = new Smarty();
 
 if (isset($_REQUEST['ar_id']) || isset($_REQUEST['new'])) {

@@ -1,10 +1,6 @@
 <h3 style="text-align: center;"> Gorgone configuration file :</h3>
 <br>
-<<<<<<< HEAD
-<div class="gorgone_config_file">
-=======
 <div  style="background-color: #ededed; padding: 4px;">
->>>>>>> centreon/dev-21.10.x
     <pre id='configuration_file' style="overflow-x: auto;">{$args}</pre>
     <br>
     <pre id='command_configuration_file' style="overflow-x: auto; display: none">

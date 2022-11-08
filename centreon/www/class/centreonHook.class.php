@@ -35,10 +35,6 @@
 
 class CentreonHook
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Class constructor
      *

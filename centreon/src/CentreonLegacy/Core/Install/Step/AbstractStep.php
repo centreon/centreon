@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2022 Centreon
-=======
 /*
  * Copyright 2005-2015 Centreon
->>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -41,35 +35,6 @@
 
 namespace CentreonLegacy\Core\Install\Step;
 
-<<<<<<< HEAD
-use Pimple\Container;
-
-abstract class AbstractStep implements StepInterface
-{
-    protected const TMP_INSTALL_DIR = __DIR__ . '/../../../../../www/install/tmp';
-
-    /**
-     * @param Container $dependencyInjector
-     */
-    public function __construct(protected Container $dependencyInjector)
-    {
-    }
-
-    /**
-     * Get configuration from json file
-     *
-     * @param string $file
-     * @param array|string $configuration
-     * @return array<int|string,string>|string
-     */
-    private function getConfiguration($file, $configuration = [])
-    {
-        if ($this->dependencyInjector['filesystem']->exists($file)) {
-            $configuration = json_decode(file_get_contents($file), true);
-            foreach ($configuration as $key => $configurationValue) {
-                $configuration[$key] = htmlspecialchars($configurationValue, ENT_QUOTES);
-            }
-=======
 abstract class AbstractStep implements StepInterface
 {
     protected $dependencyInjector;
@@ -88,32 +53,11 @@ abstract class AbstractStep implements StepInterface
     {
         if ($this->dependencyInjector['filesystem']->exists($file)) {
             $configuration = json_decode(file_get_contents($file), true);
->>>>>>> centreon/dev-21.10.x
         }
 
         return $configuration;
     }
 
-<<<<<<< HEAD
-    /**
-     * Get base configuration (paths)
-     *
-     * @return array<string,string>
-     */
-    public function getBaseConfiguration()
-    {
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/configuration.json');
-    }
-
-    /**
-     * Get database access configuration
-     *
-     * @return array<string,string>
-     */
-    public function getDatabaseConfiguration()
-    {
-        $configuration = [
-=======
     public function getBaseConfiguration()
     {
         return $this->getConfiguration(__DIR__ . '/../../../../../www/install/tmp/configuration.json');
@@ -122,7 +66,6 @@ abstract class AbstractStep implements StepInterface
     public function getDatabaseConfiguration()
     {
         $configuration = array(
->>>>>>> centreon/dev-21.10.x
             'address' => '',
             'port' => '',
             'root_user' => 'root',
@@ -132,21 +75,6 @@ abstract class AbstractStep implements StepInterface
             'db_user' => 'centreon',
             'db_password' => '',
             'db_password_confirm' => ''
-<<<<<<< HEAD
-        ];
-
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/database.json', $configuration);
-    }
-
-    /**
-     * Get admin user configuration
-     *
-     * @return array<string,string>
-     */
-    public function getAdminConfiguration()
-    {
-        $configuration = [
-=======
         );
 
         return $this->getConfiguration(__DIR__ . "/../../../../../www/install/tmp/database.json", $configuration);
@@ -155,47 +83,11 @@ abstract class AbstractStep implements StepInterface
     public function getAdminConfiguration()
     {
         $configuration = array(
->>>>>>> centreon/dev-21.10.x
             'admin_password' => '',
             'confirm_password' => '',
             'firstname' => '',
             'lastname' => '',
             'email' => ''
-<<<<<<< HEAD
-        ];
-
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/admin.json', $configuration);
-    }
-
-    /**
-     * Get centreon-engine configuration
-     *
-     * @return array<string,string>
-     */
-    public function getEngineConfiguration()
-    {
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/engine.json');
-    }
-
-    /**
-     * Get centreon-broker configuration
-     *
-     * @return array<string,string>
-     */
-    public function getBrokerConfiguration()
-    {
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/broker.json');
-    }
-
-    /**
-     * Get centreon version
-     *
-     * @return array<string,string>
-     */
-    public function getVersion()
-    {
-        return $this->getConfiguration(self::TMP_INSTALL_DIR . '/version.json', '1.0.0');
-=======
         );
 
         return $this->getConfiguration(__DIR__ . "/../../../../../www/install/tmp/admin.json", $configuration);
@@ -214,6 +106,5 @@ abstract class AbstractStep implements StepInterface
     public function getVersion()
     {
         return $this->getConfiguration(__DIR__ . "/../../../../../www/install/tmp/version.json", '1.0.0');
->>>>>>> centreon/dev-21.10.x
     }
 }

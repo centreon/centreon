@@ -87,11 +87,7 @@
     </tr>
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_display_downtime_chart">{$form.display_downtime_chart.label}</td><td class="FormRowValue">{$form.display_downtime_chart.html}</td></tr>
     <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_display_comment_chart">{$form.display_comment_chart.label}</td><td class="FormRowValue">{$form.display_comment_chart.html}</td></tr>
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> centreon/dev-21.10.x
 	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
         <h4>{$genOpt_auth}</h4>
@@ -99,8 +95,6 @@
     </tr>
 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_enable_autologin">{$form.enable_autologin.label}</td><td class="FormRowValue">{$form.enable_autologin.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_display_autologin_shortcut">{$form.display_autologin_shortcut.label}</td><td class="FormRowValue">{$form.display_autologin_shortcut.html}</td></tr>
-<<<<<<< HEAD
-=======
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="sso_enable">{$form.sso_enable.label}</td><td class="FormRowValue">{$form.sso_enable.html}</td></tr>
     <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="sso_mode">{$form.sso_mode.label}</td><td class="FormRowValue">{$form.sso_mode.html}</td></tr>
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="sso_trusted_clients">{$form.sso_trusted_clients.label}</td><td class="FormRowValue">{$form.sso_trusted_clients.html}</td></tr>
@@ -216,7 +210,6 @@
         </td>
         <td class="FormRowValue">{$form.openid_connect_verify_peer.html}</td>
     </tr>
->>>>>>> centreon/dev-21.10.x
 
 	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
@@ -224,10 +217,7 @@
       </td>
     </tr>
      	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_default_timezone">{$form.gmt.label}</td><td class="FormRowValue">{$form.gmt.html}</td></tr>
-<<<<<<< HEAD
-=======
  	
->>>>>>> centreon/dev-21.10.x
   	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
         <h4>{$support}</h4>

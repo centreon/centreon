@@ -176,27 +176,15 @@ class CentreonMedia
      * Add directory
      * @param string $dirname
      */
-<<<<<<< HEAD
-    private function createDirectory($dirname): void
-=======
     private function createDirectory($dirname)
->>>>>>> centreon/dev-21.10.x
     {
         $mediaDirectory = $this->getMediaDirectory();
 
         $fullPath = $mediaDirectory . '/' . $dirname;
 
         // Create directory and nested folder structure
-<<<<<<< HEAD
-        if (! is_dir($fullPath)) {
-            @mkdir($fullPath, 0755, true);
-            if (! is_dir($fullPath)) {
-                error_log('Impossible to create directory ' . $fullPath);
-            }
-=======
         if (!is_dir($fullPath)) {
             mkdir($fullPath, 0755, true);
->>>>>>> centreon/dev-21.10.x
         } elseif (fileperms($fullPath) !== 0755) {
             chmod($fullPath, 0755);
         }
@@ -422,23 +410,12 @@ class CentreonMedia
             $imageId = $row['img_id'];
 
             // Insert relation between directory and image
-<<<<<<< HEAD
-            $query = 'INSERT INTO view_img_dir_relation '
-                . '(dir_dir_parent_id, img_img_id) '
-                . 'VALUES ('
-                . $directoryId . ', '
-                . $imageId . ' '
-                . ') ';
-            try {
-                $this->db->query($query);
-=======
             $statement = $this->db->prepare("INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) " .
                 "VALUES (:dirId, :imgId) ");
             $statement->bindValue(':dirId', (int) $directoryId, \PDO::PARAM_INT);
             $statement->bindValue(':imgId', (int) $imageId, \PDO::PARAM_INT);
             try {
                 $statement->execute();
->>>>>>> centreon/dev-21.10.x
             } catch (\PDOException $e) {
                 throw new \Exception('Error while inserting relation between' . $imageName . ' and ' . $directoryName);
             }

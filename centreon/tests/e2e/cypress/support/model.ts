@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import { apiBase, versionApi } from '../commons';
-
-const apiMonitoringBeta = `${apiBase}/beta/monitoring`;
-const apiMonitoring = `${apiBase}/${versionApi}/monitoring`;
-
-export { apiMonitoringBeta, apiMonitoring };
-=======
 const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
 
 const apiActionV1 = `${apiBase}/index.php`;
@@ -24,4 +16,3 @@ export {
   apiMonitoringBeta,
   apiMonitoring,
 };
->>>>>>> centreon/dev-21.10.x

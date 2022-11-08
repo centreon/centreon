@@ -43,27 +43,10 @@ abstract class AbstractObjectJSON
 
     protected $content = [];
 
-<<<<<<< HEAD
-    /**
-     * @param \Pimple\Container $dependencyInjector
-     * @return static
-     */
-    public static function getInstance(\Pimple\Container $dependencyInjector): static
-    {
-        /**
-         * @var array<string, static>
-         */
-        static $instances = array();
-
-        /**
-         * @var class-string<static>
-         */
-=======
     public static function getInstance(\Pimple\Container $dependencyInjector)
     {
         static $instances = array();
 
->>>>>>> centreon/dev-21.10.x
         $calledClass = get_called_class();
 
         if (!isset($instances[$calledClass])) {

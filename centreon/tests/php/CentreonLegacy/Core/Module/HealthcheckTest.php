@@ -34,10 +34,6 @@ use CentreonLegacy\Core\Module\Exception;
  */
 class HealthcheckTest extends TestCase
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     protected $isModuleFs;
 
     public function setUp(): void

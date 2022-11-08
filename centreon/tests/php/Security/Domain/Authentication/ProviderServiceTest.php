@@ -86,8 +86,6 @@ class ProviderServiceTest extends TestCase
     }
 
     /**
-<<<<<<< HEAD
-=======
      * test findProvidersConfigurations on failure
      */
     public function testFindProvidersConfigurationsFailed(): void
@@ -131,7 +129,6 @@ class ProviderServiceTest extends TestCase
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * test findProviderByConfigurationId on failure
      */
     public function testFindProviderByConfigurationIdFailed(): void
@@ -306,28 +303,14 @@ class ProviderServiceTest extends TestCase
             $this->providerFactory
         );
 
-<<<<<<< HEAD
-        $throwedException = new \Exception();
-
-=======
->>>>>>> centreon/dev-21.10.x
         $this->providerRepository
             ->expects($this->once())
             ->method('findProviderConfigurationByConfigurationName')
             ->with('local')
-<<<<<<< HEAD
-            ->willThrowException($throwedException);
-
-        $this->expectException(ProviderException::class);
-        $this->expectExceptionMessage(
-            ProviderException::findProviderConfiguration('local', $throwedException)->getMessage()
-        );
-=======
             ->willThrowException(new \Exception());
 
         $this->expectException(ProviderException::class);
         $this->expectExceptionMessage('Error while searching providers configurations');
->>>>>>> centreon/dev-21.10.x
 
         $providerService->findProviderConfigurationByConfigurationName('local');
     }

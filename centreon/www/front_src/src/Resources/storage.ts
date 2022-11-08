@@ -32,9 +32,6 @@ const getStoredOrDefault = <TItem>({
   return updatedCachedItem;
 };
 
-<<<<<<< HEAD
-export { getStoredOrDefault, baseKey };
-=======
 interface StoreParameters<TItem> {
   key: string;
   value: TItem;
@@ -45,4 +42,3 @@ const store = <TItem>({ value, key }: StoreParameters<TItem>): void => {
 };
 
 export { getStoredOrDefault, store, baseKey };
->>>>>>> centreon/dev-21.10.x

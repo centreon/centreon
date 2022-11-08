@@ -22,14 +22,6 @@
 namespace Tests\Centreon\Domain\Monitoring;
 
 use PHPUnit\Framework\TestCase;
-<<<<<<< HEAD
-use Centreon\Domain\Monitoring\Resource;
-use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\Monitoring\ResourceService;
-use Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface;
-use Centreon\Domain\Security\Interfaces\AccessGroupRepositoryInterface;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-=======
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\Resource;
@@ -45,13 +37,10 @@ use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationReposito
 use Centreon\Infrastructure\MetaServiceConfiguration\Repository\MetaServiceConfigurationRepositoryRDB;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
 use Centreon\Domain\ServiceConfiguration\ServiceMacro;
->>>>>>> centreon/dev-21.10.x
 
 class ResourceServiceTest extends TestCase
 {
     /**
-<<<<<<< HEAD
-=======
      * @var MonitoringRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
      */
     private $monitoringRepository;
@@ -93,7 +82,6 @@ class ResourceServiceTest extends TestCase
         $this->serviceConfigurationRepository = $this->createMock(ServiceConfigurationRepositoryInterface::class);
     }
     /**
->>>>>>> centreon/dev-21.10.x
      * @throws \Exception
      */
     public function testFindResources(): void
@@ -108,21 +96,6 @@ class ResourceServiceTest extends TestCase
             ->setName('service1')
             ->setParent($hostResource);
 
-<<<<<<< HEAD
-        $resourceRepository = $this->createMock(ResourceRepositoryInterface::class);
-        $resourceRepository->expects(self::any())
-            ->method('findResources')
-            ->willReturn([$hostResource, $serviceResource]); // values returned for the all next tests
-
-        $monitoringRepository = $this->createMock(MonitoringRepositoryInterface::class);
-
-        $accessGroup = $this->createMock(AccessGroupRepositoryInterface::class);
-
-        $resourceService = new ResourceService(
-            $resourceRepository,
-            $monitoringRepository,
-            $accessGroup
-=======
         $this->resourceRepository->expects(self::any())
             ->method('findResources')
             ->willReturn([$hostResource, $serviceResource]);
@@ -134,7 +107,6 @@ class ResourceServiceTest extends TestCase
             $this->metaServiceConfigurationRepository,
             $this->hostMacroConfigurationRepository,
             $this->serviceConfigurationRepository
->>>>>>> centreon/dev-21.10.x
         );
 
         $resourcesFound = $resourceService->findResources(new ResourceFilter());
@@ -143,8 +115,6 @@ class ResourceServiceTest extends TestCase
         $this->assertEquals('h1', $resourcesFound[0]->getUuid());
         $this->assertEquals('h1-s1', $resourcesFound[1]->getUuid());
     }
-<<<<<<< HEAD
-=======
 
     /**
      * test host macros replacement
@@ -287,5 +257,4 @@ class ResourceServiceTest extends TestCase
 
         $this->assertEquals($resourceService->replaceMacrosInServiceUrl(10, 25, 'action-url'), $expected);
     }
->>>>>>> centreon/dev-21.10.x
 }

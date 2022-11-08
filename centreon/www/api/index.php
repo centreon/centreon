@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -42,11 +38,8 @@ require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once dirname(__FILE__) . '/class/webService.class.php';
 require_once dirname(__FILE__) . '/interface/di.interface.php';
 
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 
->>>>>>> centreon/dev-21.10.x
 error_reporting(-1);
 ini_set('display_errors', 0);
 
@@ -72,14 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
         $credentials['password']
     );
     $response = new \Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse();
-<<<<<<< HEAD
-    $authenticateApiUseCase->execute($request, $response);
-
-    if (!empty($response->getApiAuthentication()['security']['token'])) {
-        CentreonWebService::sendResult(['authToken' => $response->getApiAuthentication()['security']['token']]);
-    } else {
-        CentreonWebService::sendResult('Invalid credentials', 403);
-=======
     try {
         $authenticateApiUseCase->execute($request, $response);
     } catch (AuthenticationException $ex) {
@@ -103,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
         CentreonWebService::sendResult(['authToken' => $response->getApiAuthentication()['security']['token']]);
     } else {
         CentreonWebService::sendResult('Invalid credentials', 401);
->>>>>>> centreon/dev-21.10.x
     }
 } else { // Purge old tokens
     $authenticationService = $kernel->getContainer()->get(
@@ -114,11 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 
 /* Test authentication */
 if (false === isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
-<<<<<<< HEAD
-    CentreonWebService::sendResult("Unauthorized", 401);
-=======
     CentreonWebService::sendResult("Unauthorized", 403);
->>>>>>> centreon/dev-21.10.x
 }
 
 /* Create the default object */

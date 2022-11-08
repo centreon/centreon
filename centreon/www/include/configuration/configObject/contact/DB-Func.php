@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2021 Centreon
-=======
 /*
  * Copyright 2005-2019 Centreon
->>>>>>> centreon/dev-21.10.x
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -43,13 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-<<<<<<< HEAD
-require_once __DIR__ . '/../../../../../bootstrap.php';
-require_once __DIR__ . '/../../../../class/centreonAuth.class.php';
-require_once __DIR__ . '/../../../../class/centreonContact.class.php';
-=======
 require_once _CENTREON_PATH_ . 'bootstrap.php';
->>>>>>> centreon/dev-21.10.x
 
 /**
  * @param null $name
@@ -355,44 +343,12 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
     $newContactIds = [];
     foreach ($contacts as $key => $value) {
         $newContactIds[$key] = [];
-<<<<<<< HEAD
-        $statement = $pearDB->prepare(
-            "SELECT `contact`.*, cp.password, cp.creation_date
-            FROM contact
-            LEFT JOIN contact_password cp ON cp.contact_id = contact.contact_id
-            WHERE `contact`.contact_id = :contactId LIMIT 1"
-        );
-        $statement->bindValue(':contactId', (int)$key, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
-        if ($row === false) {
-            return;
-        }
-
-=======
         $dbResult = $pearDB->query("SELECT * FROM contact WHERE contact_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
->>>>>>> centreon/dev-21.10.x
         $row["contact_id"] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = null;
             foreach ($row as $key2 => $value2) {
-<<<<<<< HEAD
-                if (in_array($key2, ['creation_date', 'password']) === false) {
-                    $key2 == "contact_name" ? ($contact_name = $value2 = $value2 . "_" . $i) : null;
-                    $key2 == "contact_alias" ? ($contact_alias = $value2 = $value2 . "_" . $i) : null;
-                    $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL") : $val .=
-                        ($value2 != null ? ("'" . $value2 . "'") : "NULL");
-                    if ($key2 != "contact_id") {
-                        $fields[$key2] = $value2;
-                    }
-                    if (isset($contact_name)) {
-                        $fields["contact_name"] = $contact_name;
-                    }
-                    if (isset($contact_alias)) {
-                        $fields["contact_alias"] = $contact_alias;
-                    }
-=======
                 $key2 == "contact_name" ? ($contact_name = $value2 = $value2 . "_" . $i) : null;
                 $key2 == "contact_alias" ? ($contact_alias = $value2 = $value2 . "_" . $i) : null;
                 $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL") : $val .=
@@ -405,7 +361,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                 }
                 if (isset($contact_alias)) {
                     $fields["contact_alias"] = $contact_alias;
->>>>>>> centreon/dev-21.10.x
                 }
             }
 
@@ -418,24 +373,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                 $pearDB->query($rq);
                 $lastId = $pearDB->lastInsertId();
                 if (isset($lastId)) {
-<<<<<<< HEAD
-                    /**
-                     * Don't insert password for a contact_template.
-                     */
-                    if ($row['password'] !== null) {
-                        $contact = new \CentreonContact($pearDB);
-                        $contact->addPasswordByContactId((int) $lastId, $row['password']);
-                        $statement = $pearDB->prepare(
-                            "UPDATE contact_password
-                            SET creation_date = :creationDate
-                            WHERE contact_id = :contactId"
-                        );
-                        $statement->bindValue(':creationDate', $row['creation_date'], \PDO::PARAM_INT);
-                        $statement->bindValue(':contactId', (int) $lastId, \PDO::PARAM_INT);
-                        $statement->execute();
-                    }
-=======
->>>>>>> centreon/dev-21.10.x
                     $newContactIds[$key][] = $lastId;
                     /*
                      * ACL update
@@ -444,12 +381,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = " . (int)$key;
                     $dbResult = $pearDB->query($query);
                     $fields["contact_aclRelation"] = "";
-<<<<<<< HEAD
-                    while ($aclRelation = $dbResult->fetch()) {
-                        $query = "INSERT INTO acl_group_contacts_relations VALUES ('" .
-                            $lastId . "', '" . $aclRelation["acl_group_id"] . "')";
-                        $pearDB->query($query);
-=======
                     $query = "INSERT INTO acl_group_contacts_relations VALUES (:contact_id, :acl_group_id)";
                     $statement = $pearDB->prepare($query);
                     while ($aclRelation = $dbResult->fetch()) {
@@ -460,7 +391,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                             \PDO::PARAM_INT
                         );
                         $statement->execute();
->>>>>>> centreon/dev-21.10.x
                         $fields["contact_aclRelation"] .= $aclRelation["acl_group_id"] . ",";
                     }
                     $fields["contact_aclRelation"] = trim($fields["contact_aclRelation"], ",");
@@ -472,12 +402,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = '" . (int)$key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["contact_hostNotifCmds"] = "";
-<<<<<<< HEAD
-                    while ($hostCmd = $dbResult->fetch()) {
-                        $query = "INSERT INTO contact_hostcommands_relation VALUES ('" .
-                            $lastId . "', '" . $hostCmd["command_command_id"] . "')";
-                        $pearDB->query($query);
-=======
                     $query = "INSERT INTO contact_hostcommands_relation VALUES (:contact_id, :command_command_id)";
                     $statement = $pearDB->prepare($query);
                     while ($hostCmd = $dbResult->fetch()) {
@@ -488,7 +412,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                             \PDO::PARAM_INT
                         );
                         $statement->execute();
->>>>>>> centreon/dev-21.10.x
                         $fields["contact_hostNotifCmds"] .= $hostCmd["command_command_id"] . ",";
                     }
                     $fields["contact_hostNotifCmds"] = trim($fields["contact_hostNotifCmds"], ",");
@@ -500,12 +423,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = '" . (int)$key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["contact_svNotifCmds"] = "";
-<<<<<<< HEAD
-                    while ($serviceCmd = $dbResult->fetch()) {
-                        $query = "INSERT INTO contact_servicecommands_relation VALUES ('" .
-                            $lastId . "', '" . $serviceCmd["command_command_id"] . "')";
-                        $pearDB->query($query);
-=======
                     $query = "INSERT INTO contact_servicecommands_relation 
                          VALUES (:contact_id, :command_command_id)";
                     $statement = $pearDB->prepare($query);
@@ -517,7 +434,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                             \PDO::PARAM_INT
                         );
                         $statement->execute();
->>>>>>> centreon/dev-21.10.x
                         $fields["contact_svNotifCmds"] .= $serviceCmd["command_command_id"] . ",";
                     }
                     $fields["contact_svNotifCmds"] = trim($fields["contact_svNotifCmds"], ",");
@@ -529,13 +445,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = '" . (int)$key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["contact_cgNotif"] = "";
-<<<<<<< HEAD
-                    while ($Cg = $dbResult->fetch()) {
-                        $query = "INSERT INTO contactgroup_contact_relation VALUES ('" .
-                            $lastId . "', '" . $Cg["contactgroup_cg_id"] . "')";
-                        $pearDB->query($query);
-                        $fields["contact_cgNotif"] .= $Cg["contactgroup_cg_id"] . ",";
-=======
                     $query = "INSERT INTO contactgroup_contact_relation VALUES (:contact_id, :contactgroup_cg_id)";
                     $statement = $pearDB->prepare($query);
                     while ($cg = $dbResult->fetch()) {
@@ -543,7 +452,6 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         $statement->bindValue(':contactgroup_cg_id', (int) $cg["contactgroup_cg_id"], \PDO::PARAM_INT);
                         $statement->execute();
                         $fields["contact_cgNotif"] .= $cg["contactgroup_cg_id"] . ",";
->>>>>>> centreon/dev-21.10.x
                     }
                     $fields["contact_cgNotif"] = trim($fields["contact_cgNotif"], ",");
                     $centreon->CentreonLogAction->insertLog(
@@ -646,11 +554,7 @@ function insertContactInDB($ret = array())
  */
 function insertContact($ret = array())
 {
-<<<<<<< HEAD
-    global $form, $pearDB, $centreon, $dependencyInjector;
-=======
     global $form, $pearDB, $centreon, $encryptType, $dependencyInjector;
->>>>>>> centreon/dev-21.10.x
 
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
@@ -675,16 +579,6 @@ function insertContact($ret = array())
 
     $stmt->execute();
     $dbResult = $pearDB->query("SELECT MAX(contact_id) FROM contact");
-<<<<<<< HEAD
-    $contactId = $dbResult->fetch();
-
-    if (isset($ret["contact_passwd"]) && !empty($ret["contact_passwd"])) {
-        $ret["contact_passwd"] = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $ret["contact_passwd2"] = $ret["contact_passwd"];
-
-        $contact = new \CentreonContact($pearDB);
-        $contact->addPasswordByContactId($contactId["MAX(contact_id)"], $ret["contact_passwd"]);
-=======
     $contact_id = $dbResult->fetch();
 
     if (isset($ret["contact_passwd"])) {
@@ -698,35 +592,18 @@ function insertContact($ret = array())
             $ret["contact_passwd"] = $ret["contact_passwd2"] =
                 $dependencyInjector['utils']->encodePass($ret["contact_passwd"], 'md5');
         }
->>>>>>> centreon/dev-21.10.x
     }
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         "contact",
-<<<<<<< HEAD
-        $contactId["MAX(contact_id)"],
-=======
         $contact_id["MAX(contact_id)"],
->>>>>>> centreon/dev-21.10.x
         $ret["contact_name"],
         "a",
         $fields
     );
 
-<<<<<<< HEAD
-    return $contactId["MAX(contact_id)"];
-}
-
-/**
- * @param int|null $contactId
- */
-function updateContact($contactId = null)
-{
-    global $form, $pearDB, $centreon, $encryptType, $dependencyInjector;
-    if (!$contactId) {
-=======
     return ($contact_id["MAX(contact_id)"]);
 }
 
@@ -737,7 +614,6 @@ function updateContact($contact_id = null)
 {
     global $form, $pearDB, $centreon, $encryptType, $dependencyInjector;
     if (!$contact_id) {
->>>>>>> centreon/dev-21.10.x
         return;
     }
     $ret = array();
@@ -761,21 +637,6 @@ function updateContact($contact_id = null)
             $stmt->bindValue($token, $value, $paramType);
         }
     }
-<<<<<<< HEAD
-    $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-    $stmt->execute();
-
-    if (isset($ret["contact_lang"]) && $ret["contact_lang"] != null && $contactId == $centreon->user->get_id()) {
-        $centreon->user->set_lang($ret["contact_lang"]);
-    }
-
-    if (isset($ret["contact_passwd"]) && !empty($ret["contact_passwd"])) {
-        $ret["contact_passwd"] = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $ret["contact_passwd2"] = $ret["contact_passwd"];
-
-        $contact = new \CentreonContact($pearDB);
-        $contact->renewPasswordByContactId($contactId, $ret["contact_passwd"]);
-=======
     $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
     $stmt->execute();
 
@@ -794,16 +655,11 @@ function updateContact($contact_id = null)
             $ret["contact_passwd"] = $ret["contact_passwd2"] =
                 $dependencyInjector['utils']->encodePass($ret["contact_passwd"], 'md5');
         }
->>>>>>> centreon/dev-21.10.x
     }
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-<<<<<<< HEAD
-    $centreon->CentreonLogAction->insertLog("contact", $contactId, $ret["contact_name"], "c", $fields);
-=======
     $centreon->CentreonLogAction->insertLog("contact", $contact_id, $ret["contact_name"], "c", $fields);
->>>>>>> centreon/dev-21.10.x
 }
 
 /**
@@ -813,11 +669,7 @@ function updateContact_MC($contact_id = null)
 {
     global $form, $pearDB, $centreon;
 
-<<<<<<< HEAD
-    if ($contact_id === null || $contact_id === false) {
-=======
     if (!$contact_id) {
->>>>>>> centreon/dev-21.10.x
         return;
     }
 
@@ -1121,11 +973,7 @@ function insertLdapContactInDB($tmpContacts = array())
 
         if (!isset($ldapInstances[$arId])) {
             $ldap = new CentreonLDAP($pearDB, null, $arId);
-<<<<<<< HEAD
-            $ldapAdmin = new CentreonLdapAdmin($pearDB);
-=======
             $ldapAdmin = new CentreonLDAPAdmin($pearDB);
->>>>>>> centreon/dev-21.10.x
             $opt = $ldapAdmin->getGeneralOptions($arId);
             if (isset($opt['ldap_contact_tmpl']) && $opt['ldap_contact_tmpl']) {
                 $contactTemplates[$arId] = $opt['ldap_contact_tmpl'];
@@ -1155,12 +1003,6 @@ function insertLdapContactInDB($tmpContacts = array())
             }
 
             // Insert the relation between contact and contactgroups
-<<<<<<< HEAD
-            while ($row = $res->fetch()) {
-                $query = "INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) " .
-                    "VALUES (" . $row['cg_id'] . ", " . (int) $contact_id . ")";
-                $pearDB->query($query);
-=======
             $query = "INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) " .
                      "VALUES (:contactgroup_cg_id, :contact_contact_id)";
             $statement = $pearDB->prepare($query);
@@ -1168,7 +1010,6 @@ function insertLdapContactInDB($tmpContacts = array())
                 $statement->bindValue(':contactgroup_cg_id', (int) $row['cg_id'], \PDO::PARAM_INT);
                 $statement->bindValue(':contact_contact_id', (int) $contact_id, \PDO::PARAM_INT);
                 $statement->execute();
->>>>>>> centreon/dev-21.10.x
             }
         }
 
@@ -1370,8 +1211,6 @@ function sanitizeFormContactParameters(array $ret): array
                         : 'txt'
                 ];
                 break;
-<<<<<<< HEAD
-=======
             case 'contact_passwd':
                 if (!empty($inputValue)) {
                     $password = $dependencyInjector['utils']->encodePass(
@@ -1384,7 +1223,6 @@ function sanitizeFormContactParameters(array $ret): array
                     ];
                 }
                 break;
->>>>>>> centreon/dev-21.10.x
             case 'contact_lang':
                 if (!empty($inputValue)) {
                     $inputValue = filter_var($inputValue, FILTER_SANITIZE_STRING);
@@ -1450,64 +1288,6 @@ function sanitizeFormContactParameters(array $ret): array
 }
 
 /**
-<<<<<<< HEAD
- * Validate password creation using defined security policy.
- *
- * @param array $fields
- * @return mixed
- */
-function validatePasswordCreation(array $fields)
-{
-    global $pearDB;
-    $errors = [];
-
-    if (empty($fields['contact_passwd'])) {
-        return true;
-    }
-
-    $password = $fields['contact_passwd'];
-
-    try {
-        $contact = new \CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, null);
-    } catch (\Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
-    }
-
-    return count($errors) > 0 ? $errors : true;
-}
-
-/**
- * Validate password creation using defined security policy.
- *
- * @param array<string,mixed> $fields
- * @return mixed
- */
-function validatePasswordModification(array $fields)
-{
-    global $pearDB;
-    $errors = [];
-
-    if (empty($fields['contact_passwd'])) {
-        return true;
-    }
-
-    $password = $fields['contact_passwd'];
-    $contactId = $fields['contact_id'];
-
-    try {
-        $contact = new \CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, $contactId);
-    } catch (\Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
-    }
-
-    return count($errors) > 0 ? $errors : true;
-}
-
-/**
-=======
->>>>>>> centreon/dev-21.10.x
  * Validate autologin key is not equal to a password
  *
  * @param array<string,mixed> $fields
@@ -1524,24 +1304,14 @@ function validateAutologin(array $fields)
          */
         if (!empty($fields['contact_id']) && empty($fields['contact_passwd'])) {
             $contactId = $fields['contact_id'];
-<<<<<<< HEAD
-            $statement = $pearDB->prepare(
-                'SELECT * FROM `contact_password` WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1'
-            );
-=======
             $statement = $pearDB->prepare('SELECT `contact_passwd` FROM `contact` WHERE contact_id = :contactId ');
->>>>>>> centreon/dev-21.10.x
             $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
             $statement->execute();
 
             if (
                 ($result = $statement->fetch(\PDO::FETCH_ASSOC))
-<<<<<<< HEAD
-                && password_verify($fields['contact_autologin_key'], $result['password'])
-=======
                 && (md5($fields['contact_autologin_key']) === $result['contact_passwd']
                     || 'md5__' . md5($fields['contact_autologin_key']) === $result['contact_passwd'])
->>>>>>> centreon/dev-21.10.x
             ) {
                 $errors['contact_autologin_key'] = _(
                     'Your autologin key must be different than your current password'

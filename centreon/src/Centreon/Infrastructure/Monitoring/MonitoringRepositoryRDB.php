@@ -47,8 +47,6 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements MonitoringRepositoryInterface
 {
     /**
-<<<<<<< HEAD
-=======
      * @var string Name of the configuration database
      */
     private $centreonDbName;
@@ -59,7 +57,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     private $storageDbName;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * @var AccessGroup[] List of access group used to filter the requests
      */
     private $accessGroups = [];
@@ -82,11 +79,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     public function __construct(DatabaseConnection $pdo)
     {
         $this->db = $pdo;
-<<<<<<< HEAD
-=======
         $this->centreonDbName = $this->db->getCentreonDbName();
         $this->storageDbName = $this->db->getStorageDbName();
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -160,10 +154,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
               h.*,
               cv.value AS criticality,
               i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS `status_code`,
             CASE
@@ -178,16 +168,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`
->>>>>>> centreon/dev-21.10.x
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\''
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\''
->>>>>>> centreon/dev-21.10.x
             . $accessGroupFilter
             . ' LEFT JOIN `:dbstg`.`services` srv
               ON srv.host_id = h.host_id
@@ -236,12 +221,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
             $hostIds[] = (int)$result['host_id'];
-<<<<<<< HEAD
-            $hosts[] = EntityCreator::createEntityByArray(
-                Host::class,
-                $result
-            );
-=======
 
             $host = EntityCreator::createEntityByArray(
                 Host::class,
@@ -255,7 +234,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             ));
 
             $hosts[] = $host;
->>>>>>> centreon/dev-21.10.x
         }
 
         return $hosts;
@@ -289,10 +267,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT SQL_CALC_FOUND_ROWS DISTINCT
               hg.hostgroup_id, h.*, i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS `status_code`,
             CASE
@@ -307,16 +281,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`
->>>>>>> centreon/dev-21.10.x
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\''
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\''
->>>>>>> centreon/dev-21.10.x
             . $accessGroupFilter
             . ' LEFT JOIN `:dbstg`.`services` srv
               ON srv.host_id = h.host_id
@@ -334,13 +303,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $hostsByHostsGroupsId = [];
 
         while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-<<<<<<< HEAD
-            $hostsByHostsGroupsId[(int) $result['hostgroup_id']][] =
-                EntityCreator::createEntityByArray(
-                    Host::class,
-                    $result
-                );
-=======
             $host = EntityCreator::createEntityByArray(
                 Host::class,
                 $result
@@ -351,7 +313,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 'status_'
             ));
             $hostsByHostsGroupsId[(int) $result['hostgroup_id']][] = $host;
->>>>>>> centreon/dev-21.10.x
         }
 
         return $hostsByHostsGroupsId;
@@ -385,10 +346,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT SQL_CALC_FOUND_ROWS DISTINCT
               ssg.servicegroup_id, h.*, i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS `status_code`,
             CASE
@@ -403,16 +360,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`
->>>>>>> centreon/dev-21.10.x
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'
->>>>>>> centreon/dev-21.10.x
             INNER JOIN `:dbstg`.`services` srv
               ON srv.host_id = h.host_id
               AND srv.enabled = \'1\''
@@ -430,13 +382,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $hostsByServicesGroupsId = [];
 
         while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-<<<<<<< HEAD
-            $hostsByServicesGroupsId[(int) $result['servicegroup_id']][] =
-                EntityCreator::createEntityByArray(
-                    Host::class,
-                    $result
-                );
-=======
             $host = EntityCreator::createEntityByArray(
                 Host::class,
                 $result
@@ -447,7 +392,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 'status_'
             ));
             $hostsByServicesGroupsId[(int) $result['servicegroup_id']][] = $host;
->>>>>>> centreon/dev-21.10.x
         }
 
         return $hostsByServicesGroupsId;
@@ -528,20 +472,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         // This join will only be added if a search parameter corresponding to one of the host parameter
         if ($shouldJoinHost) {
             $subRequest .=
-<<<<<<< HEAD
-                ' INNER JOIN `:dbstg`.hosts_hostgroups hhg 
-=======
                 ' INNER JOIN `:dbstg`.hosts_hostgroups hhg
->>>>>>> centreon/dev-21.10.x
                     ON hhg.hostgroup_id = hg.hostgroup_id
                 INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = hhg.host_id
                     AND h.enabled = \'1\'
-<<<<<<< HEAD
-                    AND h.name NOT LIKE \'_Module_BAM%\'';
-=======
                     AND h.name NOT LIKE \'\_Module\_BAM%\'';
->>>>>>> centreon/dev-21.10.x
 
             if (!$this->isAdmin()) {
                 $subRequest .=
@@ -643,10 +579,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT h.*,
             i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state,
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state)AS `status_code`,
             CASE
@@ -661,17 +593,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`,
->>>>>>> centreon/dev-21.10.x
             host_cvl.value AS `criticality`
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'
->>>>>>> centreon/dev-21.10.x
             LEFT JOIN `:dbstg`.`customvariables` AS host_cvl ON host_cvl.host_id = h.host_id
               AND host_cvl.service_id = 0 AND host_cvl.name = "CRITICALITY_LEVEL"'
             . $accessGroupFilter .
@@ -688,14 +615,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     Host::class,
                     $row
                 );
-<<<<<<< HEAD
-=======
                 $host->setStatus(EntityCreator::createEntityByArray(
                     ResourceStatus::class,
                     $row,
                     'status_'
                 ));
->>>>>>> centreon/dev-21.10.x
 
                 //get services for host
                 $servicesByHost = $this->findServicesByHosts([$hostId]);
@@ -808,10 +732,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT DISTINCT h.*,
             i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS `status_code`,
             CASE
@@ -826,16 +746,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`
->>>>>>> centreon/dev-21.10.x
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'';
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'';
->>>>>>> centreon/dev-21.10.x
 
         $idsListKey = [];
         foreach ($hostIds as $index => $id) {
@@ -852,12 +767,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $statement->execute();
 
         while (false !== ($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
-<<<<<<< HEAD
-            $hosts[] = EntityCreator::createEntityByArray(
-                Host::class,
-                $row
-            );
-=======
             $host = EntityCreator::createEntityByArray(
                 Host::class,
                 $row
@@ -868,7 +777,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 'status_'
             ));
             $hosts[] = $host;
->>>>>>> centreon/dev-21.10.x
         }
 
         return $hosts;
@@ -899,10 +807,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT DISTINCT h.*,
             i.name AS poller_name,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS `status_code`,
             CASE
@@ -917,16 +821,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 WHEN h.state = 2 THEN ' . ResourceStatus::SEVERITY_LOW . '
                 WHEN h.state = 4 THEN ' . ResourceStatus::SEVERITY_PENDING . '
             END AS `status_severity_code`
->>>>>>> centreon/dev-21.10.x
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
               ON h.instance_id = i.instance_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\''
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\''
->>>>>>> centreon/dev-21.10.x
             . $accessGroupFilter;
 
         $idsListKey = [];
@@ -944,12 +843,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $statement->execute();
 
         while (false !== ($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
-<<<<<<< HEAD
-            $hosts[] = EntityCreator::createEntityByArray(
-                Host::class,
-                $row
-            );
-=======
             $host = EntityCreator::createEntityByArray(
                 Host::class,
                 $row
@@ -960,7 +853,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 'status_'
             ));
             $hosts[] = $host;
->>>>>>> centreon/dev-21.10.x
         }
 
         return $hosts;
@@ -1290,13 +1182,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
               srv.*,
               h.host_id, h.alias AS host_alias, h.name AS host_name,
               cv.value as criticality,
-<<<<<<< HEAD
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS host_display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS host_state,
-=======
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'Meta\', h.display_name) AS host_display_name,
               IF (h.display_name LIKE \'\_Module\_Meta%\', \'0\', h.state) AS host_state,
->>>>>>> centreon/dev-21.10.x
               srv.state AS `status_code`,
               CASE
                 WHEN srv.state = 0 THEN "' . ResourceStatus::STATUS_NAME_OK . '"
@@ -1316,11 +1203,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             . $accessGroupFilter
             . ' INNER JOIN `:dbstg`.hosts h
               ON h.host_id = srv.host_id
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'
->>>>>>> centreon/dev-21.10.x
               AND h.enabled = \'1\'
               AND srv.enabled = \'1\'
             INNER JOIN `:dbstg`.instances i
@@ -1492,11 +1375,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             . ' INNER JOIN `:dbstg`.hosts h
               ON h.host_id = srv.host_id
               AND h.host_id = :host_id
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'
->>>>>>> centreon/dev-21.10.x
               AND h.enabled = \'1\'
               AND srv.enabled = \'1\'
             INNER JOIN `:dbstg`.instances i
@@ -1692,21 +1571,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-<<<<<<< HEAD
-            'SELECT DISTINCT 
-=======
             'SELECT DISTINCT
->>>>>>> centreon/dev-21.10.x
               srv.service_id, srv.display_name, srv.description, srv.host_id, srv.state
             FROM :dbstg.services srv
             INNER JOIN :dbstg.hosts h
               ON h.host_id = srv.host_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\''
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\''
->>>>>>> centreon/dev-21.10.x
             . $accessGroupFilter
             . ' WHERE srv.host_id = ?
               AND srv.enabled = 1
@@ -1769,11 +1640,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             INNER JOIN :dbstg.hosts h
               ON h.host_id = srv.host_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\''
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\''
->>>>>>> centreon/dev-21.10.x
             . $accessGroupFilter
             . ' WHERE srv.host_id IN (' . str_repeat('?,', count($hostIds) - 1) . '?)
               AND srv.enabled = 1
@@ -1820,26 +1687,16 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request =
             'SELECT DISTINCT
 		        ssg.servicegroup_id,
-<<<<<<< HEAD
-                srv.service_id, 
-                srv.display_name, 
-                srv.description, 
-=======
                 srv.service_id,
                 srv.display_name,
                 srv.description,
->>>>>>> centreon/dev-21.10.x
                 srv.host_id,
                 srv.state
             FROM `:dbstg`.`services` srv
             INNER JOIN :dbstg.`hosts` h
               ON h.host_id = srv.host_id
               AND h.enabled = \'1\'
-<<<<<<< HEAD
-              AND h.name NOT LIKE \'_Module_BAM%\'
-=======
               AND h.name NOT LIKE \'\_Module\_BAM%\'
->>>>>>> centreon/dev-21.10.x
             INNER JOIN `:dbstg`.`services_servicegroups` ssg
               ON ssg.service_id = srv.service_id
               AND ssg.host_id = srv.host_id'
@@ -2070,8 +1927,6 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             ? !($this->contact->isAdmin() || count($this->accessGroups) > 0)
             : count($this->accessGroups) == 0;
     }
-<<<<<<< HEAD
-=======
 
     /**
      * @inheritDoc
@@ -2097,5 +1952,4 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         return $macroValues;
     }
->>>>>>> centreon/dev-21.10.x
 }

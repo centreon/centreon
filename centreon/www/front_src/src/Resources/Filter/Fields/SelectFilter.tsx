@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { SelectEntry, SelectField } from '@centreon/ui';
 
 import memoizeComponent from '../../memoizedComponent';

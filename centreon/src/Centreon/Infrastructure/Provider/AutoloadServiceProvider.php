@@ -47,12 +47,8 @@ use Exception;
  */
 class AutoloadServiceProvider
 {
-<<<<<<< HEAD
-    public const ERR_TWICE_LOADED = 2001;
-=======
 
     const ERR_TWICE_LOADED = 2001;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Register service providers

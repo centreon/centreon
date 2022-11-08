@@ -45,10 +45,6 @@ namespace Centreon\Tests\Resources\Traits;
  */
 trait ServiceProviderTrait
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Check list of services if they return specific instance
      *

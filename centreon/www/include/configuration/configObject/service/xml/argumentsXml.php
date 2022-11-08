@@ -133,14 +133,6 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-<<<<<<< HEAD
-    $query3 = "SELECT command_command_id_arg " .
-        "FROM service " .
-        "WHERE service_id = '" . $svcId . "' LIMIT 1";
-    $res3 = $db->query($query3);
-    if ($res3->rowCount()) {
-        $row3 = $res3->fetchRow();
-=======
     $cmdStatement = $db->prepare("SELECT command_command_id_arg " .
         "FROM service " .
         "WHERE service_id = :svcId LIMIT 1");
@@ -148,7 +140,6 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $cmdStatement->execute();
     if ($cmdStatement->rowCount()) {
         $row3 = $cmdStatement->fetchRow();
->>>>>>> centreon/dev-21.10.x
         $valueTab = preg_split('/(?<!\\\)\!/', $row3['command_command_id_arg']);
         if (is_array($valueTab)) {
             foreach ($valueTab as $key => $value) {
@@ -161,16 +152,6 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-<<<<<<< HEAD
-    $query = "SELECT macro_name, macro_description " .
-        "FROM command_arg_description " .
-        "WHERE cmd_id = '" . $cmdId . "' ORDER BY macro_name";
-    $res = $db->query($query);
-    while ($row = $res->fetchRow()) {
-        $argTab[$row['macro_name']] = $row['macro_description'];
-    }
-    $res->closeCursor();
-=======
     $macroStatement = $db->prepare("SELECT macro_name, macro_description " .
         "FROM command_arg_description " .
         "WHERE cmd_id = :cmdId ORDER BY macro_name");
@@ -180,7 +161,6 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         $argTab[$row['macro_name']] = $row['macro_description'];
     }
     $macroStatement->closeCursor();
->>>>>>> centreon/dev-21.10.x
 
     /*
      * Write XML

@@ -1,58 +1,3 @@
-<<<<<<< HEAD
-import { useRef, useEffect } from 'react';
-
-import {
-  always,
-  equals,
-  ifElse,
-  isNil,
-  not,
-  pathEq,
-  pathOr,
-  prop,
-} from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
-import {
-  getData,
-  SelectEntry,
-  useRequest,
-  getUrlQueryParameters,
-} from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
-
-import { ResourceListing, SortOrder } from '../../models';
-import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
-import {
-  clearSelectedResourceDerivedAtom,
-  detailsAtom,
-  selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceIdAtom,
-  selectedResourceUuidAtom,
-  sendingDetailsAtom,
-} from '../../Details/detailsAtoms';
-import {
-  enabledAutorefreshAtom,
-  limitAtom,
-  listingAtom,
-  pageAtom,
-  sendingAtom,
-} from '../listingAtoms';
-import { listResources } from '../api';
-import {
-  labelNoResourceFound,
-  labelSomethingWentWrong,
-} from '../../translatedLabels';
-import ApiNotFoundMessage from '../ApiNotFoundMessage';
-import { ResourceDetails } from '../../Details/models';
-import {
-  appliedFilterAtom,
-  customFiltersAtom,
-  getCriteriaValueDerivedAtom,
-} from '../../Filter/filterAtoms';
-=======
 import * as React from 'react';
 
 import { equals, isNil, not, prop } from 'ramda';
@@ -63,7 +8,6 @@ import { useUserContext } from '@centreon/ui-context';
 import { useResourceContext } from '../../Context';
 import { SortOrder } from '../../models';
 import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
->>>>>>> centreon/dev-21.10.x
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -73,48 +17,6 @@ const secondSortField = 'last_status_change';
 const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
 
 const useLoadResources = (): LoadResources => {
-<<<<<<< HEAD
-  const { t } = useTranslation();
-
-  const { sendRequest, sending } = useRequest<ResourceListing>({
-    getErrorMessage: ifElse(
-      pathEq(['response', 'status'], 404),
-      always(ApiNotFoundMessage),
-      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message']),
-    ),
-    request: listResources,
-  });
-
-  const { sendRequest: sendLoadDetailsRequest, sending: sendingDetails } =
-    useRequest<ResourceDetails>({
-      getErrorMessage: ifElse(
-        pathEq(['response', 'status'], 404),
-        always(t(labelNoResourceFound)),
-        pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message']),
-      ),
-      request: getData,
-    });
-
-  const [page, setPage] = useAtom(pageAtom);
-  const [details, setDetails] = useAtom(detailsAtom);
-  const refreshInterval = useAtomValue(refreshIntervalAtom);
-  const selectedResourceId = useAtomValue(selectedResourceIdAtom);
-  const selectedResourceUuid = useAtomValue(selectedResourceUuidAtom);
-  const limit = useAtomValue(limitAtom);
-  const enabledAutorefresh = useAtomValue(enabledAutorefreshAtom);
-  const selectedResourceDetailsEndpoint = useAtomValue(
-    selectedResourceDetailsEndpointDerivedAtom,
-  );
-  const customFilters = useAtomValue(customFiltersAtom);
-  const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
-  const appliedFilter = useAtomValue(appliedFilterAtom);
-  const setListing = useUpdateAtom(listingAtom);
-  const setSending = useUpdateAtom(sendingAtom);
-  const setSendingDetails = useUpdateAtom(sendingDetailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-
-  const refreshIntervalRef = useRef<number>();
-=======
   const {
     limit,
     page,
@@ -133,7 +35,6 @@ const useLoadResources = (): LoadResources => {
   const refreshIntervalRef = React.useRef<number>();
 
   const { refreshInterval } = useUserContext();
->>>>>>> centreon/dev-21.10.x
 
   const refreshIntervalMs = refreshInterval * 1000;
 
@@ -155,23 +56,6 @@ const useLoadResources = (): LoadResources => {
     };
   };
 
-<<<<<<< HEAD
-  const loadDetails = (): void => {
-    if (isNil(selectedResourceId)) {
-      return;
-    }
-
-    sendLoadDetailsRequest({
-      endpoint: selectedResourceDetailsEndpoint,
-    })
-      .then(setDetails)
-      .catch(() => {
-        clearSelectedResource();
-      });
-  };
-
-=======
->>>>>>> centreon/dev-21.10.x
   const load = (): void => {
     const searchCriteria = getCriteriaValue('search');
     const search = searchCriteria
@@ -201,13 +85,6 @@ const useLoadResources = (): LoadResources => {
       return criteriaValue?.map(prop('name')) as Array<string>;
     };
 
-<<<<<<< HEAD
-    if (getUrlQueryParameters().fromTopCounter) {
-      return;
-    }
-
-=======
->>>>>>> centreon/dev-21.10.x
     sendRequest({
       hostGroups: getCriteriaNames('host_groups'),
       limit,
@@ -250,29 +127,17 @@ const useLoadResources = (): LoadResources => {
     load();
   };
 
-<<<<<<< HEAD
-  useEffect(() => {
-    initAutorefresh();
-  }, [enabledAutorefresh, selectedResourceId]);
-
-  useEffect(() => {
-=======
   React.useEffect(() => {
     initAutorefresh();
   }, [enabledAutorefresh, selectedResourceId]);
 
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     return (): void => {
       clearInterval(refreshIntervalRef.current);
     };
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (isNil(details)) {
       return;
     }
@@ -280,11 +145,7 @@ const useLoadResources = (): LoadResources => {
     initAutorefresh();
   }, [isNil(details)]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (isNil(page)) {
       return;
     }
@@ -292,11 +153,7 @@ const useLoadResources = (): LoadResources => {
     initAutorefreshAndLoad();
   }, [page]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (page === 1) {
       initAutorefreshAndLoad();
     }
@@ -304,22 +161,6 @@ const useLoadResources = (): LoadResources => {
     setPage(1);
   }, [limit, appliedFilter]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    setSending(sending);
-  }, [sending]);
-
-  useEffect(() => {
-    setSendingDetails(sending);
-  }, [sendingDetails]);
-
-  useEffect(() => {
-    setDetails(undefined);
-    loadDetails();
-  }, [selectedResourceUuid]);
-
-=======
->>>>>>> centreon/dev-21.10.x
   return { initAutorefreshAndLoad };
 };
 

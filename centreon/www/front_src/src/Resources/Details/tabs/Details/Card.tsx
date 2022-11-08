@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-import { ReactNode } from 'react';
-
-import { Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { Paper, makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -16,11 +9,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-<<<<<<< HEAD
-  children?: ReactNode;
-=======
   children?: React.ReactNode;
->>>>>>> centreon/dev-21.10.x
   className?: string;
 }
 

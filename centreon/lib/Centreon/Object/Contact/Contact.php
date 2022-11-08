@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2021 CENTREON
-=======
 /*
  * Copyright 2005-2015 CENTREON
->>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -39,23 +33,14 @@
  *
  */
 
-<<<<<<< HEAD
-require_once __DIR__ . '/../Object.php';
-require_once __DIR__ . '/../../../../www/class/centreonContact.class.php';
-=======
 require_once "Centreon/Object/Object.php";
->>>>>>> centreon/dev-21.10.x
 
 /**
  * Used for interacting with Contact objects
  *
  * @author sylvestre
  */
-<<<<<<< HEAD
-class Centreon_Object_Contact extends \Centreon_Object
-=======
 class Centreon_Object_Contact extends Centreon_Object
->>>>>>> centreon/dev-21.10.x
 {
     protected $table = "contact";
     protected $primaryKey = "contact_id";
@@ -64,140 +49,6 @@ class Centreon_Object_Contact extends Centreon_Object
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function insert($params = [])
-    {
-        $sql = "INSERT INTO $this->table ";
-        $sqlFields = "";
-        $sqlValues = "";
-        $sqlParams = [];
-
-        // Store password value and remove it from the array to not inserting it in contact table.
-        if (isset($params['contact_passwd'])) {
-            $password = $params['contact_passwd'];
-            unset($params['contact_passwd']);
-        }
-        foreach ($params as $key => $value) {
-            if ($key == $this->primaryKey) {
-                continue;
-            }
-            if ($sqlFields != "") {
-                $sqlFields .= ",";
-            }
-            if ($sqlValues != "") {
-                $sqlValues .= ",";
-            }
-            $sqlFields .= $key;
-            $sqlValues .= "?";
-            $sqlParams[] = trim($value);
-        }
-        if ($sqlFields && $sqlValues) {
-            $sql .= "(" . $sqlFields . ") VALUES (" . $sqlValues . ")";
-            $this->db->query($sql, $sqlParams);
-            $contactId = $this->db->lastInsertId();
-            if (isset($password) && isset($contactId)) {
-                $contact = new \CentreonContact($this->db);
-                $contact->addPasswordByContactId($contactId, $password);
-            }
-            return $contactId;
-        }
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getList(
-        $parameterNames = "*",
-        $count = -1,
-        $offset = 0,
-        $order = null,
-        $sort = "ASC",
-        $filters = array(),
-        $filterType = "OR"
-    ) {
-        if ($filterType != "OR" && $filterType != "AND") {
-            throw new Exception('Unknown filter type');
-        }
-
-        if (is_array($parameterNames)) {
-            if (($key = array_search('contact_id', $parameterNames)) !== false) {
-                $parameterNames[$key] = $this->table . '.contact_id';
-            }
-            $params = implode(",", $parameterNames);
-        } elseif ($parameterNames === "contact_id") {
-            $params = $this->table . '.contact_id';
-        } else {
-            $params = $parameterNames;
-        }
-        $sql = "SELECT $params FROM $this->table";
-        $filterTab = array();
-        if (count($filters)) {
-            foreach ($filters as $key => $rawvalue) {
-                if (!count($filterTab)) {
-                    $sql .= " WHERE $key ";
-                } else {
-                    $sql .= " $filterType $key ";
-                }
-                if (is_array($rawvalue)) {
-                    $sql .= ' IN (' . str_repeat('?,', count($rawvalue) - 1) . '?) ';
-                    $filterTab = array_merge($filterTab, $rawvalue);
-                } else {
-                    $sql .= ' LIKE ? ';
-                    $value = trim($rawvalue);
-                    $value = str_replace("\\", "\\\\", $value);
-                    $value = str_replace("_", "\_", $value);
-                    $value = str_replace(" ", "\ ", $value);
-                    $filterTab[] = $value;
-                }
-            }
-        }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
-        }
-        if (isset($count) && $count != -1) {
-            $sql = $this->db->limit($sql, $count, $offset);
-        }
-
-        $contacts = $this->getResult($sql, $filterTab, "fetchAll");
-        foreach ($contacts as &$contact) {
-            $statement = $this->db->prepare(
-                "SELECT password FROM contact_password WHERE contact_id = :contactId " .
-                "ORDER BY creation_date DESC LIMIT 1"
-            );
-            $statement->bindValue(':contactId', $contact['contact_id'], \PDO::PARAM_INT);
-            $statement->execute();
-            if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                $contact['contact_passwd'] = $result['password'];
-            } else {
-                $contact['contact_passwd'] = null;
-            }
-        }
-
-        return $contacts;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function update($contactId, $params = array())
-    {
-        $sql = "UPDATE $this->table SET ";
-        $sqlUpdate = "";
-        $sqlParams = array();
-        $not_null_attributes = array();
-
-        // Store password value and remove it from the array to not inserting it in contact table.
-        if (isset($params['contact_passwd'])) {
-            $password = $params['contact_passwd'];
-            unset($params['contact_passwd']);
-        }
-        if (isset($params['contact_autologin_key'])) {
-            $statement = $this->db->prepare(
-                "SELECT password FROM contact_password WHERE contact_id = :contactId " .
-                "ORDER BY creation_date DESC LIMIT 1"
-            );
-=======
     public function update($contactId, $params = [])
     {
         $sql = "UPDATE $this->table SET ";
@@ -207,17 +58,12 @@ class Centreon_Object_Contact extends Centreon_Object
 
         if (isset($params['contact_autologin_key'])) {
             $statement = $this->db->prepare("SELECT contact_passwd FROM contact WHERE contact_id = :contactId ");
->>>>>>> centreon/dev-21.10.x
             $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
             $statement->execute();
             if (
                 ($result = $statement->fetch(\PDO::FETCH_ASSOC))
-<<<<<<< HEAD
-                && password_verify($params['contact_autologin_key'], $result['password'])
-=======
                 && (md5($params['contact_autologin_key']) === $result['contact_passwd']
                     || 'md5__' . md5($params['contact_autologin_key']) === $result['contact_passwd'])
->>>>>>> centreon/dev-21.10.x
             ) {
                 throw new \Exception(_('Your autologin key must be different than your current password'));
             }
@@ -225,25 +71,6 @@ class Centreon_Object_Contact extends Centreon_Object
 
         if (array_search("", $params)) {
             $sql_attr = "SHOW FIELDS FROM $this->table";
-<<<<<<< HEAD
-            $res = $this->getResult($sql_attr, array(), "fetchAll");
-            foreach ($res as $tab) {
-                if ($tab['Null'] == 'NO') {
-                    $not_null_attributes[$tab['Field']] = true;
-                }
-            }
-        }
-
-        foreach ($params as $key => $value) {
-            if ($key == $this->primaryKey) {
-                continue;
-            }
-            if ($sqlUpdate != "") {
-                $sqlUpdate .= ",";
-            }
-            $sqlUpdate .= $key . " = ? ";
-            if ($value === "" && !isset($not_null_attributes[$key])) {
-=======
             $res = $this->getResult($sql_attr, [], "fetchAll");
             foreach ($res as $tab) {
                 if ($tab['Null'] === 'NO') {
@@ -260,7 +87,6 @@ class Centreon_Object_Contact extends Centreon_Object
             }
             $sqlUpdate .= $key . " = ? ";
             if ($value === "" && !isset($notNullAttributes[$key])) {
->>>>>>> centreon/dev-21.10.x
                 $value = null;
             }
             if (!is_null($value)) {
@@ -268,22 +94,10 @@ class Centreon_Object_Contact extends Centreon_Object
             }
             $sqlParams[] = $value;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
         if ($sqlUpdate) {
             $sqlParams[] = $contactId;
             $sql .= $sqlUpdate . " WHERE $this->primaryKey = ?";
             $this->db->query($sql, $sqlParams);
         }
-<<<<<<< HEAD
-
-        if (isset($password) && isset($contactId)) {
-            $contact = new \CentreonContact($this->db);
-            $contact->renewPasswordByContactId($contactId, $password);
-        }
-=======
->>>>>>> centreon/dev-21.10.x
     }
 }

@@ -22,14 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
-<<<<<<< HEAD
-use Centreon\Domain\Acknowledgement\Acknowledgement;
-use Centreon\Domain\Downtime\Downtime;
-=======
 use Centreon\Domain\Downtime\Downtime;
 use Centreon\Domain\Monitoring\ResourceStatus;
 use Centreon\Domain\Acknowledgement\Acknowledgement;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Service\EntityDescriptorMetadataInterface;
 
 /**
@@ -46,11 +41,6 @@ class Host implements EntityDescriptorMetadataInterface
     public const SERIALIZER_GROUP_WITH_SERVICES = 'host_with_services';
 
     // Status options
-<<<<<<< HEAD
-    public const STATUS_UP          = 0;
-    public const STATUS_DOWN        = 1;
-    public const STATUS_UNREACHABLE = 2;
-=======
     public const STATUS_UP = 0,
                  STATUS_DOWN = 1,
                  STATUS_UNREACHABLE = 2;
@@ -58,7 +48,6 @@ class Host implements EntityDescriptorMetadataInterface
     public const STATUS_NAME_UP = 'UP',
                  STATUS_NAME_DOWN = 'DOWN',
                  STATUS_NALE_UNREACHABLE = 'UNREACHABLE';
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @var int|null Id of host
@@ -326,8 +315,6 @@ class Host implements EntityDescriptorMetadataInterface
     protected $pollerName;
 
     /**
-<<<<<<< HEAD
-=======
      * @var string|null
      */
     private $actionUrl;
@@ -343,7 +330,6 @@ class Host implements EntityDescriptorMetadataInterface
     private $status;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * {@inheritdoc}
      */
     public static function loadEntityDescriptorMetadata(): array
@@ -1132,19 +1118,12 @@ class Host implements EntityDescriptorMetadataInterface
 
     /**
      * @param Service $service
-<<<<<<< HEAD
-     */
-    public function addService(Service $service)
-    {
-        $this->services[] = $service;
-=======
      * @return self
      */
     public function addService(Service $service): self
     {
         $this->services[] = $service;
         return $this;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -1337,8 +1316,6 @@ class Host implements EntityDescriptorMetadataInterface
 
         return $this;
     }
-<<<<<<< HEAD
-=======
 
     /**
      * @return string|null
@@ -1393,5 +1370,4 @@ class Host implements EntityDescriptorMetadataInterface
         $this->status = $status;
         return $this;
     }
->>>>>>> centreon/dev-21.10.x
 }

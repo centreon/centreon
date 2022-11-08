@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-import { Box } from '@mui/material';
-=======
 import * as React from 'react';
 
 import { makeStyles, Theme } from '@material-ui/core';
@@ -15,7 +12,6 @@ const useStyles = makeStyles<Theme, { color?: string }>((theme) => ({
     }),
   }),
 }));
->>>>>>> centreon/dev-21.10.x
 
 interface Props {
   color?: string;
@@ -23,23 +19,9 @@ interface Props {
 }
 
 const Chip = ({ icon, color }: Props): JSX.Element => {
-<<<<<<< HEAD
-  return (
-    <Box
-      sx={{
-        ...(color && {
-          color,
-        }),
-      }}
-    >
-      {icon}
-    </Box>
-  );
-=======
   const classes = useStyles({ color });
 
   return <div className={`${classes.chip}`}>{icon}</div>;
->>>>>>> centreon/dev-21.10.x
 };
 
 export default Chip;

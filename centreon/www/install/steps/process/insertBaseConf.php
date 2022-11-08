@@ -65,11 +65,7 @@ try {
  * Create tables
  */
 try {
-<<<<<<< HEAD
-    $result = $link->query('use ' . $parameters['db_configuration']);
-=======
     $result = $link->query(sprintf('use `%s`', $parameters['db_configuration']));
->>>>>>> centreon/dev-21.10.x
     if (!$result) {
         throw new \Exception('Cannot access to "' . $parameters['db_configuration'] . '" database');
     }
@@ -79,12 +75,7 @@ try {
         $step->getDatabaseConfiguration(),
         $step->getAdminConfiguration(),
         $step->getEngineConfiguration(),
-<<<<<<< HEAD
-        $step->getBrokerConfiguration(),
-        getGorgoneApiCredentialMacros(_CENTREON_ETC_ . '/../centreon-gorgone'),
-=======
         $step->getBrokerConfiguration()
->>>>>>> centreon/dev-21.10.x
     );
 
     $utils->executeSqlFile(__DIR__ . '/../../insertMacros.sql', $macros);
@@ -132,34 +123,21 @@ if ($row = $centralServerQuery->fetch()) {
 
 // Manage timezone
 $timezone = date_default_timezone_get();
-<<<<<<< HEAD
-$resTimezone = $link->query("SELECT timezone_id FROM timezone WHERE timezone_name= '" . $timezone . "'");
-if (!$resTimezone) {
-=======
 $statement = $link->prepare("SELECT timezone_id FROM timezone WHERE timezone_name= :timezone_name");
 $statement->bindValue(':timezone_name', $timezone, \PDO::PARAM_STR);
 if (!$statement->execute()) {
->>>>>>> centreon/dev-21.10.x
     $return['msg'] = _('Cannot get timezone information');
     echo json_encode($return);
     exit;
 }
-<<<<<<< HEAD
-if ($row = $resTimezone->fetch()) {
-=======
 if ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
->>>>>>> centreon/dev-21.10.x
     $timezoneId = $row['timezone_id'];
 } else {
     $timezoneId = '334'; # Europe/London timezone
 }
-<<<<<<< HEAD
-$link->exec("INSERT INTO `options` (`key`, `value`) VALUES ('gmt','" . $timezoneId . "')");
-=======
 $statement = $link->prepare("INSERT INTO `options` (`key`, `value`) VALUES ('gmt', :value)");
 $statement->bindValue(':value', $timezoneId, \PDO::PARAM_STR);
 $statement->execute();
->>>>>>> centreon/dev-21.10.x
 
 # Generate random key for this instance and set it to be not central and not remote
 $uniqueKey = md5(uniqid(rand(), true));

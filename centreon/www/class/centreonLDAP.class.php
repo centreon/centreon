@@ -96,11 +96,7 @@ class CentreonLDAP
         }
 
         $searchTimeout = 5;
-<<<<<<< HEAD
-        $tempSearchTimeout = $this->getLdapHostParameters($arId, 'ldap_search_timeout');
-=======
         $tempSearchTimeout = $this->getLdapHostParameters((int) $arId, 'ldap_search_timeout');
->>>>>>> centreon/dev-21.10.x
         if (count($tempSearchTimeout) > 0) {
             if (
                 isset($tempSearchTimeout['ari_value'])
@@ -591,33 +587,17 @@ class CentreonLDAP
         $sr = ldap_search($this->ds, $basedn, $filter, $attr, 0, $searchLimit, $searchTimeout);
 
         /* Sort */
-<<<<<<< HEAD
-        if ($sr !== false) {
-            $numberReturned = ldap_count_entries($this->ds, $sr);
-            $this->debug("LDAP Search : " . (isset($numberReturned) ? $numberReturned : "0") . " entries found");
-        } else {
-            $this->debug("LDAP Search : cannot retrieve entries");
-            return [];
-        }
-=======
         $number_returned = ldap_count_entries($this->ds, $sr);
         $this->debug("LDAP Search : " . (isset($number_returned) ? $number_returned : "0") . " entries found");
->>>>>>> centreon/dev-21.10.x
 
         $info = ldap_get_entries($this->ds, $sr);
         $this->debug("LDAP Search : " . $info["count"]);
         ldap_free_result($sr);
 
         /* Format the result */
-<<<<<<< HEAD
-        $results = [];
-        for ($i = 0; $i < $info['count']; $i++) {
-            $result = [];
-=======
         $results = array();
         for ($i = 0; $i < $info['count']; $i++) {
             $result = array();
->>>>>>> centreon/dev-21.10.x
             $result['dn'] = $info[$i]['dn'] ?? "";
             $result['alias'] = $info[$i][$this->userSearchInfo['alias']][0] ?? "";
             $result['name'] = $info[$i][$this->userSearchInfo['name']][0] ?? "";
@@ -1032,8 +1012,6 @@ class CentreonLDAP
         return false;
     }
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Ldap Administration class
@@ -1670,4 +1648,3 @@ class CentreonLdapAdmin
         }
     }
 }
->>>>>>> centreon/dev-21.10.x

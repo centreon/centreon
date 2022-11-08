@@ -224,8 +224,6 @@ interface MonitoringRepositoryInterface
      * @return Acknowledgement[]
      */
     public function findAcknowledgements(int $hostId, int $serviceId): array;
-<<<<<<< HEAD
-=======
 
     /**
      * Find all custom macros linked to a service or a host
@@ -235,5 +233,4 @@ interface MonitoringRepositoryInterface
      * @return array<string, string>
      */
     public function findCustomMacrosValues(int $hostId, int $serviceId): array;
->>>>>>> centreon/dev-21.10.x
 }

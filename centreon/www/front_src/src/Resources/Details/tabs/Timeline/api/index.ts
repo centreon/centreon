@@ -29,15 +29,9 @@ const listTimelineEvents =
     endpoint,
     parameters,
   }: ListTimeLineEventsProps): Promise<ListingModel<TimelineEvent>> => {
-<<<<<<< HEAD
-    return getData<ListingModel<TimelineEvent>>(cancelToken)({
-      endpoint: buildListTimelineEventsEndpoint({ endpoint, parameters }),
-    });
-=======
     return getData<ListingModel<TimelineEvent>>(cancelToken)(
       buildListTimelineEventsEndpoint({ endpoint, parameters }),
     );
->>>>>>> centreon/dev-21.10.x
   };
 
 export { listTimelineEvents, buildListTimelineEventsEndpoint };

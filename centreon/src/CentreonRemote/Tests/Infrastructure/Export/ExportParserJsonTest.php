@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -35,18 +31,6 @@ use Vfs\Node\File;
  */
 class ExportParserJsonTest extends TestCase
 {
-<<<<<<< HEAD
-    /**
-     * @var FileSystem
-     */
-    private $fs;
-
-    /**
-     * @var ExportParserJson
-     */
-    private $parser;
-=======
->>>>>>> centreon/dev-21.10.x
 
     public function setUp(): void
     {
@@ -54,12 +38,8 @@ class ExportParserJsonTest extends TestCase
         $this->fs = FileSystem::factory('vfs://');
         $this->fs->mount();
         $this->fs->get('/')->add('tmp', new Directory([]));
-<<<<<<< HEAD
-        $this->parser = new ExportParserJson();
-=======
 
         $this->parser = new ExportParserJson;
->>>>>>> centreon/dev-21.10.x
     }
 
     public function tearDown(): void
@@ -71,11 +51,7 @@ class ExportParserJsonTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportParserJson::parse
      */
-<<<<<<< HEAD
-    public function testParse(): void
-=======
     public function testParse()
->>>>>>> centreon/dev-21.10.x
     {
         // non-existent file
         $result = $this->parser->parse('vfs://tmp/test.json');
@@ -86,11 +62,7 @@ class ExportParserJsonTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportParserJson::parse
      */
-<<<<<<< HEAD
-    public function testParse2(): void
-=======
     public function testParse2()
->>>>>>> centreon/dev-21.10.x
     {
         // add file
         $this->fs->get('/tmp')->add('test1.json', new File('{"key":"val"}'));
@@ -103,11 +75,7 @@ class ExportParserJsonTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportParserJson::parse
      */
-<<<<<<< HEAD
-    public function testParse3(): void
-=======
     public function testParse3()
->>>>>>> centreon/dev-21.10.x
     {
         // add file with macros
         $this->fs->get('/tmp')->add('test2.json', new File('{"key":"@val@"}'));
@@ -125,11 +93,7 @@ class ExportParserJsonTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportParserJson::dump
      */
-<<<<<<< HEAD
-    public function testDump(): void
-=======
     public function testDump()
->>>>>>> centreon/dev-21.10.x
     {
         $this->parser->dump([], 'vfs://tmp/test.json');
 
@@ -139,11 +103,7 @@ class ExportParserJsonTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportParserJson::dump
      */
-<<<<<<< HEAD
-    public function testDump2(): void
-=======
     public function testDump2()
->>>>>>> centreon/dev-21.10.x
     {
         $this->parser->dump(['key' => 'val'], 'vfs://tmp/test.json');
 

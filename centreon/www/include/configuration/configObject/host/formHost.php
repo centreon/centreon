@@ -118,11 +118,7 @@ if (($o === HOST_MODIFY || $o === HOST_WATCH) && isset($host_id)) {
 
     // Set Host Category Parents
     $statement = $pearDB->prepare(
-<<<<<<< HEAD
-        'SELECT DISTINCT hostcategories_hc_id 
-=======
         'SELECT DISTINCT hostcategories_hc_id
->>>>>>> centreon/dev-21.10.x
         FROM hostcategories_relation hcr
         INNER JOIN hostcategories hc
             ON hcr.hostcategories_hc_id = hc.hc_id
@@ -150,11 +146,7 @@ if (($o === HOST_MODIFY || $o === HOST_WATCH) && isset($host_id)) {
 
     // Set critically
     $statement = $pearDB->prepare(
-<<<<<<< HEAD
-        'SELECT hc.hc_id 
-=======
         'SELECT hc.hc_id
->>>>>>> centreon/dev-21.10.x
         FROM hostcategories hc
         INNER JOIN hostcategories_relation hcr
             ON hcr.hostcategories_hc_id = hc.hc_id
@@ -1058,14 +1050,11 @@ function myReplace()
 }
 
 $form->applyFilter('__ALL__', 'myTrim');
-<<<<<<< HEAD
-=======
 
 $form->applyFilter('ehi_notes', 'limitNotesLength');
 $form->applyFilter('ehi_notes_url', 'limitUrlLength');
 $form->applyFilter('ehi_action_url', 'limitUrlLength');
 
->>>>>>> centreon/dev-21.10.x
 $from_list_menu = false;
 if ($o !== HOST_MASSIVE_CHANGE) {
     $form->applyFilter('host_name', 'myReplace');
@@ -1129,14 +1118,11 @@ $tpl->assign(
         . " if needed, pair this configuration with the use of timeperiods")
 );
 
-<<<<<<< HEAD
-=======
 $tpl->assign(
     'alert_max_length_exceeded',
     _("Warning, maximum size exceeded for input '%s' (max: %d), it will be truncated upon saving")
 );
 
->>>>>>> centreon/dev-21.10.x
 if ($o === HOST_WATCH) {
     /*
      * Just watch a host information

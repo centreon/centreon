@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { useEffect } from 'react';
-
-import { omit } from 'ramda';
-import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-=======
 import * as React from 'react';
 
 import {
@@ -20,7 +13,6 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import useDeepCompareEffect from 'use-deep-compare-effect';
->>>>>>> centreon/dev-21.10.x
 
 import {
   useRequest,
@@ -28,38 +20,6 @@ import {
   getUrlQueryParameters,
 } from '@centreon/ui';
 
-<<<<<<< HEAD
-import { listCustomFilters } from './api';
-import { listCustomFiltersDecoder } from './api/decoders';
-import { Filter } from './models';
-import { build } from './Criterias/searchQueryLanguage';
-import {
-  applyFilterDerivedAtom,
-  currentFilterAtom,
-  customFiltersAtom,
-  filterWithParsedSearchDerivedAtom,
-  getDefaultFilterDerivedAtom,
-  searchAtom,
-  sendingFilterAtom,
-  storedFilterAtom,
-} from './filterAtoms';
-import { CriteriaValue } from './Criterias/models';
-
-export interface FilterState {
-  applyCurrentFilter?: () => void;
-  currentFilter?: Filter;
-  customFilters?: Array<Filter>;
-  customFiltersLoading: boolean;
-  getCriteriaValue?: (name: string) => CriteriaValue | undefined;
-  loadCustomFilters: () => Promise<Array<Filter>>;
-  setCriteria?: ({ name, value }: { name: string; value }) => void;
-  setCurrentFilter?: (filter: Filter) => void;
-  setEditPanelOpen?: (update: boolean) => void;
-}
-
-const useFilter = (): void => {
-  const { sendRequest: sendListCustomFiltersRequest, sending } = useRequest({
-=======
 import { labelNewFilter } from '../translatedLabels';
 
 import { clearCachedFilter, storeFilter } from './storedFilter';
@@ -133,23 +93,10 @@ const useFilter = (): FilterState => {
     sendRequest: sendListCustomFiltersRequest,
     sending: customFiltersLoading,
   } = useRequest({
->>>>>>> centreon/dev-21.10.x
     decoder: listCustomFiltersDecoder,
     request: listCustomFilters,
   });
 
-<<<<<<< HEAD
-  const currentFilter = useAtomValue(currentFilterAtom);
-  const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
-  );
-  const getDefaultFilter = useAtomValue(getDefaultFilterDerivedAtom);
-  const setCustomFilters = useUpdateAtom(customFiltersAtom);
-  const setSearch = useUpdateAtom(searchAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const storeFilter = useUpdateAtom(storedFilterAtom);
-  const setSendingFilter = useUpdateAtom(sendingFilterAtom);
-=======
   const filterWithParsedSearch = {
     ...currentFilter,
     criterias: [
@@ -157,7 +104,6 @@ const useFilter = (): FilterState => {
       find(propEq('name', 'sort'), currentFilter.criterias) as Criteria,
     ],
   };
->>>>>>> centreon/dev-21.10.x
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
@@ -167,12 +113,6 @@ const useFilter = (): FilterState => {
     });
   };
 
-<<<<<<< HEAD
-  useEffect(() => {
-    loadCustomFilters();
-  }, []);
-
-=======
   const getFilterWithUpdatedCriteria = ({ name, value }): Filter => {
     const index = findIndex(propEq('name', name))(
       filterWithParsedSearch.criterias,
@@ -215,16 +155,11 @@ const useFilter = (): FilterState => {
     setCurrentFilter(updatedFilter);
   };
 
->>>>>>> centreon/dev-21.10.x
   useDeepCompareEffect(() => {
     setSearch(build(currentFilter.criterias));
   }, [currentFilter.criterias]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (getUrlQueryParameters().fromTopCounter) {
       return;
     }
@@ -241,11 +176,7 @@ const useFilter = (): FilterState => {
     setUrlQueryParameters(queryParameters);
   }, [filterWithParsedSearch]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (!getUrlQueryParameters().fromTopCounter) {
       return;
     }
@@ -260,11 +191,6 @@ const useFilter = (): FilterState => {
     applyFilter(getDefaultFilter());
   }, [getUrlQueryParameters().fromTopCounter]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    setSendingFilter(sending);
-  }, [sending]);
-=======
   React.useEffect(() => (): void => {
     clearCachedFilter();
   });
@@ -345,7 +271,6 @@ const useFilter = (): FilterState => {
     setNewFilter,
     setSearch,
   };
->>>>>>> centreon/dev-21.10.x
 };
 
 export default useFilter;

@@ -49,10 +49,6 @@ use Centreon\ServiceProvider;
  */
 trait WebserviceTrait
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Set up webservice service in container
      *
@@ -68,13 +64,9 @@ trait WebserviceTrait
      */
     public function setUpWebservice(Container $container)
     {
-<<<<<<< HEAD
-        $this->container[ServiceProvider::CENTREON_WEBSERVICE] = new class {
-=======
         
         $this->container[ServiceProvider::CENTREON_WEBSERVICE] = new class {
 
->>>>>>> centreon/dev-21.10.x
             protected $services = [];
 
             public function add($class)

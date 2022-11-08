@@ -65,14 +65,6 @@ class ResourceLinksEndpoints
     private $metrics;
 
     /**
-<<<<<<< HEAD
-     * @var string|null
-     */
-    private $notificationPolicy;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * @return string|null
      */
     public function getDetails(): ?string
@@ -204,26 +196,4 @@ class ResourceLinksEndpoints
 
         return $this;
     }
-<<<<<<< HEAD
-
-    /**
-     * @return string|null
-     */
-    public function getNotificationPolicy(): ?string
-    {
-        return $this->notificationPolicy;
-    }
-
-    /**
-     * @param string|null $notificationPolicy
-     * @return self
-     */
-    public function setNotificationPolicy(?string $notificationPolicy): self
-    {
-        $this->notificationPolicy = $notificationPolicy;
-
-        return $this;
-    }
-=======
->>>>>>> centreon/dev-21.10.x
 }

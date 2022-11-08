@@ -5,10 +5,6 @@ use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class CfgNagiosRepository extends ServiceEntityRepository
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Export poller's Nagios configurations
      *

@@ -120,13 +120,7 @@ class CentreonCeip extends CentreonWebService
      */
     private function getVisitorInformation(): array
     {
-<<<<<<< HEAD
-        $locale = $this->user->lang === 'browser'
-            ? null
-            : $this->user->lang;
-=======
         $locale = $this->user->get_lang();
->>>>>>> centreon/dev-21.10.x
 
         $role = $this->user->admin
             ? "admin"

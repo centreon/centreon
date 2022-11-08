@@ -48,18 +48,11 @@ require_once "Centreon/Object/Graph/Template/Template.php";
  */
 class CentreonCommand extends CentreonObject
 {
-<<<<<<< HEAD
-    public const ORDER_UNIQUENAME = 0;
-    public const ORDER_TYPE = 1;
-    public const ORDER_COMMAND = 2;
-    public const UNKNOWN_CMD_TYPE = "Unknown command type";
-=======
 
     const ORDER_UNIQUENAME = 0;
     const ORDER_TYPE = 1;
     const ORDER_COMMAND = 2;
     const UNKNOWN_CMD_TYPE = "Unknown command type";
->>>>>>> centreon/dev-21.10.x
 
     public $aTypeCommand = array(
         'host' => array(
@@ -245,11 +238,7 @@ class CentreonCommand extends CentreonObject
                             break;
                     }
 
-<<<<<<< HEAD
-
-=======
                     
->>>>>>> centreon/dev-21.10.x
                     $ret = $this->object->getParameters($objectId, $field);
                     $ret = $ret[$field];
 
@@ -261,11 +250,7 @@ class CentreonCommand extends CentreonObject
                             $ret = $ret[$field];
                             break;
                     }
-<<<<<<< HEAD
-
-=======
                     
->>>>>>> centreon/dev-21.10.x
                     if (!isset($exportedFields[$paramSearch])) {
                         $resultString .= $ret . $this->delim;
                         $exportedFields[$paramSearch] = 1;

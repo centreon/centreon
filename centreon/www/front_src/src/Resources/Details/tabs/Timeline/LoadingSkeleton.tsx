@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-import makeStyles from '@mui/styles/makeStyles';
-import { Skeleton } from '@mui/material';
-=======
 import * as React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
->>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => {
   return {

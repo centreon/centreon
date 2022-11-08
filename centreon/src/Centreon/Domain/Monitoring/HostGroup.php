@@ -46,11 +46,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     private $hosts = [];
 
     /**
-<<<<<<< HEAD
-     * @var string|null
-=======
      * @var string
->>>>>>> centreon/dev-21.10.x
      */
     private $name;
 
@@ -83,31 +79,18 @@ class HostGroup implements EntityDescriptorMetadataInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @return string|null
-     */
-    public function getName(): ?string
-=======
      * @return string
      */
     public function getName(): string
->>>>>>> centreon/dev-21.10.x
     {
         return $this->name;
     }
 
     /**
-<<<<<<< HEAD
-     * @param string|null $name
-     * @return HostGroup
-     */
-    public function setName(?string $name): HostGroup
-=======
      * @param string $name
      * @return HostGroup
      */
     public function setName(string $name): HostGroup
->>>>>>> centreon/dev-21.10.x
     {
         $this->name = $name;
         return $this;

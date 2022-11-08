@@ -41,10 +41,6 @@
  */
 class CentreonFileManager implements iFileManager
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     protected $rawFile;
     protected $dependencyInjector;
     protected $comment;
@@ -113,12 +109,7 @@ class CentreonFileManager implements iFileManager
      */
     protected function securityCheck()
     {
-<<<<<<< HEAD
-        if (
-            !$this->validFile() ||
-=======
         if (!$this->validFile() ||
->>>>>>> centreon/dev-21.10.x
             !$this->validSize() ||
             !$this->secureExtension() ||
             $this->fileExist()

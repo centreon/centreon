@@ -46,13 +46,8 @@ $status = 0;
  * Variables for upgrade scripts
  */
 try {
-<<<<<<< HEAD
-    $pearDB = new CentreonDB('centreon', 3);
-    $pearDBO = new CentreonDB('centstorage', 3);
-=======
     $pearDB = new CentreonDB('centreon', 3, false);
     $pearDBO = new CentreonDB('centstorage', 3, false);
->>>>>>> centreon/dev-21.10.x
 } catch (Exception $e) {
     exitUpgradeProcess(1, $current, $next, $e->getMessage());
 }

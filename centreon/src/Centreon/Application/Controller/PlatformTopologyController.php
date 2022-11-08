@@ -99,18 +99,8 @@ class PlatformTopologyController extends AbstractController
         // check user rights
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-<<<<<<< HEAD
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        // Check Topology access to Configuration > Pollers page
-        if (!$contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
-=======
         // Check Topology access to Configuration > Pollers page
         if (!$this->getUser()->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
->>>>>>> centreon/dev-21.10.x
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
 
@@ -165,13 +155,6 @@ class PlatformTopologyController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         // Check Topology access to Configuration > Pollers page
-<<<<<<< HEAD
-
-        /**
-         * @var Contact $user
-         */
-=======
->>>>>>> centreon/dev-21.10.x
         $user = $this->getUser();
         if (
             !$user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
@@ -224,15 +207,7 @@ class PlatformTopologyController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         // Check Topology access to Configuration > Pollers page
-<<<<<<< HEAD
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-        if (!$contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
-=======
         if (!$this->getUser()->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)) {
->>>>>>> centreon/dev-21.10.x
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
 

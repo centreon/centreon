@@ -76,15 +76,9 @@ class RestApiContext extends CentreonContext
             $this->container->getHost() . ':' . $this->container->getPort('80', 'web'),
             $env
         );
-<<<<<<< HEAD
-        $this->envfile = tempnam(sys_get_temp_dir(), 'rest_api_env');
-        file_put_contents($this->envfile, $env);
-        $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
-=======
         $this->envfile = tempnam('/tmp', 'rest_api_env');
         file_put_contents($this->envfile, $env);
         $this->logfile = tempnam('/tmp', $this->logFilePrefix);
->>>>>>> centreon/dev-21.10.x
         exec(
             'newman run' .
             ' tests/rest_api/' . $this->restCollection .

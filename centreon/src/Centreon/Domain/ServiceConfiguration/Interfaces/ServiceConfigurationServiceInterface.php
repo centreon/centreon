@@ -98,16 +98,4 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      * @throws ServiceConfigurationException
      */
     public function findCommandLine(int $serviceId): ?string;
-<<<<<<< HEAD
-
-    /**
-     * Removes all services related to a host.
-     *
-     * @param Host $host
-     * @throws ServiceConfigurationException
-     * @throws \Assert\AssertionFailedException
-     */
-    public function removeServices(Host $host): void;
-=======
->>>>>>> centreon/dev-21.10.x
 }

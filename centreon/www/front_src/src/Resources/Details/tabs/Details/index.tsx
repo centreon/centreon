@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import { equals, isNil } from 'ramda';
-import { Responsive } from '@visx/visx';
-import { useAtomValue } from 'jotai/utils';
-
-import { detailsAtom } from '../../detailsAtoms';
-import DetailsLoadingSkeleton from '../../LoadingSkeleton';
-
-import SortableCards from './SortableCards';
-
-const DetailsTab = (): JSX.Element => {
-  const details = useAtomValue(detailsAtom);
-
-=======
 import * as React from 'react';
 
 import { equals, isNil } from 'ramda';
@@ -53,18 +39,13 @@ interface Props {
 }
 
 const DetailsTab = ({ details }: Props): JSX.Element => {
->>>>>>> centreon/dev-21.10.x
   return (
     <Responsive.ParentSize>
       {({ width }): JSX.Element => {
         const loading = isNil(details) || equals(width, 0);
 
         if (loading) {
-<<<<<<< HEAD
-          return <DetailsLoadingSkeleton />;
-=======
           return <LoadingSkeleton />;
->>>>>>> centreon/dev-21.10.x
         }
 
         return (

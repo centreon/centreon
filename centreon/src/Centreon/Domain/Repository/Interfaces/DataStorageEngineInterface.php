@@ -29,10 +29,6 @@ namespace Centreon\Domain\Repository\Interfaces;
  */
 interface DataStorageEngineInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Rollback the operations in the transaction
      *

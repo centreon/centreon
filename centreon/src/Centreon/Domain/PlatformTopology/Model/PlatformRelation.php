@@ -29,10 +29,6 @@ namespace Centreon\Domain\PlatformTopology\Model;
  */
 class PlatformRelation
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Broker relation types
      */

@@ -1,15 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-<<<<<<< HEAD
-import clsx from 'clsx';
-import * as yup from 'yup';
-import numeral from 'numeral';
-import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation, withTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-
-import ServiceIcon from '@mui/icons-material/Grain';
-=======
 import React from 'react';
 
 import classnames from 'classnames';
@@ -19,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 
 import ServiceIcon from '@material-ui/icons/Grain';
->>>>>>> centreon/dev-21.10.x
 
 import {
   IconHeader,
@@ -29,19 +18,10 @@ import {
   SubmenuItems,
   SeverityCode,
   StatusCounter,
-<<<<<<< HEAD
-  SelectEntry,
-} from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
-
-import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
-import { applyFilterDerivedAtom } from '../../../Resources/Filter/filterAtoms';
-=======
 } from '@centreon/ui';
 import { useUserContext } from '@centreon/ui-context';
 
 import styles from '../../header.scss';
->>>>>>> centreon/dev-21.10.x
 import {
   getServiceResourcesUrl,
   criticalCriterias,
@@ -50,15 +30,8 @@ import {
   okCriterias,
   pendingCriterias,
   unhandledStateCriterias,
-<<<<<<< HEAD
-  serviceCriteria,
 } from '../getResourcesUrl';
 import RessourceStatusCounter, { useStyles } from '..';
-import { Criteria } from '../../../Resources/Filter/Criterias/models';
-=======
-} from '../getResourcesUrl';
-import RessourceStatusCounter, { useStyles } from '..';
->>>>>>> centreon/dev-21.10.x
 
 const serviceStatusEndpoint =
   'internal.php?object=centreon_topcounter&action=servicesStatus';
@@ -84,28 +57,6 @@ const statusSchema = yup.object().shape({
   }),
 });
 
-<<<<<<< HEAD
-interface SelectResourceProps {
-  criterias: Array<Criteria>;
-  link: string;
-  toggle?: () => void;
-}
-
-const ServiceStatusCounter = (): JSX.Element => {
-  const classes = useStyles();
-  const navigate = useNavigate();
-
-  const { t } = useTranslation();
-
-  const { use_deprecated_pages } = useAtomValue(userAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-
-  const unhandledCriticalServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-    states: unhandledStateCriterias.value,
-    statuses: criticalCriterias.value as Array<SelectEntry>,
-  });
-=======
 const ServiceStatusCounter = (): JSX.Element => {
   const classes = useStyles();
 
@@ -113,7 +64,6 @@ const ServiceStatusCounter = (): JSX.Element => {
 
   const { use_deprecated_pages } = useUserContext();
 
->>>>>>> centreon/dev-21.10.x
   const unhandledCriticalServicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=critical&search='
     : getServiceResourcesUrl({
@@ -121,14 +71,6 @@ const ServiceStatusCounter = (): JSX.Element => {
         statusCriterias: criticalCriterias,
       });
 
-<<<<<<< HEAD
-  const unhandledWarningServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-    states: unhandledStateCriterias.value,
-    statuses: warningCriterias.value as Array<SelectEntry>,
-  });
-=======
->>>>>>> centreon/dev-21.10.x
   const unhandledWarningServicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=warning&search='
     : getServiceResourcesUrl({
@@ -136,14 +78,6 @@ const ServiceStatusCounter = (): JSX.Element => {
         statusCriterias: warningCriterias,
       });
 
-<<<<<<< HEAD
-  const unhandledUnknownServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-    states: unhandledStateCriterias.value,
-    statuses: unknownCriterias.value as Array<SelectEntry>,
-  });
-=======
->>>>>>> centreon/dev-21.10.x
   const unhandledUnknownServicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=unknown&search='
     : getServiceResourcesUrl({
@@ -151,54 +85,20 @@ const ServiceStatusCounter = (): JSX.Element => {
         statusCriterias: unknownCriterias,
       });
 
-<<<<<<< HEAD
-  const okServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-    statuses: okCriterias.value as Array<SelectEntry>,
-  });
-=======
->>>>>>> centreon/dev-21.10.x
   const okServicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc&statusFilter=ok&search='
     : getServiceResourcesUrl({ statusCriterias: okCriterias });
 
-<<<<<<< HEAD
-  const servicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-  });
-=======
->>>>>>> centreon/dev-21.10.x
   const servicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc&statusFilter=&search='
     : getServiceResourcesUrl();
 
-<<<<<<< HEAD
-  const pendingServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
-    statuses: pendingCriterias.value as Array<SelectEntry>,
-  });
-=======
->>>>>>> centreon/dev-21.10.x
   const pendingServicesLink = use_deprecated_pages
     ? '/main.php?p=20201&o=svc&statusFilter=&search='
     : getServiceResourcesUrl({
         statusCriterias: pendingCriterias,
       });
 
-<<<<<<< HEAD
-  const changeFilterAndNavigate =
-    ({ link, criterias, toggle }: SelectResourceProps) =>
-    (e): void => {
-      e.preventDefault();
-      toggle?.();
-      if (!use_deprecated_pages) {
-        applyFilter({ criterias, id: '', name: 'New Filter' });
-      }
-      navigate(link);
-    };
-
-=======
->>>>>>> centreon/dev-21.10.x
   return (
     <RessourceStatusCounter
       endpoint={serviceStatusEndpoint}
@@ -206,11 +106,7 @@ const ServiceStatusCounter = (): JSX.Element => {
       schema={statusSchema}
     >
       {({ hasPending, data, toggled, toggleDetailedView }): JSX.Element => (
-<<<<<<< HEAD
-        <div>
-=======
         <div className={`${styles.wrapper} wrap-right-services`}>
->>>>>>> centreon/dev-21.10.x
           <SubmenuHeader active={toggled}>
             <IconHeader
               Icon={ServiceIcon}
@@ -219,19 +115,9 @@ const ServiceStatusCounter = (): JSX.Element => {
               onClick={toggleDetailedView}
             />
             <Link
-<<<<<<< HEAD
-              className={clsx(classes.link, classes.wrapMiddleIcon)}
-              data-testid="Services Critical"
-              to={unhandledCriticalServicesLink}
-              onClick={changeFilterAndNavigate({
-                criterias: unhandledCriticalServicesCriterias,
-                link: unhandledCriticalServicesLink,
-              })}
-=======
               className={classnames(classes.link, styles['wrap-middle-icon'])}
               data-testid="Services Critical"
               to={unhandledCriticalServicesLink}
->>>>>>> centreon/dev-21.10.x
             >
               <StatusCounter
                 count={data.critical.unhandled}
@@ -239,19 +125,9 @@ const ServiceStatusCounter = (): JSX.Element => {
               />
             </Link>
             <Link
-<<<<<<< HEAD
-              className={clsx(classes.link, classes.wrapMiddleIcon)}
-              data-testid="Services Warning"
-              to={unhandledWarningServicesLink}
-              onClick={changeFilterAndNavigate({
-                criterias: unhandledWarningServicesCriterias,
-                link: unhandledWarningServicesLink,
-              })}
-=======
               className={classnames(classes.link, styles['wrap-middle-icon'])}
               data-testid="Services Warning"
               to={unhandledWarningServicesLink}
->>>>>>> centreon/dev-21.10.x
             >
               <StatusCounter
                 count={data.warning.unhandled}
@@ -259,19 +135,9 @@ const ServiceStatusCounter = (): JSX.Element => {
               />
             </Link>
             <Link
-<<<<<<< HEAD
-              className={clsx(classes.link, classes.wrapMiddleIcon)}
-              data-testid="Services Unknown"
-              to={unhandledUnknownServicesLink}
-              onClick={changeFilterAndNavigate({
-                criterias: unhandledUnknownServicesCriterias,
-                link: unhandledUnknownServicesLink,
-              })}
-=======
               className={classnames(classes.link, styles['wrap-middle-icon'])}
               data-testid="Services Unknown"
               to={unhandledUnknownServicesLink}
->>>>>>> centreon/dev-21.10.x
             >
               <StatusCounter
                 count={data.unknown.unhandled}
@@ -279,19 +145,9 @@ const ServiceStatusCounter = (): JSX.Element => {
               />
             </Link>
             <Link
-<<<<<<< HEAD
-              className={clsx(classes.link, classes.wrapMiddleIcon)}
-              data-testid="Services Ok"
-              to={okServicesLink}
-              onClick={changeFilterAndNavigate({
-                criterias: okServicesCriterias,
-                link: okServicesLink,
-              })}
-=======
               className={classnames(classes.link, styles['wrap-middle-icon'])}
               data-testid="Services Ok"
               to={okServicesLink}
->>>>>>> centreon/dev-21.10.x
             >
               <StatusCounter count={data.ok} severityCode={SeverityCode.Ok} />
             </Link>
@@ -302,30 +158,15 @@ const ServiceStatusCounter = (): JSX.Element => {
               onClick={toggleDetailedView}
             />
             <div
-<<<<<<< HEAD
-              className={clsx(classes.subMenuToggle, {
-                [classes.subMenuToggleActive]: toggled,
-=======
               className={classnames(styles['submenu-toggle'], {
                 [styles['submenu-toggle-active'] as string]: toggled,
->>>>>>> centreon/dev-21.10.x
               })}
             >
               <SubmenuItems>
                 <Link
                   className={classes.link}
-<<<<<<< HEAD
-                  data-testid="Services Warning"
-                  to={servicesLink}
-                  onClick={changeFilterAndNavigate({
-                    criterias: servicesCriterias,
-                    link: servicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   to={servicesLink}
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     countTestId="submenu services count all"
@@ -337,15 +178,7 @@ const ServiceStatusCounter = (): JSX.Element => {
                 <Link
                   className={classes.link}
                   to={unhandledCriticalServicesLink}
-<<<<<<< HEAD
-                  onClick={changeFilterAndNavigate({
-                    criterias: unhandledCriticalServicesCriterias,
-                    link: unhandledCriticalServicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     countTestId="submenu services count critical"
@@ -360,15 +193,7 @@ const ServiceStatusCounter = (): JSX.Element => {
                 <Link
                   className={classes.link}
                   to={unhandledWarningServicesLink}
-<<<<<<< HEAD
-                  onClick={changeFilterAndNavigate({
-                    criterias: unhandledWarningServicesCriterias,
-                    link: unhandledWarningServicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     countTestId="submenu services count warning"
@@ -383,15 +208,7 @@ const ServiceStatusCounter = (): JSX.Element => {
                 <Link
                   className={classes.link}
                   to={unhandledUnknownServicesLink}
-<<<<<<< HEAD
-                  onClick={changeFilterAndNavigate({
-                    criterias: unhandledUnknownServicesCriterias,
-                    link: unhandledUnknownServicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     countTestId="submenu services count unknown"
@@ -406,15 +223,7 @@ const ServiceStatusCounter = (): JSX.Element => {
                 <Link
                   className={classes.link}
                   to={okServicesLink}
-<<<<<<< HEAD
-                  onClick={changeFilterAndNavigate({
-                    criterias: okServicesCriterias,
-                    link: okServicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     countTestId="submenu services count ok"
@@ -427,15 +236,7 @@ const ServiceStatusCounter = (): JSX.Element => {
                 <Link
                   className={classes.link}
                   to={pendingServicesLink}
-<<<<<<< HEAD
-                  onClick={changeFilterAndNavigate({
-                    criterias: pendingServicesCriterias,
-                    link: pendingServicesLink,
-                    toggle: toggleDetailedView,
-                  })}
-=======
                   onClick={toggleDetailedView}
->>>>>>> centreon/dev-21.10.x
                 >
                   <SubmenuItem
                     dotColored="blue"

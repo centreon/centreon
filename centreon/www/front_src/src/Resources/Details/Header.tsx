@@ -1,28 +1,14 @@
-<<<<<<< HEAD
-=======
 /* eslint-disable hooks/sort */
 // Issue : https://github.com/hiukky/eslint-plugin-hooks/issues/3
 
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { useTranslation } from 'react-i18next';
 import { hasPath, isNil, not, path, prop } from 'ramda';
 
 import {
   Grid,
   Typography,
-<<<<<<< HEAD
-  Theme,
-  Link,
-  Tooltip,
-  Skeleton,
-} from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import CopyIcon from '@mui/icons-material/FileCopy';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { CreateCSSProperties } from '@mui/styles';
-=======
   makeStyles,
   Theme,
   Link,
@@ -32,7 +18,6 @@ import { Skeleton } from '@material-ui/lab';
 import CopyIcon from '@material-ui/icons/FileCopy';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { CreateCSSProperties } from '@material-ui/styles';
->>>>>>> centreon/dev-21.10.x
 
 import {
   StatusChip,
@@ -50,10 +35,7 @@ import {
   labelShortcuts,
   labelSomethingWentWrong,
 } from '../translatedLabels';
-<<<<<<< HEAD
-=======
 import memoizeComponent from '../memoizedComponent';
->>>>>>> centreon/dev-21.10.x
 import { Parent, ResourceUris } from '../models';
 
 import SelectableResourceName from './tabs/Details/SelectableResourceName';
@@ -76,12 +58,9 @@ const useStyles = makeStyles<Theme, MakeStylesProps>((theme) => ({
     height: 43,
     padding: theme.spacing(0, 1),
   }),
-<<<<<<< HEAD
-=======
 }));
 
 const useStylesHeaderContent = makeStyles((theme) => ({
->>>>>>> centreon/dev-21.10.x
   parent: {
     alignItems: 'center',
     display: 'grid',
@@ -122,11 +101,7 @@ const useStylesHeaderContent = makeStyles((theme) => ({
 const LoadingSkeleton = (): JSX.Element => (
   <Grid container item alignItems="center" spacing={2} style={{ flexGrow: 1 }}>
     <Grid item>
-<<<<<<< HEAD
-      <Skeleton height={25} variant="circular" width={25} />
-=======
       <Skeleton height={25} variant="circle" width={25} />
->>>>>>> centreon/dev-21.10.x
     </Grid>
     <Grid item>
       <Skeleton height={25} width={250} />
@@ -138,19 +113,10 @@ type Props = {
   onSelectParent: (parent: Parent) => void;
 } & DetailsSectionProps;
 
-<<<<<<< HEAD
-const Header = ({ details, onSelectParent }: Props): JSX.Element => {
-  const classes = useStyles({
-    displaySeverity: not(isNil(details?.severity_level)),
-  });
-  const { t } = useTranslation();
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
-=======
 const HeaderContent = ({ details, onSelectParent }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
   const classes = useStylesHeaderContent();
->>>>>>> centreon/dev-21.10.x
 
   const copyResourceLink = (): void => {
     try {
@@ -181,11 +147,7 @@ const HeaderContent = ({ details, onSelectParent }: Props): JSX.Element => {
     : 'primary';
 
   return (
-<<<<<<< HEAD
-    <div className={classes.header}>
-=======
     <>
->>>>>>> centreon/dev-21.10.x
       {details?.severity_level && (
         <StatusChip
           label={details?.severity_level.toString()}
@@ -254,8 +216,6 @@ const HeaderContent = ({ details, onSelectParent }: Props): JSX.Element => {
       >
         <CopyIcon fontSize="small" />
       </IconButton>
-<<<<<<< HEAD
-=======
     </>
   );
 };
@@ -268,16 +228,11 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
   return (
     <div className={classes.header}>
       <HeaderContent details={details} onSelectParent={onSelectParent} />
->>>>>>> centreon/dev-21.10.x
     </div>
   );
 };
 
-<<<<<<< HEAD
-export default Header;
-=======
 export default memoizeComponent<Props>({
   Component: Header,
   memoProps: ['details'],
 });
->>>>>>> centreon/dev-21.10.x

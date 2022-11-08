@@ -182,21 +182,6 @@ if (!$isAdmin) {
     $dbstorage = new CentreonDB('centstorage');
 
     $aclGroups = $acl->getAccessGroupsString();
-<<<<<<< HEAD
-    $sql = "SELECT host_id, service_id FROM index_data WHERE id = " .$pearDB->escape($index);
-    $res = $dbstorage->query($sql);
-    if (!$res->rowCount()) {
-        die('Graph not found');
-    }
-    $row = $res->fetch();
-    unset($res);
-    $hostId = $row['host_id'];
-    $serviceId = $row['service_id'];
-    $sql = "SELECT service_id FROM centreon_acl WHERE host_id = $hostId AND service_id = $serviceId
-        AND group_id IN ($aclGroups)";
-    $res = $pearDBO->query($sql);
-    if (!$res->rowCount()) {
-=======
     $sql = "SELECT host_id, service_id FROM index_data WHERE id = :index_data_id";
     $statement = $dbstorage->prepare($sql);
     $statement->bindValue(':index_data_id', (int) $index, \PDO::PARAM_INT);
@@ -228,7 +213,6 @@ if (!$isAdmin) {
     }
     $statement->execute();
     if (!$statement->rowCount()) {
->>>>>>> centreon/dev-21.10.x
         die('Access denied');
     }
 }

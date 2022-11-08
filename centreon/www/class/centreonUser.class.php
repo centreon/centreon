@@ -56,18 +56,10 @@ class CentreonUser
     public $groupListStr;
     public $access;
     public $log;
-<<<<<<< HEAD
-    public $userCrypted;
-=======
->>>>>>> centreon/dev-21.10.x
     protected $token;
     public $default_page;
     private $showDeprecatedPages;
     private $currentPage;
-<<<<<<< HEAD
-    public $theme;
-=======
->>>>>>> centreon/dev-21.10.x
 
     protected $restApi;
     protected $restApiRt;
@@ -96,11 +88,7 @@ class CentreonUser
         $this->email = html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8");
         $this->lang = $user["contact_lang"];
         $this->charset = "UTF-8";
-<<<<<<< HEAD
-        $this->passwd = $user["contact_passwd"] ?? null;
-=======
         $this->passwd = $user["contact_passwd"];
->>>>>>> centreon/dev-21.10.x
         $this->token = $user['contact_autologin_key'];
         $this->admin = $user["contact_admin"];
         $this->version = 3;
@@ -108,10 +96,6 @@ class CentreonUser
         $this->gmt = $user["contact_location"];
         $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
         $this->is_admin = null;
-<<<<<<< HEAD
-        $this->theme = $user["contact_theme"] ?? null;
-=======
->>>>>>> centreon/dev-21.10.x
         /*
          * Initiate ACL
          */
@@ -122,10 +106,6 @@ class CentreonUser
          * Initiate Log Class
          */
         $this->log = new CentreonUserLog($this->user_id, $pearDB);
-<<<<<<< HEAD
-        $this->userCrypted = md5($this->alias);
-=======
->>>>>>> centreon/dev-21.10.x
 
         /**
          * Init rest api auth
@@ -181,23 +161,6 @@ class CentreonUser
     public function checkUserStatus($sid, $pearDB)
     {
         $query1 = "SELECT contact_admin, contact_id FROM session, contact " .
-<<<<<<< HEAD
-            "WHERE session.session_id = :session_id" .
-            " AND contact.contact_id = session.user_id AND contact.contact_register = '1'";
-        $statement = $pearDB->prepare($query1);
-        $statement->bindValue(':session_id', $sid);
-        $statement->execute();
-        $admin = $statement->fetch(\PDO::FETCH_ASSOC);
-        $statement->closeCursor();
-
-        $query2 = "SELECT count(*) FROM `acl_group_contacts_relations` " .
-            "WHERE contact_contact_id = :contact_id";
-        $statement = $pearDB->prepare($query2);
-        $statement->bindValue(':contact_id', (int)$admin["contact_id"], \PDO::PARAM_INT);
-        $statement->execute();
-        $admin2 = $statement->fetch(\PDO::FETCH_ASSOC);
-        $statement->closeCursor();
-=======
             "WHERE session.session_id = '" . $sid .
             "' AND contact.contact_id = session.user_id AND contact.contact_register = '1'";
         $dbResult = $pearDB->query($query1);
@@ -209,7 +172,6 @@ class CentreonUser
         $dbResult = $pearDB->query($query2);
         $admin2 = $dbResult->fetch();
         $dbResult->closeCursor();
->>>>>>> centreon/dev-21.10.x
 
         if ($admin["contact_admin"]) {
             unset($admin);
@@ -534,30 +496,6 @@ class CentreonUser
     }
 
     /**
-<<<<<<< HEAD
-     * Get theme
-     *
-     * @return string
-     */
-    public function getTheme()
-    {
-        return $this->theme;
-    }
-
-    /**
-     * Set theme
-     *
-     * @param string $theme
-     * @return void
-     */
-    public function setTheme($theme)
-    {
-        $this->theme = $theme;
-    }
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Get token
      *
      * @return string

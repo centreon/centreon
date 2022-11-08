@@ -1,17 +1,10 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { difference, min, max, isNil } from 'ramda';
 import { Scale } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-<<<<<<< HEAD
-import { alpha } from '@mui/material';
-=======
 import { alpha } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { Line, TimeValue } from '../models';
 import {
@@ -30,10 +23,6 @@ import RegularAnchorPoint from './AnchorPoint/RegularAnchorPoint';
 import StackedLines from './StackedLines';
 
 interface Props {
-<<<<<<< HEAD
-  displayTimeValues: boolean;
-=======
->>>>>>> centreon/dev-21.10.x
   graphHeight: number;
   leftScale: ScaleLinear<number, number>;
   lines: Array<Line>;
@@ -90,10 +79,6 @@ const Lines = ({
   lines,
   graphHeight,
   timeTick,
-<<<<<<< HEAD
-  displayTimeValues,
-=======
->>>>>>> centreon/dev-21.10.x
 }: Props): JSX.Element => {
   const [, secondUnit, thirdUnit] = getUnits(lines);
 
@@ -116,14 +101,8 @@ const Lines = ({
   const regularLines = difference(lines, stackedLines);
 
   return (
-<<<<<<< HEAD
-    <g>
-      <StackedLines
-        displayTimeValues={displayTimeValues}
-=======
     <>
       <StackedLines
->>>>>>> centreon/dev-21.10.x
         lines={regularStackedLines}
         timeSeries={regularStackedTimeSeries}
         timeTick={timeTick}
@@ -131,21 +110,13 @@ const Lines = ({
         yScale={stackedYScale}
       />
       <StackedLines
-<<<<<<< HEAD
-        displayTimeValues={displayTimeValues}
-=======
->>>>>>> centreon/dev-21.10.x
         lines={invertedStackedLines}
         timeSeries={invertedStackedTimeSeries}
         timeTick={timeTick}
         xScale={xScale}
         yScale={stackedYScale}
       />
-<<<<<<< HEAD
-      <g>
-=======
       <>
->>>>>>> centreon/dev-21.10.x
         {regularLines.map(
           ({
             metric,
@@ -167,16 +138,9 @@ const Lines = ({
             });
 
             return (
-<<<<<<< HEAD
-              <g key={metric}>
-                <RegularAnchorPoint
-                  areaColor={areaColor}
-                  displayTimeValues={displayTimeValues}
-=======
               <React.Fragment key={metric}>
                 <RegularAnchorPoint
                   areaColor={areaColor}
->>>>>>> centreon/dev-21.10.x
                   lineColor={lineColor}
                   metric={metric}
                   timeSeries={timeSeries}
@@ -198,21 +162,12 @@ const Lines = ({
                   xScale={xScale}
                   yScale={yScale}
                 />
-<<<<<<< HEAD
-              </g>
-            );
-          },
-        )}
-      </g>
-    </g>
-=======
               </React.Fragment>
             );
           },
         )}
       </>
     </>
->>>>>>> centreon/dev-21.10.x
   );
 };
 

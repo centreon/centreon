@@ -25,12 +25,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 // Load cached env vars if the .env.local.php file exists
 // Run "composer dump-env prod" to create it (requires symfony/flex >=1.2)
-<<<<<<< HEAD
-if (
-    file_exists(dirname(__DIR__) . '/.env.local.php')
-=======
 if (file_exists(dirname(__DIR__) . '/.env.local.php')
->>>>>>> centreon/dev-21.10.x
     && is_array($env = @include dirname(__DIR__) . '/.env.local.php')
 ) {
     $_ENV += $env;
@@ -40,11 +35,7 @@ if (file_exists(dirname(__DIR__) . '/.env.local.php')
     );
 } else {
     // load all the .env files
-<<<<<<< HEAD
-    (new Dotenv())->loadEnv(dirname(__DIR__) . '/.env');
-=======
     (new Dotenv(false))->loadEnv(dirname(__DIR__) . '/.env');
->>>>>>> centreon/dev-21.10.x
 }
 
 $_SERVER += $_ENV;
@@ -58,19 +49,11 @@ if (!isset($GLOBALS['constants']) && !isset($GLOBALS['conf_centreon'])) {
     $constants = [];
     $conf_centreon = [];
     include_once dirname(__DIR__) . "/config/centreon.config.php";
-<<<<<<< HEAD
-    (new Dotenv())->populate($constants);
-    (new Dotenv())->populate($conf_centreon);
-} else {
-    (new Dotenv())->populate($GLOBALS['constants']);
-    (new Dotenv())->populate($GLOBALS['conf_centreon']);
-=======
     (new Dotenv(false))->populate($constants);
     (new Dotenv(false))->populate($conf_centreon);
 } else {
     (new Dotenv(false))->populate($GLOBALS['constants']);
     (new Dotenv(false))->populate($GLOBALS['conf_centreon']);
->>>>>>> centreon/dev-21.10.x
 }
 
 include_once dirname(__DIR__) . "/container.php";

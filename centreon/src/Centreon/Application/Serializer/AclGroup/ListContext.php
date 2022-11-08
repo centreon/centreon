@@ -38,10 +38,6 @@ use Centreon\Domain\Entity\AclGroup;
  */
 class ListContext implements SerializerContextInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * {@inheritdoc}
      */

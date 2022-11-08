@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2022 Centreon
-=======
 /*
  * Copyright 2005-2015 Centreon
->>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -125,10 +119,6 @@ abstract class AbstractHost extends AbstractObject
         'notes_url',
         'action_url',
         'icon_image',
-<<<<<<< HEAD
-        'icon_id',
-=======
->>>>>>> centreon/dev-21.10.x
         'icon_image_alt',
         'statusmap_image',
         'timezone',
@@ -146,19 +136,10 @@ abstract class AbstractHost extends AbstractObject
         'retain_status_information',
         'retain_nonstatus_information',
     );
-<<<<<<< HEAD
-    protected $attributes_array = [
-        'use',
-        'parents',
-        'category_tags',
-        'group_tags',
-    ];
-=======
     protected $attributes_array = array(
         'use',
         'parents',
     );
->>>>>>> centreon/dev-21.10.x
     protected $attributes_hash = array(
         'macros'
     );
@@ -199,10 +180,6 @@ abstract class AbstractHost extends AbstractObject
         $media = Media::getInstance($this->dependencyInjector);
         if (!isset($host['icon_image'])) {
             $host['icon_image'] = $media->getMediaPathFromId($host['icon_image_id']);
-<<<<<<< HEAD
-            $host['icon_id'] = $host['icon_image_id'];
-=======
->>>>>>> centreon/dev-21.10.x
         }
         if (!isset($host['statusmap_image'])) {
             $host['statusmap_image'] = $media->getMediaPathFromId($host['statusmap_image_id']);
@@ -216,11 +193,7 @@ abstract class AbstractHost extends AbstractObject
         }
 
         if (is_null($this->stmt_macro)) {
-<<<<<<< HEAD
-            $this->stmt_macro = $this->backend_instance->db->prepare("SELECT
-=======
             $this->stmt_macro = $this->backend_instance->db->prepare("SELECT 
->>>>>>> centreon/dev-21.10.x
               host_macro_name, host_macro_value
             FROM on_demand_macro_host
             WHERE host_host_id = :host_id
@@ -422,43 +395,4 @@ abstract class AbstractHost extends AbstractObject
         }
         return null;
     }
-<<<<<<< HEAD
-
-    /**
-     * @param array<string,mixed> $host
-     * @return array<string,mixed>
-     */
-    private function getHostCategoriesByHost(array $host): array
-    {
-        if (isset($host['hostCategories'])) {
-            return $host['hostCategories'];
-        }
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT hostcategories_hc_id
-            FROM hostcategories_relation
-            WHERE host_host_id = :host_id"
-        );
-        $stmt->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @param HostCategory $hostCategory
-     * @param array<string,mixed> $host
-     */
-    public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
-    {
-        $host['hostCategories'] = $this->getHostCategoriesByHost($host);
-
-        foreach ($host['hostCategories'] as $hostCategoryId) {
-            $hostCategory->insertHostToCategoryMembers(
-                $hostCategoryId,
-                $host['host_id'],
-                $host['name'] ?? $host['host_name']
-            );
-        }
-    }
-=======
->>>>>>> centreon/dev-21.10.x
 }

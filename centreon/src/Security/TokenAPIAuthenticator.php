@@ -1,11 +1,7 @@
 <?php
 
 /*
-<<<<<<< HEAD
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
-=======
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
->>>>>>> centreon/dev-21.10.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,26 +22,6 @@ declare(strict_types=1);
 
 namespace Security;
 
-<<<<<<< HEAD
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Exception\ContactDisabledException;
-use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
-use Security\Domain\Authentication\Model\LocalProvider;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\CredentialsExpiredException;
-use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
-use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-=======
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
@@ -60,22 +36,16 @@ use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * Class used to authenticate a request by using a security token.
  *
  * @package Security
  */
-<<<<<<< HEAD
-class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
-{
-=======
 class TokenAPIAuthenticator extends AbstractGuardAuthenticator
 {
     public const EXPIRATION_DELAY = 120;
 
->>>>>>> centreon/dev-21.10.x
     /**
      * @var AuthenticationRepositoryInterface
      */
@@ -87,41 +57,20 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
     private $contactRepository;
 
     /**
-<<<<<<< HEAD
-     * @var LocalProvider
-     */
-    private $localProvider;
-=======
      * @var OptionServiceInterface
      */
     private $optionService;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * TokenAPIAuthenticator constructor.
      *
      * @param AuthenticationRepositoryInterface $authenticationRepository
      * @param ContactRepositoryInterface $contactRepository
-<<<<<<< HEAD
-     * @param LocalProvider $localProvider
-=======
      * @param OptionServiceInterface $optionService
->>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         AuthenticationRepositoryInterface $authenticationRepository,
         ContactRepositoryInterface $contactRepository,
-<<<<<<< HEAD
-        LocalProvider $localProvider
-    ) {
-        $this->authenticationRepository = $authenticationRepository;
-        $this->contactRepository = $contactRepository;
-        $this->localProvider = $localProvider;
-    }
-
-    /**
-     * @inheritDoc
-=======
         OptionServiceInterface $optionService
     ) {
         $this->authenticationRepository = $authenticationRepository;
@@ -150,28 +99,18 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
      * @param AuthenticationException $authException The exception that started the authentication process
      *
      * @return Response
->>>>>>> centreon/dev-21.10.x
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $data = [
-<<<<<<< HEAD
-            'message' => _('Authentication Required')
-=======
             // you might translate this message
             'message' => 'Authentication Required'
->>>>>>> centreon/dev-21.10.x
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-     */
-    public function supports(Request $request): bool
-=======
      * Does the authenticator support the given Request?
      *
      * If this returns false, the authenticator will be skipped.
@@ -181,73 +120,11 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
      * @return bool
      */
     public function supports(Request $request)
->>>>>>> centreon/dev-21.10.x
     {
         return $request->headers->has('X-AUTH-TOKEN');
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return SelfValidatingPassport
-     * @throws CustomUserMessageAuthenticationException
-     * @throws TokenNotFoundException
-     */
-    public function authenticate(Request $request): SelfValidatingPassport
-    {
-        $apiToken = $request->headers->get('X-AUTH-TOKEN');
-        if (null === $apiToken) {
-            // The token header was empty, authentication fails with HTTP Status
-            // Code 401 "Unauthorized"
-            throw new TokenNotFoundException('API token not provided');
-        }
-
-        return new SelfValidatingPassport(
-            new UserBadge(
-                $apiToken,
-                function ($userIdentifier) {
-                    return $this->getUserAndUpdateToken($userIdentifier);
-                }
-            )
-        );
-    }
-
-    /**
-     * Return a UserInterface object based on the token provided.
-     *
-     * @param string $apiToken
-     *
-     * @return UserInterface
-     * @throws TokenNotFoundException
-     * @throws CredentialsExpiredException
-     * @throws ContactDisabledException
-     */
-    private function getUserAndUpdateToken(string $apiToken): UserInterface
-    {
-        $providerToken = $this->localProvider->getProviderToken($apiToken);
-
-=======
      * Get the authentication credentials from the request and return them
      * as any type (e.g. an associate array).
      *
@@ -304,22 +181,11 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
         }
 
         $providerToken = $tokens->getProviderToken();
->>>>>>> centreon/dev-21.10.x
         $expirationDate = $providerToken->getExpirationDate();
         if ($expirationDate !== null && $expirationDate->getTimestamp() < time()) {
             throw new CredentialsExpiredException();
         }
 
-<<<<<<< HEAD
-        $contact = $this->contactRepository->findByAuthenticationToken($providerToken->getToken());
-        if ($contact === null) {
-            throw new UserNotFoundException();
-        }
-        if (!$contact->isActive()) {
-            throw new ContactDisabledException();
-        }
-
-=======
         $contact = $this->contactRepository->findById($tokens->getUserId());
         if (isset($contact) && $contact->isActive() === false) {
             throw new ContactDisabledException();
@@ -334,13 +200,10 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
             (new \DateTime())->add(new \DateInterval('PT' . $expirationSessionDelay . 'M'))
         );
 
->>>>>>> centreon/dev-21.10.x
         $this->authenticationRepository->updateProviderToken($providerToken);
 
         return $contact;
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Returns true if the credentials are valid.
@@ -427,5 +290,4 @@ class TokenAPIAuthenticator extends AbstractGuardAuthenticator
     {
         return false;
     }
->>>>>>> centreon/dev-21.10.x
 }

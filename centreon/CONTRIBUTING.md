@@ -165,8 +165,4 @@ For other languages, coding style rules are defined in Centreon GitHub repositor
 #### Documentation
 
 If you want to visualize and suggest modification to the documentation through a pull request
-<<<<<<< HEAD
 you can check the **HOW TO** build the documentation section [here](doc/README.md)
-=======
-you can check the **HOW TO** build the documentation section [here](doc/README.md)
->>>>>>> centreon/dev-21.10.x

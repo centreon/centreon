@@ -1,27 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * For more information : contact@centreon.com
- *
- */
-
-=======
->>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\DefaultConfig;
 
 /**
@@ -33,11 +10,7 @@ class CfgCentreonBrokerInfo
      * Get template configuration
      * @todo move it as yml
      *
-<<<<<<< HEAD
-     * @return array<int, array<string,int|string>> the configuration template
-=======
      * @return array the configuration template
->>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(): array
     {
@@ -227,11 +200,7 @@ class CfgCentreonBrokerInfo
             [
                 'config_id'       => 1,
                 'config_key'      => 'name',
-<<<<<<< HEAD
-                'config_value'    => 'central-broker-master-unified-sql',
-=======
                 'config_value'    => 'central-broker-master-sql',
->>>>>>> centreon/dev-21.10.x
                 'config_group'    => 'output',
                 'config_group_id' => 1,
             ],
@@ -307,66 +276,15 @@ class CfgCentreonBrokerInfo
             ],
             [
                 'config_id'       => 1,
-<<<<<<< HEAD
-                'config_key'      => 'interval',
-                'config_value'    => '60',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'length',
-                'config_value'    => '15552000',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'check_replication',
-                'config_value'    => 'no',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'rebuild_check_interval',
-                'config_value'    => '',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'store_in_data_bin',
-                'config_value'    => 'yes',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'insert_in_index_data',
-                'config_value'    => '1',
-                'config_group'    => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id'       => 1,
-                'config_key'      => 'type',
-                'config_value'    => 'unified_sql',
-=======
                 'config_key'      => 'type',
                 'config_value'    => 'sql',
->>>>>>> centreon/dev-21.10.x
                 'config_group'    => 'output',
                 'config_group_id' => 1,
             ],
             [
                 'config_id'       => 1,
                 'config_key'      => 'blockId',
-<<<<<<< HEAD
-                'config_value'    => '1_34',
-=======
                 'config_value'    => '1_16',
->>>>>>> centreon/dev-21.10.x
                 'config_group'    => 'output',
                 'config_group_id' => 1,
             ],
@@ -489,8 +407,6 @@ class CfgCentreonBrokerInfo
                 'config_group'    => 'output',
                 'config_group_id' => 2,
             ],
-<<<<<<< HEAD
-=======
             [
                 'config_id'       => 1,
                 'config_key'      => 'name',
@@ -624,7 +540,6 @@ class CfgCentreonBrokerInfo
                 'config_group'    => 'output',
                 'config_group_id' => 3,
             ],
->>>>>>> centreon/dev-21.10.x
 
             /////////////////////////////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////////////////

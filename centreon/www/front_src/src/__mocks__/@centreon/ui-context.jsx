@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('centreon-frontend/packages/ui-context'),
-  ThemeMode: {
-    light: 'light',
-  },
-}));
-=======
 import * as React from 'react';
 
 const setUser = jest.fn();
@@ -103,4 +95,3 @@ export {
   Context,
   useAcknowledgement,
 };
->>>>>>> centreon/dev-21.10.x

@@ -180,17 +180,8 @@ function getLogInDbForHostGroup($hostgroup_id, $start_date, $end_date, $reportTi
 
     /* the hostgroup availability is the average availability of all host from the the hostgroup */
     foreach ($hostStatsLabels as $name) {
-<<<<<<< HEAD
-        if (
-            $name == "UP_T"
-            || $name == "DOWN_T"
-            || $name == "UNREACHABLE_T"
-            || $name == "UNDETERMINED_T"
-            || $name == "MAINTENANCE_T"
-=======
         if ($name == "UP_T" || $name == "DOWN_T" || $name == "UNREACHABLE_T"
             || $name == "UNDETERMINED_T" || $name == "MAINTENANCE_T"
->>>>>>> centreon/dev-21.10.x
         ) {
             $hostgroupStats["average"][$name] /= $count;
         }
@@ -472,11 +463,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
         . $aclCondition . " "
         . $servicesSubquery . " "
         . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysOfWeek . ") "
-<<<<<<< HEAD
-        . "GROUP BY las.service_id";
-=======
         . "GROUP BY las.host_id, las.service_id";
->>>>>>> centreon/dev-21.10.x
     $statement = $pearDBO->prepare($rq);
 
     foreach ($bindValues as $bindName => $bindParams) {
@@ -620,18 +607,8 @@ function getLogInDbForServicesGroup($servicegroupId, $startDate, $endDate, $repo
      * Average time for all status (OK, Critical, Warning, Unknown)
      */
     foreach ($serviceStatsLabels as $name) {
-<<<<<<< HEAD
-        if (
-            $name == "OK_T"
-            || $name == "WARNING_T"
-            || $name == "CRITICAL_T"
-            || $name == "UNKNOWN_T"
-            || $name == "UNDETERMINED_T"
-            || $name == "MAINTENANCE_T"
-=======
         if ($name == "OK_T" || $name == "WARNING_T" || $name == "CRITICAL_T"
             || $name == "UNKNOWN_T" || $name == "UNDETERMINED_T" || $name == "MAINTENANCE_T"
->>>>>>> centreon/dev-21.10.x
         ) {
             if ($count) {
                 $serviceGroupStats["average"][$name] /= $count;

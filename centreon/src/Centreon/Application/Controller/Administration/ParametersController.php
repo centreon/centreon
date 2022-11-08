@@ -41,10 +41,6 @@ class ParametersController extends AbstractController
 
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration',
                   DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale',
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
                   DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring',
                   DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
                   DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
@@ -188,8 +184,4 @@ class ParametersController extends AbstractController
                 return $duration;
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> centreon/dev-21.10.x

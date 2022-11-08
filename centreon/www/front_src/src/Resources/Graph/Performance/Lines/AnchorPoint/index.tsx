@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 interface Props {
   areaColor: string;
   lineColor: string;

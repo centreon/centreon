@@ -34,10 +34,6 @@ use Centreon\Test\Mock;
  */
 class UtilsTest extends TestCase
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     public function setUp(): void
     {
         // mount VFS

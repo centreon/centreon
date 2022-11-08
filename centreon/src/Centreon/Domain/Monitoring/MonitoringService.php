@@ -27,10 +27,7 @@ use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterfa
 use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Security\Interfaces\AccessGroupRepositoryInterface;
 use Centreon\Domain\Service\AbstractCentreonService;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface;
@@ -65,42 +62,30 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
      * @var HostConfigurationServiceInterface
      */
     private $hostConfiguration;
-<<<<<<< HEAD
-=======
     /**
      * @var MonitoringServerServiceInterface
      */
     private $monitoringServerService;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @param MonitoringRepositoryInterface $monitoringRepository
      * @param AccessGroupRepositoryInterface $accessGroupRepository
      * @param ServiceConfigurationServiceInterface $serviceConfigurationService
      * @param HostConfigurationServiceInterface $hostConfigurationService
-<<<<<<< HEAD
-=======
      * @param MonitoringServerServiceInterface $monitoringServerService
->>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         MonitoringRepositoryInterface $monitoringRepository,
         AccessGroupRepositoryInterface $accessGroupRepository,
         ServiceConfigurationServiceInterface $serviceConfigurationService,
         HostConfigurationServiceInterface $hostConfigurationService,
-<<<<<<< HEAD
-=======
         MonitoringServerServiceInterface $monitoringServerService
->>>>>>> centreon/dev-21.10.x
     ) {
         $this->monitoringRepository = $monitoringRepository;
         $this->accessGroupRepository = $accessGroupRepository;
         $this->serviceConfiguration = $serviceConfigurationService;
         $this->hostConfiguration = $hostConfigurationService;
-<<<<<<< HEAD
-=======
         $this->monitoringServerService = $monitoringServerService;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -166,18 +151,6 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                     $hostGroupIds[] = $hostGroup->getId();
                 }
 
-<<<<<<< HEAD
-                $hostsByHostsGroups = $this->monitoringRepository->findHostsByHostsGroups($hostGroupIds);
-
-                foreach ($hostGroups as $hostGroup) {
-                    if (array_key_exists($hostGroup->getId(), $hostsByHostsGroups)) {
-                        $hostGroup->setHosts($hostsByHostsGroups[$hostGroup->getId()]);
-                        // We keep the host ids if we must to retrieve their services
-                        if ($withServices) {
-                            foreach ($hostGroup->getHosts() as $host) {
-                                if (!in_array($host->getId(), $hostIds)) {
-                                    $hostIds[] = $host->getId();
-=======
                 if (!empty($hostGroupIds)) {
                     $hostsByHostsGroups = $this->monitoringRepository->findHostsByHostsGroups($hostGroupIds);
 
@@ -190,7 +163,6 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                                     if (!in_array($host->getId(), $hostIds)) {
                                         $hostIds[] = $host->getId();
                                     }
->>>>>>> centreon/dev-21.10.x
                                 }
                             }
                         }
@@ -331,13 +303,8 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     /**
      * Completes hosts with their services.
      *
-<<<<<<< HEAD
-     * @param array<mixed> $hosts Host list for which we want to complete with their services
-     * @return array<mixed> Returns the host list with their services
-=======
      * @param array $hosts Host list for which we want to complete with their services
      * @return array Returns the host list with their services
->>>>>>> centreon/dev-21.10.x
      * @throws \Exception
      */
     private function completeHostsWithTheirServices(array $hosts): array

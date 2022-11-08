@@ -7,8 +7,5 @@ use Centreon\Test\Behat\CentreonAPIContext;
  */
 class ModuleApiContext extends CentreonAPIContext
 {
-<<<<<<< HEAD
-=======
     
->>>>>>> centreon/dev-21.10.x
 }

@@ -1,14 +1,7 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
- *
-=======
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  * 
->>>>>>> centreon/dev-21.10.x
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,15 +24,6 @@ use CentreonRemote\Infrastructure\Export\ExportParserInterface;
 
 class ExportParserJson implements ExportParserInterface
 {
-<<<<<<< HEAD
-    /**
-     * @param string $filename
-     * @param callable|null $macros
-     * @return array<mixed>
-     */
-=======
-
->>>>>>> centreon/dev-21.10.x
     public function parse(string $filename, callable $macros = null): array
     {
         if (!file_exists($filename)) {
@@ -58,13 +42,6 @@ class ExportParserJson implements ExportParserInterface
         return $value;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string[] $input
-     * @param string $filename
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function dump(array $input, string $filename): void
     {
         if (!$input) {

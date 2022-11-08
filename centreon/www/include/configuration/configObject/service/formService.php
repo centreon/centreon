@@ -90,11 +90,7 @@ $macroPasswords = [];
 
 if (($o == SERVICE_MODIFY || $o == SERVICE_WATCH) && $service_id) {
     $statement = $pearDB->prepare(
-<<<<<<< HEAD
-        'SELECT * 
-=======
         'SELECT *
->>>>>>> centreon/dev-21.10.x
         FROM service
         LEFT JOIN extended_service_information esi
             ON esi.service_service_id = service_id
@@ -130,11 +126,7 @@ if (($o == SERVICE_MODIFY || $o == SERVICE_WATCH) && $service_id) {
      * Set criticality
      */
     $statement = $pearDB->prepare(
-<<<<<<< HEAD
-        'SELECT sc.sc_id 
-=======
         'SELECT sc.sc_id
->>>>>>> centreon/dev-21.10.x
         FROM service_categories sc
         INNER JOIN service_categories_relation scr
             ON scr.sc_id = sc.sc_id
@@ -1025,13 +1017,10 @@ if (is_array($select)) {
  * Form Rules
  */
 $form->applyFilter('__ALL__', 'myTrim');
-<<<<<<< HEAD
-=======
 $form->applyFilter('esi_notes', 'limitNotesLength');
 $form->applyFilter('esi_notes_url', 'limitUrlLength');
 $form->applyFilter('esi_action_url', 'limitUrlLength');
 
->>>>>>> centreon/dev-21.10.x
 $from_list_menu = false;
 if ($o != SERVICE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _("Compulsory Name"), 'required');
@@ -1102,14 +1091,11 @@ $tpl->assign(
         . "if needed, pair this configuration with the use of timeperiods")
 );
 
-<<<<<<< HEAD
-=======
 $tpl->assign(
     'alert_max_length_exceeded',
     _("Warning, maximum size exceeded for input '%s' (max: %d), it will be truncated upon saving")
 );
 
->>>>>>> centreon/dev-21.10.x
 // Just watch a host information
 if ($o == SERVICE_WATCH) {
     if (!$min && $centreon->user->access->page($p) != 2) {

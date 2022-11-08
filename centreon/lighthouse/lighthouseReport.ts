@@ -3,15 +3,8 @@ import fs from 'fs';
 import puppeteer from 'puppeteer';
 import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api';
 
-<<<<<<< HEAD
-import { generateReportForLoginPage } from './pages/login';
-import { generateReportForResourceStatusPage } from './pages/resourceStatus';
-import { baseConfigContext } from './defaults';
-import { generateReportForAuthenticationPage } from './pages/authentication';
-=======
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
 import { baseConfigContext, baseUrl } from './defaults';
->>>>>>> centreon/dev-21.10.x
 
 const createReportFile = (report): void => {
   const lighthouseFolderExists = fs.existsSync('report');
@@ -34,14 +27,6 @@ const captureReport = async (): Promise<void> => {
     name: 'Centreon Web pages',
   });
 
-<<<<<<< HEAD
-  await generateReportForLoginPage({ flow, page });
-
-  await generateReportForResourceStatusPage({ flow, page });
-
-  await generateReportForAuthenticationPage({ flow, page });
-
-=======
   await page.goto(baseUrl);
 
   await page.waitForSelector('input[name="useralias"]');
@@ -52,7 +37,6 @@ const captureReport = async (): Promise<void> => {
 
   await generateReportForResourceStatusPage({ flow, page });
 
->>>>>>> centreon/dev-21.10.x
   await browser.close();
 
   createReportFile(flow.generateReport());

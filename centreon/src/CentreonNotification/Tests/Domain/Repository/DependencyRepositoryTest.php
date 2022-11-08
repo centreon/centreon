@@ -35,11 +35,7 @@ class DependencyRepositoryTest extends TestCase
     /**
      * @var \Centreon\Test\Mock\CentreonDB
      */
-<<<<<<< HEAD
-    protected $db;
-=======
     protected $db = [];
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @var \CentreonNotification\Domain\Repository\DependencyRepository

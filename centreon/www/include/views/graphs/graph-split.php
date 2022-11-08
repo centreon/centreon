@@ -225,10 +225,5 @@ $form->accept($renderer);
 
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('metrics', $metrics);
-<<<<<<< HEAD
-$tpl->assign("timerDisabled", returnSvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14));
-$tpl->assign("timerEnabled", returnSvg("www/img/icons/timer.svg", "var(--icons-fill-color)", 14, 14));
-=======
->>>>>>> centreon/dev-21.10.x
 
 $tpl->display('graph-split.html');

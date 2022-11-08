@@ -36,14 +36,6 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     use Webservice\DependenciesTrait;
 
     /**
-<<<<<<< HEAD
-     * @var mixed
-     */
-    private $services;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * {@inheritdoc}
      */
     public static function getName(): string
@@ -53,10 +45,6 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
 
     /**
      * {@inheritdoc}
-<<<<<<< HEAD
-     * @return array<int,string>
-=======
->>>>>>> centreon/dev-21.10.x
      */
     public static function dependencies(): array
     {
@@ -148,13 +136,8 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
      *
      * Get a list of ACL groups
      *
-<<<<<<< HEAD
-     * @return DataRepresenter\Response
-     * @throws \RestBadRequestException
-=======
      * @throws \RestBadRequestException
      * @return array
->>>>>>> centreon/dev-21.10.x
      */
     public function getList(): DataRepresenter\Response
     {

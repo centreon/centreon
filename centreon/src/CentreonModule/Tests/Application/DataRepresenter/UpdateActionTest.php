@@ -43,13 +43,6 @@ use CentreonModule\Application\DataRepresenter\ModuleEntity;
 
 class UpdateActionTest extends TestCase
 {
-<<<<<<< HEAD
-    /**
-     * @var Module
-     */
-    private $entity;
-=======
->>>>>>> centreon/dev-21.10.x
 
     public function setUp(): void
     {
@@ -66,11 +59,7 @@ class UpdateActionTest extends TestCase
             ],
         ];
 
-<<<<<<< HEAD
-        $this->entity = new Module();
-=======
         $this->entity = new Module;
->>>>>>> centreon/dev-21.10.x
         $this->entity->setId($data['id']);
         $this->entity->setType($data['type']);
         $this->entity->setName($data['name']);
@@ -80,11 +69,7 @@ class UpdateActionTest extends TestCase
         $this->entity->setLicense($data['license']);
     }
 
-<<<<<<< HEAD
-    public function testJsonSerialize(): void
-=======
     public function testJsonSerialize()
->>>>>>> centreon/dev-21.10.x
     {
         $this->entity = $this->entity;
         $message = 'OK';
@@ -103,22 +88,14 @@ class UpdateActionTest extends TestCase
     /**
      * @covers \CentreonModule\Application\DataRepresenter\UpdateAction::jsonSerialize
      */
-<<<<<<< HEAD
-    public function testJsonSerializeWithoutEntityAndMessage(): void
-=======
     public function testJsonSerializeWithoutEntityAndMessage()
->>>>>>> centreon/dev-21.10.x
     {
         $controlResult = [
             'entity' => null,
             'message' => null,
         ];
 
-<<<<<<< HEAD
-        $dataRepresenter = new UpdateAction();
-=======
         $dataRepresenter = new UpdateAction;
->>>>>>> centreon/dev-21.10.x
         $result = $dataRepresenter->jsonSerialize();
 
         $this->assertEquals($result, $controlResult);

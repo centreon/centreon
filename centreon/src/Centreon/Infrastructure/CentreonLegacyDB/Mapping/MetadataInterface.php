@@ -40,10 +40,6 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 
 interface MetadataInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Describe the relationship between properties and DB columns as names and data types
      *

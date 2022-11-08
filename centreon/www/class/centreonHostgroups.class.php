@@ -100,20 +100,6 @@ class CentreonHostgroups
         }
 
         $hosts = array();
-<<<<<<< HEAD
-        $DBRESULT = $this->DB->query(
-            "SELECT hgr.host_host_id " .
-            "FROM hostgroup_relation hgr, host h " .
-            "WHERE hgr.hostgroup_hg_id = '" . $this->DB->escape($hg_id) . "' " .
-            "AND h.host_id = hgr.host_host_id " .
-            "ORDER by h.host_name"
-        );
-        while ($elem = $DBRESULT->fetchRow()) {
-            $ref[$elem["host_host_id"]] = $elem["host_host_id"];
-            $hosts[] = $elem["host_host_id"];
-        }
-        $DBRESULT->closeCursor();
-=======
         $statement = $this->DB->prepare("SELECT hgr.host_host_id " .
             "FROM hostgroup_relation hgr, host h " .
             "WHERE hgr.hostgroup_hg_id = :hgId " .
@@ -127,7 +113,6 @@ class CentreonHostgroups
             $hosts[] = $elem["host_host_id"];
         }
         $statement->closeCursor();
->>>>>>> centreon/dev-21.10.x
         unset($elem);
 
         if (isset($hostgroups) && count($hostgroups)) {
@@ -350,15 +335,12 @@ class CentreonHostgroups
             return $items;
         }
 
-<<<<<<< HEAD
-=======
         $hostgroups = [];
         // $values structure: ['1,2,3,4'], keeping the foreach in case it could have more than one index
         foreach ($values as $value) {
             $hostgroups = array_merge($hostgroups, explode(',', $value));
         }
 
->>>>>>> centreon/dev-21.10.x
         // get list of authorized hostgroups
         if (!$centreon->user->access->admin) {
             $hgAcl = $centreon->user->access->getHostGroupAclConf(
@@ -372,11 +354,7 @@ class CentreonHostgroups
                     'conditions' => array(
                         'hostgroup.hg_id' => array(
                             'IN',
-<<<<<<< HEAD
-                            $values
-=======
                             $hostgroups
->>>>>>> centreon/dev-21.10.x
                         )
                     )
                 ),
@@ -388,17 +366,6 @@ class CentreonHostgroups
         $listValues = '';
         $queryValues = array();
 
-<<<<<<< HEAD
-        foreach ($values as $k => $v) {
-            //As it happens that $v could be like "X,Y" when two hostgroups are selected, we added a second foreach
-            $multiValues = explode(',', $v);
-            foreach ($multiValues as $item) {
-                $ids = explode('-', $item);
-                $listValues .= ':hgId_' . $ids[0] . ', ';
-                $queryValues['hgId_' . $ids[0]] = (int)$ids[0];
-            }
-        }
-=======
         foreach ($hostgroups as $item) {
             // the below explode may not be useful
             $ids = explode('-', $item);
@@ -406,7 +373,6 @@ class CentreonHostgroups
             $queryValues['hgId_' . $ids[0]] = (int)$ids[0];
         }
 
->>>>>>> centreon/dev-21.10.x
         $listValues = rtrim($listValues, ', ');
         $query = 'SELECT hg_id, hg_name FROM hostgroup WHERE hg_id IN (' . $listValues . ') ORDER BY hg_name ';
         $stmt = $this->DB->prepare($query);

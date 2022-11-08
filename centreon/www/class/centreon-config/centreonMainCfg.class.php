@@ -75,27 +75,6 @@ class CentreonMainCfg
         33554432 => 'Command data'
     ];
 
-<<<<<<< HEAD
-    /** @var array<string,string> */
-    private $loggerDefaultCfg = [
-        'log_v2_logger' => 'file',
-        'log_level_functions' => 'err',
-        'log_level_config' => 'info',
-        'log_level_events' => 'info',
-        'log_level_checks' => 'info',
-        'log_level_notifications' => 'err',
-        'log_level_eventbroker' => 'err',
-        'log_level_external_command' => 'info',
-        'log_level_commands' => 'err',
-        'log_level_downtimes' => 'err',
-        'log_level_comments' => 'err',
-        'log_level_macros' => 'err',
-        'log_level_process' => 'info',
-        'log_level_runtime' => 'err',
-    ];
-
-=======
->>>>>>> centreon/dev-21.10.x
     public function __construct()
     {
         $this->DB = new CentreonDB();
@@ -113,11 +92,7 @@ class CentreonMainCfg
 
     private function setEngineOptions()
     {
-<<<<<<< HEAD
-        $this->aInstanceDefaultValues = [
-=======
         $this->aInstanceDefaultValues = array(
->>>>>>> centreon/dev-21.10.x
             'log_file' => '/var/log/centreon-engine/centengine.log',
             'cfg_dir' => '/etc/centreon-engine/',
             'temp_file' => '/var/log/centreon-engine/centengine.tmp',
@@ -131,11 +106,8 @@ class CentreonMainCfg
             'execute_host_checks' => '1',
             'accept_passive_host_checks' => '1',
             'enable_event_handlers' => '1',
-<<<<<<< HEAD
-=======
             'log_rotation_method' => 'd',
             'log_archive_path' => '/var/log/centreon-engine/archives/',
->>>>>>> centreon/dev-21.10.x
             'check_external_commands' => '1',
             'external_command_buffer_slots' => '4096',
             'command_check_interval' => '1s',
@@ -209,21 +181,12 @@ class CentreonMainCfg
             'debug_level_opt' => '0',
             'debug_verbosity' => '0',
             'max_debug_file_size' => '1000000000',
-<<<<<<< HEAD
-            'cfg_file' => 'centengine.cfg',
-            'cached_host_check_horizon' => '60',
-            'log_pid' => 1,
-            'enable_macros_filter' => 0,
-            'logger_version' => 'log_v2_enabled',
-        ];
-=======
             'daemon_dumps_core' => '0',
             'cfg_file' => 'centengine.cfg',
             'cached_host_check_horizon' => '60',
             'log_pid' => 1,
             'enable_macros_filter' => 0
         );
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -236,19 +199,6 @@ class CentreonMainCfg
     }
 
     /**
-<<<<<<< HEAD
-     * Get default engine logger values
-     *
-     * @param array<string,string>
-     */
-    public function getDefaultLoggerCfg(): array
-    {
-        return $this->loggerDefaultCfg;
-    }
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Get Default values
      *
      */
@@ -284,56 +234,6 @@ class CentreonMainCfg
     }
 
     /**
-<<<<<<< HEAD
-     * @param int $nagiosId
-     */
-    public function insertDefaultCfgNagiosLogger(int $nagiosId): void
-    {
-        $stmt = $this->DB->prepare("INSERT INTO cfg_nagios_logger (`cfg_nagios_id`) VALUES (:nagiosId)");
-        $stmt->bindValue('nagiosId', $nagiosId);
-        $stmt->execute();
-    }
-
-    /**
-     * @param int $nagiosId
-     * @param int $serverId
-     */
-    public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
-    {
-        $stmt = $this->DB->prepare(
-            "SELECT logger.* FROM cfg_nagios_logger logger, cfg_nagios cfg
-            WHERE cfg.nagios_id = logger.cfg_nagios_id AND cfg.nagios_server_id = :serverId"
-        );
-        $stmt->bindValue('serverId', $serverId, \PDO::PARAM_INT);
-        $stmt->execute();
-        $baseValues = $stmt->fetch();
-
-        if (empty($baseValues)) {
-            $baseValues = $this->getDefaultLoggerCfg();
-        } else {
-            unset($baseValues['id']);
-        }
-        $baseValues['cfg_nagios_id'] = $nagiosId;
-        $columnNames = array_keys($baseValues);
-
-        $stmt = $this->DB->prepare(
-            'INSERT INTO cfg_nagios_logger (`' . implode('`, `', $columnNames) . '`)
-            VALUES(:' . implode(', :', $columnNames) . ')'
-        );
-        foreach ($baseValues as $columName => $value) {
-            if ($columName === 'cfg_nagios_id') {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_INT);
-            } else {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_STR);
-            }
-        }
-        $stmt->execute();
-    }
-
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Insert the instance in cfg_nagios
      *
      * @param int $source The poller id
@@ -359,11 +259,7 @@ class CentreonMainCfg
         $rq = "INSERT INTO `cfg_nagios` (`nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`, `temp_file`, " .
             "`status_file`, `status_update_interval`, `nagios_user`, `nagios_group`, `enable_notifications`, " .
             "`execute_service_checks`, `accept_passive_service_checks`, `execute_host_checks`, " .
-<<<<<<< HEAD
-            "`accept_passive_host_checks`, `enable_event_handlers`, " .
-=======
             "`accept_passive_host_checks`, `enable_event_handlers`, `log_rotation_method`, `log_archive_path`, " .
->>>>>>> centreon/dev-21.10.x
             "`check_external_commands`, `external_command_buffer_slots`, `command_check_interval`, `command_file`, " .
             "`lock_file`, `retain_state_information`, `state_retention_file`,`retention_update_interval`, " .
             "`use_retained_program_state`, `use_retained_scheduling_info`, `use_syslog`, `log_notifications`, " .
@@ -385,17 +281,10 @@ class CentreonMainCfg
             "`enable_predictive_service_dependency_checks`, `passive_host_checks_are_soft`, " .
             "`use_large_installation_tweaks`, `enable_environment_macros`, `use_setpgid`, " .
             "`debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, " .
-<<<<<<< HEAD
-            "`cfg_file`) " .
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " .
-            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " .
-            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-=======
             "`daemon_dumps_core`, `cfg_file`) " .
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " .
             "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " .
             "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
->>>>>>> centreon/dev-21.10.x
 
         $params = array(
             'Centreon Engine ' . $sName,
@@ -414,12 +303,9 @@ class CentreonMainCfg
             $baseValues['execute_host_checks'],
             $baseValues['accept_passive_host_checks'],
             $baseValues['enable_event_handlers'],
-<<<<<<< HEAD
-=======
             $baseValues['log_rotation_method'],
 
             $baseValues['log_archive_path'],
->>>>>>> centreon/dev-21.10.x
             $baseValues['check_external_commands'],
             $baseValues['external_command_buffer_slots'],
             $baseValues['command_check_interval'],
@@ -493,10 +379,7 @@ class CentreonMainCfg
             $baseValues['debug_level_opt'],
             $baseValues['debug_verbosity'],
             $baseValues['max_debug_file_size'],
-<<<<<<< HEAD
-=======
             $baseValues['daemon_dumps_core'],
->>>>>>> centreon/dev-21.10.x
             $baseValues['cfg_file']
         );
         foreach ($params as &$param) {

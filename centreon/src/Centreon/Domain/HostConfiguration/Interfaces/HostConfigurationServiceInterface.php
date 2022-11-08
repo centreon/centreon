@@ -22,10 +22,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces;
 
-<<<<<<< HEAD
-use Centreon\Domain\HostConfiguration\Exception\HostConfigurationServiceException;
-=======
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\HostConfigurationException;
 use Centreon\Domain\HostConfiguration\HostMacro;
@@ -36,11 +32,7 @@ interface HostConfigurationServiceInterface
      * Add a host.
      *
      * @param Host $host
-<<<<<<< HEAD
-     * @throws HostConfigurationServiceException
-=======
      * @throws HostConfigurationException
->>>>>>> centreon/dev-21.10.x
      */
     public function addHost(Host $host): void;
 
@@ -120,34 +112,4 @@ interface HostConfigurationServiceInterface
      * @throws HostConfigurationException
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array;
-<<<<<<< HEAD
-
-    /**
-     * Update a host.
-     *
-     * @param Host $host
-     * @throws HostConfigurationServiceException
-     */
-    public function updateHost(Host $host): void;
-
-    /**
-     * Find host templates by host id (non recursive)
-     *
-     * **The priority order of host templates is maintained!**
-     *
-     * @param Host $host
-     * @return Host[]
-     */
-    public function findHostTemplatesByHost(Host $host): array;
-
-    /**
-     * Find a host by its name
-     *
-     * @param string $hostName Host name to be found
-     * @return Host|null Returns a host otherwise null
-     * @throws HostConfigurationException
-     */
-    public function findHostByName(string $hostName): ?Host;
-=======
->>>>>>> centreon/dev-21.10.x
 }

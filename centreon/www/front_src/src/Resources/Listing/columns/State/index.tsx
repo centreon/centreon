@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-import { FC } from 'react';
-
-import { path } from 'ramda';
-
-import { Grid } from '@mui/material';
-=======
 import React from 'react';
 
 import { path } from 'ramda';
 
 import { Grid } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { ComponentColumnProps } from '@centreon/ui';
 
@@ -25,11 +17,7 @@ import DowntimeDetailsTable from './DetailsTable/Downtime';
 
 interface StateChipProps {
   Chip: () => JSX.Element;
-<<<<<<< HEAD
-  DetailsTable: FC<{ endpoint: string }>;
-=======
   DetailsTable: React.SFC<{ endpoint: string }>;
->>>>>>> centreon/dev-21.10.x
   endpoint: string;
   label: string;
 }

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-=======
 import React, { useState, useEffect } from 'react';
->>>>>>> centreon/dev-21.10.x
 
 import { map, prop, sum, pipe } from 'ramda';
 
@@ -14,13 +10,8 @@ import {
   TableHead,
   TableCell,
   TableBody,
-<<<<<<< HEAD
-  Skeleton,
-} from '@mui/material';
-=======
 } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
->>>>>>> centreon/dev-21.10.x
 
 import {
   useRequest,
@@ -62,13 +53,7 @@ const DetailsTable = <TDetails extends { id: number }>({
   });
 
   useEffect(() => {
-<<<<<<< HEAD
-    sendRequest({
-      endpoint,
-    }).then((retrievedDetails) => {
-=======
     sendRequest(endpoint).then((retrievedDetails) => {
->>>>>>> centreon/dev-21.10.x
       setDetails(retrievedDetails.result);
     });
   }, []);

@@ -1,20 +1,9 @@
-<<<<<<< HEAD
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-import { prop, isEmpty, path, isNil } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
-
-import { Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { prop, isEmpty, path, isNil } from 'ramda';
 
 import { makeStyles, Paper } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import {
   useRequest,
@@ -27,15 +16,7 @@ import { labelEvent } from '../../../translatedLabels';
 import { TabProps } from '..';
 import InfiniteScroll from '../../InfiniteScroll';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
-<<<<<<< HEAD
-import {
-  customTimePeriodAtom,
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom,
-} from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
-=======
 import { useResourceContext } from '../../../Context';
->>>>>>> centreon/dev-21.10.x
 
 import { types } from './Event';
 import { TimelineEvent, Type } from './models';
@@ -57,43 +38,25 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-<<<<<<< HEAD
-=======
   const { getIntervalDates, selectedTimePeriod, customTimePeriod } =
     useResourceContext();
 
   const [start, end] = getIntervalDates();
 
->>>>>>> centreon/dev-21.10.x
   const translatedTypes = types.map((type) => ({
     ...type,
     name: t(type.name),
   })) as Array<Type>;
 
   const [selectedTypes, setSelectedTypes] =
-<<<<<<< HEAD
-    useState<Array<Type>>(translatedTypes);
-=======
     React.useState<Array<Type>>(translatedTypes);
   const limit = 30;
->>>>>>> centreon/dev-21.10.x
 
   const { sendRequest, sending } = useRequest<TimelineListing>({
     decoder: listTimelineEventsDecoder,
     request: listTimelineEvents,
   });
 
-<<<<<<< HEAD
-  const getIntervalDates = useAtomValue(getDatesDerivedAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
-
-  const [start, end] = getIntervalDates(selectedTimePeriod);
-
-  const limit = 30;
-
-=======
->>>>>>> centreon/dev-21.10.x
   const getSearch = (): SearchParameter | undefined => {
     if (isEmpty(selectedTypes)) {
       return undefined;
@@ -161,10 +124,6 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       reloadDependencies={[
         selectedTypes,
         selectedTimePeriod?.id || customTimePeriod,
-<<<<<<< HEAD
-        timelineEndpoint,
-=======
->>>>>>> centreon/dev-21.10.x
       ]}
       sendListingRequest={isNil(timelineEndpoint) ? undefined : listTimeline}
     >

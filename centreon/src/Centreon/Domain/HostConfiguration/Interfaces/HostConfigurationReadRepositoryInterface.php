@@ -106,36 +106,4 @@ interface HostConfigurationReadRepositoryInterface
      * @return string[] Return the host names found
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array;
-<<<<<<< HEAD
-
-    /**
-     * Find a host regarding user ACL
-     *
-     * @param integer $hostId
-     * @param int[] $accessGroupIds
-     * @return Host|null
-     * @throws \Throwable
-     */
-    public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host;
-
-    /**
-     * Find host templates linked to a host (non recursive)
-     *
-     * **The priority order of host templates is maintained!**
-     *
-     * @param Host $host
-     * @return Host[]
-     */
-    public function findHostTemplatesByHost(Host $host): array;
-
-    /**
-     * Find a host by its name.
-     *
-     * @param string $hostName Host Id to be found
-     * @return Host|null Returns a host otherwise null
-     * @throws \Throwable
-     */
-    public function findHostByName(string $hostName): ?Host;
-=======
->>>>>>> centreon/dev-21.10.x
 }

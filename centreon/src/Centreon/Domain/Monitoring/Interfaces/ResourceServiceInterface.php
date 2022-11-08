@@ -23,10 +23,7 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\Interfaces;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
-<<<<<<< HEAD
-=======
 use Centreon\Domain\Exception\EntityNotFoundException;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\Exception\ResourceException;
 
@@ -120,14 +117,6 @@ interface ResourceServiceInterface
     public function extractResourcesWithGraphData(array $resources): array;
 
     /**
-<<<<<<< HEAD
-     * Replace macros set in the external links by their actual values
-     *
-     * @param ResourceEntity $resource
-     * @return void
-     */
-    public function replaceMacrosInExternalLinks(ResourceEntity $resource): void;
-=======
      * Enrich resource object with specific host data
      *
      * @param ResourceEntity $resource
@@ -172,7 +161,6 @@ interface ResourceServiceInterface
      * @throws EntityNotFoundException
      */
     public function replaceMacrosInHostUrl(int $hostId, string $urlType): string;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Used to filter requests according to a contact.

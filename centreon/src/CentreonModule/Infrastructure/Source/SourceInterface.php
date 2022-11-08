@@ -40,22 +40,10 @@ use CentreonModule\Infrastructure\Entity\Module;
 
 interface SourceInterface
 {
-<<<<<<< HEAD
-    public function initInfo(): void;
-
-    /**
-     * @param string|null $search
-     * @param boolean|null $installed
-     * @param boolean|null $updated
-     * @return array<int,Module>
-     */
-    public function getList(string $search = null, bool $installed = null, bool $updated = null): array;
-=======
 
     public function initInfo();
 
     public function getList(string $search = null, bool $installed = null, bool $updated = null) : array;
->>>>>>> centreon/dev-21.10.x
 
     public function getDetail(string $id): ?Module;
 
@@ -63,11 +51,7 @@ interface SourceInterface
 
     public function update(string $id): ?Module;
 
-<<<<<<< HEAD
-    public function remove(string $id): void;
-=======
     public function remove(string $id);
->>>>>>> centreon/dev-21.10.x
 
     public function createEntityFromConfig(string $configFile): Module;
 

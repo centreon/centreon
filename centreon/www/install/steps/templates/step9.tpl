@@ -53,11 +53,7 @@
             success: (data) => {
                 var data = JSON.parse(data);
                 if (data.result) {
-<<<<<<< HEAD
-                    javascript:self.location = "../index.html";
-=======
                     javascript:self.location = "../index.php";
->>>>>>> centreon/dev-21.10.x
                 }
             }
         });

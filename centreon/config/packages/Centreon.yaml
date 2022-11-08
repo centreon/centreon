@@ -3,22 +3,6 @@ jms_serializer:
         directories:
             centreon:
                 namespace_prefix: "Centreon\\Domain"
-<<<<<<< HEAD
-                path: '%kernel.project_dir%/config/packages/serializer/Centreon'
-            application:
-                namespace_prefix: "Centreon\\Application"
-                path: '%kernel.project_dir%/config/packages/serializer/Application'
-            infrastructure:
-                namespace_prefix: "Centreon\\Infrastructure"
-                path: '%kernel.project_dir%/config/packages/serializer/Infrastructure'
-parameters:
-    api.header: "Api-Version"
-    api.version.latest: "22.04"
-    debug_log_file: '%log_path%/centreon-web.log'
-    env(DEBUG_LEVEL): !php/const Monolog\Logger::NOTICE
-    curl.timeout: 60
-    debug_level: "%env(int:DEBUG_LEVEL)%"
-=======
                 path: '%kernel.root_dir%/../config/packages/serializer/Centreon'
             application:
                 namespace_prefix: "Centreon\\Application"
@@ -33,7 +17,6 @@ parameters:
     env(DEBUG_LEVEL): !php/const Monolog\Logger::NOTICE
     curl.timeout: 60
     debug_level: "%env(DEBUG_LEVEL)%"
->>>>>>> centreon/dev-21.10.x
     env(DEBUG_CONTACT): null
 
 services:
@@ -46,12 +29,6 @@ services:
         resource: '../../src/Centreon/*'
         exclude: '../../src/Centreon/Tests'
 
-<<<<<<< HEAD
-    Core\:
-        resource: '../../src/Core/*'
-
-=======
->>>>>>> centreon/dev-21.10.x
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
         arguments:
@@ -134,10 +111,6 @@ services:
 
     Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface:
         class: Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi
-<<<<<<< HEAD
-        public: true
-=======
->>>>>>> centreon/dev-21.10.x
         calls:
         - method: setTimeout
           arguments: ['%curl.timeout%']
@@ -190,14 +163,6 @@ services:
     Centreon\Domain\Engine\Interfaces\EngineServiceInterface:
         class: Centreon\Domain\Engine\EngineService
 
-<<<<<<< HEAD
-    Core\Domain\Engine\Model\EngineCommandGenerator:
-        public: true
-        arguments:
-            - !tagged_iterator 'engine.command.generator'
-
-=======
->>>>>>> centreon/dev-21.10.x
     # API Acknowledgement
     Centreon\Domain\Acknowledgement\Interfaces\AcknowledgementRepositoryInterface:
         class: Centreon\Infrastructure\Acknowledgement\AcknowledgementRepositoryRDB
@@ -239,13 +204,6 @@ services:
         calls:
             - [setEncryptionFirstKey, ['%env(APP_SECRET)%']]
 
-<<<<<<< HEAD
-    Core\Infrastructure\Platform\Repository\FileReadPlatformRepository:
-        class: Core\Infrastructure\Platform\Repository\FileReadPlatformRepository
-        arguments: ['%centreon_etc_path%', '%centreon_install_path%']
-
-=======
->>>>>>> centreon/dev-21.10.x
     # Monitoring resources
     _instanceof:
         Centreon\Infrastructure\Monitoring\Resource\Provider\ProviderInterface:
@@ -253,32 +211,10 @@ services:
             calls:
                 - method: setSqlRequestTranslator
                   arguments: ['@sqlRequestTranslator']
-<<<<<<< HEAD
-        Core\Infrastructure\RealTime\Api\Hypermedia\HypermediaProviderInterface:
-            tags: ['realtime.api.hypermedia']
-        Core\Application\Security\ProviderConfiguration\Repository\ReadProviderConfigurationsRepositoryInterface:
-            tags: ['authentication.provider.repositories']
-        Core\Application\Security\UseCase\FindProviderConfigurations\ProviderResponse\ProviderResponseInterface:
-            tags: ['authentication.provider.responses']
-        Core\Infrastructure\Security\Api\FindProviderConfigurations\ProviderPresenter\ProviderPresenterInterface:
-            tags: ['authentication.provider.presenters']
-=======
->>>>>>> centreon/dev-21.10.x
 
     Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface:
         class: Centreon\Domain\Monitoring\ResourceService
 
-<<<<<<< HEAD
-    Core\Application\Security\UseCase\FindProviderConfigurations\FindProviderConfigurations:
-        arguments:
-          - !tagged_iterator 'authentication.provider.repositories'
-          - !tagged_iterator 'authentication.provider.responses'
-
-    Core\Infrastructure\Security\Api\FindProviderConfigurations\FindProviderConfigurationsPresenter:
-        arguments: [!tagged_iterator 'authentication.provider.presenters']
-
-=======
->>>>>>> centreon/dev-21.10.x
     Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface:
         class: Centreon\Infrastructure\Monitoring\Resource\ResourceRepositoryRDB
         calls:
@@ -287,21 +223,6 @@ services:
             - method: setProviders
               arguments: [!tagged_iterator 'monitoring.resource.providers']
 
-<<<<<<< HEAD
-#    Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface:
-#        class: Centreon\Infrastructure\Monitoring\Resource\DbReadResourceRepository
-#        calls:
-#            - method: setSqlRequestTranslator
-#              arguments: ['@sqlRequestTranslator']
-
-    Core\Infrastructure\RealTime\Api\Hypermedia\HypermediaCreator:
-        class: Core\Infrastructure\RealTime\Api\Hypermedia\HypermediaCreator
-        calls:
-            - method: setHypermediaProviders
-              arguments: [!tagged_iterator 'realtime.api.hypermedia']
-
-=======
->>>>>>> centreon/dev-21.10.x
     # Filters
     Centreon\Domain\Filter\Interfaces\FilterServiceInterface:
         class: Centreon\Domain\Filter\FilterService
@@ -393,29 +314,10 @@ services:
     Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface:
         class: Centreon\Infrastructure\Menu\MenuRepositoryRDB
 
-<<<<<<< HEAD
-    Core\Application\Security\UseCase\LoginSession\LoginSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Core\Application\Security\UseCase\LoginOpenIdSession\LoginOpenIdSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
-        class: Core\Domain\Security\Provider\OpenIdProvider
-        tags: ['authentication.providers']
-
-    Security\Domain\Authentication\Interfaces\WebSSOProviderInterface:
-        class: Core\Domain\Security\Provider\WebSSOProvider
-        tags: ['authentication.providers']
-
-=======
     Centreon\Domain\Authentication\UseCase\Authenticate:
         arguments: [ "%redirect_default_page%" ]
         public: true
 
->>>>>>> centreon/dev-21.10.x
     Centreon\Domain\Authentication\UseCase\AuthenticateApi:
         public: true
 
@@ -437,12 +339,4 @@ services:
         arguments: ['%env(DEBUG_CONTACT)%']
 
     Centreon\Domain\Log\LegacyLogger:
-<<<<<<< HEAD
         public: true
-
-    # Session
-    Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface:
-        class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
-=======
-        public: true
->>>>>>> centreon/dev-21.10.x

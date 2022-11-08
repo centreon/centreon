@@ -40,15 +40,6 @@ class CommandWebserviceTest extends TestCase
     protected const METHOD_GET_LIST = 'getList';
 
     /**
-<<<<<<< HEAD
-     *
-     * @var CommandWebservice|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $webservice;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -72,11 +63,7 @@ class CommandWebserviceTest extends TestCase
     /**
      * Test the method getList
      */
-<<<<<<< HEAD
-    public function testGetList(): void
-=======
     public function testGetList()
->>>>>>> centreon/dev-21.10.x
     {
         // without applied filters
         $this->mockQuery();
@@ -86,11 +73,7 @@ class CommandWebserviceTest extends TestCase
     /**
      * Test the method getList with a different set of filters
      */
-<<<<<<< HEAD
-    public function testGetList2(): void
-=======
     public function testGetList2()
->>>>>>> centreon/dev-21.10.x
     {
         // with search, searchByIds, limit, and offset
         $this->mockQuery([
@@ -106,11 +89,7 @@ class CommandWebserviceTest extends TestCase
     /**
      * Test the method getName
      */
-<<<<<<< HEAD
-    public function testGetName(): void
-=======
     public function testGetName()
->>>>>>> centreon/dev-21.10.x
     {
         $this->assertEquals('centreon_command', CommandWebservice::getName());
     }

@@ -230,11 +230,7 @@ sub parseArchive {
     my $poller = $sth->fetchrow_hashref();
 
     if ($poller->{localhost}) {
-<<<<<<< HEAD
-        ($status, $sth) = $self->{cdb}->query("SELECT `log_file`
-=======
         ($status, $sth) = $self->{cdb}->query("SELECT `log_archive_path`
->>>>>>> centreon/dev-21.10.x
             FROM `cfg_nagios`, `nagios_server` 
             WHERE `nagios_server_id` = '$instance' 
                 AND `nagios_server`.`id` = `cfg_nagios`.`nagios_server_id` 
@@ -245,11 +241,6 @@ sub parseArchive {
             return ;
         }
         my $data = $sth->fetchrow_hashref();
-<<<<<<< HEAD
-        $data->{log_archive_path} = $data->{log_file};
-        $data->{log_archive_path} =~  s#(.*)/.*#$1/archives/#;;
-=======
->>>>>>> centreon/dev-21.10.x
         if (!$data->{log_archive_path}) {
             $self->{logger}->writeLogError("Can't find local varlib directory \"$data->{log_archive_path}\"");
             return ;

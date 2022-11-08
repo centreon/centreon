@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-
-import { useTheme } from '@mui/material';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { labelDowntime } from '../../../../../translatedLabels';
 import IconDowntime from '../../../../../icons/Downtime';

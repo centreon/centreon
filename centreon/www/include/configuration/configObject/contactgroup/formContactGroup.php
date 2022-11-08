@@ -64,22 +64,14 @@ if (($o == "c" || $o == "w") && $cg_id) {
     /*
      * Get host Group information
      */
-<<<<<<< HEAD
-    $DBRESULT = $pearDB->query("SELECT * FROM `contactgroup` WHERE `cg_id` = '" . $cg_id . "' LIMIT 1");
-=======
     $statement = $pearDB->prepare("SELECT * FROM `contactgroup` WHERE `cg_id` = :cg_id LIMIT 1");
     $statement->bindValue(':cg_id', (int) $cg_id, \PDO::PARAM_INT);
     $statement->execute();
->>>>>>> centreon/dev-21.10.x
 
     /*
      * Set base value
      */
-<<<<<<< HEAD
-    $cg = array_map("myDecode", $DBRESULT->fetchRow());
-=======
     $cg = array_map("myDecode", $statement->fetch(\PDO::FETCH_ASSOC));
->>>>>>> centreon/dev-21.10.x
 }
 
 $attrsText = array("size" => "30");

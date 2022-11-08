@@ -44,14 +44,10 @@ class ShowDisabledHostsServicesContext extends CentreonContext
      */
     public function iActivateTheVisibilityFilterOfDisabledHosts()
     {
-<<<<<<< HEAD
-        $this->getSession()->evaluateScript("document.getElementById('statusHostFilter').checked = true");
-=======
         $checkbox = $this->assertFind('named', array('id_or_name', 'statusHostFilter'));
         $checkbox->click();
         sleep(2);
 
->>>>>>> centreon/dev-21.10.x
         $search = $this->assertFind('named', array('id_or_name', 'Search'));
         $search->click();
         sleep(2);

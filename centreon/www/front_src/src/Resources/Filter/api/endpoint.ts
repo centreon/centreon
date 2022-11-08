@@ -4,12 +4,7 @@ import {
   ListingParameters,
 } from '@centreon/ui';
 
-<<<<<<< HEAD
-import { baseEndpoint } from '../../../api/endpoint';
-import { monitoringEndpoint } from '../../api/endpoint';
-=======
 import { baseEndpoint, monitoringEndpoint } from '../../api/endpoint';
->>>>>>> centreon/dev-21.10.x
 
 const hostgroupsEndpoint = `${monitoringEndpoint}/hostgroups`;
 const serviceGroupsEndpoint = `${monitoringEndpoint}/servicegroups`;

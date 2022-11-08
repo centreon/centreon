@@ -274,19 +274,12 @@ try {
                     $tplStr .= "&nbsp;|&nbsp;";
                 }
                 $tplStr .= "<a href='" . $WikiURL .
-<<<<<<< HEAD
-                    "/index.php?title=Service_:_" . $value1 . "' target='_blank'>" . $value1 . "</a>";
-=======
                     "/index.php?title=Service-Template_:_" . $value1 . "' target='_blank'>" . $value1 . "</a>";
->>>>>>> centreon/dev-21.10.x
             }
         }
         $templateHostArray[$key] = $tplStr;
         unset($tplStr);
-<<<<<<< HEAD
-=======
         $i++;
->>>>>>> centreon/dev-21.10.x
     }
 
     include "./include/common/checkPagination.php";

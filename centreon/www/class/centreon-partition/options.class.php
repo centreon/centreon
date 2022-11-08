@@ -50,11 +50,7 @@ class Options
     public $verbosity = "info";
     public $confFile;
     public $version = '1.1';
-<<<<<<< HEAD
-
-=======
     
->>>>>>> centreon/dev-21.10.x
     /*
      *
      * Class constructor

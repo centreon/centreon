@@ -52,46 +52,12 @@ use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
 
 class ModuleSourceTest extends TestCase
 {
-<<<<<<< HEAD
-    use TestCaseExtensionTrait;
-    use SourceDependencyTrait;
-
-    /**
-     * @var ModuleSource|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $source;
-
-    /**
-     * @var ContainerWrap
-     */
-    private $containerWrap;
-
-    /**
-     * @var FileSystem
-     */
-    private $fs;
-
-    /**
-     * @var string
-     */
-    public static $moduleName = 'test-module';
-
-    /**
-     * @var string
-     */
-    public static $moduleNameMissing = 'missing-module';
-
-    /**
-     * @var string[]
-     */
-=======
 
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
     public static $moduleName = 'test-module';
     public static $moduleNameMissing = 'missing-module';
->>>>>>> centreon/dev-21.10.x
     public static $moduleInfo = [
         'rname' => 'Curabitur congue porta neque',
         'name' => 'test-module',
@@ -104,13 +70,6 @@ class ModuleSourceTest extends TestCase
         'release_note' => 'http://localhost',
         'images' => 'images/image1.png',
     ];
-<<<<<<< HEAD
-
-    /**
-     * @var string[][][]
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public static $sqlQueryVsData = [
         "SELECT `name` AS `id`, `mod_release` AS `version` FROM `modules_informations`" => [
             [
@@ -140,21 +99,12 @@ class ModuleSourceTest extends TestCase
         ;
 
         // provide services
-<<<<<<< HEAD
-        $container = new Container();
-        $container['finder'] = new Finder();
-        $container['configuration'] = $this->createMock(Configuration::class);
-
-        // DB service
-        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService();
-=======
         $container = new Container;
         $container['finder'] = new Finder;
         $container['configuration'] = $this->createMock(Configuration::class);
 
         // DB service
         $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService;
->>>>>>> centreon/dev-21.10.x
         foreach (static::$sqlQueryVsData as $query => $data) {
             $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->addResultSet($query, $data);
         }
@@ -183,19 +133,11 @@ class ModuleSourceTest extends TestCase
         $this->source
             ->method('getModuleConf')
             ->will($this->returnCallback(function () {
-<<<<<<< HEAD
-                $result = [
-                    ModuleSourceTest::$moduleName => ModuleSourceTest::$moduleInfo,
-                ];
-
-                return $result;
-=======
                     $result = [
                         ModuleSourceTest::$moduleName => ModuleSourceTest::$moduleInfo,
                     ];
 
                     return $result;
->>>>>>> centreon/dev-21.10.x
             }))
         ;
     }
@@ -206,11 +148,7 @@ class ModuleSourceTest extends TestCase
         $this->fs->unmount();
     }
 
-<<<<<<< HEAD
-    public function testGetList(): void
-=======
     public function testGetList()
->>>>>>> centreon/dev-21.10.x
     {
         $result = $this->source->getList();
 
@@ -220,11 +158,7 @@ class ModuleSourceTest extends TestCase
         $this->assertEquals([], $result2);
     }
 
-<<<<<<< HEAD
-    public function testGetDetail(): void
-=======
     public function testGetDetail()
->>>>>>> centreon/dev-21.10.x
     {
         (function () {
             $result = $this->source->getDetail(static::$moduleNameMissing);
@@ -239,14 +173,7 @@ class ModuleSourceTest extends TestCase
         })();
     }
 
-<<<<<<< HEAD
-    /**
-     * @throws \Exception
-     */
-    public function testRemove(): void
-=======
     public function testRemove()
->>>>>>> centreon/dev-21.10.x
     {
         try {
             $this->source->remove(static::$moduleNameMissing);
@@ -258,14 +185,7 @@ class ModuleSourceTest extends TestCase
         $this->source->remove(static::$moduleName);
     }
 
-<<<<<<< HEAD
-    /**
-    * @throws \Exception
-    */
-    public function testUpdate(): void
-=======
     public function testUpdate()
->>>>>>> centreon/dev-21.10.x
     {
         try {
             $this->assertNull($this->source->update(static::$moduleNameMissing));
@@ -277,11 +197,7 @@ class ModuleSourceTest extends TestCase
         $this->source->update(static::$moduleName);
     }
 
-<<<<<<< HEAD
-    public function testCreateEntityFromConfig(): void
-=======
     public function testCreateEntityFromConfig()
->>>>>>> centreon/dev-21.10.x
     {
         $configFile = static::getConfFilePath();
         $result = $this->source->createEntityFromConfig($configFile);
@@ -310,39 +226,23 @@ class ModuleSourceTest extends TestCase
 //        //'php://filter/read=string.rot13/resource=' .
 //    }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public static function getConfFilePath(): string
     {
         return 'vfs://modules/' . static::$moduleName . '/' . ModuleSource::CONFIG_FILE;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public static function buildConfContent(): string
     {
         $result = '<?php';
         $moduleName = static::$moduleName;
 
         foreach (static::$moduleInfo as $key => $data) {
-<<<<<<< HEAD
-            $result .= "\n\$module_conf['{$moduleName}']['{$key}'] = '{$data}'";
-=======
             if (is_string($data)) {
                 $result .= "\n\$module_conf['{$moduleName}']['{$key}'] = '{$data}'";
             } elseif (is_array($data)) {
                 $data = implode("','", $data);
                 $result .= "\n\$module_conf['{$moduleName}']['{$key}'] = ['{$data}']";
             }
->>>>>>> centreon/dev-21.10.x
         }
 
         return $result;

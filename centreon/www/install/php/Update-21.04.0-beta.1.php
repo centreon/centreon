@@ -185,22 +185,6 @@ try {
     $stmt = $pearDB->query(
         "SELECT config_id FROM cfg_centreonbroker"
     );
-<<<<<<< HEAD
-    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-        $pearDB->query(
-            "INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
-            VALUES (" . $row['config_id'] . ",1,5),
-                   (" . $row['config_id'] . ",2,3),
-                   (" . $row['config_id'] . ",3,3),
-                   (" . $row['config_id'] . ",4,3),
-                   (" . $row['config_id'] . ",5,3),
-                   (" . $row['config_id'] . ",6,3),
-                   (" . $row['config_id'] . ",7,3),
-                   (" . $row['config_id'] . ",8,3),
-                   (" . $row['config_id'] . ",9,3),
-                   (" . $row['config_id'] . ",10,3)"
-        );
-=======
     $statement = $pearDB->prepare(
         'INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) 
         VALUES  (:id_centreonbroker,1,5),
@@ -217,7 +201,6 @@ try {
     while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
         $statement->bindValue(':id_centreonbroker', (int) $row['config_id'], \PDO::PARAM_INT);
         $statement->execute();
->>>>>>> centreon/dev-21.10.x
     }
     $pearDB->commit();
 } catch (\Exception $e) {

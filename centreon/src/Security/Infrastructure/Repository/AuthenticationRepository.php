@@ -186,17 +186,9 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
     {
         $statement = $this->db->prepare($this->translateDbName("
             SELECT sat.user_id, sat.provider_configuration_id,
-<<<<<<< HEAD
-              provider_token.id as pt_id,
               provider_token.token AS provider_token,
               provider_token.creation_date as provider_token_creation_date,
               provider_token.expiration_date as provider_token_expiration_date,
-              refresh_token.id as rt_id,
-=======
-              provider_token.token AS provider_token,
-              provider_token.creation_date as provider_token_creation_date,
-              provider_token.expiration_date as provider_token_expiration_date,
->>>>>>> centreon/dev-21.10.x
               refresh_token.token AS refresh_token,
               refresh_token.creation_date as refresh_token_creation_date,
               refresh_token.expiration_date as refresh_token_expiration_date
@@ -213,11 +205,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
                 ? (new \DateTime())->setTimestamp((int) $result['provider_token_expiration_date'])
                 : null;
             $providerToken = new ProviderToken(
-<<<<<<< HEAD
-                (int) $result['pt_id'],
-=======
                 null,
->>>>>>> centreon/dev-21.10.x
                 $result['provider_token'],
                 (new \Datetime())->setTimestamp((int) $result['provider_token_creation_date']),
                 $expirationDate
@@ -229,11 +217,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
                     ? (new \DateTime())->setTimestamp((int) $result['refresh_token_expiration_date'])
                     : null;
                 $providerRefreshToken = new ProviderToken(
-<<<<<<< HEAD
-                    (int) $result['rt_id'],
-=======
                     null,
->>>>>>> centreon/dev-21.10.x
                     $result['refresh_token'],
                     (new \Datetime())->setTimestamp((int) $result['refresh_token_creation_date']),
                     $expirationDate
@@ -315,47 +299,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
      */
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
     {
-<<<<<<< HEAD
-        $providerToken = $authenticationTokens->getProviderToken();
-        $providerRefreshToken = $authenticationTokens->getProviderRefreshToken();
-        $updateTokenStatement = $this->db->prepare(
-            $this->translateDbName(
-                'UPDATE `:db`.security_token
-                SET token=:token, creation_date=:creationDate, expiration_date=:expirationDate WHERE id =:tokenId'
-            )
-        );
-        // Update Provider Token
-        $updateTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
-        $updateTokenStatement->bindValue(
-            ':creationDate',
-            $providerToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(
-            ':expirationDate',
-            $providerToken->getExpirationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
-        $updateTokenStatement->execute();
-
-        //Update Refresh Token
-        $updateTokenStatement->bindValue(':token', $providerRefreshToken->getToken(), \PDO::PARAM_STR);
-        $updateTokenStatement->bindValue(
-            ':creationDate',
-            $providerRefreshToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(
-            ':expirationDate',
-            $providerRefreshToken->getExpirationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), \PDO::PARAM_INT);
-        $updateTokenStatement->execute();
-=======
         // TODO: Implement updateProviderToken() method.
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -387,8 +331,6 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         $deleteSecurityTokenStatement->bindValue(':token', $token, \PDO::PARAM_STR);
         $deleteSecurityTokenStatement->execute();
     }
-<<<<<<< HEAD
-=======
 
     /**
      * @inheritDoc
@@ -401,5 +343,4 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
             )
         );
     }
->>>>>>> centreon/dev-21.10.x
 }

@@ -42,10 +42,6 @@ use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 
 class ServiceRepository extends ServiceEntityRepository
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Export
      *
@@ -161,11 +157,7 @@ SQL;
             $ba = implode(',', $ba);
             $sql .= " UNION SELECT t2.service_id AS `id` FROM service AS t2 WHERE t2.service_description IN({$ba})";
         }
-<<<<<<< HEAD
-
-=======
         
->>>>>>> centreon/dev-21.10.x
         $sql .= ") AS l GROUP BY l.id";
 
         $stmt = $this->db->prepare($sql);
@@ -197,11 +189,7 @@ SQL;
         while ($row = $stmt->fetch()) {
             $isExisting = array_key_exists($row['id'], $result);
             $result[$row['id']] = $row['id'];
-<<<<<<< HEAD
-
-=======
             
->>>>>>> centreon/dev-21.10.x
             if (!$isExisting) {
                 $this->getChainByParant($row['id'], $result);
             }
@@ -221,11 +209,7 @@ SQL;
         $sql = "DELETE FROM `service`"
             . " WHERE `service_id` = :id";
 
-<<<<<<< HEAD
-        $collector = new StatementCollector();
-=======
         $collector = new StatementCollector;
->>>>>>> centreon/dev-21.10.x
         $collector->addValue(':id', $id);
 
         $stmt = $this->db->prepare($sql);
@@ -244,11 +228,7 @@ SQL;
         $sql = "DELETE FROM `host_service_relation`"
             . " WHERE `service_service_id` = :id";
 
-<<<<<<< HEAD
-        $collector = new StatementCollector();
-=======
         $collector = new StatementCollector;
->>>>>>> centreon/dev-21.10.x
         $collector->addValue(':id', $id);
 
         $stmt = $this->db->prepare($sql);

@@ -54,10 +54,6 @@ use PHPUnit\Framework\TestCase;
  */
 class CheckPoint
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var array
      */

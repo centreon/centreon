@@ -51,24 +51,11 @@ if (is_null($table)) {
 
 /* Create partitioned tables */
 $centreonDb = new CentreonDB('centreon');
-<<<<<<< HEAD
-$centstorageDb = new CentreonDB('centstorage', 3);
-$partEngine = new PartEngine();
-
-if (!$partEngine->isCompatible($centstorageDb)) {
-    exitProcess(
-        PROCESS_ID,
-        1,
-        "[" . date(DATE_RFC822) . "] "
-        . "CRITICAL: MySQL server is not compatible with partitioning. MySQL version must be greater or equal to 5.1\n"
-    );
-=======
 $centstorageDb = new CentreonDB('centstorage', 3, false);
 $partEngine = new PartEngine();
 
 if (!$partEngine->isCompatible($centstorageDb)) {
     exitProcess(PROCESS_ID, 1, "[".date(DATE_RFC822)."] CRITICAL: MySQL server is not compatible with partitioning. MySQL version must be greater or equal to 5.1\n");
->>>>>>> centreon/dev-21.10.x
 }
 
 echo "[" . date(DATE_RFC822) . "] PARTITIONING STARTED\n";

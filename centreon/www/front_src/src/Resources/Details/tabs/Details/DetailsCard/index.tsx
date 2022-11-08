@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { Typography, makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import Card from '../Card';
 

@@ -87,11 +87,7 @@ $args = "&redirect=" . urlencode(http_build_query($_GET));
 // if session is not valid and autologin token is not given, then redirect to login page
 if (!isset($_SESSION["centreon"])) {
     if (!isset($_GET['autologin'])) {
-<<<<<<< HEAD
-        include __DIR__ . '/../../../index.html';
-=======
         header("Location: index.php?disconnect=1" . $args);
->>>>>>> centreon/dev-21.10.x
     } else {
         $args = null;
         foreach ($_GET as $key => $value) {
@@ -169,8 +165,6 @@ switch (strlen($p)) {
         break;
 }
 
-<<<<<<< HEAD
-=======
 /*
  * Define Skin path
  */
@@ -194,7 +188,6 @@ if ($DBRESULT->rowCount() && ($elem = $DBRESULT->fetch())) {
     $colorfile = "Color/" . $elem["css_name"];
 }
 
->>>>>>> centreon/dev-21.10.x
 //Update Session Table For last_reload and current_page row
 $page = '' . $level1 . $level2 . $level3 . $level4;
 if (empty($page)) {

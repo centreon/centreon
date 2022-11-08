@@ -22,16 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration;
 
-<<<<<<< HEAD
-use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\HostConfiguration\Exception\HostMacroServiceException;
-use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
-use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
-=======
 use Centreon\Domain\HostConfiguration\Exception\HostMacroException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
->>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteRepositoryInterface;
 
 /**
@@ -42,17 +35,6 @@ use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteReposit
 class HostMacroService implements HostMacroServiceInterface
 {
     /**
-<<<<<<< HEAD
-     * HostMacroService constructor.
-     *
-     * @param HostMacroWriteRepositoryInterface $writeRepository
-     * @param HostMacroReadRepositoryInterface $readRepository
-     */
-    public function __construct(
-        private HostMacroWriteRepositoryInterface $writeRepository,
-        private HostMacroReadRepositoryInterface $readRepository
-    ) {
-=======
      * @var HostMacroReadRepositoryInterface
      */
     private $readRepository;
@@ -73,7 +55,6 @@ class HostMacroService implements HostMacroServiceInterface
     ) {
         $this->readRepository = $readRepository;
         $this->writeRepository = $writeRepository;
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -84,38 +65,7 @@ class HostMacroService implements HostMacroServiceInterface
         try {
             $this->writeRepository->addMacroToHost($host, $hostMacro);
         } catch (\Throwable $ex) {
-<<<<<<< HEAD
-            throw HostMacroServiceException::addMacroException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostMacros(Host $host): array
-    {
-        try {
-            Assertion::notNull($host->getId(), 'Host::id');
-            return $this->readRepository->findAllByHost($host);
-        } catch (\Throwable $ex) {
-            throw HostMacroServiceException::errorOnReadingHostMacros($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function updateMacro(HostMacro $macro): void
-    {
-        try {
-            Assertion::notNull($macro->getId(), 'HostMacro::id');
-            Assertion::notNull($macro->getHostId(), 'HostMacro::host_id');
-            $this->writeRepository->updateMacro($macro);
-        } catch (\Throwable $ex) {
-            throw HostMacroServiceException::errorOnUpdatingMacro($ex);
-=======
             throw HostMacroException::addMacroException($ex);
->>>>>>> centreon/dev-21.10.x
         }
     }
 }

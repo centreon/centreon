@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import { KeyboardEvent, useState } from 'react';
-
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { all, equals, any, reject, update, findIndex, omit } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
-
-import DeleteIcon from '@mui/icons-material/Delete';
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { useFormik } from 'formik';
@@ -29,7 +16,6 @@ import { useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import {
   ContentWithCircularLoading,
@@ -52,16 +38,8 @@ import {
 } from '../../translatedLabels';
 import { updateFilter, deleteFilter } from '../api';
 import { Filter, newFilter } from '../models';
-<<<<<<< HEAD
-import {
-  appliedFilterAtom,
-  currentFilterAtom,
-  customFiltersAtom,
-} from '../filterAtoms';
-=======
 import { ResourceContext, useResourceContext } from '../../Context';
 import memoizeComponent from '../../memoizedComponent';
->>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   filterCard: {
@@ -73,18 +51,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-<<<<<<< HEAD
-interface Props {
-  filter: Filter;
-}
-
-const areFilterIdsEqual =
-  (filter: Filter) =>
-  (filterToCompare: Filter): boolean =>
-    equals(Number(filter.id), Number(filterToCompare.id));
-
-const EditFilterCard = ({ filter }: Props): JSX.Element => {
-=======
 interface EditFilterCardProps {
   filter: Filter;
 }
@@ -108,18 +74,13 @@ const EditFilterCardContent = ({
   setAppliedFilter,
   setCustomFilters,
 }: Props): JSX.Element => {
->>>>>>> centreon/dev-21.10.x
   const classes = useStyles();
 
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
 
-<<<<<<< HEAD
-  const [deleting, setDeleting] = useState(false);
-=======
   const [deleting, setDeleting] = React.useState(false);
->>>>>>> centreon/dev-21.10.x
 
   const {
     sendRequest: sendUpdateFilterRequest,
@@ -135,13 +96,6 @@ const EditFilterCardContent = ({
     request: deleteFilter,
   });
 
-<<<<<<< HEAD
-  const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
-  const setAppliedFilter = useUpdateAtom(appliedFilterAtom);
-
-=======
->>>>>>> centreon/dev-21.10.x
   const { name, id } = filter;
 
   const validationSchema = Yup.object().shape({
@@ -166,11 +120,7 @@ const EditFilterCardContent = ({
           setCurrentFilter(updatedFilter);
         }
 
-<<<<<<< HEAD
-        const index = findIndex(areFilterIdsEqual(filter), customFilters);
-=======
         const index = findIndex(propEq('id', updatedFilter.id), customFilters);
->>>>>>> centreon/dev-21.10.x
 
         setCustomFilters(update(index, updatedFilter, customFilters));
       });
@@ -188,20 +138,12 @@ const EditFilterCardContent = ({
     sendDeleteFilterRequest(filter).then(() => {
       showSuccessMessage(t(labelFilterDeleted));
 
-<<<<<<< HEAD
-      if (areFilterIdsEqual(filter)(currentFilter)) {
-=======
       if (equals(filter.id, currentFilter.id)) {
->>>>>>> centreon/dev-21.10.x
         setCurrentFilter({ ...filter, ...newFilter });
         setAppliedFilter({ ...filter, ...newFilter });
       }
 
-<<<<<<< HEAD
-      setCustomFilters(reject(areFilterIdsEqual(filter), customFilters));
-=======
       setCustomFilters(reject(equals(filter), customFilters));
->>>>>>> centreon/dev-21.10.x
     });
   };
 
@@ -224,11 +166,7 @@ const EditFilterCardContent = ({
     form.submitForm();
   };
 
-<<<<<<< HEAD
-  const renameOnEnterKey = (event: KeyboardEvent<HTMLDivElement>): void => {
-=======
   const renameOnEnterKey = (event: React.KeyboardEvent): void => {
->>>>>>> centreon/dev-21.10.x
     const enterKeyPressed = event.keyCode === 13;
 
     if (enterKeyPressed) {
@@ -243,16 +181,7 @@ const EditFilterCardContent = ({
         loading={sendingRequest}
         loadingIndicatorSize={24}
       >
-<<<<<<< HEAD
-        <IconButton
-          aria-label={t(labelDelete)}
-          size="large"
-          title={t(labelDelete)}
-          onClick={askDelete}
-        >
-=======
         <IconButton title={t(labelDelete)} onClick={askDelete}>
->>>>>>> centreon/dev-21.10.x
           <DeleteIcon fontSize="small" />
         </IconButton>
       </ContentWithCircularLoading>
@@ -280,8 +209,6 @@ const EditFilterCardContent = ({
   );
 };
 
-<<<<<<< HEAD
-=======
 const memoProps = ['filter', 'currentFilter', 'customFilters'];
 
 const MemoizedEditFilterCardContent = memoizeComponent<Props>({
@@ -310,5 +237,4 @@ const EditFilterCard = ({ filter }: EditFilterCardProps): JSX.Element => {
   );
 };
 
->>>>>>> centreon/dev-21.10.x
 export default EditFilterCard;

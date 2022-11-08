@@ -340,15 +340,6 @@ if ($cache['value']) {
 
         while ($row = $res->fetch()) {
             if ($port['value']) {
-<<<<<<< HEAD
-                $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
-                    . 'config_group, config_group_id ) VALUES '
-                    . '( ' . $row['config_id'] . ',"rrd_cached_option","tcp", "'
-                    . $row['config_group'] . '",' . $row['config_group_id'] . ' ),'
-                    . '( ' . $row['config_id'] . ',"rrd_cached","' . $port['value'] . '","'
-                    . $row['config_group'] . '",' . $row['config_group_id'] . ' )';
-                $pearDB->query($query);
-=======
                 $brokerInfoData = [
                     [
                         'config_id' => $row['config_id'],
@@ -378,27 +369,10 @@ if ($cache['value']) {
                     $statement->bindValue(":config_group_id", (int) $dataRow['config_group_id'], \PDO::PARAM_INT);
                     $statement->execute();
                 }
->>>>>>> centreon/dev-21.10.x
             } else {
                 $result = $pearDB->query("SELECT `value` FROM options WHERE `key` = 'rrdcached_unix_path' ");
                 $path = $result->fetch();
 
-<<<<<<< HEAD
-                $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
-                    . 'config_group, config_group_id ) VALUES '
-                    . '( ' . $row['config_id'] . ',"rrd_cached_option","unix","'
-                    . $row['config_group'] . '",' . $row['config_group_id'] . ' ),'
-                    . '( ' . $row['config_id'] . ',"rrd_cached","' . $path['value'] . '","'
-                    . $row['config_group'] . '",' . $row['config_group_id'] . ' )';
-                $pearDB->query($query);
-            }
-
-            $pearDB->query(
-                "DELETE FROM cfg_centreonbroker_info WHERE `config_id` = " . $row['config_id']
-                . " AND config_group_id = " . $row['config_group_id']
-                . " AND config_group = 'output' AND ( config_key = 'port' OR config_key = 'path') "
-            );
-=======
                 $brokerInfoData = [
                     [
                         'config_id' => $row['config_id'],
@@ -438,7 +412,6 @@ if ($cache['value']) {
             $statement->bindValue(':config_id', (int) $row['config_id'], \PDO::PARAM_INT);
             $statement->bindValue(':config_group_id', (int) $row['config_group_id'], \PDO::PARAM_INT);
             $statement->execute();
->>>>>>> centreon/dev-21.10.x
         }
         $pearDB->query(
             "DELETE FROM options WHERE `key` = 'rrdcached_enable'
@@ -446,10 +419,6 @@ if ($cache['value']) {
         );
         $pearDB->commit();
     } catch (\PDOException $e) {
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
         $centreonLog->insertLog(
             2, // sql-error.log
             "UPGRADE : 19.10.0-beta.3 Unable to move rrd global cache option on broker form"

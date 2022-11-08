@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
 import {
@@ -10,16 +8,11 @@ import {
   Matcher,
   act,
 } from '@testing-library/react';
->>>>>>> centreon/dev-21.10.x
 import axios from 'axios';
 import {
   partition,
   where,
-<<<<<<< HEAD
-  includes,
-=======
   contains,
->>>>>>> centreon/dev-21.10.x
   head,
   split,
   pipe,
@@ -27,10 +20,7 @@ import {
   prop,
   reject,
   map,
-<<<<<<< HEAD
-=======
   includes,
->>>>>>> centreon/dev-21.10.x
   __,
   propEq,
   find,
@@ -40,25 +30,6 @@ import {
   not,
 } from 'ramda';
 import userEvent from '@testing-library/user-event';
-<<<<<<< HEAD
-import { Provider } from 'jotai';
-
-import {
-  render,
-  RenderResult,
-  waitFor,
-  fireEvent,
-  Matcher,
-  act,
-  Column,
-} from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
-
-import { Resource, ResourceType } from '../models';
-import Context, { ResourceContext } from '../testUtils/Context';
-import useActions from '../testUtils/useActions';
-import useFilter from '../testUtils/useFilter';
-=======
 
 import { Column } from '@centreon/ui';
 import { useUserContext } from '@centreon/ui-context';
@@ -68,7 +39,6 @@ import Context, { ResourceContext } from '../Context';
 import useActions from '../Actions/useActions';
 import useDetails from '../Details/useDetails';
 import useFilter from '../Filter/useFilter';
->>>>>>> centreon/dev-21.10.x
 import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
 import {
   getListingEndpoint,
@@ -76,11 +46,6 @@ import {
   defaultSecondSortCriteria,
 } from '../testUtils';
 import { unhandledProblemsFilter } from '../Filter/models';
-<<<<<<< HEAD
-import useLoadDetails from '../testUtils/useLoadDetails';
-import useDetails from '../Details/useDetails';
-=======
->>>>>>> centreon/dev-21.10.x
 
 import useListing from './useListing';
 import { getColumns, defaultSelectedColumnIds } from './columns';
@@ -94,14 +59,6 @@ const columns = getColumns({
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-<<<<<<< HEAD
-const mockUser = {
-  isExportButtonEnabled: true,
-  locale: 'en',
-  timezone: 'Europe/Paris',
-};
-const mockRefreshInterval = 60;
-=======
 const mockUserContext = {
   locale: 'en',
   refreshInterval: 60,
@@ -114,7 +71,6 @@ jest.mock('@centreon/centreon-frontend/packages/ui-context', () => ({
 }));
 
 const mockedUserContext = useUserContext as jest.Mock;
->>>>>>> centreon/dev-21.10.x
 
 jest.mock('../icons/Downtime');
 jest.useFakeTimers();
@@ -182,17 +138,9 @@ let context: ResourceContext;
 const ListingTest = (): JSX.Element => {
   const listingState = useListing();
   const actionsState = useActions();
-<<<<<<< HEAD
-  const detailsState = useLoadDetails();
-  const filterState = useFilter();
-
-  useDetails();
-
-=======
   const detailsState = useDetails();
   const filterState = useFilter();
 
->>>>>>> centreon/dev-21.10.x
   context = {
     ...listingState,
     ...actionsState,
@@ -207,50 +155,12 @@ const ListingTest = (): JSX.Element => {
   );
 };
 
-<<<<<<< HEAD
-const ListingTestWithJotai = (): JSX.Element => (
-  <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval],
-    ]}
-  >
-    <ListingTest />
-  </Provider>
-);
-
-const renderListing = (): RenderResult => render(<ListingTestWithJotai />);
-
-describe(Listing, () => {
-  beforeEach(() => {
-    mockedAxios.get
-      .mockResolvedValueOnce({
-        data: {
-          meta: {
-            limit: 30,
-            page: 1,
-            total: 0,
-          },
-          result: [],
-        },
-      })
-      .mockResolvedValue({ data: retrievedListing });
-  });
-
-  afterEach(() => {
-    mockedAxios.get.mockReset();
-  });
-
-  it('displays first part of information when multiple (split by \n) are available', async () => {
-    mockedAxios.get.mockReset();
-=======
 const renderListing = (): RenderResult => render(<ListingTest />);
 
 describe(Listing, () => {
   beforeEach(() => {
     mockedUserContext.mockReturnValue(mockUserContext);
 
->>>>>>> centreon/dev-21.10.x
     mockedAxios.get
       .mockResolvedValueOnce({
         data: {
@@ -263,9 +173,6 @@ describe(Listing, () => {
         },
       })
       .mockResolvedValueOnce({ data: retrievedListing });
-<<<<<<< HEAD
-
-=======
   });
 
   afterEach(() => {
@@ -274,7 +181,6 @@ describe(Listing, () => {
   });
 
   it('displays first part of information when multiple (split by \n) are available', async () => {
->>>>>>> centreon/dev-21.10.x
     const { getByText, queryByText } = renderListing();
 
     await waitFor(() => {
@@ -282,28 +188,10 @@ describe(Listing, () => {
     });
 
     const [resourcesWithMultipleLines, resourcesWithSingleLines] = partition(
-<<<<<<< HEAD
-      where({ information: includes('\n') }),
-      retrievedListing.result,
-    );
-
-    await waitFor(() =>
-      expect(
-        getByText(
-          pipe<string, Array<string>, Matcher>(
-            split('\n'),
-            head,
-          )(resourcesWithMultipleLines[0].information as string),
-        ),
-      ).toBeInTheDocument(),
-    );
-
-=======
       where({ information: contains('\n') }),
       retrievedListing.result,
     );
 
->>>>>>> centreon/dev-21.10.x
     resourcesWithMultipleLines.forEach(({ information }) => {
       expect(
         getByText(
@@ -324,11 +212,7 @@ describe(Listing, () => {
   describe('column sorting', () => {
     afterEach(async () => {
       act(() => {
-<<<<<<< HEAD
-        context.setCurrentFilter?.(unhandledProblemsFilter);
-=======
         context.setCurrentFilter(unhandledProblemsFilter);
->>>>>>> centreon/dev-21.10.x
       });
 
       await waitFor(() => {
@@ -403,11 +287,6 @@ describe(Listing, () => {
       },
     });
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByLabelText('Next page')).toBeEnabled());
-
-=======
->>>>>>> centreon/dev-21.10.x
     fireEvent.click(getByLabelText('Next page'));
 
     await waitFor(() => {
@@ -473,11 +352,7 @@ describe(Listing, () => {
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
-<<<<<<< HEAD
-        getListingEndpoint({ limit: 30 }),
-=======
         getListingEndpoint({ limit: 20 }),
->>>>>>> centreon/dev-21.10.x
         cancelTokenRequestParam,
       ),
     );
@@ -519,11 +394,7 @@ describe(Listing, () => {
       ),
     );
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText('admin')).toBeInTheDocument());
-=======
     expect(getByText('admin')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('Yes')).toBeInTheDocument();
     expect(getByText('02/28/2020 9:16 AM')).toBeInTheDocument();
     expect(getByText('02/28/2020 9:18 AM')).toBeInTheDocument();
@@ -568,11 +439,7 @@ describe(Listing, () => {
       ),
     );
 
-<<<<<<< HEAD
-    await waitFor(() => expect(getByText('admin')).toBeInTheDocument());
-=======
     expect(getByText('admin')).toBeInTheDocument();
->>>>>>> centreon/dev-21.10.x
     expect(getByText('02/28/2020 9:16 AM')).toBeInTheDocument();
     expect(getByText('Yes')).toBeInTheDocument();
     expect(getByText('No')).toBeInTheDocument();
@@ -589,21 +456,13 @@ describe(Listing, () => {
   it.each(additionalIds)(
     'displays additional columns when selected from the corresponding menu',
     async (columnId) => {
-<<<<<<< HEAD
-      const { getAllByText, getByLabelText, getByText } = renderListing();
-=======
       const { getAllByText, getByTitle, getByText } = renderListing();
->>>>>>> centreon/dev-21.10.x
 
       await waitFor(() => {
         expect(mockedAxios.get).toHaveBeenCalled();
       });
 
-<<<<<<< HEAD
-      fireEvent.click(getByLabelText('Add columns').firstChild as HTMLElement);
-=======
       fireEvent.click(getByTitle('Add columns').firstChild as HTMLElement);
->>>>>>> centreon/dev-21.10.x
 
       const column = find(propEq('id', columnId), columns);
       const columnLabel = column?.label as string;

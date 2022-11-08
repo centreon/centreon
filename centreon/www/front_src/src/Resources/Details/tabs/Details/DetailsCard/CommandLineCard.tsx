@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-
-import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import IconCopyFile from '@mui/icons-material/FileCopy';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
@@ -18,7 +11,6 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import IconCopyFile from '@material-ui/icons/FileCopy';
->>>>>>> centreon/dev-21.10.x
 
 import { copyToClipboard, useSnackbar } from '@centreon/ui';
 

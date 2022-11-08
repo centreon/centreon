@@ -28,13 +28,6 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Centreon\Domain\Authentication\UseCase\Logout;
-<<<<<<< HEAD
-use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
-use Centreon\Application\Controller\AuthenticationController;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
-use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
-=======
 use Centreon\Domain\Authentication\UseCase\Authenticate;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
 use Centreon\Application\Controller\AuthenticationController;
@@ -45,7 +38,6 @@ use Centreon\Domain\Authentication\UseCase\FindProvidersConfigurations;
 use Centreon\Domain\Authentication\UseCase\FindProvidersConfigurationsResponse;
 use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
 use Security\Infrastructure\Authentication\API\Model_2110\ProvidersConfigurationsFactory;
->>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Tests\Centreon\Application\Controller
@@ -68,8 +60,6 @@ class AuthenticationControllerTest extends TestCase
     protected $logout;
 
     /**
-<<<<<<< HEAD
-=======
      * @var FindProvidersConfigurations|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $findProvidersConfigurations;
@@ -80,7 +70,6 @@ class AuthenticationControllerTest extends TestCase
     protected $authenticate;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $container;
@@ -104,11 +93,8 @@ class AuthenticationControllerTest extends TestCase
 
         $this->authenticateApi = $this->createMock(AuthenticateApi::class);
         $this->logout = $this->createMock(Logout::class);
-<<<<<<< HEAD
-=======
         $this->findProvidersConfigurations = $this->createMock(FindProvidersConfigurations::class);
         $this->authenticate = $this->createMock(Authenticate::class);
->>>>>>> centreon/dev-21.10.x
 
         $this->container = $this->createMock(ContainerInterface::class);
 
@@ -177,11 +163,7 @@ class AuthenticationControllerTest extends TestCase
         $this->authenticateApi
             ->expects($this->once())
             ->method('execute')
-<<<<<<< HEAD
-            ->willThrowException(AuthenticationException::invalidCredentials());
-=======
             ->will($this->throwException(AuthenticationException::notAuthenticated()));
->>>>>>> centreon/dev-21.10.x
 
         $view = $authenticationController->login($this->request, $this->authenticateApi, $response);
 
@@ -250,8 +232,6 @@ class AuthenticationControllerTest extends TestCase
             $view
         );
     }
-<<<<<<< HEAD
-=======
 
     /**
      * test findProvidersConfigurations
@@ -273,5 +253,4 @@ class AuthenticationControllerTest extends TestCase
             $view
         );
     }
->>>>>>> centreon/dev-21.10.x
 }

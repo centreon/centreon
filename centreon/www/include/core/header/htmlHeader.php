@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2021 Centreon
-=======
 /*
  * Copyright 2005-2019 Centreon
->>>>>>> centreon/dev-21.10.x
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -50,152 +44,13 @@ $versionParam = isset($centreon->informations) && isset($centreon->informations[
 
 print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
-<<<<<<< HEAD
-$variablesThemeCSS  = "Centreon-Light";
-$userId = (int) $centreon->user->user_id;
-$statement = $pearDB->prepare('SELECT contact_theme FROM contact WHERE contact_id = :contactId');
-$statement->bindValue(':contactId', $userId, \PDO::PARAM_INT);
-$statement->execute();
-if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-    switch ($result['contact_theme']) {
-        case 'light':
-            $variablesThemeCSS = "Generic-theme";
-            break;
-        case 'dark':
-            $variablesThemeCSS = "Centreon-Dark";
-            break;
-        default:
-            throw new \Exception('Unknown contact theme : ' . $result['contact_theme']);
-    }
-}
-?>
-=======
 ?>
 
->>>>>>> centreon/dev-21.10.x
 <!DOCTYPE html>
 <html lang="<?php echo $centreon->user->lang; ?>">
     <title>Centreon - IT & Network Monitoring</title>
     <link rel="shortcut icon" href="./img/favicon.ico"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<<<<<<< HEAD
-    <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2021 Open Source Matters. All rights reserved."/>
-    <meta name="robots" content="index, nofollow"/>
-
-    <?php if (isset($isMobile) && $isMobile) : ?>
-    <link href="./Themes/Generic-theme/MobileMenu/css/material_icons.css" rel="stylesheet" type="text/css"/>
-    <link href="./Themes/Generic-theme/MobileMenu/css/menu.css" rel="stylesheet" type="text/css"/>
-    <?php endif; ?>
-
-    <link href="./include/common/javascript/jquery/plugins/jpaginator/jPaginator.css" rel="stylesheet" type="text/css"/>
-
-    <!-- Theme selection -->
-    <link
-        href="./Themes/Generic-theme/style.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-    <link
-        href="./Themes/Generic-theme/centreon-loading.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-    <link
-        href="./Themes/Generic-theme/responsive-style.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-    <link
-        href="./Themes/Generic-theme/color.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-    <link
-        href="./Themes/Generic-theme/jquery-ui/jquery-ui.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-    <link
-        href="./Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css<?php echo $versionParam; ?>"
-        rel="stylesheet"
-        type="text/css"
-    />
-
-    <link
-        href="./include/common/javascript/jquery/plugins/timepicker/jquery.ui.timepicker.css"
-        rel="stylesheet"
-        type="text/css"
-        media="screen"
-    />
-    <link
-        href="./include/common/javascript/jquery/plugins/select2/css/select2.css"
-        rel="stylesheet"
-        type="text/css"
-        media="screen"
-    />
-    <link href="./include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
-    <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
-
-    <!-- graph css -->
-    <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
-    <link href="./include/views/graphs/javascript/centreon-status-chart.css" type="text/css" rel="stylesheet" />
-    <link
-            href="./Themes/<?php echo $variablesThemeCSS === "Generic-theme" ? $variablesThemeCSS . "/Variables-css/" :
-                $variablesThemeCSS . "/"; ?>variables.css<?php echo $versionParam; ?>"
-            rel="stylesheet"
-            type="text/css"
-    />
-        <?php
-
-        // == Declare CSS for modules
-        foreach ($centreon->modules as $moduleName => $infos) {
-            if (file_exists(__DIR__ . "/../../../www/modules/" . $moduleName . "/static/css/styles.css")) {
-                print "<link "
-                    . "href='./modules/" . $moduleName . "/static/css/styles.css' "
-                    . "rel='stylesheet' type='text/css' "
-                    . "/>\n";
-            }
-        }
-
-        if (!isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['iframe'] != 1)) {
-            ?>
-    <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/centreon/centreon-select2.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/jquery-ui-tabs-rotate.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/colorbox/jquery.colorbox-min.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/jeditable/jquery.jeditable-min.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/timepicker/jquery.ui.timepicker.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/noty/jquery.noty.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/noty/themes/default.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/noty/layouts/bottomRight.js">
-    </script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/buzz/buzz.min.js"></script>
-    <script type='text/javascript' src='./include/common/javascript/visibility.min.js'></script>
-    <script type="text/javascript" src="./include/common/javascript/centreon/notifier.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/centreon/multiselectResizer.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/centreon/popin.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/jquery.nicescroll.min.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/jquery/plugins/jpaginator/jPaginator.js"></script>
-    <script type="text/javascript" src="./include/common/javascript/clipboard.min.js"></script>
-    <script type='text/javascript' src='./include/common/javascript/changetab.js'></script>
-    <script type='text/javascript' src='./include/common/javascript/linkify/linkify.min.js'></script>
-    <script type='text/javascript' src='./include/common/javascript/linkify/linkify-jquery.min.js'></script>
-
-            <?php
-        }
-        ?>
-
-    <script type="text/javascript" src="./class/centreonToolTip.js"></script>
-
-=======
     <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2017 Open Source Matters. All rights reserved."/>
     <meta name="robots" content="index, nofollow"/>
     <?php if (isset($isMobile) && $isMobile) : ?>
@@ -258,7 +113,6 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
         <script type='text/javascript' src='./include/common/javascript/linkify/linkify-jquery.min.js'></script>
     <?php } ?>
     <script type="text/javascript" src="./class/centreonToolTip.js"></script>
->>>>>>> centreon/dev-21.10.x
     <!-- graph js -->
     <script src="./include/common/javascript/charts/d3.min.js"></script>
     <script src="./include/common/javascript/charts/c3.min.js"></script>
@@ -269,19 +123,11 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
     <script src="./include/views/graphs/javascript/centreon-status-chart.js"></script>
     <script src="./include/common/javascript/moment-with-locales.min.2.21.js"></script>
     <script src="./include/common/javascript/moment-timezone-with-data.min.js"></script>
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
     <?php if (isset($isMobile) && $isMobile) : ?>
     <script type="text/javascript">
       var text_back = '<?= gettext('Back') ?>'
     </script>
-<<<<<<< HEAD
-    <script src="./Themes/Generic-theme/MobileMenu/js/menu.js"></script>
-=======
     <script src="./Themes/Centreon-2/MobileMenu/js/menu.js"></script>
->>>>>>> centreon/dev-21.10.x
     <?php endif; ?>
     <?php
 
@@ -382,8 +228,4 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
 // Showing the mobile menu if it's a mobile browser
 if (isset($isMobile) && $isMobile) {
     require(_CENTREON_PATH_ . 'www/include/common/mobile_menu.php');
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> centreon/dev-21.10.x

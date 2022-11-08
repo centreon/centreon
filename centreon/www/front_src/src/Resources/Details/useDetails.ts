@@ -1,67 +1,3 @@
-<<<<<<< HEAD
-import { useEffect } from 'react';
-
-import { isNil } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-
-import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
-
-import {
-  customTimePeriodAtom,
-  selectedTimePeriodAtom,
-} from '../Graph/Performance/TimePeriods/timePeriodAtoms';
-import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
-
-import { getTabIdFromLabel, getTabLabelFromId } from './tabs';
-import { DetailsUrlQueryParameters } from './models';
-import {
-  defaultSelectedCustomTimePeriodAtom,
-  defaultSelectedTimePeriodIdAtom,
-  openDetailsTabIdAtom,
-  selectedResourceIdAtom,
-  selectedResourceParentIdAtom,
-  selectedResourceParentTypeAtom,
-  selectedResourceTypeAtom,
-  selectedResourceUuidAtom,
-  sendingDetailsAtom,
-  tabParametersAtom,
-} from './detailsAtoms';
-
-const useDetails = (): void => {
-  const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);
-  const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
-    selectedResourceUuidAtom,
-  );
-  const [selectedResourceId, setSelectedResourceId] = useAtom(
-    selectedResourceIdAtom,
-  );
-  const [selectedResourceParentId, setSelectedResourceParentId] = useAtom(
-    selectedResourceParentIdAtom,
-  );
-  const [selectedResourceType, setSelectedResourceType] = useAtom(
-    selectedResourceTypeAtom,
-  );
-  const [selectedResourceParentType, setSelectedResourceParentType] = useAtom(
-    selectedResourceParentTypeAtom,
-  );
-  const [tabParameters, setTabParameters] = useAtom(tabParametersAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const sendingDetails = useAtomValue(sendingDetailsAtom);
-  const setDefaultSelectedTimePeriodId = useUpdateAtom(
-    defaultSelectedTimePeriodIdAtom,
-  );
-  const setDefaultSelectedCustomTimePeriod = useUpdateAtom(
-    defaultSelectedCustomTimePeriodAtom,
-  );
-
-  useTimePeriod({
-    sending: sendingDetails,
-  });
-
-  useEffect(() => {
-=======
 import * as React from 'react';
 
 import { isNil, ifElse, pathEq, always, pathOr } from 'ramda';
@@ -183,7 +119,6 @@ const useDetails = (): DetailsState => {
   };
 
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     const urlQueryParameters = getUrlQueryParameters();
 
     const detailsUrlQueryParameters =
@@ -202,11 +137,7 @@ const useDetails = (): DetailsState => {
       tab,
       tabParameters: tabParametersFromUrl,
       selectedTimePeriodId,
-<<<<<<< HEAD
-      customTimePeriod: customTimePeriodFromUrl,
-=======
       customTimePeriod,
->>>>>>> centreon/dev-21.10.x
     } = detailsUrlQueryParameters;
 
     if (!isNil(tab)) {
@@ -220,12 +151,6 @@ const useDetails = (): DetailsState => {
     setSelectedResourceParentType(parentType);
     setTabParameters(tabParametersFromUrl || {});
     setDefaultSelectedTimePeriodId(selectedTimePeriodId);
-<<<<<<< HEAD
-    setDefaultSelectedCustomTimePeriod(customTimePeriodFromUrl);
-  }, []);
-
-  useEffect(() => {
-=======
     setDefaultSelectedCustomTimePeriod(customTimePeriod);
   }, []);
 
@@ -237,24 +162,15 @@ const useDetails = (): DetailsState => {
   });
 
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     setUrlQueryParameters([
       {
         name: 'details',
         value: {
-<<<<<<< HEAD
-          customTimePeriod,
-          id: selectedResourceId,
-          parentId: selectedResourceParentId,
-          parentType: selectedResourceParentType,
-          selectedTimePeriodId: selectedTimePeriod?.id,
-=======
           customTimePeriod: timePeriodProps.customTimePeriod,
           id: selectedResourceId,
           parentId: selectedResourceParentId,
           parentType: selectedResourceParentType,
           selectedTimePeriodId: timePeriodProps.selectedTimePeriod?.id,
->>>>>>> centreon/dev-21.10.x
           tab: getTabLabelFromId(openDetailsTabId),
           tabParameters,
           type: selectedResourceType,
@@ -269,11 +185,6 @@ const useDetails = (): DetailsState => {
     selectedResourceParentType,
     selectedResourceParentType,
     tabParameters,
-<<<<<<< HEAD
-    selectedTimePeriod,
-    customTimePeriod,
-  ]);
-=======
     timePeriodProps.selectedTimePeriod,
     timePeriodProps.customTimePeriod,
   ]);
@@ -348,7 +259,6 @@ const useDetails = (): DetailsState => {
     tabParameters,
     ...timePeriodProps,
   };
->>>>>>> centreon/dev-21.10.x
 };
 
 export default useDetails;

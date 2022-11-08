@@ -26,8 +26,6 @@ use Security\Domain\Authentication\Model\ProviderConfiguration;
 interface ProviderRepositoryInterface
 {
     /**
-<<<<<<< HEAD
-=======
      * Find providers configurations
      *
      * @return ProviderConfiguration[]
@@ -35,7 +33,6 @@ interface ProviderRepositoryInterface
     public function findProvidersConfigurations(): array;
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Find the provider's configuration.
      *
      * @param int $id Id of the provider configuration

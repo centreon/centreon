@@ -48,13 +48,10 @@ define("SESSION_DURATION_LIMIT", (int)(ini_get('session.gc_maxlifetime') / 60));
 $transcoKey = array(
     "enable_autologin" => "yes",
     "display_autologin_shortcut" => "yes",
-<<<<<<< HEAD
-=======
     "sso_enable" => "yes",
     "openid_connect_enable" => "yes",
     "openid_connect_client_basic_auth" => "yes",
     "openid_connect_verify_peer" => "yes",
->>>>>>> centreon/dev-21.10.x
     "enable_gmt" => "yes",
     "strict_hostParent_poller_management" => "yes",
     'display_downtime_chart' => 'yes',
@@ -137,8 +134,6 @@ $GMTList = $CentreonGMT->getGMTList();
 
 $form->addElement('select', 'gmt', _("Timezone"), $GMTList);
 
-<<<<<<< HEAD
-=======
 $templates = array();
 if ($handle = @opendir($oreon->optGen["oreon_path"] . "www/Themes/")) {
     while ($file = @readdir($handle)) {
@@ -155,7 +150,6 @@ if ($handle = @opendir($oreon->optGen["oreon_path"] . "www/Themes/")) {
 }
 $form->addElement('select', 'template', _("Display Template"), $templates);
 
->>>>>>> centreon/dev-21.10.x
 $globalSortType = array(
     "host_name" => _("Hosts"),
     "last_state_change" => _("Duration"),
@@ -232,8 +226,6 @@ $form->addGroup(
     '&nbsp;&nbsp;'
 );
 
-<<<<<<< HEAD
-=======
 /*
  * SSO
  */
@@ -262,13 +254,10 @@ $form->addElement('text', 'sso_username_replace', _('SSO pattern replace login')
 $form->addElement('text', 'sso_header_username', _('SSO login header'), array('size' => 30));
 $form->setDefaults(array('sso_header_username' => 'HTTP_AUTH_USER'));
 
->>>>>>> centreon/dev-21.10.x
 $options3[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
 $form->addGroup($options3, 'enable_gmt', _("Enable Timezone management"), '&nbsp;&nbsp;');
 
 /*
-<<<<<<< HEAD
-=======
  * OpenId Connect
  */
 $openIdConnectEnable[] = $form->createElement(
@@ -339,7 +328,6 @@ $openIdConnectVerifyPeer[] = $form->createElement(
 $form->addGroup($openIdConnectVerifyPeer, 'openid_connect_verify_peer', _("Disable SSL verify peer"), '&nbsp;&nbsp;');
 
 /*
->>>>>>> centreon/dev-21.10.x
  * Support Email
  */
 $form->addElement('text', 'centreon_support_email', _("Centreon Support Email"), $attrsText);
@@ -387,15 +375,12 @@ $form->addRule(
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path . 'general/', $tpl);
 
-<<<<<<< HEAD
-=======
 if (!empty($gopt['openid_connect_client_id'])) {
     $gopt['openid_connect_client_id'] = CentreonAuth::PWS_OCCULTATION;
 }
 if (!empty($gopt['openid_connect_client_secret'])) {
     $gopt['openid_connect_client_secret'] = CentreonAuth::PWS_OCCULTATION;
 }
->>>>>>> centreon/dev-21.10.x
 $form->setDefaults($gopt);
 
 $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
@@ -449,10 +434,7 @@ $tpl->assign("genOpt_global_display", _("Display properties"));
 $tpl->assign("genOpt_problem_display", _("Problem display properties"));
 $tpl->assign("genOpt_time_zone", _("Time Zone"));
 $tpl->assign("genOpt_auth", _("Authentication properties"));
-<<<<<<< HEAD
-=======
 $tpl->assign("genOpt_openid_connect", _("Authentication by OpenId Connect"));
->>>>>>> centreon/dev-21.10.x
 $tpl->assign("support", _("Support Information"));
 $tpl->assign('statistics', _("Statistics"));
 $tpl->assign('valid', $valid);

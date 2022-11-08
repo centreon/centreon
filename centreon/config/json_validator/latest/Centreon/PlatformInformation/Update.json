@@ -10,12 +10,9 @@
     "isRemote": {
       "type": "boolean"
     },
-<<<<<<< HEAD
-=======
     "address": {
       "type": "string"
     },
->>>>>>> centreon/dev-21.10.x
     "centralServerAddress": {
       "type": "string"
     },

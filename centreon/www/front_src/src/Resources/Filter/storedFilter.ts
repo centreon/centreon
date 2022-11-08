@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { baseKey, getStoredOrDefault } from '../storage';
-=======
 import { baseKey, getStoredOrDefault, store } from '../storage';
->>>>>>> centreon/dev-21.10.x
 
 import { Filter } from './models';
 
@@ -21,9 +17,6 @@ const getStoredOrDefaultFilter = (defaultValue: Filter): Filter => {
   });
 };
 
-<<<<<<< HEAD
-export { getStoredOrDefaultFilter };
-=======
 const storeFilter = (filter: Filter): void => {
   store<Filter>({ key: filterKey, value: filter });
 };
@@ -33,4 +26,3 @@ const clearCachedFilter = (): void => {
 };
 
 export { getStoredOrDefaultFilter, storeFilter, clearCachedFilter, filterKey };
->>>>>>> centreon/dev-21.10.x

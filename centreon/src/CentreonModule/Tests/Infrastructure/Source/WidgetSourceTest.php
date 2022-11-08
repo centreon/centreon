@@ -55,28 +55,7 @@ class WidgetSourceTest extends TestCase
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
-<<<<<<< HEAD
-    /**
-     * @var FileSystem
-     */
-    private $fs;
-
-    /**
-     * @var WidgetSource
-     */
-    private $source;
-
-    /**
-     * @var string
-     */
     public static $widgetName = 'test-widget';
-
-    /**
-     * @var string[]
-     */
-=======
-    public static $widgetName = 'test-widget';
->>>>>>> centreon/dev-21.10.x
     public static $widgetInfo = [
         'title' => 'Curabitur congue porta neque',
         'author' => 'Centreon',
@@ -95,13 +74,6 @@ class WidgetSourceTest extends TestCase
         'thumbnail' => './resources/thumbnail.png',
         'url' => './widgets/test-widget/index.php',
     ];
-<<<<<<< HEAD
-
-    /**
-     * @var string[][][]
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public static $sqlQueryVsData = [
         "SELECT `directory` AS `id`, `version` FROM `widget_models`" => [
             [
@@ -123,21 +95,12 @@ class WidgetSourceTest extends TestCase
         ;
 
         // provide services
-<<<<<<< HEAD
-        $container = new Container();
-        $container['finder'] = new Finder();
-        $container['configuration'] = $this->createMock(Configuration::class);
-
-        // DB service
-        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService();
-=======
         $container = new Container;
         $container['finder'] = new Finder;
         $container['configuration'] = $this->createMock(Configuration::class);
 
         // DB service
         $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService;
->>>>>>> centreon/dev-21.10.x
         foreach (static::$sqlQueryVsData as $query => $data) {
             $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->addResultSet($query, $data);
         }
@@ -171,11 +134,7 @@ class WidgetSourceTest extends TestCase
         $this->fs->unmount();
     }
 
-<<<<<<< HEAD
-    public function testGetList(): void
-=======
     public function testGetList()
->>>>>>> centreon/dev-21.10.x
     {
         $result = $this->source->getList();
 
@@ -185,11 +144,7 @@ class WidgetSourceTest extends TestCase
         $this->assertEquals([], $result2);
     }
 
-<<<<<<< HEAD
-    public function testGetDetail(): void
-=======
     public function testGetDetail()
->>>>>>> centreon/dev-21.10.x
     {
         (function () {
             $result = $this->source->getDetail('missing-widget');
@@ -204,11 +159,7 @@ class WidgetSourceTest extends TestCase
         })();
     }
 
-<<<<<<< HEAD
-    public function testCreateEntityFromConfig(): void
-=======
     public function testCreateEntityFromConfig()
->>>>>>> centreon/dev-21.10.x
     {
         $configFile = static::getConfFilePath();
         $result = $this->source->createEntityFromConfig($configFile);

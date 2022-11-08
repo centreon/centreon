@@ -40,10 +40,6 @@ use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 
 trait CheckListOfIdsTrait
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Check a list of IDs
      *

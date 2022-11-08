@@ -23,10 +23,7 @@ declare(strict_types=1);
 namespace Centreon\Domain\Contact;
 
 use Centreon\Domain\Menu\Model\Page;
-<<<<<<< HEAD
-=======
 use Symfony\Component\Security\Core\Role\Role;
->>>>>>> centreon/dev-21.10.x
 use Symfony\Component\Security\Core\User\UserInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
@@ -71,13 +68,6 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ_WRITE =
         'ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_RW';
     public const ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ = 'ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_R';
-<<<<<<< HEAD
-    public const ROLE_CONFIGURATION_CONTACTS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_RW';
-    public const ROLE_CONFIGURATION_CONTACTS_READ = 'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R';
-    public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_RW';
-    public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R';
-=======
->>>>>>> centreon/dev-21.10.x
 
     /**
      * @var string
@@ -120,11 +110,7 @@ class Contact implements UserInterface, ContactInterface
     private $isAdmin;
 
     /**
-<<<<<<< HEAD
-     * @var int|null Id of the contact template
-=======
      * @var int Id of the contact template
->>>>>>> centreon/dev-21.10.x
      */
     private $templateId;
 
@@ -144,11 +130,7 @@ class Contact implements UserInterface, ContactInterface
     private $token;
 
     /**
-<<<<<<< HEAD
-     * @var string|null Encoded password
-=======
      * @var string Encoded password
->>>>>>> centreon/dev-21.10.x
      */
     private $encodedPassword;
 
@@ -163,11 +145,7 @@ class Contact implements UserInterface, ContactInterface
     private $hasAccessToApiRealTime;
 
     /**
-<<<<<<< HEAD
-     * @var string[]
-=======
      * @var (Role|string)[]
->>>>>>> centreon/dev-21.10.x
      */
     private $roles = [];
 
@@ -204,14 +182,6 @@ class Contact implements UserInterface, ContactInterface
     private $isOneClickExportEnabled = false;
 
     /**
-<<<<<<< HEAD
-     * @var string|null
-     */
-    private $theme;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * @return int
      */
     public function getId(): int
@@ -313,15 +283,9 @@ class Contact implements UserInterface, ContactInterface
      * Set if the user is admin or not.
      *
      * @param bool $isAdmin
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setAdmin(bool $isAdmin): self
-=======
      * @return static
      */
     public function setAdmin(bool $isAdmin): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->isAdmin = $isAdmin;
         if ($this->isAdmin) {
@@ -332,31 +296,18 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @return int|null
-     */
-    public function getTemplateId(): ?int
-=======
      * @return int
      */
     public function getTemplateId(): int
->>>>>>> centreon/dev-21.10.x
     {
         return $this->templateId;
     }
 
     /**
-<<<<<<< HEAD
-     * @param int|null $templateId
-     * @return self
-     */
-    public function setTemplateId(?int $templateId): self
-=======
      * @param int $templateId
      * @return static
      */
     public function setTemplateId(?int $templateId): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->templateId = $templateId;
         return $this;
@@ -372,15 +323,9 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param bool $isActive
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setIsActive(bool $isActive): self
-=======
      * @return static
      */
     public function setIsActive(bool $isActive): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->isActive = $isActive;
         return $this;
@@ -414,45 +359,27 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string|null $token
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setToken(?string $token): self
-=======
      * @return static
      */
     public function setToken(?string $token): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->token = $token;
         return $this;
     }
 
     /**
-<<<<<<< HEAD
-     * @return string|null
-     */
-    public function getEncodedPassword(): ?string
-=======
      * @return string
      */
     public function getEncodedPassword(): string
->>>>>>> centreon/dev-21.10.x
     {
         return $this->encodedPassword;
     }
 
     /**
      * @param string|null $encodedPassword
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setEncodedPassword(?string $encodedPassword): self
-=======
      * @return static
      */
     public function setEncodedPassword(?string $encodedPassword): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->encodedPassword = $encodedPassword;
         return $this;
@@ -483,15 +410,9 @@ class Contact implements UserInterface, ContactInterface
      * This should be the encoded password. On authentication, a plain-text
      * password will be salted, encoded, and then compared to this value.
      *
-<<<<<<< HEAD
-     * @return string|null The password
-     */
-    public function getPassword(): ?string
-=======
      * @return string The password
      */
     public function getPassword()
->>>>>>> centreon/dev-21.10.x
     {
         return $this->token;
     }
@@ -530,11 +451,7 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * @return bool
->>>>>>> centreon/dev-21.10.x
      */
     public function hasAccessToApiConfiguration(): bool
     {
@@ -542,12 +459,8 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * @param bool $hasAccessToApiConfiguration
      * @return static
->>>>>>> centreon/dev-21.10.x
      */
     public function setAccessToApiConfiguration(bool $hasAccessToApiConfiguration): static
     {
@@ -563,11 +476,7 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * @return bool
->>>>>>> centreon/dev-21.10.x
      */
     public function hasAccessToApiRealTime(): bool
     {
@@ -575,12 +484,8 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * @param bool $hasAccessToApiRealTime
      * @return static
->>>>>>> centreon/dev-21.10.x
      */
     public function setAccessToApiRealTime(bool $hasAccessToApiRealTime): static
     {
@@ -594,14 +499,10 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * Indicates if this user has a role.
      *
      * @param string $role Role name to find
      * @return bool
->>>>>>> centreon/dev-21.10.x
      */
     public function hasRole(string $role): bool
     {
@@ -609,14 +510,10 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-=======
      * Indicates if this user has a topology access.
      *
      * @param string $role Role name to find
      * @return bool
->>>>>>> centreon/dev-21.10.x
      */
     public function hasTopologyRole(string $role): bool
     {
@@ -661,15 +558,9 @@ class Contact implements UserInterface, ContactInterface
      * timezone setter
      *
      * @param \DateTimeZone $timezone
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setTimezone(\DateTimeZone $timezone): self
-=======
      * @return static
      */
     public function setTimezone(\DateTimeZone $timezone): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->timezone = $timezone;
         return $this;
@@ -727,32 +618,20 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-     */
-    public function isUsingDeprecatedPages(): bool
-=======
      * Indicates if user uses deprecated pages
      *
      * @return  bool
      */
     public function isUsingDeprecatedPages()
->>>>>>> centreon/dev-21.10.x
     {
         return $this->useDeprecatedPages;
     }
 
     /**
-<<<<<<< HEAD
-     * @inheritDoc
-     */
-    public function setUseDeprecatedPages(bool $useDeprecatedPages): static
-=======
      * @param  bool  $useDeprecatedPages  Indicates if user uses deprecated pages
      * @return  self
      */
     public function setUseDeprecatedPages(bool $useDeprecatedPages)
->>>>>>> centreon/dev-21.10.x
     {
         $this->useDeprecatedPages = $useDeprecatedPages;
 
@@ -769,51 +648,12 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param bool $isOneClickExportEnabled
-<<<<<<< HEAD
-     * @return self
-     */
-    public function setOneClickExportEnabled(bool $isOneClickExportEnabled): self
-=======
      * @return static
      */
     public function setOneClickExportEnabled(bool $isOneClickExportEnabled): static
->>>>>>> centreon/dev-21.10.x
     {
         $this->isOneClickExportEnabled = $isOneClickExportEnabled;
 
         return $this;
     }
-<<<<<<< HEAD
-
-    /**
-     * @inheritDoc
-     */
-    public function getUserIdentifier(): string
-    {
-        return $this->alias;
-    }
-
-    /**
-     * Set user current theme.
-     *
-     * @param string $theme user's new theme.
-     * @return self
-     */
-    public function setTheme(string $theme): self
-    {
-        $this->theme = $theme;
-        return $this;
-    }
-
-    /**
-     * Get user current theme.
-     *
-     * @return string|null
-     */
-    public function getTheme(): ?string
-    {
-        return $this->theme;
-    }
-=======
->>>>>>> centreon/dev-21.10.x
 }

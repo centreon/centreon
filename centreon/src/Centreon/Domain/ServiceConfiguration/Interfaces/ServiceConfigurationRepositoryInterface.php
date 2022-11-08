@@ -43,19 +43,11 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find all service macros for the service.
      *
      * @param int $serviceId Id of the service
-<<<<<<< HEAD
-     * @param bool $isUsingInheritance Indicates whether to use inheritance to find service macros (FALSE by default)
-     * @return array<ServiceMacro> List of service macros found
-     * @throws \Throwable
-     */
-    public function findOnDemandServiceMacros(int $serviceId, bool $isUsingInheritance = false): array;
-=======
      * @param bool $useInheritance Indicates whether to use inheritance to find service macros (FALSE by default)
      * @return ServiceMacro[] List of service macros found
      * @throws \Throwable
      */
     public function findOnDemandServiceMacros(int $serviceId, bool $useInheritance = false): array;
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Find the command of a service.
@@ -95,15 +87,4 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * @throws \Exception
      */
     public function findServicesByHost(Host $host): array;
-<<<<<<< HEAD
-
-    /**
-     * Removes all services related to a host.
-     *
-     * @param int $hostId
-     * @throws \Exception
-     */
-    public function removeServicesOnHost(int $hostId): void;
-=======
->>>>>>> centreon/dev-21.10.x
 }

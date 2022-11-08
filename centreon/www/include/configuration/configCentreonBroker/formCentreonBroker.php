@@ -58,33 +58,6 @@ if (
 
 $cbObj = new CentreonConfigCentreonBroker($pearDB);
 
-<<<<<<< HEAD
-/**
- * @param mixed $data
- * @return mixed
- */
-function htmlEncodeBrokerInformation(mixed $data): mixed
-{
-    if (is_string($data)) {
-        $data = htmlentities($data);
-    }
-    return $data;
-}
-
-/**
- * @param mixed $data
- * @return mixed
- */
-function htmlDecodeBrokerInformation(mixed $data): mixed
-{
-    if (is_string($data)) {
-        $data = html_entity_decode($data);
-    }
-    return $data;
-}
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * nagios servers comes from DB
  */
@@ -191,12 +164,6 @@ $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("Yes
 $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("No"), 0);
 $form->addGroup($stats_activate, 'stats_activate', _("Statistics"), '&nbsp;');
 
-<<<<<<< HEAD
-$bbdo_versions = [ '2.0.0' => 'v.2.0.0 (old protocol)', '3.0.0' => 'v.3.0.0 (with protobuf)'];
-$form->addElement('select', 'bbdo_version', _("BBDO version"), $bbdo_versions);
-
-=======
->>>>>>> centreon/dev-21.10.x
 $tags = $cbObj->getTags();
 
 $tabs = array();
@@ -224,12 +191,7 @@ if (isset($_GET["o"]) && $_GET["o"] == 'a') {
             "write_thread_id" => '1',
             "stats_activate" => '1',
             "activate" => '1',
-<<<<<<< HEAD
-            "activate_watchdog" => '1',
-            "bbdo_version" => '3.0.0',
-=======
             "activate_watchdog" => '1'
->>>>>>> centreon/dev-21.10.x
         ),
         $defaultLog
     );
@@ -238,10 +200,6 @@ if (isset($_GET["o"]) && $_GET["o"] == 'a') {
 } elseif ($id !== 0) {
     $tpl->assign('config_id', $id);
     $defaultBrokerInformation = getCentreonBrokerInformation($id);
-<<<<<<< HEAD
-    $defaultBrokerInformation = array_map('htmlEncodeBrokerInformation', $defaultBrokerInformation);
-=======
->>>>>>> centreon/dev-21.10.x
     if (!isset($defaultBrokerInformation['log_core'])) {
         $defaultBrokerInformation = array_merge(
             $defaultBrokerInformation,
@@ -304,18 +262,10 @@ if ($o == "w") {
 $valid = false;
 if ($form->validate()) {
     $nagiosObj = $form->getElement('id');
-<<<<<<< HEAD
-    $data = array_map('htmlDecodeBrokerInformation', $_POST);
-    if ($form->getSubmitValue("submitA")) {
-        $cbObj->insertConfig($data);
-    } elseif ($form->getSubmitValue("submitC")) {
-        $cbObj->updateConfig($data['id'], $data);
-=======
     if ($form->getSubmitValue("submitA")) {
         $cbObj->insertConfig($_POST);
     } elseif ($form->getSubmitValue("submitC")) {
         $cbObj->updateConfig($_POST['id'], $_POST);
->>>>>>> centreon/dev-21.10.x
     }
     $o = null;
     $valid = true;

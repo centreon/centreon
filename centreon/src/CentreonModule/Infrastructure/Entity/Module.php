@@ -40,10 +40,6 @@ use CentreonModule\Infrastructure\Source\SourceDataInterface;
 
 class Module implements SourceDataInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var string
      */
@@ -65,11 +61,7 @@ class Module implements SourceDataInterface
     private $description;
 
     /**
-<<<<<<< HEAD
-     * @var array<int,string>
-=======
      * @var array
->>>>>>> centreon/dev-21.10.x
      */
     private $images = [];
 
@@ -104,11 +96,7 @@ class Module implements SourceDataInterface
     private $keywords;
 
     /**
-<<<<<<< HEAD
-     * @var array<string,string|bool>
-=======
      * @var string
->>>>>>> centreon/dev-21.10.x
      */
     private $license;
 
@@ -132,372 +120,162 @@ class Module implements SourceDataInterface
      */
     private $isUpdated = false;
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getId(): string
     {
         return $this->id;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-=======
     public function setId(string $id)
->>>>>>> centreon/dev-21.10.x
     {
         $this->id = $id;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getType(): string
     {
         return $this->type;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $type
-     */
-    public function setType(string $type): void
-=======
     public function setType(string $type)
->>>>>>> centreon/dev-21.10.x
     {
         $this->type = $type;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getName(): string
     {
         return $this->name;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void
-=======
     public function setName(string $name)
->>>>>>> centreon/dev-21.10.x
     {
         $this->name = $name;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $description
-     */
-    public function setDescription(string $description): void
-=======
     public function setDescription(string $description)
->>>>>>> centreon/dev-21.10.x
     {
         $this->description = $description;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return array<int,string>
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getImages(): array
     {
         return $this->images;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $image
-     */
-    public function addImage(string $image): void
-=======
     public function addImage(string $image)
->>>>>>> centreon/dev-21.10.x
     {
         $this->images[] = $image;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getAuthor(): string
     {
         return $this->author;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $author
-     */
-    public function setAuthor(string $author): void
-=======
     public function setAuthor(string $author)
->>>>>>> centreon/dev-21.10.x
     {
         $this->author = $author;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getVersion(): string
     {
         return $this->version;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $version
-     */
-    public function setVersion(string $version): void
-=======
     public function setVersion(string $version)
->>>>>>> centreon/dev-21.10.x
     {
         $this->version = $version;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getVersionCurrent(): ?string
     {
         return $this->versionCurrent;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $versionCurrent
-     */
-    public function setVersionCurrent(string $versionCurrent): void
-=======
     public function setVersionCurrent(string $versionCurrent)
->>>>>>> centreon/dev-21.10.x
     {
         $this->versionCurrent = $versionCurrent;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getPath(): string
     {
         return $this->path;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $path
-     */
-    public function setPath(string $path): void
-=======
     public function setPath(string $path)
->>>>>>> centreon/dev-21.10.x
     {
         $this->path = $path;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getStability(): string
     {
         return $this->stability;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $stability
-     */
-    public function setStability(string $stability): void
-=======
     public function setStability(string $stability)
->>>>>>> centreon/dev-21.10.x
     {
         $this->stability = $stability;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getKeywords(): string
     {
         return $this->keywords;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $keywords
-     */
-    public function setKeywords(string $keywords): void
-=======
     public function setKeywords(string $keywords)
->>>>>>> centreon/dev-21.10.x
     {
         $this->keywords = $keywords;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return array<string,string|bool>|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getLicense(): ?array
     {
         return $this->license;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param array<mixed>|null $license
-     */
-    public function setLicense(array $license = null): void
-=======
     public function setLicense(array $license = null)
->>>>>>> centreon/dev-21.10.x
     {
         $this->license = $license;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getLastUpdate(): ?string
     {
         return $this->lastUpdate;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $lastUpdate
-     */
-    public function setLastUpdate(string $lastUpdate): void
-=======
     public function setLastUpdate(string $lastUpdate)
->>>>>>> centreon/dev-21.10.x
     {
         $this->lastUpdate = $lastUpdate;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string|null
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function getReleaseNote(): ?string
     {
         return $this->releaseNote;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param string $releaseNote
-     */
-    public function setReleaseNote(string $releaseNote): void
-=======
     public function setReleaseNote(string $releaseNote)
->>>>>>> centreon/dev-21.10.x
     {
         $this->releaseNote = $releaseNote;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return bool
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function isInstalled(): bool
     {
         return $this->isInstalled;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param bool $value
-     * @return bool
-     */
-    public function setInstalled(bool $value): void
-=======
     public function setInstalled(bool $value)
->>>>>>> centreon/dev-21.10.x
     {
         $this->isInstalled = $value;
     }
 
-<<<<<<< HEAD
-    /**
-     * @return string
-     */
-=======
->>>>>>> centreon/dev-21.10.x
     public function isUpdated(): bool
     {
         return $this->isUpdated;
     }
 
-<<<<<<< HEAD
-    /**
-     * @param bool $value
-     * @return bool
-     */
-    public function setUpdated(bool $value): void
-=======
     public function setUpdated(bool $value)
->>>>>>> centreon/dev-21.10.x
     {
         $this->isUpdated = $value;
     }

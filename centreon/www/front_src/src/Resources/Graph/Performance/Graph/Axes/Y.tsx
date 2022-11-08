@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { Axis } from '@visx/visx';
 import { isNil } from 'ramda';
 import { ScaleLinear } from 'd3-scale';
@@ -87,15 +84,6 @@ const YAxes = ({
             orientation="right"
             scale={rightScale}
             tickFormat={formatTick({ unit: secondUnit })}
-<<<<<<< HEAD
-            tickLabelProps={(): Record<string, unknown> => ({
-              ...commonTickLabelProps,
-              dx: 4,
-              dy: 4,
-              textAnchor: 'start',
-            })}
-=======
->>>>>>> centreon/dev-21.10.x
             tickLength={2}
           />
           <UnitLabel unit={secondUnit} x={graphWidth} />

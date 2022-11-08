@@ -84,10 +84,6 @@ use Centreon\ServiceProvider;
  */
 abstract class WebServiceAbstract extends \CentreonWebService
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /** @var Container */
     protected $di;
 

@@ -145,9 +145,6 @@ class CentreonDowntime extends CentreonObject
         if (count($filter) === 0) {
             echo $paramString . "\n";
             $filterList = '';
-<<<<<<< HEAD
-        } else {
-=======
             foreach ($elements as $element) {
                 echo implode($this->delim, $element) . "\n";
             }
@@ -173,27 +170,10 @@ class CentreonDowntime extends CentreonObject
                 $paramString .= ";hosts;host groups;services;service groups\n";
             }
             echo $paramString;
->>>>>>> centreon/dev-21.10.x
             foreach ($elements as $element) {
                 if (isset($filter[1])) {
                     switch (strtolower($filter[1])) {
                         case 'host':
-<<<<<<< HEAD
-                            echo $paramString . ";hosts\n";
-                            $filterList = ';' . $this->listHosts($element["dt_id"]);
-                            break;
-                        case 'hg':
-                            echo $paramString . ";host groups\n";
-                            $filterList = ';' . $this->listHostGroups($element["dt_id"]);
-                            break;
-                        case 'service':
-                            echo $paramString . ";services\n";
-                            $filterList = ';' . $this->listServices($element["dt_id"]);
-                            break;
-                        case 'sg':
-                            echo $paramString . ";service groups\n";
-                            $filterList = ';' . $this->listServiceGroups($element["dt_id"]);
-=======
                             $filterList = $this->listHosts($element["dt_id"]);
                             break;
                         case 'hg':
@@ -204,23 +184,11 @@ class CentreonDowntime extends CentreonObject
                             break;
                         case 'sg':
                             $filterList = $this->listServiceGroups($element["dt_id"]);
->>>>>>> centreon/dev-21.10.x
                             break;
                         default:
                             throw new CentreonClapiException(self::UNKNOWNPARAMETER);
                     }
                 } else {
-<<<<<<< HEAD
-                    echo $paramString . ";hosts;host groups;services;service groups\n";
-                    $filterList = ';' . $this->listResources($element["dt_id"]);
-                }
-            }
-        }
-
-        foreach ($elements as $tab) {
-            echo implode($this->delim, $tab) . $filterList . "\n";
-        }
-=======
                     $filterList = $this->listResources($element["dt_id"]);
                 }
                 if (!empty($filterList)) {
@@ -228,7 +196,6 @@ class CentreonDowntime extends CentreonObject
                 }
             }
         }
->>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -599,11 +566,7 @@ class CentreonDowntime extends CentreonObject
         }
 
         return implode("|", $hosts) . $this->delim . implode("|", $hostgroups) . $this->delim .
-<<<<<<< HEAD
-            implode("|", $services) . $this->delim . implode("|", $servicegroups) . "\n";
-=======
             implode("|", $services) . $this->delim . implode("|", $servicegroups);
->>>>>>> centreon/dev-21.10.x
     }
 
     /**

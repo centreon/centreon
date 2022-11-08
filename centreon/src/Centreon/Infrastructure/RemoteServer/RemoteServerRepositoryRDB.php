@@ -41,19 +41,12 @@ class RemoteServerRepositoryRDB extends AbstractRepositoryDRB implements RemoteS
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-    public function deleteRemoteServerByAddress(string $address): void
-    {
-        $statement = $this->db->prepare($this->translateDbName("DELETE FROM remote_servers WHERE ip = :address"));
-        $statement->bindValue(':address', $address, \PDO::PARAM_STR);
-=======
     public function deleteRemoteServerByServerId(int $serverId): void
     {
         $statement = $this->db->prepare(
             $this->translateDbName("DELETE FROM remote_servers WHERE server_id = :server_id")
         );
         $statement->bindValue(':server_id', $serverId, \PDO::PARAM_INT);
->>>>>>> centreon/dev-21.10.x
         $statement->execute();
     }
 

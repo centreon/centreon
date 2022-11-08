@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-import { pathEq } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
-import IconAcknowledge from '@mui/icons-material/Person';
-import IconCheck from '@mui/icons-material/Sync';
-=======
 /* eslint-disable hooks/sort */
 // Issue : https://github.com/hiukky/eslint-plugin-hooks/issues/3
 
@@ -17,7 +9,6 @@ import { pathEq } from 'ramda';
 import { makeStyles } from '@material-ui/core';
 import IconAcknowledge from '@material-ui/icons/Person';
 import IconCheck from '@material-ui/icons/Sync';
->>>>>>> centreon/dev-21.10.x
 
 import {
   ComponentColumnProps,
@@ -93,14 +84,8 @@ const StatusColumnOnHover = ({
       <IconButton
         ariaLabel={`${t(labelAcknowledge)} ${row.name}`}
         color="primary"
-<<<<<<< HEAD
-        data-testid={`${labelAcknowledge} ${row.name}`}
-        disabled={disableAcknowledge}
-        size="large"
-=======
         data-testid={`${labelAcknowledge}`}
         disabled={disableAcknowledge}
->>>>>>> centreon/dev-21.10.x
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge,
@@ -111,14 +96,8 @@ const StatusColumnOnHover = ({
       </IconButton>
       <IconButton
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
-<<<<<<< HEAD
-        data-testid={`${labelSetDowntimeOn} ${row.name}`}
-        disabled={disableDowntime}
-        size="large"
-=======
         data-testid={`${labelSetDowntimeOn}`}
         disabled={disableDowntime}
->>>>>>> centreon/dev-21.10.x
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime,
@@ -129,14 +108,8 @@ const StatusColumnOnHover = ({
       </IconButton>
       <IconButton
         ariaLabel={`${t(labelCheck)} ${row.name}`}
-<<<<<<< HEAD
-        data-testid={`${labelCheck} ${row.name}`}
-        disabled={disableCheck}
-        size="large"
-=======
         data-testid={`${labelCheck}`}
         disabled={disableCheck}
->>>>>>> centreon/dev-21.10.x
         title={getActionTitle({
           isActionPermitted: isCheckPermitted,
           labelAction: labelCheck,

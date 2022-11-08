@@ -1,12 +1,6 @@
 <?php
-<<<<<<< HEAD
-
-/*
- * Copyright 2005-2022 Centreon
-=======
 /*
  * Copyright 2005-2019 Centreon
->>>>>>> centreon/dev-21.10.x
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -70,15 +64,8 @@ class Service extends AbstractService
     {
         $servicegroup = Servicegroup::getInstance($this->dependencyInjector);
         $this->service_cache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForService($hostId, $serviceId);
-<<<<<<< HEAD
-        $this->service_cache[$serviceId]['group_tags'] = [];
         foreach ($this->service_cache[$serviceId]['sg'] as &$value) {
             if (is_null($value['host_host_id']) || $hostId == $value['host_host_id']) {
-                $this->service_cache[$serviceId]['group_tags'][] = $value['servicegroup_sg_id'];
-=======
-        foreach ($this->service_cache[$serviceId]['sg'] as &$value) {
-            if (is_null($value['host_host_id']) || $hostId == $value['host_host_id']) {
->>>>>>> centreon/dev-21.10.x
                 $servicegroup->addServiceInSg(
                     $value['servicegroup_sg_id'],
                     $serviceId,
@@ -185,11 +172,7 @@ class Service extends AbstractService
             $cg = array();
             $loop = array();
             while (!is_null($serviceId)) {
-<<<<<<< HEAD
-                if (isset($loop[$serviceId])) {
-=======
                 if (isset($loop[$serviceId]) || ! isset($servicesTpl[$serviceId])) {
->>>>>>> centreon/dev-21.10.x
                     break;
                 }
                 $loop[$serviceId] = 1;
@@ -594,14 +577,6 @@ class Service extends AbstractService
             );
         }
 
-<<<<<<< HEAD
-        // Set ServiceCategories
-        $serviceCategory = ServiceCategory::getInstance($this->dependencyInjector);
-        $this->insertServiceInServiceCategoryMembers($serviceCategory, $serviceId);
-        $this->service_cache[$serviceId]['category_tags'] = $serviceCategory->getIdsByServiceId($serviceId);
-
-=======
->>>>>>> centreon/dev-21.10.x
         $this->getSeverity($hostId, $serviceId);
         $this->getServiceGroups($serviceId, $hostId, $hostName);
         $this->generateObjectInFile(
@@ -628,11 +603,7 @@ class Service extends AbstractService
         $this->getContactGroups($this->service_cache[$serviceId]);
         $this->getContacts($this->service_cache[$serviceId]);
         $serviceTplInstance = ServiceTemplate::getInstance($this->dependencyInjector);
-<<<<<<< HEAD
-
-=======
         
->>>>>>> centreon/dev-21.10.x
         $serviceTplId = isset($this->service_cache[$serviceId]['service_template_model_stm_id'])
             ? $this->service_cache[$serviceId]['service_template_model_stm_id']
             : null;

@@ -30,10 +30,6 @@ namespace Centreon\Infrastructure;
  */
 class DatabaseConnection extends \PDO
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * @var string Name of the configuration table
      */

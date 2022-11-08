@@ -142,15 +142,10 @@ sub parse_options {
     die "Command line error" if !GetOptions(%{$self->{options}});
     pod2usage(-exitval => 1, -input => $FindBin::Bin . "/" . $FindBin::Script) if $self->{help};
     if ($self->{noconfig} == 0) {
-<<<<<<< HEAD
-        require $self->{config_file};
-        $self->{centreon_config} = $centreon_config;
-=======
         if (-e "$self->{config_file}" && -s "$self->{config_file}") {
             require $self->{config_file};
             $self->{centreon_config} = $centreon_config;
         }
->>>>>>> centreon/dev-21.10.x
     }
 }
 

@@ -11,28 +11,13 @@ use Centreon\Domain\Repository\TopologyRepository;
  */
 class TopologyRepositoryTest extends TestCase
 {
-<<<<<<< HEAD
-    /**
-     * @var ((string|string[][])[]|(string|int[][])[])[]
-     */
-    protected $datasets = [];
-
-    /**
-     * @var TopologyRepository
-     */
-=======
 
     protected $datasets = [];
->>>>>>> centreon/dev-21.10.x
     protected $repository;
 
     protected function setUp(): void
     {
-<<<<<<< HEAD
-        $db = new CentreonDB();
-=======
         $db = new CentreonDB;
->>>>>>> centreon/dev-21.10.x
         $this->datasets = [
             [
                 'query' => "SELECT topology_url "
@@ -61,11 +46,7 @@ class TopologyRepositoryTest extends TestCase
                 . "FROM acl_topology_relations, acl_topology "
                 . "WHERE acl_topology.acl_topo_activate = '1' "
                 . "AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id "
-<<<<<<< HEAD
-                . "AND acl_topology_relations.acl_topo_id = '1' ",
-=======
                 . "AND acl_topology_relations.acl_topo_id = :acl_topo_id ",
->>>>>>> centreon/dev-21.10.x
                 'data' => [
                     [
                         'topology_topology_id' => 1,
@@ -103,11 +84,7 @@ class TopologyRepositoryTest extends TestCase
             $db->addResultSet($dataset['query'], $dataset['data']);
             unset($dataset);
         }
-<<<<<<< HEAD
-
-=======
         
->>>>>>> centreon/dev-21.10.x
         $this->repository = new TopologyRepository($db);
     }
 
@@ -131,13 +108,6 @@ class TopologyRepositoryTest extends TestCase
 
         // if user admin
         $user = new class {
-<<<<<<< HEAD
-            /**
-             * @var boolean
-             */
-=======
-
->>>>>>> centreon/dev-21.10.x
             public $admin = true;
         };
 
@@ -153,45 +123,20 @@ class TopologyRepositoryTest extends TestCase
     {
         // if user non-admin
         $user = new class {
-<<<<<<< HEAD
-            /**
-             * @var boolean
-             */
-            public $admin = false;
-
-            /**
-             * @var mixed
-             */
-=======
 
             public $admin = false;
->>>>>>> centreon/dev-21.10.x
             public $access;
 
             public function __construct()
             {
                 $this->access = new class {
-<<<<<<< HEAD
-                    /**
-                     * @return int[]
-                     */
-                    public function getAccessGroups(): array
-=======
 
                     public function getAccessGroups()
->>>>>>> centreon/dev-21.10.x
                     {
                         return [1];
                     }
 
-<<<<<<< HEAD
-                    /**
-                     * @return string
-                     */
-                    public function getAccessGroupsString(): string
-=======
                     public function getAccessGroupsString()
->>>>>>> centreon/dev-21.10.x
                     {
                         return '1';
                     }

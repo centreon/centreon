@@ -1,10 +1,6 @@
 {
 	"info": {
-<<<<<<< HEAD
-		"_postman_id": "9caace91-4a26-421d-b865-5d23b444efe4",
-=======
 		"_postman_id": "673f4887-bd42-40c4-8997-8abe1ad42726",
->>>>>>> centreon/dev-21.10.x
 		"name": "Centreon Web Rest API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -12126,11 +12122,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"test_name;test_alias;test@localhost;Centreon@2022;0;0;en_US;ldap\"\n}"
-=======
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"test_name;test_alias;test@localhost;pwd;0;0;en_US;Idap\"\n}"
->>>>>>> centreon/dev-21.10.x
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -12994,11 +12986,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"{{ctpl_name2}};{{ctpl_alias2}};test@localhost;Centreon@2022;0;0;en_US;ldap\"\n}"
-=======
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"{{ctpl_name2}};{{ctpl_alias2}};test@localhost;pwd;0;0;en_US;Idap\"\n}"
->>>>>>> centreon/dev-21.10.x
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -13220,11 +13208,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"test_name;test_alias;test@localhost;Centreon$2022;0;0;en_US;ldap\"\n}"
-=======
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"test_name;test_alias;test@localhost;pwd;0;0;en_US;Idap\"\n}"
->>>>>>> centreon/dev-21.10.x
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -13468,8 +13452,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
-=======
 					"name": "Setparam password",
 					"event": [
 						{
@@ -13524,7 +13506,6 @@
 					"response": []
 				},
 				{
->>>>>>> centreon/dev-21.10.x
 					"name": "Setparam access",
 					"event": [
 						{
@@ -14868,11 +14849,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{contact_name2}};{{contact_alias2}};test@localhost;Centreon@2022;0;0;en_US;ldap\"\n}"
-=======
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{contact_name2}};{{contact_alias2}};test@localhost;pwd;0;0;en_US;Idap\"\n}"
->>>>>>> centreon/dev-21.10.x
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",

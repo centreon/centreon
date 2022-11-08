@@ -38,9 +38,5 @@ namespace Centreon\Domain\Repository\Interfaces;
 
 interface AclResourceRefreshInterface
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     public function refresh(): void;
 }

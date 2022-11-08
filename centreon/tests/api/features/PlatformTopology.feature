@@ -84,22 +84,14 @@ Feature:
             {
                 "name": "inconsistent_address",
                 "type": "poller",
-<<<<<<< HEAD
-                "address": "666.",
-=======
                 "address": "666_",
->>>>>>> centreon/dev-21.10.x
                 "parent_address": "127.0.0.1"
             }
             """
         Then the response code should be "400"
         And the response should be equal to:
             """
-<<<<<<< HEAD
-            {"message":"The address '666.' of 'inconsistent_address' is not valid or not resolvable"}
-=======
             {"message":"The address '666_' of 'inconsistent_address' is not valid or not resolvable"}
->>>>>>> centreon/dev-21.10.x
             """
 
         # Register a platform using name with illegal characters / Should fail and an error should be returned
@@ -158,22 +150,14 @@ Feature:
                 "name": "inconsistent_parent_address",
                 "type": "poller",
                 "address": "6.6.6.1",
-<<<<<<< HEAD
-                "parent_address": "666.",
-=======
                 "parent_address": "666_",
->>>>>>> centreon/dev-21.10.x
                 "hostname": "poller.test.localhost.localdomain"
             }
             """
         Then the response code should be "400"
         And the response should be equal to:
             """
-<<<<<<< HEAD
-            {"message":"The address '666.' of 'inconsistent_parent_address' is not valid or not resolvable"}
-=======
             {"message":"The address '666_' of 'inconsistent_parent_address' is not valid or not resolvable"}
->>>>>>> centreon/dev-21.10.x
             """
 
         # Register a poller linked to the Central.

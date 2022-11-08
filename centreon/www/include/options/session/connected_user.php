@@ -123,14 +123,8 @@ for ($cpt = 0; $r = $res->fetch(); $cpt++) {
         // adding the link to be able to kick the user
         $session_data[$cpt]["actions"] =
             "<a href='./main.php?p=" . $p . "&o=k&user=" . $r['user_id'] . "'>" .
-<<<<<<< HEAD
-                "<span title='" . _("Kick User") . "'>" .
-                    returnSvg("www/img/icons/delete.svg", "var(--icons-fill-color)", 22, 22) .
-                "</span>" .
-=======
                 "<img src='./img/icons/delete.png' border='0' alt='" . _("Kick User") .
                 "' title='" . _("Kick User") . "'>" .
->>>>>>> centreon/dev-21.10.x
             "</a>";
 
         // checking if the user account is linked to an LDAP
@@ -143,16 +137,9 @@ for ($cpt = 0; $r = $res->fetch(); $cpt++) {
             }
             $session_data[$cpt]["synchronize"] =
                 "<a href='#'>" .
-<<<<<<< HEAD
-                    "<span onclick='submitSync(" . $currentPage . ", \"" . $r['user_id'] . "\")' 
-                    title='" . _("Synchronize LDAP") . "'>" .
-                        returnSvg("www/img/icons/refresh.svg", "var(--icons-fill-color)", 18, 18) .
-                    "</span>" .
-=======
                     "<img src='./img/icons/refresh.png' border='0' " .
                         "alt='" . _("Synchronize LDAP") . "' title='" . _("Synchronize LDAP") . "' " .
                         "onclick='submitSync(" . $currentPage . ", \"" . $r['user_id'] . "\")'>" .
->>>>>>> centreon/dev-21.10.x
                 "</a>";
         } else {
             // hiding the synchronization option and details
@@ -176,11 +163,6 @@ $tpl->assign("wi_user", _("Users"));
 $tpl->assign("wi_where", _("Position"));
 $tpl->assign("wi_last_req", _("Last request"));
 $tpl->assign("distant_location", _("IP Address"));
-<<<<<<< HEAD
-$tpl->assign("adminIcon", returnSvg("www/img/icons/admin.svg", "var(--icons-fill-color)", 17, 17));
-$tpl->assign("userIcon", returnSvg("www/img/icons/user.svg", "var(--icons-fill-color)", 17, 17));
-=======
->>>>>>> centreon/dev-21.10.x
 $tpl->display("connected_user.ihtml");
 ?>
 

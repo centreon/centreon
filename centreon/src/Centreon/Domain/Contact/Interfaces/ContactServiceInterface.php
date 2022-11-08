@@ -33,17 +33,6 @@ interface ContactServiceInterface
     public function findByName(string $name): ?ContactInterface;
 
     /**
-<<<<<<< HEAD
-     * Find a contact based on its email.
-     *
-     * @param string $email Contact email
-     * @return ContactInterface|null
-     */
-    public function findByEmail(string $email): ?ContactInterface;
-
-    /**
-=======
->>>>>>> centreon/dev-21.10.x
      * Find a contact based on their session number.
      *
      * @param string $session Contact session number

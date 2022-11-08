@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { useTranslation } from 'react-i18next';
-
-import makeStyles from '@mui/styles/makeStyles';
-=======
 import * as React from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { makeStyles } from '@material-ui/core';
->>>>>>> centreon/dev-21.10.x
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -28,11 +22,7 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   downtimes: {
     display: 'grid',
-<<<<<<< HEAD
-    rowGap: theme.spacing(1),
-=======
     rowGap: `${theme.spacing(1)}px`,
->>>>>>> centreon/dev-21.10.x
   },
 }));
 

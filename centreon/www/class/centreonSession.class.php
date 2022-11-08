@@ -103,12 +103,9 @@ class CentreonSession
      */
     public static function checkSession($sessionId, CentreonDB $db): bool
     {
-<<<<<<< HEAD
-=======
         // First, Drop expired sessions
         self::deleteExpiredSession($db);
 
->>>>>>> centreon/dev-21.10.x
         if (empty($sessionId)) {
             return false;
         }
@@ -119,8 +116,6 @@ class CentreonSession
     }
 
     /**
-<<<<<<< HEAD
-=======
      * Delete all expired sessions
      * @param CentreonDB $db
      */
@@ -142,7 +137,6 @@ class CentreonSession
     }
 
     /**
->>>>>>> centreon/dev-21.10.x
      * Update session to keep alive
      *
      * @param \CentreonDB $pearDB

@@ -162,28 +162,12 @@ class Centreon
             $this->modules[$result["name"]] = array(
                 "name" => $result["name"],
                 "gen" => false,
-<<<<<<< HEAD
-                "restart" => false,
-=======
->>>>>>> centreon/dev-21.10.x
                 "license" => false
             );
 
             if (is_dir("./modules/" . $result["name"] . "/generate_files/")) {
                 $this->modules[$result["name"]]["gen"] = true;
             }
-<<<<<<< HEAD
-            if (is_dir("./modules/" . $result["name"] . "/restart_pollers/")) {
-                $this->modules[$result["name"]]["restart"] = true;
-            }
-            if (is_dir("./modules/" . $result["name"] . "/restart_pollers/")) {
-                $this->modules[$result["name"]]["restart"] = true;
-            }
-            if (file_exists("./modules/" . $result["name"] . "/license/merethis_lic.zl")) {
-                $this->modules[$result["name"]]["license"] = true;
-            }
-=======
->>>>>>> centreon/dev-21.10.x
         }
         $dbResult = null;
     }

@@ -45,21 +45,6 @@ echo "[" . date(DATE_RFC822) . "] PARTITIONING STARTED\n";
 
 /* Create partitioned tables */
 $centreonDb = new CentreonDB('centreon');
-<<<<<<< HEAD
-$centstorageDb = new CentreonDB('centstorage', 3);
-$partEngine = new PartEngine();
-
-if (!$partEngine->isCompatible($centstorageDb)) {
-    exitProcess(
-        PROCESS_ID,
-        1,
-        "[" . date(DATE_RFC822) . "] "
-        . "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n"
-    );
-}
-
-$tables = [
-=======
 $centstorageDb = new CentreonDB('centstorage', 3, false);
 $partEngine = new PartEngine();
 
@@ -68,16 +53,11 @@ if (!$partEngine->isCompatible($centstorageDb)) {
 }
 
 $tables = array(
->>>>>>> centreon/dev-21.10.x
     'data_bin',
     'logs',
     'log_archive_host',
     'log_archive_service'
-<<<<<<< HEAD
-];
-=======
 );
->>>>>>> centreon/dev-21.10.x
 
 try {
     foreach ($tables as $table) {

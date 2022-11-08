@@ -45,10 +45,6 @@ use PDOStatement;
  */
 class StatementCollector
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     /**
      * Collection of columns
      *

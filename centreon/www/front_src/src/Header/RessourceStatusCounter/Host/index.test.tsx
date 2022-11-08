@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import axios from 'axios';
-import { BrowserRouter } from 'react-router-dom';
-
-import { render, waitFor, fireEvent, screen } from '@centreon/ui';
-=======
 import * as React from 'react';
 
 import axios from 'axios';
@@ -12,7 +6,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
 import createStore from '../../../store';
->>>>>>> centreon/dev-21.10.x
 
 import HostStatusCounter from '.';
 
@@ -24,11 +17,8 @@ describe(HostStatusCounter, () => {
   });
 
   it('redirects to the Resource status page with the resource type filter set to host and the corresponding status when a status chip is clicked', async () => {
-<<<<<<< HEAD
-=======
     const store = createStore();
 
->>>>>>> centreon/dev-21.10.x
     mockedAxios.get.mockResolvedValue({
       data: {
         down: {
@@ -48,13 +38,9 @@ describe(HostStatusCounter, () => {
 
     const { getByText, getAllByText } = render(
       <BrowserRouter>
-<<<<<<< HEAD
-        <HostStatusCounter />
-=======
         <Provider store={store}>
           <HostStatusCounter />
         </Provider>
->>>>>>> centreon/dev-21.10.x
       </BrowserRouter>,
     );
 
@@ -62,13 +48,6 @@ describe(HostStatusCounter, () => {
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
-<<<<<<< HEAD
-    await waitFor(() => {
-      expect(screen.getByText('Hosts')).toBeInTheDocument();
-    });
-
-=======
->>>>>>> centreon/dev-21.10.x
     fireEvent.click(getByText('3'));
     expect(decodeURI(window.location.href)).toBe(
       'http://localhost/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"DOWN","name":"Down"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',

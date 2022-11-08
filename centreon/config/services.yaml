@@ -16,10 +16,6 @@ parameters:
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"
     centreon_etc_path: "%env(_CENTREON_ETC_)%"
-<<<<<<< HEAD
-    centreon_install_path: "%centreon_path%/www/install"
-=======
->>>>>>> centreon/dev-21.10.x
     translation_path: "%centreon_path%/www/locale"
     log_path: "%env(_CENTREON_LOG_)%"
     media_path: "img/media"
@@ -62,18 +58,9 @@ services:
     Pimple\Container:
         factory: ['Centreon\LegacyContainer', 'getInstance']
 
-<<<<<<< HEAD
-    Centreon\Infrastructure\CentreonLegacyDB\StatementCollector:
-        shared: false
-
-    Core\Infrastructure\Common\Api\Router:
-        decorates: router
-        arguments: ['@.inner']
-=======
     Centreon\Application\Controller\Router:
         decorates: 'router'
         arguments: ['@Centreon\Application\Controller\Router.inner']
->>>>>>> centreon/dev-21.10.x
 
 
     # Security

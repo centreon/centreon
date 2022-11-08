@@ -1,27 +1,5 @@
 <?php
 
-<<<<<<< HEAD
-/*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * For more information : contact@centreon.com
- *
- */
-
-=======
->>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
@@ -35,11 +13,7 @@ class CfgNagios
      *
      * @param string $name the poller name
      * @param int $serverID the poller id
-<<<<<<< HEAD
-     * @return array<string,string|int|null> the configuration template
-=======
      * @return array the configuration template
->>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(string $name, int $serverID): array
     {
@@ -59,11 +33,8 @@ class CfgNagios
             'execute_host_checks'                         => '1',
             'accept_passive_host_checks'                  => '1',
             'enable_event_handlers'                       => '1',
-<<<<<<< HEAD
-=======
             'log_rotation_method'                         => 'd',
             'log_archive_path'                            => '/var/log/centreon-engine/archives/',
->>>>>>> centreon/dev-21.10.x
             'check_external_commands'                     => '1',
             'external_command_buffer_slots'               => '4096',
             'command_check_interval'                      => '2s',
@@ -168,15 +139,9 @@ class CfgNagios
             'debug_level_opt'                             => '0',
             'debug_verbosity'                             => '1',
             'max_debug_file_size'                         => '1000000000',
-<<<<<<< HEAD
-            'cfg_file'                                    => 'centengine.cfg',
-            'log_pid'                                     => '1',
-            'logger_version'                              => 'log_v2_enabled',
-=======
             'daemon_dumps_core'                           => '0',
             'cfg_file'                                    => 'centengine.cfg',
             'log_pid'                                     => '1',
->>>>>>> centreon/dev-21.10.x
         ];
     }
 }

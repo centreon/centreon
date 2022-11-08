@@ -482,11 +482,6 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
             return null;
         }
 
-<<<<<<< HEAD
-        $registeredParentInTopology = $this->platformTopologyRepository->findPlatformByAddress(
-            $platform->getParentAddress()
-        );
-=======
         if ($platform->getType() === PlatformPending::TYPE_REMOTE) {
             $registeredParentInTopology = $this->platformTopologyRepository->findTopLevelPlatform();
         } else {
@@ -495,7 +490,6 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
             );
         }
 
->>>>>>> centreon/dev-21.10.x
         if (null === $registeredParentInTopology) {
             throw new EntityNotFoundException(
                 sprintf(
@@ -564,10 +558,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
                 );
                 if (null !== $platformParent) {
                     $platform->setParentAddress($platformParent->getAddress());
-<<<<<<< HEAD
-=======
                     $platform->setParentId($platformParent->getId());
->>>>>>> centreon/dev-21.10.x
                 }
             }
 
@@ -629,11 +620,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
              */
             if ($deletedPlatform->getServerId() !== null) {
                 if ($deletedPlatform->getType() === PlatformPending::TYPE_REMOTE) {
-<<<<<<< HEAD
-                    $this->remoteServerRepository->deleteRemoteServerByAddress($deletedPlatform->getAddress());
-=======
                     $this->remoteServerRepository->deleteRemoteServerByServerId($deletedPlatform->getServerId());
->>>>>>> centreon/dev-21.10.x
                     $this->remoteServerRepository->deleteAdditionalRemoteServer($deletedPlatform->getServerId());
                 }
 

@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-
-import createRootReducer from '../redux/reducers';
-
-const createAppStore = (initialState = {}) => {
-  const middlewares = [thunk];
-=======
 /* eslint-disable import/no-extraneous-dependencies */
 
 import { createStore, applyMiddleware, compose } from 'redux';
@@ -27,7 +18,6 @@ const createAppStore = (initialState = {}) => {
     thunk,
     batchDispatchMiddleware,
   ];
->>>>>>> centreon/dev-21.10.x
 
   const composeEnhancers =
     typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -36,11 +26,7 @@ const createAppStore = (initialState = {}) => {
 
   const enhancer = composeEnhancers(applyMiddleware(...middlewares));
 
-<<<<<<< HEAD
-  const store = createStore(createRootReducer(), initialState, enhancer);
-=======
   const store = createStore(createRootReducer(history), initialState, enhancer);
->>>>>>> centreon/dev-21.10.x
 
   return store;
 };

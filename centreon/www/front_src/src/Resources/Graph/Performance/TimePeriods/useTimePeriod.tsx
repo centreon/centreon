@@ -1,52 +1,3 @@
-<<<<<<< HEAD
-import { useEffect } from 'react';
-
-import { equals, isNil, not, propOr } from 'ramda';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-
-import {
-  getTimePeriodById,
-  TimePeriodId,
-} from '../../../Details/tabs/Graph/models';
-import {
-  defaultSelectedCustomTimePeriodAtom,
-  defaultSelectedTimePeriodIdAtom,
-  detailsAtom,
-} from '../../../Details/detailsAtoms';
-
-import {
-  customTimePeriodAtom,
-  getNewCustomTimePeriod,
-  getTimeperiodFromNow,
-  resourceDetailsUpdatedAtom,
-  selectedTimePeriodAtom,
-} from './timePeriodAtoms';
-
-dayjs.extend(duration);
-
-interface Props {
-  sending?: boolean;
-}
-
-const useTimePeriod = ({ sending = false }: Props): void => {
-  const [customTimePeriod, setCustomTimePeriod] = useAtom(customTimePeriodAtom);
-  const [selectedTimePeriod, setSelectedTimePeriod] = useAtom(
-    selectedTimePeriodAtom,
-  );
-  const details = useAtomValue(detailsAtom);
-  const defaultSelectedTimePeriodId = useAtomValue(
-    defaultSelectedTimePeriodIdAtom,
-  );
-  const defaultSelectedCustomTimePeriod = useAtomValue(
-    defaultSelectedCustomTimePeriodAtom,
-  );
-  const setResourceDetailsUpdated = useUpdateAtom(resourceDetailsUpdatedAtom);
-
-  useEffect(() => {
-=======
 import * as React from 'react';
 
 import { always, cond, equals, gte, isNil, not, pipe, propOr, T } from 'ramda';
@@ -226,31 +177,23 @@ const useTimePeriod = ({
   };
 
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (isNil(selectedTimePeriod) || isNil(details) || not(sending)) {
       return;
     }
 
-<<<<<<< HEAD
-=======
     setPeriodQueryParameters(
       getGraphQueryParameters({
         timePeriod: selectedTimePeriod,
       }),
     );
 
->>>>>>> centreon/dev-21.10.x
     const newTimePeriod = getTimeperiodFromNow(selectedTimePeriod);
 
     setCustomTimePeriod(newTimePeriod);
     setResourceDetailsUpdated(true);
   }, [sending]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-=======
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (
       not(isNil(defaultSelectedTimePeriodId)) ||
       isNil(defaultSelectedCustomTimePeriod) ||
@@ -267,11 +210,6 @@ const useTimePeriod = ({
 
     setCustomTimePeriod(newCustomTimePeriod);
     setSelectedTimePeriod(null);
-<<<<<<< HEAD
-  }, [defaultSelectedCustomTimePeriod]);
-
-  useEffect(() => {
-=======
     const queryParams = getGraphQueryParameters({
       endDate: newCustomTimePeriod.end,
       startDate: newCustomTimePeriod.start,
@@ -280,7 +218,6 @@ const useTimePeriod = ({
   }, [defaultSelectedCustomTimePeriod]);
 
   React.useEffect(() => {
->>>>>>> centreon/dev-21.10.x
     if (
       isNil(defaultSelectedTimePeriodId) ||
       equals(defaultSelectedTimePeriodId, selectedTimePeriod?.id)
@@ -293,9 +230,6 @@ const useTimePeriod = ({
     );
 
     setSelectedTimePeriod(newTimePeriod);
-<<<<<<< HEAD
-  }, [defaultSelectedTimePeriodId]);
-=======
     const queryParamsForSelectedPeriodId = getGraphQueryParameters({
       timePeriod: newTimePeriod,
     });
@@ -312,7 +246,6 @@ const useTimePeriod = ({
     resourceDetailsUpdated,
     selectedTimePeriod,
   };
->>>>>>> centreon/dev-21.10.x
 };
 
 export default useTimePeriod;

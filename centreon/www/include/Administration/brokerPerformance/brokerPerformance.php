@@ -1,8 +1,4 @@
 <?php
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -191,12 +187,7 @@ function parseStatsFile($statfile)
                     $result['io'][$matches[1]]['type'] = 'input';
                 } elseif (
                     preg_match(
-<<<<<<< HEAD
-                        '/.*(central-broker-master-sql|centreon-broker-master-rrd'
-                        . '|central-broker-master-perfdata|central-broker-master-unified-sql).*/',
-=======
                         '/.*(central-broker-master-sql|centreon-broker-master-rrd|central-broker-master-perfdata).*/',
->>>>>>> centreon/dev-21.10.x
                         $key
                     )
                 ) {
@@ -207,17 +198,10 @@ function parseStatsFile($statfile)
 
                 /* manage failover output */
                 if (isset($json_stats[$key]['failover'])) {
-<<<<<<< HEAD
-                    $result['io'][$matches[1] . '-failover'] = createArrayStats($json_stats[$key]['failover']);
-                    $result['io'][$matches[1] . '-failover']['type'] = 'output';
-                    $result['io'][$matches[1] . '-failover']['class'] = 'stats_lv2';
-                    $result['io'][$matches[1] . '-failover']['id'] = $matches[1] . '-failover';
-=======
                     $result['io'][$matches[1].'-failover'] = createArrayStats($json_stats[$key]['failover']);
                     $result['io'][$matches[1].'-failover']['type'] = 'output';
                     $result['io'][$matches[1].'-failover']['class'] = 'stats_lv2';
                     $result['io'][$matches[1].'-failover']['id'] = $matches[1].'-failover';
->>>>>>> centreon/dev-21.10.x
                 }
 
                 /* manage peers input */
@@ -228,11 +212,7 @@ function parseStatsFile($statfile)
                         $id = str_replace(':', '_', $peerName);
                         $id = str_replace('.', '_', $id);
                         $result['io'][$matches[1]]['peers'][$i] = $peerName;
-<<<<<<< HEAD
-                        $result['io'][$peerName] = createArrayStats($json_stats[$key][$matches[1] . '-' . $i]);
-=======
                         $result['io'][$peerName] = createArrayStats($json_stats[$key][$matches[1].'-'.$i]);
->>>>>>> centreon/dev-21.10.x
                         $result['io'][$peerName]['type'] = 'input';
                         $result['io'][$peerName]['class'] = 'stats_lv2';
                         $result['io'][$peerName]['id'] = $id . '-peers';

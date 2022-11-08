@@ -1,24 +1,4 @@
 /* eslint-disable class-methods-use-this */
-<<<<<<< HEAD
-import { useCallback } from 'react';
-
-import DayjsAdapter from '@date-io/dayjs';
-import dayjs from 'dayjs';
-import { equals, isNil, not, pipe } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
-
-import { useLocaleDateTimeFormat } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
-
-interface UseDateTimePickerAdapterProps {
-  Adapter;
-  formatKeyboardValue: (value?: string) => string | undefined;
-  getDestinationAndConfiguredTimezoneOffset: (
-    destinationTimezone?: string,
-  ) => number;
-}
-
-=======
 import * as React from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
@@ -35,7 +15,6 @@ interface UseDateTimePickerAdapterProps {
 
 const meridians = ['AM', 'PM'];
 
->>>>>>> centreon/dev-21.10.x
 enum DSTState {
   SUMMER,
   WINTER,
@@ -50,15 +29,8 @@ interface ToTimezonedDateProps {
 const isSummerDate = equals(DSTState.SUMMER);
 
 const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
-<<<<<<< HEAD
-  const { timezone, locale } = useAtomValue(userAtom);
-  const { format } = useLocaleDateTimeFormat();
-
-  const normalizedLocale = locale.substring(0, 2);
-=======
   const { locale, timezone } = useUserContext();
   const { format, toTime } = useLocaleDateTimeFormat();
->>>>>>> centreon/dev-21.10.x
 
   const toTimezonedDate = ({
     date,
@@ -92,11 +64,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     );
   };
 
-<<<<<<< HEAD
-  const getDSTState = useCallback(
-=======
   const getDSTState = React.useCallback(
->>>>>>> centreon/dev-21.10.x
     (date: dayjs.Dayjs): DSTState => {
       const currentYear = toTimezonedDate({
         date: new Date(),
@@ -117,24 +85,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     [timezone],
   );
 
-<<<<<<< HEAD
-  const formatKeyboardValue = (value?: string): string | undefined => {
-    if (equals(normalizedLocale, 'en') || isNil(value)) {
-      return value;
-    }
-    const month = value.substring(0, 2);
-    const day = value.substring(3, 5);
-
-    const newValue = `${day}/${month}/${value.substring(6, 16)}`;
-
-    return newValue;
-  };
-
-  class Adapter extends DayjsAdapter {
-    public formatByString = (value, formatKey: string): string => {
-      return format({ date: value.tz(timezone), formatString: formatKey });
-    };
-=======
   class Adapter extends DayjsAdapter {
     public format(date, formatString): string {
       return format({ date, formatString });
@@ -143,21 +93,13 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     public date(value): dayjs.Dayjs {
       return dayjs(value).locale(locale);
     }
->>>>>>> centreon/dev-21.10.x
 
     public isEqual = (value, comparing): boolean => {
       if (value === null && comparing === null) {
         return true;
       }
 
-<<<<<<< HEAD
-      return equals(
-        format({ date: value, formatString: 'LT' }),
-        format({ date: comparing, formatString: 'LT' }),
-      );
-=======
       return dayjs(value).isSame(dayjs(comparing), 'minute');
->>>>>>> centreon/dev-21.10.x
     };
 
     public getHours = (date): number => {
@@ -227,22 +169,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).month();
     };
 
-<<<<<<< HEAD
-    public getDaysInMonth = (date: dayjs.Dayjs): number => {
-      return date.tz(timezone).daysInMonth();
-    };
-
-=======
->>>>>>> centreon/dev-21.10.x
     public getWeekdays = (): Array<string> => {
       const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-<<<<<<< HEAD
-        this.formatByString(start.add(diff, 'day'), 'dd'),
-=======
         this.format(start.add(diff, 'day'), 'dd'),
->>>>>>> centreon/dev-21.10.x
       );
     };
 
@@ -269,12 +200,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
   }
 
-<<<<<<< HEAD
-  return {
-    Adapter,
-    formatKeyboardValue,
-    getDestinationAndConfiguredTimezoneOffset,
-=======
   const isMeridianFormat = (date: Date): boolean => {
     const localizedTime = toTime(date);
 
@@ -284,7 +209,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   return {
     Adapter,
     isMeridianFormat,
->>>>>>> centreon/dev-21.10.x
   };
 };
 

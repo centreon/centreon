@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { filter, propEq, isNil } from 'ramda';
 import { ScaleTime } from 'd3-scale';
 
@@ -16,10 +13,6 @@ interface Props {
   ariaLabel: string;
   color: string;
   graphHeight: number;
-<<<<<<< HEAD
-  resourceId: string;
-=======
->>>>>>> centreon/dev-21.10.x
   timeline: Array<TimelineEvent>;
   type: string;
   xScale: ScaleTime<number, number>;
@@ -33,14 +26,8 @@ const EventAnnotations = ({
   Icon,
   ariaLabel,
   color,
-<<<<<<< HEAD
-  resourceId,
-}: Props): JSX.Element => {
-  const events = filter(propEq('type', type), timeline);
-=======
 }: Props): JSX.Element => {
   const events = filter<TimelineEvent>(propEq('type', type), timeline);
->>>>>>> centreon/dev-21.10.x
 
   return (
     <>
@@ -51,10 +38,6 @@ const EventAnnotations = ({
           color,
           event,
           graphHeight,
-<<<<<<< HEAD
-          resourceId,
-=======
->>>>>>> centreon/dev-21.10.x
           xScale,
         };
 

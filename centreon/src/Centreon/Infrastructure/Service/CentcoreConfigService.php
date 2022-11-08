@@ -9,10 +9,6 @@ namespace Centreon\Infrastructure\Service;
  */
 class CentcoreConfigService
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> centreon/dev-21.10.x
     public const CONF_WEB = 'instCentWeb.conf';
 
     public const MACROS_DELIMITER_TEMPLATE = '@%s@';

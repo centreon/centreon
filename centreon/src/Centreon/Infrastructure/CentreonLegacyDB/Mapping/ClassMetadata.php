@@ -40,15 +40,9 @@ use PDO;
 
 class ClassMetadata
 {
-<<<<<<< HEAD
-    public const COLUMN = 'column';
-    public const TYPE = 'type';
-    public const FORMATTER = 'formatter';
-=======
     const COLUMN = 'column';
     const TYPE = 'type';
     const FORMATTER = 'formatter';
->>>>>>> centreon/dev-21.10.x
 
     /**
      * Table name of entity

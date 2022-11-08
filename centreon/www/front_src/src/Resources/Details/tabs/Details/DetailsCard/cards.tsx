@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import * as React from 'react';
 
->>>>>>> centreon/dev-21.10.x
 import { pick, isEmpty, isNil, equals, includes } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';

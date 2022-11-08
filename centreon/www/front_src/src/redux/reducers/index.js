@@ -1,14 +1,4 @@
 import { combineReducers } from 'redux';
-<<<<<<< HEAD
-import { reducer as formReducer } from 'redux-form';
-
-import pollerWizardReducer from './pollerWizardReducer';
-
-export default () =>
-  combineReducers({
-    form: formReducer,
-    pollerForm: pollerWizardReducer,
-=======
 import { connectRouter } from 'connected-react-router';
 import { reducer as formReducer } from 'redux-form';
 
@@ -25,5 +15,4 @@ export default (history) =>
     navigation: navigationReducer,
     pollerForm: pollerWizardReducer,
     router: connectRouter(history),
->>>>>>> centreon/dev-21.10.x
   });

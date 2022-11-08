@@ -213,11 +213,7 @@ export const labelMetaService = 'Meta service';
 export const labelCalculationType = 'Calculation type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
-<<<<<<< HEAD
-export const labelMaxDuration1Year = 'The duration must be less than a year';
-=======
 export const labelMaxDuration1Year = 'The duration must be lesser than a year';
->>>>>>> centreon/dev-21.10.x
 export const labelAsDisplayed = 'As displayed';
 export const labelMediumSize = 'Medium size';
 export const labelSmallSize = 'Small size';
@@ -240,20 +236,4 @@ export const labelHard = 'Hard';
 export const labelSoft = 'Soft';
 export const labelInvalidFormat = 'Invalid format';
 export const labelType = 'Type';
-<<<<<<< HEAD
-export const labelEmail = 'E-mail';
-export const labelContacts = 'Contacts';
-export const labelContactGroups = 'Contact groups';
-export const labelSettings = 'Settings';
-export const labelNotificationStatus = 'Notification status';
-export const labelConfiguration = 'Configuration';
-export const labelNotAuthorizedToAccessConfiguration =
-  'You are not authorized to access the configuration';
 export const labelForceActiveChecks = 'Force active checks';
-export const labelNoContactIsConfiguredForThisResource =
-  'No contacts are configured for this resource';
-export const labelNoContactGroupsIsConfiguredForThisResource =
-  'No contact groups are configured for this resource';
-=======
-export const labelForceActiveChecks = 'Force active checks';
->>>>>>> centreon/dev-21.10.x
