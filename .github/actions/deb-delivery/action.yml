@@ -41,14 +41,14 @@ runs:
         echo "[DEBUG] - Branch name: $BRANCHNAME"
 
         case "$BRANCHNAME" in
-          dev-22.10.x)
+          develop)
             REPO="-unstable"
             ;;
           release* | hotfix*)
             REPO="-testing"
             ;;
-          22.10.*)
-            REPO="-stable"
+          master | [0-9]{2}\.[0-9]{2}.)
+            REPO=""
             ;;
           MON*)
             echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
