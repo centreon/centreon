@@ -29,23 +29,26 @@ runs:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
 
-    - name: Publish debS to Nexus
+    - name: Publish DEBS to Nexus
       run: |
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then
-          export "BRANCHNAME"="$GITHUB_REF_NAME"
+          BRANCHNAME=$GITHUB_REF_NAME
         else
-          export "BRANCHNAME"="$GITHUB_HEAD_REF"
+          BRANCHNAME=$GITHUB_HEAD_REF
         fi
+
+        echo "[DEBUG] - Branch name: $BRANCHNAME"
+
         case "$BRANCHNAME" in
           develop)
-            REPO=unstable
+            REPO="-unstable"
             ;;
           release* | hotfix*)
-            REPO=testing
+            REPO="-testing"
             ;;
-          master | main | [0-9]{2}\.[0-9]{2}.)
-            REPO=stable
+          master | [0-9]{2}\.[0-9]{2}.)
+            REPO=""
             ;;
           MON*)
             echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
@@ -53,18 +56,22 @@ runs:
             ;;
           *)
             echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF;
+            echo $GITHUB_HEAD_REF
             exit 0
             ;;
         esac
 
-        for FILE in *.deb;
+        FILES="*.deb";
+        echo "[DEBUG] - Repo: $REPO"
+        echo "[DEBUG] - Deb FILES: $FILES"
+
+        for FILE in $FILES
         do
+          echo "[DEBUG] - File: $FILE"
 
-          VERSION=$(echo $FILE | grep -oP '[0-9]{2}\.[0-9]{2}')
+          VERSION=${{ inputs.version }}
 
-          echo "Repo: $REPO"
-          echo "Version: $VERSION"
+          echo "[DEBUG] - Version: $VERSION"
 
           curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION$REPO/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "./$FILE"
 
