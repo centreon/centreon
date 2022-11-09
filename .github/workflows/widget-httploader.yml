@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-httploader.yml"
       - "widgets/centreon-widget-httploader/**"
     tags:
-      - centreon-widget-httploader-22.10.**
+      - centreon-widget-httploader-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

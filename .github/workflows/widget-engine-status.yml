@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-engine-status.yml"
       - "widgets/centreon-widget-engine-status/**"
     tags:
-      - centreon-widget-engine-status-22.10.**
+      - centreon-widget-engine-status-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-tactical-overview.yml"
       - "widgets/centreon-widget-tactical-overview/**"
     tags:
-      - centreon-widget-tactical-overview-22.10.**
+      - centreon-widget-tactical-overview-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

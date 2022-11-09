@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

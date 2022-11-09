@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
     tags:
-      - centreon-widget-hostgroup-monitoring-22.10.**
+      - centreon-widget-hostgroup-monitoring-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

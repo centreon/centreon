@@ -16,10 +16,10 @@ on:
       - "!centreon/packages/**"
 
     tags:
-      - centreon-22.10.**
+      - centreon-[2-9][0-9].[0-9][0-9].*
 
 env:
-  version: "22.10"
+  version: "23.04"
   base_directory: centreon
 
 jobs:
@@ -28,6 +28,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - run: echo "${{ env.MAJOR_VERSION }}"
+        shell: bash
 
       - uses: ./.github/actions/frontend-build
         with:

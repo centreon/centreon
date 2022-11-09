@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-servicegroup-monitoring.yml"
       - "widgets/centreon-widget-servicegroup-monitoring/**"
     tags:
-      - centreon-widget-servicegroup-monitoring-22.10.**
+      - centreon-widget-servicegroup-monitoring-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:

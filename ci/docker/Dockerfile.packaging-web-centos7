@@ -2,7 +2,7 @@ FROM registry-docker.centreon.com/docker-global/centos:7
 
 RUN <<EOF
 
-curl -o centreon-devel.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-devel-2-2.el7.centos.noarch.rpm"
+curl -o centreon-devel.rpm "https://yum.centreon.com/standard/23.04/el7/stable/noarch/RPMS/centreon-devel-2-2.el7.centos.noarch.rpm"
 yum install -y --nogpgcheck -y centreon-devel.rpm
 
 curl --silent --location https://rpm.nodesource.com/setup_17.x | bash -

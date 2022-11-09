@@ -14,7 +14,7 @@ on:
       - "ci/docker/Dockerfile.lighthouse"
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   create-and-push-docker:

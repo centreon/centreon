@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-ntopng-listing.yml"
       - "widgets/centreon-widget-ntopng-listing/**"
     tags:
-      - centreon-widget-ntopng-listing-22.10.**
+      - centreon-widget-ntopng-listing-23.04.**
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   package:
