@@ -1,5 +1,0 @@
-<div class="viewBody">
-    <div class="info_box">
-        <h4>{$helpIcon}{$error_msg}</h4>
-    </div>
-</div>

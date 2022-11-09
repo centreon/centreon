@@ -1,0 +1,9 @@
+{
+    "pkg_name": "centreon-plugin-Hardware-Storage-Purestorage-Restapi",
+    "pkg_summary": "Centreon Plugin",
+    "plugin_name": "centreon_purestorage_restapi.pl",
+    "files": [
+        "centreon/plugins/script_custom.pm",
+        "storage/purestorage/restapi/"
+    ]
+}

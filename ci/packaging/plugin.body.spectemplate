@@ -1,0 +1,30 @@
+%package @NAME@
+Summary:        @SUMMARY@
+AutoReqProv:    no
+Requires:       perl(Digest::MD5)
+Requires:       perl(Pod::Find)
+Requires:       perl-Net-Curl
+Requires:       perl(URI::Encode)
+Requires:       perl(LWP::UserAgent)
+Requires:       perl(LWP::Protocol::https)
+Requires:       perl(IO::Socket::SSL)
+Requires:       perl(URI)
+Requires:       perl(HTTP::ProxyPAC)
+Requires:       perl-CryptX
+Requires:       perl(MIME::Base64)
+Requires:       perl(JSON::XS)
+Requires:       perl-JSON-Path
+Requires:       perl-KeePass-Reader
+Requires:       perl(Storable)
+Requires:       perl(POSIX)
+Requires:       perl(Encode)
+@REQUIRES@
+
+@CUSTOM_PKG_DATA@
+
+%description @NAME@
+Centreon plugin
+
+%files @NAME@
+%defattr(-,root,root,-)
+%{_prefix}/lib/centreon/plugins/@PLUGIN_NAME@

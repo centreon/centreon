@@ -1,0 +1,35 @@
+
+run-name: Plugin build ${{ inputs.plugin-name }}
+
+on:
+  workflow_call:
+    inputs:
+      plugin-name:
+        required: true
+        type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
+
+env:
+  version: "22.10"
+
+jobs:
+  package:
+    uses: ./.github/workflows/plugin-package.yml
+    with:
+      plugin_name: ${{ inputs.plugin-name }}
+    secrets: 
+      nexus_username: ${{ secrets.nexus_username }}
+      nexus_password: ${{ secrets.nexus_password }}
+
+  delivery:
+    needs: [package]
+    uses: ./.github/workflows/plugin-delivery.yml
+    with:
+      plugin_name: ${{ inputs.plugin-name }}
+    secrets: 
+      nexus_username: ${{ secrets.nexus_username }}
+      nexus_password: ${{ secrets.nexus_password }}

@@ -1,0 +1,49 @@
+on:
+  workflow_call:
+    inputs:
+      plugin_name:
+        required: true
+        type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
+
+env:
+  version: "22.10"
+
+jobs:
+  package:
+    runs-on: [self-hosted, common]
+
+    strategy:
+      matrix:
+        include:
+          - package_extension: rpm
+            image: packaging-plugins-centos7
+            distrib: el7
+          - package_extension: rpm
+            image: packaging-plugins-alma8
+            distrib: el8
+          - package_extension: deb
+            image: packaging-plugins-bullseye
+            distrib: bullseye
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/package
+        with:
+          package_extension: ${{ matrix.package_extension }}
+          image_name: ${{ matrix.image }}
+          script_name: plugin-packaging-${{ matrix.package_extension }}
+          module_name: ${{ inputs.plugin_name }}
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          sign: true
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}

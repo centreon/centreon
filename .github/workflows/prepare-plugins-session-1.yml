@@ -1,0 +1,64 @@
+name: prepare-plugins-session-1
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/prepare-plugins-session-1.yml'
+      - 'centreon-plugins/centreon/common**'
+      - 'centreon-plugins/centreon/plugins**'
+      - 'centreon-plugins/centreon-plugin-Applications-**'
+  push:
+    paths:
+      - '.github/workflows/prepare-plugins-session-1.yml'
+      - 'centreon-plugins/centreon/common**'
+      - 'centreon-plugins/centreon/plugins**'
+      - 'centreon-plugins/centreon-plugin-Applications-**'
+    tags:
+      - centreon-plugins.**
+
+env:
+  version: "22.10"
+  module: "centreon-plugins"
+
+jobs:
+  get-plugins:
+    runs-on: [self-hosted, common]
+    name: Get plugins for building
+    outputs:
+      matrix: ${{ steps.filter.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install GitPython
+
+      - name: Get plugins for build
+        id: filter
+        run: |
+          sudo git config --global --add safe.directory $(pwd)
+          JSON="$(python3 ci/scripts/process-plugins.py \
+            '["centreon-plugin-Applications-"]' \
+          )"
+          echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
+          echo $JSON
+          if [ "$(echo $JSON)" == '[]' ]; then
+            echo "::notice::There are no modifications to the plugins packages"
+          fi
+
+  build-plugins:
+    name: Build Plugin
+    needs: get-plugins
+    if: ${{ needs.get-plugins.outputs.matrix != '[]' }}
+    strategy:
+      matrix: ${{ fromJson(needs.get-plugins.outputs.matrix) }}
+    uses: ./.github/workflows/build-plugins.yml
+    with:
+      plugin-name: ${{ matrix.plugin-name }}
+    secrets: 
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}

@@ -1,5 +1,5 @@
-name: "Package Centreon"
-description: "Test Centreon"
+name: run-in-docker
+description: Run step in docker container
 inputs:
   script_name:
     description: "script_name"
@@ -13,12 +13,24 @@ inputs:
   centreon_pat:
     description: "Secret"
     required: false
+  nexus_username:
+    description: The nexus username
+    required: true
+  nexus_password:
+    description: The nexus password
+    required: true
   params:
     description: "params for script"
     required: false
 runs:
   using: "composite"
-
   steps:
-    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" registry-docker.centreon.com/docker-global/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
+    - name: Login to Registry
+      uses: docker/login-action@v2
+      with:
+        registry: registry.apps.centreon.com
+        username: ${{ inputs.nexus_username }}
+        password: ${{ inputs.nexus_password }}
+
+    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" registry.apps.centreon.com/docker-global/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
       shell: bash

@@ -1,0 +1,937 @@
+2022-10-17 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Aruba Orchestrator Rest API
+ * Plugin added: Splunk
+ * Plugin added: Kadiska
+ * Plugin added: VMWare VCSA SNMP
+ * Mode added: [linux/local] 'pending-updates'
+ * Mode added: [alcatel/omniswitch/snmp] 'virtual-chassis'
+ * Enhancement: [ups/socomec/netvision] support v5 version
+ * Core: can use variable to defined unitary options
+ * Break: [protocol/imap] new imap library
+ * Break: [fujitsu/eternux/dx/ssh] use ssh backends
+
+2022-09-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Azure Management Costs (Consumption API)
+ * Plugin added: Cisco Umbrella SNMP
+ * Plugin added: Dell VXM Rest API
+ * Plugin added: Fortinet Fortigate Rest API
+ * Plugin added: Node exporter Linux metrics
+ * Plugin added: Node exporter Windows metrics
+ * Mode added: [aruba/aoscx/snmp] 'cpu', 'memory'
+ * Mode added: [dell/powerstore] 'clusters'
+ * Mode added: [cisco/standard/snmp] 'bgp'
+ * Mode added: [hp/3par] 'afc', 'capacity', 'nodes', 'psu', 'uptime', 'time'
+ * Mode added: [oneaccess/snmp] 'rtt-probes'
+ * Mode added: [postgres] 'bloat'
+ * Core: add option --change-long-output
+
+2022-06-16 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Speedtest
+ * Plugin added: Protocol WHOIS
+ * Mode added: [nortel/standard/snmp] 'stack'
+ * Enhancement: [raisecom/snmp] support pon hardware
+ * Break: [dell/n4000/snmp] renamed dell/nseries/snmp
+ * Break: [hp/storeonce] renamed hp/storeonce/3
+ * Break: [protocol/tcp] refactoring
+
+2022-05-18 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Ceph Rest API
+ * Plugin added: Protocol CIFS
+ * Plugin added: Protocol SFTP
+ * Plugin added: NtopNG
+ * Plugin added: Azure MariaDB
+ * Plugin added: AWS backup
+ * Plugin added: Viptela SNMP
+ * Plugin added: IP-Label Ekara
+ * Plugin added: Fortinet FortiADC SNMP
+ * Plugin added: Notification Centreon OpenTickets
+ * Core: wsan powershell chunk management
+ * Core: catch connect croack error for database plugin
+ * Core: add password manager environment
+ * Core: secure and options to encrypt data in plugin cache files
+ * Enhancement: [nortel] support voss hardware
+ * Enhancement: [wazuh] add token method authentication
+ * Enhancement: [cadvisor] support cgroupv2 api
+ * Enhancement: [jacarta] support interseptor
+
+2022-01-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: AWS FSx
+ * Plugin added: Azure Virtual Machine Scale Sets
+ * Plugin added: Barracuda Message Archiver SNMP
+ * Plugin added: Dell OME-M SNMP
+ * Plugin added: Fortinet FortiSwitch SNMP
+ * Plugin added: Hikvision NVR ISAPI
+ * Plugin added: Hikvision NVR SNMP
+ * Plugin added: HPE Simplivity Rest API
+ * Plugin added: Lenovo RackSwitch SNMP
+ * Plugin added: Microsens G6 SNMP
+ * Plugin added: Redis Sentinel
+ * Break: [mssql] 'backup-age'
+
+2021-12-15 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: IBM DB2
+ * Plugin added: Wallix Bastion SNMP
+ * Plugin added: pdu Gude SNMP
+ * Plugin added: Nvidia gpu smi
+ * Plugin added: Ericsson ENMP API
+ * Plugin added: Netgear Sseries SNMP
+ * Core: add strong snmp authentication (net-snmp 5.9.1)
+ * Core: add HashiCorpVault password manager
+ * Mode added: [fortigate/snmp] 'sdwan'
+ * Break: [redis] refactoring
+ * Break: [netapp/ontap/snmp] 'qtree-usage' mode renamed 'quotas'
+
+2021-11-02 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: IBM MQ Rest API
+ * Plugin added: HP Moonshot SNMP
+ * Plugin added: Dell PowerStore Rest API
+ * Plugin added: Cisco ESA Rest API
+ * Plugin added: Azure Compute Disks
+ * Plugin added: Azure Insights Metrics
+ * Plugin added: AS400 Connector
+ * Break: [fritzbox] refactoring
+
+2021-09-15 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Fortinet Fortiweb SNMP
+ * Plugin added: Tplink SNMP
+ * Plugin added: Grafana
+ * Plugin added: Symbolg Wing SNMP
+ * Plugin added: Jvm actuator
+ * Plugin added: Azure Container Registry
+ * Plugin added: Barco ClickShare Rest API
+ * Plugin added: HashiCorp Vault Rest API
+ * Core: passmanager change library for keepass v4
+ * Break: [infoblox/snmp] remove cpu/memory modes - add system mode
+ * Break: [qnap/snmp] es serie managed, rename volume-usage
+
+2021-05-20 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Azure MySQL
+ * Plugin added: Azure EventGrid
+ * Plugin added: Azure ServiceBus
+ * Plugin added: Azure AutomationAccount
+ * Plugin added: Azure SignalR
+ * Plugin added: Azure FrontDoor
+ * Plugin added: Azure App Service
+ * Plugin added: Azure EventHub
+ * Plugin added: Azure Functions
+ * Plugin added: Azure Application Gateway
+ * Plugin added: Azure Application Insights
+ * Plugin added: Azure Cosmos DB
+ * Plugin added: Azure App Service Plan
+ * Plugin added: Cisco WAP SNMP
+ * Plugin added: Huawei OceanStor SNMP
+ * Plugin added: Proxmox MG API
+ * Plugin added: Ubiquiti Unifi SNMP
+ * Core: secure plugins options
+ * Core: use package Pod::Simple::Search
+ * Mode added: [linux/local] 'check-plugin'
+ * Mode added: [protocol/snmp] 'collection'
+ * Mode added: [veeam] 'licenses'
+
+2021-02-18 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Google Cloud CloudSQL MySQL
+ * Plugin added: Google Cloud Storage
+ * Plugin added: Azure Load Balancer
+ * Plugin added: Azure Firewall
+ * Plugin added: Azure Public IPs
+ * Plugin added: Azure Key Vaults
+ * Plugin added: Notification Jasmin SMS
+ * Plugin added: Athonet ePC SNMP
+ * Plugin added: Meru SNMP
+ * Plugin added: Ubiquiti Airfiber SNMP
+ * Plugin added: EMC PPMA Rest API
+ * Plugin added: DenyALL SNMP
+ * Mode added: [cisco/standard/snmp] 'aaa-servers'
+ * Break: refactoring for protocol x509
+
+2021-01-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Hitachi HCP SNMP
+ * Plugin added: Aruba AOS-CX Rest API
+ * Plugin added: Aruba AOS-CX SNMP
+ * Plugin added: Fortinet Fortiauthenticator SNMP
+ * Plugin added: Cisco DNAC Rest API
+ * Plugin added: Oracle OVM Rest API
+ * Plugin added: Cisco Firepower FMC API
+ * Plugin added: Cisco Firepower Fxos SNMP
+ * Plugin added: Rubrik Rest API
+ * Plugin added: AWS SES
+ * Plugin added: AWS TransitGateway
+ * Plugin added: Commvault Commserve Rest API
+ * Plugin added: Alyvix Rest API
+ * Plugin added: SmarterMail Rest API
+ * Plugin added: Cyberpower UPS SNMP
+ * Plugin added: Cyberpower PDU SNMP
+ * Plugin added: Cisco CTS SNMP
+ * Plugin added: Microsoft DHCP SNMP
+ * Plugin added: FiberStore SNMP
+ * Plugin added: Socomec NetVision SNMP
+ * Plugin added: HMS Ewon SNMP
+ * Plugin added: GSuite
+ * Plugin added: RRDtool
+ * Plugin added: Notification Microsoft Teams 
+ * Core: add option --insecure for backend http
+ * Core: option --list-plugin working with Par::Packer
+ * Mode added: [cisco/standard/snmp] 'vpc'
+ * Mode added: [emc/celerra/local] 'filesystems'
+ * Mode added: [emc/celerra/local] 'pools'
+ * Mode added: [synology/snmp] 'upgrade'
+ * Mode added: [mikrotik/snmp] 'firmware'
+ * Break: move microsoft applications
+
+2020-10-08 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Cisco CUCM SXML
+ * Plugin added: DRBD
+ * Plugin added: Pexip Infinity Management API
+ * Plugin added: Polycom RPRM SNMP
+ * Plugin added: Polycom DMA SNMP
+ * Plugin added: Polycom HDX SNMP
+ * Plugin added: Aws SQS
+ * Plugin added: Aws SNS
+
+2020-08-03 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Netapp Ontap Rest API
+ * Plugin added: Netdata Rest API
+ * Plugin added: Gorgone Rest API
+ * Plugin added: Nimble Rest API
+ * Plugin added: Cisco SSMS Rest API
+ * Plugin added: Loggly
+ * Plugin added: Nginx Plus Rest API
+ * Plugin added: IP-Label newtest Rest API
+ * Plugin added: Aws Health
+ * Core: add option --no-component-count (#2062)
+ * Core: can use unknown thresholds for counter modes
+ * Mode added: [cisco/standard/snmp] 'vss'
+ * Mode added: [paloalto/standard/snmp] 'signatures'
+ * Mode added: [checkpoint/snmp] 'ra-users'
+ * Break: [linux/local] refactoring
+ * Break: [iis/local] refactoring
+ * Break: [ansible/tower] refactoring
+
+2020-06-02 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: pfsense FauxAPI
+ * Plugin added: IIS Rest API
+ * Plugin added: Amazon EBS
+ * Plugin added: IP-Label datametrie API
+ * Plugin added: ActiveMQ JMX
+ * Plugin added: VerneMQ Rest API
+ * Plugin added: Ruckus SmartZone SNMP
+ * Plugin added: Ruckus ZoneDirector SNMP
+ * Plugin added: Ruckus ICX SNMP
+ * Plugin added: Dell Xseries SNMP
+ * Plugin added: Adva FSP150 SNMP
+ * Plugin added: Lenovo Iomega SNMP
+ * Plugin added: Netapp Santricity Rest API
+ * Plugin added: Timelinkmicro tms6001 SNMP
+ * Plugin added: Bluemind
+ * Plugin added: Mulesoft Rest API
+ * Plugin added: Salesforce Rest API
+ * Plugin added: Versa SNMP
+ * Break: [netapp/snmp] move directory
+ * Break: [netapp/restapi] move directory
+
+2020-04-10 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Dell OS10 SNMP
+ * Plugin added: Sirportly notification
+ * Plugin added: Mobotix Camera SNMP
+ * Plugin added: Ibm MQ MQI
+ * Plugin added: Supermicro BMC SNMP
+ * Plugin added: Eltek Enexus SNMP
+ * Plugin added: Cisco Meraki Rest API
+ * Plugin added: Aws EFS
+ * Core: add backend ssh system (plink, ssh and libssh)
+ * Mode added: [azure] 'alert'
+ * Mode added: [checkpoint/snmp] 'vsx'
+ * Mode added: [synology/snmp] 'ha'
+ * Mode added: [cisco/standard/snmp] 'wan3g'
+ * Break: [fortigate/snmp] 'cpu', 'memory', 'vdom' (merge) 
+ * Break: [supermicro/snmp] move directory
+
+2020-02-04 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Allied Telesis SNMP
+ * Plugin added: UPS HP SNMP
+ * Plugin added: HP ILO Rest API
+ * Plugin added: UPS Phoenixtec SNMP
+ * Plugin added: AWS Cloudwatch logs
+ * Plugin added: Cisco Collaboration Endpoint Rest API
+ * Plugin added: Polycom Trio Rest API
+ * Plugin added: Libraesva SNMP
+ * Plugin added: Dynatrace Rest API
+ * Plugin added: Hyperledger Exporter
+ * Plugin added: Prowl notification
+ * Mode added: [paloalto/snmp] 'gp-usage'
+ * Mode added: [centreon/local] 'centengine-stats'
+ * Mode added: [oracle] 'dataguard'
+ * Mode added: [netapp/snmp] 'failover'
+
+2019-12-19 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: CouchDB Rest API
+ * Plugin added: Maltem Insight Performance Rest API
+ * Plugin added: Hikvision camera SNMP
+ * Plugin added: Avaya CM SNMP
+ * Plugin added: Palo Alto SSH
+ * Plugin added: Rapid Recovery Quest SNMP
+ * Mode added: [linux/snmp] 'udpcon'
+ * Mode added: [cisco/standard/snmp] 'load'
+ * Mode added: [3cx/restapi] 'extensions'
+ * Mode added: [aix/local] 'cmd-return'
+ * Fix: Ctrl+F "Fix" on commits page
+
+2019-10-16 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: ABB CMS700 SNMP
+ * Mode added: [linux/local] 'discovery-nmap'
+ * Mode added: [hp/procurve] 'virtual-chassis'
+ * Mode added: [azure] 'health'
+ * Enhancement: [emerson/liebert] merge plugins
+ * Enhancement: [fortigate] enhance vpn mode
+ * Enhancement: [extreme/snmp] refacto modes
+ * Enhancement: [core] add mode status in openmetrics output
+ * Enhancement: [netapp/snmp] enhance snapmirrorlag
+ * Enhancement: [linux/local] refacto diskio mode
+ * Break: [f5/bigip] use status thresholds in virtual-server-status
+ * Fix: [nrpe] fix SSL context
+ * Fix: Ctrl+F "Fix" on commits page
+
+2019-10-02 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Warp10 Sensision
+ * Plugin added: OpenMetrics
+ * Plugin added: AWS API Gateway Api
+ * Plugin added: AWS Kinesis Api
+ * Plugin added: Hanwha Camera SNMP
+ * Plugin added: Perle IDS SNMP
+ * Plugin added: Scom Rest API
+ * Plugin added: Wazuh Rest API
+ * Plugin added: Zoom Rest API
+ * Plugin added: VMWare VCSA Rest API
+ * Plugin added: EMC Unisphere Rest API
+ * Plugin added: Nitram UPS SNMP
+ * Plugin added: Quanta.io Rest API
+ * Plugin added: HP OneView
+ * Plugin added: Geist
+ * Mode added: [oracle] 'fra-usage'
+ * Mode added: [oracle] 'tablespace-usage'
+ * Mode added: [hp p2000] 'vdisks'
+ * Mode added: [windows] 'list-services'
+ * Mode added: [os] 'list-processes'
+ * Enhancement: [core] add global timeout option
+ * Enhancement: [cisco/standard/snmp] add err disable interfaces
+ * Enhancement: [oracle] add container option
+ * Enhancement: [snmp_standard] 'memory' add option for redhat
+ * Enhancement: [nsclient] handle new rest api
+ * Enhancement: [aruba/standard] enhance modes to use ap name
+ * Enhancement: [azure] allow multiple metrics in monitor getmetrics mode
+ * Enhancement: [aws/paws] add proxyurl option
+ * Break: [ucopia] modes refactoring
+ * Break: [aws] metrics forced to new format for billing, cloudfront, elb, ec2, lambda breaks thresholds
+ * Break: [oracle] merged modes temp-tablespace and undo-tablespace into tablespace-usage
+ * Fix: Ctrl+F "Fix" on commits page
+
+2019-07-04 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: RabbitMQ Rest API
+ * Plugin added: VMware VeloCloud Rest API
+ * Plugin added: InfluxDB
+ * Plugin added: MongoDB
+ * Plugin added: Aruba Instant SNMP
+ * Plugin added: Cisco ACI APIC Rest API
+ * Plugin added: OpenLDAP
+ * Plugin added: SCCM
+ * Plugin added: Cisco ESA XML API
+ * Plugin added: Protocol NRPE
+ * Plugin added: Ovirt Rest API
+ * Plugin added: Keepalived SNMP
+ * Plugin added: Openweathermap Rest API
+ * Plugin added: 3CX Rest API
+ * Plugin added: Atto FiberBridge SNMP
+ * Plugin added: Buffalo TeraStation SNMP
+ * Plugin added: PDU Schleifenbauer Gateway SNMP
+ * Plugin added: Ansible Tower
+ * Plugin added: Dell ME4 Rest API
+ * Plugin added: Avaya AES SNMP
+ * Plugin added: Arcseve UDP MSSQL
+ * Mode added: [oracle] 'librarycacheusage'
+ * Mode added: [oracle] 'dictionarycacheusage'
+ * Mode added: [oracle] 'redologusage'
+ * Enhancement: [haproxy/snmp] manage oss mib (#1475)
+ * Enhancement: [oracle] Fix segfault with last DBD::Oracle
+ * Break: [elasticsearch] plugin refactoring
+ * Break: [pdu/apc] modes refactoring
+ * Break: [pdu/eaton] modes refactoring
+ * Break: [apps/lmsensors] modes refactoring
+ * Break: [cisco/standard] 'cpu', 'memory' refactoring
+ * Break: [3par/ssh] modes refactoring
+ * Break: [mysql] 'threads-connected' refactoring
+ * Break: [snmp_standard] 'swap' refactoring
+ * Fix: Ctrl+F "Fix" on commits page
+
+2019-04-12 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Google Cloud Platform Compute Engine API
+ * Plugin added: Prometheus NGINX Ingress Controller
+ * Plugin added: Bind9 Web
+ * Plugin added: Rudder Rest API
+ * Plugin added: Kubernetes API
+ * Plugin added: Protocol TFTP
+ * Plugin added: Rad Airmux SNMP
+ * Plugin added: Alvarion Breezeaccess SNMP
+ * Plugin added: Riverbed Interceptor SNMP
+ * Plugin added: WSUS
+ * Plugin added: Sahipro
+ * Mode added: [linux/local] 'ntp'
+ * Mode added: [macafee/webgateway] 'versions'
+ * Mode added: [ups/apc] 'input-lines'
+ * Mode added: [oracle] 'password-expiration'
+ * Mode added: [fortigate] 'ap-usage'
+ * Mode added: [centreon/local] 'bam-services'
+ * Mode added: [linux/local] 'discovery'
+ * Mode added: [aws] 'discovery'
+ * Mode added: [azure] 'discovery'
+ * Mode added: [vmware] 'discovery'
+ * Enhancement: [core] add float-precision option
+ * Enhancement: [core] add --extend-perfdata-group option
+ * Enhancement: [core/http] add curl backend support
+ * Enhancement: [core/http] add debug for lwp backend
+ * Enhancement: [oracle] add servicename support
+ * Enhancement: [snmp_standard] 'storage' (#1042)
+ * Enhancement: [snmp_standard] 'interfaces' (#712)
+ * Enhancement: [snmp_standard] 'list-interfaces' (#713)
+ * Enhancement: [f5/bigip] 'list-virtualservers' (#1252)
+ * Enhancement: [linux/local] 'traffic' 'packet-errors' (#916)
+ * Enhancement: [protocols/http] 'expected-content'
+ * Enhancement: [linux/local] 'process' (#1438)
+ * Enhancement: [cisco/snmp] 'interfaces' (#454)
+ * Enhancement: [hwgste/snmp] 'sensors' (#585)
+ * Enhancement: [azure] better apis responses handling
+ * Fix: Ctrl+F "Fix" on commits page
+ * Break: [dell/equallogic] modes refactoring
+ * Break: [snmp_standard] mode memory refactoring changes thresholds
+
+2019-02-21 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Microsoft Azure Recovery and Backup
+ * Plugin added: Microsoft Azure ExpressRoute
+ * Plugin added: Microsoft Azure VPN Gateway
+ * Plugin added: Microsoft Azure Virtual Network
+ * Plugin added: Microsoft Azure SQL Server and Database
+ * Plugin added: Squid SNMP
+ * Plugin added: Informix Database SNMP
+ * Plugin added: Lenovo XCC SNMP
+ * Plugin added: Peplink Pepwave SNMP
+ * Plugin added: Centreon MAP JMX (>= 18.10)
+ * Plugin added: Adder AIM SNMP
+ * Plugin added: Kafka JMX
+ * Plugin added: Cassandra JMX
+ * Plugin added: Office 365 Teams
+ * Plugin added: Office 365 Skype for Business
+ * Plugin added: Skype 2015 MSSQL
+ * Plugin added: HP Standard SNMP
+ * Plugin added: Mac OS SNMP
+ * Mode added: [snmp_standard] 'listspanningtrees'
+ * Mode added: [quantum dxi] 'dedupvtl'
+ * Mode added: [protocols/snmp] 'response-time'
+ * Enhancement: [vmware/connector] compatibility with VMware connector 3.x with enhancement
+ * Enhancement: [azure] many improvements in Azure plugins (tags, dates format)
+ * Enhancement: [office] change metrics behaviour, more global
+ * Enhancement: [core] add password management system
+ * Enhancement: [core/template] add catalog template method
+ * Enhancement: [core/template] enhance counter type 3
+ * Enhancement: [core/snmp] change snmpv3 management parameters
+ * Enhancement: [core/exec] change exit behaviour in case of failure
+ * Enhancement: [protocols/http] refacto expected-content mode, add possibility to extract data
+ * Enhancement: [database/oracle] add sqlpluscmd connection method
+ * Enhancement: [snmp_standard] spanningtree mode
+ * Enhancement: [centreon/sql] pollerdelay mode
+ * Enhancement: [mssql] 'failed-jobs' (#1365)
+ * Enhancement: [snmp_standard] 'interfaces' (#553)
+ * Enhancement: [prometheus/api] add headers handling
+ * Enhancement: [centreon/sql] add filter for broker stats
+ * Fix: [fortinet/fortigate] enhance cluster status mode
+ * Fix: [core/http] fix get-param option (#1355)
+ * Fix: [ilo xmlapi] fix nic management (#1358 #1213)
+ * Break: [informix/sql] change informix sql plugin path
+ * Break: [vmware/connector] several options changement
+
+2019-01-11 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Office 365 (PR #1288)
+ * Plugin added: IBM Cloud SoftLayer (PR #1224, #1226, #1241, #1273)
+ * Plugin added: PVX API (PR #1246)
+ * Plugin added: Quantum DXI SSH (PR #1280, #1322)
+ * Plugin added: Proxmox VE API (PR #1269, #1270)
+ * Plugin added: cAdvisor API (PR #1299, #1300)
+ * Plugin added: McAfee Web Gateway SNMP (PR #1304)
+ * Plugin added: Netgear ReadyNAS SNMP (PR #1174)
+ * Plugin added: Cisco CMS (PR #1309)
+ * Plugin added: Cisco ISE (PR #1312)
+ * Plugin added: Cisco VCS (PR #1317)
+ * Plugin added: OpenVPN OMI
+ * Plugin added: Avid ISIS SNMP (PR #1174)
+ * Plugin added: MRV OptiSwitch SNMP (PR #1215)
+ * Plugin added: Mikrotik SNMP (PR #1077)
+ * Plugin added: OHV SMS notification (PR #1263)
+ * Plugin added: Telegram notification (PR #1266)
+ * Mode added: [azure] API custom mode (PR #1248, #1276)
+ * Mode added: [fortigate] virtual domains modes (PR #1293)
+ * Mode added: [juniper/mseries] 'ldpsessionstatus', 'lspstatus', 'rsvpsessionstatus' (PR #1297)
+ * Mode added: [purestorage] 'pgroup-replication' (PR #1221)
+ * Mode added: [cisco standard] 'configuration' (#1102, PR #1236)
+ * Mode added: [centreon] 'dummy' (PR #1258)
+ * Mode added: [protocols/x509] 'certificate' (replace 'validity' mode) (PR #1306)
+ * Enhancement: [core/snmp] add requests size autoreducing (PR #1301)
+ * Enhancement: [core/snmp] harden snmp request (#880, PR #1325)
+ * Enhancement: [core] perfdata extension system (PR #1313)
+ * Enhancement: [aws] add proxy and endpoint URL handling (PR #1249)
+ * Enhancement: [windows/snmp] pending reboot output (PR #1222)
+ * Enhancement: [cisco standard] refactor stack mode (PR #1227)
+ * Enhancement: [snmp_standard] refactor diskusage mode (PR #1233)
+ * Enhancement: [fortigate] refactor clusterstatus mode (#343, PR #1238)
+ * Enhancement: [prometheus/cadvisor] allow using % for working memory (PR #1240)
+ * Enhancement: [juniper/mseries] add cache to improve performances (PR #1298)
+ * Enhancement: [cisco standard] enhance cisco environment sensor filter (PR #1303)
+ * Enhancement: [idrac] add SMART alert for disk s
+ * Fix: [core/snmp] fix snmp lib start/end checkup function (PR #1292) 
+ * Fix: [core/counter] fix template counter short output handling (PR #1295, #1305) 
+ * Fix: [cisco cm/phoneusage] fix typo in long outputs (PR #1230, #1231)
+ * Fix: [storeonce/clusterusage] handling multiple API versions (#1162, PR #1237)
+ * Fix: [silverpeak/loadaverage] wrong OIDs (#1256, PR #1272)
+ * Fix: [mssql] fix MSSQL version bug (#1038)
+ * Fix: [windows/memory] fix real SWAP bug
+ * Fix: [apc/devicestatus] fix empty values bug (#1127)
+ * Fix: [protocols/smtp] better error handling (#1172)
+ * Fix: [huawei/ibmc] fix huawei ibmc raidcontroller bug (#1244, PR #1315)
+ * Fix: [silverpeak] fix alarms mode
+ * Break: [snmp_standard/diskusage] refactoring of diskusage mode breaks thresholds (PR #1233)
+ * Break: [cisco standard] enhance cisco environment sensor filter (PR #1303)
+
+2018-10-31 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Prometheus for cAdvisor (PR #1199)
+ * Plugin added: Axis Video SNMP (PR #1196)
+ * Mode added: [prometheus] 'expression' (PR #1205)
+ * Enhancement: [prometheus] target status mode filtering (PR #1206, #1207)
+ * Enhancement: [prometheus/nodeexporter] nodeexporter filtering (PR #1201)
+ * Enhancement: [prometheus/kubernetes] kubernetes filtering (PR #1197, #1200)
+ * Enhancement: [azure] add subscription option (PR #1189)
+ * Enhancement: [prometheus/api] enh prometheus timeframe/step options (PR #1190)
+ * Fix: [idrac/pdisk] fix typo in long outputs (PR #1194)
+ * Fix: [netapp/qtreeusage] fix qtreeusage mode thresholds (#1193, PR #1195)
+ * Fix: [hyperv2012/nodesnapshot] fix negative timestamp (PR #1192)
+ * Break: [masterclock/ntp] change masterclock plugin path (PR #1191)
+
+2018-10-19 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Prometheus (PR #1168, #1169)
+ * Plugin added: Prometheus for Node Exporter (PR #1168, #1169, #1179)
+ * Plugin added: Prometheus for Kubernetes (PR #1181)
+ * Plugin added: Masterclock NTP GPS (PR #1182)
+ * Plugin added: Moxa EDS/IKS switches (PR #1183)
+ * Enhancement: [counter] add type 3 (instances of instances) (PR #1167, #1178)
+ * Fix: [cloud/azure] fix azure plugin typos, helpers and other (PR #1159)
+ * Fix: [hyperv/nodesnapshot] bug with comma on french Windows OS (PR #1175)
+ * Fix: [slack/alert] host and service not printed (PR #1177)
+
+2018-09-28 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Huawei iBMC (PR #1098, #1108, #1112, #1114)
+ * Plugin added: Huawei HMM (PR #1098, #1113)
+ * Plugin added: Barracuda CloudGen (PR #1109)
+ * Plugin added: Mitel 3300 ICP (PR #1146)
+ * Plugin added: AEG ACM (PR #1147)
+ * Plugin added: Ruckus SmartCell Gateway (PR #1141)
+ * Enhancement: [snmp_standard/cpu] add per core thresholds (PR #1107)
+ * Enhancement: [protocols/dns] add CNAME to possible search type (PR #1143)
+ * Enhancement: [azure] add proxyurl option, update cli installation process (PR #1154)
+ * Enhancement: [snmp_standard/interfaces] add --add-volume option (PR #1157)
+ * Enhancement: [os/freebsd] add standard ntp mode (PR #1152)
+ * Fix: [hp/ilo/pdrive] handle pdrive xml variants (#1087, PR #1105)
+ * Fix: [watchguard/cpu] fix watchguard cpu usage calcul (#1078, PR #1105)
+ * Break: [snmp_standard/cpu] option declaration --(critical|warning)-average instead of --(warning|critical) (PR #1107)
+ * Break: [azure] change paths to providers/services (PR #1154)
+ 
+ 2018-08-21 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Microsoft Azure API (PR #1097)
+ * Plugin added: Slack RestAPI (PR #1076)
+ * Plugin added: Peplink Balance SNMP (PR #1015, #1045)
+ * Plugin added: Silverpeak SNMP (PR #1037, #1045)
+ * Plugin added: Cloudfoundry RestAPI (PR #1031)
+ * Mode added: [linux/local] add upgrade mode (PR #1034, #1068)
+ * Mode added: [linux/local] add mountpoint mode (PR #1036, #1043)
+ * Mode added: [hpux/local] add storage and inode modes (PR #955, #1058)
+ * Mode added: [aix/local] add inode modes (PR #956, #1056, #1057)
+ * Mode added: [postgres] add databasesize mode (PR #870, #1046, #1047)
+ * Mode added: [selenium] add seleniumkatalon mode (PR #1039)
+ * Enhancement: [activedirectory/local] add receiving-member option to dfsrbacklog mode (#1088, PR #1089)
+ * Enhancement: [h3c/snmp] enhance h3c hardware mode to allow count thresholds (PR #1080)
+ * Enhancement: [hardware] enhance template hardware to count checked components (PR #1079)
+ * Enhancement: [mssql] enhance database-size mode, add list-database mode (PR #1091)
+ * Enhancement: [common/sql] enhance sqlstring for dual tables (#936, PR #1075)
+ * Enhancement: [windows/snmp] enhance swap mode virtual memory (#928, #929, PR #1069, #1072, #1073)
+ * Enhancement: [mssql] convert blockedprocesses mode to counters (PR #938, #1055, #1066)
+ * Enhancement: [paloalto/snmp] enhance clusterstatus output (PR #1054)
+ * Enhancement: [h3c/snmp] enhance hardware cache (#1005, PR #1049)
+ * Fix: [centreon/database] several bugs on multiservice mode (PR #1094)
+ * Fix: [netapp/restapi] fix netapp restapi volumeusage typo (PR #1074)
+ * Fix: [kaspersky/snmp] fix kaspersky snmp deployment devision by zero (PR #1070)
+ * Fix: [mssql] fix transactions mode case issue (#1059, PR #1067)
+ * Fix: [protocols/radius] correct login mode helper (PR #1060)
+ * Fix: [protocols/http] using a file as JSON source did not work (PR #979)
+ * Fix: [tomcat/web] fix sessions mode regexp (#864, PR #1053)
+ * Fix: [hirschmann/snmp] fix memory mode division by 0 (#999, PR #1052)
+ * Fix: [dell/fastpath] fix temperature mode loop (#1026, PR #1051)
+ * Fix: [fortimanager/snmp] fix devicestatus mode helper (#1009, PR #1050)
+ * Fix: [arista/snmp] fix memory mode output (#1018, PR #1048)
+ * Fix: [idrac/snmp] report idrac installed CPUs only (PR #1017)
+ * Fix: [qnap/hardware] add smartdisk section to allow threshold overload (#1008, PR #1017)
+ * Fix: [netapp/snmp] refactor qtreeusage mode, add not-kbytes option (#1006, PR #1029)
+ * Fix: [snmp_standard/processcount] fix processcount perfdata output typos (PR #1003)
+ * Fix: [windows/snmp] fix physical memory informations (#994, PR #1000)
+ * Break: [mssql] databasesize mode parfdata labels (PR #1091)
+
+2018-05-28 Colin Gagnaire <cgagnaire@centreon.com>
+ * Enhancement: [http] handle hidden basic authent (#974)
+ * Enhancement: add basic option to mode using http lib (#975)
+ * Enhancement: [sonicwall] enhance modes outputs and thresholds (#978)
+ * Enhancement: [quadstor]{vtltapeusage} add tapes count (#987)
+ * Fix: [f5/bigip]{trunks} div by 0 error (#964)
+ * Fix: [hirschmann]{hardware/psu} wrong oid (#985)
+ * Fix: [cisco/standard]{qosusage} calcul of total and child (#792)
+
+2018-04-27 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: Sonicwall SNMP (#914)
+ * Mode added: [juniper/ssg] 'vpnstatus' (#891)
+ * Mode added: [juniper/ssg] 'vpnusage' (#891)
+ * Mode added: [juniper/ssg] 'listvpn' (#891)
+ * Enhancement: [snmp_standard/ntp] improve ntp mode empty ntp_hostname option
+ * Enhancement: [windows/local] improve liststorages
+ * Enhancement: add --ssl-opt on plugin using http library (#961)
+ * Enhancement: [snmp_standard/interfaces] add interfaces speed check (#762, #954)
+ * Enhancement: [riverbed/steelhead/snmp] refactor plugin to handle EX series (#970)
+ * Fix: [netapp/restapi] fix uri uninitialized option in custom mode
+ * Fix: [netapp/restapi] fix snapmiror modes debug output
+ * Fix: [aws/ec2] fix perl 5.10/el6 compatibility (#945)
+ * Fix: [f5/bigip] fix failover warning thresholds (#964)
+ * Fix: [f5/bigip] fix trunks thresholds management (#964)
+ * Doc: correcting mode formely named 'traffic' to 'interfaces'
+
+2018-04-09 Colin Gagnaire <cgagnaire@centreon.com>
+ * Plugin added: IBM FS900 SNMP
+ * Plugin added: Kaspersky SNMP
+ * Plugin added: NetApp Rest Api
+ * Plugin added: AWS EC2 Api
+ * Plugin added: AWS RDS Api
+ * Plugin added: AWS S3 Api
+ * Plugin added: AWS ELB Api
+ * Plugin added: AWS Cloudfront Api
+ * Plugin added: AWS Billing Api
+ * Plugin added: AWS Elasticache Api
+ * Plugin added: AWS Lambda Api
+ * Mode added: [windows/local] 'liststorages'
+ * Mode added: [mssql] 'logsize'
+ * Mode added: [f5/bigip] 'trunks'
+ * Mode added: [f5/bigip] 'listtrunks'
+ * Enhancement: [vmware]{nethost} add dropped packets
+ * Enhancement: [snmp_standard]{processcount} add per process options, refactor code
+ * Enhancement: [hyperv]{scvmmintegrationservice} add some status
+ * Enhancement: [http] add new useragent.pm library to handle Basic, Digest, Ntlm and Ntlm v2 authentification 
+ * Enhancement: [snmp_standard]{spanningtree} add filtering options, refactor code (#780)
+ * Enhancement: [ups/apc]{sensors} show temp in long output (#849)
+ * Fix: [nsclient/restapi] use of uninitialized value issue (#825)
+ * Fix: [hp]{procurve} temperature sensor not present issue (#847)
+ * Fix: [veeam]{jobstatus} argument isn't numeric issue (#863)
+ * Fix: [centreon]{metaservice} use metric name defined in Meta-Service configuration (#874)
+ * Fix: [oracle]{eventwaitusage} event-count option
+ * Fix: [redis/restapi]{*} hashes deref issues
+ * Fix: [activedirectory]{dcdiag} wrong option issue (#902)
+ * Fix: [bluecoat]{hardware} typo in sensor state
+ * Fix: [stormshield]{hanodes} mapping issue
+ * Fix: [f5/bigip]{poolstatus,virtualserverstatus} bad character (#930)
+
+2017-12-22 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Pure Storage SNMP
+ * Plugin added: Pure Storage Rest API
+ * Plugin added: Amazon AWS API
+ * Plugin added: Comet P8000 series SNMP
+ * Plugin added: Veeam local
+ * Plugin added: Colubris SNMP
+ * Plugin added: Alpha ups SNMP
+ * Plugin added: Infoblox SNMP
+ * Plugin added: Redis Rest API
+ * Plugin added: Cisco Call Manager SNMP
+
+2017-12-08 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Kingdee Rest API
+ * Plugin added: Redis Cli
+ * Plugin added: Ubiquiti Edge SNMP
+ * Plugin added: Arista SNMP
+ * Plugin added: Haproxy SNMP
+ * Plugin added: JBoss JMX
+ * Plugin added: NSClient Query
+ * Break: Renamed Asterisk AMI
+ * Break: Renamed Dell n4000
+ * Break: Renamed Dell 62000
+
+2017-11-23 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Freebox Rest API
+ * Plugin added: Netgear Mseries SNMP
+ * Plugin added: Zyxel SNMP
+ * Add redis support for temporary datas
+
+2017-10-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Kaminario Rest API
+ * Plugin added: Protocol SSH
+ * Plugin added: Tivoli Storage Manager
+ * Plugin added: Toshiba Storemate
+ * Mode added: [windows] 'pending-reboot'
+ * Mode added: [storeonce] 'nas-usage'
+ * Mode added: [tomcat] 'connector-usage'
+
+2017-09-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Zookeeper JMX
+ * Plugin added: Solr JMX
+ * Plugin added: Automic Workload Automation JMX
+ * Plugin added: Fujitsu Server SNMP
+ * Plugin added: Foxbox Notification
+ * Break: Netasq renamed to Stormshield
+
+2017-08-11 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Ruckus AP SNMP
+ * Plugin added: Adva FSP3000 SNMP
+ * Plugin added: Nokia Timos SNMP
+ * Plugin added: Huawei SNMP
+ * Plugin added: Hibernate JMX
+ * Plugin added: Raisecom SNMP
+ * Break: mode change for Pfsense SNMP
+ * Break: mode change for HP MSL SNMP
+ * Break: mode change for Juniper ISG SNMP
+ * Break: mode change for Digi Standard (sarian now) SNMP
+
+2017-07-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Supermicro SNMP
+ * Plugin added: QuadStor VTL Local
+ * Plugin added: Docker Rest API
+ * Mode added: [linux] directlvm-usage	
+ * Mode added: [oracle] rollback-segment-usage
+ * Mode added: [oracle] event-waits-usage
+
+2017-06-13 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: HP Eva CLI
+ * Plugin added: Acme Packet SNMP
+ * Plugin added: A10 AX SNMP
+ * Plugin added: OpenHeadend SNMP
+ * Plugin added: Zixi Rest API
+ * Plugin added: Various Evertz SNMP
+ * Plugin added: Qsan Nas SNMP
+ * Plugin added: Citrix SDX SNMP
+ * Plugin added: IBM TS2900 SNMP
+ * Plugin added: Fortinet Fortimanager SNMP
+ * Mode added: [pacemaker] clustat
+ * Break: path change for Alcatel Omniswitch SNMP
+
+2017-05-19 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Alteon SNMP
+ * Plugin added: Nutanix SNMP
+ * Plugin added: Citrix Cloudbridge SNMP 
+ * Plugin added: Protocol Modbus
+ * Plugin added: Notification HighSMS
+ * Plugin added: Jmeter Scenario
+ * Plugin added: AppearTV SNMP
+ * Plugin added: QSan NAS SNMP
+ * Mode added: [linux] systemd services
+ * Break: path change for Alcatel Omniswitch
+ 
+2017-03-29 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Watchguard SNMP
+ * Plugin added: Intelligence Interactive SNMP
+ * Plugin added: Oracle Infiniband SNMP
+ * Plugin added: Beeware SNMP
+ * Plugin added: Oracle ZFS Storage ZS SNMP
+ * Plugin added: Safenet Keysecure SNMP
+ * Plugin added: Oracle OTD SNMP
+ * Break: path change for Alteon SNMP
+
+2017-03-10 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Dell FluidFS SNMP
+ * Plugin added: Clamav
+ * Plugin added: Sendmail SNMP
+ * Plugin added: Centreon DSM
+ * Plugin added: Audiocodes SNMP
+ * Mode added: [snmp_standard] 'vrrp-status'
+ * Mode added: [centreon] 'virtualservice'
+ * Break: path change for Netscaler SNMP
+ * Fix: perl connector issue
+
+2017-02-16 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Hyper-v 2012
+ * Plugin added: Avocent ACS 6000 SNMP
+ * Plugin added: Alcatel PSS 1830
+ * Mode added:: [hp lefthand] 'volume-usage'
+ * Mode added:: [checkpoint] 'vpn-status'
+ * Mode added:: [f-5 bigip] 'tmm-usage'
+ * Break: path change for F-5 BigIp
+ * Break: path change for Checkpoint
+
+2017-01-20 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: SAP Hana DB
+ * Plugin added: Efficient IP
+ * Plugin added: IBM TS3500
+ * Plugin added: Sophos Email Security appliance
+ * Mode added: [hmc] 'led-status'
+ * Add a special mode to send SNMP trap
+ * Break: path changed for IBM TS3100 and TS3200
+
+2016-12-12 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check Cisco Meraki Cloud Ctrl SNMP
+ * Plugin added: to check Polycom RMX SNMP
+ * Plugin added: to check Exagrid SNMP
+ * Plugin added: to check Cisco Prime Wireless SNMP
+ * Mode added: [snmp_standard] 'numeric-value'
+ * Mode added: [fortigate] 'signatures'
+ * Mode added: [cisco standard] 'qos-usage'
+ * Mode added: [cisco standard] 'ipsec-tunnel'
+ * Enhancement: [checkpoint] major update
+ * Enhancement: [protocol bgp] major update
+
+2016-11-21 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check Jacarta Sensor SNMP
+ * Plugin added: to check Safenet HSM
+ * Plugin added: to check HP ILO XML API
+ * Plugin added: to check EMC Isilon SNMP
+ * Plugin added: to check APC NetBotz SNMP
+ * Enhancement: [apc ats] major update
+ * Enhancement: [hwgste] update
+ * Fix: [sonus] namespace issue (#532)
+ * Fix: [snmp_standard]{storage} cache issue (#523)
+
+2016-10-14 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check StorageTek SLxxx
+ * Plugin added: to check HP Storeonce Rest API
+ * Plugin added: to check Gorgy ntpserver SNMP
+ * Plugin added: to check Nortel/Avaya SNMP
+ * Plugin added: to check Vtom Rest API
+ * Plugin added: to check Sybase
+ * Plugin added: to check Cyberoam SNMP (#517)
+ * Minor fixes and enhancement
+
+2016-09-02 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check HP-UX SNMP (#13)
+ * Plugin added: to check Hitachi HNAS
+ * Plugin added: to check Overland Neo Series
+ * Plugin added: to check Quantum Scalar
+ * Plugin added: to check HP Storeonce SSH
+ * Fix: [pdu emerson]{global-status} wrong status
+ 
+2016-08-03 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check IBM Storwize (#438)
+ * Plugin added: to check Sonus SBC
+ * Plugin added: to check Aerohive
+ * Plugin added: to check Digi routers
+ * Plugin added: to check telnet sessions
+ * Plugin added: to check china clever PDU
+ * Plugin added: to check Cisco Voice Gateway
+ * Some minor fix and enhancement
+
+2016-06-27 Quentin Garnier <qgarnier@centreon.com>
+ * Update FAQ: build a standalone perl script
+ * Plugin added: to check Lenovo S Series (#412)
+ * Plugin added: to check Digi AnywhereUSB
+ * Mode added: [netasq] 'ha-nodes'
+ * Mode removed: [netasq] 'ha-status'
+ * Fix: [dell n4000]{environment} wrong temperature (#397)
+ * Fix: [netapp]{cache-age} not working (#422)
+ * Fix: [cisco wlc]{ap-users} wrong total
+ * Fix: [tomcat]{memory} problem with java 8
+ * Fix: [netapp]{filesys} no values (#415)
+
+2016-05-24 Quentin Garnier <qgarnier@centreon.com>
+ * Can use '/' instead '::' for plugin option (#380)
+ * Mode added: [pacemaker] 'constraints'
+ * Mode added: [netbackup] 'tape-usage'
+ * Mode added: [oracle] 'data-files-status'
+ * Mode added: [netasq] 'connections'
+ * Enhancement: [cisco wlc]{ap-users} get users by AP (#375)
+ * Enhancement: [oracle]{tablespace} can use free size left
+ * Fix: [pdu apc]{load} incorrect values (#408)
+ * Fix: [mscs] Issue with old versions
+ * Fix: [postgres]{timesync} threshold issue
+ * Fix: [ntp]{offset} time formula issue
+ * Fix: [github]{issues} Get only issue
+ * Fix: [netasq]{memory} Use BSD memory check
+ * Fix: [tomcat]{applications} Issue on Windows (#356)
+
+2016-03-24 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check AKCP SensorProbe
+ * Plugin added: to check Juniper ISG
+ * Plugin added: to check OSPF protocol
+ * Plugin added: to check Microsoft Cluster Service
+ * Plugin added: to check Dell Compellent in SNMP and Powershell SDK
+ * Enhancement: [snmp_standard]{string-value} Many changes (#228)
+ * Fix: [raritan] OnOff sending errors (#348)
+
+2016-02-20 Quentin Garnier <qgarnier@centreon.com>
+ * Add a class for FatPacker system
+
+2016-02-17 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: to check Kemp
+ * Plugin added: to check Netbackup
+ * Plugin added: to check Ucopia Wireless Controller
+ * Plugin added: to check Emerson Liebert PDU
+ * Plugin added: to check Microsoft Lync 2013
+ * Plugin added: to check TemPERHum sensors
+ * Mode added: [mysql] 'table-size'
+ * Mode added: [centreon] 'count-services'
+ * Mode added: [iDrac] 'hardware' (for iDrac 8)
+ * Enhancement: [xtremio] hardened code
+ * Enhancement: [cisco asa]{sessions} better metrics (#315)
+ * Enhancement: [freebsd]{memory} More real values
+ * Fix: [oracle]{tablespace-usage} Usage more than 100%
+ * Fix: [clariion]{disks} Last disks was missing
+ * Fix: [mssql]{failed-jobs} wrong thresholds
+
+2016-01-22 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Add a plugin to check Juniper Trapeze in SNMP
+ * Plugin added: Add a plugin to check Dell ML6000 in SNMP
+ * Plugin added: Add a plugin to check UPS APC in SNMP
+ * Plugin added: Add a plugin to check HP VC in SNMP
+ * Major fix on sanity mechanism for options
+ * Add option '--filter-uom' in core library (#220)
+ * Add some new classes for code refactoring
+ * Add 'get_header' method in http library
+ * Fix 'proxypac' in http library (#263)
+ * Mode added: [github] 'stats'
+ * Mode added: [netapp] 'cache-age'
+ * Mode added: [datadomain] 'replication'
+ * Enhancement: [cisco standard]{ipsla} hardened code
+ * Enhancement: [github]{issues} change api call method (#257)
+ * Enhancement: [selenium]{scenario} add echo command (#258)
+ * Enhancement: [protocol x509]{validity} add SNI support (#241)
+ * Enhancement: [snmp_standard]{interfaces} add option '--force-counters32' (#213)
+ * Enhancement: [protocol x509]{validity} add support for alternative subject names (#277)
+ * Enhancement: [juniper sa]{users} add filter (#192)
+ * Enhancement: [cisco wlc]{ap-users} add users by ssid (#227)
+ * Enhancement: [juniper ssg]{sessions} better counters (#233)
+ * Enhancement: [vmware connector]{time-host} new options
+ * Enhancement: [extreme]{hardware} add poe status
+ * Enhancement: [vplex]{directors} hardened code
+ * Fix: [bluecoat]{hardware} problem with sensor
+ * Fix: [cisco ucs]{equipment} fix severity for iocard (#283)
+ * Fix: [exchange 2010]{queues} perdata infinity not raising anymore
+ 
+2015-12-18 Quentin Garnier <qgarnier@centreon.com>
+ * Plugin added: Add a plugin to check VMWare ESX with WSMAN
+ * Configuration: centreon-plugins don't use GetOptions anymore (custom library instead)
+ * Add option '--snmp-force-getnext' in core snmp library
+ * Mode added: [F5 BigIP] 'failover'
+ * Mode added: [vmware connector] for centreon-vmware 2.1.0
+ * Enhancement: [extreme]{cpu} 'n/a' value managed (#223)
+ * Enhancement: [snmp standard]{inodes} add filter type option (#224)
+ * Enhancement: [netapp]{filesys} add inodes usage
+ * Enhancement: [snmp_standard]{ntp} change output (#232)
+ * Enhancement: [snmp_standard]{processcount} improve performance
+ * Enhancement: [cisco standard]{ipsla} manage no tag name
+ * Enhancement: [snmp_standard]{loadaverage} manage load with coma
+ * Enhancement: [oracle]{tablespaces} manage 'UNDO' tablespaces (#242)
+ * Enhancement: [cisco ucs]{equipment} add cpu, memory and localdisk monitoring
+ * Enhancement: [cisco wlc]{ap-status} can monitor the number of APs
+ * Enhancement: [F5 BigIP]{hardware} refactoring
+ * Enhancement: [cisco standard]{environment} add sensors monitoring (#160)
+ * Enhancement: [aws]{list} add exclude service (#248)
+ * Fix: [protocol x509]{validity} add default port (#240)
+ * Fix: [ups standard]{battery-status} hardened code (#225)
+ * Fix: [cisco standard]{environment} voltage threshold value issue
+ * Fix: [kayako api]{ticketcount} mode crash
+ * Fix: [elasticsearch] Crash without some values in command line (#243)
+ 
+2015-11-26 Quentin Garnier <qgarnier@centreon.com>
+ * initial release
