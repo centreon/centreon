@@ -41,15 +41,7 @@ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt
 wget -qO /etc/apt/trusted.gpg.d/sury-php.gpg https://packages.sury.org/php/apt.gpg
 
 apt-get update
-apt-get -y install php8.1
-apt-get -y install php8.1-intl php8.1-xml php8.1-curl php8.1-mbstring php8.1-zip php8.1-cli php8.1-common php8.1-fpm php8.1-mysql php8.1-ldap
-
-curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
-apt-get -y install nodejs npm
-
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-chmod +x /usr/local/bin/composer
+apt-get -y install php8.1 php8.1-intl php8.1-xml php8.1-curl php8.1-mbstring php8.1-zip php8.1-cli php8.1-common php8.1-fpm php8.1-mysql php8.1-ldap
 
 apt-get clean
 
