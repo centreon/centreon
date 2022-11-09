@@ -8,7 +8,7 @@ stage('Dependencies containers creation') {
             dir('centreon-widget-grid-map-debian11') {
                 checkout scm
                 dir ('ci/docker') {
-                    sh 'docker build --no-cache . -f Dockerfile.widget-debian11-dependencies -t registry.centreon.com/centreon-widget-debian11-dependencies:22.10'
+                    sh 'docker build --no-cache . -f Dockerfile.widget-debian11-dependencies -t registry.centreon.com/centreon-widget-debian11-dependencies:23.04'
                 }
             }
         }

@@ -29,9 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo "${{ env.MAJOR_VERSION }}"
-        shell: bash
-
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}

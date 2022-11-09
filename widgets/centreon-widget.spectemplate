@@ -1,6 +1,6 @@
 
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
 
 Summary:    %{summary}
 Name:       %{name}
