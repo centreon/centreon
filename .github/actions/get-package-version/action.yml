@@ -20,21 +20,17 @@ runs:
       run: |
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then
-          export "BRANCHNAME"="$GITHUB_REF_NAME"
+          BRANCHNAME="$GITHUB_REF_NAME"
         else
-          export "BRANCHNAME"="$GITHUB_HEAD_REF"
+          BRANCHNAME="$GITHUB_HEAD_REF"
         fi
         case "$BRANCHNAME" in
-          MON* | dev*)
-            echo "minor_version=0" >> $GITHUB_OUTPUT
-            echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
-            ;;
           master)
             echo "minor_version=0" >> $GITHUB_OUTPUT
             echo "release=0" >> $GITHUB_OUTPUT
             ;;
-          release* | hotfix*)
-            MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
+          release* | hotfix* | [2-9][0-9].[0-9][0-9].*)
+            MAJOR_VERSION=$(echo "$GITHUB_REF_NAME" | grep -oP '([0-9]{2}\.[0-9]{2})')
             OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
             if [ -z "$OLDV" ]; then
               echo "minor_version=0" >> $GITHUB_OUTPUT
@@ -44,21 +40,9 @@ runs:
               echo "release=0" >> $GITHUB_OUTPUT
             fi
             ;;
-          ^[0-9]{2}\.[0-9]{2}.)
-            MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
-            OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
-            if [ -z "$OLDV" ]; then
-              echo "minor_version=0" >> $GITHUB_OUTPUT
-              echo "release=0" >> $GITHUB_OUTPUT
-            else
-              echo "minor_version=$(echo $OLDV | grep -oP '([0-9]+$)')" >> $GITHUB_OUTPUT
-              echo "release=0" >> $GITHUB_OUTPUT
-            fi
-            ;;
           *)
-            echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF
-            exit 0
+            echo "minor_version=0" >> $GITHUB_OUTPUT
+            echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
             ;;
         esac
       shell: bash
