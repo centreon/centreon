@@ -102,6 +102,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiCssBaseline: {
       styleOverrides: (theme) => `
         ::-webkit-scrollbar {
+          height: ${theme.spacing(1)};
           width: ${theme.spacing(1)};
           background-color: ${theme.palette.background.default};
         }

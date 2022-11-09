@@ -33,6 +33,7 @@
  */
 
  ::-webkit-scrollbar {
+    height: var(--scrollbar-height);
     width: var(--scrollbar-width);
     background-color: var(--scrollbar-background);
 }
