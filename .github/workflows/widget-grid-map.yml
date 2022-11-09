@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-grid-map/**"
   push:
     branches:
-      - develop
+      - dev-22.10.x
     paths:
       - ".github/workflows/centreon-widget-grid-map.yml"
       - "widgets/centreon-widget-grid-map/**"

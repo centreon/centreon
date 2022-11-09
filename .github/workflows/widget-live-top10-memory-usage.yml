@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-live-top10-memory-usage/**"
   push:
     branches:
-      - develop
+      - dev-22.10.x
     paths:
       - ".github/workflows/centreon-widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"

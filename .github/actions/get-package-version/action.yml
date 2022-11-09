@@ -29,7 +29,7 @@ runs:
             echo "minor_version=0" >> $GITHUB_OUTPUT
             echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
             ;;
-          master)
+          22.10.x)
             echo "minor_version=0" >> $GITHUB_OUTPUT
             echo "release=0" >> $GITHUB_OUTPUT
             ;;

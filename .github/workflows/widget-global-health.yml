@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-global-health/**"
   push:
     branches:
-      - develop
+      - dev-22.10.x
     paths:
       - ".github/workflows/centreon-widget-global-health.yml"
       - "widgets/centreon-widget-global-health/**"

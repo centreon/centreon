@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-graph-monitoring/**"
   push:
     branches:
-      - develop
+      - dev-22.10.x
     paths:
       - ".github/workflows/centreon-widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"

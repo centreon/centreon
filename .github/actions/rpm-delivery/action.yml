@@ -41,13 +41,13 @@ runs:
         echo "[DEBUG] - Branch name: $BRANCHNAME"
 
         case "$BRANCHNAME" in
-          develop)
+          dev-22.10.x)
             REPO="unstable"
             ;;
           release* | hotfix*)
             REPO="testing"
             ;;
-          master | [0-9]{2}\.[0-9]{2}.)
+          22.10.*)
             REPO="stable"
             ;;
           MON*)
