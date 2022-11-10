@@ -13,9 +13,6 @@ on:
       nexus_password:
         required: true
 
-env:
-  version: "22.10"
-
 jobs:
   delivery-rpm:
     runs-on: ubuntu-22.04
