@@ -402,8 +402,43 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             if (!empty($contact['topology_url_opt'])) {
                 $page->setUrlOptions($contact['topology_url_opt']);
             }
+        } else {
+            if ($contact['contact_template_id'] !== null) {
+                $request = $this->translateDbName(
+                    "SELECT contact.* FROM `:db`.contact WHERE contact_id = :contact_template_id"
+                );
+                $statement = $this->db->prepare($request);
+                $statement->bindValue(
+                    ':contact_template_id',
+                    $contact['contact_template_id'],
+                    \PDO::PARAM_INT
+                );
+                $statement->execute();
+                if ($statement->rowCount() > 0) {
+                    $contactTemplate = $statement->fetch(\PDO::FETCH_ASSOC);
+                    $request = $this->translateDbName(
+                        "SELECT topology.* FROM `:db`.topology WHERE topology_page = :topology_page"
+                    );
+                    $statement = $this->db->prepare($request);
+                    $statement->bindValue(
+                        ':topology_page',
+                        $contactTemplate["default_page"],
+                        \PDO::PARAM_INT
+                    );
+                    $statement->execute();
+                    $topology = $statement->fetch(\PDO::FETCH_ASSOC);
+                    $page = new Page(
+                        $topology['topology_id'],
+                        $topology['topology_url'],
+                        $contactTemplate['default_page'],
+                        (bool)$topology['is_react']
+                    );
+                    if (!empty($topology['topology_url_opt'])) {
+                        $page->setUrlOptions($data['topology_url_opt']);
+                    }
+                }
+            }
         }
-
         $contact = (new Contact())
             ->setId((int) $contact['contact_id'])
             ->setName($contact['contact_name'])
