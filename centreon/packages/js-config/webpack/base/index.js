@@ -3,6 +3,9 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 
+const excludeNodeModulesExceptCentreonUi =
+  /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
+
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
@@ -16,7 +19,7 @@ const getBaseConfiguration = ({
         test: /\.[cm]?(j|t)sx?$/,
       },
       {
-        exclude: /node_modules/,
+        exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.[jt]sx?$/,
         use: {
           loader: 'swc-loader',
@@ -36,7 +39,7 @@ const getBaseConfiguration = ({
         use: ['@svgr/webpack'],
       },
       {
-        exclude: /node_modules/,
+        exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
         use: [
           {
