@@ -28,8 +28,8 @@ import {
   labelUseDefaultValue,
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
+import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 
-import AnomalyDetectionGraphActions from './AnomalyDetectionGraphActions';
 
 const installedModules = {
   modules: {

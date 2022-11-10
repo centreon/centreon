@@ -9,7 +9,7 @@ import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import memoizeComponent from '../../../memoizedComponent';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
-import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/AnomalyDetectionGraphActions';
+import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/graph/AnomalyDetectionGraphActions';
 import { getDisplayAdditionalLinesCondition } from '../../../Graph/Performance/AnomalyDetection/AnomalyDetectionAdditionalLines';
 
 import HostGraph from './HostGraph';

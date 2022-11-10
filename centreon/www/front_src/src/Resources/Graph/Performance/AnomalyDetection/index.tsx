@@ -1,8 +1,8 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useUpdateAtom } from 'jotai/utils';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Dialog, Paper } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -10,13 +10,13 @@ import makeStyles from '@mui/styles/makeStyles';
 import { labelClose } from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
-import AnomalyDetectionExclusionPeriod from './AnomalyDetectionExclusionPeriod';
-import AnomalyDetectionModalConfirmation from './AnomalyDetectionModalConfirmation';
-import { CustomFactorsData } from './models';
 import {
   countedRedCirclesAtom,
   showModalAnomalyDetectionAtom,
 } from './anomalyDetectionAtom';
+import AnomalyDetectionModalConfirmation from './editDataDialog/AnomalyDetectionModalConfirmation';
+import AnomalyDetectionExclusionPeriod from './exclusionPeriods';
+import { CustomFactorsData } from './models';
 
 const useStyles = makeStyles((theme) => ({
   close: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   editEnvelopeSize: {
     display: 'flex',
     justifyContent: 'space-between',
-    width: '30%',
+    width: '90%',
   },
   envelopeSize: {
     flex: 1,
@@ -42,8 +42,6 @@ const useStyles = makeStyles((theme) => ({
   },
   exclusionPeriod: {
     flex: 2,
-    height: theme.spacing(20),
-    marginLeft: theme.spacing(1),
   },
   spacing: {
     paddingBottom: theme.spacing(1),
@@ -84,6 +82,7 @@ const EditAnomalyDetectionDataDialog = ({
     useState(false);
 
   const [isResizingEnvelope, setIsResizingEnvelope] = useState(false);
+
   const [showModalAnomalyDetection, setShowModalAnomalyDetection] = useAtom(
     showModalAnomalyDetectionAtom,
   );
@@ -111,6 +110,8 @@ const EditAnomalyDetectionDataDialog = ({
     setIsModalConfirmationOpened(false);
   };
 
+
+
   return (
     <Dialog
       className={classes.container}
@@ -131,6 +132,11 @@ const EditAnomalyDetectionDataDialog = ({
               openModalConfirmation,
               setIsResizingEnvelope,
             })}
+          </Paper>
+          <Paper className={classes.exclusionPeriod}>
+            <EditAnomalyDetectionDataDialog.ExclusionPeriod
+             
+            />
           </Paper>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation

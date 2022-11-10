@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/lab';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -13,10 +13,14 @@ import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 interface Props {
   changeDate: (props) => void;
   date: Date;
-  maxDate?: Date;
-  minDate?: Date;
+  disabled?: boolean;
+  maxDate?: Date | dayjs.Dayjs;
+  minDate?: Date | dayjs.Dayjs;
+  onViewChange?: (view: string) => void;
   property: CustomTimePeriodProperty;
   setDate: Dispatch<SetStateAction<Date>>;
+  setWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
+  withoutInitialValue?: boolean;
 }
 
 const renderDateTimePickerTextField =
@@ -43,8 +47,13 @@ const DateTimePickerInput = ({
   property,
   changeDate,
   setDate,
+  withoutInitialValue = false,
+  setWithoutInitialValue,
+  onViewChange,
+  disabled = false,
 }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+
   const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =
     useDateTimePickerAdapter();
 
@@ -52,6 +61,8 @@ const DateTimePickerInput = ({
     newValue: dayjs.Dayjs | null,
     keyBoardValue: string | undefined,
   ): void => {
+    setWithoutInitialValue?.(false);
+
     if (isOpen) {
       changeDate({ date: dayjs(newValue).toDate(), property });
 
@@ -76,14 +87,16 @@ const DateTimePickerInput = ({
       PopperProps={{
         open: isOpen,
       }}
+      disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
-      value={date}
+      value={withoutInitialValue ? null : date}
       onChange={changeTime}
       onClose={(): void => setIsOpen(false)}
       onOpen={(): void => setIsOpen(true)}
+      onViewChange={onViewChange}
     />
   );
 };

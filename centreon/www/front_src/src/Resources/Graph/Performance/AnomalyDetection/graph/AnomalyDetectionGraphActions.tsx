@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
+import { getDisplayAdditionalLinesConditionForGraphActions } from '.';
+import EditAnomalyDetectionDataDialog from '..';
+import { ResourceDetails } from '../../../../Details/models';
+import ExportablePerformanceGraphWithTimeline from '../../ExportableGraphWithTimeline';
+import AnomalyDetectionSlider from '../editDataDialog/AnomalyDetectionSlider';
+import { CustomFactorsData } from '../models';
 
-import { ResourceDetails } from '../../../Details/models';
-import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline/index';
 
-import { getDisplayAdditionalLinesConditionForGraphActions } from './AnomalyDetectionAdditionalLines';
-import AnomalyDetectionSlider from './AnomalyDetectionSlider';
-import EditAnomalyDetectionDataDialog from './EditAnomalyDetectionDataDialog';
-import { CustomFactorsData } from './models';
 
 interface AdditionalGraphActionsProps {
   details: ResourceDetails | undefined;
@@ -22,13 +22,12 @@ const AnomalyDetectionGraphActions = ({
       <ExportablePerformanceGraphWithTimeline<CustomFactorsData>
         additionalData={factorsData}
         getDisplayAdditionalLinesCondition={getDisplayAdditionalLinesConditionForGraphActions(
-          factorsData,
+          factorsData
         )}
         graphHeight={180}
         interactWithGraph={false}
-        isRenderAdditionalGraphActions={false}
         resource={details}
-      />
+        isRenderAdditionalGraphActions={false}      />
     )}
     renderSlider={({
       getFactors,

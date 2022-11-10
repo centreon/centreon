@@ -1,42 +1,40 @@
-import { curveBasis } from '@visx/curve';
-import { Threshold } from '@visx/threshold';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { equals, isNil, prop } from 'ramda';
+import { curveBasis } from '@visx/curve'
+import { Threshold } from '@visx/threshold'
+import { ScaleLinear, ScaleTime } from 'd3-scale'
+import { equals, isNil, prop, difference } from 'ramda'
 
-import { Line, TimeValue } from '../models';
-import { getTime, getYScale } from '../timeSeries';
 
-import AnomalyDetectionEstimatedEnvelopeThreshold from './AnomalyDetectionEstimatedEnvelopeThreshold';
-import { CustomFactorsData } from './models';
+import { Line, TimeValue } from '../../models'
+import { getSortedStackedLines, getTime, getUnits, getYScale } from '../../timeSeries'
+import { CustomFactorsData } from '../models'
+
+import AnomalyDetectionEstimatedEnvelopeThreshold from './AnomalyDetectionEstimatedEnvelopeThreshold'
 
 interface Props {
   data?: CustomFactorsData | null;
-  displayAdditionalLines: boolean;
   graphHeight: number;
   leftScale: ScaleLinear<number, number>;
-  regularLines: Array<Line>;
+  lines: Array<Line>;
   rightScale: ScaleLinear<number, number>;
-  secondUnit: string;
-  thirdUnit: string;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
 }
 
 const AnomalyDetectionEnvelopeThreshold = ({
-  secondUnit,
-  regularLines,
+
   xScale,
   leftScale,
   rightScale,
-  thirdUnit,
   timeSeries,
   graphHeight,
   data,
-  displayAdditionalLines,
+  lines,
 }: Props): JSX.Element | null => {
-  if (!displayAdditionalLines) {
-    return null;
-  }
+  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+
+  const stackedLines = getSortedStackedLines(lines);
+
+  const regularLines = difference(lines, stackedLines);
 
   const [
     {

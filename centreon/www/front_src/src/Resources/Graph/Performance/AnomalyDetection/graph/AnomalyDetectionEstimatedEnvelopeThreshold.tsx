@@ -6,11 +6,12 @@ import { equals, isNil, prop } from 'ramda';
 
 import { useTheme } from '@mui/material/styles';
 
-import { Line, TimeValue } from '../models';
-import { getYScale } from '../timeSeries';
+
 
 import AnomalyDetectionShapeCircle from './AnomalyDetectionShapeCircle';
-import { CustomFactorsData } from './models';
+import { CustomFactorsData } from '../models';
+import { getYScale } from '../../timeSeries';
+import { Line, TimeValue } from '../../models';
 
 interface EnvelopeVariation {
   factors: CustomFactorsData;
