@@ -13,16 +13,16 @@ on:
       - ".github/workflows/centreon-widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"
     tags:
-      - centreon-widget-graph-monitoring-22.10.**
+      - centreon-widget-graph-monitoring-*
 
 env:
-  version: "22.10"
+  widget_name: "graph-monitoring"
 
 jobs:
   package:
     uses: ./.github/workflows/widget-package.yml
     with:
-      widget_name: graph-monitoring
+      widget_name: ${{ env.widget_name }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
@@ -31,7 +31,7 @@ jobs:
     needs: [package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
-      widget_name: graph-monitoring
+      widget_name: ${{ env.widget_name }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}

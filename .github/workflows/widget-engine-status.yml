@@ -13,25 +13,35 @@ on:
       - ".github/workflows/centreon-widget-engine-status.yml"
       - "widgets/centreon-widget-engine-status/**"
     tags:
-      - centreon-widget-engine-status-22.10.**
+      - centreon-widget-engine-status-*
 
 env:
-  version: "22.10"
+  widget_name: "engine-status"
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-${{ env.widget_name }}/${{ env.widget_name }}/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
-      widget_name: engine-status
+      widget_name: ${{ env.widget_name }}
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
-      widget_name: engine-status
+      widget_name: ${{ env.widget_name }}
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}

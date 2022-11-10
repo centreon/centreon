@@ -13,16 +13,16 @@ on:
       - ".github/workflows/centreon-widget-global-health.yml"
       - "widgets/centreon-widget-global-health/**"
     tags:
-      - centreon-widget-global-health-22.10.**
+      - centreon-widget-global-health-*
 
 env:
-  version: "22.10"
+  widget_name: "global-health"
 
 jobs:
   package:
     uses: ./.github/workflows/widget-package.yml
     with:
-      widget_name: global-health
+      widget_name: ${{ env.widget_name }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
@@ -31,7 +31,7 @@ jobs:
     needs: [package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
-      widget_name: global-health
+      widget_name: ${{ env.widget_name }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
