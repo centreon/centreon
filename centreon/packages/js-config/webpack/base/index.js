@@ -2,6 +2,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const path = require('path');
 
+const excludeNodeModulesExceptCentreonUi = /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
+
 module.exports = {
   cache: false,
   module: {
@@ -11,7 +13,8 @@ module.exports = {
         test: /\.[cm]?(j|t)sx?$/,
       },
       {
-        exclude: /node_modules/,
+        exclude: 
+        excludeNodeModulesExceptCentreonUi,
         test: /\.(j|t)sx?$/,
         use: [
           'babel-loader',
