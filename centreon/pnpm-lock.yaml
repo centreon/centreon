@@ -311,6 +311,7 @@ importers:
       '@babel/preset-react': ^7.16.7
       '@babel/preset-typescript': ^7.16.7
       '@centreon/js-config': file:../js-config
+      '@centreon/ui-context': file:../ui-context
       '@dnd-kit/core': ^5.0.1
       '@dnd-kit/modifiers': ^5.0.0
       '@dnd-kit/sortable': ^6.0.0
@@ -388,6 +389,7 @@ importers:
       webpack-merge: ^5.8.0
       yup: ^0.32.11
     dependencies:
+      '@centreon/ui-context': file:packages/ui-context_3lzqd2prgnu7gkxqqdmtvzna5u
       '@dnd-kit/core': 5.0.3_biqbaboplfbrettd7655fr4n2y
       '@dnd-kit/modifiers': 5.0.0_h6rtyfwg74iwkvvbnwusj33zwq
       '@dnd-kit/sortable': 6.0.1_h6rtyfwg74iwkvvbnwusj33zwq
@@ -20327,6 +20329,25 @@ packages:
     version: 22.4.4
     dependencies:
       jotai: 1.9.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/template'
+      - immer
+      - jotai-tanstack-query
+      - jotai-urql
+      - optics-ts
+      - react
+      - valtio
+      - xstate
+    dev: false
+
+  file:packages/ui-context_3lzqd2prgnu7gkxqqdmtvzna5u:
+    resolution: {directory: packages/ui-context, type: directory}
+    id: file:packages/ui-context
+    name: '@centreon/ui-context'
+    version: 22.4.4
+    dependencies:
+      jotai: 1.9.2_3lzqd2prgnu7gkxqqdmtvzna5u
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/template'
