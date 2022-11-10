@@ -5,11 +5,11 @@
   "scripts": {
     "start:docker": "docker run -d -p 4000:80 --name centreon-dev registry.centreon.com/mon-web-develop:centos7",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
-    "cypress:local": "npm run start:docker && npx cypress run --config-file cypress.dev.json --browser=chrome && npm run kill:docker",
-    "cypress:local:debug": "npm run start:docker && DEBUG=cypress:* npx cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && npm run kill:docker",
-    "cypress:local:ui": "npm run start:docker && npx cypress open --config-file cypress.dev.json --browser=chrome && npm run kill:docker",
+    "cypress:local": "pnpm start:docker && npx cypress run --config-file cypress.dev.json --browser=chrome && pnpm kill:docker",
+    "cypress:local:debug": "pnpm start:docker && DEBUG=cypress:* npx cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && pnpm kill:docker",
+    "cypress:local:ui": "pnpm start:docker && npx cypress open --config-file cypress.dev.json --browser=chrome && pnpm kill:docker",
     "eslint": "eslint ./cypress",
-    "eslint:fix": "npm run eslint -- --fix"
+    "eslint:fix": "pnpm run eslint --fix"
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "^5.12.0",

@@ -8,6 +8,6 @@
   "license": "GPL-2.0",
   "scripts": {
     "eslint": "eslint ./src --ext .ts",
-    "eslint:fix": "npm run eslint -- --fix"
+    "eslint:fix": "pnpm run eslint --fix"
   }
 }

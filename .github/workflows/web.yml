@@ -52,18 +52,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          version: 7
 
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: centreon
 
       - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
         working-directory: centreon
 
       - name: Publish report
@@ -77,18 +77,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-
       - uses: actions/checkout@v3
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: centreon
 
       - name: Unit test
-        run: npm t -- --silent --reporters=jest-junit
+        run: pnpm t --silent --reporter=jest-junit
         working-directory: centreon
 
       - name: Publish report
@@ -331,7 +331,7 @@ jobs:
       - name: Run lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
-          path: "centreon/lighthouse"
+          path: "centreon"
           image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}

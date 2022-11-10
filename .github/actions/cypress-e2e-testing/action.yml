@@ -17,6 +17,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
