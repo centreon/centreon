@@ -15,23 +15,30 @@ on:
     tags:
       - centreon-widget-servicegroup-monitoring-*
 
-env:
-  widget_name: "servicegroup-monitoring"
-
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-servicegroup-monitoring/servicegroup-monitoring/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
-      widget_name: ${{ env.widget_name }}
+      widget_name: servicegroup-monitoring
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
-      widget_name: ${{ env.widget_name }}
+      widget_name: servicegroup-monitoring
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
