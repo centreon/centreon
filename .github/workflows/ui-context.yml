@@ -28,9 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          version: 7
 
       - name: Install dependencies
         run: pnpm install

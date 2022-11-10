@@ -30,7 +30,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          version: 7
 
       - name: Install dependencies
         run: pnpm install
@@ -55,7 +55,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          node-version: 7
+          version: 7
 
       - run: |
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -71,11 +71,11 @@ jobs:
         working-directory: ${{ env.centreon_directory }}
 
       - name: Build Storybook
-        run: npm run build:storybook
+        run: pnpm build:storybook
         working-directory: ${{ env.directory }}
 
       - name: Unit test
-        run: npm t -- --silent --reporters=jest-junit
+        run: pnpm t -- --silent --reporter=jest-junit
         working-directory: ${{ env.directory }}
 
       - name: Publish unit tests report
@@ -96,7 +96,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          node-version: 7
+          version: 7
 
       - name: Update JS config version
         run: |
