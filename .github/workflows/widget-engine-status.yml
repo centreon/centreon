@@ -22,7 +22,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: widgets/centreon-widget-${{ env.widget_name }}/${{ env.widget_name }}/configs.xml
+      version_file: widgets/centreon-widget-engine-status/engine-status/configs.xml
 
   package:
     needs: [get-version]
