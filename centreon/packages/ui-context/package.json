@@ -8,7 +8,7 @@
   "license": "GPL-2.0",
   "scripts": {
     "eslint": "eslint ./src --ext .ts",
-    "eslint:fix": "npm run eslint -- --fix"
+    "eslint:fix": "pnpm run eslint --fix"
   },
   "devDependencies": {
     "@centreon/js-config": "file:../js-config",
@@ -34,6 +34,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@centreon/ui-context": "file:../ui-context",
     "jotai": "^1.9.1"
   }
 }

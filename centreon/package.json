@@ -7,9 +7,9 @@
     "build:analyze": "webpack --mode production --config ./webpack.config.analyze.js",
     "build:dev": "cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
     "eslint": "eslint ./www/front_src --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "npm run eslint -- --fix",
+    "eslint:fix": "pnpm run eslint -- --fix",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
+    "test:watch": "pnpm test --watch",
     "build:watch": "cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
     "test:coverage": "jest --coverage"
   },
@@ -88,6 +88,9 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@centreon/js-config": "workspace:*",
+    "@centreon/ui": "workspace:*",
+    "@centreon/ui-context": "workspace:*",
     "@date-io/dayjs": "^2.13.1",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",

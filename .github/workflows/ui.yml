@@ -28,16 +28,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
           node-version: 17
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle
+        run: pnpm eslint -o checkstyle.xml -f checkstyle
         working-directory: ${{ env.directory }}
 
       - name: Publish report
@@ -53,9 +53,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          node-version: 7
 
       - run: |
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -63,11 +63,11 @@ jobs:
           sudo apt update
           sudo apt install -y google-chrome-stable
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: ${{ env.directory }}
 
       - name: Install Centreon dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: ${{ env.centreon_directory }}
 
       - name: Build Storybook
@@ -94,9 +94,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          node-version: 7
 
       - name: Update JS config version
         run: |
