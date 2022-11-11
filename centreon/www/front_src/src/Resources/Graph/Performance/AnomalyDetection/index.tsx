@@ -15,8 +15,8 @@ import {
   showModalAnomalyDetectionAtom,
 } from './anomalyDetectionAtom';
 import AnomalyDetectionModalConfirmation from './editDataDialog/AnomalyDetectionModalConfirmation';
-import AnomalyDetectionExclusionPeriod from './exclusionPeriods';
 import { CustomFactorsData } from './models';
+import AnomalyDetectionExclusionPeriod from './exclusionPeriod/index';
 
 const useStyles = makeStyles((theme) => ({
   close: {
@@ -110,8 +110,6 @@ const EditAnomalyDetectionDataDialog = ({
     setIsModalConfirmationOpened(false);
   };
 
-
-
   return (
     <Dialog
       className={classes.container}
@@ -134,9 +132,7 @@ const EditAnomalyDetectionDataDialog = ({
             })}
           </Paper>
           <Paper className={classes.exclusionPeriod}>
-            <EditAnomalyDetectionDataDialog.ExclusionPeriod
-             
-            />
+            <EditAnomalyDetectionDataDialog.ExclusionPeriod />
           </Paper>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation

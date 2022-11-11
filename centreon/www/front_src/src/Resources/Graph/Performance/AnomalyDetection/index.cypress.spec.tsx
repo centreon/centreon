@@ -28,8 +28,8 @@ import {
   labelUseDefaultValue,
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
-import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 
+import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 
 const installedModules = {
   modules: {
@@ -149,7 +149,6 @@ describe('Anomaly detection - Graph', () => {
           <Router>
             <ExportablePerformanceGraphWithTimeline
               interactWithGraph
-              isRenderAdditionalGraphActions
               graphHeight={280}
               renderAdditionalGraphAction={
                 <AnomalyDetectionGraphActions

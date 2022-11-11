@@ -24,7 +24,6 @@ import {
   propEq,
   propOr,
   reject,
-  sortBy,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -38,35 +37,32 @@ import {
   useRequest,
 } from '@centreon/ui';
 
-import { CommentParameters } from '../../Actions/api';
-import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
-import { ResourceDetails } from '../../Details/models';
+import { CommentParameters } from '../../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../../Details/detailsAtoms';
+import { ResourceDetails } from '../../../Details/models';
+import Graph from '../../../Details/tabs/Graph';
 import {
   CustomTimePeriod,
   CustomTimePeriodProperty,
-} from '../../Details/tabs/Graph/models';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { Resource } from '../../models';
-import { labelNoDataForThisPeriod } from '../../translatedLabels';
-
-import Graph from './Graph';
-import {
-  isListingGraphOpenAtom,
-  timeValueAtom,
-} from './Graph/mouseTimeValueAtoms';
-import { TimeShiftDirection } from './Graph/TimeShiftZones';
-import Legend from './Legend';
-import LoadingSkeleton from './LoadingSkeleton';
+} from '../../../Details/tabs/Graph/models';
+import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
+import { Resource } from '../../../models';
+import { labelNoDataForThisPeriod } from '../../../translatedLabels';
+import { getNewLinesAnomalyDetection } from '../AnomalyDetection/graph/helpers';
+import Legend from '../Legend';
+import LoadingSkeleton from '../LoadingSkeleton';
 import {
   AdditionalDataProps,
   AdjustTimePeriodProps,
   GetDisplayAdditionalLinesConditionProps,
   GraphData,
-  Line as LineModel,
+  Line,
   TimeValue,
-} from './models';
-import { getLineData, getMetrics, getTimeSeries } from './timeSeries';
-import { getNewLinesAnomalyDetection } from './AnomalyDetection/editDataDialog/graph/helpers';
+} from '../models';
+import { getLineData, getMetrics, getTimeSeries } from '../timeSeries';
+
+import { isListingGraphOpenAtom, timeValueAtom } from './mouseTimeValueAtoms';
+import { TimeShiftDirection } from './TimeShiftZones';
 
 interface Props {
   adjustTimePeriod?: (props: AdjustTimePeriodProps) => void;
@@ -175,7 +171,7 @@ const PerformanceGraph = <T,>({
   const { t } = useTranslation();
 
   const [timeSeries, setTimeSeries] = useState<Array<TimeValue>>([]);
-  const [lineData, setLineData] = useState<Array<LineModel>>();
+  const [lineData, setLineData] = useState<Array<Line>>();
   const [title, setTitle] = useState<string>();
   const [base, setBase] = useState<number>();
 
@@ -283,8 +279,8 @@ const PerformanceGraph = <T,>({
       resource,
     });
 
-  const getLineByMetric = (metric): LineModel => {
-    return find(propEq('metric', metric), lineData) as LineModel;
+  const getLineByMetric = (metric): Line => {
+    return find(propEq('metric', metric), lineData) as Line;
   };
 
   const toggleMetricLine = (metric): void => {

@@ -18,7 +18,6 @@ import {
   useLocaleDateTimeFormat,
 } from '@centreon/ui';
 
-import { detailsAtom } from '../../Details/detailsAtoms';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
@@ -33,6 +32,7 @@ import {
 } from '../../translatedLabels';
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
+import { detailsAtom } from '../../Details/detailsAtoms';
 
 import { showModalAnomalyDetectionAtom } from './AnomalyDetection/anomalyDetectionAtom';
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';

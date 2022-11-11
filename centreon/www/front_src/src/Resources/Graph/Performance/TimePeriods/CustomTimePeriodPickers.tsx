@@ -20,8 +20,8 @@ import {
   labelTo,
 } from '../../../translatedLabels';
 
-import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPickers';
 import { AnchorReference } from './models';
+import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
 
 interface AcceptDateProps {
   date: Date;
