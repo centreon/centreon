@@ -24,7 +24,6 @@ import {
   propEq,
   propOr,
   reject,
-  sortBy,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -49,6 +48,7 @@ import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import { Resource } from '../../models';
 import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
+import { getNewLinesAnomalyDetection } from './AnomalyDetection/graph/helpers';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -66,7 +66,6 @@ import {
   TimeValue,
 } from './models';
 import { getLineData, getMetrics, getTimeSeries } from './timeSeries';
-import { getNewLinesAnomalyDetection } from './AnomalyDetection/graph/helpers';
 
 interface Props {
   adjustTimePeriod?: (props: AdjustTimePeriodProps) => void;

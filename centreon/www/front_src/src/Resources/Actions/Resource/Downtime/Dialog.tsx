@@ -6,7 +6,8 @@ import { useAtomValue } from 'jotai/utils';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import {
   Checkbox,
   FormControlLabel,

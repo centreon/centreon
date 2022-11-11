@@ -140,7 +140,7 @@ const PopoverCustomTimePeriodPickers = ({
   getIsErrorDatePicker?.(error);
 
   const changeDate = ({ property, date }): void => {
-    console.log('change ??');
+    console.log({ date });
     const currentDate = customTimePeriod[property];
 
     cond([
@@ -182,68 +182,66 @@ const PopoverCustomTimePeriodPickers = ({
   }, [customTimePeriod.start, customTimePeriod.end]);
 
   return (
-    <div>
-      <Popover
-        anchorEl={reference?.anchorEl}
-        anchorOrigin={anchorOrigin}
-        anchorPosition={reference?.anchorPosition}
-        anchorReference={anchorReference}
-        className={cx(classes.paper, classNamePaper)}
-        open={open}
-        transformOrigin={transformOrigin}
-        onClose={onClose}
+    <Popover
+      anchorEl={reference?.anchorEl}
+      anchorOrigin={anchorOrigin}
+      anchorPosition={reference?.anchorPosition}
+      anchorReference={anchorReference}
+      className={cx(classes.paper, classNamePaper)}
+      open={open}
+      transformOrigin={transformOrigin}
+      onClose={onClose}
+    >
+      {renderTitle}
+      <LocalizationProvider
+        dateAdapter={Adapter}
+        locale={locale.substring(0, 2)}
       >
-        {renderTitle}
-        <LocalizationProvider
-          dateAdapter={Adapter}
-          locale={locale.substring(0, 2)}
-        >
-          <div className={cx(classes.popover, classNamePicker)}>
-            <div>
-              <Typography>{t(labelFrom)}</Typography>
-              <div aria-label={t(labelStartDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={start}
-                  disabled={disabledPickerStartInput}
-                  maxDate={maxDatePickerStartInput}
-                  minDate={minDatePickerStartInput}
-                  property={CustomTimePeriodProperty.start}
-                  setDate={setStart}
-                  setWithoutInitialValue={setPickerStartWithoutInitialValue}
-                  withoutInitialValue={pickerStartWithoutInitialValue}
-                  onViewChange={viewChangeStartPicker}
-                />
-              </div>
-            </div>
-            <div>
-              <Typography>{t(labelTo)}</Typography>
-              <div aria-label={t(labelEndDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={end}
-                  disabled={disabledPickerEndInput}
-                  maxDate={maxDatePickerEndInput}
-                  minDate={minDatePickerEndInput}
-                  property={CustomTimePeriodProperty.end}
-                  setDate={setEnd}
-                  setWithoutInitialValue={setPickerEndWithoutInitialValue}
-                  withoutInitialValue={pickerEndWithoutInitialValue}
-                  onViewChange={viewChangeEndPicker}
-                />
-              </div>
+        <div className={cx(classes.popover, classNamePicker)}>
+          <div>
+            <Typography>{t(labelFrom)}</Typography>
+            <div aria-label={t(labelStartDate)}>
+              <DateTimePickerInput
+                changeDate={changeDate}
+                date={start}
+                disabled={disabledPickerStartInput}
+                maxDate={maxDatePickerStartInput}
+                minDate={minDatePickerStartInput}
+                property={CustomTimePeriodProperty.start}
+                setDate={setStart}
+                setWithoutInitialValue={setPickerStartWithoutInitialValue}
+                withoutInitialValue={pickerStartWithoutInitialValue}
+                onViewChange={viewChangeStartPicker}
+              />
             </div>
           </div>
-          {error && (
-            <FormHelperText error className={cx(classes.error, classNameError)}>
-              {t(labelEndDateGreaterThanStartDate)}
-            </FormHelperText>
-          )}
-        </LocalizationProvider>
-        {renderBody}
-        {renderFooter}
-      </Popover>
-    </div>
+          <div>
+            <Typography>{t(labelTo)}</Typography>
+            <div aria-label={t(labelEndDate)}>
+              <DateTimePickerInput
+                changeDate={changeDate}
+                date={end}
+                disabled={disabledPickerEndInput}
+                maxDate={maxDatePickerEndInput}
+                minDate={minDatePickerEndInput}
+                property={CustomTimePeriodProperty.end}
+                setDate={setEnd}
+                setWithoutInitialValue={setPickerEndWithoutInitialValue}
+                withoutInitialValue={pickerEndWithoutInitialValue}
+                onViewChange={viewChangeEndPicker}
+              />
+            </div>
+          </div>
+        </div>
+        {error && (
+          <FormHelperText error className={cx(classes.error, classNameError)}>
+            {t(labelEndDateGreaterThanStartDate)}
+          </FormHelperText>
+        )}
+      </LocalizationProvider>
+      {renderBody}
+      {renderFooter}
+    </Popover>
   );
 };
 

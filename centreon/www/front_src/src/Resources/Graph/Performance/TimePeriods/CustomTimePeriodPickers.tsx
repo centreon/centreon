@@ -1,8 +1,9 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useState, memo } from 'react';
 
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
