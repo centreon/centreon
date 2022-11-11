@@ -3,8 +3,8 @@ import { ChangeEvent, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { TextField, Typography } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

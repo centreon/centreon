@@ -1,7 +1,7 @@
 import { curveBasis } from '@visx/curve';
 import { Threshold } from '@visx/threshold';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { equals, isNil, prop, difference } from 'ramda';
+import { difference, equals, isNil, prop } from 'ramda';
 
 import { Line, TimeValue } from '../../models';
 import {
@@ -33,7 +33,7 @@ const AnomalyDetectionEnvelopeThreshold = ({
   data,
   lines,
 }: Props): JSX.Element | null => {
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const [secondUnit, thirdUnit] = getUnits(lines);
 
   const stackedLines = getSortedStackedLines(lines);
 

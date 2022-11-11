@@ -1,7 +1,5 @@
 import { atom } from 'jotai';
 
-import { Line, TimeValue } from '../models';
-
 import { ThresholdsAnomalyDetectionDataAtom } from './models';
 
 export const countedRedCirclesAtom = atom<number | null>(null);

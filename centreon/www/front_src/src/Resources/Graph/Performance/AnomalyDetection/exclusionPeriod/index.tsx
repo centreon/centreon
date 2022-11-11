@@ -7,6 +7,7 @@ import { useAtomValue } from 'jotai/utils';
 import { equals, find, path, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import AddIcon from '@mui/icons-material/Add';
 import {
   Button,
   Divider,
@@ -15,7 +16,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 
 import { getData, useRequest } from '@centreon/ui';
 
@@ -23,13 +23,13 @@ import { centreonUi } from '../../../../../Header/helpers';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
 import { GraphData, Line, TimeValue } from '../../models';
+import PopoverCustomTimePeriodPickers from '../../TimePeriods/PopoverCustomTimePeriodPicker';
 import {
   customTimePeriodAtom,
   graphQueryParametersDerivedAtom,
 } from '../../TimePeriods/timePeriodAtoms';
 import { getLineData, getTimeSeries } from '../../timeSeries';
 import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
-import PopoverCustomTimePeriodPickers from '../../TimePeriods/PopoverCustomTimePeriodPicker';
 
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriods';
 import AnomalyDetectionFooterExclusionPeriods from './AnomalyDetectionFooterExclusionPeriods';

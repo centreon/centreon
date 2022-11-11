@@ -1,7 +1,10 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai/utils';
-import { equals, isNil } from 'ramda';
+import { equals } from 'ramda';
 
+import { detailsAtom } from '../../../../Details/detailsAtoms';
+import { ResourceDetails } from '../../../../Details/models';
+import { Resource, ResourceType } from '../../../../models';
 import {
   GetDisplayAdditionalLinesConditionProps,
   Line,
@@ -9,9 +12,6 @@ import {
 } from '../../models';
 import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
 import { CustomFactorsData } from '../models';
-import { detailsAtom } from '../../../../Details/detailsAtoms';
-import { ResourceDetails } from '../../../../Details/models';
-import { Resource, ResourceType } from '../../../../models';
 
 import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold';
 import AnomalyDetectionExclusionPeriodsThreshold from './AnomalyDetectionExclusionPeriodsThreshold';

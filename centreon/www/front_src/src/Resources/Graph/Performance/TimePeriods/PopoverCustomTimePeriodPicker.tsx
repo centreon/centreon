@@ -1,6 +1,5 @@
-import { Dispatch, useEffect, useState, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-import { userAtom } from 'centreon-frontend/packages/ui-context/src';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai/utils';
 import { and, cond, equals } from 'ramda';
@@ -15,6 +14,8 @@ import {
   PopoverReference,
   Typography,
 } from '@mui/material';
+
+import { userAtom } from '@centreon/ui-context';
 
 import {
   CustomTimePeriod,
