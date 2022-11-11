@@ -25,7 +25,14 @@ import {
   max,
 } from 'ramda';
 
-import { Metric, TimeValue, GraphData, Line } from '../models';
+import {
+  Metric,
+  TimeValue,
+  GraphData,
+  Line,
+  AxeScale,
+  Xscale,
+} from '../models';
 
 interface TimeTickWithMetrics {
   metrics: Array<Metric>;
@@ -322,6 +329,76 @@ const getScale = ({
   });
 };
 
+const getLeftScale = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight,
+}: AxeScale): any => {
+  const [firstUnit, thirdUnit] = getUnits(dataLines);
+
+  const graphValues = isNil(thirdUnit)
+    ? getMetricValuesForUnit({
+        lines: dataLines,
+        timeSeries: dataTimeSeries,
+        unit: firstUnit,
+      })
+    : getMetricValuesForLines({
+        lines: dataLines,
+        timeSeries: dataTimeSeries,
+      });
+
+  const firstUnitHasStackedLines =
+    isNil(thirdUnit) && not(isNil(firstUnit))
+      ? hasUnitStackedLines({ lines: dataLines, unit: firstUnit })
+      : false;
+
+  const stackedValues = firstUnitHasStackedLines
+    ? getStackedMetricValues({
+        lines: getSortedStackedLines(dataLines),
+        timeSeries: dataTimeSeries,
+      })
+    : [0];
+
+  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+};
+
+const getXScale = ({
+  dataTime,
+  valueWidth,
+}: Xscale): ScaleTime<number, number, never> => {
+  return Scale.scaleTime<number>({
+    domain: [getMin(dataTime.map(getTime)), getMax(dataTime.map(getTime))],
+    range: [0, valueWidth],
+  });
+};
+
+const getRightScale = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight,
+}: AxeScale): any => {
+  const [secondUnit] = getUnits(dataLines);
+
+  const graphValues = getMetricValuesForUnit({
+    lines: dataLines,
+    timeSeries: dataTimeSeries,
+    unit: secondUnit,
+  });
+
+  const secondUnitHasStackedLines = isNil(secondUnit)
+    ? false
+    : hasUnitStackedLines({ lines: dataLines, unit: secondUnit });
+
+  const stackedValues = secondUnitHasStackedLines
+    ? getStackedMetricValues({
+        lines: getSortedStackedLines(dataLines),
+        timeSeries: dataTimeSeries,
+      })
+    : [0];
+
+  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+};
+
 export {
   getTimeSeries,
   getLineData,
@@ -343,4 +420,7 @@ export {
   hasUnitStackedLines,
   getYScale,
   getScale,
+  getLeftScale,
+  getXScale,
+  getRightScale,
 };

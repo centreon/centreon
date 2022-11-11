@@ -73,3 +73,13 @@ export interface GetDisplayAdditionalLinesConditionProps {
   condition: (resource: Resource | ResourceDetails) => boolean;
   displayAdditionalLines: (args) => ReactNode;
 }
+
+export interface Xscale {
+  dataTime: Array<TimeValue>;
+  valueWidth: number;
+}
+export interface AxeScale {
+  dataLines: Array<Line>;
+  dataTimeSeries: Array<TimeValue>;
+  valueGraphHeight: number;
+}

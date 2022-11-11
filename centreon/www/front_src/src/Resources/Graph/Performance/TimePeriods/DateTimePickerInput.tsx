@@ -12,7 +12,7 @@ import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 interface Props {
   changeDate: (props) => void;
-  date: Date;
+  date: Date | dayjs.Dayjs;
   disabled?: boolean;
   maxDate?: Date | dayjs.Dayjs;
   minDate?: Date | dayjs.Dayjs;
@@ -92,7 +92,7 @@ const DateTimePickerInput = ({
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
-      value={withoutInitialValue ? null : date}
+      value={withoutInitialValue ? null : (date as dayjs.Dayjs)}
       onChange={changeTime}
       onClose={(): void => setIsOpen(false)}
       onOpen={(): void => setIsOpen(true)}
