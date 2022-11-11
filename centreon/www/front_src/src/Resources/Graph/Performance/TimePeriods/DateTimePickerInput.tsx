@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DateTimePicker } from '@mui/lab';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
