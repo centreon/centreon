@@ -4,7 +4,6 @@ import { useUpdateAtom } from 'jotai/utils';
 import { isNil, prop } from 'ramda';
 
 import { TimeValue } from '../../models';
-
 import { countedRedCirclesAtom } from '../anomalyDetectionAtom';
 
 interface AnomalyDetectionShapeCircleProps {

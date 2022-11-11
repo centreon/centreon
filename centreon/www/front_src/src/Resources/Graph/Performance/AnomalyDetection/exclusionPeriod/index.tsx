@@ -1,6 +1,6 @@
+/* eslint-disable hooks/sort */
 import { useEffect, useState } from 'react';
 
-import { getData, useRequest } from '@centreon/ui';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
@@ -8,26 +8,29 @@ import { equals, find, path, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-    Button,
-    Divider,
-    List,
-    ListItem,
-    ListItemText,
-    Typography
+  Button,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
 } from '@mui/material';
-
 import AddIcon from '@mui/icons-material/Add';
+
+import { getData, useRequest } from '@centreon/ui';
 
 import { centreonUi } from '../../../../../Header/helpers';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
 import { GraphData, Line, TimeValue } from '../../models';
 import {
-    customTimePeriodAtom,
-    graphQueryParametersDerivedAtom
+  customTimePeriodAtom,
+  graphQueryParametersDerivedAtom,
 } from '../../TimePeriods/timePeriodAtoms';
 import { getLineData, getTimeSeries } from '../../timeSeries';
 import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
+import PopoverCustomTimePeriodPickers from '../../TimePeriods/PopoverCustomTimePeriodPicker';
+
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriods';
 import AnomalyDetectionFooterExclusionPeriods from './AnomalyDetectionFooterExclusionPeriods';
 import AnomalyDetectionTitleExclusionPeriods from './AnomalyDetectionTitleExclusionPeriods';
@@ -99,7 +102,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const [disabledPickerStartInput, setDisabledPickerStartInput] =
     useState(false);
 
-  const dateExisted =( startDate && endDate)??false;
+  const dateExisted = (startDate && endDate) ?? false;
   const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
     request: getData,
   });
@@ -322,9 +325,9 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     getGraphData(api);
   }, [startDate, endDate]);
 
-  const getGraphData = (api:string| undefined): void => {
-    if(!api){
-        return;
+  const getGraphData = (api: string | undefined): void => {
+    if (!api) {
+      return;
     }
     sendGetGraphDataRequest({
       endpoint: api,
@@ -395,7 +398,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         </Typography>
         <List className={classes.list}>
           {listExcludedDates.map((item, index) => (
-            <ListItem key={index}>
+            <ListItem key={toDate(item?.start)}>
               <ListItemText
                 primary={`From ${toDate(item?.start)} To ${toDate(item?.end)}`}
               />

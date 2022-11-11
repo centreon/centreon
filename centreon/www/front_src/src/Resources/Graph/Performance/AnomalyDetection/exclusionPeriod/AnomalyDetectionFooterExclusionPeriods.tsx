@@ -14,10 +14,10 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
-    confirmExcluderPeriods:()=>void;
-    isError:boolean;
-    dateExisted:boolean;
-    cancelExclusionPeriod:()=>void;
+  cancelExclusionPeriod: () => void;
+  confirmExcluderPeriods: () => void;
+  dateExisted: boolean;
+  isError: boolean;
 }
 
 const AnomalyDetectionFooterExclusionPeriods = ({

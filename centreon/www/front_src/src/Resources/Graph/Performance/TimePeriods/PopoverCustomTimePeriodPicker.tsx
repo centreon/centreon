@@ -1,4 +1,4 @@
-import { Dispatch, useEffect, useState, SetStateAction} from 'react';
+import { Dispatch, useEffect, useState, SetStateAction } from 'react';
 
 import { userAtom } from 'centreon-frontend/packages/ui-context/src';
 import dayjs from 'dayjs';
@@ -81,8 +81,8 @@ interface Props {
   setPickerEndWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
   setPickerStartWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
   transformOrigin?: PopoverOrigin;
-  viewChangeEndPicker?: (view: string) => void ;
-  viewChangeStartPicker?: (view: string) => void ;
+  viewChangeEndPicker?: (view: string) => void;
+  viewChangeStartPicker?: (view: string) => void;
 }
 
 const PopoverCustomTimePeriodPickers = ({

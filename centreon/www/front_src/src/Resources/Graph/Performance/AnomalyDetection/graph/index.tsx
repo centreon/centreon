@@ -1,18 +1,21 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale'
-import { useAtomValue } from 'jotai/utils'
-import { equals, isNil } from 'ramda'
-import { GetDisplayAdditionalLinesConditionProps, Line, TimeValue } from '../../models'
-import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom'
-import { CustomFactorsData } from '../models'
-import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold'
-import AnomalyDetectionExclusionPeriodsThreshold from './AnomalyDetectionExclusionPeriodsThreshold'
+import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { useAtomValue } from 'jotai/utils';
+import { equals, isNil } from 'ramda';
+
+import {
+  GetDisplayAdditionalLinesConditionProps,
+  Line,
+  TimeValue,
+} from '../../models';
+import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
+import { CustomFactorsData } from '../models';
+import { detailsAtom } from '../../../../Details/detailsAtoms';
+import { ResourceDetails } from '../../../../Details/models';
+import { Resource, ResourceType } from '../../../../models';
+
+import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold';
+import AnomalyDetectionExclusionPeriodsThreshold from './AnomalyDetectionExclusionPeriodsThreshold';
 import { displayAdditionalLines } from './helpers';
-import {detailsAtom} from '../../../../Details/detailsAtoms'
-import {ResourceDetails} from '../../../../Details/models'
-import {Resource, ResourceType} from '../../../../models'
-
-
-
 
 interface LinesProps {
   displayAdditionalLines: boolean;

@@ -1,14 +1,18 @@
-import { curveBasis } from '@visx/curve'
-import { Threshold } from '@visx/threshold'
-import { ScaleLinear, ScaleTime } from 'd3-scale'
-import { equals, isNil, prop, difference } from 'ramda'
+import { curveBasis } from '@visx/curve';
+import { Threshold } from '@visx/threshold';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { equals, isNil, prop, difference } from 'ramda';
 
+import { Line, TimeValue } from '../../models';
+import {
+  getSortedStackedLines,
+  getTime,
+  getUnits,
+  getYScale,
+} from '../../timeSeries';
+import { CustomFactorsData } from '../models';
 
-import { Line, TimeValue } from '../../models'
-import { getSortedStackedLines, getTime, getUnits, getYScale } from '../../timeSeries'
-import { CustomFactorsData } from '../models'
-
-import AnomalyDetectionEstimatedEnvelopeThreshold from './AnomalyDetectionEstimatedEnvelopeThreshold'
+import AnomalyDetectionEstimatedEnvelopeThreshold from './AnomalyDetectionEstimatedEnvelopeThreshold';
 
 interface Props {
   data?: CustomFactorsData | null;
@@ -21,7 +25,6 @@ interface Props {
 }
 
 const AnomalyDetectionEnvelopeThreshold = ({
-
   xScale,
   leftScale,
   rightScale,

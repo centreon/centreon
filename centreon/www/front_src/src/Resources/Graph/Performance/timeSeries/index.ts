@@ -342,5 +342,5 @@ export {
   getNotInvertedStackedLines,
   hasUnitStackedLines,
   getYScale,
-  getScale
+  getScale,
 };

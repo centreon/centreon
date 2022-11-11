@@ -1,4 +1,4 @@
-import { Line, TimeValue} from "../models";
+import { Line, TimeValue } from '../models';
 
 export interface FactorsData {
   currentFactor: number;
@@ -10,19 +10,18 @@ export interface CustomFactorsData extends FactorsData {
 }
 
 export interface ExclusionPeriodThresholdData {
-  isConfirmed: boolean; 
-  lines: Array<Line>; 
+  isConfirmed: boolean;
+  lines: Array<Line>;
   timeSeries: Array<TimeValue>;
 }
 
 export interface SelectedDateToDelete {
   end: Date;
-   start: Date 
+  start: Date;
 }
 export interface ThresholdsAnomalyDetectionDataAtom {
-exclusionPeriodsThreshold: {
-  data: Array<ExclusionPeriodThresholdData>;
-  selectedDateToDelete: Array<SelectedDateToDelete>;
-};
+  exclusionPeriodsThreshold: {
+    data: Array<ExclusionPeriodThresholdData>;
+    selectedDateToDelete: Array<SelectedDateToDelete>;
+  };
 }
-

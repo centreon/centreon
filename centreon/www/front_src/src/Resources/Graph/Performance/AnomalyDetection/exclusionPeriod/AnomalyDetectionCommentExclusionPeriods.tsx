@@ -16,8 +16,10 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
-  onChangeCheckedExclusionPeriod: (event:ChangeEvent<HTMLInputElement>)=>void;
-  isExclusionPeriodChecked:boolean;
+  isExclusionPeriodChecked: boolean;
+  onChangeCheckedExclusionPeriod: (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => void;
 }
 
 const AnomalyDetectionCommentExclusionPeriod = ({

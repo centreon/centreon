@@ -1,22 +1,28 @@
-
 import { curveBasis } from '@visx/curve';
 import { PatternLines } from '@visx/pattern';
 import { Threshold } from '@visx/threshold';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { difference, equals, isNil, prop } from 'ramda';
-import {ResourceDetails} from '../../../../Details/models';
+
+import { ResourceDetails } from '../../../../Details/models';
 import { ExclusionPeriodThresholdData } from '../models';
-import { getNewLinesAnomalyDetection } from './helpers';
 import { TimeValue } from '../../models';
-import { getSortedStackedLines, getTime, getUnits, getYScale } from '../../timeSeries';
+import {
+  getSortedStackedLines,
+  getTime,
+  getUnits,
+  getYScale,
+} from '../../timeSeries';
+
+import { getNewLinesAnomalyDetection } from './helpers';
 
 interface Props {
-    data: ExclusionPeriodThresholdData;
-    graphHeight:number;
-    resource:ResourceDetails;
-    xScale: ScaleTime<number, number>;
-    rightScale: ScaleLinear<number, number>;
-    leftScale: ScaleLinear<number, number>;
+  data: ExclusionPeriodThresholdData;
+  graphHeight: number;
+  leftScale: ScaleLinear<number, number>;
+  resource: ResourceDetails;
+  rightScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
 }
 
 const AnomalyDetectionExclusionPeriodsThreshold = ({
@@ -64,12 +70,12 @@ const AnomalyDetectionExclusionPeriodsThreshold = ({
     unit: unitY0,
   });
 
-  const getXPoint = (timeValue:TimeValue): number => {
+  const getXPoint = (timeValue: TimeValue): number => {
     return xScale(getTime(timeValue)) as number;
   };
-  const getY1Point = (timeValue:TimeValue): number =>
+  const getY1Point = (timeValue: TimeValue): number =>
     y1Scale(prop(metricY1, timeValue)) ?? null;
-  const getY0Point = (timeValue:TimeValue): number =>
+  const getY0Point = (timeValue: TimeValue): number =>
     y0Scale(prop(metricY0, timeValue)) ?? null;
 
   return (
