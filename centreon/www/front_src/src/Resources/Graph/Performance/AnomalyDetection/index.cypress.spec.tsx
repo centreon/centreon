@@ -30,6 +30,7 @@ import {
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
 
 import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
+import { getDisplayAdditionalLinesCondition } from './graph';
 
 const installedModules = {
   modules: {
@@ -149,6 +150,9 @@ describe('Anomaly detection - Graph', () => {
           <Router>
             <ExportablePerformanceGraphWithTimeline
               interactWithGraph
+              getDisplayAdditionalLinesCondition={
+                getDisplayAdditionalLinesCondition
+              }
               graphHeight={280}
               renderAdditionalGraphAction={
                 <AnomalyDetectionGraphActions
