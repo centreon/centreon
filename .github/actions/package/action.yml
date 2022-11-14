@@ -24,8 +24,14 @@ inputs:
   module_name:
     description: The module name
     required: true
-  version:
-    description: The version
+  major_version:
+    description: The major version
+    required: true
+  minor_version:
+    description: The minor version
+    required: true
+  release:
+    description: The release number
     required: true
   cache_key:
     description: The package files cache key
@@ -44,13 +50,7 @@ runs:
   using: composite
 
   steps:
-    - name: Get minor and release version
-      uses: ./.github/actions/get-package-version
-      with:
-        module_name: ${{ inputs.module_name }}
-      id: get_version
-
-    - name: Restore static directory cache
+    - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
       uses: actions/cache@v3
       with:
@@ -83,8 +83,8 @@ runs:
       with:
         script_name: ${{ inputs.script_name }}
         image_name: ${{ inputs.image_name }}
-        image_version: ${{ inputs.version }}
-        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }} ${{ inputs.module_name }}
+        image_version: ${{ inputs.major_version }}
+        params: ${{ inputs.major_version }}.${{ inputs.minor_version }} ${{ inputs.release }} ${{ inputs.module_name }}
 
     - name: Sign
       if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
