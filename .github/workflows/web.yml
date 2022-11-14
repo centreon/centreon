@@ -70,6 +70,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - run: |
+          yum install -y epel-release
+          yum install -y zstd
+        shell: bash
+
       - name: Restore index file cache
         uses: actions/cache@v3
         with:
