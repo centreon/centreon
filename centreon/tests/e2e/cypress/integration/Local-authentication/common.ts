@@ -9,10 +9,16 @@ interface DataToUseForCheckForm {
   value?: string;
 }
 
+const millisecondsValueForSixMonth = 15901200;
+const millisecondsValueForFourHour = 14400;
+
 const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/local-authentication-acl-user.json',
+    )
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/local-authentication-acl-user-non-admin.json',
     )
     .then(applyConfigurationViaClapi)
     .then(() => cy.visit(`${Cypress.config().baseUrl}`))
@@ -26,7 +32,31 @@ const removeContact = (): Cypress.Chainable => {
       object: 'CONTACT',
       values: 'user1',
     });
+    executeActionViaClapi({
+      action: 'DEL',
+      object: 'CONTACT',
+      values: 'user2',
+    });
   });
+};
+
+const getUserContactId = (userName: string): Cypress.Chainable => {
+  const query = `SELECT contact_id FROM contact WHERE contact_name = '${userName}';`;
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName',
+  )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
+
+  return cy
+    .exec(command, { failOnNonZeroExit: true, log: true })
+    .then(({ code, stdout, stderr }) => {
+      if (!stderr && code === 0) {
+        const idUser = parseInt(stdout.split('\n')[1], 10);
+
+        return cy.wrap(idUser || '0');
+      }
+
+      return cy.log(`Can't execute command on database.`);
+    });
 };
 
 const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
@@ -120,9 +150,17 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
       '#TimethatmustpassbeforenewconnectionisallowedblockingDurationHour',
     value: '0',
   },
+  {
+    selector:
+      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationMinute',
+    value: '15',
+  },
 ];
 
 export {
+  millisecondsValueForSixMonth,
+  millisecondsValueForFourHour,
+  getUserContactId,
   removeContact,
   initializeConfigACLAndGetLoginPage,
   checkDefaultsValueForm,

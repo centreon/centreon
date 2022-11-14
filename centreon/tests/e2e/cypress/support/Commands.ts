@@ -112,6 +112,28 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add(
+  'handleRequestOnDatabase',
+  ({ database, query }: handleRequestOnDatabaseProps): void => {
+    const command = `docker exec -i ${Cypress.env(
+      'dockerName',
+    )} mysql -ucentreon -pcentreon ${database} <<< "${query}"`;
+
+    cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
+      ({ code, stdout, stderr }) => {
+        if (!stderr && code === 0) {
+          cy.log('Request on database done');
+
+          return cy.wrap(parseInt(stdout.split('\n')[1], 10) || true);
+        }
+        cy.log("Can't execute command on database : ", stderr);
+
+        return cy.wrap(false);
+      },
+    );
+  },
+);
+
+Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
     return cy
@@ -181,6 +203,11 @@ interface LoginByTypeOfUserProps {
   preserveToken?: boolean;
 }
 
+interface handleRequestOnDatabaseProps {
+  database: string;
+  query: string;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -188,6 +215,10 @@ declare global {
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getRefreshDataOnIframe: () => Cypress.Chainable;
+      handleRequestOnDatabase: ({
+        database,
+        query,
+      }: handleRequestOnDatabaseProps) => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
