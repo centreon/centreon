@@ -3,10 +3,11 @@ import { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 
-import { LinearProgress, Typography } from '@mui/material';
+import { LinearProgress } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefineWebSSOConfiguration } from './translatedLabels';
 import useWebSSO from './useWebSSO';
@@ -22,9 +23,6 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(2),
-  },
-  title: {
-    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -51,9 +49,7 @@ const WebSSOConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography className={classes.title} variant="h4">
-        {t(labelDefineWebSSOConfiguration)}
-      </Typography>
+      <FormTitle title={t(labelDefineWebSSOConfiguration)} />
       <div className={classes.loading}>
         {not(isWebSSOConfigurationEmpty) && sendingGetWebSSOConfiguration && (
           <LinearProgress />

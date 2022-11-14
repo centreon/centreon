@@ -3,10 +3,11 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 
-import { Theme, Typography, LinearProgress } from '@mui/material';
+import { Theme, LinearProgress } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefinePasswordPasswordSecurityPolicy } from './translatedLabels';
 import useAuthentication from './useAuthentication';
@@ -41,9 +42,7 @@ const LocalAuthentication = (): JSX.Element => {
 
   return (
     <div>
-      <Typography className={classes.title} variant="h4">
-        {t(labelDefinePasswordPasswordSecurityPolicy)}
-      </Typography>
+      <FormTitle title={t(labelDefinePasswordPasswordSecurityPolicy)} />
       <div className={classes.loading}>
         {not(isPasswordSecurityPolicyEmpty) &&
           sendingGetPasswordPasswordSecurityPolicy && <LinearProgress />}
