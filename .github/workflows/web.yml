@@ -219,7 +219,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_fresh
           context: .
           pull: true
@@ -228,7 +228,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_standard
           context: .
           pull: true
@@ -237,7 +237,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_widgets
           context: .
           pull: true
