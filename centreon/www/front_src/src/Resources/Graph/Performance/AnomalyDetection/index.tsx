@@ -7,7 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { Button, Dialog, Paper } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 
-import { labelClose } from '../../../translatedLabels';
+import {
+  labelClose,
+  labelEditAnomalyDetectionConfirmation,
+  labelMenageEnvelope,
+} from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
 import {
@@ -137,10 +141,12 @@ const EditAnomalyDetectionDataDialog = ({
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation
           dataTestid="modalConfirmation"
+          message={t(labelEditAnomalyDetectionConfirmation)}
           open={isModalConfirmationOpened}
-          sendCancel={cancelResizeEnvelope}
-          sendConfirm={resizeEnvelope}
           setOpen={setIsModalConfirmationOpened}
+          title={t(labelMenageEnvelope)}
+          onCancel={cancelResizeEnvelope}
+          onConfirm={resizeEnvelope}
         />
         <div className={classes.close}>
           <Button data-testid="closeEditModal" onClick={handleClose}>

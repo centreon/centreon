@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
-import { equals, find, path, propEq, isNil } from 'ramda';
+import { equals, find, isNil, path, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -17,17 +17,17 @@ import {
   Typography,
 } from '@mui/material';
 
-import { useMemoComponent, getData, useRequest } from '@centreon/ui';
+import { getData, useRequest } from '@centreon/ui';
 
-import {
-  labelExcludedPeriods,
-  labelExclusionOfPeriods,
-  labelSubTitleExclusionOfPeriods,
-  labelButtonExcludeAPeriod,
-} from '../../../../translatedLabels';
 import { centreonUi } from '../../../../../Header/helpers';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
+import {
+  labelButtonExcludeAPeriod,
+  labelExcludedPeriods,
+  labelExclusionOfPeriods,
+  labelSubTitleExclusionOfPeriods,
+} from '../../../../translatedLabels';
 import { GraphData, Line, TimeValue } from '../../models';
 import PopoverCustomTimePeriodPickers from '../../TimePeriods/PopoverCustomTimePeriodPicker';
 import {
@@ -36,6 +36,7 @@ import {
 } from '../../TimePeriods/timePeriodAtoms';
 import { getLineData, getTimeSeries } from '../../timeSeries';
 import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
+import AnomalyDetectionModalConfirmation from '../editDataDialog/AnomalyDetectionModalConfirmation';
 
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriods';
 import AnomalyDetectionFooterExclusionPeriods from './AnomalyDetectionFooterExclusionPeriods';
@@ -105,13 +106,18 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const [disabledPickerEndInput, setDisabledPickerEndInput] = useState(false);
   const [disabledPickerStartInput, setDisabledPickerStartInput] =
     useState(false);
+  const [viewStartPicker, setViewStartPicker] = useState<string | null>(null);
+  const [viewEndPicker, setViewEndPicker] = useState<string | null>(null);
+  const [pickerStartWithoutInitialValue, setPickerStartWithoutInitialValue] =
+    useState(true);
+  const [pickerEndWithoutInitialValue, setPickerEndWithoutInitialValue] =
+    useState(true);
 
-  const dateExisted = !!(startDate && endDate);
+  const [isConfirmedExclusion, setIsConfirmedExclusion] = useState(false);
+
   const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
     request: getData,
   });
-  const [viewStartPicker, setViewStartPicker] = useState<string | null>(null);
-  const [viewEndPicker, setViewEndPicker] = useState<string | null>(null);
 
   const [thresholdsAnomalyDetectionData, setThresholdAnomalyDetectionData] =
     useAtom(thresholdsAnomalyDetectionDataAtom);
@@ -119,22 +125,20 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
   const details = useAtomValue(detailsAtom);
 
+  const [exclusionTimePeriods, setExclusionTimePeriods] =
+    useState(customTimePeriod);
+
+  const dateExisted = !!(startDate && endDate);
+
   const isInvalidDate = ({ start, end }): boolean =>
     dayjs(start).isSameOrAfter(dayjs(end), 'minute');
 
-  const [exclusionTimePeriods, setExclusionTimePeriods] =
-    useState(customTimePeriod);
   const { data } = thresholdsAnomalyDetectionData.exclusionPeriodsThreshold;
 
   const endpoint = path(['links', 'endpoints', 'performance_graph'], details);
   const { toDate } = centreonUi.useLocaleDateTimeFormat();
 
   const maxDateEndInputPicker = dayjs(exclusionTimePeriods?.end).add(1, 'day');
-
-  const [pickerStartWithoutInitialValue, setPickerStartWithoutInitialValue] =
-    useState(true);
-  const [pickerEndWithoutInitialValue, setPickerEndWithoutInitialValue] =
-    useState(true);
 
   const listExcludedDates =
     thresholdsAnomalyDetectionData?.exclusionPeriodsThreshold
@@ -229,6 +233,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     });
     setOpen(false);
     initializeData();
+    setIsConfirmedExclusion(false);
   };
 
   const deleteCurrentData = (): void => {
@@ -448,7 +453,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         renderFooter={
           <AnomalyDetectionFooterExclusionPeriods
             cancelExclusionPeriod={cancelExclusionPeriod}
-            confirmExcluderPeriods={confirmExcluderPeriods}
+            confirmExcluderPeriods={(): void => setIsConfirmedExclusion(true)}
             dateExisted={dateExisted}
             isError={isErrorDatePicker}
           />
@@ -459,6 +464,16 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         viewChangeEndPicker={viewChangeEndPicker}
         viewChangeStartPicker={viewChangeStartPicker}
         onClose={close}
+      />
+
+      <AnomalyDetectionModalConfirmation
+        dataTestid="modalConfirmation"
+        message="Are you sure you want to exclure the period?"
+        open={isConfirmedExclusion}
+        setOpen={setIsConfirmedExclusion}
+        title="Exclude a period"
+        onCancel={(value): void => setIsConfirmedExclusion(value)}
+        onConfirm={confirmExcluderPeriods}
       />
     </div>
   );
