@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'none',
   },
   tabList: {
-    borderBottom: `${theme.spacing(0.25)} solid  ${theme.palette.divider}`,
+    borderBottom: `${theme.spacing(0.25)} solid ${theme.palette.divider}`,
   },
 }));
 
