@@ -109,12 +109,12 @@ jobs:
           if [ ! -d /root/rpmbuild/SOURCES ] ; then
               mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
           fi
-          rm -rf ../centreon-$VERSION
-          mkdir ../centreon-$VERSION
-          cp -rp centreon ../centreon-$VERSION/
-          ls -lart ../centreon-$VERSION/centreon/
-          tar czf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz ../centreon-$VERSION
-          rm -rf /root/rpmbuild/RPMS/*
+
+          mkdir centreon-$VERSION
+          cp -rp centreon centreon-$VERSION/
+          ls -l centreon-$VERSION/centreon/
+          tar czvf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
+
           cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
           mv /root/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt /root/rpmbuild/SOURCES/centreon-macroreplacement.txt
 
