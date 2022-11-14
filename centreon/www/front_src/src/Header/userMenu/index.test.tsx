@@ -87,7 +87,7 @@ const mockRequestsWithLogout = (): void => {
 };
 
 describe('User Menu', () => {
-  it('renders the user menu', async () => {
+  it.only('renders the user menu', async () => {
     mockRequests();
     renderUserMenu();
 
@@ -109,7 +109,7 @@ describe('User Menu', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('1:20 PM')).toBeInTheDocument();
+      expect(screen.getByText('12:20 PM')).toBeInTheDocument();
     });
     expect(screen.getByText('January 1, 2022')).toBeInTheDocument();
 
