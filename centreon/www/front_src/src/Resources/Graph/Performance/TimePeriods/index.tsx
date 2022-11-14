@@ -89,8 +89,8 @@ const TimePeriodButtonGroup = ({
     name: t(timePeriod.name),
   }));
 
-  const changeDate = ({ property, date }): void => console.log({ date });
-  // changeCustomTimePeriod({ date, property });
+  const changeDate = ({ property, date }): void =>
+    changeCustomTimePeriod({ date, property });
 
   return useMemoComponent({
     Component: (
