@@ -70,10 +70,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-#      - run: |
-#          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#          yum --disablerepo=* --enablerepo=epel install -y zstd
-#        shell: bash
+      - run: |
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum --disablerepo=* --enablerepo=epel install -y zstd
+        shell: bash
 
       - name: Restore index file cache
         uses: actions/cache@v3
