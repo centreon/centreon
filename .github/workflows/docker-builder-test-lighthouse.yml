@@ -5,13 +5,13 @@ on:
   pull_request:
     paths:
       - ".github/workflows/docker-builder-test-lighthouse.yml"
-      - "ci/docker/Dockerfile.lighthouse"
+      - ".github/docker/Dockerfile.lighthouse"
   push:
     branches:
       - dev-22.10.x
     paths:
       - ".github/workflows/docker-builder-test-lighthouse.yml"
-      - "ci/docker/Dockerfile.lighthouse"
+      - ".github/docker/Dockerfile.lighthouse"
 
 env:
   version: "22.10"
@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.ARTI_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
         run: docker push registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}

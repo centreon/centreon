@@ -15,9 +15,6 @@ on:
     tags:
       - centreon-widget-hostgroup-monitoring-*
 
-env:
-  widget_name: "hostgroup-monitoring"
-
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
