@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   loading: {
     height: theme.spacing(0.5),
   },
+  title: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 const LocalAuthentication = (): JSX.Element => {
@@ -38,7 +41,7 @@ const LocalAuthentication = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">
+      <Typography className={classes.title} variant="h4">
         {t(labelDefinePasswordPasswordSecurityPolicy)}
       </Typography>
       <div className={classes.loading}>

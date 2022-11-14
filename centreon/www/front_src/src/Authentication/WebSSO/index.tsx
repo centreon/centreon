@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(2),
   },
+  title: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 const WebSSOConfigurationForm = (): JSX.Element => {
@@ -48,7 +51,9 @@ const WebSSOConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">{t(labelDefineWebSSOConfiguration)}</Typography>
+      <Typography className={classes.title} variant="h4">
+        {t(labelDefineWebSSOConfiguration)}
+      </Typography>
       <div className={classes.loading}>
         {not(isWebSSOConfigurationEmpty) && sendingGetWebSSOConfiguration && (
           <LinearProgress />

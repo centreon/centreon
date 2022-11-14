@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
   loading: {
     height: theme.spacing(0.5),
   },
+  title: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 const OpenidConfigurationForm = (): JSX.Element => {
@@ -42,7 +45,7 @@ const OpenidConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">
+      <Typography className={classes.title} variant="h4">
         {t(labelDefineOpenIDConnectConfiguration)}
       </Typography>
       <div className={classes.loading}>
