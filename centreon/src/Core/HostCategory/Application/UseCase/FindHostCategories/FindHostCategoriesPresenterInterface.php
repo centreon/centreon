@@ -1,13 +1,13 @@
 <?php
 
 /*
-* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* https://www.apache.org/licenses/LICENSE-2.0
+* http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 
-final class FindHostCategoriesResponse
+use Core\Application\Common\UseCase\PresenterInterface;
+
+interface FindHostCategoriesPresenterInterface extends PresenterInterface
 {
-    /**
-     * @var array<array{id:int,name:string,alias:string,is_activated:bool,comment:string|null}>
-     */
-    public array $hostCategories = [];
 }
