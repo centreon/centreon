@@ -1,6 +1,9 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
 inputs:
+  base_directory:
+    description: The base directory
+    required: true
   working_directory:
     description: The e2e tests directory
     required: true
@@ -12,11 +15,16 @@ runs:
       with:
         version: 7
 
+    - name: Install dependencies
+      run: pnpm install
+      working-directory: ${{ inputs.base_directory }}
+      shell: bash
+
     - name: Cypress web component testing
       uses: cypress-io/github-action@v4
       with:
         browser: chrome
-        install-command: pnpm install
+        install: false
         working-directory: ${{ inputs.working_directory }}
 
     - name: Archive videos

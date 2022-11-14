@@ -301,10 +301,8 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          image_cypress_version: ${{ needs.get-version.outputs.major_version }}
-          module: centreon
+          base_directory: centreon
+          working_directory: centreon/tests/e2e
 
       - name: Archive videos
         uses: actions/upload-artifact@v3
