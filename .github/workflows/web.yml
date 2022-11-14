@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v3
 
       - run: |
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          #yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum --disablerepo=* --enablerepo=epel install -y zstd
         shell: bash
 
