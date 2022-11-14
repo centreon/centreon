@@ -370,101 +370,98 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     );
   }, [customTimePeriod]);
 
-  return useMemoComponent({
-    Component: (
-      <div className={classes.container}>
-        <div className={classes.subContainer}>
-          <Typography data-testid={labelExclusionOfPeriods} variant="h6">
-            {labelExclusionOfPeriods}
-          </Typography>
-          <Typography
-            data-testid={labelSubTitleExclusionOfPeriods}
-            variant="caption"
+  return (
+    <div className={classes.container}>
+      <div className={classes.subContainer}>
+        <Typography data-testid={labelExclusionOfPeriods} variant="h6">
+          {labelExclusionOfPeriods}
+        </Typography>
+        <Typography
+          data-testid={labelSubTitleExclusionOfPeriods}
+          variant="caption"
+        >
+          {labelSubTitleExclusionOfPeriods}
+        </Typography>
+        <div className={classes.body}>
+          <Button
+            className={classes.exclusionButton}
+            data-testid={labelButtonExcludeAPeriod}
+            disabled={enabledExclusionButton}
+            size="small"
+            startIcon={<AddIcon />}
+            variant="contained"
+            onClick={exclude}
           >
-            {labelSubTitleExclusionOfPeriods}
-          </Typography>
-          <div className={classes.body}>
-            <Button
-              className={classes.exclusionButton}
-              data-testid={labelButtonExcludeAPeriod}
-              disabled={enabledExclusionButton}
-              size="small"
-              startIcon={<AddIcon />}
-              variant="contained"
-              onClick={exclude}
-            >
-              {labelButtonExcludeAPeriod}
-            </Button>
-          </div>
+            {labelButtonExcludeAPeriod}
+          </Button>
         </div>
-        <Divider flexItem className={classes.divider} orientation="vertical" />
-        <div className={classes.excludedPeriods}>
-          <Typography
-            className={classes.title}
-            data-testid={labelExcludedPeriods}
-            variant="h6"
-          >
-            {labelExcludedPeriods}
-          </Typography>
-          <List className={classes.list}>
-            {listExcludedDates.map((item) => {
-              const dateExist = !isNil(item?.start) && !isNil(item?.end);
-
-              return (
-                dateExist && (
-                  <ListItem key={toDate(item?.start as Date)}>
-                    <ListItemText
-                      primary={`From ${toDate(item?.start as Date)} To ${toDate(
-                        item?.end as Date,
-                      )}`}
-                    />
-                  </ListItem>
-                )
-              );
-            })}
-          </List>
-        </div>
-        <PopoverCustomTimePeriodPickers
-          acceptDate={callbackForSelectMinutes}
-          anchorReference="anchorPosition"
-          classNameError={classes.error}
-          classNamePaper={classes.paper}
-          classNamePicker={classes.picker}
-          customTimePeriod={exclusionTimePeriods}
-          disabledPickerEndInput={disabledPickerEndInput}
-          disabledPickerStartInput={disabledPickerStartInput}
-          getIsErrorDatePicker={getIsError}
-          maxDatePickerEndInput={maxDateEndInputPicker}
-          minDatePickerStartInput={exclusionTimePeriods?.start}
-          open={open}
-          pickerEndWithoutInitialValue={pickerStartWithoutInitialValue}
-          pickerStartWithoutInitialValue={pickerEndWithoutInitialValue}
-          reference={{ anchorPosition }}
-          renderBody={
-            <AnomalyDetectionCommentExclusionPeriod
-              isExclusionPeriodChecked={isExclusionPeriodChecked}
-              onChangeCheckedExclusionPeriod={handleCheckedExclusionPeriod}
-            />
-          }
-          renderFooter={
-            <AnomalyDetectionFooterExclusionPeriods
-              cancelExclusionPeriod={cancelExclusionPeriod}
-              confirmExcluderPeriods={confirmExcluderPeriods}
-              dateExisted={dateExisted}
-              isError={isErrorDatePicker}
-            />
-          }
-          renderTitle={<AnomalyDetectionTitleExclusionPeriods />}
-          setPickerEndWithoutInitialValue={setPickerStartWithoutInitialValue}
-          setPickerStartWithoutInitialValue={setPickerEndWithoutInitialValue}
-          viewChangeEndPicker={viewChangeEndPicker}
-          viewChangeStartPicker={viewChangeStartPicker}
-          onClose={close}
-        />
       </div>
-    ),
-    memoProps: [customTimePeriod, open],
-  });
+      <Divider flexItem className={classes.divider} orientation="vertical" />
+      <div className={classes.excludedPeriods}>
+        <Typography
+          className={classes.title}
+          data-testid={labelExcludedPeriods}
+          variant="h6"
+        >
+          {labelExcludedPeriods}
+        </Typography>
+        <List className={classes.list}>
+          {listExcludedDates.map((item) => {
+            const dateExist = !isNil(item?.start) && !isNil(item?.end);
+
+            return (
+              dateExist && (
+                <ListItem key={toDate(item?.start as Date)}>
+                  <ListItemText
+                    primary={`From ${toDate(item?.start as Date)} To ${toDate(
+                      item?.end as Date,
+                    )}`}
+                  />
+                </ListItem>
+              )
+            );
+          })}
+        </List>
+      </div>
+      <PopoverCustomTimePeriodPickers
+        acceptDate={callbackForSelectMinutes}
+        anchorReference="anchorPosition"
+        classNameError={classes.error}
+        classNamePaper={classes.paper}
+        classNamePicker={classes.picker}
+        customTimePeriod={exclusionTimePeriods}
+        disabledPickerEndInput={disabledPickerEndInput}
+        disabledPickerStartInput={disabledPickerStartInput}
+        getIsErrorDatePicker={getIsError}
+        maxDatePickerEndInput={maxDateEndInputPicker}
+        minDatePickerStartInput={exclusionTimePeriods?.start}
+        open={open}
+        pickerEndWithoutInitialValue={pickerStartWithoutInitialValue}
+        pickerStartWithoutInitialValue={pickerEndWithoutInitialValue}
+        reference={{ anchorPosition }}
+        renderBody={
+          <AnomalyDetectionCommentExclusionPeriod
+            isExclusionPeriodChecked={isExclusionPeriodChecked}
+            onChangeCheckedExclusionPeriod={handleCheckedExclusionPeriod}
+          />
+        }
+        renderFooter={
+          <AnomalyDetectionFooterExclusionPeriods
+            cancelExclusionPeriod={cancelExclusionPeriod}
+            confirmExcluderPeriods={confirmExcluderPeriods}
+            dateExisted={dateExisted}
+            isError={isErrorDatePicker}
+          />
+        }
+        renderTitle={<AnomalyDetectionTitleExclusionPeriods />}
+        setPickerEndWithoutInitialValue={setPickerStartWithoutInitialValue}
+        setPickerStartWithoutInitialValue={setPickerEndWithoutInitialValue}
+        viewChangeEndPicker={viewChangeEndPicker}
+        viewChangeStartPicker={viewChangeStartPicker}
+        onClose={close}
+      />
+    </div>
+  );
 };
 
 export default AnomalyDetectionExclusionPeriod;

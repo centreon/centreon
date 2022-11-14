@@ -35,12 +35,14 @@ interface LinesProps {
 interface AdditionalLinesProps {
   additionalLinesProps: LinesProps;
   data: CustomFactorsData | null | undefined;
-  displayThresholdPeriod?: boolean;
+  displayThresholdExclusionPeriod?: boolean;
+  resource?: Resource | ResourceDetails;
 }
 const AdditionalLines = ({
   additionalLinesProps,
   data,
-  displayThresholdPeriod = true,
+  displayThresholdExclusionPeriod = true,
+  resource,
 }: AdditionalLinesProps): JSX.Element => {
   const details = useAtomValue(detailsAtom);
 
@@ -53,7 +55,7 @@ const AdditionalLines = ({
 
   const isDisplayedThresholds = displayAdditionalLines({
     lines,
-    resource: details as ResourceDetails,
+    resource: resource ?? (details as ResourceDetails),
   });
 
   return (
@@ -67,7 +69,7 @@ const AdditionalLines = ({
           />
         </>
       )}
-      {displayThresholdPeriod &&
+      {displayThresholdExclusionPeriod &&
         !isNil(details) &&
         exclusionPeriodsThreshold?.data?.map((item) => {
           const displayed =
@@ -93,15 +95,17 @@ const AdditionalLines = ({
 
 export const getDisplayAdditionalLinesCondition = {
   condition: (resource: Resource | ResourceDetails): boolean =>
-    equals(resource.type, ResourceType.anomalyDetection),
+    equals(resource?.type, ResourceType.anomalyDetection),
   displayAdditionalLines: ({
     additionalData,
     additionalLinesProps,
+    resource,
   }): JSX.Element => (
     <AdditionalLines
       additionalLinesProps={additionalLinesProps}
       data={additionalData}
-      displayThresholdPeriod={false}
+      displayThresholdExclusionPeriod={false}
+      resource={resource}
     />
   ),
 };

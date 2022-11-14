@@ -516,6 +516,7 @@ const GraphContent = <T,>({
                 {
                   additionalData,
                   additionalLinesProps,
+                  resource,
                 },
               )}
               rightScale={rightScale}
