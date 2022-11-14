@@ -1,19 +1,10 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
-
 inputs:
-  image:
-    description: "image"
+  working_directory:
+    description: The e2e tests directory
     required: true
-  image_version:
-    description: "image version"
-    required: true
-  image_cypress_version:
-    description: "image cypress version"
-    required: true
-  module:
-    description: "module"
-    required: true
+
 runs:
   using: "composite"
   steps:
@@ -21,10 +12,24 @@ runs:
       with:
         version: 7
 
-    - name: "Start Centreon container"
-      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
-      shell: bash
+    - name: Cypress web component testing
+      uses: cypress-io/github-action@v4
+      with:
+        browser: chrome
+        install-command: pnpm install
+        working-directory: ${{ inputs.working_directory }}
 
-    - name: "Run Cypress"
-      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/.github/scripts/cypress-e2e-testing.sh" --net="host" registry-docker.centreon.com/docker-global/cypress:${{ inputs.image_cypress_version }}
-      shell: bash
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos
+        path: ${{ inputs.working_directory }}/cypress/results/videos
+
+    - name: Publish tests report
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{ always() }}
+      with:
+        check_name: web-frontend-component-tests-report
+        comment_mode: failures
+        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml
