@@ -39,14 +39,7 @@ Requires:   centreon-database = %{version}-%{release}
 Requires(post): coreutils
 Requires(post): sed
 Requires(post): sudo
-BuildRequires:  dos2unix
-BuildRequires:  gettext
-BuildRequires:  php-cli
-BuildRequires:  php-mbstring
-BuildRequires:  php-xml
 BuildRequires:  systemd
-#BuildRequires:  selinux-policy-devel
-#BuildRequires:  policycoreutils
 
 %description
 Centreon is a network, system, applicative supervision and monitoring tool,
