@@ -4,14 +4,14 @@ on:
       widget_name:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
     secrets:
       nexus_username:
         required: true
       nexus_password:
         required: true
-
-env:
-  version: "21.10"
 
 jobs:
   delivery-rpm:
@@ -29,7 +29,7 @@ jobs:
         with:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
+          version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}

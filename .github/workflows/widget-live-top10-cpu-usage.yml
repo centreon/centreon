@@ -13,25 +13,32 @@ on:
       - ".github/workflows/centreon-widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
     tags:
-      - centreon-widget-live-top10-cpu-usage-21.10.**
-
-env:
-  version: "21.10"
+      - centreon-widget-live-top10-cpu-usage-*
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-live-top10-cpu-usage/live-top10-cpu-usage/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: live-top10-cpu-usage
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: live-top10-cpu-usage
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       nexus_username: ${{ secrets.ARTI_USER }}
       nexus_password: ${{ secrets.ARTI_PASSWD }}
