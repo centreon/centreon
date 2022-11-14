@@ -56,6 +56,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -117,7 +118,8 @@ Feature: OpenId Provider Configuration API
                     "access_group": {
                         "id": 1,
                         "name": "ALL"
-                    }
+                    },
+                    "priority": 1
                 }
             ]
         },
@@ -194,6 +196,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -264,6 +267,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -334,6 +338,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -411,6 +416,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -486,6 +492,7 @@ Feature: OpenId Provider Configuration API
           "apply_only_first_role": false,
           "relations": [{
             "claim_value": "status1",
+            "priority": 1,
             "access_group_id": 1
           }]
         },
@@ -547,7 +554,8 @@ Feature: OpenId Provider Configuration API
                     "access_group": {
                         "id": 1,
                         "name": "ALL"
-                    }
+                    },
+                    "priority": 1
                 }
             ]
         },
