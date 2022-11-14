@@ -71,8 +71,8 @@ jobs:
         uses: actions/checkout@v3
 
       - run: |
-          yum install -y epel-release
-          yum install -y zstd
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum --disablerepo=* --enablerepo=epel install -y zstd
         shell: bash
 
       - name: Restore index file cache
@@ -125,7 +125,7 @@ jobs:
           cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
           mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
 
-          yum install -y rpm-build
+          yum --disablerepo=* --enablerepo=base,updates install -y rpm-build
           rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
 
           cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
