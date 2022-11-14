@@ -25,7 +25,7 @@ interface Props {
 const AnomalyDetectionCommentExclusionPeriod = ({
   onChangeCheckedExclusionPeriod,
   isExclusionPeriodChecked,
-}: any): JSX.Element => {
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const [comment, setComment] = useState(null);
 
