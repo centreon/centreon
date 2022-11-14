@@ -16,13 +16,17 @@ on:
       - "!centreon/packages/**"
 
     tags:
-      - centreon-22.10.**
+      - centreon-*
 
 env:
-  version: "22.10"
   base_directory: centreon
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   frontend-build:
     runs-on: ubuntu-22.04
 
@@ -52,18 +56,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 17
+          version: 7
 
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: centreon
 
       - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
         working-directory: centreon
 
       - name: Publish report
@@ -77,18 +81,18 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-
       - uses: actions/checkout@v3
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
         working-directory: centreon
 
       - name: Unit test
-        run: npm t -- --silent --reporters=jest-junit
+        run: pnpm t --silent --reporter=jest-junit
         working-directory: centreon
 
       - name: Publish report
@@ -105,7 +109,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-        
+
       - uses: ./.github/actions/web-frontend-component-test
         with:
           working_directory: centreon
@@ -146,6 +150,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       [
+        get-version,
         backend-dependencies,
         backend-unit-test,
         frontend-build,
@@ -185,7 +190,9 @@ jobs:
           image_name: ${{ matrix.image }}
           script_name: web-packaging-${{ matrix.package_extension }}
           module_name: centreon
-          version: ${{ env.version }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           sign: true
           nexus_username: ${{ secrets.ARTI_USER }}
@@ -249,9 +256,36 @@ jobs:
           push: true
           tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-  test-e2e:
-    runs-on: ubuntu-22.04
+  api-integration-test:
     needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  legacy-e2e-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  e2e-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version, dockerize]
 
     steps:
       - name: Checkout sources
@@ -269,7 +303,7 @@ jobs:
         with:
           image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
-          image_cypress_version: ${{ env.version }}
+          image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
       - name: Archive videos
@@ -287,9 +321,9 @@ jobs:
           comment_mode: failures
           junit_files: centreon/tests/e2e/cypress-result.xml
 
-  test-performances:
+  performances-test:
     runs-on: ubuntu-22.04
-    needs: [dockerize]
+    needs: [get-version, dockerize]
 
     steps:
       - uses: actions/checkout@v3
@@ -304,10 +338,10 @@ jobs:
       - name: Run lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
-          path: "centreon/lighthouse"
+          path: "centreon"
           image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
-          image_lighthouse_version: ${{ env.version }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
       - name: Publish report
@@ -316,36 +350,9 @@ jobs:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
 
-  api-integration-test:
-    needs: [dockerize]
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: api
-      module_name: centreon
-      image_name: centreon-web
-      features_path: tests/api/features
-      config_file: tests/api/behat.yml
-    secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-  legacy-e2e-test:
-    needs: [api-integration-test]
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: e2e
-      module_name: centreon
-      image_name: centreon-web
-      features_path: features
-    secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   deliver-rpm:
     runs-on: ubuntu-22.04
-    needs: [test-e2e, test-performances, legacy-e2e-test]
+    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -359,14 +366,14 @@ jobs:
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
+          version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   deliver-deb:
     runs-on: ubuntu-22.04
-    needs: [test-e2e, test-performances, legacy-e2e-test]
+    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:
         distrib: [bullseye]
@@ -380,7 +387,7 @@ jobs:
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
+          version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
