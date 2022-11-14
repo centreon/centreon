@@ -54,7 +54,7 @@ jobs:
 
   package:
     runs-on: ubuntu-22.04
-    container: centos:7
+    container: registry-docker.centreon.com/docker-global/centos:7
     needs:
       [
         get-version,
@@ -113,7 +113,10 @@ jobs:
           rm -rf /root/rpmbuild/RPMS/*
           cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
           mv /root/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt /root/rpmbuild/SOURCES/centreon-macroreplacement.txt
+
+          yum install -y rpm-build
           rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
+
           cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
           chmod 777 *.rpm
         shell: bash
