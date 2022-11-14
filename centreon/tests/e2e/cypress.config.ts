@@ -22,7 +22,7 @@ export default defineConfig({
   execTimeout: 60000,
   reporter: 'junit',
   reporterOptions: {
-    mochaFile: 'cypress/results/reports/junit-report.xml',
+    mochaFile: 'cypress/results/reports/cypress-fe.xml',
   },
   requestTimeout: 10000,
   retries: 0,
