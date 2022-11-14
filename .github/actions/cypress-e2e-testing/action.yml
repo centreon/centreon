@@ -47,4 +47,4 @@ runs:
       with:
         check_name: web-frontend-component-tests-report
         comment_mode: failures
-        junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/cypress-fe.xml
+        junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml

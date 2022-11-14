@@ -305,21 +305,6 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
 
-      - name: Archive videos
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/videos
-
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: "centreon-web-frontend-e2e-tests-report"
-          comment_mode: failures
-          junit_files: centreon/tests/e2e/cypress-result.xml
-
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
