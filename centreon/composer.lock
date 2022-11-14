@@ -6570,12 +6570,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
+<<<<<<< HEAD
                 "reference": "fb55016237baac05629bf1984ad769d1997de6dd"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/fb55016237baac05629bf1984ad769d1997de6dd",
                 "reference": "fb55016237baac05629bf1984ad769d1997de6dd",
+=======
+                "reference": "2c05bab059f2895944c13425a5278d812a38a89c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/2c05bab059f2895944c13425a5278d812a38a89c",
+                "reference": "2c05bab059f2895944c13425a5278d812a38a89c",
+>>>>>>> centreon/MON-15179-add-tests-on-provider-configuration
                 "shasum": ""
             },
             "require": {
@@ -6624,7 +6633,11 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo"
             },
+<<<<<<< HEAD
             "time": "2022-10-18T13:26:42+00:00"
+=======
+            "time": "2022-10-04T08:40:45+00:00"
+>>>>>>> centreon/MON-15179-add-tests-on-provider-configuration
         },
         {
             "name": "composer/pcre",
