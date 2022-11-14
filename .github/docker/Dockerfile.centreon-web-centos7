@@ -61,11 +61,11 @@ yum clean all
 
 EOF
 
-COPY --chmod=+x ./ci/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY ./ci/scripts/entrypoint/container.d /usr/share/centreon/container.d
-COPY ./ci/scripts/init/* /etc/init.d/
-COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=+x ./.github/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY ./.github/scripts/entrypoint/container.d /usr/share/centreon/container.d
+COPY ./.github/scripts/init/* /etc/init.d/
+COPY --chmod=+x ./.github/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache ./.github/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
@@ -96,7 +96,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./ci/scripts/sql /tmp/sql
+COPY ./.github/scripts/sql /tmp/sql
 
 RUN <<EOF
 
@@ -111,7 +111,7 @@ EOF
 
 FROM web_standard AS web_widgets
 
-COPY --chmod=+x ./ci/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
+COPY --chmod=+x ./.github/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
 
 RUN <<EOF
 
