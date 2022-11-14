@@ -108,22 +108,22 @@ jobs:
           rm -rf lang
           cd ..
 
-          if [ ! -d /root/rpmbuild/SOURCES ] ; then
-              mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          if [ ! -d ~/rpmbuild/SOURCES ] ; then
+              mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
           fi
 
           mkdir centreon-$VERSION
           cp -rp centreon centreon-$VERSION/
           ls -l centreon-$VERSION/centreon/
-          tar czvf /root/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
+          tar czf ~/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
 
-          cp -rp centreon/packaging/src/* /root/rpmbuild/SOURCES/
-          mv /root/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt /root/rpmbuild/SOURCES/centreon-macroreplacement.txt
+          cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
+          mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
 
           yum install -y rpm-build
           rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
 
-          cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
+          cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
           chmod 777 *.rpm
         shell: bash
 
