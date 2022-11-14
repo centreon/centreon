@@ -16,8 +16,8 @@ export interface ExclusionPeriodThresholdData {
 }
 
 export interface SelectedDateToDelete {
-  end: Date;
-  start: Date;
+  end: Date | null;
+  start: Date | null;
 }
 export interface ThresholdsAnomalyDetectionDataAtom {
   exclusionPeriodsThreshold: {

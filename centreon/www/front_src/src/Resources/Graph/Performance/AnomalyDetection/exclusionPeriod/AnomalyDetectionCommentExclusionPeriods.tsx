@@ -6,6 +6,8 @@ import { TextField, Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+import { labelFromBeginning } from '../../../../translatedLabels';
+
 const useStyles = makeStyles()((theme) => ({
   container: {
     margin: theme.spacing(2, 0),
@@ -30,7 +32,7 @@ const AnomalyDetectionCommentExclusionPeriod = ({
   const [comment, setComment] = useState(null);
 
   const changeComment = (event): void => {
-    console.log(event);
+    setComment(event.target.value);
   };
 
   return (
@@ -42,7 +44,8 @@ const AnomalyDetectionCommentExclusionPeriod = ({
             onChange={onChangeCheckedExclusionPeriod}
           />
         }
-        label="From beginning"
+        data-testid={labelFromBeginning}
+        label={labelFromBeginning}
       />
       <div className={classes.container}>
         <Typography>Comment </Typography>

@@ -140,7 +140,6 @@ const PopoverCustomTimePeriodPickers = ({
   getIsErrorDatePicker?.(error);
 
   const changeDate = ({ property, date }): void => {
-    console.log({ date });
     const currentDate = customTimePeriod[property];
 
     cond([

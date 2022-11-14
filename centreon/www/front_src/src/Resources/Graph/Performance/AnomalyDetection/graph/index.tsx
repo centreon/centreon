@@ -1,6 +1,6 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai/utils';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { ResourceDetails } from '../../../../Details/models';
@@ -68,7 +68,8 @@ const AdditionalLines = ({
         </>
       )}
       {displayThresholdPeriod &&
-        exclusionPeriodsThreshold?.data?.map((item, index) => {
+        !isNil(details) &&
+        exclusionPeriodsThreshold?.data?.map((item) => {
           const displayed =
             item.lines?.length > 0 && item.timeSeries?.length > 0;
 
@@ -77,7 +78,7 @@ const AdditionalLines = ({
               <AnomalyDetectionExclusionPeriodsThreshold
                 data={item}
                 graphHeight={graphHeight}
-                key={index}
+                key={details.id}
                 leftScale={leftScale}
                 resource={details}
                 rightScale={rightScale}

@@ -636,7 +636,7 @@ describe(Details, () => {
       },
     ]);
 
-    const { getByText, queryByText, getAllByText, findByText, debug } =
+    const { getByText, queryByText, getAllByText, findByText } =
       renderDetails();
 
     await waitFor(() => {

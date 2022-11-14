@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
-import { equals, find, path, propEq } from 'ramda';
+import { equals, find, path, propEq, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -19,6 +19,12 @@ import {
 
 import { useMemoComponent, getData, useRequest } from '@centreon/ui';
 
+import {
+  labelExcludedPeriods,
+  labelExclusionOfPeriods,
+  labelSubTitleExclusionOfPeriods,
+  labelButtonExcludeAPeriod,
+} from '../../../../translatedLabels';
 import { centreonUi } from '../../../../../Header/helpers';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
@@ -69,8 +75,6 @@ const useStyles = makeStyles()((theme) => ({
   paper: {
     '& .MuiPopover-paper': {
       padding: theme.spacing(2),
-      // width: 350,
-      // width: '40%',
     },
   },
   picker: {
@@ -90,10 +94,10 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const { classes } = useStyles();
 
   const [open, setOpen] = useState(false);
-  const [endDate, setEndDate] = useState(undefined);
-  const [startDate, setStartDate] = useState(undefined);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
   const [timeSeries, setTimeSeries] = useState<Array<TimeValue>>([]);
-  const [lineData, setLineData] = useState<Array<Line>>();
+  const [lineData, setLineData] = useState<Array<Line>>([]);
   const [isErrorDatePicker, setIsErrorDatePicker] = useState(false);
   const [enabledExclusionButton, setEnabledExclusionButton] = useState(false);
   const [isExclusionPeriodChecked, setIsExclusionPeriodChecked] =
@@ -102,7 +106,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const [disabledPickerStartInput, setDisabledPickerStartInput] =
     useState(false);
 
-  const dateExisted = (startDate && endDate) ?? false;
+  const dateExisted = !!(startDate && endDate);
   const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
     request: getData,
   });
@@ -139,8 +143,8 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const exclude = (): void => {
     setOpen(true);
     setExclusionTimePeriods(customTimePeriod);
-    setEndDate(undefined);
-    setStartDate(undefined);
+    setEndDate(null);
+    setStartDate(null);
   };
 
   const anchorPosition = {
@@ -149,8 +153,8 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   const close = (): void => {
-    setEndDate(undefined);
-    setStartDate(undefined);
+    setEndDate(null);
+    setStartDate(null);
     setOpen(false);
   };
 
@@ -164,16 +168,18 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   const graphEndpoint = (): string | undefined => {
-    const graphQuerParameters = getGraphQueryParameters({
+    if (!endDate || !startDate) {
+      return undefined;
+    }
+    const graphQueryParameters = getGraphQueryParameters({
       endDate,
       startDate,
     });
 
-    return `${endpoint}${graphQuerParameters}`;
+    return `${endpoint}${graphQueryParameters}`;
   };
 
   const addCurrentData = (): void => {
-    console.log('add current');
     const filteredData = data.map((item) => {
       if (item.isConfirmed === false) {
         return { isConfirmed: false, lines: lineData, timeSeries };
@@ -181,8 +187,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
       return item;
     });
-
-    console.log({ filteredData });
 
     setThresholdAnomalyDetectionData({
       ...thresholdsAnomalyDetectionData,
@@ -193,11 +197,9 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     });
   };
 
-  console.log({ data });
-
   const initializeData = (): void => {
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setStartDate(null);
+    setEndDate(null);
     setPickerEndWithoutInitialValue(true);
     setPickerStartWithoutInitialValue(true);
     setIsExclusionPeriodChecked(false);
@@ -290,15 +292,15 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const getIsError = (value: boolean): void => {
     setIsErrorDatePicker(value);
     if (value) {
-      setEndDate(undefined);
+      setEndDate(null);
     }
   };
 
   const handleCheckedExclusionPeriod = ({ target }): void => {
     setIsExclusionPeriodChecked(target.checked);
     if (!target.checked) {
-      setStartDate(undefined);
-      setEndDate(undefined);
+      setStartDate(null);
+      setEndDate(null);
       setPickerStartWithoutInitialValue(true);
       setPickerEndWithoutInitialValue(true);
       setDisabledPickerEndInput(false);
@@ -319,7 +321,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     if (!startDate || !endDate) {
       return;
     }
-    console.log('call');
 
     const api = graphEndpoint();
     getGraphData(api);
@@ -333,7 +334,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
       endpoint: api,
     })
       .then((graphData) => {
-        console.log({ graphData });
         setTimeSeries(getTimeSeries(graphData));
         const newLineData = getLineData(graphData);
 
@@ -351,7 +351,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
         setLineData(newLineData);
       })
-      .catch((err) => console.log('err', err));
+      .catch(() => undefined);
   };
 
   useEffect(() => {
@@ -374,39 +374,54 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     Component: (
       <div className={classes.container}>
         <div className={classes.subContainer}>
-          <Typography variant="h6">Exclusion of periods</Typography>
-          <Typography variant="caption">
-            Attention, the excluded of periods will be applied immediately.
+          <Typography data-testid={labelExclusionOfPeriods} variant="h6">
+            {labelExclusionOfPeriods}
+          </Typography>
+          <Typography
+            data-testid={labelSubTitleExclusionOfPeriods}
+            variant="caption"
+          >
+            {labelSubTitleExclusionOfPeriods}
           </Typography>
           <div className={classes.body}>
             <Button
               className={classes.exclusionButton}
-              data-testid="exclude"
+              data-testid={labelButtonExcludeAPeriod}
               disabled={enabledExclusionButton}
               size="small"
               startIcon={<AddIcon />}
               variant="contained"
               onClick={exclude}
             >
-              Exclude a period
+              {labelButtonExcludeAPeriod}
             </Button>
           </div>
         </div>
         <Divider flexItem className={classes.divider} orientation="vertical" />
         <div className={classes.excludedPeriods}>
-          <Typography className={classes.title} variant="h6">
-            Excluded periods
+          <Typography
+            className={classes.title}
+            data-testid={labelExcludedPeriods}
+            variant="h6"
+          >
+            {labelExcludedPeriods}
           </Typography>
           <List className={classes.list}>
-            {listExcludedDates.map((item, index) => (
-              <ListItem key={toDate(item?.start)}>
-                <ListItemText
-                  primary={`From ${toDate(item?.start)} To ${toDate(
-                    item?.end,
-                  )}`}
-                />
-              </ListItem>
-            ))}
+            {listExcludedDates.map((item) => {
+              const dateExist = !isNil(item?.start) && !isNil(item?.end);
+
+              return (
+                dateExist && (
+                  <ListItem key={toDate(item?.start as Date)}>
+                    <ListItemText
+                      primary={`From ${toDate(item?.start as Date)} To ${toDate(
+                        item?.end as Date,
+                      )}`}
+                    />
+                  </ListItem>
+                )
+              );
+            })}
           </List>
         </div>
         <PopoverCustomTimePeriodPickers

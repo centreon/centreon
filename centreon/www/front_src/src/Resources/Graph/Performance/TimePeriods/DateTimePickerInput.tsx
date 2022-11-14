@@ -61,7 +61,6 @@ const DateTimePickerInput = ({
     newValue: dayjs.Dayjs | null,
     keyBoardValue: string | undefined,
   ): void => {
-    console.log({ newValue });
     setWithoutInitialValue?.(false);
 
     if (isOpen) {

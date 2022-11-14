@@ -273,3 +273,9 @@ export const labelMenageEnvelopeSubTitle =
 export const labelUseDefaultValue = 'use default value';
 export const labelPointsOutsideOfEnvelopeCount = 'points out of envelope';
 export const labelClose = 'Close';
+export const labelExclusionOfPeriods = 'Exclusion of periods';
+export const labelExcludedPeriods = 'Excluded periods';
+export const labelSubTitleExclusionOfPeriods =
+  'Attention, the excluded periods will be applied immediately.';
+export const labelButtonExcludeAPeriod = 'Exclude a period';
+export const labelFromBeginning = 'From beginning';
