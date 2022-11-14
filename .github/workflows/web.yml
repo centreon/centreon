@@ -55,7 +55,7 @@ jobs:
   package:
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/centos:7
+      image: registry-docker.centreon.com/docker-global/packaging-web-centos7:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.ARTI_USER }}
         password: ${{ secrets.ARTI_PASSWD }}
@@ -70,10 +70,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - run: |
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-          yum --disablerepo=* --enablerepo=epel install -y zstd
-        shell: bash
+#      - run: |
+#          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#          yum --disablerepo=* --enablerepo=epel install -y zstd
+#        shell: bash
 
       - name: Restore index file cache
         uses: actions/cache@v3
@@ -125,7 +125,7 @@ jobs:
           cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
           mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
 
-          yum --disablerepo=* --enablerepo=base,updates install -y rpm-build
+          #yum --disablerepo=* --enablerepo=base,updates install -y rpm-build
           rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
 
           cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
@@ -136,5 +136,5 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
-          key: ${{ inputs.cache_key }}
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-el7
 
