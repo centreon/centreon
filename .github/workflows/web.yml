@@ -89,6 +89,8 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
       - run: |
+          set -x
+
           cd centreon
           VERSION=${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}
           RELEASE=${{ needs.get-version.outputs.release }}
