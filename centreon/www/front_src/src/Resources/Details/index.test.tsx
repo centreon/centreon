@@ -636,7 +636,7 @@ describe(Details, () => {
       },
     ]);
 
-    const { getByText, queryByText, getAllByText, findByText } =
+    const { getByText, queryByText, getAllByText, findByText, debug } =
       renderDetails();
 
     await waitFor(() => {
@@ -672,16 +672,16 @@ describe(Details, () => {
 
     expect(getAllByText(labelComment)).toHaveLength(3);
     expect(getAllByText(labelDowntimeDuration)).toHaveLength(2);
-    expect(getByText(`${labelFrom} 01/18/2020 6:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelTo} 01/18/2020 7:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelFrom} 02/18/2020 6:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelTo} 02/18/2020 7:57 PM`)).toBeInTheDocument();
+    expect(getByText(`${labelFrom} 01/18/2020 5:57 PM`)).toBeInTheDocument();
+    expect(getByText(`${labelTo} 01/18/2020 6:57 PM`)).toBeInTheDocument();
+    expect(getByText(`${labelFrom} 02/18/2020 5:57 PM`)).toBeInTheDocument();
+    expect(getByText(`${labelTo} 02/18/2020 6:57 PM`)).toBeInTheDocument();
     expect(getByText('First downtime set by Admin'));
     expect(getByText('Second downtime set by Admin'));
 
     expect(getByText(labelAcknowledgedBy)).toBeInTheDocument();
     expect(
-      getByText(`Admin ${labelAt} 03/18/2020 7:57 PM`),
+      getByText(`Admin ${labelAt} 03/18/2020 6:57 PM`),
     ).toBeInTheDocument();
     expect(getByText('Acknowledged by Admin'));
 
@@ -692,19 +692,19 @@ describe(Details, () => {
     expect(getByText('22m - 3/3 (Hard)')).toBeInTheDocument();
 
     expect(getByText(labelLastStatusChange)).toBeInTheDocument();
-    expect(getByText('04/18/2020 5:00 PM')).toBeInTheDocument();
+    expect(getByText('04/18/2020 3:00 PM')).toBeInTheDocument();
 
     expect(getByText(labelLastCheck)).toBeInTheDocument();
-    expect(getByText('05/18/2020 6:00 PM')).toBeInTheDocument();
+    expect(getByText('05/18/2020 4:00 PM')).toBeInTheDocument();
 
     expect(getByText(labelNextCheck)).toBeInTheDocument();
-    expect(getByText('06/18/2020 7:15 PM')).toBeInTheDocument();
+    expect(getByText('06/18/2020 5:15 PM')).toBeInTheDocument();
 
     expect(getByText(labelCheckDuration)).toBeInTheDocument();
     expect(getByText('0.070906 s')).toBeInTheDocument();
 
     expect(getByText(labelLastCheckWithOkStatus)).toBeInTheDocument();
-    expect(getByText('06/18/2020 7:15 PM')).toBeInTheDocument();
+    expect(getByText('06/18/2020 5:15 PM')).toBeInTheDocument();
 
     expect(getByText(labelLatency)).toBeInTheDocument();
     expect(getByText('0.005 s')).toBeInTheDocument();
@@ -715,7 +715,7 @@ describe(Details, () => {
     expect(getByText('3.5%')).toBeInTheDocument();
 
     expect(getByText(labelLastNotification)).toBeInTheDocument();
-    expect(getByText('07/18/2020 7:30 PM')).toBeInTheDocument();
+    expect(getByText('07/18/2020 5:30 PM')).toBeInTheDocument();
 
     expect(getByText(labelCurrentNotificationNumber)).toBeInTheDocument();
     expect(getByText('3')).toBeInTheDocument();
@@ -910,7 +910,7 @@ describe(Details, () => {
 
     await waitFor(() => expect(getByText(labelToday)).toBeInTheDocument());
 
-    expect(getByText('Tuesday, January 21, 2020 9:40 AM')).toBeInTheDocument();
+    expect(getByText('Tuesday, January 21, 2020 8:40 AM')).toBeInTheDocument();
     expect(getAllByLabelText('Event')).toHaveLength(3); // 2 events + 1 selected option
     expect(getByText('Up')).toBeInTheDocument();
     expect(getByText('Tries: 1')).toBeInTheDocument();
@@ -918,7 +918,7 @@ describe(Details, () => {
       getByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;'),
     ).toBeInTheDocument();
 
-    expect(getByText('Tuesday, January 21, 2020 9:35 AM')).toBeInTheDocument();
+    expect(getByText('Tuesday, January 21, 2020 8:35 AM')).toBeInTheDocument();
     expect(getByText('Down')).toBeInTheDocument();
     expect(getByText('Tries: 3')).toBeInTheDocument();
     expect(
@@ -927,28 +927,28 @@ describe(Details, () => {
 
     expect(getByText(labelYesterday)).toBeInTheDocument();
 
-    expect(getByText('Monday, January 20, 2020 8:40 AM')).toBeInTheDocument();
+    expect(getByText('Monday, January 20, 2020 7:40 AM')).toBeInTheDocument();
     expect(getByText('My little notification'));
 
     expect(getByText(labelThisWeek)).toBeInTheDocument();
     expect(getByText('January 19, 2020')).toBeInTheDocument();
 
-    expect(getByText('Sunday, January 19, 2020 8:35 AM')).toBeInTheDocument();
+    expect(getByText('Sunday, January 19, 2020 7:35 AM')).toBeInTheDocument();
     expect(getByText('My little ack'));
 
     expect(
       getByText(
-        'From Sunday, January 19, 2020 8:30 AM To Tuesday, January 21, 2020 8:33 AM',
+        'From Sunday, January 19, 2020 7:30 AM To Tuesday, January 21, 2020 7:33 AM',
       ),
     ).toBeInTheDocument();
     expect(getByText('My little dt'));
 
     expect(
-      getByText('From Sunday, January 19, 2020 8:30 AM'),
+      getByText('From Sunday, January 19, 2020 7:30 AM'),
     ).toBeInTheDocument();
     expect(getByText('My little ongoing dt'));
 
-    expect(getByText('Sunday, January 19, 2020 7:55 AM')).toBeInTheDocument();
+    expect(getByText('Sunday, January 19, 2020 6:55 AM')).toBeInTheDocument();
     expect(getByText('My little comment'));
 
     expect(getByText(labelLastWeek)).toBeInTheDocument();
@@ -956,7 +956,7 @@ describe(Details, () => {
       getByText('From January 12, 2020 to January 18, 2020'),
     ).toBeInTheDocument();
 
-    expect(getByText('Saturday, January 18, 2020 7:55 AM')).toBeInTheDocument();
+    expect(getByText('Saturday, January 18, 2020 6:55 AM')).toBeInTheDocument();
     expect(getByText('My little comment two'));
 
     expect(getByText(labelLastMonth)).toBeInTheDocument();
@@ -964,7 +964,7 @@ describe(Details, () => {
       getByText('From December 15, 2019 to January 11, 2020'),
     ).toBeInTheDocument();
 
-    expect(getByText('Wednesday, January 1, 2020 7:55 AM')).toBeInTheDocument();
+    expect(getByText('Wednesday, January 1, 2020 6:55 AM')).toBeInTheDocument();
     expect(getByText('My little comment three'));
 
     expect(getByText(labelLastYear)).toBeInTheDocument();
@@ -972,14 +972,14 @@ describe(Details, () => {
       getByText('From December 16, 2018 to December 14, 2019'),
     ).toBeInTheDocument();
 
-    expect(getByText('Monday, June 10, 2019 8:55 AM')).toBeInTheDocument();
+    expect(getByText('Monday, June 10, 2019 6:55 AM')).toBeInTheDocument();
     expect(getByText('My little comment four'));
 
     expect(getByText(labelBeforeLastYear)).toBeInTheDocument();
     expect(getByText('From December 15, 2018')).toBeInTheDocument();
 
     expect(
-      getByText('Wednesday, October 10, 2018 8:55 AM'),
+      getByText('Wednesday, October 10, 2018 6:55 AM'),
     ).toBeInTheDocument();
     expect(getByText('My little comment five'));
 
@@ -1401,13 +1401,13 @@ describe(Details, () => {
       );
     });
 
-    expect(getByText('01/20/2020 7:00 AM')).toBeInTheDocument();
-    expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
+    expect(getByText('01/20/2020 6:00 AM')).toBeInTheDocument();
+    expect(getByText('01/21/2020 6:00 AM')).toBeInTheDocument();
 
     userEvent.click(getByText(label7Days) as HTMLElement);
 
-    expect(getByText('01/14/2020 7:00 AM')).toBeInTheDocument();
-    expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
+    expect(getByText('01/14/2020 6:00 AM')).toBeInTheDocument();
+    expect(getByText('01/21/2020 6:00 AM')).toBeInTheDocument();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
