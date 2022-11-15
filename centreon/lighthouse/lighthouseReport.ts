@@ -45,7 +45,7 @@ const captureReport = async (): Promise<void> => {
 
   await browser.close();
 
-  await createReportFile(await flow.generateReport());
+  await createReportFile(flow.generateReport());
 };
 
 captureReport();
