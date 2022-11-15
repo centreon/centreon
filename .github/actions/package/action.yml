@@ -80,9 +80,7 @@ runs:
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
 
-        if [ ! -d ~/rpmbuild/SOURCES ] ; then
-            mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-        fi
+        mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
         mkdir centreon-$VERSION
         cp -rp centreon centreon-$VERSION/
