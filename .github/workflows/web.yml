@@ -62,15 +62,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        package_extension: [rpm]
+        major_version: ${{ needs.get-version.outputs.major_version }}
         include:
           - package_extension: rpm
             image: packaging-centos7
             distrib: el7
-            major_version: ${{ needs.get-version.outputs.major_version }}
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
-            major_version: ${{ needs.get-version.outputs.major_version }}
 #          - package_extension: deb
 #            image: packaging-bullseye
 #            distrib: bullseye
