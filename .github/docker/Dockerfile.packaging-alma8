@@ -2,7 +2,7 @@ FROM registry-docker.centreon.com/docker-global/almalinux:8.5
 
 RUN <<EOF
 
-dnf install -y rpm-build zstd
+dnf install -y rpm-build rpm-sign zstd
 dnf clean all
 
 EOF
