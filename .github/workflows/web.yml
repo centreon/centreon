@@ -53,88 +53,49 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   package:
+    needs: [
+      get-version,
+      backend-dependencies,
+      frontend-build
+    ]
+
+    strategy:
+      matrix:
+        include:
+          - package_extension: rpm
+            image: packaging-centos7
+            distrib: el7
+          - package_extension: rpm
+            image: packaging-alma8
+            distrib: el8
+#          - package_extension: deb
+#            image: packaging-bullseye
+#            distrib: bullseye
+
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/packaging-centos7:${{ needs.get-version.outputs.major_version }}
+      image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.ARTI_USER }}
         password: ${{ secrets.ARTI_PASSWD }}
-    needs:
-      [
-        get-version,
-        backend-dependencies,
-        frontend-build
-      ]
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - run: |
-          #yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-          yum --disablerepo=* --enablerepo=epel install -y zstd
-        shell: bash
-
-      - name: Restore index file cache
-        uses: actions/cache@v3
+      - uses: ./.github/actions/package
         with:
-          path: ${{ env.base_directory }}/www/index.html
-          key: ${{ github.sha }}-${{ github.run_id }}-index
-
-      - name: Restore static directory cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.base_directory }}/www/static
-          key: ${{ github.sha }}-${{ github.run_id }}-static
-
-      - name: Restore vendor directory cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.base_directory }}/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
-
-      - run: |
-          set -x
-
-          cd centreon
-          VERSION=${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}
-          RELEASE=${{ needs.get-version.outputs.release }}
-
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES/
-          touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.mo
-          touch www/locale/en_US.UTF-8/LC_MESSAGES/help.mo
-          touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-
-          mkdir -p www/locale/fr_FR.UTF-8/LC_MESSAGES/
-          touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.mo
-          touch www/locale/fr_FR.UTF-8/LC_MESSAGES/help.mo
-          touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.ser
-
-          rm -rf lang
-          cd ..
-
-          if [ ! -d ~/rpmbuild/SOURCES ] ; then
-              mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          fi
-
-          mkdir centreon-$VERSION
-          cp -rp centreon centreon-$VERSION/
-          ls -l centreon-$VERSION/centreon/
-          tar czf ~/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
-
-          cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
-          mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
-
-          #yum --disablerepo=* --enablerepo=base,updates install -y rpm-build
-          rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
-
-          cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
-          chmod 777 *.rpm
-        shell: bash
-
-      - name: Cache packaged files
-        uses: actions/cache@v3
-        with:
-          path: ./*.${{ inputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-rpm-el7
-
+          package_extension: ${{ matrix.package_extension }}
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: ${{ env.base_directory }}/www/index.html
+          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_directory: ${{ env.base_directory }}/www/static
+          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_directory: ${{ env.base_directory }}/vendor
+          image_name: ${{ matrix.image }}
+          script_name: web-packaging-${{ matrix.package_extension }}
+          module_name: centreon
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}

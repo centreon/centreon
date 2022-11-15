@@ -36,15 +36,6 @@ inputs:
   cache_key:
     description: The package files cache key
     required: true
-  sign:
-    description: Wether to sign the package or not
-    default: ""
-  nexus_username:
-    description: The nexus username
-    required: true
-  nexus_password:
-    description: The nexus password
-    required: true
 
 runs:
   using: composite
@@ -71,28 +62,59 @@ runs:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
 
-    - name: Login to Registry
-      uses: docker/login-action@v2
-      with:
-        registry: registry-docker.centreon.com
-        username: ${{ inputs.nexus_username }}
-        password: ${{ inputs.nexus_password }}
+    - run: |
+        set -x
 
-    - name: Package
-      uses: ./.github/actions/runner-docker
-      with:
-        script_name: ${{ inputs.script_name }}
-        image_name: ${{ inputs.image_name }}
-        image_version: ${{ inputs.major_version }}
-        params: ${{ inputs.major_version }}.${{ inputs.minor_version }} ${{ inputs.release }} ${{ inputs.module_name }}
+        cd centreon
+        VERSION=${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}
+        RELEASE=${{ needs.get-version.outputs.release }}
 
-    - name: Sign
-      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
-      uses: ./.github/actions/runner-docker
-      with:
-        script_name: rpm-signing
-        image_name: rpm-signing
-        image_version: ubuntu
+        mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES/
+        touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.mo
+        touch www/locale/en_US.UTF-8/LC_MESSAGES/help.mo
+        touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+
+        mkdir -p www/locale/fr_FR.UTF-8/LC_MESSAGES/
+        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.mo
+        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/help.mo
+        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.ser
+
+        rm -rf lang
+        cd ..
+
+        if [ ! -d ~/rpmbuild/SOURCES ] ; then
+            mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+        fi
+
+        mkdir centreon-$VERSION
+        cp -rp centreon centreon-$VERSION/
+        ls -l centreon-$VERSION/centreon/
+        tar czf ~/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
+
+        cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
+        mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
+
+        rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
+
+        cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
+        chmod 777 *.rpm
+      shell: bash
+
+#    - name: Package
+#      uses: ./.github/actions/runner-docker
+#      with:
+#        script_name: ${{ inputs.script_name }}
+#        image_name: ${{ inputs.image_name }}
+#        image_version: ${{ inputs.major_version }}
+#        params: ${{ inputs.major_version }}.${{ inputs.minor_version }} ${{ inputs.release }} ${{ inputs.module_name }}
+
+#    - name: Sign
+#      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
+#      uses: ./.github/actions/runner-docker
+#      with:
+#        script_name: rpm-signing
+#        image_name: rpm-signing
+#        image_version: ubuntu
 
     - name: Cache packaged files
       uses: actions/cache@v3
