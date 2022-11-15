@@ -13,6 +13,8 @@ import {
   Divider,
 } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 import Option from './Option';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -89,7 +91,7 @@ const SelectField = ({
             [classes.compact]: compact,
           }),
           'data-testid': dataTestId,
-          id: dataTestId?.replace(/[^A-Z0-9]+/gi, ''),
+          id: getNormalizedId(dataTestId || ''),
           ...inputProps,
         }}
         label={label}

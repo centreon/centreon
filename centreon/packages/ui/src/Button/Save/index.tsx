@@ -4,6 +4,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Theme, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 import StartIcon from './StartIcon';
 import Content from './Content';
 
@@ -67,7 +69,7 @@ const SaveButton = ({
           )}
           color="primary"
           data-testid={labelSave}
-          id={labelSave?.replace(/[^A-Z0-9]+/gi, '')}
+          id={getNormalizedId(labelSave)}
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}

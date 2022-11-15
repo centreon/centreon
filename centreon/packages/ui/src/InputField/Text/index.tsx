@@ -11,6 +11,8 @@ import {
   Tooltip,
 } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
@@ -106,7 +108,7 @@ const TextField = forwardRef(
           data-testid={dataTestId}
           error={!isNil(error)}
           helperText={displayErrorInTooltip ? undefined : error}
-          id={dataTestId?.replace(/[^A-Z0-9]+/gi, '')}
+          id={getNormalizedId(dataTestId || '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,

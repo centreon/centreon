@@ -20,6 +20,7 @@ import Option from '../Option';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
+import getNormalizedId from '../../../utils/getNormalizedId';
 
 export type Props = {
   autoFocus?: boolean;
@@ -193,7 +194,7 @@ const AutocompleteField = ({
         ...params.inputProps,
         'aria-label': label,
         'data-testid': label,
-        id: label?.replace(/[^A-Z0-9]+/gi, ''),
+        id: getNormalizedId(label || ''),
       }}
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}

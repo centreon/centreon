@@ -9,6 +9,7 @@ import { Button } from '@mui/material';
 
 import SaveButton from '../Button/Save';
 import useMemoComponent from '../utils/useMemoComponent';
+import getNormalizedId from '../utils/getNormalizedId';
 
 import {
   labelReset,
@@ -60,7 +61,7 @@ const FormButtons = (): JSX.Element => {
           aria-label={t(labelReset)}
           data-testid={labelReset}
           disabled={not(canReset)}
-          id={labelReset?.replace(/[^A-Z0-9]+/gi, '')}
+          id={getNormalizedId(labelReset)}
           size="small"
           onClick={reset}
         >

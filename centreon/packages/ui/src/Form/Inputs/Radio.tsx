@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';
+import getNormalizedId from '../../utils/getNormalizedId';
 
 import { InputPropsWithoutGroup } from './models';
 
@@ -70,10 +71,7 @@ const Radio = ({
                 <MUIRadio
                   data-testid={`${dataTestId} ${optionLabel}`}
                   disabled={disabled}
-                  id={`${dataTestId}${optionLabel}`?.replace(
-                    /[^A-Z0-9]+/gi,
-                    '',
-                  )}
+                  id={getNormalizedId(`${dataTestId}${optionLabel}`)}
                   inputProps={{
                     'aria-label': t(optionLabel),
                   }}
