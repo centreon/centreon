@@ -20,9 +20,6 @@ inputs:
     description: The translation directory cache key
   translation_directory:
     description: The translation directory
-  image_name:
-    description: The image name
-    required: true
   script_name:
     description: The packaging script name
   module_name:

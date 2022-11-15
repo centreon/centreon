@@ -108,33 +108,24 @@ jobs:
             image: packaging-bullseye
             distrib: bullseye
 
-    runs-on: ubuntu-22.04
-    container:
-      image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ matrix.major_version }}
-      options: -t
-      credentials:
-        username: ${{ secrets.REPOS_USERNAME }}
-        password: ${{ secrets.REPOS_PASSWORD }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - uses: ./.github/actions/package
-        with:
-          package_extension: ${{ matrix.package_extension }}
-          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-          frontend_index_file: ${{ env.base_directory }}/www/index.html
-          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-          frontend_static_directory: ${{ env.base_directory }}/www/static
-          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-          backend_vendor_directory: ${{ env.base_directory }}/vendor
-          translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
-          translation_directory: ${{ env.base_directory }}/www/locale
-          image_name: ${{ matrix.image }}
-          script_name: web-packaging-${{ matrix.package_extension }}
-          module_name: centreon
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    uses: ./.github/workflows/package.yml
+    with:
+      package_extension: ${{ matrix.package_extension }}
+      frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+      frontend_index_file: ${{ env.base_directory }}/www/index.html
+      frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+      frontend_static_directory: ${{ env.base_directory }}/www/static
+      backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+      backend_vendor_directory: ${{ env.base_directory }}/vendor
+      translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+      translation_directory: ${{ env.base_directory }}/www/locale
+      image_name: ${{ matrix.image }}
+      script_name: web-packaging-${{ matrix.package_extension }}
+      module_name: centreon
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
