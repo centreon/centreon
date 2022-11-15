@@ -79,8 +79,8 @@ jobs:
     container:
       image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ matrix.major_version }}
       credentials:
-        username: ${{ secrets.ARTI_USER }}
-        password: ${{ secrets.ARTI_PASSWD }}
+        username: ${{ secrets.REPOS_USERNAME }}
+        password: ${{ secrets.REPOS_PASSWORD }}
 
     steps:
       - name: Checkout sources
