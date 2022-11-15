@@ -75,7 +75,7 @@ jobs:
         working-directory: ${{ env.directory }}
 
       - name: Unit test
-        run: pnpm t -- --silent --reporter=jest-junit
+        run: pnpm t --silent --reporter=jest-junit
         working-directory: ${{ env.directory }}
 
       - name: Publish unit tests report
