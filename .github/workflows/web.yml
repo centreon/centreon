@@ -53,6 +53,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
+    needs: [get-version]
     runs-on: ubuntu-22.04
     container:
       image: registry-docker.centreon.com/docker-global/translation:${{ matrix.major_version }}
