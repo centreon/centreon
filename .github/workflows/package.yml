@@ -94,6 +94,7 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: registry-docker.centreon.com/docker-global/rpm-signing:ubuntu
+      options: -ti
       credentials:
         username: ${{ secrets.artifactory_username }}
         password: ${{ secrets.artifactory_password }}
@@ -109,7 +110,7 @@ jobs:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
-      - run: rpmsign --addsign /src/*.rpm
+      - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
       - uses: actions/cache@v3
