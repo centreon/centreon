@@ -110,7 +110,10 @@ jobs:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
-      - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
+      - run: |
+          set -ex
+          export GPG_TTY=$(tty)
+          rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
       - uses: actions/cache@v3
