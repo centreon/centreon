@@ -92,27 +92,25 @@ jobs:
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
     runs-on: ubuntu-22.04
+    container:
+      image: registry-docker.centreon.com/docker-global/rpm-signing:ubuntu
+      credentials:
+        username: ${{ secrets.artifactory_username }}
+        password: ${{ secrets.artifactory_password }}
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+      - run: apt-get install -y zstd
+        shell: bash
+
+      - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
-      - uses: docker/login-action@v2
-        with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.artifactory_username }}
-          password: ${{ secrets.artifactory_password }}
-
-      - uses: ./.github/actions/runner-docker
-        with:
-          script_name: rpm-signing
-          image_name: rpm-signing
-          image_version: ubuntu
+      - run: rpmsign --addsign /src/*.rpm
+        shell: bash
 
       - uses: actions/cache@v3
         with:
