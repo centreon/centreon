@@ -5,11 +5,7 @@ Maintainer: Luiz Costa <me@luizgustavo.pro.br>
 Standards-Version: 4.5.0
 Homepage: https://www.centreon.com
 Build-Depends:
-    debhelper-compat (=12),
-    php8.1-curl,
-    php8.1-intl,
-    php8.1-xml,
-    php-pear
+    debhelper-compat (=12)
 
 Package: centreon
 Architecture: all
