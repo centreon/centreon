@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         package_extension: [rpm]
-        major_version: [ "${{ needs.get-version.outputs.major_version }}" ]
+        major_version: ${{ fromJson(format('["{0}"]', needs.get-version.outputs.major_version)) }}
         include:
           - package_extension: rpm
             image: packaging-centos7
