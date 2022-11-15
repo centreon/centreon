@@ -66,8 +66,8 @@ runs:
         set -x
 
         cd centreon
-        VERSION=${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}
-        RELEASE=${{ needs.get-version.outputs.release }}
+        VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
+        RELEASE=${{ inputs.release }}
 
         mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES/
         touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.mo
