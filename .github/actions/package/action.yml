@@ -16,6 +16,10 @@ inputs:
     description: The vendor directory cache key
   backend_vendor_directory:
     description: The vendor directory
+  translation_cache_key:
+    description: The translation directory cache key
+  translation_directory:
+    description: The translation directory
   image_name:
     description: The action matrix
     required: true
@@ -62,25 +66,18 @@ runs:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
 
+    - name: Restore translation directory cache
+      if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.translation_directory }}
+        key: ${{ inputs.translation_cache_key }}
+
     - run: |
         set -x
 
-        cd centreon
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
-
-        mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES/
-        touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.mo
-        touch www/locale/en_US.UTF-8/LC_MESSAGES/help.mo
-        touch www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-
-        mkdir -p www/locale/fr_FR.UTF-8/LC_MESSAGES/
-        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.mo
-        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/help.mo
-        touch www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.ser
-
-        rm -rf lang
-        cd ..
 
         if [ ! -d ~/rpmbuild/SOURCES ] ; then
             mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}

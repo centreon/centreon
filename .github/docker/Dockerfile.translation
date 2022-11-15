@@ -3,9 +3,11 @@ FROM registry-docker.centreon.com/docker-global/debian:bullseye
 RUN <<EOF
 
 apt-get update
-apt-get install -y debmake pbuilder zstd
+apt-get install -y locales php-cli gettext zstd
 apt-get clean
 
 EOF
+
+ENV LANG en_US.utf8
 
 WORKDIR /src
