@@ -87,7 +87,8 @@ jobs:
     needs: [
       get-version,
       backend-dependencies,
-      frontend-build
+      frontend-build,
+      translation-build
     ]
 
     strategy:

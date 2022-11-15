@@ -23,7 +23,7 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  create-and-push-docker:
+  dockerize:
     needs: [get-version]
     runs-on: ubuntu-22.04
 
