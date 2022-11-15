@@ -111,6 +111,7 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ matrix.major_version }}
+      options: -i
       credentials:
         username: ${{ secrets.REPOS_USERNAME }}
         password: ${{ secrets.REPOS_PASSWORD }}
