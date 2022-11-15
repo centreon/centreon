@@ -1,0 +1,7 @@
+'DROP INDEX rq1 ON logs'
+'DROP INDEX rq2 ON logs'
+'DROP INDEX host_name ON logs'
+'DROP INDEX status ON logs'
+'DROP INDEX instance_name ON logs'
+'CREATE INDEX logs_multi ON logs(host_id,service_id,ctime,msg_type,status,host_name)'
+'CREATE INDEX logs_msg_type_status ON logs(msg_type, status)'
