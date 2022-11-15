@@ -1,0 +1,10 @@
+FROM registry-docker.centreon.com/docker-global/almalinux:8.5
+
+RUN <<EOF
+
+dnf install -y rpm-build zstd
+dnf clean all
+
+EOF
+
+WORKDIR /src

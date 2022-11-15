@@ -55,7 +55,7 @@ jobs:
   package:
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/packaging-web-centos7:${{ needs.get-version.outputs.major_version }}
+      image: registry-docker.centreon.com/docker-global/packaging-centos7:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.ARTI_USER }}
         password: ${{ secrets.ARTI_PASSWD }}
