@@ -112,13 +112,13 @@ jobs:
     with:
       package_extension: ${{ matrix.package_extension }}
       frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-      frontend_index_file: ${{ env.base_directory }}/www/index.html
+      frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-      frontend_static_directory: ${{ env.base_directory }}/www/static
+      frontend_static_directory: centreon/www/static
       backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-      backend_vendor_directory: ${{ env.base_directory }}/vendor
+      backend_vendor_directory: centreon/vendor
       translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
-      translation_directory: ${{ env.base_directory }}/www/locale
+      translation_directory: centreon/www/locale
       image_name: ${{ matrix.image }}
       script_name: web-packaging-${{ matrix.package_extension }}
       module_name: centreon
