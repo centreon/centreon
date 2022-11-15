@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package_extension: [rpm]
+        package_extension: [el7, el8]
         major_version: [ "${{ needs.get-version.outputs.major_version }}" ]
         include:
           - package_extension: rpm
