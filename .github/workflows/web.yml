@@ -56,7 +56,7 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/translation:${{ matrix.major_version }}
+      image: registry-docker.centreon.com/docker-global/translation:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.REPOS_USERNAME }}
         password: ${{ secrets.REPOS_PASSWORD }}
