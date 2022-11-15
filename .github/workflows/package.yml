@@ -102,6 +102,12 @@ jobs:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
+      - uses: docker/login-action@v2
+        with:
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.artifactory_username }}
+          password: ${{ secrets.artifactory_password }}
+
       - uses: ./.github/actions/runner-docker
         with:
           script_name: rpm-signing
