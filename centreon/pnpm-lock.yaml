@@ -152,7 +152,7 @@ importers:
       dayjs: 1.11.6
       dom-serializer: 1.4.1
       dom-to-image: 2.6.0
-      dompurify: 2.4.0
+      dompurify: 2.4.1
       file-saver: 2.0.5
       formik: 2.2.9_react@18.2.0
       html-react-parser: 1.4.14_react@18.2.0
@@ -9884,8 +9884,8 @@ packages:
     dependencies:
       domelementtype: 2.3.0
 
-  /dompurify/2.4.0:
-    resolution: {integrity: sha512-Be9tbQMZds4a3C6xTmz68NlMfeONA//4dOavl/1rNw50E+/QO0KVpbcU0PcaW0nsQxurXls9ZocqFxk8R2mWEA==}
+  /dompurify/2.4.1:
+    resolution: {integrity: sha512-ewwFzHzrrneRjxzmK6oVz/rZn9VWspGFRDb4/rRtIsM1n36t9AKma/ye8syCpcw+XJ25kOK/hOG7t1j2I2yBqA==}
     dev: false
 
   /domutils/2.8.0:
