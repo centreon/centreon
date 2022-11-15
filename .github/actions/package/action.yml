@@ -89,9 +89,6 @@ runs:
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
-        export GPG_TTY=$(tty)
-        rpmsign --addsign *.rpm
-
         chmod 777 *.rpm
       shell: bash
 
