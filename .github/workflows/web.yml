@@ -60,21 +60,24 @@ jobs:
     ]
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - package_extension: rpm
             image: packaging-centos7
             distrib: el7
+            major_version: ${{ needs.get-version.outputs.major_version }}
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+            major_version: ${{ needs.get-version.outputs.major_version }}
 #          - package_extension: deb
 #            image: packaging-bullseye
 #            distrib: bullseye
 
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: registry-docker.centreon.com/docker-global/${{ matrix.image }}:${{ matrix.major_version }}
       credentials:
         username: ${{ secrets.ARTI_USER }}
         password: ${{ secrets.ARTI_PASSWD }}
