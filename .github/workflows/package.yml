@@ -112,7 +112,7 @@ jobs:
 
       - run: |
           set -ex
-          whoami
+          echo "HOME=/root" >> $GITHUB_ENV
           rpmsign --load="/root/.rpmmacros" --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
