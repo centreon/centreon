@@ -1,4 +1,7 @@
 
+%define name %{NAME}
+%define version %{VERSION}
+%define release %{REL}%{?dist}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
@@ -8,7 +11,7 @@
 Summary:    %{summary}
 Name:       %{name}
 Version:    %{version}
-Release:    %{release}%{?dist}
+Release:    %{release}
 Source0:    %{name}-%{version}.tar.gz
 
 License:    GPLv2
