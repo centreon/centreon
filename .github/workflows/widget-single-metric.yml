@@ -16,7 +16,7 @@ on:
       - centreon-widget-single-metric-22.04.**
 
 env:
-  version: "22.04"
+  version: "21.10"
 
 jobs:
   package:
