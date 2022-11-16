@@ -87,10 +87,12 @@ final class UpdateVaultConfiguration
 
             $vaultConfiguration = $this->factory->create($updateVaultConfigurationRequest);
 
-            if ($this->isSameVaultConfigurationExists(
-                $vaultConfiguration->getAddress(),
-                $vaultConfiguration->getPort(),
-                $vaultConfiguration->getStorage())
+            if (
+                $this->isSameVaultConfigurationExists(
+                    $vaultConfiguration->getAddress(),
+                    $vaultConfiguration->getPort(),
+                    $vaultConfiguration->getStorage()
+                )
             ) {
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
