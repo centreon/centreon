@@ -9,7 +9,8 @@
             "php": "8.0"
         },
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "pestphp/pest-plugin": true
         }
     },
     "require-dev": {
