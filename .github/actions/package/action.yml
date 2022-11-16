@@ -109,8 +109,11 @@ runs:
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
         cd ${{ inputs.base_directory }}/..
-        tar czpvf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
-        cp -rp $MODULE_BASENAME/packaging/debian .
+        cp -r $MODULE_BASENAME $MODULE_BASENAME-$VERSION
+        cp -r $MODULE_BASENAME/packaging/debian ./$MODULE_BASENAME-$VERSION
+        tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
+        mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME-$VERSION
+        cd ./$MODULE_BASENAME-$VERSION
 
         if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" ${{ inputs.base_directory }}/debian/substvars

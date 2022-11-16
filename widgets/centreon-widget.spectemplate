@@ -9,6 +9,7 @@ Source0:    %{name}-%{version}.tar.gz
 
 %define widget_sub_dir %(echo %{name} | sed 's/centreon-widget-//')
 
+Summary:    centreon widget %{name}
 Name:       %{name}
 Version:    %{version}
 Release:    %{release}
