@@ -4105,6 +4105,29 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /administration/vaults/{vault_id}/configurations/{vault_configuration_id}:
+    put:
+      tags:
+        - Administration
+      summary: "Update vault configuration"
+      parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/VaultConfigurationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Administration.Vault'
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     Token:
