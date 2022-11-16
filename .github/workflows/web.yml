@@ -72,6 +72,7 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -118,10 +119,6 @@ jobs:
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
-
-      - name: Unit test
-        run: composer run test
-        working-directory: centreon
 
       - name: Unit test
         run: composer run test:ci
