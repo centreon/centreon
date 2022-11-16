@@ -1,7 +1,7 @@
 
 %define name %{NAME}
 %define version %{VERSION}
-%define release %{REL}%{?dist}
+%define release %{RELEASE}%{?dist}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
