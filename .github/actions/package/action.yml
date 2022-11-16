@@ -111,8 +111,8 @@ runs:
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
-        if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then
-          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" ${{ inputs.base_directory }}/debian/substvars
+        if [ -f "debian/substvars" ]; then
+          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
