@@ -1,0 +1,11 @@
+/var/log/centreon-ha/centreon-central-sync.log  {
+    su centreon centreon
+    compress
+    daily
+    delaycompress
+    missingok
+    rotate 365
+    postrotate
+        systemctl status centreon-central-sync >/dev/null && systemctl reload centreon-central-sync
+    endscript
+}
