@@ -17,6 +17,9 @@ Requires:   centreon-web >= %{thismajor}
 Requires:   centreon-web < %{nextmajor}
 BuildRequires:  dos2unix
 
+%global widget_sub_dir %%(echo %{name} | sed 's/centreon-widget-//')
+%global summary %%(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p' 2>/dev/null)
+
 %description
 Add homepage with Centreon Widgets
 

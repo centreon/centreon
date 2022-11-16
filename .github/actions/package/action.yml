@@ -4,6 +4,9 @@ inputs:
   base_directory:
     description: The module directory
     required: true
+  spec_file:
+    description: The spec file path to build rpm
+    required: true
   package_extension:
     description: The package extension (deb or rpm)
     required: true
@@ -90,7 +93,7 @@ runs:
           cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
         fi
 
-        rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
+        rpmbuild -ba ${{ inputs.spec_file }} -D "VERSION $VERSION" -D "REL $RELEASE"
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 

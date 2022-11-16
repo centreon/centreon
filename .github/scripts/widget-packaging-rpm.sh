@@ -28,12 +28,4 @@ rpmbuild -ba ../centreon-widget.spectemplate \
     -D "widget_sub_dir $WIDGET"
 cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
 chmod 777 *.rpm
-cd ..
 
-find /src -type f -iname '*.rpm' | xargs cp -vt /src/
-
-# Add here delivery of files
-#
-#
-
-exit 0
