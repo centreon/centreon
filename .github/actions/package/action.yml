@@ -111,7 +111,7 @@ runs:
         cd ${{ inputs.base_directory }}/..
         cp -r $MODULE_BASENAME/packaging/debian .
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
-        mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME
+        #mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
         if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then
