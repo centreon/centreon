@@ -87,12 +87,15 @@ final class UpdateVaultConfiguration
 
             $vaultConfiguration = $this->factory->create($updateVaultConfigurationRequest);
 
+            $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
+                $vaultConfiguration->getAddress(),
+                $vaultConfiguration->getPort(),
+                $vaultConfiguration->getStorage()
+            );
+
             if (
-                $this->isSameVaultConfigurationExists(
-                    $vaultConfiguration->getAddress(),
-                    $vaultConfiguration->getPort(),
-                    $vaultConfiguration->getStorage()
-                )
+                $existingVaultConfiguration !== null
+                && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId()
             ) {
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
@@ -100,6 +103,20 @@ final class UpdateVaultConfiguration
 
                 return;
             }
+
+            // if (
+            //     $this->isSameVaultConfigurationExists(
+            //         $vaultConfiguration->getAddress(),
+            //         $vaultConfiguration->getPort(),
+            //         $vaultConfiguration->getStorage()
+            //     )
+            // ) {
+            //     $presenter->setResponseStatus(
+            //         new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
+            //     );
+
+            //     return;
+            // }
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());

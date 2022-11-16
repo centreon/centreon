@@ -119,3 +119,19 @@ Feature: Vault Configuration API
         "message": "Vault configuration with these properties already exists"
       }
     """
+
+  Scenario: Update an existing vault configuration as an admin user
+    Given I am logged in
+    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.2",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "204"
