@@ -51,6 +51,16 @@ final class UpdateVaultConfigurationController extends AbstractController
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        /**
+         * @var array{
+         *  "name": string,
+         *  "address": string,
+         *  "port": integer,
+         *  "storage": string,
+         *  "role_id": string,
+         *  "secret_id": string
+         * } $decodedRequest
+         */
         $decodedRequest = $this->validateAndRetrieveDataSent(
             $request,
             __DIR__ . '/UpdateVaultConfigurationSchema.json'
@@ -70,7 +80,14 @@ final class UpdateVaultConfigurationController extends AbstractController
     /**
      * @param integer $vaultId
      * @param integer $vaultConfigurationId
-     * @param array $decodedRequest
+     * @param array{
+     *  "name": string,
+     *  "address": string,
+     *  "port": integer,
+     *  "storage": string,
+     *  "role_id": string,
+     *  "secret_id": string
+     * } $decodedRequest
      *
      * @return UpdateVaultConfigurationRequest
      */
