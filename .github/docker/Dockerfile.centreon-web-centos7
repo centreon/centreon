@@ -30,9 +30,9 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.04/el7/stable/noarch/RPMS/centreon-release-22.04-3.el7.centos.noarch.rpm"
+curl -o centreon-release.rpm "https://yum.centreon.com/standard/21.10/el7/stable/noarch/RPMS/centreon-release-21.10-5.el7.centos.noarch.rpm"
 yum install -y centreon-release.rpm
-rm -f centreonrelease-.rpm
+rm -f centreon-release.rpm
 yum-config-manager --enable 'centreon-testing*'
 yum-config-manager --enable 'centreon-unstable*'
 
@@ -45,7 +45,7 @@ COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-22.04*.rpm /tmp/rpms-centreon/centreon-central-22.04*.rpm
+rm -f /tmp/rpms-centreon/centreon-21.10*.rpm /tmp/rpms-centreon/centreon-central-*.rpm
 yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
@@ -61,11 +61,11 @@ yum clean all
 
 EOF
 
-COPY --chmod=+x ./ci/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY ./ci/scripts/entrypoint/container.d /usr/share/centreon/container.d
-COPY ./ci/scripts/init/* /etc/init.d/
-COPY --chmod=+x ./ci/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./ci/scripts/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=+x ./.github/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY ./.github/scripts/entrypoint/container.d /usr/share/centreon/container.d
+COPY ./.github/scripts/init/* /etc/init.d/
+COPY --chmod=+x ./.github/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache ./.github/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
@@ -96,7 +96,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./ci/scripts/sql /tmp/sql
+COPY ./.github/scripts/sql /tmp/sql
 
 RUN <<EOF
 
@@ -111,7 +111,7 @@ EOF
 
 FROM web_standard AS web_widgets
 
-COPY --chmod=+x ./ci/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
+COPY --chmod=+x ./.github/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
 
 RUN <<EOF
 

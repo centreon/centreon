@@ -150,9 +150,6 @@ jobs:
           - package_extension: rpm
             image: packaging-web-alma8
             distrib: el8
-          - package_extension: deb
-            image: packaging-web-bullseye
-            distrib: bullseye
 
     steps:
       - name: Checkout sources
@@ -211,7 +208,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_fresh
           context: .
           pull: true
@@ -220,7 +217,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_standard
           context: .
           pull: true
@@ -229,7 +226,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_widgets
           context: .
           pull: true
@@ -350,24 +347,3 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-
-  deliver-deb:
-    runs-on: ubuntu-22.04
-    needs: [api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    strategy:
-      matrix:
-        distrib: [bullseye]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
-          cache_key: cache-${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}

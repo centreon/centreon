@@ -26,9 +26,6 @@ jobs:
           - package_extension: rpm
             image: packaging-widgets-alma8
             distrib: el8
-          - package_extension: deb
-            image: packaging-widgets-bullseye
-            distrib: bullseye
 
     steps:
       - name: Checkout sources
