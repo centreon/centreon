@@ -24,17 +24,15 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\InvalidArgumentException;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Vault\Domain\Exceptions\VaultException;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\Vault\Domain\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultRepositoryInterface,
+    ReadVaultConfigurationRepositoryInterface,
+    WriteVaultConfigurationRepositoryInterface
+};
+use Core\Security\Vault\Domain\Exceptions\{VaultException, VaultConfigurationException};
 
 final class UpdateVaultConfiguration
 {

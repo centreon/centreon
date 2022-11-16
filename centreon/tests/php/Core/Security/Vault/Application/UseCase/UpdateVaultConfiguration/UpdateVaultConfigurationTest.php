@@ -24,23 +24,22 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\InvalidArgumentException;
-use Core\Security\Vault\Domain\Model\Vault;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Core\Security\Vault\Domain\Exceptions\VaultException;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\Vault\Domain\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfiguration;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\VaultConfigurationFactory;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationRequest;
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultRepositoryInterface,
+    ReadVaultConfigurationRepositoryInterface,
+    WriteVaultConfigurationRepositoryInterface
+};
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
+    UpdateVaultConfiguration,
+    VaultConfigurationFactory,
+    UpdateVaultConfigurationRequest
+};
+use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Exceptions\{VaultException, VaultConfigurationException};
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);

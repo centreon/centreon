@@ -25,9 +25,11 @@ namespace Core\Security\Vault\Infrastructure\Api\UpdateVaultConfiguration;
 
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfiguration;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationRequest;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationPresenterInterface;
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
+    UpdateVaultConfiguration,
+    UpdateVaultConfigurationRequest,
+    UpdateVaultConfigurationPresenterInterface
+};
 
 final class UpdateVaultConfigurationController extends AbstractController
 {

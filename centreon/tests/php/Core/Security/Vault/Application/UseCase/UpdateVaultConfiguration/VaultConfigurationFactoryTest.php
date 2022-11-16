@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Security\Encryption;
-use Core\Security\Vault\Domain\Model\Vault;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\VaultConfigurationFactory;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationRequest;
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
+    VaultConfigurationFactory,
+    UpdateVaultConfigurationRequest
+};
 
 beforeEach(function (): void {
     $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
