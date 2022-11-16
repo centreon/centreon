@@ -5,6 +5,8 @@
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
+Source0:    %{name}-%{version}.tar.gz
+
 %define widget_sub_dir %(echo %{name} | sed 's/centreon-widget-//')
 %define summary %(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p' 2>/dev/null)
 
@@ -12,7 +14,6 @@ Summary:    %{summary}
 Name:       %{name}
 Version:    %{version}
 Release:    %{release}
-Source0:    %{name}-%{version}.tar.gz
 
 License:    GPLv2
 Group:      Applications/System

@@ -109,10 +109,10 @@ runs:
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
         tar czpvf $MODULE_BASENAME-$VERSION.tar.gz -C ${{ inputs.base_directory }} .
-        cp -rp packaging/debian .
+        cp -rp ${{ inputs.base_directory }}/packaging/debian .
 
-        if [ -f "debian/substvars" ]; then
-          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+        if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then
+          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" ${{ inputs.base_directory }}/debian/substvars
         fi
         ls
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
