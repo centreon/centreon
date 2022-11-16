@@ -68,27 +68,22 @@ function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources,
     $allowedResources = getUserAclAllowedResources($userAcl, $resourceType);
 
     $selectedResourceIds = array_map(
-        function (array $resource) {
-            return $resource['id'];
-        },
+        static fn (array $resource) => $resource['id'],
         $selectedResources
     );
 
     $diff = array_diff($selectedResourceIds, array_keys($allowedResources));
 
-    if (empty($diff)) {
+    if ($diff === []) {
         return true;
     }
 
-    /**
-     * checking that remain diff is not filled with disabled hosts
-     */
     foreach ($selectedResources as $resource) {
         if (
             in_array($resource['id'], $diff)
-            && $resource['activated'] === '0'
+            && $resource['activated'] === '1'
         ) {
-            continue;
+            return false;
         }
     }
 
@@ -371,10 +366,10 @@ if ($form->validate()) {
     }
     /** validate that at least one relation has been configured */
     if (
-        (! isset($values['host_relation']) || count($values['host_relation']) == 0)
-        && (! isset($values['hostgroup_relation']) || count($values['hostgroup_relation']) == 0)
-        && (! isset($values['svc_relation']) || count($values['svc_relation']) == 0)
-        && (! isset($values['svcgroup_relation']) || count($values['svcgroup_relation']) == 0)
+        (! isset($values['host_relation']) || count($values['host_relation']) === 0)
+        && (! isset($values['hostgroup_relation']) || count($values['hostgroup_relation']) === 0)
+        && (! isset($values['svc_relation']) || count($values['svc_relation']) === 0)
+        && (! isset($values['svcgroup_relation']) || count($values['svcgroup_relation']) === 0)
     ) {
         $valid = false;
         $tpl->assign('msg_err', _('No relation set for this downtime'));

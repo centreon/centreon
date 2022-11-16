@@ -324,9 +324,10 @@ class CentreonDowntime
 
             $statement = $this->db->prepare($query);
             $statement->bindValue(':downtimeId', $downtimeId, \PDO::PARAM_INT);
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute();
 
-            while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($statement as $record) {
                 $relations[$resourceType][] = [
                     'id' => $record['resource_id'],
                     'activated' => $record['activated']
@@ -370,9 +371,7 @@ class CentreonDowntime
             AND dtr.host_host_id = h.host_id
             AND h.host_activate = '1'";
 
-        $statement = $this->db->query($request);
-
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($this->db->query($request, \PDO::FETCH_ASSOC) as $record) {
             $downtimes[] = $record;
         }
 
@@ -445,9 +444,7 @@ class CentreonDowntime
                 AND dtr.service_service_id = s.service_id
                 AND h.host_activate = '1'";
 
-        $statement = $this->db->query($request);
-
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($this->db->query($request, \PDO::FETCH_ASSOC) as $record) {
             $downtimes[] = $record;
         }
 
@@ -489,9 +486,7 @@ class CentreonDowntime
             AND hgr.hostgroup_hg_id = hg.hg_id
             AND hg.hg_activate = '1'";
 
-        $statement = $this->db->query($request);
-
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($this->db->query($request, \PDO::FETCH_ASSOC) as $record) {
             $downtimes[] = $record;
         }
 
@@ -560,9 +555,7 @@ class CentreonDowntime
                 AND hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
                 AND hgr.host_host_id = h.host_id";
 
-        $statement = $this->db->query($request);
-
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($this->db->query($request, \PDO::FETCH_ASSOC) as $record) {
             $downtimes[] = $record;
         }
 
