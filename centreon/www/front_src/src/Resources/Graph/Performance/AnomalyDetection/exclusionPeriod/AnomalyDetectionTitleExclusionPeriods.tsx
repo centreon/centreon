@@ -17,7 +17,9 @@ const AnomalyDetectionTitleExclusionPeriods = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <Typography variant="h6">{labelExcludedPeriods}</Typography>
+      <Typography data-testid={labelExcludedPeriods} variant="h6">
+        {labelExcludedPeriods}
+      </Typography>
       <Typography variant="caption">
         {labelSubTitleExclusionOfPeriods}
       </Typography>

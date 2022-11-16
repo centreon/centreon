@@ -99,6 +99,7 @@ const AnomalyDetectionExclusionPeriodsThreshold = ({
         y1={getY1Point}
       />
       <PatternLines
+        data-testid="patternLinesExclusionPeriods"
         height={5}
         id="lines"
         orientation={['diagonal']}

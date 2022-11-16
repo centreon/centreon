@@ -31,7 +31,7 @@ const AnomalyDetectionFooterExclusionPeriods = ({
   return (
     <div className={classes.footer}>
       <Button
-        data-testid="cancel"
+        data-testid="cancelExclusionPeriod"
         size="small"
         variant="text"
         onClick={cancelExclusionPeriod}
@@ -40,7 +40,7 @@ const AnomalyDetectionFooterExclusionPeriods = ({
       </Button>
       <Button
         className={classes.confirmButton}
-        data-testid="save"
+        data-testid="confirmExclusionPeriods"
         disabled={isError || !dateExisted}
         size="small"
         variant="contained"

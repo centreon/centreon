@@ -279,3 +279,7 @@ export const labelSubTitleExclusionOfPeriods =
   'Attention, the excluded periods will be applied immediately.';
 export const labelButtonExcludeAPeriod = 'Exclude a period';
 export const labelFromBeginning = 'From beginning';
+
+export const labelConfirmationExclusionPeriod =
+  'Are you sure you want to exclude the period?';
+export const titleExcludeAPeriod = 'Exclude a period';

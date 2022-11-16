@@ -1,6 +1,10 @@
 import React from 'react';
 
 import { act, renderHook } from '@testing-library/react-hooks/dom';
+import dayjs from 'dayjs';
+import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
 import { Provider, useAtom } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
@@ -14,10 +18,17 @@ import Resources from '../../../index';
 import { enabledAutorefreshAtom } from '../../../Listing/listingAtoms';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import {
+  labelButtonExcludeAPeriod,
   labelCancel,
   labelClose,
+  labelComment,
+  labelConfirmationExclusionPeriod,
   labelDisplayEvents,
   labelEditAnomalyDetectionConfirmation,
+  labelExcludedPeriods,
+  labelExclusionOfPeriods,
+  labelFrom,
+  labelFromBeginning,
   labelGraph,
   labelLast31Days,
   labelLast7Days,
@@ -25,12 +36,16 @@ import {
   labelMenageEnvelope,
   labelMenageEnvelopeSubTitle,
   labelPerformanceGraphAD,
+  labelSave,
+  labelSubTitleExclusionOfPeriods,
+  labelTo,
   labelUseDefaultValue,
+  titleExcludeAPeriod,
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
 
-import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 import { getDisplayAdditionalLinesCondition } from './graph';
+import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 
 const installedModules = {
   modules: {
@@ -73,9 +88,13 @@ const searchWords = filtersToBeDisplayedInSearchBar.reduce(
 
 document.getElementById('cy-root').style = 'min-height:750px;display:flex';
 
+dayjs.extend(timezonePlugin);
+dayjs.extend(utcPlugin);
+dayjs.extend(localizedFormatPlugin);
+
 describe('Anomaly detection - Filter', () => {
   beforeEach(() => {
-    cy.viewport(1200, 750);
+    cy.viewport(1200, 1000);
 
     const storedFilter = renderHook(() => useAtom(storedFilterAtom));
 
@@ -124,7 +143,7 @@ describe('Anomaly detection - Filter', () => {
 
 describe('Anomaly detection - Graph', () => {
   beforeEach(() => {
-    cy.viewport(1200, 750);
+    cy.viewport(1200, 1000);
 
     cy.fixture('resources/performanceGraphAnomalyDetection.json').as(
       'graphAnomalyDetection',
@@ -210,6 +229,101 @@ describe('Anomaly detection - Graph', () => {
         .should('be.visible');
       cy.contains('Default').should('be.visible');
     });
+
+    cy.contains(labelExclusionOfPeriods).should('be.visible');
+    cy.contains(labelExcludedPeriods).should('be.visible');
+    cy.contains(labelSubTitleExclusionOfPeriods).should('be.visible');
+    cy.contains(labelButtonExcludeAPeriod).should('be.visible');
+  });
+
+  it('displays the Exclusion Periods modal confirmation when the date is selected and confirm button is clicked', () => {
+    cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
+    cy.wait('@getGraphDataAnomalyDetection');
+
+    cy.get(`[data-testid="${labelButtonExcludeAPeriod}"]`).click();
+
+    cy.get(`[data-testid="popover"]`).as('modalExclusionPeriod');
+
+    cy.get('@modalExclusionPeriod')
+      .contains(labelExcludedPeriods)
+      .should('be.visible');
+    cy.get('@modalExclusionPeriod')
+      .contains(labelSubTitleExclusionOfPeriods)
+      .should('be.visible');
+    cy.get('@modalExclusionPeriod').contains(labelFrom).should('be.visible');
+    cy.get('@modalExclusionPeriod').contains(labelTo).should('be.visible');
+    cy.get('@modalExclusionPeriod')
+      .contains(labelFromBeginning)
+      .should('be.visible');
+    cy.get('@modalExclusionPeriod').contains(labelComment).should('be.visible');
+    cy.get('@modalExclusionPeriod').contains('Confirm').should('be.visible');
+
+    cy.get(`[data-testid="checkFromBeginning"]`).click();
+    cy.get(`[data-testid="checkFromBeginning"]`)
+      .find('input')
+      .should('be.checked');
+
+    cy.get(`[data-testid="confirmExclusionPeriods"]`).click();
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the threshold exclusion period graph when the checkbox from beginning is selected', () => {
+    cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
+    cy.wait('@getGraphDataAnomalyDetection');
+    cy.get(`[data-testid="${labelButtonExcludeAPeriod}"]`).click();
+    cy.get(`[data-testid="checkFromBeginning"]`).click();
+    cy.get(`[data-testid="checkFromBeginning"]`)
+      .find('input')
+      .should('be.checked');
+    cy.get(`[aria-label="Start date"]`)
+      .find('input')
+      .invoke('val')
+      .should('not.be.empty');
+
+    cy.get(`[aria-label="End date"]`)
+      .find('input')
+      .invoke('val')
+      .should('not.be.empty');
+
+    cy.matchImageSnapshot();
+    cy.get(`[data-testid="cancelExclusionPeriod"]`).click();
+  });
+
+  it('displays the dates in excluded periods Tab when the excluded period date is selected and confirmed', () => {
+    cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
+    cy.wait('@getGraphDataAnomalyDetection');
+    cy.get(`[data-testid="${labelButtonExcludeAPeriod}"]`).click();
+    cy.get(`[data-testid="checkFromBeginning"]`).click();
+    cy.get(`[data-testid="checkFromBeginning"]`)
+      .find('input')
+      .should('be.checked');
+    cy.get(`[aria-label="Start date"]`)
+      .find('input')
+      .invoke('val')
+      .should('not.be.empty');
+    cy.get(`[aria-label="End date"]`)
+      .find('input')
+      .invoke('val')
+      .should('not.be.empty');
+    cy.get(`[data-testid="confirmExclusionPeriods"]`).click();
+    cy.get(`[data-testid="modalConfirmationExclusionPeriod"]`).as(
+      'modalConfirmationExclusionPeriod',
+    );
+    cy.get('@modalConfirmationExclusionPeriod')
+      .contains(labelConfirmationExclusionPeriod)
+      .should('be.visible');
+    cy.get('@modalConfirmationExclusionPeriod')
+      .contains(titleExcludeAPeriod)
+      .should('be.visible');
+    cy.get('@modalConfirmationExclusionPeriod')
+      .contains(labelCancel)
+      .should('be.visible');
+    cy.get('@modalConfirmationExclusionPeriod')
+      .contains(labelSave)
+      .should('be.visible');
+    cy.get('@modalConfirmationExclusionPeriod').contains(labelSave).click();
+    cy.get(`[data-testid="listExcludedPeriods"]`).its('length').should('eq', 1);
+    cy.matchImageSnapshot();
   });
 
   it('displays the threshold when add or minus buttons are clicked on Anomaly detection configuration modal slider', () => {
@@ -272,7 +386,7 @@ describe('Anomaly detection - Graph', () => {
 
 describe('Anomaly detection - Global', () => {
   beforeEach(() => {
-    cy.viewport(1200, 750);
+    cy.viewport(1200, 1000);
     cy.fixture('resources/resourceListing.json').as('listResource');
     cy.fixture('resources/userFilter.json').as('userFilter');
     cy.fixture('resources/detailsAnomalyDetection.json').as(

@@ -41,6 +41,7 @@ const AnomalyDetectionCommentExclusionPeriod = ({
         control={
           <Checkbox
             checked={isExclusionPeriodChecked}
+            data-testid="checkFromBeginning"
             onChange={onChangeCheckedExclusionPeriod}
           />
         }

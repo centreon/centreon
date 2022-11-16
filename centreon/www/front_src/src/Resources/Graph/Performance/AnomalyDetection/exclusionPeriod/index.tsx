@@ -27,6 +27,8 @@ import {
   labelExcludedPeriods,
   labelExclusionOfPeriods,
   labelSubTitleExclusionOfPeriods,
+  labelConfirmationExclusionPeriod,
+  titleExcludeAPeriod,
 } from '../../../../translatedLabels';
 import { GraphData, Line, TimeValue } from '../../models';
 import PopoverCustomTimePeriodPickers from '../../TimePeriods/PopoverCustomTimePeriodPicker';
@@ -410,7 +412,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         >
           {labelExcludedPeriods}
         </Typography>
-        <List className={classes.list}>
+        <List className={classes.list} data-testid="listExcludedPeriods">
           {listExcludedDates.map((item) => {
             const dateExist = !isNil(item?.start) && !isNil(item?.end);
 
@@ -467,11 +469,11 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
       />
 
       <AnomalyDetectionModalConfirmation
-        dataTestid="modalConfirmation"
-        message="Are you sure you want to exclure the period?"
+        dataTestid="modalConfirmationExclusionPeriod"
+        message={labelConfirmationExclusionPeriod}
         open={isConfirmedExclusion}
         setOpen={setIsConfirmedExclusion}
-        title="Exclude a period"
+        title={titleExcludeAPeriod}
         onCancel={(value): void => setIsConfirmedExclusion(value)}
         onConfirm={confirmExcluderPeriods}
       />

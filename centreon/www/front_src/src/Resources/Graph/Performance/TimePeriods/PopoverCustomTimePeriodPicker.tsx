@@ -191,55 +191,57 @@ const PopoverCustomTimePeriodPickers = ({
       transformOrigin={transformOrigin}
       onClose={onClose}
     >
-      {renderTitle}
-      <LocalizationProvider
-        dateAdapter={Adapter}
-        locale={locale.substring(0, 2)}
-      >
-        <div className={cx(classes.popover, classNamePicker)}>
-          <div>
-            <Typography>{t(labelFrom)}</Typography>
-            <div aria-label={t(labelStartDate)}>
-              <DateTimePickerInput
-                changeDate={changeDate}
-                date={start}
-                disabled={disabledPickerStartInput}
-                maxDate={maxDatePickerStartInput}
-                minDate={minDatePickerStartInput}
-                property={CustomTimePeriodProperty.start}
-                setDate={setStart}
-                setWithoutInitialValue={setPickerStartWithoutInitialValue}
-                withoutInitialValue={pickerStartWithoutInitialValue}
-                onViewChange={viewChangeStartPicker}
-              />
+      <div data-testid="popover">
+        {renderTitle}
+        <LocalizationProvider
+          dateAdapter={Adapter}
+          locale={locale.substring(0, 2)}
+        >
+          <div className={cx(classes.popover, classNamePicker)}>
+            <div>
+              <Typography>{t(labelFrom)}</Typography>
+              <div aria-label={t(labelStartDate)}>
+                <DateTimePickerInput
+                  changeDate={changeDate}
+                  date={start}
+                  disabled={disabledPickerStartInput}
+                  maxDate={maxDatePickerStartInput}
+                  minDate={minDatePickerStartInput}
+                  property={CustomTimePeriodProperty.start}
+                  setDate={setStart}
+                  setWithoutInitialValue={setPickerStartWithoutInitialValue}
+                  withoutInitialValue={pickerStartWithoutInitialValue}
+                  onViewChange={viewChangeStartPicker}
+                />
+              </div>
+            </div>
+            <div>
+              <Typography>{t(labelTo)}</Typography>
+              <div aria-label={t(labelEndDate)}>
+                <DateTimePickerInput
+                  changeDate={changeDate}
+                  date={end}
+                  disabled={disabledPickerEndInput}
+                  maxDate={maxDatePickerEndInput}
+                  minDate={minDatePickerEndInput}
+                  property={CustomTimePeriodProperty.end}
+                  setDate={setEnd}
+                  setWithoutInitialValue={setPickerEndWithoutInitialValue}
+                  withoutInitialValue={pickerEndWithoutInitialValue}
+                  onViewChange={viewChangeEndPicker}
+                />
+              </div>
             </div>
           </div>
-          <div>
-            <Typography>{t(labelTo)}</Typography>
-            <div aria-label={t(labelEndDate)}>
-              <DateTimePickerInput
-                changeDate={changeDate}
-                date={end}
-                disabled={disabledPickerEndInput}
-                maxDate={maxDatePickerEndInput}
-                minDate={minDatePickerEndInput}
-                property={CustomTimePeriodProperty.end}
-                setDate={setEnd}
-                setWithoutInitialValue={setPickerEndWithoutInitialValue}
-                withoutInitialValue={pickerEndWithoutInitialValue}
-                onViewChange={viewChangeEndPicker}
-              />
-            </div>
-          </div>
-        </div>
-        {error && (
-          <FormHelperText error className={cx(classes.error, classNameError)}>
-            {t(labelEndDateGreaterThanStartDate)}
-          </FormHelperText>
-        )}
-      </LocalizationProvider>
-      {renderBody}
-      {renderFooter}
+          {error && (
+            <FormHelperText error className={cx(classes.error, classNameError)}>
+              {t(labelEndDateGreaterThanStartDate)}
+            </FormHelperText>
+          )}
+        </LocalizationProvider>
+        {renderBody}
+        {renderFooter}
+      </div>
     </Popover>
   );
 };
