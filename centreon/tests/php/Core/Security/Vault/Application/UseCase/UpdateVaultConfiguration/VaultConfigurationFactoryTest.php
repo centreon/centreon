@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Security\Encryption;
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
-    VaultConfigurationFactory,
-    UpdateVaultConfigurationRequest
+    UpdateVaultConfigurationRequest,
+    VaultConfigurationFactory
 };
+use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);

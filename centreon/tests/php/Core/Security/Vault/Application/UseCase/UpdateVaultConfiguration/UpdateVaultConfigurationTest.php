@@ -29,17 +29,17 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultRepositoryInterface,
     ReadVaultConfigurationRepositoryInterface,
+    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     UpdateVaultConfiguration,
-    VaultConfigurationFactory,
-    UpdateVaultConfigurationRequest
+    UpdateVaultConfigurationRequest,
+    VaultConfigurationFactory
 };
+use Core\Security\Vault\Domain\Exceptions\{VaultConfigurationException, VaultException};
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
-use Core\Security\Vault\Domain\Exceptions\{VaultException, VaultConfigurationException};
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -354,9 +354,9 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
 
 it('should present NoContentResponse when vault configuration is created with success', function (): void {
     $this->user
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $vault = new Vault(1, 'myVaultProvider');
     $this->readVaultRepository

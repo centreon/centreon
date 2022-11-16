@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Security\Interfaces\EncryptionInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Core\Security\Vault\Domain\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Domain\Exceptions\VaultException;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Security\Interfaces\EncryptionInterface;
 
 class VaultConfigurationFactory
 {

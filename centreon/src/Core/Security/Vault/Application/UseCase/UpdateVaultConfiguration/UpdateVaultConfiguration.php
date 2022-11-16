@@ -28,11 +28,11 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultRepositoryInterface,
     ReadVaultConfigurationRepositoryInterface,
+    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Domain\Exceptions\{VaultException, VaultConfigurationException};
+use Core\Security\Vault\Domain\Exceptions\{VaultConfigurationException, VaultException};
 
 final class UpdateVaultConfiguration
 {

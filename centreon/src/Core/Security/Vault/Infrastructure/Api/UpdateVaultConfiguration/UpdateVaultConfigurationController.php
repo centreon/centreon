@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\Api\UpdateVaultConfiguration;
 
-use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     UpdateVaultConfiguration,
-    UpdateVaultConfigurationRequest,
-    UpdateVaultConfigurationPresenterInterface
+    UpdateVaultConfigurationPresenterInterface,
+    UpdateVaultConfigurationRequest
 };
+use Symfony\Component\HttpFoundation\Request;
 
 final class UpdateVaultConfigurationController extends AbstractController
 {
@@ -78,8 +78,8 @@ final class UpdateVaultConfigurationController extends AbstractController
     }
 
     /**
-     * @param integer $vaultId
-     * @param integer $vaultConfigurationId
+     * @param int $vaultId
+     * @param int $vaultConfigurationId
      * @param array{
      *  "name": string,
      *  "address": string,
