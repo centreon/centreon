@@ -112,9 +112,7 @@ jobs:
 
       - run: |
           set -ex
-          export GPG_TTY=$(tty)
-          ls -l
-          rpmsign --macros="/root/.rpmmacros" --addsign ./*.${{ inputs.package_extension }}
+          rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
       - uses: actions/cache@v3
