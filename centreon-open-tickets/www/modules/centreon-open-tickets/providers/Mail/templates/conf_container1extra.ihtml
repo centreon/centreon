@@ -1,0 +1,45 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.mail}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.from.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.from.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.to.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.to.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.subject.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.subject.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.header.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="headerMail" cloneSet=$form.headerMail}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.ishtml.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.ishtml.html}
+    </td>
+</tr>
