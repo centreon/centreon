@@ -120,7 +120,11 @@ jobs:
           composer-options: "--optimize-autoloader"
 
       - name: Unit test
-        run: XDEBUG_MODE=coverage composer run-script test:ci
+        run: composer run test
+        working-directory: centreon
+
+      - name: Unit test
+        run: composer run test:ci
         working-directory: centreon
 
       - name: Publish report
