@@ -110,9 +110,15 @@ jobs:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
+      #- run: echo HOME=/root | sudo tee -a $GITHUB_ENV
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+        shell: bash
+
       - run: |
           set -ex
-          echo "HOME=/root" >> $GITHUB_ENV
+          #echo "HOME=/root" >> $GITHUB_ENV
+          #mv /root/.rpmmacros /github/home
+          #echo HOME=/root | sudo tee -a $GITHUB_ENV
           rpmsign --load="/root/.rpmmacros" --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
