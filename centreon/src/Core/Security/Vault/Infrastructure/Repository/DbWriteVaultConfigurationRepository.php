@@ -30,6 +30,7 @@ use Core\Security\Vault\Application\Repository\{
     WriteVaultConfigurationRepositoryInterface as WriteVaultConfigurationInterface
 };
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implements WriteVaultConfigurationInterface
 {
@@ -45,8 +46,6 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
     /**
      * @inheritDoc
-     *
-     * @param NewVaultConfiguration $vaultConfiguration
      */
     public function create(NewVaultConfiguration $vaultConfiguration): void
     {
@@ -59,6 +58,32 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
                     . ':salt)'
             )
         );
+        $statement->bindValue(':name', $vaultConfiguration->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':type_id', $vaultConfiguration->getVault()->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);
+        $statement->bindValue(':port', $vaultConfiguration->getPort(), \PDO::PARAM_INT);
+        $statement->bindValue(':storage', $vaultConfiguration->getStorage(), \PDO::PARAM_STR);
+        $statement->bindValue(':role_id', $vaultConfiguration->getRoleId(), \PDO::PARAM_STR);
+        $statement->bindValue(':secret_id', $vaultConfiguration->getSecretId(), \PDO::PARAM_STR);
+        $statement->bindValue(':salt', $vaultConfiguration->getSalt(), \PDO::PARAM_STR);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(VaultConfiguration $vaultConfiguration): void
+    {
+        $this->info('Updating vault configuration');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'UPDATE `:db`.`vault_configuration` SET `name`=:name, `type_id`=:type_id, `url`=:url, `port`=:port, '
+                    . '`storage`:=storage, `role_id`=:role_id, `secret_id`=:secret_id, `salt`=:salt WHERE `id`=:id'
+            )
+        );
+        $statement->bindValue(':id', $vaultConfiguration->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $vaultConfiguration->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':type_id', $vaultConfiguration->getVault()->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);

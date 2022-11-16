@@ -21,24 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Repository;
+namespace Core\Security\Vault\Infrastructure\Api\UpdateVaultConfiguration;
 
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationPresenterInterface;
 
-interface WriteVaultConfigurationRepositoryInterface
+class UpdateVaultConfigurationPresenter extends AbstractPresenter implements UpdateVaultConfigurationPresenterInterface
 {
-    /**
-     * @param NewVaultConfiguration $vaultConfiguration
-     *
-     * @throws \Throwable
-     */
-    public function create(NewVaultConfiguration $vaultConfiguration): void;
-
-    /**
-     * @param VaultConfiguration $vaultConfiguration
-     *
-     * @throws \Throwable
-     */
-    public function update(VaultConfiguration $vaultConfiguration): void;
 }

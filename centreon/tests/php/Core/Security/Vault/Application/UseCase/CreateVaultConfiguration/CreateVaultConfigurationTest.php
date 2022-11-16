@@ -158,8 +158,10 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         $this->user
     );
 
+    $invalidName = '';
+
     $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
-    $createVaultConfigurationRequest->name = '';
+    $createVaultConfigurationRequest->name = $invalidName;
     $createVaultConfigurationRequest->typeId = 1;
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
@@ -173,7 +175,12 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         ->with($createVaultConfigurationRequest)
         ->willThrowException(
             new InvalidArgumentException(
-                AssertionException::notEmpty('NewVaultConfiguration::address')->getMessage(),
+                AssertionException::minLength(
+                    $invalidName,
+                    strlen($invalidName),
+                    NewVaultConfiguration::MIN_LENGTH,
+                    'NewVaultConfiguration::name'
+                )->getMessage(),
                 1
             )
         );
@@ -182,7 +189,12 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        AssertionException::notEmpty('NewVaultConfiguration::address')->getMessage()
+        AssertionException::minLength(
+            $invalidName,
+            strlen($invalidName),
+            NewVaultConfiguration::MIN_LENGTH,
+            'NewVaultConfiguration::name'
+        )->getMessage()
     );
 });
 

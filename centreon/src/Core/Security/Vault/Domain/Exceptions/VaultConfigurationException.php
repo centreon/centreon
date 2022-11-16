@@ -44,4 +44,14 @@ class VaultConfigurationException extends \Exception
     {
         return new self('Impossible to create vault configuration');
     }
+
+    /**
+     * Exception thrown when vault configuration with given id does not exist.
+     *
+     * @return self
+     */
+    public static function configurationWithIdDoesNotExist(): self
+    {
+        return new self('Vault configuration with this id does not exist');
+    }
 }

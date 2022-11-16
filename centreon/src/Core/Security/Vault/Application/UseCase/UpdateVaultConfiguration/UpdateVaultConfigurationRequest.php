@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,24 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Repository;
+namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
-
-interface WriteVaultConfigurationRepositoryInterface
+final class UpdateVaultConfigurationRequest
 {
-    /**
-     * @param NewVaultConfiguration $vaultConfiguration
-     *
-     * @throws \Throwable
-     */
-    public function create(NewVaultConfiguration $vaultConfiguration): void;
+    /** @var int */
+    public int $vaultConfigurationId = 1;
 
-    /**
-     * @param VaultConfiguration $vaultConfiguration
-     *
-     * @throws \Throwable
-     */
-    public function update(VaultConfiguration $vaultConfiguration): void;
+    /** @var string */
+    public string $name = '';
+
+    /** @var int */
+    public int $typeId = 1;
+
+    /** @var string */
+    public string $address = '';
+
+    /** @var int */
+    public int $port = 8200;
+
+    /** @var string */
+    public string $storage = '';
+
+    /** @var string */
+    public string $roleId = '';
+
+    /** @var string */
+    public string $secretId = '';
 }

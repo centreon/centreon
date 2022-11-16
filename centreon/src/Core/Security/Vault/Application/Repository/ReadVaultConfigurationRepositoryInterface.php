@@ -41,4 +41,11 @@ interface ReadVaultConfigurationRepositoryInterface
         int $port,
         string $storage
     ): ?VaultConfiguration;
+
+    /**
+     * @param int $id
+     *
+     * @return VaultConfiguration|null
+     */
+    public function findById(int $id): ?VaultConfiguration;
 }
