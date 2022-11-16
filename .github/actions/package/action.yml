@@ -76,8 +76,6 @@ runs:
 
     - if: ${{ inputs.package_extension == 'rpm' }}
       run: |
-        set -x
-
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
@@ -93,7 +91,7 @@ runs:
           cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
         fi
 
-        rpmbuild --verbose -ba ${{ inputs.spec_file }} -D "NAME $MODULE_BASENAME" -D "VERSION $VERSION" -D "RELEASE $RELEASE"
+        rpmbuild -ba ${{ inputs.spec_file }} -D "NAME $MODULE_BASENAME" -D "VERSION $VERSION" -D "RELEASE $RELEASE"
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
@@ -111,13 +109,12 @@ runs:
         cd ${{ inputs.base_directory }}/..
         cp -r $MODULE_BASENAME/packaging/debian .
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
-        #mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
         if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" ${{ inputs.base_directory }}/debian/substvars
         fi
-        ls
+
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
       shell: bash
