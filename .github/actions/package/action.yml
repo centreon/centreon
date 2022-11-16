@@ -107,7 +107,7 @@ runs:
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
         cd ${{ inputs.base_directory }}/..
-        cp -r $MODULE_BASENAME/packaging/debian .
+        cp -r $MODULE_BASENAME/packaging/debian ./$MODULE_BASENAME
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
