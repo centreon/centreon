@@ -84,12 +84,110 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
+  frontend-lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: centreon
+
+      - name: Lint
+        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
+        working-directory: centreon
+
+      - name: Publish report
+        if: ${{ always() }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-web-eslint-report
+          path: centreon/checkstyle.xml
+
+  frontend-unit-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: centreon
+
+      - name: Unit test
+        run: pnpm t --silent --reporter=jest-junit
+        working-directory: centreon
+
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "centreon-web-frontend-unit-tests-report"
+          comment_mode: failures
+          junit_files: "centreon/junit.xml"
+
+  frontend-component-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - uses: ./.github/actions/web-frontend-component-test
+        with:
+          working_directory: centreon
+
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
+
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
+
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "centreon-web-backend-unit-tests-report"
+          comment_mode: failures
+          junit_files: "centreon/build/phpunit.xml"
+
   package:
     needs: [
       get-version,
       backend-dependencies,
       frontend-build,
-      translation-build
+      translation-build,
+      frontend-build,
+      frontend-lint,
+      frontend-unit-test,
+      frontend-component-test
     ]
 
     strategy:
@@ -129,3 +227,197 @@ jobs:
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
       artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+
+  dockerize:
+    runs-on: ubuntu-22.04
+    needs: [package]
+
+    strategy:
+      matrix:
+        include:
+          - project: centreon-web
+            distrib: centos7
+            distrib_rpm: el7
+            module_name: web
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
+
+      - name: Use cache RPM files
+        uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
+
+      - uses: docker/setup-buildx-action@v2
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_fresh
+          context: .
+          pull: true
+          push: true
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_standard
+          context: .
+          pull: true
+          push: true
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_widgets
+          context: .
+          pull: true
+          push: true
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+  api-integration-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  legacy-e2e-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  e2e-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version, dockerize]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
+
+      - name: Cypress e2e testing
+        uses: ./.github/actions/cypress-e2e-testing
+        with:
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_cypress_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
+
+      - name: Archive videos
+        uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: cypress-videos
+          path: centreon/tests/e2e/cypress/results/videos
+
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "centreon-web-frontend-e2e-tests-report"
+          comment_mode: failures
+          junit_files: centreon/tests/e2e/cypress-result.xml
+
+  performances-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version, dockerize]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
+
+      - name: Run lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon"
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
+
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
+
+  deliver-rpm:
+    runs-on: ubuntu-22.04
+    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+    strategy:
+      matrix:
+        distrib: [el7, el8]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.ARTI_USER }}
+          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+  deliver-deb:
+    runs-on: ubuntu-22.04
+    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+    strategy:
+      matrix:
+        distrib: [bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.ARTI_USER }}
+          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}

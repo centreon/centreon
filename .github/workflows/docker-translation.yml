@@ -2,16 +2,16 @@ name: docker-translation
 
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#      - develop
-#    paths:
-#      - ".github/workflows/docker-translation.yml"
-#      - ".github/docker/Dockerfile.translation"
-#  pull_request:
-#    paths:
-#      - ".github/workflows/docker-translation.yml"
-#      - ".github/docker/Dockerfile.translation"
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/workflows/docker-translation.yml"
+      - ".github/docker/Dockerfile.translation"
+  pull_request:
+    paths:
+      - ".github/workflows/docker-translation.yml"
+      - ".github/docker/Dockerfile.translation"
 
 jobs:
   get-version:
