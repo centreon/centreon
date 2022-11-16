@@ -1,0 +1,44 @@
+{$form.javascript}
+<div align=center>
+	<form {$form.attributes}>
+		<table class="formTable table">
+			<tr class="ListHeader">
+				<td class="FormHeader" colspan="2">
+                  <h3>| {$form.header.title}</h3>
+                </td>
+			<tr>
+			{if isset($host_name)}
+			<tr class="list_one">
+				<td class="ListColLeft">{t}Host{/t}</td>
+				<td class="ListColLeft"><b>{$host_name}</b></td>
+			</tr>
+			{else}
+			<tr class="list_one">
+				<td class="ListColLeft">{$form.host_id.label}</td>
+				<td class="ListColLeft">{$form.host_id.html}</td>
+			</tr>
+			{/if}
+			<tr class="list_two">
+				<td class="ListColLeft">{$form.persistant.label}</td>
+				<td class="ListColLeft">{$form.persistant.html}</td>
+			</tr>
+			<tr class="list_one">
+				<td class="ListColLeft">{$form.comment.label}</td>
+				<td class="ListColLeft">{$form.comment.html}</td>
+			</tr>
+		</table>		
+		<div id="validForm">
+			{if isset($form.action)}
+				<p>{$form.action.html}</p>
+			{/if}
+			<p>
+				{if isset($form.submitC)}
+					{$form.submitC.html}
+				{else}
+					{$form.submitA.html}
+				{/if}
+				&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+		</div>
+		{$form.hidden}
+	</form>
+</div>

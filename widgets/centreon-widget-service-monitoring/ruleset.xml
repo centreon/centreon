@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="Centreon Widget Service Monitoring">
+    <description>Custom rules defined by Centreon</description>
+
+    <exclude-pattern>vendor</exclude-pattern>
+
+    <rule ref="PSR12"/>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>service-monitoring/src</exclude-pattern>
+    </rule>
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>service-monitoring/src</exclude-pattern>
+    </rule>
+</ruleset>
