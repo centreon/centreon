@@ -95,6 +95,8 @@ runs:
 
         rpmbuild -ba ${{ inputs.spec_file }} -D "VERSION $VERSION" -D "REL $RELEASE"
 
+        ls -l ~/rpmbuild/
+        ls -l ~/rpmbuild/RPMS
         ls -l ~/rpmbuild/RPMS/**
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
