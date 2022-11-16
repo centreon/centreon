@@ -72,7 +72,6 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
