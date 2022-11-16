@@ -21,7 +21,6 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:  noarch
 Requires:   centreon-web >= %{thismajor}
 Requires:   centreon-web < %{nextmajor}
-BuildRequires:  dos2unix
 
 %description
 Add homepage with Centreon Widgets
