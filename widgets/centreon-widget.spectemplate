@@ -6,7 +6,7 @@
 %define nextmajor 22.11.0
 
 %define widget_sub_dir %(echo %{name} | sed 's/centreon-widget-//')
-%define summary %(find ./%{widget_sub_dir} -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p' 2>/dev/null)
+%define summary %(find . -name configs.xml | xargs sed -n 's|\s*<description>\(.*\)</description>|\1|p' 2>/dev/null)
 
 Summary:    %{summary}
 Name:       %{name}

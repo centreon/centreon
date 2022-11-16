@@ -108,13 +108,13 @@ runs:
         RELEASE=${{ inputs.release }}
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
-        tar czpvf $MODULE_BASENAME-$VERSION.tar.gz ${{ inputs.base_directory }}
-        cd ${{ inputs.base_directory }}
+        tar czpvf $MODULE_BASENAME-$VERSION.tar.gz -C ${{ inputs.base_directory }} .
         cp -rp packaging/debian .
 
         if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
+        ls
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
       shell: bash

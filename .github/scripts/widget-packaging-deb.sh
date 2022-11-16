@@ -30,14 +30,6 @@ debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
 debuild-pbuilder
 cd /build
 
-if [ -d "$RELEASE" ] ; then
-    rm -rf "$RELEASE"
-fi
-mkdir $RELEASE
-mv /build/*.deb $RELEASE/
-mv /build/$RELEASE/*.deb /src
-
-find /src -iname '*.deb'
 
 # Add here delivery of files
 #
