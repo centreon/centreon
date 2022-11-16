@@ -112,7 +112,7 @@ runs:
         cp -r $MODULE_BASENAME $MODULE_BASENAME-$VERSION
         cp -r $MODULE_BASENAME/packaging/debian ./$MODULE_BASENAME-$VERSION
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
-        mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME-$VERSION
+        #mv $MODULE_BASENAME-$VERSION.tar.gz ./$MODULE_BASENAME-$VERSION
         cd ./$MODULE_BASENAME-$VERSION
 
         if [ -f "${{ inputs.base_directory }}/debian/substvars" ]; then

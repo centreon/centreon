@@ -36,7 +36,7 @@ Add homepage with Centreon Widgets
 
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
-%{__cp} -rp %{widget_sub_dir}/* %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
+%{__cp} -rp centreon-widget-%{widget_sub_dir}/%{widget_sub_dir}/* %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
 
 
 %clean
