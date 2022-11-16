@@ -86,7 +86,7 @@ runs:
 
         mkdir $MODULE_BASENAME-$VERSION
         cp -rp ${{ inputs.base_directory }} $MODULE_BASENAME-$VERSION/
-        ls -l $MODULE_BASENAME-$VERSION/$MODULE_BASENAME/
+
         tar czf ~/rpmbuild/SOURCES/$MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME-$VERSION
 
         if [ -d "$MODULE_BASENAME/packaging/src" ]; then
@@ -95,6 +95,7 @@ runs:
 
         rpmbuild -ba ${{ inputs.spec_file }} -D "VERSION $VERSION" -D "REL $RELEASE"
 
+        ls -l ~/rpmbuild/RPMS/**
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
         chmod 777 *.rpm
