@@ -112,7 +112,8 @@ jobs:
 
       - run: |
           set -ex
-          rpmsign --addsign ./*.${{ inputs.package_extension }}
+          whoami
+          rpmsign --load="/root/.rpmmacros" --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
       - uses: actions/cache@v3
