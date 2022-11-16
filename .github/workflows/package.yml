@@ -1,6 +1,10 @@
 on:
   workflow_call:
     inputs:
+      base_directory:
+        type: string
+        description: The module directory
+        required: true
       package_extension:
         type: string
         description: The package extension (deb or rpm)
@@ -73,6 +77,7 @@ jobs:
 
       - uses: ./.github/actions/package
         with:
+          base_directory: ${{ inputs.base_directory }}
           package_extension: ${{ inputs.package_extension }}
           frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
           frontend_index_file: ${{ inputs.frontend_index_file }}

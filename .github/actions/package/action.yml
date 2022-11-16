@@ -1,6 +1,9 @@
 name: package
 description: Package module
 inputs:
+  base_directory:
+    description: The module directory
+    required: true
   package_extension:
     description: The package extension (deb or rpm)
     required: true
@@ -74,16 +77,18 @@ runs:
 
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
+        MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
         mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-        mkdir centreon-$VERSION
-        cp -rp centreon centreon-$VERSION/
-        ls -l centreon-$VERSION/centreon/
-        tar czf ~/rpmbuild/SOURCES/centreon-$VERSION.tar.gz centreon-$VERSION
+        mkdir $MODULE_BASENAME-$VERSION
+        cp -rp ${{ inputs.base_directory }} $MODULE_BASENAME-$VERSION/
+        ls -l $MODULE_BASENAME-$VERSION/$MODULE_BASENAME/
+        tar czf ~/rpmbuild/SOURCES/$MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME-$VERSION
 
-        cp -rp centreon/packaging/src/* ~/rpmbuild/SOURCES/
-        mv ~/rpmbuild/SOURCES/centreon-macroreplacement.centos7.txt ~/rpmbuild/SOURCES/centreon-macroreplacement.txt
+        if [ -d "$MODULE_BASENAME/packaging/src" ]; then
+          cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
+        fi
 
         rpmbuild -ba centreon/packaging/centreon.spectemplate -D "VERSION $VERSION" -D "REL $RELEASE"
 
@@ -98,23 +103,18 @@ runs:
 
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
+        MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
-        tar czpvf centreon-$VERSION.tar.gz centreon
-        cd centreon
+        tar czpvf $MODULE_BASENAME-$VERSION.tar.gz ${{ inputs.base_directory }}
+        cd ${{ inputs.base_directory }}
         cp -rp packaging/debian .
 
-        sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+        if [ -f "debian/substvars" ]; then
+          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+        fi
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
       shell: bash
-
-#    - name: Sign
-#      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
-#      uses: ./.github/actions/runner-docker
-#      with:
-#        script_name: rpm-signing
-#        image_name: rpm-signing
-#        image_version: ubuntu
 
     - name: Cache packaged files
       uses: actions/cache@v3
