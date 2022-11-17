@@ -109,20 +109,6 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            // if (
-            //     $this->isSameVaultConfigurationExists(
-            //         $vaultConfiguration->getAddress(),
-            //         $vaultConfiguration->getPort(),
-            //         $vaultConfiguration->getStorage()
-            //     )
-            // ) {
-            //     $presenter->setResponseStatus(
-            //         new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
-            //     );
-
-            //     return;
-            // }
-
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (InvalidArgumentException|VaultException $ex) {
