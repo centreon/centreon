@@ -104,20 +104,6 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            // if (
-            //     $this->isSameVaultConfigurationExists(
-            //         $vaultConfiguration->getAddress(),
-            //         $vaultConfiguration->getPort(),
-            //         $vaultConfiguration->getStorage()
-            //     )
-            // ) {
-            //     $presenter->setResponseStatus(
-            //         new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
-            //     );
-
-            //     return;
-            // }
-
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (InvalidArgumentException|VaultException $ex) {
@@ -162,43 +148,5 @@ final class UpdateVaultConfiguration
     private function isVaultConfigurationExists(int $id): bool
     {
         return $this->readVaultConfigurationRepository->findById($id) !== null;
-    }
-
-    /**
-     * Checks if same vault configuration exists.
-     *
-     * @param string $address
-     * @param int $port
-     * @param string $storage
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    private function isSameVaultConfigurationExists(
-        string $address,
-        int $port,
-        string $storage,
-    ): bool {
-        if (
-            $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
-                $address,
-                $port,
-                $storage
-            ) !== null
-        ) {
-            $this->error(
-                'Vault configuration with these properties already exists',
-                [
-                    'address' => $address,
-                    'port' => $port,
-                    'storage' => $storage,
-                ]
-            );
-
-            return true;
-        }
-
-        return false;
     }
 }
