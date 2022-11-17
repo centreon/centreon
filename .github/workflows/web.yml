@@ -251,7 +251,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: package
+    if: ${{ always() }}
 
     strategy:
       matrix:
