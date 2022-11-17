@@ -17,10 +17,11 @@ runs:
         node-version: 17
 
     - uses: actions/delete-package-versions@v3
-      token: ${{ secrets.NPM_TOKEN }}
-      delete-only-pre-release-versions: "true"
-      min-versions-to-keep: 0
-      package-name: @centreon/${{ inputs.package }}
-      owner: centreon
-      repo: centreon
-      ignore-versions: '\d{2}\.\d{1,2}\.\d+(?!-${{ github.head_ref }})'
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        delete-only-pre-release-versions: "true"
+        min-versions-to-keep: 0
+        package-name: @centreon/${{ inputs.package }}
+        owner: centreon
+        repo: centreon
+        ignore-versions: '\d{2}\.\d{1,2}\.\d+(?!-${{ github.head_ref }})'
