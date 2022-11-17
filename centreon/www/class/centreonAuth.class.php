@@ -37,6 +37,7 @@
 require_once __DIR__ . '/centreonContact.class.php';
 require_once __DIR__ . '/centreonAuth.LDAP.class.php';
 
+
 class CentreonAuth
 {
     /**
