@@ -162,7 +162,7 @@ jobs:
 
   backend-dependencies:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
