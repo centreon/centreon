@@ -28,7 +28,7 @@ runs:
       run: |
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "$GITHUB_ACTOR"
-        echo ${{ github.head_ref }}
+        git config pull.rebase
         [ ${{ github.head_ref }} == ${{ inputs.release_branch }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref || github.head_ref }} --legacy-peer-deps
         VERSION=${{ inputs.package }}-$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -44,9 +44,7 @@ runs:
 
     - name: Push changes to repository
       run: |
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-        git config user.name "$GITHUB_ACTOR"
-        git pull
+        git pull origin ${{ github.head_ref }}
         git push origin ${{ github.head_ref }}
       shell: bash
 
