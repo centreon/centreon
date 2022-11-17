@@ -62,7 +62,7 @@ class Kernel extends BaseKernel
     public static function createForWeb(): Kernel
     {
         if (self::$instance === null) {
-            include_once __DIR__ . '/../config/bootstrap.php';
+            include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
             if ($_SERVER['APP_DEBUG']) {
                 umask(0000);
 
@@ -110,7 +110,7 @@ class Kernel extends BaseKernel
      */
     public function getProjectDir(): string
     {
-        return \dirname(__DIR__);
+        return \dirname(__DIR__, 2);
     }
 
     /**
