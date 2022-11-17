@@ -19,7 +19,6 @@ runs:
     - uses: actions/delete-package-versions@v3
       with:
         token: "${{ inputs.npm_token }}"
-        delete-only-pre-release-versions: "true"
         min-versions-to-keep: "0"
         package-name: "@centreon/${{ inputs.package }}"
         owner: "centreon"
