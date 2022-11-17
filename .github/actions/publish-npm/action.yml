@@ -19,6 +19,8 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
 
     - uses: actions/setup-node@v3
       with:
@@ -32,6 +34,7 @@ runs:
         [ ${{ github.head_ref }} == ${{ inputs.release_branch }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref || github.head_ref }} --legacy-peer-deps
         VERSION=${{ inputs.package }}-$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        git pull origin ${{ github.head_ref }}
         git add .
         git commit -m "chore: pre-release ${VERSION}"
       working-directory: ${{ env.directory }}
@@ -42,13 +45,8 @@ runs:
       run: git tag ${{ env.VERSION }}
       shell: bash
 
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.head_ref }}
     - name: Push changes to repository
-      run: |
-        git pull origin ${{ github.head_ref }}
-        git push origin ${{ github.head_ref }}
+      run: git push origin ${{ github.head_ref }}
       shell: bash
 
     - name: Push with tags
@@ -57,7 +55,7 @@ runs:
       shell: bash
 
     - uses: JS-DevTools/npm-publish@v1
-      if: startsWith(github.ref, 'refs/heads/MON')
+      if: startsWith(github.head_ref, 'MON')
       with:
         token: ${{ inputs.npm_token }}
         package: ${{ env.directory }}/package.json
