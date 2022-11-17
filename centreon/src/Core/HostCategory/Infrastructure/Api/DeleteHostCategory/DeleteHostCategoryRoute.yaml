@@ -1,0 +1,10 @@
+DeleteHostCategory:
+  methods: DELETE
+  path: /configuration/hostcategories/{hostCategoryId}
+  requirements:
+    hostCategoryId: '\d+'
+  controller: 'Core\HostCategory\Infrastructure\Api\DeleteHostCategory\DeleteHostCategoryController'
+  condition: "request.attributes.get('version') >= 22.10"
+
+# TODO : change version to 23.04 ?
+# TODO : change path ? /configuration/host/categories/{id}
