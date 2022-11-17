@@ -201,6 +201,7 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
+    if: ${{ always() }}
     needs: [
       get-version,
       translation-build,
