@@ -129,7 +129,7 @@ final class UpdateVaultConfiguration
             return;
         } catch (\Throwable $ex) {
             $this->error(
-                'An error occured in while creating vault configuration',
+                'An error occured in while updating vault configuration',
                 ['trace' => (string) $ex]
             );
             $presenter->setResponseStatus(
