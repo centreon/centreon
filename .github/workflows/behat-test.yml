@@ -47,7 +47,6 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
-      max-parallel: 30
       matrix:
         feature: ${{ fromJson(needs.behat-test-list.outputs.features) }}
 
