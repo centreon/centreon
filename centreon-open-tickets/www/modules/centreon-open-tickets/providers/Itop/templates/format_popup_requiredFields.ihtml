@@ -1,0 +1,200 @@
+<script>
+  groups = {$groups|@json_encode};
+</script>
+{literal}
+<script>
+  jQuery(function () {
+
+    // initiate select list for callers
+    jQuery('#select_itop_caller').empty();
+    jQuery('<option>')
+      .attr('value', -1)
+      .text('-- Please select an organization --')
+      .appendTo('#select_itop_caller');
+
+    // initiate select list for services
+    jQuery('#select_itop_service').empty();
+    jQuery('<option>')
+      .attr('value', -1)
+      .text('-- Please select an organization --')
+      .appendTo('#select_itop_service');
+
+    // initiate select list for service subcategories
+    jQuery('#select_itop_service_subcategory').empty();
+    jQuery('<option>')
+      .attr('value', -1)
+      .text('-- Please select an organization --')
+      .appendTo('#select_itop_service_subcategory');
+
+    // create the change event when selecting an organization
+    jQuery('#select_itop_organization').on('change', function () {
+
+
+      if (jQuery('#select_itop_organization').val() === '-1') {
+        // reset select list for callers
+        jQuery('#select_itop_caller').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- Please select an organization --')
+          .appendTo('#select_itop_caller');
+
+        // reset select list for services
+        jQuery('#select_itop_service').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- Please select an organization --')
+          .appendTo('#select_itop_service');
+
+        // reset select list for service subcategories
+        jQuery('#select_itop_service_subcategory').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- Please select an organization --')
+          .appendTo('#select_itop_service_subcategory');
+      } else {
+        // reset select list for callers
+        jQuery('#select_itop_caller').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- select --')
+          .appendTo('#select_itop_caller');
+
+        // reset select list for services
+        jQuery('#select_itop_service').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- select --')
+          .appendTo('#select_itop_service');
+
+        // reset select list for service subcategories
+        jQuery('#select_itop_service_subcategory').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- Please select a service --')
+          .appendTo('#select_itop_service_subcategory');
+
+        let data = {
+          rule_id: jQuery('#rule_id').val(),
+          provider_id: jQuery('#provider_id').val(),
+          methods: ['getCallers', 'getServices'],
+          provider_data: {
+            organization_value: jQuery('#select_itop_organization').val(),
+            groups: groups
+          }
+        }
+
+        jQuery.ajax({
+          url: './modules/centreon-open-tickets/providers/Itop/ajax/call.php',
+          type: 'post',
+          data: {
+            data: JSON.stringify(data)
+          },
+          success: function (data) {
+            let result = JSON.parse(data);
+            if (result.code !== 0) {
+              jQuery('#form_error').text(result.msg + ' Please contact your administrator.');
+              return;
+            }
+
+            // change default select value to tell people they can select a caller now
+            jQuery('#select_itop_caller').empty();
+            jQuery('<option>')
+            .attr('value', -1)
+            .text('-- select --')
+            .appendTo('#select_itop_caller');
+
+            // add gathered callers in the html select
+            let keys = Object.keys(result.getCallers.objects);
+            for (let i = 0; i < keys.length; i++) {
+              jQuery('<option>')
+              .attr('value', result.getCallers.objects[keys[i]].key + '___' +
+              result.getCallers.objects[keys[i]].fields.friendlyname)
+              .text(result.getCallers.objects[keys[i]].fields.friendlyname)
+              .appendTo('#select_itop_caller');
+            }
+
+            // change default select value to tell people they can select a service now
+            jQuery('#select_itop_service').empty();
+            jQuery('<option>')
+            .attr('value', -1)
+            .text('-- select --')
+            .appendTo('#select_itop_service');
+
+            // add gathered services in the html select
+            keys = Object.keys(result.getServices.objects);
+            for (i = 0; i < keys.length; i++) {
+              jQuery('<option>')
+              .attr('value', result.getServices.objects[keys[i]].key + '___' +
+              result.getServices.objects[keys[i]].fields.friendlyname)
+              .text(result.getServices.objects[keys[i]].fields.friendlyname)
+              .appendTo('#select_itop_service');
+            }
+          }
+        }) // ajax end
+      }
+    }) // on organization change end
+
+    // create the change event when selecting a service
+    jQuery('#select_itop_service').on('change', function () {
+
+      if (jQuery('#select_itop_service').val() === '-1') {
+        // reset select list for service subcategories
+        jQuery('#select_itop_service_subcategory').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- Please select a service --')
+          .appendTo('#select_itop_service_subcategory');
+      } else {
+        jQuery('#select_itop_service_subcategory').empty();
+        jQuery('<option>')
+          .attr('value', -1)
+          .text('-- select --')
+          .appendTo('#select_itop_service_subcategory');
+
+        let data = {
+          rule_id: jQuery('#rule_id').val(),
+          provider_id: jQuery('#provider_id').val(),
+          methods: ['getServiceSubcategories'],
+          provider_data: {
+            service_value: jQuery('#select_itop_service').val(),
+            groups: groups
+          }
+        }
+
+        jQuery.ajax({
+          url: './modules/centreon-open-tickets/providers/Itop/ajax/call.php',
+          type: 'post',
+          data: {
+            data: JSON.stringify(data)
+          },
+          success: function (data) {
+            let result = JSON.parse(data);
+            if (result.code !== 0) {
+              jQuery('#form_error').text(result.msg + ' Please contact your administrator.');
+              return;
+            }
+
+            // change default select value to tell people they can select a service subcategory now
+            jQuery('#select_itop_service_subcategory').empty();
+            jQuery('<option>')
+            .attr('value', -1)
+            .text('-- select --')
+            .appendTo('#select_itop_service_subcategory');
+
+            // add gathered service subcategories in the html select
+            let keys = Object.keys(result.getServiceSubcategories.objects);
+            for (let i = 0; i < keys.length; i++) {
+              jQuery('<option>')
+                .attr('value', result.getServiceSubcategories.objects[keys[i]].key + '___' +
+                  result.getServiceSubcategories.objects[keys[i]].fields.friendlyname)
+                .text(result.getServiceSubcategories.objects[keys[i]].fields.friendlyname)
+                .appendTo('#select_itop_service_subcategory');
+            }
+          }
+        }) // end ajax
+      }
+    }) // on service change end
+  }) // jQuery function end
+
+</script>
+{/literal}

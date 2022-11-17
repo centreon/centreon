@@ -1,0 +1,159 @@
+<form id="Form"s>
+    <div align=center>
+        <div id="form_error" style="color: red"></div>
+
+        <div id="OTcontainer">
+            {$formatPopupProvider}
+        </div>
+        <div id="validForm">
+            <input type='hidden' id="rule_id" name='rule_id' value='{$rule_id}' />
+            <input type='hidden' id="provider_id" name='provider_id' value='{$provider_id}' />
+            <input type='hidden' id='widgetId' name='widgetId' value='{$widgetId}' />
+            <input type='hidden' id="uniqId" name='uniqId' value='{$uniqId}' />
+            <input type='hidden' name='selection' value='{$selection}' />
+            <input type='hidden' name='title' value='{$title}' />
+            <input type='hidden' name='cmd' value='{$cmd}' />
+            <input type='hidden' id="continue" name='continue' value='{$continue}' />
+            <input type='hidden' name='doSubmitTicket' value='yes' />
+            <input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
+        </div>
+        <div id="OTcountdown" style="color: red"></div>
+    </div>
+</form>
+{if $attach_files_enable}
+<div id="myDropzone" class="dropzone"></div>
+{/if}
+
+{literal}
+<script type="text/javascript">
+var $callback_confirm_autoclose = function() {
+    jQuery("#OTWidgetPopin > .close").trigger("click");
+};
+
+var $callback_countdown = function() {
+    var value = jQuery("#OTcountdown").text();
+    value = value - 1;
+    jQuery("#OTcountdown").html(value);
+    if (value > 1) {
+        setTimeout($callback_countdown, 1000);
+    }
+};
+
+var $callback_submitTicket = function(res) {
+    //jQuery("#form_error").html("Full response: " + res);
+    jQuery("#OTcontainer").html('');
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#form_error").html(data_ret['msg']);
+    } else {
+        jQuery("#OTcontainer").html(data_ret['result']['confirm_message']);
+        if (data_ret['result']['confirm_autoclose'] !== undefined && data_ret['result']['confirm_autoclose'] > 0) {
+            jQuery('#OTWidgetPopin > .close').hide();
+            jQuery('#centreonPopinOverlay').unbind('click');
+            jQuery("#OTcountdown").html(data_ret['result']['confirm_autoclose']);
+            setTimeout($callback_confirm_autoclose, data_ret['result']['confirm_autoclose'] * 1000);
+            setTimeout($callback_countdown, 1000);
+        }
+    }
+};
+
+var $callback_validateFormatPopup = function(res) {
+    //jQuery("#form_error").html("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#form_error").html(data_ret['msg']);
+    } else {
+        if (data_ret['result']['code'] == 0) {
+            submitTicket();
+        } else {
+            jQuery("#form_error").html(data_ret['result']['message']);
+        }
+    }
+};
+
+var $callback_removeFile = function(res) {
+    //jQuery("#form_error").html("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#form_error").html(data_ret['msg']);
+    } else {
+        if (data_ret['result']['code'] != 0) {
+            jQuery("#form_error").html(data_ret['result']['message']);
+        }
+    }
+};
+
+function submitTicket() {
+    jQuery("#form_error").html('');
+
+    var data = {
+        "action": "submit-ticket",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#Form").serializeObject()
+    }
+
+    jQuery("#validForm").empty();
+    jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
+    if (document.getElementById("myDropzone") !== null) {
+        jQuery("#myDropzone").remove();
+    }
+
+
+    call_ajax_async(data, $callback_submitTicket, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
+}
+
+function removeFile(filename) {
+    jQuery("#form_error").html('');
+
+    var data = {
+        "action": "remove-file",
+        "uniqId": jQuery("#uniqId").val(),
+        "filename": filename
+    }
+
+    call_ajax_async(data, $callback_removeFile, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
+}
+
+function validateFormatPopup() {
+    jQuery("#form_error").html('');
+
+    var data = {
+        "action": "validate-format-popup",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#Form").serializeObject()
+    }
+
+    call_ajax_sync(data, $callback_validateFormatPopup, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
+}
+
+jQuery(function() {
+    // We submit directly
+    if (jQuery("#continue").val() == 1) {
+        submitTicket();
+    } else {
+        jQuery("#submit").button();
+    }
+});
+
+jQuery(function() {
+    if (document.getElementById("myDropzone") !== null) {
+        Dropzone.autoDiscover = false;
+        var uniq_id = jQuery("#uniqId").val();
+        var myDropzone = new Dropzone("div#myDropzone", {
+            url: './widgets/open-tickets/src/ajax/callforwardmodule.php?action=upload-file&uniqId=' + uniq_id,
+            createImageThumbnails: true,
+            addRemoveLinks: true,
+        });
+        myDropzone.on('removedfile', function (file) {
+            removeFile(file.name);
+        });
+    }
+});
+
+</script>
+{/literal}
