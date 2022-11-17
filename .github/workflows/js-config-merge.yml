@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/clean-up-versions
+      - uses: ./.github/actions/clean-up-npm-versions
         with:
           package: js-config
           github_token: ${{ secrets.GITHUB_TOKEN }}
