@@ -181,9 +181,9 @@ jobs:
   package:
     needs: [
       get-version,
-      backend-dependencies,
-      frontend-build,
       translation-build,
+      backend-dependencies,
+      backend-unit-test,
       frontend-build,
       frontend-lint,
       frontend-unit-test,
