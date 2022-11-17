@@ -33,7 +33,9 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - **/*.(ts|js|tsx|jsx)
+              - **/*.ts
+              - **/webpack*.js
+              - **/*.tsx
               - **/www/front_src/**
               - **/tests/e2e/**
               - **/package*
@@ -53,7 +55,13 @@ jobs:
               - **/tests/php/**
               - **/tests/php/**
               - **/tests/clapi_export/**
-              - **/www/!(front_src)
+              - **/www/api/**
+              - **/www/class/**
+              - **/www/include/**
+              - **/www/install/**
+              - **/www/modules/**
+              - **/www/Themes/**
+              - **/www/widgets/**
 
   get-version:
     uses: ./.github/workflows/get-version.yml
