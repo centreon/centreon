@@ -27,9 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/publish-npm
-        with:
-          package: js-config
-          release_branch: develop
-          npm_token: ${{ secrets.NPM_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: ./.github/actions/publish-npm
+      #   with:
+      #     package: js-config
+      #     release_branch: develop
+      #     npm_token: ${{ secrets.NPM_TOKEN }}
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
