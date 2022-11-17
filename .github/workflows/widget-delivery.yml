@@ -1,0 +1,35 @@
+on:
+  workflow_call:
+    inputs:
+      widget_name:
+        required: true
+        type: string
+      major_version:
+        required: true
+        type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
+
+jobs:
+  delivery-rpm:
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ inputs.major_version }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}

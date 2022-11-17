@@ -1,0 +1,7 @@
+{
+  "admin_password": "centreon",
+  "confirm_password": "centreon",
+  "firstname": "admin",
+  "lastname": "admin",
+  "email": "admin@centreon.com"
+}

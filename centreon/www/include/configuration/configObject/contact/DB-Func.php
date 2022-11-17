@@ -973,7 +973,7 @@ function insertLdapContactInDB($tmpContacts = array())
 
         if (!isset($ldapInstances[$arId])) {
             $ldap = new CentreonLDAP($pearDB, null, $arId);
-            $ldapAdmin = new CentreonLDAPAdmin($pearDB);
+            $ldapAdmin = new CentreonLdapAdmin($pearDB);
             $opt = $ldapAdmin->getGeneralOptions($arId);
             if (isset($opt['ldap_contact_tmpl']) && $opt['ldap_contact_tmpl']) {
                 $contactTemplates[$arId] = $opt['ldap_contact_tmpl'];

@@ -1,0 +1,101 @@
+name: package
+description: Package module
+inputs:
+  package_extension:
+    description: The package extension (deb or rpm)
+    required: true
+  frontend_index_cache_key:
+    description: The index.html cache key
+  frontend_index_file:
+    description: The index.html file path
+  frontend_static_cache_key:
+    description: The static directory cache key
+  frontend_static_directory:
+    description: The static directory
+  backend_vendor_cache_key:
+    description: The vendor directory cache key
+  backend_vendor_directory:
+    description: The vendor directory
+  image_name:
+    description: The action matrix
+    required: true
+  script_name:
+    description: The packaging script name
+  module_name:
+    description: The module name
+    required: true
+  major_version:
+    description: The major version
+    required: true
+  minor_version:
+    description: The minor version
+    required: true
+  release:
+    description: The release number
+    required: true
+  cache_key:
+    description: The package files cache key
+    required: true
+  sign:
+    description: Wether to sign the package or not
+    default: ""
+  nexus_username:
+    description: The nexus username
+    required: true
+  nexus_password:
+    description: The nexus password
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Restore index file cache
+      if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.frontend_index_file }}
+        key: ${{ inputs.frontend_index_cache_key }}
+
+    - name: Restore static directory cache
+      if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.frontend_static_directory }}
+        key: ${{ inputs.frontend_static_cache_key }}
+
+    - name: Restore vendor directory cache
+      if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.backend_vendor_directory }}
+        key: ${{ inputs.backend_vendor_cache_key }}
+
+    - name: Login to Registry
+      uses: docker/login-action@v2
+      with:
+        registry: registry-docker.centreon.com
+        username: ${{ inputs.nexus_username }}
+        password: ${{ inputs.nexus_password }}
+
+    - name: Package
+      uses: ./.github/actions/runner-docker
+      with:
+        script_name: ${{ inputs.script_name }}
+        image_name: ${{ inputs.image_name }}
+        image_version: ${{ inputs.major_version }}
+        params: ${{ inputs.major_version }}.${{ inputs.minor_version }} ${{ inputs.release }} ${{ inputs.module_name }}
+
+    - name: Sign
+      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
+      uses: ./.github/actions/runner-docker
+      with:
+        script_name: rpm-signing
+        image_name: rpm-signing
+        image_version: ubuntu
+
+    - name: Cache packaged files
+      uses: actions/cache@v3
+      with:
+        path: ./*.${{ inputs.package_extension }}
+        key: ${{ inputs.cache_key }}

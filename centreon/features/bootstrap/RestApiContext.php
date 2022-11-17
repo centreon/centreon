@@ -17,7 +17,7 @@ class RestApiContext extends CentreonContext
     public function aCentreonServerWithRestApiTestingData()
     {
         // Launch container.
-        $this->launchCentreonWebContainer('web_fresh');
+        $this->launchCentreonWebContainer('docker_compose_web', ['web-fresh', 'webdriver']);
 
         // Copy images.
         $basedir = 'tests/rest_api/images';
@@ -27,7 +27,7 @@ class RestApiContext extends CentreonContext
                 $this->container->copyToContainer(
                     $basedir . '/' . $dir,
                     '/usr/share/centreon/www/img/media/' . $dir,
-                    'web'
+                    $this->webService
                 );
             }
         }
@@ -36,7 +36,7 @@ class RestApiContext extends CentreonContext
         $this->container->copyToContainer(
             'tests/rest_api/IF-MIB.txt',
             '/usr/share/centreon/IF-MIB.txt',
-            'web'
+            $this->webService
         );
 
         // Synchronize images.
@@ -73,16 +73,16 @@ class RestApiContext extends CentreonContext
         $env = file_get_contents('tests/rest_api/rest_api.postman_environment.json');
         $env = str_replace(
             '@IP_CENTREON@',
-            $this->container->getHost() . ':' . $this->container->getPort('80', 'web'),
+            $this->container->getHost() . ':' . $this->container->getPort('80', $this->webService),
             $env
         );
         $this->envfile = tempnam('/tmp', 'rest_api_env');
         file_put_contents($this->envfile, $env);
         $this->logfile = tempnam('/tmp', $this->logFilePrefix);
         exec(
-            'newman run' .
+            'npm install -g newman && newman run' .
             ' tests/rest_api/' . $this->restCollection .
-            ' --no-color --disable-unicode --reporter-cli-no-assertions' .
+            ' --color off --disable-unicode --reporter-cli-no-assertions' .
             ' --environment ' . $this->envfile .
             ' > ' . $this->logfile,
             $output,

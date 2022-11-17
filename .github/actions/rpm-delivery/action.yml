@@ -1,0 +1,73 @@
+name: "rpm-package"
+description: "Package RPM Centreon"
+inputs:
+  module_name:
+    description: "The package module name"
+    required: true
+  distrib:
+    description: "The distribution used for packaging"
+    required: true
+  nexus_username:
+    description: "Artifact Manager technical username"
+    required: true
+  nexus_password:
+    description: "Artifact Manager technical password"
+    required: true
+  version:
+    description: "Centreon packaged version"
+    required: true
+  cache_key:
+    description: "The cached package key"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use cache RPM files
+      uses: actions/cache@v3
+      with:
+        path: ./*.rpm
+        key: ${{ inputs.cache_key }}
+
+    - name: Publish RPMS to Nexus
+      run: |
+        if [[ -z "$GITHUB_HEAD_REF" ]];
+        then
+          export "BRANCHNAME"="$GITHUB_REF_NAME"
+        else
+          export "BRANCHNAME"="$GITHUB_HEAD_REF"
+        fi
+
+        echo "[DEBUG] - Branch name: $BRANCHNAME"
+
+        case "$BRANCHNAME" in
+          develop | dev-[2-9][0-9].[0-9][0-9].x)
+            REPO="unstable"
+            ;;
+          release* | hotfix*)
+            REPO="testing"
+            ;;
+          master | [2-9][0-9].[0-9][0-9].x)
+            REPO="stable"
+            ;;
+          *)
+            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
+            exit 0
+            ;;
+        esac
+
+        FILES="*.rpm";
+        echo "[DEBUG] - Repo: $REPO"
+        echo "[DEBUG] - Rpm FILES: $FILES"
+        for FILE in $FILES
+        do
+          echo "[DEBUG] - File: $FILE"
+          VERSION=${{ inputs.version }}
+          DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
+          ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
+          echo "[DEBUG] - Version: $VERSION"
+          echo "[DEBUG] - Distrib: $DISTRIB"
+          echo "[DEBUG] - Arch: $ARCH"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION-$REPO/$DISTRIB/$REPO/$ARCH/$FILE" -T "./$FILE"
+        done
+      shell: bash

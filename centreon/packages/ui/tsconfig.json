@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "paths": {
+      "react": ["../../node_modules/@types/react"]
+    },
+  },
+  "extends": "../js-config/tsconfig/base",
+  "baseUrl": "./src",
+}

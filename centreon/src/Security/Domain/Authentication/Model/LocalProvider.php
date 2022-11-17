@@ -124,6 +124,11 @@ class LocalProvider implements ProviderInterface
             ],
             function () use ($auth) {
                 $userInfos = $auth->userInfos;
+
+                if ($userInfos === null) {
+                    return [];
+                }
+
                 return [
                     'contact_id' => $userInfos['contact_id'],
                     'contact_alias' => $userInfos['contact_alias'],

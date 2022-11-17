@@ -71,9 +71,8 @@ class DowntimeRecurrentContext extends CentreonContext
      */
     public function aRecurrentDowntime()
     {
-        $this->startDate = new DateTime('now');
-        $this->endDate = new DateTime('now');
-        $this->endDate->add(new DateInterval('PT360M'));
+        $this->startDate = new \DateTime('now', new \DateTimezone('Europe/Paris'));
+        $this->endDate = new \DateTime('+360 minutes', new \DateTimezone('Europe/Paris'));
 
         //check if the downtime is on two days and add time
         if ($this->startDate->format('d') != $this->endDate->format('d')) {
@@ -102,7 +101,7 @@ class DowntimeRecurrentContext extends CentreonContext
         /* faking cron's launchtime. 2 min sooner */
         $this->container->execute(
             "faketime -f '-120s' php /usr/share/centreon/cron/downtimeManager.php",
-            'web'
+            $this->webService
         );
     }
 

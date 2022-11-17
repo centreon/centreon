@@ -27,7 +27,7 @@ class ClapiContext extends CentreonContext
 
         $output = $this->container->execute(
             $cmd,
-            'web'
+            $this->webService
         );
         return $output;
     }
@@ -44,7 +44,7 @@ class ClapiContext extends CentreonContext
         $this->container->copyToContainer(
             $this->file['localpath'],
             $this->file['init'],
-            'web'
+            $this->webService
         );
     }
 
@@ -57,7 +57,7 @@ class ClapiContext extends CentreonContext
 
         $this->container->execute(
             $cmd,
-            'web'
+            $this->webService
         );
     }
 
