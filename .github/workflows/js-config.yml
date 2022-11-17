@@ -31,3 +31,5 @@ jobs:
         with:
           package: js-config
           release_branch: develop
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

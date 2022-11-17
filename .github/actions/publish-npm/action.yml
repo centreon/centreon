@@ -8,6 +8,12 @@ inputs:
   release_branch:
     description: The release branch
     required: true
+  npm_token:
+    description: The NPM token to use for publication
+    required: true
+  github_token:
+    description: The Github token
+    required: true
 
 runs:
   using: "composite"
@@ -29,24 +35,28 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
       working-directory: ${{ env.directory }}
+      shell: bash
 
     - name: Tag release
       if: github.ref == inputs.release_branch
       run: git tag ${{ env.VERSION }}
+      shell: bash
 
     - name: Push changes to repository
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
       run: git push origin ${{ github.ref_name }}
+      shell: bash
 
     - name: Push with tags
       if: github.ref == inputs.release_branch
       run: git push --tags
+      shell: bash
 
     - uses: JS-DevTools/npm-publish@v1
       if: startsWith(github.ref, 'refs/heads/MON')
       with:
-        token: ${{ secrets.NPM_TOKEN }}
+        token: ${{ secrets.npm_token }}
         package: ${{ env.directory }}/package.json
         tag: ${{ env.VERSION }}
         access: public
@@ -54,7 +64,7 @@ runs:
     - uses: JS-DevTools/npm-publish@v1
       if: github.ref == 'refs/heads/develop'
       with:
-        token: ${{ secrets.NPM_TOKEN }}
+        token: ${{ secrets.npm_token }}
         package: ${{ env.directory }}/package.json
         tag: latest
         access: public
