@@ -297,8 +297,8 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install cron files
 %{__install} -d -m 0700 %buildroot%{_sysconfdir}/cron.d
-%{__cp} tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
-%{__cp} tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
+%{__cp} centreon/tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
+%{__cp} centreon/tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
 
 %if 0%{?el7}
 %{__install} -d -m 0755 %buildroot/opt/rh/httpd24/root/etc/httpd/conf.d
@@ -316,16 +316,16 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install systemd configuration files
 %{__install} -d -m 0755 %buildroot%{_unitdir}
-%{__install} -m 0644 tmpl/install/redhat/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
-%{__install} -m 0644 tmpl/install/redhat/centreon.systemd %buildroot%{_unitdir}/centreon.service
+%{__install} -m 0644 centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
+%{__install} -m 0644 centreon/tmpl/install/redhat/centreon.systemd %buildroot%{_unitdir}/centreon.service
 
 # Install centreontrapd sysconfig files
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
-%{__install} -m 0755 tmpl/install/redhat/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
+%{__install} -m 0755 centreon/tmpl/install/redhat/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
 
 # Install perl lib
 %{__install} -d -m 0755 %buildroot%{perl_vendorlib}/
-%{__cp} -rp lib/perl/centreon %buildroot%{perl_vendorlib}/
+%{__cp} -rp centreon/lib/perl/centreon %buildroot%{perl_vendorlib}/
 
 # Install file configuration snmptrapd and snmp
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/snmp/centreon_traps
@@ -334,55 +334,55 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/bin
 %{__install} -d -m 0755 %buildroot%{_bindir}
-%{__install} -m 0755 bin/centFillTrapDB %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centFillTrapDB %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_trap_send %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreon_trap_send %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncPlugins %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreonSyncPlugins %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncArchives %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/centreonSyncArchives %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/generateSqlLite %buildroot%{_bindir}
+%{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/generateSqlLite %buildroot%{_datadir}/centreon/bin/
 
 # Script for synchronize database schema
-%{__install} -m 0755 bin/export-mysql-indexes %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/import-mysql-indexes %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/export-mysql-indexes %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/import-mysql-indexes %buildroot%{_datadir}/centreon/bin/
 
 # Install snmptrapd
 %{__install} -d -m 0755 %buildroot%{_localstatedir}/spool/centreontrapd
 
 # Install cron
 %{__install} -d -m 0775 %buildroot%{_datadir}/centreon/cron
-%{__install} -m 0775 cron/* %buildroot%{_datadir}/centreon/cron
+%{__install} -m 0775 centreon/cron/* %buildroot%{_datadir}/centreon/cron
 
 # Install bin
-%{__install} -m 0755 bin/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon_health %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/generateSqlLite %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreontrapd %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreontrapdforward %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon-partitioning.php %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/logAnalyserBroker %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/changeRrdDsName.pl %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/migrateWikiPages.php %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/registerServerTopology.sh %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/registerServerTopologyTemplate %buildroot%{_datadir}/centreon/bin/
-%{__install} -m 0755 bin/centreon-sanitize-images.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centFillTrapDB %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon_health %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreontrapd %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreontrapdforward %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon-partitioning.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/logAnalyserBroker %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/changeRrdDsName.pl %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/migrateWikiPages.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/registerServerTopology.sh %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/registerServerTopologyTemplate %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon-sanitize-images.php %buildroot%{_datadir}/centreon/bin/
 
 # Add new installation backup directory
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/installs
 
 # Install clapi lib
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/lib/Centreon
-%{__cp} -r lib/Slug.class.php %buildroot%{_datadir}/centreon/lib
-%{__cp} -r lib/Centreon/* %buildroot%{_datadir}/centreon/lib/Centreon
+%{__cp} -r centreon/lib/Slug.class.php %buildroot%{_datadir}/centreon/lib
+%{__cp} -r centreon/lib/Centreon/* %buildroot%{_datadir}/centreon/lib/Centreon
 
 # Install clapi bin
-%{__install} -m 0755 bin/centreon %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon %buildroot%{_datadir}/centreon/bin/
 %{__ln_s} -f %{_datadir}/centreon/bin/centreon %buildroot%{_bindir}/centreon
 
 # Install Symfony console script
@@ -392,12 +392,12 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install examples.
 %{__install} -d -m 0775 %buildroot%{_datadir}/centreon/examples
-%{__cp} tmpl/install/redhat/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
+%{__cp} centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
 %{__cp} additional/centreon-apache.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.conf
 %{__cp} additional/centreon-apache-https.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.https.conf
 
 # Copy base files.
-%{__cp} -r .env .env.local.php bootstrap.php composer.json container.php package.json config GPL_LIB api src vendor www %buildroot%{_datadir}/centreon/
+%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/container.php centreon/package.json centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
 %{__mv} %buildroot%{_datadir}/centreon/config/centreon.config.php.template %buildroot%{_datadir}/centreon/config/centreon.config.php
@@ -434,7 +434,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install logrotate
 %{__install} -d %buildroot%{_sysconfdir}/logrotate.d
-%{__cp} logrotate/* %buildroot%{_sysconfdir}/logrotate.d/
+%{__cp} centreon/logrotate/* %buildroot%{_sysconfdir}/logrotate.d/
 
 # Template configuration files.
 touch %buildroot%{_sysconfdir}/centreon/conf.pm
@@ -442,7 +442,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 
 # Sudoers files
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
-%{__cp} tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
+%{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
 
 # MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
@@ -451,7 +451,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{__cp} additional/mariadb-systemd.conf %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 # Translations
-%{__cp} -r www/locale %buildroot%{_datadir}/centreon/www/
+%{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
 
 ######################################################
 # Package centreon
