@@ -85,36 +85,11 @@ jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
     needs: [lint, unit-test]
-    if: github.ref == 'refs/heads/develop'
 
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
+      - uses: ./.github/actions/publish-npm
         with:
-          node-version: 17
-
-      - name: Update JS config version
-        run: |
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git config user.name "$GITHUB_ACTOR"
-          git config pull.rebase false
-          npm version patch -m "ui-%s" --legacy-peer-deps
-          VERSION=ui-$(node -p "require('./package.json').version")
-          git pull
-          git add .
-          git commit -m "chore: release ${VERSION}"
-          git tag ${VERSION}
-        working-directory: ${{ env.directory }}
-
-      - name: Push changes to repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git push origin develop && git push --tags
-
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          package: ${{ env.directory }}/package.json
-          tag: ${{ github.head_ref || github.ref_name }}
-          access: public
+          package: ui
+          release_branch: develop
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
