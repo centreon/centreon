@@ -31,7 +31,7 @@ runs:
         [ ${{ github.head_ref }} == ${{ inputs.release_branch }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref || github.head_ref }} --legacy-peer-deps
         VERSION=${{ inputs.package }}-$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        git checkout origin/${{ github.head_ref }}
+        git checkout ${{ github.head_ref }}
         git pull
         git add .
         git commit -m "chore: pre-release ${VERSION}"
