@@ -20,3 +20,4 @@ runs:
       run: |
         npm config set '//registry.npmjs.org/:_authToken' "${{ inputs.npm_token }}"
         npm dist-tag rm @centreon/${{ inputs.package }} js-config-22.10.7-MON-publish-npm-packages-as-beta.0
+      shell: bash
