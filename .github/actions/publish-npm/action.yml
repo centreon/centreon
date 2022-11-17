@@ -46,6 +46,7 @@ runs:
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "$GITHUB_ACTOR"
         git push
+      shell: bash
 
     - name: Push with tags
       if: github.head_ref == inputs.release_branch
