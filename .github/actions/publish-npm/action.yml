@@ -56,7 +56,7 @@ runs:
     - uses: JS-DevTools/npm-publish@v1
       if: startsWith(github.ref, 'refs/heads/MON')
       with:
-        token: ${{ secrets.npm_token }}
+        token: ${{ inputs.npm_token }}
         package: ${{ env.directory }}/package.json
         tag: ${{ env.VERSION }}
         access: public
@@ -64,7 +64,7 @@ runs:
     - uses: JS-DevTools/npm-publish@v1
       if: github.ref == 'refs/heads/develop'
       with:
-        token: ${{ secrets.npm_token }}
+        token: ${{ inputs.npm_token }}
         package: ${{ env.directory }}/package.json
         tag: latest
         access: public
