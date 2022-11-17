@@ -33,7 +33,7 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - **/*.[jt]sx?
+              - **/*.(ts|js|tsx|jsx)
               - **/www/front_src/**
               - **/tests/e2e/**
               - **/package*
