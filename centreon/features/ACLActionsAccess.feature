@@ -33,7 +33,7 @@ Feature: ACL Actions Access
 
     Scenario: Modify one existing Actions access record
         Given one existing action access
-        When I modify some properties such as name, description, comments, status or authorized actions 
+        When I modify some properties such as name, description, comments, status or authorized actions
         Then the modifications are saved
 
     Scenario: Delete one existing Actions access record
