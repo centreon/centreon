@@ -33,35 +33,34 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - **/*.ts
-              - **/webpack*.js
-              - **/*.tsx
-              - **/www/front_src/**
-              - **/tests/e2e/**
-              - **/package*
-              - **/lighthouse/**
-              - **/tsconfig.json
-              - **/cypress/**|**/pnpm-*
+              - '**/*.ts'
+              - '**/webpack*.js'
+              - '**/*.tsx'
+              - '**/www/front_src/**''
+              - '**/tests/e2e/**''
+              - '**/package*''
+              - '**/lighthouse/**''
+              - '**/tsconfig.json'
+              - '**/cypress/**|**/pnpm-*''
             has_backend_changes:
-              - **/*.php
-              - **/phpstan.neon
-              - **/*.xml|**/bin/**
-              - **/tmpl/**
-              - **/features/**
-              - **/src/**
-              - **/config/**
-              - **/composer.*
-              - **/tests/api/**
-              - **/tests/php/**
-              - **/tests/php/**
-              - **/tests/clapi_export/**
-              - **/www/api/**
-              - **/www/class/**
-              - **/www/include/**
-              - **/www/install/**
-              - **/www/modules/**
-              - **/www/Themes/**
-              - **/www/widgets/**
+              - '**/*.php'
+              - '**/phpstan.neon'
+              - '**/*.xml|**/bin/**'
+              - '**/tmpl/**'
+              - '**/features/**'
+              - '**/src/**'
+              - '**/config/**'
+              - '**/composer.*'
+              - '**/tests/api/**'
+              - '**/tests/php/**'
+              - '**/tests/clapi_export/**'
+              - '**/www/api/**'
+              - '**/www/class/**'
+              - '**/www/include/**'
+              - '**/www/install/**'
+              - '**/www/modules/**'
+              - '**/www/Themes/**'
+              - '**/www/widgets/**'
 
   get-version:
     uses: ./.github/workflows/get-version.yml
