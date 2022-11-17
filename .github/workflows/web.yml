@@ -55,8 +55,6 @@ jobs:
 
   backend-dependencies:
     runs-on: ubuntu-22.04
-    needs: changes
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
 
     steps:
       - uses: actions/checkout@v3
