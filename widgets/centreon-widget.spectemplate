@@ -1,7 +1,7 @@
 
 %define name %{NAME}
 %define version %{VERSION}
-%define release %{RELEASE}%{?dist}
+%define release %{RELEASE}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
@@ -12,7 +12,7 @@ Source0:    %{name}-%{version}.tar.gz
 Summary:    centreon widget %{name}
 Name:       %{name}
 Version:    %{version}
-Release:    %{release}
+Release:    %{release}%{?dist}
 
 License:    GPLv2
 Group:      Applications/System
