@@ -80,9 +80,10 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement = $this->db->prepare(
             $this->translateDbName(
                 'UPDATE `:db`.`vault_configuration` SET `name`=:name, `type_id`=:type_id, `url`=:url, `port`=:port, '
-                    . '`storage`:=storage, `role_id`=:role_id, `secret_id`=:secret_id, `salt`=:salt WHERE `id`=:id'
+                    . '`storage`=:storage, `role_id`=:role_id, `secret_id`=:secret_id, `salt`=:salt WHERE `id`=:id'
             )
         );
+
         $statement->bindValue(':id', $vaultConfiguration->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $vaultConfiguration->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':type_id', $vaultConfiguration->getVault()->getId(), \PDO::PARAM_INT);
