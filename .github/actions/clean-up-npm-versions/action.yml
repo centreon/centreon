@@ -18,9 +18,6 @@ runs:
 
     - uses: actions/delete-package-versions@v3
       with:
-        owner: "centreon"
-        repo: "centreon"
         package-name: "@centreon/${{ inputs.package }}"
         token: "${{ inputs.npm_token }}"
-        min-versions-to-keep: 0
         ignore-versions: "\\d{2}\\.\\d{1,2}\\.\\d+(?!-${{ github.head_ref }})"
