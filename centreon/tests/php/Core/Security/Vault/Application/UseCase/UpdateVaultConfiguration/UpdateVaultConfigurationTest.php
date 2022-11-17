@@ -26,7 +26,7 @@ namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
@@ -87,7 +87,7 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
 });
 
-it('should present InvalidArgumentResponse when vault provider does not exist', function (): void {
+it('should present NotFoundResponse when vault provider does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -119,13 +119,13 @@ it('should present InvalidArgumentResponse when vault provider does not exist', 
 
     $useCase($presenter, $updateVaultConfigurationRequest);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultException::providerDoesNotExist()->getMessage()
+        (new NotFoundResponse('Vault provider id'))->getMessage()
     );
 });
 
-it('should present InvalidArgumentResponse when vault configuration does not exist for a given id', function (): void {
+it('should present NotFoundResponse when vault configuration does not exist for a given id', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -163,9 +163,9 @@ it('should present InvalidArgumentResponse when vault configuration does not exi
 
     $useCase($presenter, $updateVaultConfigurationRequest);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultConfigurationException::configurationWithIdDoesNotExist()->getMessage()
+        (new NotFoundResponse('Vault configuration id'))->getMessage()
     );
 });
 

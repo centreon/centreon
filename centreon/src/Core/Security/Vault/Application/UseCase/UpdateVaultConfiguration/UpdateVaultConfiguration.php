@@ -26,13 +26,20 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse};
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse
+};
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Domain\Exceptions\{VaultConfigurationException, VaultException};
+use Core\Security\Vault\Domain\Model\Vault;
 
 final class UpdateVaultConfiguration
 {
@@ -69,7 +76,7 @@ final class UpdateVaultConfiguration
 
             if (! $this->isVaultExists($updateVaultConfigurationRequest->typeId)) {
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(VaultException::providerDoesNotExist()->getMessage())
+                    new NotFoundResponse('Vault provider id')
                 );
 
                 return;
@@ -77,9 +84,7 @@ final class UpdateVaultConfiguration
 
             if (! $this->isVaultConfigurationExists($updateVaultConfigurationRequest->vaultConfigurationId)) {
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(
-                        VaultConfigurationException::configurationWithIdDoesNotExist()->getMessage()
-                    )
+                    new NotFoundResponse('Vault configuration id')
                 );
 
                 return;

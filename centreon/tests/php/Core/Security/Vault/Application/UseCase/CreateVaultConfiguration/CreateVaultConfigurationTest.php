@@ -26,8 +26,13 @@ namespace Tests\Core\Security\Vault\Application\UseCase\CreateVaultConfiguration
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, ForbiddenResponse};
+use Core\Application\Common\UseCase\{
+    CreatedResponse,
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse,
+    NotFoundResponse
+};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
@@ -198,7 +203,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     );
 });
 
-it('should present InvalidArgumentResponse when vault provider does not exist', function (): void {
+it('should present NotFoundResponse when vault provider does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -234,9 +239,9 @@ it('should present InvalidArgumentResponse when vault provider does not exist', 
 
     $useCase($presenter, $createVaultConfigurationRequest);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultException::providerDoesNotExist()->getMessage()
+        (new NotFoundResponse('Vault provider id'))->getMessage()
     );
 });
 

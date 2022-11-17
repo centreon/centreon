@@ -26,7 +26,13 @@ namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
+use Core\Application\Common\UseCase\{
+    CreatedResponse,
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse,
+    NotFoundResponse
+};
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
@@ -87,7 +93,7 @@ final class CreateVaultConfiguration
 
             if (! $this->isVaultExists($createVaultConfigurationRequest->typeId)) {
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(VaultException::providerDoesNotExist()->getMessage())
+                    new NotFoundResponse('Vault provider id')
                 );
 
                 return;

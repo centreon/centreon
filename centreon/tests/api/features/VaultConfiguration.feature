@@ -22,6 +22,22 @@ Feature: Vault Configuration API
     """
     Then the response code should be "201"
 
+  Scenario: Create a new vault configuration as an admin user for vault provider that not exists
+    Given I am logged in
+    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    When I send a POST request to '/api/latest/administration/vaults/2/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "404"
+
   Scenario: Create a new vault configuration as a non-admin user with rights to Reach API
     Given the following CLAPI import data:
     """
