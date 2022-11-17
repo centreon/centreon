@@ -24,4 +24,4 @@ runs:
         package-name: "@centreon/${{ inputs.package }}"
         owner: "centreon"
         repo: "centreon"
-        ignore-versions: "\d{2}\.\d{1,2}\.\d+(?!-${{ github.head_ref }})"
+        ignore-versions: "\\d{2}\\.\\d{1,2}\\.\\d+(?!-${{ github.head_ref }})"
