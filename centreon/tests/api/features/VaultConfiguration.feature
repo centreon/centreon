@@ -156,6 +156,21 @@ Feature: Vault Configuration API
     """
     Then the response code should be "204"
 
+  Scenario: Update a vault configuration that does not exist as an admin user
+    Given I am logged in
+    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    """
+      {
+        "name": "myNewVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "404"
+
   Scenario: Update vault configuration as an admin user by setting address, port and storage to be the same as in another existing one
     Given I am logged in
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
