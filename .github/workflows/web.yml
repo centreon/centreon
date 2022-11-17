@@ -360,7 +360,6 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() }}
 
     steps:
       - name: Checkout sources
@@ -399,7 +398,6 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() }}
 
     steps:
       - uses: actions/checkout@v3
