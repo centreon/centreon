@@ -18,6 +18,8 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v3
+
     - uses: actions/setup-node@v3
       with:
         node-version: 17
@@ -30,7 +32,6 @@ runs:
         [ ${{ github.head_ref }} == ${{ inputs.release_branch }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref || github.head_ref }} --legacy-peer-deps
         VERSION=${{ inputs.package }}-$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        git pull
         git add .
         git commit -m "chore: pre-release ${VERSION}"
       working-directory: ${{ env.directory }}
@@ -41,11 +42,12 @@ runs:
       run: git tag ${{ env.VERSION }}
       shell: bash
 
-    - uses: actions/checkout@v3
-    - run: |
+    - name: Push changes to repository
+      run: |
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "$GITHUB_ACTOR"
-        git push
+        git pull
+        git push origin ${{ github.head_ref }}
       shell: bash
 
     - name: Push with tags
