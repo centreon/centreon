@@ -1,5 +1,5 @@
 %define name centreon
-%define version @VERSION@
+%define version %{VERSION}
 %define release %{REL}%{?dist}
 %define thismajor 21.10.0
 %define nextmajor 21.11.0

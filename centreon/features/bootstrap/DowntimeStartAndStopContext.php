@@ -342,7 +342,7 @@ class DowntimeStartAndStopContext extends CentreonContext
     public function thisOneGivesADowntime()
     {
         /* cron */
-        $this->container->execute("php /usr/share/centreon/cron/downtimeManager.php", 'web');
+        $this->container->execute("php /usr/share/centreon/cron/downtimeManager.php", $this->webService);
     }
 
     /**

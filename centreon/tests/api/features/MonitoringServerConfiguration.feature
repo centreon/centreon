@@ -18,7 +18,8 @@ Feature:
     When I want to generate the monitoring server configuration #1
     Then the response code should be 204
 
-    When I want to reload the monitoring server configuration #1
+    When I wait 5 seconds
+    And I want to reload the monitoring server configuration #1
     Then the response code should be 204
 
     And I wait until host "host_test" is monitored

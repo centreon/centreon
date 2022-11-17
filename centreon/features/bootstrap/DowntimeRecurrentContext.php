@@ -102,7 +102,7 @@ class DowntimeRecurrentContext extends CentreonContext
         /* faking cron's launchtime. 2 min sooner */
         $this->container->execute(
             "faketime -f '-120s' php /usr/share/centreon/cron/downtimeManager.php",
-            'web'
+            $this->webService
         );
     }
 
