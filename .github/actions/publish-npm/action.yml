@@ -57,15 +57,15 @@ runs:
     - uses: JS-DevTools/npm-publish@v1
       if: startsWith(github.head_ref, 'MON')
       with:
-        token: ${{ inputs.npm_token }}
+        access: public
         package: ${{ env.directory }}/package.json
         tag: ${{ github.head_ref }}
-        access: public
+        token: ${{ inputs.npm_token }}
 
     - uses: JS-DevTools/npm-publish@v1
       if: github.head_ref == 'develop'
       with:
-        token: ${{ inputs.npm_token }}
+        access: public
         package: ${{ env.directory }}/package.json
         tag: latest
-        access: public
+        token: ${{ inputs.npm_token }}
