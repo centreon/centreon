@@ -31,26 +31,24 @@ runs:
         [ ${{ github.head_ref }} == ${{ inputs.release_branch }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref || github.head_ref }} --legacy-peer-deps
         VERSION=${{ inputs.package }}-$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        git checkout ${{ github.head_ref }}
-        git pull
         git add .
         git commit -m "chore: pre-release ${VERSION}"
       working-directory: ${{ env.directory }}
       shell: bash
 
     - name: Tag release
-      if: github.ref == inputs.release_branch
+      if: github.head_ref == inputs.release_branch
       run: git tag ${{ env.VERSION }}
       shell: bash
 
     - name: Push changes to repository
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-      run: git push origin ${{ github.head_ref }}
-      shell: bash
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.head_ref }}
 
     - name: Push with tags
-      if: github.ref == inputs.release_branch
+      if: github.head_ref == inputs.release_branch
       run: git push --tags
       shell: bash
 
