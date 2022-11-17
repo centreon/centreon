@@ -50,7 +50,7 @@ Feature: Vault Configuration API
       }
     """
 
-  Scenario: Create a new vault configuration as a non-admin user with rights to Reach API
+  Scenario: Create a new vault configuration as a non-admin user without rights to Reach API
     Given the following CLAPI import data:
     """
       CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;0;1;en_US;local
@@ -107,6 +107,71 @@ Feature: Vault Configuration API
         "address": "",
         "port": 8200,
         "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "400"
+
+  Scenario: Update an existing vault configuration as an admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    """
+      {
+        "name": "myNewVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "204"
+
+  Scenario: Update vault configuration as an admin user by setting address, port and storage to be the same as in another existing one
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myAnotherVaultConfiguration",
+        "address": "127.0.0.2",
+        "port": 8201,
+        "storage": "myAnotherStorageFolder",
+        "role_id": "myAnotherRoleId",
+        "secret_id": "myAnotherSecretId"
+      }
+    """
+
+    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    """
+      {
+        "name": "myNewVaultConfiguration",
+        "address": "127.0.0.2",
+        "port": 8201,
+        "storage": "myAnotherStorageFolder",
         "role_id": "myRoleId",
         "secret_id": "mySecretId"
       }
