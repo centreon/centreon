@@ -43,10 +43,10 @@ runs:
 
     - name: Push changes to repository
       uses: actions/checkout@v3
-      - run: |
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git config user.name "$GITHUB_ACTOR"
-          git push
+      run: |
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        git config user.name "$GITHUB_ACTOR"
+        git push
 
     - name: Push with tags
       if: github.head_ref == inputs.release_branch
