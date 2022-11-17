@@ -25,14 +25,17 @@ jobs:
   changes:
     runs-on: ubuntu-22.04
     outputs:
-      backend: ${{ steps.filter.outputs.has_frontend_changes }}
+      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             has_frontend_changes:
-              - '(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json|**/cypress/**|**/pnpm-*)'
+              - '**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json|**/cypress/**|**/pnpm-*'
+            has_backend_changes:
+              - '**/*.php|**/phpstan.neon|**/*.xml|**/bin/**|**/tmpl/**|**/features/**|**/src/**|**/config/**|**/composer.*|**/tests/api/**|**/tests/php/**|**/tests/php/**|**/tests/clapi_export/**|**/www/!(front_src)'
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -167,7 +170,7 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: changes
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -310,7 +313,7 @@ jobs:
 
   api-integration-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -325,7 +328,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
