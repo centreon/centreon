@@ -45,7 +45,6 @@ use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     NewVaultConfigurationFactory
 };
 use Core\Security\Vault\Domain\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Domain\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault, VaultConfiguration};
 
 beforeEach(function (): void {

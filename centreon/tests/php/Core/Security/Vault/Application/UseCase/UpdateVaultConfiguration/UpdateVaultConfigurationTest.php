@@ -26,7 +26,13 @@ namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse, NoContentResponse, NotFoundResponse};
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse
+};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
