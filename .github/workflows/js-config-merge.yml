@@ -19,4 +19,4 @@ jobs:
       - uses: ./.github/actions/clean-up-npm-versions
         with:
           package: js-config
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
