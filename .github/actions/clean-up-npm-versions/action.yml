@@ -1,0 +1,26 @@
+name: "Clean up NPM versions"
+description: "Cleans up NPM pre-release versions for a package"
+
+inputs:
+  package:
+    description: The package to publish
+    required: true
+  npm_token:
+    description: The NPM token to use for publication
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+
+    - uses: actions/delete-package-versions@v3
+      token: ${{ secrets.NPM_TOKEN }}
+      delete-only-pre-release-versions: "true"
+      min-versions-to-keep: 0
+      package-name: @centreon/${{ inputs.package }}
+      owner: centreon
+      repo: centreon
+      ignore-versions: '\d{2}\.\d{1,2}\.\d+(?!-${{ github.head_ref }})'
