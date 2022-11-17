@@ -43,8 +43,8 @@ runs:
       shell: bash
 
     - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
+      with:
+        ref: ${{ github.head_ref }}
     - name: Push changes to repository
       run: |
         git pull origin ${{ github.head_ref }}
