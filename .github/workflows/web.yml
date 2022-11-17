@@ -33,9 +33,7 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.ts'
-              - '**/webpack*.js'
-              - '**/*.tsx'
+              - '**/*.[jt]sx?'
               - '**/www/front_src/**'
               - '**/tests/e2e/**'
               - '**/package*'
@@ -48,7 +46,7 @@ jobs:
               - '**/*.xml|**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
-              - '**/src/**'
+              - '**/www/src/**'
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
