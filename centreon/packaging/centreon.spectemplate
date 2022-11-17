@@ -1,6 +1,6 @@
 %define name centreon
 %define version %{VERSION}
-%define release %{REL}%{?dist}
+%define release %{RELEASE}%{?dist}
 %define thismajor 21.10.0
 %define nextmajor 21.11.0
 
@@ -63,14 +63,7 @@ Requires:   centreon-widget-tactical-overview < %{nextmajor}
 Requires(post): coreutils
 Requires(post): sed
 Requires(post): sudo
-BuildRequires:  dos2unix
-BuildRequires:  gettext
-BuildRequires:  php-cli
-BuildRequires:  php-mbstring
-BuildRequires:  php-xml
 BuildRequires:  systemd
-#BuildRequires:  selinux-policy-devel
-#BuildRequires:  policycoreutils
 
 %description
 Centreon is a network, system, applicative supervision and monitoring tool,
