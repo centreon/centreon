@@ -59,11 +59,11 @@ runs:
       with:
         token: ${{ inputs.npm_token }}
         package: ${{ env.directory }}/package.json
-        tag: ${{ env.VERSION }}
+        tag: ${{ github.head_ref }}
         access: public
 
     - uses: JS-DevTools/npm-publish@v1
-      if: github.ref == 'refs/heads/develop'
+      if: github.head_ref == 'develop'
       with:
         token: ${{ inputs.npm_token }}
         package: ${{ env.directory }}/package.json
