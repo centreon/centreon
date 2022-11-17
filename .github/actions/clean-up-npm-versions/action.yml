@@ -19,5 +19,5 @@ runs:
     - name: Clean up npm tag
       run: |
         npm config set '//registry.npmjs.org/:_authToken' "${{ inputs.npm_token }}"
-        npm dist-tag rm @centreon/${{ inputs.package }} js-config-22.10.7-MON-publish-npm-packages-as-beta.0
+        npm dist-tag rm @centreon/${{ inputs.package }} ${{ github.head_ref }}
       shell: bash
