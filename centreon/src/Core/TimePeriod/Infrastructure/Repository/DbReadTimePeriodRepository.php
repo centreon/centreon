@@ -28,14 +28,13 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Domain\Model\TimeRange;
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
+    private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
      * @param DatabaseConnection $db
@@ -88,11 +87,24 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 
         $timePeriods = [];
 
+        $weekdays = [1 => 'monday','tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         /**
          * @var $result array{tp_id: int, tp_name: string, tp_alias: string}
          */
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $timePeriods[] = new TimePeriod($result["tp_id"], $result["tp_name"], $result["tp_alias"]);
+            $timePeriod = new TimePeriod(
+                $result["tp_id"],
+                $result["tp_name"],
+                $result["tp_alias"]
+            );
+            $days = [];
+            foreach ($weekdays as $id => $name) {
+                if (($timeRange = $result['tp_' . $name]) !== '') {
+                    $days[] = new Day($id, new TimeRange($timeRange));
+                }
+            }
+            $timePeriod->setDays($days);
+            $timePeriods[] = $timePeriod;
         }
 
         return $timePeriods;

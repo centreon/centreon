@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
+namespace Centreon\Test\Api\Context;
 
-class FindTimePeriodsResponse
+use Centreon\Test\Behat\Api\Context\ApiContext;
+
+class TimePeriodConfigurationContext extends ApiContext
 {
-    /**
-     * @var array<array{id: int, name: string, alias: string, days: array{id: int, time_range: string}}>
-     */
-    public array $timePeriods = [];
 }

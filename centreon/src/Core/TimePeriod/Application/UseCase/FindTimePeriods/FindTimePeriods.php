@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Domain\Model\Day;
 
 class FindTimePeriods
 {
@@ -65,7 +66,13 @@ class FindTimePeriods
             $response->timePeriods[] = [
                 'id' => $timePeriod->getId(),
                 'name' => $timePeriod->getName(),
-                'alias' => $timePeriod->getAlias()
+                'alias' => $timePeriod->getAlias(),
+                'days' => array_map(function(Day $day) {
+                    return [
+                        'day' => $day->getDay(),
+                        'time_range' => $day->getTimeRange()
+                    ];
+                }, $timePeriod->getDays())
             ];
         }
         return $response;

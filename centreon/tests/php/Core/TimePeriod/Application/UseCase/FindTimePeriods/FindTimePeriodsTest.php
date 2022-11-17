@@ -29,6 +29,8 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Domain\Model\Day;
+use Core\TimePeriod\Domain\Model\TimeRange;
 
 use function PHPUnit\Framework\assertCount;
 
@@ -55,7 +57,8 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 it('should present a FindTimePeriodsResponse', function () {
     $useCase = new FindTimePeriods($this->repository);
 
-    $timePeriod = new TimePeriod(1, 'fakeName', 'fakeAlias');
+    $days = [new Day(1, new TimeRange('00:00-12:00'))];
+    $timePeriod = new TimePeriod(1, 'fakeName', 'fakeAlias', $days);
 
     $this->repository
         ->expects($this->once())
@@ -72,6 +75,12 @@ it('should present a FindTimePeriodsResponse', function () {
                 'id' => 1,
                 'name' => 'fakeName',
                 'alias' => 'fakeAlias',
+                'days' => [
+                    [
+                        'day' => $days[0]->getDay(),
+                        'time_range' => $days[0]->getTimeRange()
+                    ]
+                ]
             ]
         );
 });

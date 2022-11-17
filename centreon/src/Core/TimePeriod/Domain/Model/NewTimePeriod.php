@@ -26,12 +26,70 @@ namespace Core\TimePeriod\Domain\Model;
 class NewTimePeriod
 {
     /**
+     * @var Timeperiod[]
+     */
+    private array $templates;
+
+    /**
+     * @var Day[]
+     */
+    private array $days;
+
+    /**
      * @param string $name
      * @param string $alias
      */
     public function __construct(
         protected string $name,
-        protected string $alias
+        protected string $alias,
     ) {
+    }
+
+    /**
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDays(): array
+    {
+        return $this->days;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return TimePeriod[]
+     */
+    public function getTemplates(): array
+    {
+        return $this->templates;
+    }
+
+    /**
+     * @param array $days
+     */
+    public function setDays(array $days): void
+    {
+        $this->days = $days;
+    }
+
+    /**
+     * @param TimePeriod[] $templates
+     */
+    public function setTemplates(array $templates): void
+    {
+        $this->templates = $templates;
     }
 }

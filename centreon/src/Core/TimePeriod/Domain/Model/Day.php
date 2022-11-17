@@ -23,30 +23,43 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-class TimePeriod extends NewTimePeriod
+use Centreon\Domain\Common\Assertion\Assertion;;
+
+class Day
 {
-    private int $id;
+    /**
+     * @var int ISO 8601 numeric representation of the day of the week (1 for monday)
+     */
+    private int $day;
+
+    private TimeRange $timeRange;
 
     /**
-     * @param int $id
-     * @param string $name
-     * @param string $alias
+     * @param int $day
+     * @param TimeRange $timeRange
+     * @throws \Throwable
      */
-    public function __construct(
-        int $id,
-        string $name,
-        string $alias
-
-    ) {
-        $this->id = $id;
-        parent::__construct($name, $alias);
+    public function __construct(int $day, TimeRange $timeRange)
+    {
+        Assertion::min($day, 1, 'TimePeriodDay::day');
+        Assertion::max($day, 7, 'TimePeriodDay::day');
+        $this->day = $day;
+        $this->timeRange = $timeRange;
     }
 
     /**
      * @return int
      */
-    public function getId(): int
+    public function getDay(): int
     {
-        return $this->id;
+        return $this->day;
+    }
+
+    /**
+     * @return TimeRange
+     */
+    public function getTimeRange(): TimeRange
+    {
+        return $this->timeRange;
     }
 }

@@ -21,12 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
+namespace Core\TimePeriod\Domain\Exception;
 
-class FindTimePeriodsResponse
+class TimeRangeException extends \InvalidArgumentException
 {
     /**
-     * @var array<array{id: int, name: string, alias: string, days: array{id: int, time_range: string}}>
+     * @return self
      */
-    public array $timePeriods = [];
+    public static function BadTimeRangeFormat(): self
+    {
+        return new self(_('The time range format is wrong'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function OrderTimeIntervalsNotConsistent(): self
+    {
+        return new self(_('The order of the time intervals is not consistent'));
+    }
 }
