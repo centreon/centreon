@@ -160,19 +160,6 @@ jobs:
         with:
           working_directory: centreon
 
-  backend-dependencies:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.backend == 'true' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/backend-dependencies
-        with:
-          base_directory: ${{ env.base_directory }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: changes
