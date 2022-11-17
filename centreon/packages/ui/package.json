@@ -1,15 +1,15 @@
 {
   "name": "@centreon/ui",
-  "version": "22.10.6",
+  "version": "22.10.9",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "npm run eslint -- --fix",
+    "eslint:fix": "pnpm run eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
-    "test:storyshot": "npm run test storyshots.test.js -- --story"
+    "test:storyshot": "pnpm test storyshots.test.js --story"
   },
   "sideEffects": false,
   "repository": {
@@ -27,11 +27,13 @@
   },
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "devDependencies": {
+    "@mdx-js/react": "^2.1.4",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",
     "@storybook/addon-storyshots-puppeteer": "^6.5.11",
     "@storybook/builder-webpack5": "^6.5.11",
     "@storybook/manager-webpack5": "^6.5.11",
+    "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/react": "^6.5.11",
     "@swc/core": "^1.2.203",
     "@swc/jest": "^0.2.21",
@@ -77,7 +79,6 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "@centreon/ui-context": "file:../ui-context",
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
     "@mui/icons-material": "^5.10.9",

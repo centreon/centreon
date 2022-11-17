@@ -12,12 +12,12 @@ import {
 
 import { IconButton } from '..';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()(() => ({
   popoverIconButton: {
     padding: 0,
     width: '100%',
   },
-});
+}));
 
 interface Props {
   children: (props?) => JSX.Element;

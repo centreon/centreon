@@ -1,6 +1,6 @@
 %define name centreon
 %define version %{VERSION}
-%define release %{REL}%{?dist}
+%define release %{RELEASE}%{?dist}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
@@ -39,14 +39,7 @@ Requires:   centreon-database = %{version}-%{release}
 Requires(post): coreutils
 Requires(post): sed
 Requires(post): sudo
-BuildRequires:  dos2unix
-BuildRequires:  gettext
-BuildRequires:  php-cli
-BuildRequires:  php-mbstring
-BuildRequires:  php-xml
 BuildRequires:  systemd
-#BuildRequires:  selinux-policy-devel
-#BuildRequires:  policycoreutils
 
 %description
 Centreon is a network, system, applicative supervision and monitoring tool,
@@ -383,7 +376,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__cp} additional/centreon-apache-https.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.https.conf
 
 # Copy base files.
-%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/package-lock.json centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
+%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/pnpm-lock.yaml centreon/pnpm-workspace.yaml centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
 %{__mv} %buildroot%{_datadir}/centreon/config/centreon.config.php.template %buildroot%{_datadir}/centreon/config/centreon.config.php
@@ -573,7 +566,8 @@ fi
 %{_datadir}/centreon/composer.lock
 %{_datadir}/centreon/symfony.lock
 %{_datadir}/centreon/package.json
-%{_datadir}/centreon/package-lock.json
+%{_datadir}/centreon/pnpm-lock.yaml
+%{_datadir}/centreon/pnpm-workspace.yaml
 %{_datadir}/centreon/bootstrap.php
 %{_datadir}/centreon/container.php
 %{_datadir}/centreon/GPL_LIB

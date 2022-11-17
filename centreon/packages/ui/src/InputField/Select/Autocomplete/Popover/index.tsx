@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
-import { isEmpty } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 import { Avatar, Chip, useTheme } from '@mui/material';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 import { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
@@ -22,6 +24,16 @@ export type Props = Omit<AutocompleteProps, 'renderTags' | 'multiple'> &
 
 const useStyles = makeStyles()((theme) => ({
   chip: {
+    '&:not(.MuiChip-colorPrimary)': {
+      '& .MuiAvatar-root': {
+        backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+          ? theme.palette.grey[800]
+          : theme.palette.grey[400],
+      },
+      backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+        ? theme.palette.grey[700]
+        : theme.palette.action.selected,
+    },
     borderRadius: theme.spacing(1.5),
     cursor: 'pointer',
     display: 'flex',
