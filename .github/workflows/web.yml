@@ -25,14 +25,14 @@ jobs:
   changes:
     runs-on: ubuntu-22.04
     outputs:
-      backend: ${{ steps.filter.outputs.backend }}
+      backend: ${{ steps.filter.outputs.has_frontend_changes }}
     steps:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            backend:
-              - '!(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)'
+            has_frontend_changes:
+              - '(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json|**/cypress/**|**/pnpm-*)'
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -56,7 +56,7 @@ jobs:
   backend-dependencies:
     runs-on: ubuntu-22.04
     needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -100,6 +100,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: pnpm/action-setup@v2
@@ -125,6 +127,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -151,6 +155,8 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - name: Checkout sources
@@ -163,7 +169,7 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -304,7 +310,7 @@ jobs:
 
   api-integration-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -319,7 +325,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'false' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
