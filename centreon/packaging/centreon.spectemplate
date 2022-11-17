@@ -386,7 +386,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__ln_s} -f %{_datadir}/centreon/bin/centreon %buildroot%{_bindir}/centreon
 
 # Install Symfony console script
-%{__install} -m 0755 bin/console %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/console %buildroot%{_datadir}/centreon/bin/
 
 # Install indexes template schema
 
