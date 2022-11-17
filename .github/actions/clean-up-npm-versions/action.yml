@@ -16,8 +16,7 @@ runs:
       with:
         node-version: 17
 
-    - uses: actions/delete-package-versions@v3
-      with:
-        package-name: "@centreon/${{ inputs.package }}"
-        token: "${{ inputs.npm_token }}"
-        ignore-versions: "\\d{2}\\.\\d{1,2}\\.\\d+(?!-${{ github.head_ref }})"
+    - name: Clean up npm tag
+      run: |
+        npm config set '//registry.npmjs.org/:_authToken' "${{ inputs.npm_token }}"
+        npm dist-tag rm @centreon/${{ inputs.package }} js-config-22.10.7-MON-publish-npm-packages-as-beta.0
