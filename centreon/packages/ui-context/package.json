@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui-context",
-  "version": "22.10.7-MON-publish-npm-packages-as-beta.3",
+  "version": "22.10.7-MON-publish-npm-packages-as-beta.4",
   "description": "Centreon UI shared context",
   "main": "src",
   "keywords": [],
