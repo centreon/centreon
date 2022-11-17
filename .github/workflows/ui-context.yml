@@ -51,6 +51,8 @@ jobs:
     needs: [lint]
 
     steps:
+      - uses: actions/checkout@v3
+
       - uses: ./.github/actions/publish-npm
         with:
           package: ui-context
