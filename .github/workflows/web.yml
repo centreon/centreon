@@ -427,7 +427,6 @@ jobs:
   deliver-rpm:
     runs-on: ubuntu-22.04
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -449,7 +448,6 @@ jobs:
   deliver-deb:
     runs-on: ubuntu-22.04
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() }}
     strategy:
       matrix:
         distrib: [bullseye]
