@@ -1,6 +1,6 @@
 %define name centreon
-%define version %{VERSION}
-%define release %{RELEASE}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
 
@@ -9,7 +9,7 @@
 Summary:    Centreon, Network & System Monitoring
 Name:       %{name}
 Version:    %{version}
-Release:    %{release}%{?dist}
+Release:    %{release}
 Source0:    centreon-%{version}.tar.gz
 
 #
