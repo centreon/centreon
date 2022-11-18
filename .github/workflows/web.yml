@@ -360,7 +360,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ success() || cancelled() }}
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
 
     steps:
       - name: Checkout sources
@@ -399,7 +399,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ success() || cancelled() }}
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
 
     steps:
       - uses: actions/checkout@v3
@@ -429,7 +429,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ success() || cancelled() }}
+    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -451,7 +451,7 @@ jobs:
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ success() || cancelled() }}
+    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
     strategy:
       matrix:
         distrib: [bullseye]
