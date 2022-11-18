@@ -13,7 +13,7 @@ yum-config-manager --enable remi-php81
 
 curl -o /tmp/mariadb_repo_setup -JO https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
 bash /tmp/mariadb_repo_setup
-sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo
+sed -i -r 's#10\.[0-9]+#10.5#gm' /etc/yum.repos.d/mariadb.repo
 rm -f /tmp/mariadb_repo_setup
 yum install -y MariaDB-server MariaDB-client
 rpm -e --nodeps galera-4
