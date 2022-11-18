@@ -1,4 +1,4 @@
-name: centreon-js-config-merge
+name: centreon-ui-context-merge
 
 on:
   workflow_dispatch:
@@ -6,8 +6,8 @@ on:
     types:
       - closed
     paths:
-      - "centreon/packages/js-config/**"
-      - ".github/workflows/js-config-merge.yml"
+      - "centreon/packages/ui-context/**"
+      - ".github/workflows/ui-context-merge.yml"
 
 jobs:
   clean-up-npm-beta:
@@ -18,5 +18,5 @@ jobs:
 
       - uses: ./.github/actions/clean-up-npm-tag
         with:
-          package: js-config
+          package: ui-context
           npm_token: ${{ secrets.NPM_TOKEN }}
