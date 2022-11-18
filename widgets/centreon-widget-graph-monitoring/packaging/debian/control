@@ -10,5 +10,5 @@ Package: centreon-widget-graph-monitoring
 Architecture: all
 Depends:    ${misc:Depends},
             ${shlibs:Depends},
-            centreon-web (>= ${centreon:version}~)
+            centreon-web
 Description: Add homepage with Centreon Widgets
