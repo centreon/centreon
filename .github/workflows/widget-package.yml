@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el7, el8]
         include:
           - package_extension: rpm
             image: packaging-centos7
