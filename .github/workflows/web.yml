@@ -53,6 +53,7 @@ jobs:
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
+              - '**/doc/API/**
 
   get-version:
     uses: ./.github/workflows/get-version.yml
