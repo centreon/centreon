@@ -46,7 +46,7 @@ jobs:
               - '**/*.xml|**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
-              - '**/www/src/**'
+              - '/centreon/src/**'
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
