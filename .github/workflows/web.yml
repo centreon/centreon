@@ -425,7 +425,7 @@ jobs:
           path: centreon/lighthouse/report/lighthouseci-index.html
 
   deliver-rpm:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:
@@ -446,7 +446,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   deliver-deb:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:

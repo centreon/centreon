@@ -15,7 +15,7 @@ on:
 
 jobs:
   delivery-rpm:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -35,7 +35,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-deb:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         distrib: [bullseye]
