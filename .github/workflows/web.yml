@@ -42,7 +42,7 @@ jobs:
               - '**/cypress/**|**/pnpm-*'
             has_backend_changes:
               - '**/*.php'
-              - '**/phpstan.neon'
+              - '**/phpstan*.neon'
               - '**/*.xml|**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
