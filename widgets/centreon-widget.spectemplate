@@ -1,11 +1,9 @@
 
-%define name %{NAME}
-%define version %{VERSION}
-%define release %{RELEASE}%{?dist}
+%define name %{PACKAGE_NAME}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
-
-Source0:    %{name}-%{version}.tar.gz
 
 %define widget_sub_dir %(echo %{name} | sed 's/centreon-widget-//')
 
@@ -13,6 +11,7 @@ Summary:    centreon widget %{name}
 Name:       %{name}
 Version:    %{version}
 Release:    %{release}
+Source0:    %{name}-%{version}.tar.gz
 
 License:    GPLv2
 Group:      Applications/System
