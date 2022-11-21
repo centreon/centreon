@@ -17193,6 +17193,7 @@ msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer?"
 
 #  msgid "Confirm"
 #  msgstr "Confirmer"
+
 msgid "Vault configuration with these properties already exists"
 msgstr "Une configuration de vault existe déjà avec ces propriétés"
 

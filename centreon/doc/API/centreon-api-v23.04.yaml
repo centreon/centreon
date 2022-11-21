@@ -7379,4 +7379,3 @@ components:
         secret_id:
           type: string
           description: "Vault secret id"
-
