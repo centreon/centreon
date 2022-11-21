@@ -15,9 +15,6 @@ on:
     tags:
       - centreon-widget-hostgroup-monitoring-*
 
-env:
-  widget_name: "hostgroup-monitoring"
-
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -33,8 +30,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
 
   delivery:
     needs: [get-version, package]
@@ -43,5 +40,5 @@ jobs:
       widget_name: hostgroup-monitoring
       major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
