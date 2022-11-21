@@ -42,20 +42,20 @@ jobs:
             image: packaging-bullseye
             distrib: bullseye
 
-      uses: ./.github/actions/package.yml
-      with:
-        base_directory: centreon-awie
-        spec_file: centreon-awie/packaging/centreon-awie.spectemplate
-        package_extension: ${{ matrix.package_extension }}
-        image_name: ${{ matrix.image }}
-        module_name: ${{ env.module }}
-        major_version: ${{ needs.get-version.outputs.major_version }}
-        minor_version: ${{ needs.get-version.outputs.minor_version }}
-        release: ${{ needs.get-version.outputs.release }}
-        cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-      secrets:
-        artifactory_username: ${{ secrets.ARTI_USER }}
-        artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+    uses: ./.github/actions/package.yml
+    with:
+      base_directory: centreon-awie
+      spec_file: centreon-awie/packaging/centreon-awie.spectemplate
+      package_extension: ${{ matrix.package_extension }}
+      image_name: ${{ matrix.image }}
+      module_name: ${{ env.module }}
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      artifactory_username: ${{ secrets.ARTI_USER }}
+      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
 
   delivery-rpm:
     needs: [get-version, package]
