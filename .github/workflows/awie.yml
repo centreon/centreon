@@ -42,7 +42,7 @@ jobs:
             image: packaging-bullseye
             distrib: bullseye
 
-    uses: ./.github/actions/package.yml
+    uses: ./.github/workflows/package.yml
     with:
       base_directory: centreon-awie
       spec_file: centreon-awie/packaging/centreon-awie.spectemplate
