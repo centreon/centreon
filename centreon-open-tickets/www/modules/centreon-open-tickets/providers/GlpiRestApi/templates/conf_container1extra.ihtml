@@ -1,0 +1,146 @@
+<tr class="list_lvl_1">
+  <td class="ListColLvl1_name" colspan="2">
+    <h4>{$header.GlpiRestApi}</h4>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.address.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.address.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.api_path.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.api_path.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.protocol.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.protocol.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.user_token.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.user_token.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.app_token.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.app_token.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.timeout.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.timeout.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {t}Test authentication{/t}
+  </td>
+  <td class="FormRowValue">
+    <button class="btc bt_action" id="test-glpi">{t}Test{/t}</button>
+    <span id="test-error" class="error_message" style="display: none; color: red;"></span>
+    <span id="test-ok" class="okay_message" style="display: none; color:green;"></span>
+  </td>
+</tr>
+
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.mappingTicketLabel.label}
+  </td>
+  <td class="FormRowValue">
+    {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+  </td>
+</tr>
+
+<script>
+  var webServiceUrl = '{$webServiceUrl}'
+</script>
+{literal}
+<script>
+  // start the button on click event
+  jQuery('#test-glpi').on('click', function (e) {
+    e.preventDefault();
+    jQuery('.error_message').hide();
+
+    let fields = [
+      'address',
+      'api_path',
+      'protocol',
+      'app_token',
+      'user_token'
+    ];
+
+    let i;
+    let inError = false;
+    let field;
+    // check if each field is filled ...
+    for (i = 0; i < fields.length; i++) {
+      field = 'input[name="' + fields[i] + '"]';
+      if (jQuery(field).val().trim() === '') {
+        jQuery('#test-error').text('A required field is empty.');
+        jQuery('#test-error').show();
+        jQuery('#err-' + fields[i]).text('This field is required.').show();
+        inError = true;
+      }
+    }
+
+    // ... if not, end script execution
+    if (inError) {
+      return;
+    }
+
+    jQuery.ajax({
+      // call open ticket api with every needed parameter
+      url: webServiceUrl + '?object=centreon_openticket&action=testProvider',
+      type: 'POST',
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify({
+        service: 'GlpiRestApi', // this is the name of our provider
+        address: jQuery('input[name="address"]').val(),
+        api_path: jQuery('input[name="api_path"]').val(),
+        protocol: jQuery('input[name="protocol"]').val(),
+        app_token: jQuery('input[name="app_token"]').val(),
+        user_token: jQuery('input[name="user_token"]').val(),
+        timeout: jQuery('input[name="timeout"]').val(),
+        proxy_address: jQuery('input[name="proxy_address"]').val(),
+        proxy_port: jQuery('input[name="proxy_port"]').val(),
+        proxy_username: jQuery('input[name="proxy_username"]').val(),
+        proxy_password: jQuery('input[name="proxy_password"]').val()
+      }),
+      success: function (data) {
+        if (data) {
+          jQuery('#test-ok').text('Connection is ok');
+          jQuery('#test-ok').show();
+        } else {
+          jQuery('#test-error').text('unknown issue');
+          jQuery('#test-error').show();
+        }
+      },
+      error: function (error) {
+        jQuery('#test-error').text(error.responseText);
+        jQuery('#test-error').show();
+      }
+    });
+  })
+</script>
+{/literal}
