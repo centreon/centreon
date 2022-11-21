@@ -16,7 +16,7 @@ on:
       - centreon-awie-*
 
 env:
-  module: "awie"
+  module: awie
   
 jobs:
   get-version:
