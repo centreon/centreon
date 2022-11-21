@@ -8,6 +8,7 @@ xunit-reports
 **/.scannerwork/
 **/vendor/
 **/nbproject/
+**/.project
 
 # front development files
 **/node_modules/
