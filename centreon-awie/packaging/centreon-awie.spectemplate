@@ -6,6 +6,8 @@
 
 %define debug_package %{nil}
 %define centreon_www %{_datadir}/centreon/www
+%define version %{VERSION}
+%define release %{RELEASE}
 
 Name:           centreon-awie
 Version:        %{version}
