@@ -10,7 +10,7 @@ on:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/centreon-widget-tactical-overview.yml"
+      - ".github/workflows/widget-tactical-overview.yml"
       - "widgets/centreon-widget-tactical-overview/**"
     tags:
       - centreon-widget-tactical-overview-*
