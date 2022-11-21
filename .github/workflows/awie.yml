@@ -22,7 +22,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with: 
-      version_file: www/modules/centreon-awie/conf.php
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
   package:
     needs: [get-version]
