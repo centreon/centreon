@@ -8,8 +8,8 @@
 %define centreon_www %{_datadir}/centreon/www
 
 Name:           centreon-awie
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Version:        %{VERSION}
+Release:        %{REL}%{?dist}
 Summary:        Centreon API Web Import Export
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
