@@ -69,11 +69,10 @@ jobs:
             distrib_rpm: el7
             module_name: web        
 
-
   delivery-rpm:
     needs: [get-version, package]
     runs-on: [self-hosted, common]
-        strategy:
+    strategy:
       matrix:
         include:
           - module_name: awie
