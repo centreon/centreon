@@ -9,7 +9,6 @@
 
 .snyk           @centreon/centreon-security
 
-**/src/                 @centreon/centreon-php
 **/config/              @centreon/centreon-php
 **/composer.*           @centreon/centreon-php
 **/tests/api/           @centreon/centreon-php
