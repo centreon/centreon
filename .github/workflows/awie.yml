@@ -47,7 +47,7 @@ jobs:
       spec_file: centreon-awie/packaging/centreon-awie.spectemplate
       package_extension: ${{ matrix.package_extension }}
       image_name: ${{ matrix.image }}
-      module_name: ${{ env.module }}
+      module_name: awie
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
