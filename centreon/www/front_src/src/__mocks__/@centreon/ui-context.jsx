@@ -1,3 +1,5 @@
+// test codeowner
+
 jest.mock('@centreon/ui-context', () => ({
   ...jest.requireActual('./packages/ui-context'),
   ThemeMode: {
