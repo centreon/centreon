@@ -10,7 +10,7 @@ on:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/centreon-widget-ntopng-listing.yml"
+      - ".github/workflows/widget-ntopng-listing.yml"
       - "widgets/centreon-widget-ntopng-listing/**"
     tags:
       - centreon-widget-ntopng-listing-*
