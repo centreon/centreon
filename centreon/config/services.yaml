@@ -54,6 +54,10 @@ services:
         class: Security\SessionAPIAuthenticator
         public: false
 
+    security.provider.websso:
+        class: Security\WebSSOAuthenticator
+        public: false
+
     Centreon\Domain\Entity\EntityValidator:
         class: Centreon\Domain\Entity\EntityValidator
         arguments: ['%validation_path%']
