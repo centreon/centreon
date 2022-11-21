@@ -1,16 +1,15 @@
 import { useState } from 'react';
 
-import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import { ListItemText, Switch } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { patchData, useRequest } from '@centreon/ui';
 
 import useSwitchThemeMode from './useSwitchThemeMode';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     '& .MuiSwitch-thumb': {
       backgroundColor: 'white',
@@ -45,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SwitchThemeMode = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const { pathname } = useLocation();
   const [isPending, isDarkMode, themeMode, updateUser] = useSwitchThemeMode();
 
@@ -83,13 +82,13 @@ const SwitchThemeMode = (): JSX.Element => {
       />
       <div className={classes.containerMode}>
         <ListItemText
-          className={clsx(classes.mode, { [classes.disabledMode]: isDark })}
+          className={cx(classes.mode, { [classes.disabledMode]: isDark })}
         >
           Light
         </ListItemText>
 
         <ListItemText
-          className={clsx(classes.mode, {
+          className={cx(classes.mode, {
             [classes.disabledMode]: !isDark,
           })}
         >
