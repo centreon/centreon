@@ -53,15 +53,17 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
         $record = [];
         $statement = $this->db->prepare($this->translateDbName('SELECT * FROM `:db`.`vault` WHERE `id`=:id'));
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
-
-        if ($statement->execute() === false) {
-            return null;
-        }
+        // execute will always return true
+        $statement->execute();
 
         /**
          * @var array<string,int|string> $record
          */
         $record = $statement->fetch(\PDO::FETCH_ASSOC);
+        // testing for the record to be empty
+        if (empty($record)) {
+            return null;
+        }
 
         return $this->factory->createFromRecord($record);
     }
