@@ -52,6 +52,38 @@ jobs:
           base_directory: ${{ env.base_directory }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
+  translation-build:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+    container:
+      image: registry-docker.centreon.com/docker-global/translation:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.REPOS_USERNAME }}
+        password: ${{ secrets.REPOS_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          cd centreon
+          find ./www/include/Administration/about -type f | xargs --delimiter='\n' sed -i -e "s/@COMMIT@/$COMMIT/g"
+          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+          for i in lang/* ; do
+            localefull=`basename $i`
+            langcode=`echo $localefull | cut -d _ -f 1`
+            mkdir -p "www/locale/$localefull/LC_MESSAGES"
+            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
+            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
+            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+          done
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.base_directory }}/www/locale
+          key: ${{ github.sha }}-${{ github.run_id }}-translation
+
   frontend-lint:
     runs-on: ubuntu-22.04
 
@@ -136,52 +168,50 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
-    runs-on: ubuntu-22.04
-    needs:
-      [
-        get-version,
-        backend-dependencies,
-        backend-unit-test,
-        frontend-build,
-        frontend-lint,
-        frontend-unit-test
-      ]
+    needs: [
+      get-version,
+      translation-build,
+      backend-dependencies,
+      backend-unit-test,
+      frontend-build,
+      frontend-lint,
+      frontend-unit-test
+    ]
 
     strategy:
+      fail-fast: false
       matrix:
+        distrib: [el7, el8]
         include:
           - package_extension: rpm
-            image: packaging-web-centos7
+            image: packaging-centos7
             distrib: el7
           - package_extension: rpm
-            image: packaging-web-alma8
+            image: packaging-alma8
             distrib: el8
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/package
-        with:
-          package_extension: ${{ matrix.package_extension }}
-          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-          frontend_index_file: ${{ env.base_directory }}/www/index.html
-          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-          frontend_static_directory: ${{ env.base_directory }}/www/static
-          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-          backend_vendor_directory: ${{ env.base_directory }}/vendor
-          image_name: ${{ matrix.image }}
-          script_name: web-packaging-${{ matrix.package_extension }}
-          module_name: centreon
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          sign: true
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+    uses: ./.github/workflows/package.yml
+    with:
+      base_directory: centreon
+      spec_file: centreon/packaging/centreon.spectemplate
+      package_extension: ${{ matrix.package_extension }}
+      frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+      frontend_index_file: centreon/www/index.html
+      frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+      frontend_static_directory: centreon/www/static
+      backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+      backend_vendor_directory: centreon/vendor
+      translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+      translation_directory: centreon/www/locale
+      image_name: ${{ matrix.image }}
+      module_name: centreon
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
 
   dockerize:
     runs-on: ubuntu-22.04

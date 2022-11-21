@@ -424,7 +424,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
                     throw new EntityNotFoundException(_('Host not found'));
                 }
                 $this->engineService->addHostAcknowledgement($ack, $host);
-                if ($ack->doesForceActiveChecks()) {
+                if ($ack->doesForceActiveChecks() && $host->getActiveChecks()) {
                     $this->engineService->scheduleForcedHostCheck($host);
                 }
                 if ($ack->isWithServices()) {
@@ -432,7 +432,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
                     foreach ($services as $service) {
                         $service->setHost($host);
                         $this->engineService->addServiceAcknowledgement($ack, $service);
-                        if ($ack->doesForceActiveChecks()) {
+                        if ($ack->doesForceActiveChecks() && $service->getActiveCheck()) {
                             $this->engineService->scheduleImmediateForcedServiceCheck($service);
                         }
                     }
@@ -458,7 +458,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
                 }
                 $service->setHost($host);
                 $this->engineService->addServiceAcknowledgement($ack, $service);
-                if ($ack->doesForceActiveChecks()) {
+                if ($ack->doesForceActiveChecks() && $service->getActiveCheck()) {
                     $this->engineService->scheduleImmediateForcedServiceCheck($service);
                 }
                 break;
@@ -479,7 +479,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
                 }
                 $service->setHost($host);
                 $this->engineService->addServiceAcknowledgement($ack, $service);
-                if ($ack->doesForceActiveChecks()) {
+                if ($ack->doesForceActiveChecks() && $service->getActiveCheck()) {
                     $this->engineService->scheduleImmediateForcedServiceCheck($service);
                 }
                 break;
