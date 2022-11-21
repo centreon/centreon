@@ -10,7 +10,7 @@ on:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/centreon-widget-live-top10-cpu-usage.yml"
+      - ".github/workflows/widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
     tags:
       - centreon-widget-live-top10-cpu-usage-*

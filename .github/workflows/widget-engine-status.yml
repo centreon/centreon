@@ -10,7 +10,7 @@ on:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/centreon-widget-engine-status.yml"
+      - ".github/workflows/widget-engine-status.yml"
       - "widgets/centreon-widget-engine-status/**"
     tags:
       - centreon-widget-engine-status-*

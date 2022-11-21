@@ -10,7 +10,7 @@ on:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/centreon-widget-global-health.yml"
+      - ".github/workflows/widget-global-health.yml"
       - "widgets/centreon-widget-global-health/**"
     tags:
       - centreon-widget-global-health-*
