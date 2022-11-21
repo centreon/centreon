@@ -57,18 +57,6 @@ jobs:
         artifactory_username: ${{ secrets.ARTI_USER }}
         artifactory_password: ${{ secrets.ARTI_PASSWD }}          
 
-  dockerize:
-    needs: [package]
-    runs-on: [self-hosted, common]
-
-    strategy:
-      matrix:
-        include:
-          - project: centreon-awie
-            distrib: centos7
-            distrib_rpm: el7
-            module_name: web        
-
   delivery-rpm:
     needs: [get-version, package]
     runs-on: [self-hosted, common]
