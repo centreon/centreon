@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  if [ "$(getent passwd centreon)" ]; then
+    chmod 0770 /var/cache/centreon/filesUpload
+    chown centreon:centreon /var/cache/centreon/filesUpload
+  fi
+  if [ "$(getent passwd www-data)" ]; then
+    chown -R www-data:www-data /usr/share/centreon/www/modules/centreon-awie
+  fi
+
+fi
+exit 0
