@@ -13,7 +13,7 @@ on:
       - ".github/workflows/awie.yml"
       - "awie/**"
     tags:
-      - centreon-widget-engine-status-*
+      - centreon-awie-*
 
 env:
   module: "awie"
