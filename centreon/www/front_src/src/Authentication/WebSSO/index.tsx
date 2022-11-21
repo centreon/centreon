@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress, Typography } from '@mui/material';
+import { LinearProgress } from '@mui/material';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefineWebSSOConfiguration } from './translatedLabels';
 import useWebSSO from './useWebSSO';
@@ -48,7 +49,7 @@ const WebSSOConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">{t(labelDefineWebSSOConfiguration)}</Typography>
+      <FormTitle title={t(labelDefineWebSSOConfiguration)} />
       <div className={classes.loading}>
         {not(isWebSSOConfigurationEmpty) && sendingGetWebSSOConfiguration && (
           <LinearProgress />

@@ -44,34 +44,33 @@ const panels = [
 
 const useStyles = makeStyles()((theme) => ({
   box: {
-    overflowY: 'hidden',
+    overflowY: 'auto',
   },
   container: {
+    marginLeft: '0',
     maxHeight: `calc(100vh - ${theme.spacing(12)})`,
-    maxWidth: theme.spacing(125),
-    overflowY: 'hidden',
   },
   formContainer: {
     display: 'grid',
     gridTemplateColumns: '1.2fr 0.6fr',
-    justifyItems: 'center',
-    overflowY: 'hidden',
     padding: theme.spacing(3),
   },
   image: {
-    height: '200px',
+    height: '300px',
     opacity: 0.5,
     padding: theme.spacing(0, 5),
     position: 'sticky',
     top: 0,
-    width: '200px',
+    width: '300px',
   },
   panel: {
-    overflowY: 'auto',
     padding: 0,
   },
+  paper: {
+    border: 'none',
+  },
   tabList: {
-    boxShadow: theme.shadows[2],
+    borderBottom: `${theme.spacing(0.25)} solid ${theme.palette.divider}`,
   },
 }));
 
@@ -125,10 +124,7 @@ const Authentication = (): JSX.Element => {
         <TabPanel className={classes.panel} key={value} value={value}>
           <Box
             ref={formContainerRef}
-            sx={{
-              height: `${formContainerHeight}px`,
-              overflowY: 'auto',
-            }}
+            sx={{ height: `${formContainerHeight}px` }}
           >
             <div className={classes.formContainer}>
               <Component />
@@ -144,7 +140,7 @@ const Authentication = (): JSX.Element => {
     <Box className={classes.box}>
       <TabContext value={appliedTab}>
         <Container className={classes.container}>
-          <Paper square>
+          <Paper square className={classes.paper}>
             <TabList
               className={classes.tabList}
               variant="fullWidth"

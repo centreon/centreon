@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress, Typography } from '@mui/material';
+import { LinearProgress } from '@mui/material';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefineOpenIDConnectConfiguration } from './translatedLabels';
 import useOpenid from './useOpenid';
@@ -42,9 +43,7 @@ const OpenidConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">
-        {t(labelDefineOpenIDConnectConfiguration)}
-      </Typography>
+      <FormTitle title={t(labelDefineOpenIDConnectConfiguration)} />
       <div className={classes.loading}>
         {not(isOpenidConfigurationEmpty) && sendingGetOpenidConfiguration && (
           <LinearProgress />
