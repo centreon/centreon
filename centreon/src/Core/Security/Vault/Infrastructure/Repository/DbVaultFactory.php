@@ -23,21 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Core\Security\Vault\Domain\Model\Vault;
 
 class DbVaultFactory
 {
     /**
-     * @param array<string,int|string> $recordData
+     * @param array{
+     *      id: int,
+     *      name: string
+     * } $recordData
      *
-     * @return Vault|null
+     * @return Vault
+     *
+     * @throws AssertionFailedException
      */
-    public function createFromRecord(array $recordData): ?Vault
+    public function createFromRecord(array $recordData): Vault
     {
-        if (empty($recordData)) {
-            return null;
-        }
-
         return new Vault((int) $recordData['id'], (string) $recordData['name']);
     }
 }

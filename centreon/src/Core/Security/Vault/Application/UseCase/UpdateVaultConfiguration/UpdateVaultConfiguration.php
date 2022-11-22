@@ -26,20 +26,17 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{
-    ErrorResponse,
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Application\Common\UseCase\{ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
     NoContentResponse,
-    NotFoundResponse
-};
-use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
+    NotFoundResponse};
+use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
+use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface
-};
-use Core\Security\Vault\Domain\Exceptions\{VaultConfigurationException, VaultException};
-use Core\Security\Vault\Domain\Model\Vault;
+    WriteVaultConfigurationRepositoryInterface};
+use Core\Security\Vault\Domain\Exceptions\{VaultException};
 
 final class UpdateVaultConfiguration
 {
@@ -49,14 +46,14 @@ final class UpdateVaultConfiguration
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
      * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
      * @param ReadVaultRepositoryInterface $readVaultRepository
-     * @param VaultConfigurationFactory $factory
+     * @param VaultConfigurationFactory $vaultConfigurationFactory
      * @param ContactInterface $user
      */
     public function __construct(
         private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private ReadVaultRepositoryInterface $readVaultRepository,
-        private VaultConfigurationFactory $factory,
+        private VaultConfigurationFactory $vaultConfigurationFactory,
         private ContactInterface $user
     ) {
     }
@@ -72,7 +69,7 @@ final class UpdateVaultConfiguration
         try {
             if (! $this->user->isAdmin()) {
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('Only admin user can create vault configuration')
+                    new ForbiddenResponse(VaultConfigurationException::onlyForAdmin()->getMessage())
                 );
 
                 return;
@@ -80,7 +77,7 @@ final class UpdateVaultConfiguration
 
             if (! $this->isVaultExists($updateVaultConfigurationRequest->typeId)) {
                 $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider id')
+                    new NotFoundResponse('Vault provider')
                 );
 
                 return;
@@ -88,24 +85,14 @@ final class UpdateVaultConfiguration
 
             if (! $this->isVaultConfigurationExists($updateVaultConfigurationRequest->vaultConfigurationId)) {
                 $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault configuration id')
+                    new NotFoundResponse('Vault configuration')
                 );
 
                 return;
             }
 
-            $vaultConfiguration = $this->factory->create($updateVaultConfigurationRequest);
-
-            $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
-                $vaultConfiguration->getAddress(),
-                $vaultConfiguration->getPort(),
-                $vaultConfiguration->getStorage()
-            );
-
-            if (
-                $existingVaultConfiguration !== null
-                && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId()
-            ) {
+            $vaultConfiguration = $this->vaultConfigurationFactory->create($updateVaultConfigurationRequest);
+            if ($this->isVaultConfigurationAlreadyExistsForSameProvider($vaultConfiguration)) {
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
                 );
@@ -115,8 +102,8 @@ final class UpdateVaultConfiguration
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (InvalidArgumentException|VaultException $ex) {
-            $this->error('Some parameters are not valid', ['trace' => (string) $ex]);
+        } catch (InvalidArgumentException $ex) {
+            $this->error('Some parameters are not valid', ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new InvalidArgumentResponse($ex->getMessage())
             );
@@ -157,5 +144,25 @@ final class UpdateVaultConfiguration
     private function isVaultConfigurationExists(int $id): bool
     {
         return $this->readVaultConfigurationRepository->findById($id) !== null;
+    }
+
+    /**
+     * @param VaultConfiguration $vaultConfiguration
+     * @return bool
+     * @throws VaultException
+     * @throws \Throwable
+     */
+    private function isVaultConfigurationAlreadyExistsForSameProvider(
+        VaultConfiguration $vaultConfiguration
+    ): bool {
+        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
+            $vaultConfiguration->getAddress(),
+            $vaultConfiguration->getPort(),
+            $vaultConfiguration->getStorage()
+        );
+
+        return $existingVaultConfiguration !== null
+            && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId()
+            && $existingVaultConfiguration->getVault()->getId() === $vaultConfiguration->getVault()->getId();
     }
 }

@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\Repository;
 
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
+use Assert\AssertionFailedException;
+use Core\Security\Vault\Domain\Model\Vault;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
@@ -31,28 +32,33 @@ class DbVaultConfigurationFactory
 {
     /**
      * @param EncryptionInterface $encryption
-     * @param DbReadVaultRepository $vaultRepository
      */
-    public function __construct(
-        private EncryptionInterface $encryption,
-        private ReadVaultRepositoryInterface $vaultRepository
-    ) {
+    public function __construct(private EncryptionInterface $encryption)
+    {
     }
 
     /**
-     * @param array<string,int|string> $recordData
+     * @param array{
+     *     id: int,
+     *     name: string,
+     *     vault_id: int,
+     *     vault_name: string,
+     *     url: string,
+     *     port: int,
+     *     storage: string,
+     *     role_id: string,
+     *     secret_id: string,
+     *     salt: string
+     * } $recordData
      *
-     * @return VaultConfiguration|null
+     * @return VaultConfiguration
+     *
+     * @throws AssertionFailedException
+     * @throws \Exception
      */
-    public function createFromRecord(array $recordData): ?VaultConfiguration
+    public function createFromRecord(array $recordData): VaultConfiguration
     {
-        $vault = $this->vaultRepository->findById((int) $recordData['type_id']);
-
-        if (empty($recordData) || $vault === null) {
-            return null;
-        }
-
-        /** @var string $roleId */
+       /** @var string $roleId */
         $roleId = $this->encryption
             ->setSecondKey((string) $recordData['salt'])
             ->decrypt((string) $recordData['role_id']);
@@ -65,7 +71,7 @@ class DbVaultConfigurationFactory
         return new VaultConfiguration(
             (int) $recordData['id'],
             (string) $recordData['name'],
-            $vault,
+            new Vault($recordData['vault_id'], $recordData['vault_name']),
             (string) $recordData['url'],
             (int) $recordData['port'],
             (string) $recordData['storage'],

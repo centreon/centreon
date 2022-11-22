@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
 
+use Assert\AssertionFailedException;
 use Assert\InvalidArgumentException;
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Domain\Exceptions\VaultException;
@@ -45,10 +46,11 @@ class NewVaultConfigurationFactory
      * This method will crypt $roleId and $secretId before instanciating NewVaultConfiguraiton.
      *
      * @param CreateVaultConfigurationRequest $request
-     *
-     * @throws InvalidArgumentException
-     *
      * @return NewVaultConfiguration
+     * @throws VaultException
+     * @throws InvalidArgumentException
+     * @throws AssertionFailedException
+     * @throws \Exception
      */
     public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
     {

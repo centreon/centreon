@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\Api\CreateVaultConfiguration;
+namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
@@ -64,7 +64,7 @@ final class CreateVaultConfigurationController extends AbstractController
             __DIR__ . '/CreateVaultConfigurationSchema.json'
         );
 
-        $createVaultConfigurationRequest = $this->createCreateVaultConfigurationRequest($vaultId, $decodedRequest);
+        $createVaultConfigurationRequest = $this->createDtoRequest($vaultId, $decodedRequest);
 
         $useCase($presenter, $createVaultConfigurationRequest);
 
@@ -84,7 +84,7 @@ final class CreateVaultConfigurationController extends AbstractController
      *
      * @return CreateVaultConfigurationRequest
      */
-    private function createCreateVaultConfigurationRequest(
+    private function createDtoRequest(
         int $vaultId,
         array $decodedRequest
     ): CreateVaultConfigurationRequest {

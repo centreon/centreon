@@ -26,25 +26,19 @@ namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{
-    ErrorResponse,
+use Core\Application\Common\UseCase\{ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
     NoContentResponse,
-    NotFoundResponse
-};
+    NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
+use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
+use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface
-};
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
-    UpdateVaultConfiguration,
+    WriteVaultConfigurationRepositoryInterface};
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{UpdateVaultConfiguration,
     UpdateVaultConfigurationRequest,
-    VaultConfigurationFactory
-};
-use Core\Security\Vault\Domain\Exceptions\{VaultConfigurationException, VaultException};
+    VaultConfigurationFactory};
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 
 beforeEach(function (): void {
@@ -127,7 +121,7 @@ it('should present NotFoundResponse when vault provider does not exist', functio
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        (new NotFoundResponse('Vault provider id'))->getMessage()
+        (new NotFoundResponse('Vault provider'))->getMessage()
     );
 });
 
@@ -171,7 +165,7 @@ it('should present NotFoundResponse when vault configuration does not exist for 
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        (new NotFoundResponse('Vault configuration id'))->getMessage()
+        (new NotFoundResponse('Vault configuration'))->getMessage()
     );
 });
 

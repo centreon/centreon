@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Domain\Exceptions;
+namespace Core\Security\Vault\Application\Exceptions;
 
 class VaultConfigurationException extends \Exception
 {
@@ -46,12 +46,10 @@ class VaultConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when vault configuration with given id does not exist.
-     *
      * @return self
      */
-    public static function configurationWithIdDoesNotExist(): self
+    public static function onlyForAdmin(): self
     {
-        return new self('Vault configuration with this id does not exist');
+        return new self('Only admin user can create vault configuration');
     }
 }

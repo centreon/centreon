@@ -26,19 +26,19 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 final class UpdateVaultConfigurationRequest
 {
     /** @var int */
-    public int $vaultConfigurationId = 1;
+    public int $vaultConfigurationId = 0;
 
     /** @var string */
     public string $name = '';
 
     /** @var int */
-    public int $typeId = 1;
+    public int $typeId = 0;
 
     /** @var string */
     public string $address = '';
 
     /** @var int */
-    public int $port = 8200;
+    public int $port = 0;
 
     /** @var string */
     public string $storage = '';

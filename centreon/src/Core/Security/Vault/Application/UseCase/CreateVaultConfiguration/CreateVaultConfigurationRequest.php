@@ -29,13 +29,13 @@ final class CreateVaultConfigurationRequest
     public string $name = '';
 
     /** @var int */
-    public int $typeId = 1;
+    public int $typeId = 0;
 
     /** @var string */
     public string $address = '';
 
     /** @var int */
-    public int $port = 8200;
+    public int $port = 0;
 
     /** @var string */
     public string $storage = '';

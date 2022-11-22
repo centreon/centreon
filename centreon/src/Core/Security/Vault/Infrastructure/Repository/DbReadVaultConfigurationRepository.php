@@ -26,12 +26,11 @@ namespace Core\Security\Vault\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface as ReadVaultConfigurationInterface
-};
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
-class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implements ReadVaultConfigurationInterface
+class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB
+    implements ReadVaultConfigurationRepositoryInterface
 {
     use LoggerTrait;
 
@@ -54,10 +53,13 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     ): ?VaultConfiguration {
         $this->info('Getting existing vault configuration by address, port and storage');
 
-        $record = [];
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'SELECT * FROM `:db`.`vault_configuration` WHERE `url`=:address AND `port`=:port AND `storage`=:storage'
+                'SELECT conf.*, vault.name as vault_name
+                FROM `:db`.`vault_configuration` conf
+                INNER JOIN `:db`.`vault`
+                  ON vault.id = conf.vault_id
+                WHERE `url`=:address AND `port`=:port AND `storage`=:storage'
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
@@ -65,15 +67,24 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement->bindValue(':storage', $storage, \PDO::PARAM_STR);
         $statement->execute();
 
-        /**
-         * @var array<string,int|string> $record
-         */
-        $record = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        if (! $record) {
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
-
+        /**
+         *
+         * @var array{
+         *     id: int,
+         *     name: string,
+         *     vault_id: int,
+         *     vault_name: string,
+         *     url: string,
+         *     port: int,
+         *     storage: string,
+         *     role_id: string,
+         *     secret_id: string,
+         *     salt: string
+         * } $record
+         */
         return $this->factory->createFromRecord($record);
     }
 
@@ -91,15 +102,23 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         $statement->execute();
 
-        /**
-         * @var array<string,int|string> $record
-         */
-        $record = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        if (! $record) {
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
-
+        /**
+         * @var array{
+         *     id: int,
+         *     name: string,
+         *     vault_id: int,
+         *     vault_name: string,
+         *     url: string,
+         *     port: int,
+         *     storage: string,
+         *     role_id: string,
+         *     secret_id: string,
+         *     salt: string
+         * } $record
+         */
         return $this->factory->createFromRecord($record);
     }
 }

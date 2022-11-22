@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\Api\UpdateVaultConfiguration;
+namespace Core\Security\Vault\Infrastructure\API\UpdateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
@@ -66,7 +66,7 @@ final class UpdateVaultConfigurationController extends AbstractController
             __DIR__ . '/UpdateVaultConfigurationSchema.json'
         );
 
-        $updateVaultConfigurationRequest = $this->createUpdateVaultConfigurationRequest(
+        $updateVaultConfigurationRequest = $this->createDtoRequest(
             $vaultId,
             $vaultConfigurationId,
             $decodedRequest
@@ -91,7 +91,7 @@ final class UpdateVaultConfigurationController extends AbstractController
      *
      * @return UpdateVaultConfigurationRequest
      */
-    private function createUpdateVaultConfigurationRequest(
+    private function createDtoRequest(
         int $vaultId,
         int $vaultConfigurationId,
         array $decodedRequest

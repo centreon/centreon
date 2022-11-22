@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
+use Assert\AssertionFailedException;
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Domain\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
@@ -42,8 +43,10 @@ class VaultConfigurationFactory
 
     /**
      * @param UpdateVaultConfigurationRequest $request
-     *
      * @return VaultConfiguration
+     * @throws VaultException
+     * @throws \Exception
+     * @throws AssertionFailedException
      */
     public function create(UpdateVaultConfigurationRequest $request): VaultConfiguration
     {
