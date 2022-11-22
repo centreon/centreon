@@ -1,6 +1,6 @@
 DeleteHostCategory:
   methods: DELETE
-  path: /configuration/hostcategories/{hostCategoryId}
+  path: /configuration/hosts/categories/{hostCategoryId}
   requirements:
     hostCategoryId: '\d+'
   controller: 'Core\HostCategory\Infrastructure\Api\DeleteHostCategory\DeleteHostCategoryController'

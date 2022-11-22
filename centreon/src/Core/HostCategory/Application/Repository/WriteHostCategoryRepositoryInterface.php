@@ -26,13 +26,17 @@ namespace Core\HostCategory\Application\Repository;
 interface WriteHostCategoryRepositoryInterface
 {
     /**
+     * Delete host category by id
+     *
      * @param int $hostCategoryId
      */
     public function deleteById(int $hostCategoryId): void;
 
     /**
+     * Delete host category by id and access groups
+     *
      * @param int $hostCategoryId
-     * @param int $contactId
+     * @param AccessGroup[] $accessGroups
      */
-    public function deleteByIdAndContactId(int $hostCategoryId, int $contactId): void;
+    public function deleteByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): void;
 }

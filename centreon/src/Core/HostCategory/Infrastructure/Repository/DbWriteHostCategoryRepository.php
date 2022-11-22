@@ -43,60 +43,51 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
      */
     public function deleteById(int $hostCategoryId): void
     {
-        $this->deleteByIdRequest($hostCategoryId, null);
+        $request = $this->translateDbName(
+            'DELETE hc FROM `:db`.hostcategories hc
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+        $request .= " AND hc.level IS NULL ";
+
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     /**
      * @inheritDoc
      */
-    public function deleteByIdAndContactId(int $hostCategoryId, int $contactId): void
+    public function deleteByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): void
     {
-        $this->deleteByIdRequest($hostCategoryId, $contactId);
-    }
-
-
-    /**
-     * @param int $hostCategoryId
-     * @param int|null $contactId
-     */
-    private function deleteByIdRequest(int $hostCategoryId, ?int $contactId): void
-    {
-        if ($contactId !== null) {
-            $request = $this->translateDbName(
-                'DELETE hc FROM `:db`.hostcategories hc
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON hc.hc_id = arhr.hc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations agcr
-                    ON ag.acl_group_id = agcr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
-                    ON ag.acl_group_id = agcgr.acl_group_id
-                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id
-                WHERE hc.hc_id = :hostCategoryId'
-            );
-            $whereAclCondition = ' AND (agcr.contact_contact_id = :contactId
-                OR cgcr.contact_contact_id = :contactId)';
-        } else {
-            $request = $this->translateDbName(
-                'DELETE hc FROM `:db`.hostcategories hc
-                WHERE hc.hc_id = :hostCategoryId'
-            );
+        if (empty($accessGroups)) {
+            return ;
         }
 
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $request = $this->translateDbName(
+            'DELETE hc FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+
         $request .= " AND hc.level IS NULL ";
-        $request .= $whereAclCondition ?? '';
+        $request .= ' ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
 
         $statement = $this->db->prepare($request);
 
-        if ($contactId !== null) {
-            $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-        }
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
 
         $statement->execute();

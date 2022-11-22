@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryPresenterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class DeleteHostCategory
 {
@@ -36,6 +37,7 @@ class DeleteHostCategory
 
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private ContactInterface $contact
     ) {
     }
@@ -44,9 +46,12 @@ class DeleteHostCategory
     {
         // TODO : handle ACLs ?
         try {
-            $this->contact->isAdmin()
-                ? $this->writeHostCategoryRepository->deleteById($hostCategoryId)
-                : $this->writeHostCategoryRepository->deleteByIdAndContactId($hostCategoryId, $this->contact->getId());
+            if ($this->contact->isAdmin()) {
+                $this->writeHostCategoryRepository->deleteById($hostCategoryId);
+            } else {
+                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
+                $this->writeHostCategoryRepository->deleteByIdAndAccessGroups($hostCategoryId, $accessGroups);
+            }
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $th) {

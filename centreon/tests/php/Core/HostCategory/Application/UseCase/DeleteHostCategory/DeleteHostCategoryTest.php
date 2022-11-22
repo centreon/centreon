@@ -29,22 +29,24 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
-    $this->repository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new DeleteHostCategory($this->repository, $this->contact);
+    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
     $hostCategoryId = 1;
 
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->repository
+    $this->hostCategoryRepository
         ->expects($this->once())
         ->method('deleteById')
         ->willThrowException(new \Exception());
@@ -58,14 +60,14 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a NoContentResponse on success', function () {
-    $useCase = new DeleteHostCategory($this->repository, $this->contact);
+    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
     $hostCategoryId = 1;
 
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->repository
+    $this->hostCategoryRepository
         ->expects($this->once())
         ->method('deleteById');
 
