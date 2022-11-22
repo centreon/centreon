@@ -1,4 +1,4 @@
-import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps';
+import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { logout, loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture, removeContact } from '../common';
