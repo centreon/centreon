@@ -49,7 +49,7 @@ Then(
       .getIframeBody()
       .find('form #tab1')
       .within(() => {
-        cy.get('#contact_gen_akey').should('be.visible');
+        cy.get('#generateAutologinKeyButton').should('be.visible');
         cy.get('#aKey').invoke('val').should('not.be.undefined');
       })
       .navigateTo({
@@ -68,7 +68,7 @@ Then(
       .find('form')
       .within(() => {
         cy.contains('Centreon Authentication').click();
-        cy.get('#tab2 #contact_gen_akey').should('be.exist');
+        cy.get('#tab2 #generateAutologinKeyButton').should('be.exist');
         cy.get('#aKey').should('be.exist');
       });
   },
@@ -87,7 +87,7 @@ Given(
       .getIframeBody()
       .find('form #tab1')
       .within(() => {
-        cy.get('#contact_gen_akey').should('be.visible');
+        cy.get('#generateAutologinKeyButton').should('be.visible');
         cy.get('#aKey').should('be.visible');
       });
   },
@@ -97,7 +97,7 @@ When('a user generates his autologin key', () => {
   cy.getIframeBody()
     .find('form #tab1 table tbody tr')
     .within(() => {
-      cy.get('#contact_gen_akey').click();
+      cy.get('#generateAutologinKeyButton').click();
       cy.get('#aKey').invoke('val').should('not.be.undefined');
     });
 });
@@ -106,7 +106,9 @@ Then('the key is properly generated and displayed', () => {
   cy.getIframeBody()
     .find('form #tab1 table tbody tr')
     .within(() => {
-      cy.get('#contact_gen_akey').invoke('val').should('not.be.undefined');
+      cy.get('#generateAutologinKeyButton')
+        .invoke('val')
+        .should('not.be.undefined');
     })
     .getIframeBody()
     .find('form input[name="submitC"]')
