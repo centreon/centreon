@@ -63,18 +63,18 @@ rm -rf $RPM_BUILD_ROOT
 # Install centreon-dsm README
 %{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/
 %{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}
-%{__cp} README $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}/README
+%{__cp} centreon-dsm/README $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}/README
 
 # Install centreon-dsm web files
 %{__cp} -rp centreon-dsm/www/modules/%{name} $RPM_BUILD_ROOT%{centreon_www}/modules/
 
 # Install centreon-dsm bin
 %{__install} -d -m 0775 %buildroot/usr/share/centreon/bin
-%{__install} -m 0755 bin/* %buildroot/usr/share/centreon/bin
+%{__install} -m 0755 centreon-dsm/bin/* %buildroot/usr/share/centreon/bin
 
 # Install centreon-dsm cron
 %{__install} -d $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
-%{__cp} cron/* $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
+%{__cp} centreon-dsm/cron/* $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
 
 # Install daemon starting script
 %{__install} -d -m 0755 %buildroot%{_unitdir}
