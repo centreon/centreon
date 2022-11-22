@@ -87,7 +87,7 @@ jobs:
       matrix:
         include:
           - module_name: awie
-            distrib: [bullseye]
+            distrib: bullseye
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
