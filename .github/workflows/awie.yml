@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Delivery
-        uses: ./.github/actions/rpm-delivery.yml
+        uses: ./.github/actions/rpm-delivery
         with:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
@@ -93,7 +93,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Delivery
-        uses: ./.github/actions/deb-delivery.yml
+        uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
