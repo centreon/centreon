@@ -43,7 +43,6 @@ class FindHostCategories
 
     public function __invoke(FindHostCategoriesPresenterInterface $presenter): void
     {
-        // TODO : handle ACLs ?
         try {
             $hostCategories = $this->contact->isAdmin()
                 ? $this->readHostCategoryRepository->findAll()
@@ -80,7 +79,7 @@ class FindHostCategories
                     $hostCategory->setHostTemplates($hostTemplates[$hostCategory->getId()]);
                 }
             }
-            $presenter->present($this->showResponse($hostCategories));
+            $presenter->present($this->createResponse($hostCategories));
         } catch (\Throwable $th) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
             // TODO : translate error message
@@ -92,7 +91,7 @@ class FindHostCategories
      * @param HostCategory[] $hostCategories
      * @return FindHostCategoriesResponse
      */
-    private function showResponse(array $hostCategories): FindHostCategoriesResponse
+    private function createResponse(array $hostCategories): FindHostCategoriesResponse
     {
         $response = new FindHostCategoriesResponse();
         foreach ($hostCategories as $hostCategory) {
@@ -103,7 +102,6 @@ class FindHostCategories
                 'hosts' => [],
                 'host_templates' => []
             ];
-            // TODO : what about hostsToArray() ? in response as a static ?
             foreach ($hostCategory->getHosts() as $host) {
                 $hostCategoryData['hosts'][] = [
                     'id' => $host->getId(),
