@@ -23,6 +23,7 @@ interface StatusColorProps {
 
 export interface Colors {
   backgroundColor: string;
+  color: string;
 }
 
 const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {

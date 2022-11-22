@@ -8,14 +8,14 @@ on:
         required: true
         type: string
     secrets:
-      nexus_username:
+      artifactory_username:
         required: true
-      nexus_password:
+      artifactory_password:
         required: true
 
 jobs:
   delivery-rpm:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -30,12 +30,12 @@ jobs:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          nexus_username: ${{ secrets.artifactory_username }}
+          nexus_password: ${{ secrets.artifactory_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-deb:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
         distrib: [bullseye]
@@ -50,6 +50,6 @@ jobs:
           module_name: ${{ inputs.widget_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          nexus_username: ${{ secrets.artifactory_username }}
+          nexus_password: ${{ secrets.artifactory_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
