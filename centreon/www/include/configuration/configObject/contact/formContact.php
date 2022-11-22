@@ -347,8 +347,8 @@ if ($o != MASSIVE_CHANGE) {
         _("Generate"),
         [
             'onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');",
-            "id" => "contact_gen_akey",
-            "data-testid" => "contact_gen_akey"
+            "id" => "generateAutologinKeyButton",
+            "data-testid" => "generateAutologinKeyButton"
         ]
     );
     /**
