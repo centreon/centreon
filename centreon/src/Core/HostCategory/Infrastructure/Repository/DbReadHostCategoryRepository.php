@@ -60,49 +60,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAll(): array
     {
-        return $this->findAllRequest(null);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAllByContactId(int $contactId): array
-    {
-        return $this->findAllRequest($contactId);
-    }
-
-    /**
-     * @param int|null $contactId
-     * @return HostCategory[]
-     */
-    private function findAllRequest(?int $contactId): array
-    {
-        if ($contactId !== null) {
-            $request = $this->translateDbName(
-                'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
-                FROM `:db`.hostcategories hc
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON hc.hc_id = arhr.hc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations agcr
-                    ON ag.acl_group_id = agcr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
-                    ON ag.acl_group_id = agcgr.acl_group_id
-                LEFT JOIn `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id'
-            );
-            $whereAclCondition = ' AND (agcr.contact_contact_id = :contact_id
-                OR cgcr.contact_contact_id = :contact_id)';
-        } else {
-            $request = $this->translateDbName(
-                'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc'
-            );
-        }
+        $request = $this->translateDbName(
+            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc'
+        );
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -111,7 +71,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             : ' WHERE ';
 
         $request .= "hc.level IS NULL ";
-        $request .= $whereAclCondition ?? '';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
@@ -129,34 +88,12 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $statement->bindValue($key, $value, $type);
         }
 
-        if ($contactId !== null) {
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-        }
         $statement->execute();
 
         // Set total
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        /**
-         * TODO :
-         *  - in UI :
-         *      if acl_resources_hc_relations is empty
-         *      then by default access to ALL
-         *      else access to only ones listed in acl_resources_hc_relations
-         *  - in old API:
-         *      if acl_resources_hc_relations is empty
-         *      then by default access to NONE
-         *      else access to only ones listed in acl_resources_hc_relations
-         */
-
-        /**
-         *  If user is not admin AND total result with ACLs is zero then ALL categories are accessible
-         */
-        if ($contactId && $this->sqlRequestTranslator->getRequestParameters()->getTotal() === 0) {
-            return $this->findAllRequest(null);
         }
 
         $hostCategories = [];
@@ -177,69 +114,117 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findHostsByHostCategoryIds(array $hostCategoryIds): array
+    public function findAllByAccessGroups(array $accessGroups): array
     {
-        return $this->findHostsByHostCategoryIdsRequest($hostCategoryIds, null);
+        if (empty($accessGroups)) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $request = $this->translateDbName(
+            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
+
+        // Search
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $request .= $searchRequest !== null
+            ? $searchRequest . ' AND '
+            : ' WHERE ';
+
+        $request .= "hc.level IS NULL ";
+        $request .= 'AND ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
+
+        // Sort
+        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY hc.hc_id';
+
+        // Pagination
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            /** @var int */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+
+        $statement->execute();
+
+        if ($statement === false) {
+            return [];
+        }
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        /**
+         * TODO :
+         *  - in UI :
+         *      if acl_resources_hc_relations is empty
+         *      then by default access to ALL
+         *      else access to only ones listed in acl_resources_hc_relations
+         *  - in old API:
+         *      if acl_resources_hc_relations is empty
+         *      then by default access to NONE
+         *      else access to only ones listed in acl_resources_hc_relations
+         */
+
+        /**
+         * TODO : check if this behavior is OK, compared to UI results
+         *  If user is not admin AND total result by access groups is zero then ALL categories are accessible
+         */
+        if ($this->sqlRequestTranslator->getRequestParameters()->getTotal() === 0) {
+            return $this->findAll();
+        }
+
+        $hostCategories = [];
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $hostCategories[] = new HostCategory(
+                $result['hc_id'],
+                $result['hc_name'],
+                $result['hc_alias']
+            );
+        }
+
+        return $hostCategories;
     }
 
     /**
      * @inheritDoc
      */
-    public function findHostsByHostCategoryIdsAndContactId(array $hostCategoryIds, int $contactId): array
-    {
-        return $this->findHostsByHostCategoryIdsRequest($hostCategoryIds, $contactId);
-    }
-
-    /**
-     * @param int[] $hostCategoryIds
-     * @param int|null $contactId
-     * @return array<int,Host[]>
-     */
-    private function findHostsByHostCategoryIdsRequest(array $hostCategoryIds, ?int $contactId): array
+    public function findHostsByHostCategoryIds(array $hostCategoryIds): array
     {
         if (empty($hostCategoryIds)) {
             return [];
         }
 
-        if ($contactId !== null) {
-            $request = $this->translateDbName(
-                'SELECT SQL_CALC_FOUND_ROWS hcr.hostcategories_hc_id, h.host_id, h.host_name
-                FROM `:db`.hostcategories_relation hcr
-                JOIN `:db`.host h ON hcr.host_host_id = h.host_id
-                INNER JOIN `:db`.acl_resources_host_relations arhr
-                    ON hcr.host_host_id = arhr.host_host_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id
-                LEFT JOIN `:db`.acl_group_contacts_relations agcr
-                    ON ag.acl_group_id = agcr.acl_group_id
-                LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
-                    ON ag.acl_group_id = agcgr.acl_group_id
-                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                    ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id'
-            );
-            $whereAclCondition = ' AND (agcr.contact_contact_id = :contact_id
-                OR cgcr.contact_contact_id = :contact_id)';
-        } else {
-            $request = $this->translateDbName(
-                "SELECT rel.hostcategories_hc_id, h.host_id, h.host_name
-                FROM hostcategories_relation rel
-                JOIN host h ON rel.host_host_id = h.host_id"
-            );
-        }
-        $request .= " WHERE h.host_register = '1'
-            AND hcr.hostcategories_hc_id IN (" . implode(',', $hostCategoryIds) . ")";
-        $request .= $whereAclCondition ?? '';
+        $request = $this->translateDbName(
+            "SELECT rel.hostcategories_hc_id, h.host_id, h.host_name
+            FROM hostcategories_relation rel
+            JOIN host h ON rel.host_host_id = h.host_id
+            WHERE h.host_register = '1'
+            AND rel.hostcategories_hc_id IN (" . implode(',', $hostCategoryIds) . ")"
+        );
 
         $statement = $this->db->prepare($request);
-
-        if ($contactId !== null) {
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-        }
-
         $statement->execute();
 
         if ($statement === false) {
@@ -250,14 +235,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
          *  If user is not admin AND total result with ACLs is zero then ALL categories are accessible
          */
         $result = $this->db->query('SELECT FOUND_ROWS()');
-        if (
-            $result !== false
-            && ($total = $result->fetchColumn()) !== false
-        ) {
+        if ( $result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-        if ($contactId && $this->sqlRequestTranslator->getRequestParameters()->getTotal() == 0) {
-            return $this->findHostsByHostCategoryIdsRequest($hostCategoryIds, null);
         }
 
         $hosts = [];
