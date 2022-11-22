@@ -55,11 +55,13 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'SELECT conf.*, vault.name as vault_name
+                <<<SQL
+                SELECT conf.*, vault.name as vault_name
                 FROM `:db`.`vault_configuration` conf
                 INNER JOIN `:db`.`vault`
                   ON vault.id = conf.vault_id
-                WHERE `url`=:address AND `port`=:port AND `storage`=:storage'
+                WHERE `url`=:address AND `port`=:port AND `storage`=:storage
+                SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
