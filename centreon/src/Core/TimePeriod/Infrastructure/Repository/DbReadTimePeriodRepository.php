@@ -28,9 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\TimePeriod\Domain\Model\TimeRange;
+use Core\TimePeriod\Domain\Model\{Day, Exception, TimePeriod, TimeRange};
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
@@ -52,46 +50,55 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     /**
      * @inheritDoc
      */
-    public function findAll(): array
+    public function findByRequestParameter(RequestParameters $requestParameters): array
     {
-        $this->sqlRequestTranslator->setConcordanceArray([
+        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlRequestTranslator->setConcordanceArray([
             'id' => 'tp_id',
             'name' => 'tp_name',
             'alias' => 'tp_alias',
         ]);
-        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS tp_id, tp_name, tp_alias FROM `:db`.timeperiod');
+        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.timeperiod');
 
         // Search
-        $request .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $request .= $sqlRequestTranslator->translateSearchParameterToSql();
 
         // Sort
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
         $request .= !is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY tp_id ASC';
 
         // Pagination
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+        $request .= $sqlRequestTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($request);
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+        foreach ($sqlRequestTranslator->getSearchValues() as $key => $data) {
             $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
         }
         $statement->execute();
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+            $sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
-
+        /**
+         * @var array<int, TimePeriod> $timePeriods
+         */
         $timePeriods = [];
 
         $weekdays = [1 => 'monday','tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        /**
-         * @var $result array{tp_id: int, tp_name: string, tp_alias: string}
-         */
+
+
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /**
+             * @var array{tp_id: int, tp_name: string, tp_alias: string,
+             *     tp_monday: string, tp_tuesday: string, tp_wednesday: string, tp_thursday: string,
+             *     tp_friday: string, tp_saturday: string, tp_sunday: string} $result
+             */
             $timePeriod = new TimePeriod(
                 $result["tp_id"],
                 $result["tp_name"],
@@ -99,14 +106,85 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
             );
             $days = [];
             foreach ($weekdays as $id => $name) {
-                if (($timeRange = $result['tp_' . $name]) !== '') {
+                if (!empty($result['tp_' . $name]) && ($timeRange = $result['tp_' . $name]) !== '') {
                     $days[] = new Day($id, new TimeRange($timeRange));
                 }
             }
             $timePeriod->setDays($days);
-            $timePeriods[] = $timePeriod;
+            $timePeriods[$result["tp_id"]] = $timePeriod;
         }
 
+        $this->addTemplates($timePeriods);
+        $this->addExceptions($timePeriods);
+
         return $timePeriods;
+    }
+
+    /**
+     * @param array<int, TimePeriod> $timePeriods
+     * @return void
+     */
+    private function addExceptions(array $timePeriods): void
+    {
+        $timePeriodIds = array_keys($timePeriods);
+        $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
+        $requestTemplates = $this->translateDbName(
+            <<<SQL
+            SELECT *
+            FROM `:db`.timeperiod_exceptions
+            WHERE timeperiod_id IN ($timePeriodIncludeRequest)
+            ORDER BY timeperiod_id ASC, exception_id ASC
+            SQL
+        );
+        $statement = $this->db->prepare($requestTemplates);
+        $statement->execute($timePeriodIds);
+
+        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /**
+             * @var array{exception_id: int, timeperiod_id: int, days: string, timerange: string} $result
+             */
+            $timePeriods[$result["timeperiod_id"]]->addException(
+                new Exception(
+                    $result['exception_id'],
+                    $result["days"],
+                    $result["timerange"]
+                )
+            );
+        }
+    }
+
+    /**
+     * @param array<int, TimePeriod> $timePeriods
+     * @return void
+     */
+    private function addTemplates(array $timePeriods): void
+    {
+        $timePeriodIds = array_keys($timePeriods);
+        $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
+        $requestTemplates = $this->translateDbName(
+            <<<SQL
+            SELECT rel.timeperiod_id, tp.tp_id, tp.tp_name, tp.tp_alias
+            FROM `:db`.timeperiod tp
+            INNER JOIN `:db`.timeperiod_include_relations rel
+              ON rel.timeperiod_include_id = tp.tp_id
+            WHERE rel.timeperiod_id IN ($timePeriodIncludeRequest)
+            ORDER BY rel.timeperiod_id ASC, rel.include_id ASC
+            SQL
+        );
+        $statement = $this->db->prepare($requestTemplates);
+        $statement->execute($timePeriodIds);
+
+        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /**
+             * @var array{tp_id: int, tp_name: string, tp_alias: string, timeperiod_id: int} $result
+             */
+            $timePeriods[$result["timeperiod_id"]]->addTemplate(
+                new TimePeriod(
+                    $result["tp_id"],
+                    $result["tp_name"],
+                    $result["tp_alias"]
+                )
+            );
+        }
     }
 }

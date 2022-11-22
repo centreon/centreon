@@ -41,18 +41,21 @@ class FindTimePeriodsPresenter extends AbstractPresenter implements FindTimePeri
 
     /**
      * {@inheritDoc}
-     * @param FindTimePeriodsResponse $presentedData
+     * @param FindTimePeriodsResponse $data
      */
-    public function present(mixed $presentedData): void
+    public function present(mixed $data): void
     {
         $response = [
             'result' => [],
         ];
-        foreach ($presentedData->timePeriods as $timePeriod) {
+        foreach ($data->timePeriods as $timePeriod) {
             $response['result'][] = [
                 'id' => $timePeriod['id'],
                 'name' => $timePeriod['name'],
-                'alias' => $timePeriod['alias']
+                'alias' => $timePeriod['alias'],
+                'days' => $timePeriod['days'],
+                'templates' => $timePeriod['templates'],
+                'exceptions' => $timePeriod['exceptions'],
             ];
         }
         $response['meta'] = $this->requestParameters->toArray();

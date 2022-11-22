@@ -25,6 +25,7 @@ namespace Core\Contact\Application\UseCase\FindContactGroups;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -40,7 +41,8 @@ class FindContactGroups
      */
     public function __construct(
         private ReadContactGroupRepositoryInterface $repository,
-        private ContactInterface $user
+        private ContactInterface $user,
+        RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -51,7 +53,7 @@ class FindContactGroups
     {
         try {
             if ($this->user->isAdmin()) {
-                $contactGroups = $this->repository->findAll();
+                $this->repository->findAll($requestParameters);
             } else {
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ)

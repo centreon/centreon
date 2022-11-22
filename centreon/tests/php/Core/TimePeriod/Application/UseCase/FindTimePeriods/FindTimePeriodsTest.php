@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -37,13 +38,15 @@ use function PHPUnit\Framework\assertCount;
 beforeEach(function () {
     $this->repository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->requestParameter = $this->createMock(RequestParametersInterface::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new FindTimePeriods($this->repository);
+    $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
     $this->repository
         ->expects($this->once())
-        ->method('findAll')
+        ->method('findByRequestParameter')
+        ->with($this->requestParameter)
         ->willThrowException(new \Exception());
 
     $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);
@@ -62,7 +65,7 @@ it('should present a FindTimePeriodsResponse', function () {
 
     $this->repository
         ->expects($this->once())
-        ->method('findAll')
+        ->method('findByRequestParameter')
         ->willReturn([$timePeriod]);
 
     $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);

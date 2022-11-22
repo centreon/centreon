@@ -21,19 +21,43 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
+namespace Core\TimePeriod\Domain\Model;
 
-class FindTimePeriodsResponse
+class NewException
 {
+    public function __construct(private string $dayRange, private string $timeRange)
+    {
+    }
+
     /**
-     * @var array<array{
-     *     id: int,
-     *     name: string,
-     *     alias: string,
-     *     days: array<array{day: int, time_range: string}>,
-     *     templates: array<array{id: int, alias: string}>,
-     *     exceptions: array<array{id: int, day_range: string, time_range: string}>
-     * }>
+     * @param string $dayRange
      */
-    public array $timePeriods = [];
+    public function setDayRange(string $dayRange): void
+    {
+        $this->dayRange = $dayRange;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDayRange(): string
+    {
+        return $this->dayRange;
+    }
+
+    /**
+     * @param string $timeRange
+     */
+    public function setTimeRange(string $timeRange): void
+    {
+        $this->timeRange = $timeRange;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTimeRange(): string
+    {
+        return $this->timeRange;
+    }
 }

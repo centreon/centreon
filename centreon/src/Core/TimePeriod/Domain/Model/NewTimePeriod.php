@@ -26,14 +26,19 @@ namespace Core\TimePeriod\Domain\Model;
 class NewTimePeriod
 {
     /**
-     * @var Timeperiod[]
+     * @var TimePeriod[]
      */
-    private array $templates;
+    private array $templates = [];
 
     /**
      * @var Day[]
      */
-    private array $days;
+    private array $days = [];
+
+    /**
+     * @var NewException[]
+     */
+    private array $exceptions = [];
 
     /**
      * @param string $name
@@ -46,6 +51,24 @@ class NewTimePeriod
     }
 
     /**
+     * @param NewException $exception
+     * @return void
+     */
+    public function addException(NewException $exception): void
+    {
+        $this->exceptions[] = $exception;
+    }
+
+    /**
+     * @param TimePeriod $template
+     * @return void
+     */
+    public function addTemplate(TimePeriod $template): void
+    {
+        $this->templates[] = $template;
+    }
+
+    /**
      * @return string
      */
     public function getAlias(): string
@@ -54,11 +77,19 @@ class NewTimePeriod
     }
 
     /**
-     * @return array
+     * @return Day[]
      */
     public function getDays(): array
     {
         return $this->days;
+    }
+
+    /**
+     * @return NewException[]
+     */
+    public function getExceptions(): array
+    {
+        return $this->exceptions;
     }
 
     /**
@@ -78,7 +109,7 @@ class NewTimePeriod
     }
 
     /**
-     * @param array $days
+     * @param Day[] $days
      */
     public function setDays(array $days): void
     {
@@ -86,10 +117,24 @@ class NewTimePeriod
     }
 
     /**
+     * @param NewException[] $exceptions
+     */
+    public function setExceptions(array $exceptions): void
+    {
+        $this->exceptions = [];
+        foreach ($exceptions as $exception) {
+            $this->addException($exception);
+        }
+    }
+
+    /**
      * @param TimePeriod[] $templates
      */
     public function setTemplates(array $templates): void
     {
-        $this->templates = $templates;
+        $this->templates = [];
+        foreach ($templates as $template) {
+            $this->addTemplate($template);
+        }
     }
 }

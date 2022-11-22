@@ -23,27 +23,19 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-class TimePeriod extends NewTimePeriod
+class Exception extends NewException
 {
-    private int $id;
-    /**
-     * @var Exception[]
-     */
-    private array $exceptions = [];
+    public function __construct(private int $id, private string $dayRange, private string $timeRange)
+    {
+        parent::__construct($this->dayRange, $this->timeRange);
+    }
 
     /**
      * @param int $id
-     * @param string $name
-     * @param string $alias
      */
-    public function __construct(
-        int $id,
-        string $name,
-        string $alias
-
-    ) {
+    public function setId(int $id): void
+    {
         $this->id = $id;
-        parent::__construct($name, $alias);
     }
 
     /**
@@ -52,33 +44,5 @@ class TimePeriod extends NewTimePeriod
     public function getId(): int
     {
         return $this->id;
-    }
-
-    /**
-     * @param Exception $exception
-     * @return void
-     */
-    public function addException(NewException $exception): void
-    {
-        $this->exceptions[] = $exception;
-    }
-
-    /**
-     * @return Exception[]
-     */
-    public function getExceptions(): array
-    {
-        return $this->exceptions;
-    }
-
-    /**
-     * @param Exception[] $exceptions
-     */
-    public function setExceptions(array $exceptions): void
-    {
-        $this->exceptions = [];
-        foreach ($exceptions as $exception) {
-            $this->addException($exception);
-        }
     }
 }

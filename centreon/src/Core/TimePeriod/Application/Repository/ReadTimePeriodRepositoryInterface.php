@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\Repository;
 
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
 interface ReadTimePeriodRepositoryInterface
@@ -30,7 +31,9 @@ interface ReadTimePeriodRepositoryInterface
     /**
      * Find All time period.
      *
+     * @param RequestParameters $requestParameters
      * @return TimePeriod[]
+     * @throws \Throwable
      */
-    public function findAll(): array;
+    public function findByRequestParameter(RequestParameters $requestParameters): array;
 }

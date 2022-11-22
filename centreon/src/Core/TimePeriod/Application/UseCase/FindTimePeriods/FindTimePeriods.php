@@ -24,8 +24,11 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Model\Exception;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
 
@@ -35,8 +38,12 @@ class FindTimePeriods
 
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
+     * @param RequestParametersInterface $requestParameters
      */
-    public function __construct(private ReadTimePeriodRepositoryInterface $readTimePeriodRepository)
+    public function __construct(
+        private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+        private RequestParametersInterface $requestParameters,
+    )
     {
     }
 
@@ -47,7 +54,7 @@ class FindTimePeriods
     public function __invoke(FindTimePeriodsPresenterInterface $presenter): void
     {
         try {
-            $timePeriods = $this->readTimePeriodRepository->findAll();
+            $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for the time periods'));
@@ -70,9 +77,22 @@ class FindTimePeriods
                 'days' => array_map(function(Day $day) {
                     return [
                         'day' => $day->getDay(),
-                        'time_range' => $day->getTimeRange()
+                        'time_range' => (string) $day->getTimeRange()
                     ];
-                }, $timePeriod->getDays())
+                }, $timePeriod->getDays()),
+                'templates' => array_map(function (TimePeriod $template) {
+                    return [
+                        'id' => $template->getId(),
+                        'alias' => $template->getAlias(),
+                    ];
+                }, $timePeriod->getTemplates()),
+                'exceptions' => array_map(function (Exception $exception) {
+                    return [
+                        'id' => $exception->getId(),
+                        'day_range' => $exception->getDayRange(),
+                        'time_range' => $exception->getTimeRange(),
+                    ];
+                }, $timePeriod->getExceptions())
             ];
         }
         return $response;
