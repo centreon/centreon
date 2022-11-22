@@ -61,6 +61,10 @@ final class UpdateVaultConfiguration
     ) {
     }
 
+    /**
+     * @param UpdateVaultConfigurationPresenterInterface $presenter
+     * @param UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
+     */
     public function __invoke(
         UpdateVaultConfigurationPresenterInterface $presenter,
         UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
