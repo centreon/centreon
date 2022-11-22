@@ -804,7 +804,6 @@ sub zmq_dealer_read_message {
 
     my $data = zmq_msg_data($message);
     zmq_msg_close($message);
-    $message = undef;
 
     if (defined($options{frame})) {
         $options{frame}->setFrame(\$data);
@@ -847,7 +846,6 @@ sub zmq_read_message {
     }
     my $data = zmq_msg_data($message);
     zmq_msg_close($message);
-    $message = undef;
 
     my $frame = gorgone::class::frame->new();
     $frame->setFrame(\$data);
