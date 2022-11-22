@@ -1,6 +1,11 @@
 %define debug_package %{nil}
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
+%define centreon_etc /etc/centreon
+%define centreon_dir %{_datadir}/centreon
+%define centreon_log /var/log/centreon
+%define centreon_varlib /var/lib/centreon
+%define centreon_www %{_datadir}/centreon/www
 
 Name:           centreon-dsm
 Version:        %{version}
@@ -16,7 +21,6 @@ Source0:        %{name}-%{version}.tar.gz
 Source1:        centreon-macroreplacement.txt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
-BuildRequires:  centreon-devel
 Requires:       centreon
 Requires:	centreon-dsm-client = %{version}-%{release}
 Requires:       centreon-dsm-server = %{version}-%{release}
