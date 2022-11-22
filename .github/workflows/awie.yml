@@ -17,7 +17,7 @@ on:
 
 env:
   module: awie
-  
+
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
