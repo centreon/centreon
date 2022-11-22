@@ -50,7 +50,7 @@ sub getHostsInfo {
 
 	my $query = "SELECT `id`, `host_id`, `host_name`, `hc_id`, `hc_name`, `hg_id`, `hg_name`";
 	$query .= " FROM `".$self->{"today_table"}."`";
-	my $sth = $db->query{ query => $query });
+	my $sth = $db->query({ query => $query });
 	my %result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		if (defined($result{$row->{'host_id'}})) {

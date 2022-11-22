@@ -67,7 +67,7 @@ sub getServicesWithHostAndCategory {
         " AND host_activate = '1'".
         " AND service_activate = '1'";
 
-	my $sth = $centreon->query{ query => $query });
+	my $sth = $centreon->query({ query => $query });
     while(my $row = $sth->fetchrow_hashref()) {
     	# getting all host entries
     	my $serviceHostTable = $hosts->{$row->{"host_id"}};
