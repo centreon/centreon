@@ -37,25 +37,18 @@ interface ReadHostCategoryRepositoryInterface
     public function findAll(): array;
 
     /**
-     * Find all host categories by contactId
+     * Find all host categories by access groups
      *
-     * @param int $contactId
+     * @param AccessGroup[] $accessGroups
      * @return HostCategory[]
      */
-    public function findAllByContactId(int $contactId): array;
+    public function findAllByAccessGroups(array $accessGroups): array;
 
     /**
      * @param int[] $hostCategoryIds
      * @return array<int,Host[]>
      */
     public function findHostsByHostCategoryIds(array $hostCategoryIds): array;
-
-    /**
-     * @param int[] $hostCategoryIds
-     * @param int $contactId
-     * @return array<int,Host[]>
-     */
-    public function findHostsByHostCategoryIdsAndContactId(array $hostCategoryIds, int $contactId): array;
 
     /**
      * @param int[] $hostCategoryIds

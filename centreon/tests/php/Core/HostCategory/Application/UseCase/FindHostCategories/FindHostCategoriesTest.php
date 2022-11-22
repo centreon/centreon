@@ -30,20 +30,22 @@ use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
-    $this->repository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new FindHostCategories($this->repository, $this->contact);
+    $useCase = new FindHostCategories($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->repository
+    $this->hostCategoryRepository
         ->expects($this->once())
         ->method('findAll')
         ->willThrowException(new \Exception());
@@ -57,16 +59,16 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a FindHostCategoriesResponse', function () {
-    $useCase = new FindHostCategories($this->repository, $this->contact);
+    $useCase = new FindHostCategories($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
 
     // TODO : add a host and a hostemplate in hostcategory ?
     $hostCategory = new HostCategory(1, 'hc-name', 'hc-alias');
 
     $this->contact
-        ->expects($this->exactly(2))
+        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->repository
+    $this->hostCategoryRepository
         ->expects($this->once())
         ->method('findAll')
         ->willReturn([$hostCategory]);

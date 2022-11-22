@@ -30,6 +30,7 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesPresenterInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class FindHostCategories
 {
@@ -37,6 +38,7 @@ class FindHostCategories
 
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private ContactInterface $contact
     ) {
     }
@@ -44,9 +46,12 @@ class FindHostCategories
     public function __invoke(FindHostCategoriesPresenterInterface $presenter): void
     {
         try {
-            $hostCategories = $this->contact->isAdmin()
-                ? $this->readHostCategoryRepository->findAll()
-                : $this->readHostCategoryRepository->findAllByContactId($this->contact->getId());
+            if ($this->contact->isAdmin()) {
+                $hostCategories = $this->readHostCategoryRepository->findAll();
+            } else {
+                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
+                $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups($accessGroups);
+            }
 
             $hostCategoryIds = array_map(
                 fn($hostCategory) => $hostCategory->getId(),
@@ -61,12 +66,7 @@ class FindHostCategories
              *      request from readHostRepository or readHostCategoryRepository ?
              *  same questions for hostTemplates
              */
-            $hosts = $this->contact->isAdmin()
-                ? $this->readHostCategoryRepository->findHostsByHostCategoryIds($hostCategoryIds)
-                : $this->readHostCategoryRepository->findHostsByHostCategoryIdsAndContactId(
-                    $hostCategoryIds,
-                    $this->contact->getId()
-                );
+            $hosts = $this->readHostCategoryRepository->findHostsByHostCategoryIds($hostCategoryIds);
             foreach ($hostCategories as $hostCategory) {
                 if (! empty($hosts[$hostCategory->getId()])) {
                     $hostCategory->setHosts($hosts[$hostCategory->getId()]);
