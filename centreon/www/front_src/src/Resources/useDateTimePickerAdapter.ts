@@ -101,28 +101,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     return newValue;
   };
 
-  const withTimeZone = (dayjs: any, currentTimezone?: string) =>
-    !currentTimezone
-      ? dayjs
-      : (...args): dayjs.Dayjs => {
-          return dayjs(...args)
-            .tz(currentTimezone)
-            .set('h', 0)
-            .set('m', 0)
-            .set('s', 0)
-            .set('ms', 0);
-        };
-
   class Adapter extends DayjsAdapter {
-    public prevMonth;
-
-    public nextMonth;
-
-    public constructor() {
-      super();
-      this.dayjs = withTimeZone(this.rawDayJsInstance, timezone);
-    }
-
     public formatByString = (value, formatKey: string): string => {
       return format({
         date: value.tz(timezone, true),
@@ -190,11 +169,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public startOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.tz(timezone).startOf('month') as dayjs.Dayjs;
+      return date.startOf('month') as dayjs.Dayjs;
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.tz(timezone).endOf('month') as dayjs.Dayjs;
+      return date.endOf('month') as dayjs.Dayjs;
     };
 
     public isSameMonth = (
@@ -204,53 +183,17 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).isSame(comparing.tz(timezone), 'month');
     };
 
+    // a ameliorer pour cas utc
     public getMonth = (date: dayjs.Dayjs): number => {
-      console.log({ date, res: date.month(), tz: date.tz(timezone) });
-
       return date.month();
     };
 
-    public getPreviousMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      this.prevMonth = date.subtract(1, 'month');
-      this.nextMonth = null;
-
-      return date.subtract(1, 'month');
-    };
-
-    public addDays = (value: dayjs.Dayjs, count: number): dayjs.Dayjs => {
-      if (this.prevMonth) {
-        return count < 0
-          ? this.prevMonth.subtract(Math.abs(count), 'day')
-          : this.prevMonth.add(count, 'day');
-      }
-      if (this.nextMonth) {
-        return count < 0
-          ? this.nextMonth.subtract(Math.abs(count), 'day')
-          : this.nextMonth.add(count, 'day');
-      }
-
-      return count < 0
-        ? value.subtract(Math.abs(count), 'day')
-        : value.add(count, 'day');
+    public getDaysInMonth = (date: dayjs.Dayjs): number => {
+      return date.tz(timezone).daysInMonth();
     };
 
     public getWeekdays = (): Array<string> => {
-      if (this.prevMonth) {
-        const start = this.prevMonth.startOf('week');
-
-        return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-          this.formatByString(start.add(diff, 'day'), 'dd'),
-        );
-      }
-      if (this.nextMonth) {
-        const start = this.nextMonth.startOf('week');
-
-        return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-          this.formatByString(start.add(diff, 'day'), 'dd'),
-        );
-      }
-
-      const start = this.dayjs().startOf('week');
+      const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
         this.formatByString(start.add(diff, 'day'), 'dd'),
@@ -258,21 +201,19 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
-      const start = date.startOf('month').startOf('week');
-
-      const end = date.endOf('month').endOf('week');
+      const start = date.startOf('month').startOf('week') as dayjs.Dayjs;
+      const end = date.endOf('month').endOf('week') as dayjs.Dayjs;
 
       let count = 0;
       let current = start;
-
       const nestedWeeks: Array<Array<dayjs.Dayjs>> = [];
 
       while (current.isBefore(end)) {
         const weekNumber = Math.floor(count / 7);
         nestedWeeks[weekNumber] = nestedWeeks[weekNumber] || [];
-        nestedWeeks[weekNumber].push(current);
+        nestedWeeks[weekNumber].push(current.tz(timezone));
 
-        current = current.add(1, 'day');
+        current = current.add(1, 'day') as dayjs.Dayjs;
         count += 1;
       }
 
