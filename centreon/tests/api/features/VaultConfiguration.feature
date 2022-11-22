@@ -208,3 +208,54 @@ Feature: Vault Configuration API
       }
     """
     Then the response code should be "400"
+
+  Scenario: Delete vault configuration as an admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
+    Then the response code should be "204"
+
+  Scenario: Delete vault configuration as an admin user while vault provider id does not exist
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a DELETE request to '/api/latest/administration/vaults/2/configurations/1'
+    Then the response code should be "404"
+
+  Scenario: Delete vault configuration as an admin user while vault configuration id does not exist
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/2'
+    Then the response code should be "404"

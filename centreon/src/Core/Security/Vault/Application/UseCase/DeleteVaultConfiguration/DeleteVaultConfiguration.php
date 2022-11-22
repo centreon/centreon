@@ -56,6 +56,10 @@ final class DeleteVaultConfiguration
     ) {
     }
 
+    /**
+     * @param DeleteVaultConfigurationPresenterInterface $presenter
+     * @param DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
+     */
     public function __invoke(
         DeleteVaultConfigurationPresenterInterface $presenter,
         DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
