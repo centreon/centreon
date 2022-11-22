@@ -21,23 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\Repository;
+namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
 
-use Core\HostCategory\Domain\Model\NewHostCategory;
+use Core\Application\Common\UseCase\PresenterInterface;
 
-interface WriteHostCategoryRepositoryInterface
+interface CreateHostCategoryPresenterInterface extends PresenterInterface
 {
-    /**
-     * Delete host category by id.
-     *
-     * @param int $hostCategoryId
-     */
-    public function deleteById(int $hostCategoryId): void;
-
-    /**
-     * Create a host category
-     *
-     * @param NewHostCategory $hostCategory
-     */
-    public function create(NewHostCategory $hostCategory): void;
 }

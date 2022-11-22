@@ -21,23 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\Repository;
+namespace Core\HostCategory\Infrastructure\Api\CreateHostCategory;
 
-use Core\HostCategory\Domain\Model\NewHostCategory;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryPresenterInterface;
 
-interface WriteHostCategoryRepositoryInterface
+class CreateHostCategoryPresenter extends AbstractPresenter implements CreateHostCategoryPresenterInterface
 {
-    /**
-     * Delete host category by id.
-     *
-     * @param int $hostCategoryId
-     */
-    public function deleteById(int $hostCategoryId): void;
-
-    /**
-     * Create a host category
-     *
-     * @param NewHostCategory $hostCategory
-     */
-    public function create(NewHostCategory $hostCategory): void;
 }

@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\NewHostCategory;
 
 class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements WriteHostCategoryRepositoryInterface
 {
@@ -54,6 +55,21 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         $statement = $this->db->prepare($request);
 
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    public function create(NewHostCategory $hostCategory): void
+    {
+        $request = $this->translateDbName(
+            "INSERT INTO `:db`.hostcategories
+            (hc_name, hc_alias) VALUES
+            (:name, :alias)"
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':name', \HtmlAnalyzer::sanitizeAndRemoveTags($hostCategory->getName()), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', \HtmlAnalyzer::sanitizeAndRemoveTags($hostCategory->getAlias()), \PDO::PARAM_STR);
 
         $statement->execute();
     }

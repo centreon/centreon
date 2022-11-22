@@ -1,0 +1,8 @@
+CreateHostCategory:
+  methods: POST
+  path: /configuration/hostcategories
+  controller: 'Core\HostCategory\Infrastructure\Api\CreateHostCategory\CreateHostCategoryController'
+  condition: "request.attributes.get('version') >= 22.10"
+
+# TODO : change version to 23.04 ?
+# TODO : change path ? /configuration/host/categories/{id}

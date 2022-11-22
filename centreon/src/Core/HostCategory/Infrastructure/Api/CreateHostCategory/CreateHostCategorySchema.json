@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Create host category",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        }
+    }
+}
