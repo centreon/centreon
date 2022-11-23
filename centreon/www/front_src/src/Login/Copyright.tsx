@@ -1,22 +1,23 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   copyright: {
     alignItems: 'center',
-    display: 'flex',
-  },
+    display: 'flex'
+  }
 });
 
 const Copyright = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { format } = useLocaleDateTimeFormat();
 
   const year = format({
     date: new Date(),
-    formatString: 'YYYY',
+    formatString: 'YYYY'
   });
 
   return (

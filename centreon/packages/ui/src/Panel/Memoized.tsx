@@ -22,7 +22,7 @@ const MemoizedPanel = forwardRef<HTMLDivElement, MemoizedPanelProps>(
       headerBackgroundColor,
       ...props
     }: MemoizedPanelProps,
-    ref,
+    ref
   ): JSX.Element => {
     return useMemoComponent({
       Component: (
@@ -43,10 +43,10 @@ const MemoizedPanel = forwardRef<HTMLDivElement, MemoizedPanelProps>(
         labelClose,
         width,
         minWidth,
-        headerBackgroundColor,
-      ],
+        headerBackgroundColor
+      ]
     });
-  },
+  }
 );
 
 export default MemoizedPanel;

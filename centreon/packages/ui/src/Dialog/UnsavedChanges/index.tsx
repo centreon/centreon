@@ -12,7 +12,7 @@ import {
   labelResolve,
   labelSave,
   labelThereAreErrorsInTheForm,
-  labelYourFormHasUnsavedChanges,
+  labelYourFormHasUnsavedChanges
 } from './translatedLabels';
 
 interface Props {
@@ -30,7 +30,7 @@ const UnsavedChangesDialog = ({
   closeDialog,
   discardChanges,
   saveChanges,
-  dialogOpened,
+  dialogOpened
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const labelTitle = isValidForm

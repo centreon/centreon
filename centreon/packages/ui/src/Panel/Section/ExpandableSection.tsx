@@ -7,50 +7,50 @@ import {
   Accordion,
   styled,
   AccordionProps,
-  AccordionSummaryProps,
+  AccordionSummaryProps
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const useStyles = makeStyles()((theme) => ({
   details: {
     backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(1, 3, 2),
-  },
+    padding: theme.spacing(1, 3, 2)
+  }
 }));
 
 const Title = styled(Typography)(({ theme }) => ({
   fontSize: theme.typography.pxToRem(15),
-  fontWeight: 700,
+  fontWeight: 700
 }));
 
 const Section = styled((props: AccordionProps) => (
   <Accordion disableGutters square elevation={0} {...props} />
 ))(({ theme }) => ({
   '&:before': {
-    display: 'none',
+    display: 'none'
   },
   '&:not(:last-child)': {
-    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderBottom: `1px solid ${theme.palette.divider}`
   },
   borderBottom: `1px solid ${theme.palette.divider}`,
   borderLeft: 'none',
   borderRight: 'none',
-  borderTop: 'none',
+  borderTop: 'none'
 }));
 
 const CustomizedAccordionSummary = styled((props: AccordionSummaryProps) => (
   <AccordionSummary {...props} />
 ))(({ theme }) => ({
   '& .MuiAccordionSummary-content': {
-    margin: theme.spacing(1),
+    margin: theme.spacing(1)
   },
   '& .MuiAccordionSummary-expandIconWrapper': {
-    transform: 'rotate(-90deg)',
+    transform: 'rotate(-90deg)'
   },
   '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-    transform: 'rotate(0deg)',
+    transform: 'rotate(0deg)'
   },
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.paper
 }));
 
 interface Props {

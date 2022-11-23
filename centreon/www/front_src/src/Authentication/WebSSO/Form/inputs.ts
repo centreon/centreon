@@ -9,12 +9,12 @@ import {
   labelPatternMatchLogin,
   labelPatternReplaceLogin,
   labelEnableWebSSOAuthentication,
-  labelAuthenticationMode,
+  labelAuthenticationMode
 } from '../translatedLabels';
 import {
   labelActivation,
   labelClientAddresses,
-  labelIdentityProvider,
+  labelIdentityProvider
 } from '../../translatedLabels';
 
 export const inputs: Array<InputProps> = [
@@ -23,7 +23,7 @@ export const inputs: Array<InputProps> = [
     fieldName: 'isActive',
     group: labelActivation,
     label: labelEnableWebSSOAuthentication,
-    type: InputType.Switch,
+    type: InputType.Switch
   },
   {
     dataTestId: 'web_sso_isForced',
@@ -34,37 +34,37 @@ export const inputs: Array<InputProps> = [
       options: [
         {
           label: labelWebSSOOnly,
-          value: true,
+          value: true
         },
         {
           label: labelMixed,
-          value: false,
-        },
-      ],
+          value: false
+        }
+      ]
     },
-    type: InputType.Radio,
+    type: InputType.Radio
   },
   {
     autocomplete: {
       creatable: true,
-      options: [],
+      options: []
     },
     dataTestId: 'web_sso_trustedClientAddresses',
     fieldName: 'trustedClientAddresses',
     group: labelClientAddresses,
     label: labelTrustedClientAddresses,
-    type: InputType.MultiAutocomplete,
+    type: InputType.MultiAutocomplete
   },
   {
     autocomplete: {
       creatable: true,
-      options: [],
+      options: []
     },
     dataTestId: 'web_sso_blacklistClientAddresses',
     fieldName: 'blacklistClientAddresses',
     group: labelClientAddresses,
     label: labelBlacklistClientAddresses,
-    type: InputType.MultiAutocomplete,
+    type: InputType.MultiAutocomplete
   },
   {
     dataTestId: 'web_sso_loginHeaderAttribute',
@@ -72,20 +72,20 @@ export const inputs: Array<InputProps> = [
     group: labelIdentityProvider,
     label: labelLoginHeaderAttributeName,
     required: true,
-    type: InputType.Text,
+    type: InputType.Text
   },
   {
     dataTestId: 'web_sso_patternMatchingLogin',
     fieldName: 'patternMatchingLogin',
     group: labelIdentityProvider,
     label: labelPatternMatchLogin,
-    type: InputType.Text,
+    type: InputType.Text
   },
   {
     dataTestId: 'web_sso_patternReplaceLogin',
     fieldName: 'patternReplaceLogin',
     group: labelIdentityProvider,
     label: labelPatternReplaceLogin,
-    type: InputType.Text,
-  },
+    type: InputType.Text
+  }
 ];

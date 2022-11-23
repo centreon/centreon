@@ -11,7 +11,7 @@ interface Props {
 const PredefinedSelectionList = ({
   close,
   predefinedRowsSelection,
-  onSelectRowsWithCondition,
+  onSelectRowsWithCondition
 }: Props): JSX.Element => (
   <List dense>
     {predefinedRowsSelection.map(({ label, rowCondition }) => {

@@ -12,12 +12,12 @@ import {
   DragOverEvent,
   DragStartEvent,
   DragEndEvent,
-  Over,
+  Over
 } from '@dnd-kit/core';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  SortingStrategy,
+  SortingStrategy
 } from '@dnd-kit/sortable';
 import {
   equals,
@@ -30,7 +30,7 @@ import {
   pipe,
   propEq,
   pick,
-  pluck,
+  pluck
 } from 'ramda';
 
 import { useTheme } from '@mui/material';
@@ -72,7 +72,7 @@ interface Props<T> {
   }: ContentProps & T) => JSX.Element | null;
   RootComponent?: ({
     children,
-    isInDragOverlay,
+    isInDragOverlay
   }: RootComponentProps) => JSX.Element;
   additionalProps?: Array<unknown>;
   collisionDetection: CollisionDetection;
@@ -104,7 +104,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   Content,
   getDisableItemCondition = (): boolean => false,
   getDisableOverItemSortableCondition = (): boolean => false,
-  updateSortableItemsOnItemsChange = false,
+  updateSortableItemsOnItemsChange = false
 }: Props<T>): JSX.Element => {
   const getItemsIds = (): Array<string> =>
     pluck(propertyToFilterItemsOn, items);
@@ -125,11 +125,11 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
           'ArrowLeft',
           'ArrowRight',
           'Enter',
-          'Space',
-        ],
+          'Space'
+        ]
       },
-      scrollBehavior: 'smooth',
-    }),
+      scrollBehavior: 'smooth'
+    })
   );
   const theme = useTheme();
 

@@ -7,7 +7,7 @@ import {
   fireEvent,
   waitFor,
   screen,
-  RenderResult,
+  RenderResult
 } from '../testRenderer';
 
 import { StepComponentProps } from './models';
@@ -22,20 +22,20 @@ const renderWizardThreeSteps = (): RenderResult =>
         {
           Component: (): JSX.Element => <div>Step 1</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 1',
+          stepName: 'step label 1'
         },
         {
           Component: (): JSX.Element => <div>Step 2</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 2',
+          stepName: 'step label 2'
         },
         {
           Component: (): JSX.Element => <div>Step 3</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 3',
-        },
+          stepName: 'step label 3'
+        }
       ]}
-    />,
+    />
   );
 
 const renderWizardOneStep = (): RenderResult =>
@@ -46,14 +46,14 @@ const renderWizardOneStep = (): RenderResult =>
         {
           Component: (): JSX.Element => <div>Step 1</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 1',
-        },
+          stepName: 'step label 1'
+        }
       ]}
-    />,
+    />
   );
 
 const secondStepValidationSchema = Yup.object().shape({
-  secondInput: Yup.string().required('Required'),
+  secondInput: Yup.string().required('Required')
 });
 
 const renderWizardTwoStepsWithFormValidation = (): RenderResult =>
@@ -65,20 +65,20 @@ const renderWizardTwoStepsWithFormValidation = (): RenderResult =>
         {
           Component: (): JSX.Element => <div>Step 1</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 1',
+          stepName: 'step label 1'
         },
         {
           Component: (): JSX.Element => <div>Step 2</div>,
           skipFormChangeCheck: true,
           stepName: 'step label 2',
-          validationSchema: secondStepValidationSchema,
-        },
+          validationSchema: secondStepValidationSchema
+        }
       ]}
-    />,
+    />
   );
 
 const SecondStep = ({
-  disableNextOnSendingRequests,
+  disableNextOnSendingRequests
 }: StepComponentProps): JSX.Element => {
   const finishRequests = (): void => {
     disableNextOnSendingRequests([false, false, false]);
@@ -103,15 +103,15 @@ const renderWizardTwoStepsWithSendingRequests = (): RenderResult =>
         {
           Component: (): JSX.Element => <div>Step 1</div>,
           skipFormChangeCheck: true,
-          stepName: 'step label 1',
+          stepName: 'step label 1'
         },
         {
           Component: SecondStep,
           skipFormChangeCheck: true,
-          stepName: 'step label 2',
-        },
+          stepName: 'step label 2'
+        }
       ]}
-    />,
+    />
   );
 
 describe(Wizard, () => {

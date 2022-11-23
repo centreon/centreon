@@ -12,7 +12,7 @@ jest.mock('../../Snackbar/useSnackbar', () => ({
   __esModule: true,
   default: jest
     .fn()
-    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage })),
+    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage }))
 }));
 
 interface Result {
@@ -22,7 +22,7 @@ interface Result {
 const request = jest.fn();
 
 const renderUseRequest = (
-  requestParams: RequestParams<Result>,
+  requestParams: RequestParams<Result>
 ): RenderHookResult<unknown, RequestResult<Result>> =>
   renderHook(() => useRequest(requestParams));
 
@@ -37,13 +37,13 @@ describe(useRequest, () => {
     request.mockImplementation(() => jest.fn().mockResolvedValue('success'));
 
     const { result } = renderUseRequest({
-      request,
+      request
     });
 
     await act(async () =>
       result.current.sendRequest().then((data) => {
         expect(data).toEqual('success');
-      }),
+      })
     );
   });
 
@@ -65,7 +65,7 @@ describe(useRequest, () => {
 
   it("shows an error via the Snackbar and inside browser's console using the error message from the API when available", async () => {
     const response = {
-      response: { data: { message: 'failure' } },
+      response: { data: { message: 'failure' } }
     };
     request.mockImplementation(() => jest.fn().mockRejectedValue(response));
 
@@ -87,7 +87,7 @@ describe(useRequest, () => {
 
     const { result } = renderUseRequest({
       defaultFailureMessage: 'Oops',
-      request,
+      request
     });
 
     await act(async () => {
@@ -105,7 +105,7 @@ describe(useRequest, () => {
     request.mockImplementation(() => jest.fn().mockRejectedValue({}));
 
     const { result } = renderUseRequest({
-      request,
+      request
     });
 
     await act(async () => {

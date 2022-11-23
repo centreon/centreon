@@ -13,5 +13,5 @@ import { memo } from 'react';
  */
 export const typedMemo: <T>(
   component: T,
-  propsAreEqual?: (prevProps: Readonly<T>, nextProps: Readonly<T>) => boolean,
+  propsAreEqual?: (prevProps: Readonly<T>, nextProps: Readonly<T>) => boolean
 ) => T = memo;
