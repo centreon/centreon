@@ -49,9 +49,9 @@ const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
 };
 
 const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
-  if (equals(size, 'small')) {
+  if (equals(size, 'medium')) {
     return {
-      height: '36px'
+      height: '40px'
     };
   }
   if (equals(size, 'large')) {
@@ -61,7 +61,7 @@ const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
   }
 
   return {
-    height: '40px'
+    height: '36px'
   };
 };
 
