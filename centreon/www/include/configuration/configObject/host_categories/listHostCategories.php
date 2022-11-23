@@ -56,7 +56,7 @@ if (isset($_POST['searchH']) || isset($_GET['searchH'])) {
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-if ($search !== '') {
+if (isset($search) && $search !== '') {
     $SearchTool = " WHERE (hc_name LIKE :search OR hc_alias LIKE :search)";
 }
 
@@ -77,7 +77,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS hc_id, hc_name, hc_alias, level, hc_activat
 $statement = $pearDB->prepare($query);
 $statement->bindValue(':offset', (int) $num * (int) $limit, \PDO::PARAM_INT);
 $statement->bindValue(':limit', (int) $limit, \PDO::PARAM_INT);
-if ($search !== '') {
+if (isset($search) && $search !== '') {
     $statement->bindValue(':search', "%" . $search . "%", \PDO::PARAM_STR);
 }
 foreach ($hcQueryBinds as $key => $hcId) {
