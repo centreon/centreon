@@ -118,7 +118,9 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'DELETE FROM `:db`.`vault_configuration` WHERE `id`=:id'
+                <<<'SQL'
+                    DELETE FROM `:db`.`vault_configuration` WHERE `id`=:id
+                    SQL
             )
         );
 

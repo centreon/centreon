@@ -31,12 +31,12 @@ use Core\Application\Common\UseCase\{
     NoContentResponse,
     NotFoundResponse
 };
+use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 
 final class DeleteVaultConfiguration
 {
@@ -87,7 +87,7 @@ final class DeleteVaultConfiguration
                 $this->error(
                     'Vault configuration not found',
                     [
-                        'id' => $deleteVaultConfigurationRequest->vaultConfigurationId
+                        'id' => $deleteVaultConfigurationRequest->vaultConfigurationId,
                     ]
                 );
                 $presenter->setResponseStatus(

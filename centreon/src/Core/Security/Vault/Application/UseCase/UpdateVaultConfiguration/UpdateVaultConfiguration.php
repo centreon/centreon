@@ -89,7 +89,7 @@ final class UpdateVaultConfiguration
                 $this->error(
                     'Vault configuration not found',
                     [
-                        'id' => $updateVaultConfigurationRequest->vaultConfigurationId
+                        'id' => $updateVaultConfigurationRequest->vaultConfigurationId,
                     ]
                 );
                 $presenter->setResponseStatus(
