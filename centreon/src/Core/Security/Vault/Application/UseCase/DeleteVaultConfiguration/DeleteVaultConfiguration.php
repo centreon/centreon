@@ -66,14 +66,16 @@ final class DeleteVaultConfiguration
     ): void {
         try {
             if (! $this->user->isAdmin()) {
+                $this->error('User is not admin', ['user' => $this->user->getName()]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('Only admin user can create vault configuration')
+                    new ForbiddenResponse(VaultConfigurationException::onlyForAdmin()->getMessage())
                 );
 
                 return;
             }
 
             if (! $this->isVaultExists($deleteVaultConfigurationRequest->typeId)) {
+                $this->error('Vault provider not found', ['id' => $deleteVaultConfigurationRequest->typeId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
                 );
@@ -82,6 +84,12 @@ final class DeleteVaultConfiguration
             }
 
             if (! $this->isVaultConfigurationExists($deleteVaultConfigurationRequest->vaultConfigurationId)) {
+                $this->error(
+                    'Vault configuration not found',
+                    [
+                        'id' => $deleteVaultConfigurationRequest->vaultConfigurationId
+                    ]
+                );
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault configuration')
                 );

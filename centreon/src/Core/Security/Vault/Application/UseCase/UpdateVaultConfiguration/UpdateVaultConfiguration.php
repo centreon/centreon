@@ -68,6 +68,7 @@ final class UpdateVaultConfiguration
     ): void {
         try {
             if (! $this->user->isAdmin()) {
+                $this->error('User is not admin', ['user' => $this->user->getName()]);
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(VaultConfigurationException::onlyForAdmin()->getMessage())
                 );
@@ -76,6 +77,7 @@ final class UpdateVaultConfiguration
             }
 
             if (! $this->isVaultExists($updateVaultConfigurationRequest->typeId)) {
+                $this->error('Vault provider not found', ['id' => $updateVaultConfigurationRequest->typeId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
                 );
@@ -84,6 +86,12 @@ final class UpdateVaultConfiguration
             }
 
             if (! $this->isVaultConfigurationExists($updateVaultConfigurationRequest->vaultConfigurationId)) {
+                $this->error(
+                    'Vault configuration not found',
+                    [
+                        'id' => $updateVaultConfigurationRequest->vaultConfigurationId
+                    ]
+                );
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault configuration')
                 );
