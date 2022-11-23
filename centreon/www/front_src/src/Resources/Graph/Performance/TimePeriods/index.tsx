@@ -5,8 +5,6 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, ButtonGroup, Button, useTheme, Tooltip } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';

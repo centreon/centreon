@@ -20,8 +20,8 @@ const useSkeletonStyles = makeStyles<Props>()(
     loadingSkeletonLine: {
       paddingBottom: theme.spacing(1),
       transform: 'none'
-    },
-  }),
+    }
+  })
 );
 
 const LoadingSkeleton = ({

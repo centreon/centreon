@@ -103,7 +103,7 @@ const useStyles = makeStyles<StyleProps>()(
         : theme.spacing(collapseWidth),
       overflow: 'auto',
       position: 'fixed',
-      top: ({ currentTop }: StyleProps): number | undefined => currentTop,
+      top: currentTop,
       whiteSpace: 'normal',
       width: theme.spacing(collapseWidth),
       zIndex: theme.zIndex.mobileStepper

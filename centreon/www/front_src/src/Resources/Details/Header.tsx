@@ -96,7 +96,7 @@ const useStyles = makeStyles<MakeStylesProps>()(
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }
-  }),
+  })
 );
 
 const LoadingSkeleton = (): JSX.Element => (
