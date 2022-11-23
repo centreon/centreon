@@ -101,6 +101,15 @@ final class UpdateVaultConfiguration
 
             $vaultConfiguration = $this->vaultConfigurationFactory->create($updateVaultConfigurationRequest);
             if ($this->isVaultConfigurationAlreadyExistsForSameProvider($vaultConfiguration)) {
+                $this->error(
+                    'Vault configuration with these properties already exists for same provider',
+                    [
+                        'provider' => $vaultConfiguration->getVault()->getName(),
+                        'address' => $vaultConfiguration->getAddress(),
+                        'port' => $vaultConfiguration->getPort(),
+                        'storage' => $vaultConfiguration->getStorage(),
+                    ]
+                );
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
                 );
