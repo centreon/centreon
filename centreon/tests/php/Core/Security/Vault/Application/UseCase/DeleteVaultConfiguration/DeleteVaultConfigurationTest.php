@@ -57,20 +57,20 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         ->method('isAdmin')
         ->willReturn(false);
 
-        $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-        $useCase = new DeleteVaultConfiguration(
-            $this->readVaultConfigurationRepository,
-            $this->writeVaultConfigurationRepository,
-            $this->readVaultRepository,
-            $this->user
-        );
+    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new DeleteVaultConfiguration(
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultConfigurationRepository,
+        $this->readVaultRepository,
+        $this->user
+    );
 
-        $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
+    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
 
-        $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $deleteVaultConfigurationRequest);
 
-        expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-        expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
+    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+    expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
 });
 
 it('should present NotFoundResponse when vault provider does not exist', function (): void {
