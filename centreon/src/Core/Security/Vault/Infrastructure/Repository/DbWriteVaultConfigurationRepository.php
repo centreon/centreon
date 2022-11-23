@@ -81,7 +81,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                 UPDATE `:db`.`vault_configuration`
                 SET `name`=:name,
                     `vault_id`=:vault_id,
