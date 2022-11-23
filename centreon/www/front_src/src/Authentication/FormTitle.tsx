@@ -4,8 +4,8 @@ import { Typography } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   title: {
-    marginBottom: theme.spacing(2),
-  },
+    marginBottom: theme.spacing(2)
+  }
 }));
 
 interface Props {

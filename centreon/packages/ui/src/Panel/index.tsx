@@ -24,13 +24,13 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottomWidth: hasTabs ? 1 : 0,
       borderLeft: 'none',
       borderRight: 'none',
-      borderTop: 'none',
+      borderTop: 'none'
     },
     body: {
       display: 'grid',
       gridArea: '3 / 1 / 4 / 1',
       gridTemplateRows: 'auto 1fr',
-      height: '100%',
+      height: '100%'
     },
     container: {
       backgroundColor: theme.palette.background.default,
@@ -39,7 +39,7 @@ const useStyles = makeStyles<StylesProps>()(
       gridTemplate: 'auto auto 1fr / 1fr',
       height: '100%',
       overflow: 'hidden',
-      width,
+      width
     },
     content: {
       bottom: 0,
@@ -47,13 +47,13 @@ const useStyles = makeStyles<StylesProps>()(
       overflow: 'auto',
       position: 'absolute',
       right: 0,
-      top: 0,
+      top: 0
     },
     contentContainer: {
-      position: 'relative',
+      position: 'relative'
     },
     divider: {
-      gridArea: '2 / 1 / 3 / 1',
+      gridArea: '2 / 1 / 3 / 1'
     },
     dragger: {
       bottom: 0,
@@ -62,7 +62,7 @@ const useStyles = makeStyles<StylesProps>()(
       right: width,
       top: 0,
       width: 5,
-      zIndex: theme.zIndex.drawer,
+      zIndex: theme.zIndex.drawer
     },
     header: {
       alignItems: 'center',
@@ -71,12 +71,12 @@ const useStyles = makeStyles<StylesProps>()(
       display: 'grid',
       gridArea: '1 / 1 / 2 / 1',
       gridTemplateColumns: '1fr auto',
-      padding: theme.spacing(1),
+      padding: theme.spacing(1)
     },
     tabs: {
-      minHeight: minTabHeight,
-    },
-  }),
+      minHeight: minTabHeight
+    }
+  })
 );
 
 export interface Tab {
@@ -111,14 +111,14 @@ const Panel = React.forwardRef(
       width = 550,
       minWidth = 550,
       headerBackgroundColor,
-      onResize,
+      onResize
     }: Props,
-    ref,
+    ref
   ): JSX.Element => {
     const { classes } = useStyles({
       hasTabs: !isEmpty(tabs),
       headerBackgroundColor,
-      width,
+      width
     });
 
     const getMaxWidth = (): number => window.innerWidth * 0.85;
@@ -176,7 +176,7 @@ const Panel = React.forwardRef(
         direction="left"
         timeout={{
           enter: 150,
-          exit: 50,
+          exit: 50
         }}
       >
         <Paper className={classes.container} elevation={2}>
@@ -230,7 +230,7 @@ const Panel = React.forwardRef(
         </Paper>
       </Slide>
     );
-  },
+  }
 );
 
 export default Panel;

@@ -14,19 +14,19 @@ const useStyles = makeStyles()((theme) => {
   return {
     filters: {
       borderBottom: `1px solid ${theme.palette.divider}`,
-      margin: theme.spacing(0, 3),
+      margin: theme.spacing(0, 3)
     },
     listing: {
       margin: theme.spacing(0, 3),
       overflowY: 'auto',
-      paddingTop: theme.spacing(1),
+      paddingTop: theme.spacing(1)
     },
     page: {
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
       height: '100%',
-      overflow: 'hidden',
-    },
+      overflow: 'hidden'
+    }
   };
 });
 
@@ -51,7 +51,7 @@ const ListingPage = ({
   pageClassName,
   listingScrollOffset = 16,
   fullHeight = false,
-  memoListingProps = [],
+  memoListingProps = []
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const [listingHeight, setListingHeight] = useState(0);
@@ -80,7 +80,7 @@ const ListingPage = ({
 
   const memoListingComponent = useMemoComponent({
     Component: listing,
-    memoProps: [...memoListingProps],
+    memoProps: [...memoListingProps]
   });
 
   return (
@@ -95,7 +95,7 @@ const ListingPage = ({
           ref={listingRef}
           sx={{
             ...(fullHeight && { height: '100%' }),
-            maxHeight: listingContainerHeight,
+            maxHeight: listingContainerHeight
           }}
         >
           <Suspense fallback={<ListingSkeleton />}>

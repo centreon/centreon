@@ -13,17 +13,17 @@ interface Props {
 
 const useStyles = makeStyles()((theme) => ({
   dialogTitle: {
-    padding: theme.spacing(0),
+    padding: theme.spacing(0)
   },
   label: {
     '& .MuiStepLabel-alternativeLabel': {
       fontSize: '0.8rem',
-      marginTop: '4px',
-    },
+      marginTop: '4px'
+    }
   },
   stepper: {
-    padding: theme.spacing(2),
-  },
+    padding: theme.spacing(2)
+  }
 }));
 
 const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
@@ -44,7 +44,7 @@ const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
           <StepLabel
             StepIconComponent={StepIcon}
             classes={{
-              alternativeLabel: classes.label,
+              alternativeLabel: classes.label
             }}
           >
             {stepName}

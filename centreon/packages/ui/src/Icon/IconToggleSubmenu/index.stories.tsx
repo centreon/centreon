@@ -4,7 +4,7 @@ import Icon from '.';
 
 export default {
   component: Icon,
-  title: 'Icon/ToggleSubmenu',
+  title: 'Icon/ToggleSubmenu'
 } as ComponentMeta<typeof Icon>;
 
 interface HeaderProps {
@@ -23,11 +23,11 @@ const TemplateIcon: ComponentStory<typeof Icon> = (args) => (
 export const Arrow = TemplateIcon.bind({});
 Arrow.args = {
   onClick: (): void => undefined,
-  rotate: false,
+  rotate: false
 };
 
 export const rotatedArrow = TemplateIcon.bind({});
 rotatedArrow.args = {
   onClick: (): void => undefined,
-  rotate: true,
+  rotate: true
 };

@@ -20,14 +20,14 @@ const useStyles = makeStyles<StylesProps>()(
       alignItems: 'center',
       display: 'flex',
       minHeight: theme.spacing(3),
-      padding: theme.spacing(0, 1.5),
+      padding: theme.spacing(0, 1.5)
     },
     dragHandle: {
       alignSelf: 'flex-start',
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
       marginLeft: -theme.spacing(1),
-      outline: 'none',
+      outline: 'none'
     },
     item: {
       background: isInDragOverlay
@@ -36,9 +36,9 @@ const useStyles = makeStyles<StylesProps>()(
       border: isInDragOverlay ? 'none' : undefined,
       borderBottom: isInDragOverlay
         ? 'none'
-        : `1px solid ${theme.palette.text.primary}`,
-    },
-  }),
+        : `1px solid ${theme.palette.text.primary}`
+    }
+  })
 );
 
 type Props = Pick<
@@ -76,12 +76,12 @@ const SortableHeaderCellContent = ({
   const sort = (): void => {
     const isDesc = and(
       equals(columnSortField, sortField),
-      equals(sortOrder, 'desc'),
+      equals(sortOrder, 'desc')
     );
 
     onSort?.({
       sortField: columnSortField,
-      sortOrder: isDesc ? 'asc' : 'desc',
+      sortOrder: isDesc ? 'asc' : 'desc'
     });
   };
 

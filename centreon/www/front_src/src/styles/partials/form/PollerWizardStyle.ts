@@ -12,33 +12,33 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(2),
-    width: '100%',
+    width: '100%'
   },
   formButton: {
     columnGap: theme.spacing(1),
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(1.875),
+    marginTop: theme.spacing(1.875)
   },
   formHeading: {
-    marginBottom: theme.spacing(0.625),
+    marginBottom: theme.spacing(0.625)
   },
   formItem: {
-    paddingBottom: theme.spacing(1.875),
+    paddingBottom: theme.spacing(1.875)
   },
   formText: {
     color: '#242f3a',
     fontFamily: 'Roboto Regular',
     fontSize: theme.spacing(1.5),
-    margin: '20px 0',
+    margin: '20px 0'
   },
   wizardRadio: {
     columnGap: theme.spacing(2),
     display: 'flex',
     justifyContent: 'center',
-    marginBottom: theme.spacing(3),
-  },
+    marginBottom: theme.spacing(3)
+  }
 }));
 
 const useStylesWithProps = makeStyles<StylesProps>()(
@@ -48,24 +48,24 @@ const useStylesWithProps = makeStyles<StylesProps>()(
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'flex-end',
-      marginTop: theme.spacing(1.875),
+      marginTop: theme.spacing(1.875)
     },
     formHeading: {
-      marginBottom: theme.spacing(0.625),
+      marginBottom: theme.spacing(0.625)
     },
     formText: {
       color: grey[500],
       fontFamily: 'Roboto Regular',
       fontSize: theme.spacing(1.5),
-      margin: '20px 0',
+      margin: '20px 0'
     },
     statusCreating: {
-      color: statusCreating ? '#acd174' : '#d0021b',
+      color: statusCreating ? '#acd174' : '#d0021b'
     },
     statusGenerating: {
-      color: statusGenerating ? '#acd174' : '#d0021b',
-    },
-  }),
+      color: statusGenerating ? '#acd174' : '#d0021b'
+    }
+  })
 );
 
 export { useStyles, useStylesWithProps };

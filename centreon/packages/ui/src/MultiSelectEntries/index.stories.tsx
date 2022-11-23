@@ -7,10 +7,10 @@ export default {
     emptyLabel: { control: 'text' },
     highlight: { control: 'boolean' },
     label: { control: 'text' },
-    values: { control: 'object' },
+    values: { control: 'object' }
   },
   component: MultiSelectEntries,
-  title: 'MultiSelectEntries',
+  title: 'MultiSelectEntries'
 } as ComponentMeta<typeof MultiSelectEntries>;
 
 const label = 'Entries';
@@ -20,13 +20,13 @@ const sixElement = new Array(6).fill(0);
 
 const entries = [...sixElement].map((_, index) => ({
   id: index,
-  name: `Entry ${index}`,
+  name: `Entry ${index}`
 }));
 
 const noOp = (): void => undefined;
 
 const TemplateMultiSelectEntries: ComponentStory<typeof MultiSelectEntries> = (
-  args,
+  args
 ) => <MultiSelectEntries {...args} />;
 
 export const PlaygroundMultiSelectEntries = TemplateMultiSelectEntries.bind({});
@@ -34,7 +34,7 @@ PlaygroundMultiSelectEntries.args = {
   emptyLabel,
   highlight: false,
   label,
-  values: entries,
+  values: entries
 };
 
 export const empty = (): JSX.Element => (

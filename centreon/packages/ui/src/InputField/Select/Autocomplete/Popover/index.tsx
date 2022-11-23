@@ -28,23 +28,23 @@ const useStyles = makeStyles()((theme) => ({
       '& .MuiAvatar-root': {
         backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
           ? theme.palette.grey[800]
-          : theme.palette.grey[400],
+          : theme.palette.grey[400]
       },
       backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.grey[700]
-        : theme.palette.action.selected,
+        : theme.palette.action.selected
     },
     borderRadius: theme.spacing(1.5),
     cursor: 'pointer',
     display: 'flex',
     height: theme.spacing(3),
     justifyContent: 'space-between',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const PopoverAutocomplete = (
-  AutocompleteField: (props) => JSX.Element,
+  AutocompleteField: (props) => JSX.Element
 ): ((props) => JSX.Element) => {
   const InnerAutocomplete = ({
     value,

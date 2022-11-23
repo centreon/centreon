@@ -9,7 +9,7 @@ const submit = jest.fn();
 const actionsBarLabels = {
   labelFinish: 'Finish',
   labelNext: 'Next',
-  labelPrevious: 'Previous',
+  labelPrevious: 'Previous'
 };
 
 describe('ActionsBar', () => {
@@ -24,7 +24,7 @@ describe('ActionsBar', () => {
         isFirstStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     expect(screen.getByLabelText('Finish')).toHaveAttribute('disabled');
@@ -36,7 +36,7 @@ describe('ActionsBar', () => {
         actionsBarLabels={{
           labelFinish: 'Custom finish',
           labelNext: 'Custom next',
-          labelPrevious: 'Custom previous',
+          labelPrevious: 'Custom previous'
         }}
         disableActionButtons={false}
         goToNextStep={goToNextStep}
@@ -45,7 +45,7 @@ describe('ActionsBar', () => {
         isLastStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     expect(screen.getByText('Custom previous')).toBeInTheDocument();
@@ -60,14 +60,14 @@ describe('ActionsBar', () => {
         actionsBarLabels={{
           labelFinish: 'Custom finish',
           labelNext: 'Custom next',
-          labelPrevious: 'Custom previous',
+          labelPrevious: 'Custom previous'
         }}
         goToNextStep={goToNextStep}
         goToPreviousStep={goToPreviousStep}
         isFirstStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     expect(screen.getByText('Custom previous')).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('ActionsBar', () => {
         isLastStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     fireEvent.click(screen.getByLabelText('Previous'));
@@ -103,7 +103,7 @@ describe('ActionsBar', () => {
         isLastStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     fireEvent.click(screen.getByLabelText('Next'));
@@ -121,7 +121,7 @@ describe('ActionsBar', () => {
         isFirstStep={false}
         isSubmitting={false}
         submit={submit}
-      />,
+      />
     );
 
     fireEvent.click(screen.getByLabelText('Finish'));

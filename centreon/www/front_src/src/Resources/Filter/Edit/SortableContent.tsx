@@ -25,12 +25,12 @@ const useStyles = makeStyles<Pick<ContentProps, 'isDragging'>>()(
       display: 'grid',
       gridGap: theme.spacing(2),
       gridTemplateColumns: '1fr auto',
-      padding: theme.spacing(1),
+      padding: theme.spacing(1)
     },
     filterCardHandler: {
-      cursor: isDragging ? 'grabbing' : 'grab',
-    },
-  }),
+      cursor: isDragging ? 'grabbing' : 'grab'
+    }
+  })
 );
 
 const SortableContent = ({
@@ -41,7 +41,7 @@ const SortableContent = ({
   criterias,
   id,
   name,
-  isDragging,
+  isDragging
 }: ContentProps): JSX.Element => {
   const { classes } = useStyles({ isDragging });
 

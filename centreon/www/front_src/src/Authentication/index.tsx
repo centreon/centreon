@@ -26,34 +26,34 @@ const panels = [
     Component: LocalAuthentication,
     image: passwordPadlockLogo,
     title: labelPasswordSecurityPolicy,
-    value: Provider.Local,
+    value: Provider.Local
   },
   {
     Component: OpenidConfiguration,
     image: providerPadlockLogo,
     title: labelOpenIDConnectConfiguration,
-    value: Provider.Openid,
+    value: Provider.Openid
   },
   {
     Component: WebSSOConfigurationForm,
     image: providerPadlockLogo,
     title: labelWebSSOConfiguration,
-    value: Provider.WebSSO,
-  },
+    value: Provider.WebSSO
+  }
 ];
 
 const useStyles = makeStyles()((theme) => ({
   box: {
-    overflowY: 'auto',
+    overflowY: 'auto'
   },
   container: {
     marginLeft: '0',
-    maxHeight: `calc(100vh - ${theme.spacing(12)})`,
+    maxHeight: `calc(100vh - ${theme.spacing(12)})`
   },
   formContainer: {
     display: 'grid',
     gridTemplateColumns: '1.2fr 0.6fr',
-    padding: theme.spacing(3),
+    padding: theme.spacing(3)
   },
   image: {
     height: '300px',
@@ -61,17 +61,17 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 5),
     position: 'sticky',
     top: 0,
-    width: '300px',
+    width: '300px'
   },
   panel: {
-    padding: 0,
+    padding: 0
   },
   paper: {
-    border: 'none',
+    border: 'none'
   },
   tabList: {
-    borderBottom: `${theme.spacing(0.25)} solid ${theme.palette.divider}`,
-  },
+    borderBottom: `${theme.spacing(0.25)} solid ${theme.palette.divider}`
+  }
 }));
 
 const scrollMargin = 8;
@@ -115,7 +115,7 @@ const Authentication = (): JSX.Element => {
       panels.map(({ title, value }) => (
         <Tab key={value} label={t(title)} value={value} />
       )),
-    [],
+    []
   );
 
   const tabPanels = useMemo(
@@ -133,7 +133,7 @@ const Authentication = (): JSX.Element => {
           </Box>
         </TabPanel>
       )),
-    [themeMode, formContainerHeight],
+    [themeMode, formContainerHeight]
   );
 
   return (

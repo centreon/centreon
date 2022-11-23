@@ -9,19 +9,19 @@ const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     background: theme.palette.error.main,
     color: theme.palette.common.white,
-    padding: theme.spacing(1),
-  },
+    padding: theme.spacing(1)
+  }
 }));
 export default {
   argTypes: {
-    label: { control: 'text' },
+    label: { control: 'text' }
   },
   component: LicenseMessage,
-  title: 'License Message',
+  title: 'License Message'
 } as ComponentMeta<typeof LicenseMessage>;
 
 const TemplateLicenseMessage: ComponentStory<typeof LicenseMessage> = (
-  args,
+  args
 ) => <LicenseMessage {...args} />;
 
 export const PlaygroundLicenseMessage = TemplateLicenseMessage.bind({});

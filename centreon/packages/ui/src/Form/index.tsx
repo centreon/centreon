@@ -7,7 +7,7 @@ import { Group, InputProps } from './Inputs/models';
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
-  Vertical = 'vertical',
+  Vertical = 'vertical'
 }
 
 interface Props<T> {
@@ -33,7 +33,7 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
-  groupDirection = GroupDirection.Vertical,
+  groupDirection = GroupDirection.Vertical
 }: Props<T>): JSX.Element => {
   if (isLoading) {
     return (

@@ -18,8 +18,8 @@ interface Props {
 
 const useStyles = makeStyles()({
   icon: {
-    cursor: 'pointer',
-  },
+    cursor: 'pointer'
+  }
 });
 
 const TimeShiftIcon = ({
@@ -27,7 +27,7 @@ const TimeShiftIcon = ({
   Icon,
   direction,
   directionHovered,
-  ariaLabel,
+  ariaLabel
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ const TimeShiftIcon = ({
     },
     width: timeShiftIconSize,
     x: xIcon,
-    y: graphHeight / 2 - timeShiftIconSize / 2 + marginTop,
+    y: graphHeight / 2 - timeShiftIconSize / 2 + marginTop
   };
 
   return useMemoComponent({
@@ -71,8 +71,8 @@ const TimeShiftIcon = ({
       ariaLabel,
       loading,
       directionHovered,
-      graphHeight,
-    ],
+      graphHeight
+    ]
   });
 };
 

@@ -16,8 +16,8 @@ import { OpenidConfiguration } from './models';
 
 const useStyles = makeStyles()((theme) => ({
   loading: {
-    height: theme.spacing(0.5),
-  },
+    height: theme.spacing(0.5)
+  }
 }));
 
 const OpenidConfigurationForm = (): JSX.Element => {
@@ -27,12 +27,12 @@ const OpenidConfigurationForm = (): JSX.Element => {
   const {
     sendingGetOpenidConfiguration,
     initialOpenidConfiguration,
-    loadOpenidConfiguration,
+    loadOpenidConfiguration
   } = useOpenid();
 
   const isOpenidConfigurationEmpty = useMemo(
     () => isNil(initialOpenidConfiguration),
-    [initialOpenidConfiguration],
+    [initialOpenidConfiguration]
   );
 
   useTab(isOpenidConfigurationEmpty);

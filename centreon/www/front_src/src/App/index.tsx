@@ -16,33 +16,33 @@ const useStyles = makeStyles()((theme) => ({
     flexGrow: 1,
     height: '100%',
     overflow: 'hidden',
-    position: 'relative',
+    position: 'relative'
   },
   fullScreenWrapper: {
     flexGrow: 1,
     height: '100%',
     overflow: 'hidden',
-    width: '100%',
+    width: '100%'
   },
   fullscreenButton: {
     bottom: '10px',
     position: 'absolute',
     right: '20px',
-    zIndex: 1500,
+    zIndex: 1500
   },
   mainContent: {
     '& iframe': {
-      display: 'block',
+      display: 'block'
     },
-    flexGrow: 1,
+    flexGrow: 1
   },
   wrapper: {
     backgroundColor: theme.palette.background.paper,
     display: 'flex',
     fontFamily: theme.typography.fontFamily,
     height: '100%',
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'
+  }
 }));
 
 const MainRouter = lazy(() => import('../components/mainRouter'));

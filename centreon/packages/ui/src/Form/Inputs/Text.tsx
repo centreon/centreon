@@ -20,7 +20,7 @@ const Text = ({
   hideInput,
   change,
   additionalMemoProps,
-  text,
+  text
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -65,7 +65,7 @@ const Text = ({
           isVisible={isVisible}
         />
       ) : null,
-    [isVisible],
+    [isVisible]
   );
 
   const getInputType = (): string => {
@@ -108,8 +108,8 @@ const Text = ({
       disabled,
       isRequired,
       additionalMemoProps,
-      hidden,
-    ],
+      hidden
+    ]
   });
 };
 

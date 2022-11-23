@@ -11,7 +11,7 @@ import { labelFrom, labelTo } from '../../../../../translatedLabels';
 import {
   annotationHoveredAtom,
   getFillColorDerivedAtom,
-  getIconColorDerivedAtom,
+  getIconColorDerivedAtom
 } from '../../annotationsAtoms';
 
 import Annotation, { Props as AnnotationProps, yMargin, iconSize } from '.';
@@ -29,9 +29,9 @@ type Props = {
 const useStyles = makeStyles()((theme) => ({
   icon: {
     transition: theme.transitions.create('color', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
+      duration: theme.transitions.duration.shortest
+    })
+  }
 }));
 
 const AreaAnnotation = ({
@@ -49,7 +49,7 @@ const AreaAnnotation = ({
   const { classes } = useStyles();
 
   const [annotationHovered, setAnnotationHovered] = useAtom(
-    annotationHoveredAtom,
+    annotationHoveredAtom
   );
   const getFillColor = useAtomValue(getFillColorDerivedAtom);
   const getIconColor = useAtomValue(getIconColorDerivedAtom);
@@ -71,7 +71,7 @@ const AreaAnnotation = ({
       onMouseEnter={(): void =>
         setAnnotationHovered(() => ({
           annotation,
-          resourceId: prop('resourceId', props),
+          resourceId: prop('resourceId', props)
         }))
       }
       onMouseLeave={(): void => setAnnotationHovered(() => undefined)}
@@ -91,8 +91,8 @@ const AreaAnnotation = ({
       style={{
         color: getIconColor({
           annotation,
-          color,
-        }),
+          color
+        })
       }}
       width={iconSize}
     />
@@ -108,7 +108,7 @@ const AreaAnnotation = ({
         {...props}
       />
     ),
-    memoProps: [annotationHovered, xStart, xEnd],
+    memoProps: [annotationHovered, xStart, xEnd]
   });
 };
 

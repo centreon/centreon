@@ -9,14 +9,14 @@ import { FallbackPage } from '@centreon/ui';
 
 import {
   labelAuthenticationDenied,
-  labelYouAreNotAbleToLogIn,
+  labelYouAreNotAbleToLogIn
 } from './translatedLabels';
 
 const useStyles = makeStyles()({
   pageContainer: {
     height: '100vh',
-    width: '100vw',
-  },
+    width: '100vw'
+  }
 });
 
 const AuthenticationDenied: FC = () => {

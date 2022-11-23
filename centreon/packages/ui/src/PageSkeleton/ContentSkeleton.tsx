@@ -19,23 +19,23 @@ const useStyles = makeStyles()((theme) => ({
     gridTemplateColumns: `${theme.spacing(50)} ${theme.spacing(54)}`,
     justifyContent: 'space-between',
     marginLeft: theme.spacing(3),
-    marginTop: theme.spacing(1.25),
+    marginTop: theme.spacing(1.25)
   },
   actionBarSkeleton: {
     columnGap: theme.spacing(1),
     display: 'grid',
     gridTemplateColumns: `repeat(${numberOfActionButtons}, ${theme.spacing(
-      10,
-    )})`,
+      10
+    )})`
   },
   contentSkeleton: {
     marginLeft: theme.spacing(2),
-    marginTop: theme.spacing(1),
-  },
+    marginTop: theme.spacing(1)
+  }
 }));
 
 const ContentSkeleton = ({
-  animate,
+  animate
 }: Pick<PageSkeletonProps, 'animate'>): JSX.Element => {
   const theme = useTheme();
   const { classes } = useStyles();

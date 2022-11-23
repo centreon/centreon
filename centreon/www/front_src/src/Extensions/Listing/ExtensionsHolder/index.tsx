@@ -19,7 +19,7 @@ import {
   Grid,
   Chip,
   LinearProgress,
-  Divider,
+  Divider
 } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
@@ -30,34 +30,34 @@ import {
   labelLicenseRequired,
   labelLicenseEndDate,
   labelLicenseExpired,
-  labelLicenseNotValid,
+  labelLicenseNotValid
 } from '../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
     [theme.breakpoints.up(767)]: {
-      padding: theme.spacing(1.5, 1.5, 1.5, 0),
+      padding: theme.spacing(1.5, 1.5, 1.5, 0)
     },
     boxSizing: 'border-box',
     margin: theme.spacing(0, 'auto'),
-    padding: theme.spacing(1.5, 2.5, 0, 0),
+    padding: theme.spacing(1.5, 2.5, 0, 0)
   },
   extensionsTypes: {
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   license: {
     alignItems: 'center',
     cursor: 'pointer',
     display: 'flex',
     justifyContent: 'center',
-    minHeight: '20px',
+    minHeight: '20px'
   },
   licenseInvalid: {
-    backgroundColor: theme.palette.error.main,
+    backgroundColor: theme.palette.error.main
   },
   licenseValid: {
-    backgroundColor: theme.palette.success.main,
-  },
+    backgroundColor: theme.palette.success.main
+  }
 }));
 
 interface Props {
@@ -83,7 +83,7 @@ const ExtensionsHolder = ({
   updating,
   installing,
   deletingEntityId,
-  type,
+  type
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
@@ -102,14 +102,14 @@ const ExtensionsHolder = ({
     if (isNil(licenseInfo.expiration_date)) {
       return {
         isInvalid: true,
-        label: t(labelLicenseRequired),
+        label: t(labelLicenseRequired)
       };
     }
 
     if (Number.isNaN(Date.parse(licenseInfo.expiration_date))) {
       return {
         isInvalid: true,
-        label: t(labelLicenseNotValid),
+        label: t(labelLicenseNotValid)
       };
     }
 
@@ -120,13 +120,13 @@ const ExtensionsHolder = ({
     if (isLicenseExpired) {
       return {
         isInvalid: true,
-        label: t(labelLicenseExpired),
+        label: t(labelLicenseExpired)
       };
     }
 
     return {
       isInvalid: false,
-      label: `${t(labelLicenseEndDate)} ${toDate(licenseInfo.expiration_date)}`,
+      label: `${t(labelLicenseEndDate)} ${toDate(licenseInfo.expiration_date)}`
     };
   };
 
@@ -194,7 +194,7 @@ const ExtensionsHolder = ({
                             <UpdateIcon
                               style={{
                                 color: '#FFFFFF',
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                               }}
                               onClick={(e): void => {
                                 e.preventDefault();
@@ -214,7 +214,7 @@ const ExtensionsHolder = ({
                           backgroundColor: entity.version.outdated
                             ? '#FF9A13'
                             : '#84BD00',
-                          color: '#FFFFFF',
+                          color: '#FFFFFF'
                         }}
                         onDelete={(): void =>
                           onDelete(entity.id, type, entity.description)
@@ -251,12 +251,12 @@ const ExtensionsHolder = ({
                     className={cx(classes.license, {
                       [classes.licenseValid]: equals(
                         licenseInfo?.isInvalid,
-                        false,
+                        false
                       ),
                       [classes.licenseInvalid]: equals(
                         licenseInfo?.isInvalid,
-                        true,
-                      ),
+                        true
+                      )
                     })}
                     elevation={0}
                   >

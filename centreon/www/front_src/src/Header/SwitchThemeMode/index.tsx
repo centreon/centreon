@@ -12,35 +12,35 @@ import useSwitchThemeMode from './useSwitchThemeMode';
 const useStyles = makeStyles()((theme) => ({
   container: {
     '& .MuiSwitch-thumb': {
-      backgroundColor: 'white',
+      backgroundColor: 'white'
     },
     '& .MuiSwitch-track, & .Mui-checked + .MuiSwitch-track': {
       backgroundColor: theme.palette.text.primary,
-      opacity: 0.5,
+      opacity: 0.5
     },
     alignItems: 'center',
-    display: 'flex',
+    display: 'flex'
   },
   containerMode: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-around'
   },
   containerSwitch: {
     '&.Mui-checked': {
       '&:hover': {
-        backgroundColor: 'unset',
-      },
+        backgroundColor: 'unset'
+      }
     },
     '&:hover': {
-      backgroundColor: 'unset',
-    },
+      backgroundColor: 'unset'
+    }
   },
   disabledMode: {
-    opacity: 0.5,
+    opacity: 0.5
   },
   mode: {
-    paddingLeft: theme.spacing(1),
-  },
+    paddingLeft: theme.spacing(1)
+  }
 }));
 
 const SwitchThemeMode = (): JSX.Element => {
@@ -51,7 +51,7 @@ const SwitchThemeMode = (): JSX.Element => {
   const [isDark, setIsDark] = useState(isDarkMode);
 
   const { sendRequest } = useRequest({
-    request: patchData,
+    request: patchData
   });
 
   const switchEndPoint = './api/latest/configuration/users/current/parameters';
@@ -62,7 +62,7 @@ const SwitchThemeMode = (): JSX.Element => {
     updateUser();
     sendRequest({
       data: { theme: themeMode },
-      endpoint: switchEndPoint,
+      endpoint: switchEndPoint
     }).then(() => {
       if (isCurrentPageLegacy) {
         window.location.reload();
@@ -89,7 +89,7 @@ const SwitchThemeMode = (): JSX.Element => {
 
         <ListItemText
           className={cx(classes.mode, {
-            [classes.disabledMode]: !isDark,
+            [classes.disabledMode]: !isDark
           })}
         >
           Dark

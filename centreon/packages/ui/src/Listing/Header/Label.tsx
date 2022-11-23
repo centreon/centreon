@@ -6,8 +6,8 @@ import { Typography, TypographyProps } from '@mui/material';
 
 const useStyles = makeStyles()(() => ({
   root: {
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'
+  }
 }));
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 
 const HeaderLabel = ({
   children,
-  className,
+  className
 }: Props & Pick<TypographyProps, 'className'>): JSX.Element => {
   const { classes } = useStyles();
 
@@ -24,7 +24,7 @@ const HeaderLabel = ({
     <Typography
       className={className}
       classes={{
-        root: classes.root,
+        root: classes.root
       }}
       variant="body2"
     >

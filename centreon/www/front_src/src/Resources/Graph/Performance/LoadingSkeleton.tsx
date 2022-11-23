@@ -15,18 +15,18 @@ const useSkeletonStyles = makeStyles<Props>()(
       gridTemplateRows: `${
         displayTitleSkeleton ? '1fr' : ''
       } ${graphHeight}px ${theme.spacing(7)}`,
-      height: '100%',
+      height: '100%'
     },
     loadingSkeletonLine: {
       paddingBottom: theme.spacing(1),
-      transform: 'none',
-    },
-  }),
+      transform: 'none'
+    }
+  })
 );
 
 const LoadingSkeleton = ({
   graphHeight,
-  displayTitleSkeleton,
+  displayTitleSkeleton
 }: Props): JSX.Element => {
   const { classes } = useSkeletonStyles({ displayTitleSkeleton, graphHeight });
 

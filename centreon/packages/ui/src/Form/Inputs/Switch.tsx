@@ -18,7 +18,7 @@ const Switch = ({
   switchInput,
   getDisabled,
   hideInput,
-  additionalMemoProps,
+  additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -53,7 +53,7 @@ const Switch = ({
             disabled={disabled}
             inputProps={{
               'aria-label': t(label),
-              'data-testid': dataTestId,
+              'data-testid': dataTestId
             }}
             onChange={changeSwitchValue}
           />
@@ -61,7 +61,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden],
+    memoProps: [value, disabled, additionalMemoProps, hidden]
   });
 };
 

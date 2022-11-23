@@ -13,7 +13,7 @@ import {
   labelDatabaseNotActive,
   labelDatabaseUpdateAndActive,
   labelLatencyDetected,
-  labelNoLatencyDetected,
+  labelNoLatencyDetected
 } from '../translatedLabels';
 import { Issues } from '../models';
 
@@ -42,36 +42,36 @@ const useStatusStyles = makeStyles<StyleProps>()(
     const getSeverityColor = (severityCode): CSSObject => ({
       background: getStatusColors({
         severityCode,
-        theme,
+        theme
       }).backgroundColor,
       color: getStatusColors({
         severityCode,
-        theme,
-      }).color,
+        theme
+      }).color
     });
 
     return {
       avatar: {
         fontSize: theme.typography.body1.fontSize,
         height: theme.spacing(2.5),
-        width: theme.spacing(2.5),
+        width: theme.spacing(2.5)
       },
       container: {
         display: 'flex',
         gap: theme.spacing(0.5),
         [theme.breakpoints.down(768)]: {
           bottom: 0,
-          right: theme.spacing(1),
-        },
+          right: theme.spacing(1)
+        }
       },
       database: getSeverityColor(databaseSeverity),
       icon: {
         height: theme.spacing(1.75),
-        width: theme.spacing(1.75),
+        width: theme.spacing(1.75)
       },
-      latency: getSeverityColor(latencySeverity),
+      latency: getSeverityColor(latencySeverity)
     };
-  },
+  }
 );
 
 const PollerStatusIcon = ({ issues }: PollerStatusIconProps): JSX.Element => {
@@ -80,7 +80,7 @@ const PollerStatusIcon = ({ issues }: PollerStatusIconProps): JSX.Element => {
 
   const { classes, cx } = useStatusStyles({
     databaseSeverity,
-    latencySeverity,
+    latencySeverity
   });
 
   const { t } = useTranslation();
