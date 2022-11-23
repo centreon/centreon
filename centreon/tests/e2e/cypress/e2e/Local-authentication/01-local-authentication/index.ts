@@ -69,7 +69,7 @@ When('the administrator opens the authentication configuration menu', () => {
 });
 
 Then(
-  'a default password policy and default excluded users must be preset',
+  'a default password policy and default excluded users must be present',
   () => {
     checkDefaultsValueForm.forEach(({ selector, value, custom }) => {
       cy.get(selector).should('exist').and('have.value', value);
@@ -93,7 +93,7 @@ Given(
 );
 
 When(
-  'the administrator sets a valid password length and a sets all the letter cases',
+  'the administrator sets a valid password length and sets all the letter cases',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: false })
       .wait('@getNavigationList')
@@ -226,7 +226,7 @@ Given(
 );
 
 When(
-  'the administrator enables the password reuseability and sets and a user attempts to change its password multiple times in a row',
+  'the administrator enables the password reuseability and a user attempts to change its password multiple times in a row',
   () => {
     cy.navigateTo({
       page: 'Authentication',
@@ -400,7 +400,7 @@ When(
   },
 );
 
-Then('the password expiration policy is applied to the user removed', () => {
+Then('the password expiration policy is applied to the removed user', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
     .url()
     .should('include', '/reset-password');
@@ -408,7 +408,7 @@ Then('the password expiration policy is applied to the user removed', () => {
 });
 
 Then(
-  'the password expiration policy is not applyed anymore to the user added',
+  'the password expiration policy is not applied anymore to the added user',
   () => {
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-local-authentication',
@@ -432,7 +432,7 @@ Given(
 );
 
 When(
-  'the administrator sets valid password policy blocking and the user attempts to login multiple times',
+  'the administrator sets valid password blocking policy and the user attempts to login multiple times',
   () => {
     cy.navigateTo({
       page: 'Authentication',
