@@ -40,6 +40,7 @@ class VaultConfiguration extends NewVaultConfiguration
      * @param string $roleId
      * @param string $secretId
      * @param string $salt
+     *
      * @throws AssertionFailedException
      */
     public function __construct(

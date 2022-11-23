@@ -82,13 +82,13 @@ final class CreateVaultConfiguration
                 )
             ) {
                 $this->error(
-                'Vault configuration with these properties already exists',
-                [
-                    'address' => $createVaultConfigurationRequest->address,
-                    'port' => $createVaultConfigurationRequest->port,
-                    'storage' => $createVaultConfigurationRequest->storage,
-                ]
-            );
+                    'Vault configuration with these properties already exists',
+                    [
+                        'address' => $createVaultConfigurationRequest->address,
+                        'port' => $createVaultConfigurationRequest->port,
+                        'storage' => $createVaultConfigurationRequest->storage,
+                    ]
+                );
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
                 );

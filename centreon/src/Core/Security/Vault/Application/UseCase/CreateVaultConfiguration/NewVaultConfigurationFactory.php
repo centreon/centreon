@@ -46,11 +46,13 @@ class NewVaultConfigurationFactory
      * This method will crypt $roleId and $secretId before instanciating NewVaultConfiguraiton.
      *
      * @param CreateVaultConfigurationRequest $request
-     * @return NewVaultConfiguration
+     *
      * @throws VaultException
      * @throws InvalidArgumentException
      * @throws AssertionFailedException
      * @throws \Exception
+     *
+     * @return NewVaultConfiguration
      */
     public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
     {

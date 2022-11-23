@@ -43,10 +43,12 @@ class VaultConfigurationFactory
 
     /**
      * @param UpdateVaultConfigurationRequest $request
-     * @return VaultConfiguration
+     *
      * @throws VaultException
      * @throws \Exception
      * @throws AssertionFailedException
+     *
+     * @return VaultConfiguration
      */
     public function create(UpdateVaultConfigurationRequest $request): VaultConfiguration
     {

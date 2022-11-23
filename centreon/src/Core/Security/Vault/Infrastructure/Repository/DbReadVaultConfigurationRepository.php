@@ -26,11 +26,12 @@ namespace Core\Security\Vault\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface as ReadVaultConfigurationRepository
+};
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
-class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB
-    implements ReadVaultConfigurationRepositoryInterface
+class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implements ReadVaultConfigurationRepository
 {
     use LoggerTrait;
 
@@ -73,18 +74,17 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB
             return null;
         }
         /**
-         *
          * @var array{
-         *     id: int,
-         *     name: string,
-         *     vault_id: int,
-         *     vault_name: string,
-         *     url: string,
-         *     port: int,
-         *     storage: string,
-         *     role_id: string,
-         *     secret_id: string,
-         *     salt: string
+         * id: int,
+         * name: string,
+         * vault_id: int,
+         * vault_name: string,
+         * url: string,
+         * port: int,
+         * storage: string,
+         * role_id: string,
+         * secret_id: string,
+         * salt: string
          * } $record
          */
         return $this->factory->createFromRecord($record);
@@ -109,16 +109,16 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB
         }
         /**
          * @var array{
-         *     id: int,
-         *     name: string,
-         *     vault_id: int,
-         *     vault_name: string,
-         *     url: string,
-         *     port: int,
-         *     storage: string,
-         *     role_id: string,
-         *     secret_id: string,
-         *     salt: string
+         * id: int,
+         * name: string,
+         * vault_id: int,
+         * vault_name: string,
+         * url: string,
+         * port: int,
+         * storage: string,
+         * role_id: string,
+         * secret_id: string,
+         * salt: string
          * } $record
          */
         return $this->factory->createFromRecord($record);

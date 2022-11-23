@@ -51,14 +51,14 @@ class DbVaultConfigurationFactory
      *     salt: string
      * } $recordData
      *
-     * @return VaultConfiguration
-     *
      * @throws AssertionFailedException
      * @throws \Exception
+     *
+     * @return VaultConfiguration
      */
     public function createFromRecord(array $recordData): VaultConfiguration
     {
-       /** @var string $roleId */
+        /** @var string $roleId */
         $roleId = $this->encryption
             ->setSecondKey((string) $recordData['salt'])
             ->decrypt((string) $recordData['role_id']);

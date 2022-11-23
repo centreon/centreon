@@ -26,7 +26,6 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Application\Common\UseCase\{ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
@@ -37,6 +36,7 @@ use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepository
     ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface};
 use Core\Security\Vault\Domain\Exceptions\{VaultException};
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class UpdateVaultConfiguration
 {
@@ -148,9 +148,11 @@ final class UpdateVaultConfiguration
 
     /**
      * @param VaultConfiguration $vaultConfiguration
-     * @return bool
+     *
      * @throws VaultException
      * @throws \Throwable
+     *
+     * @return bool
      */
     private function isVaultConfigurationAlreadyExistsForSameProvider(
         VaultConfiguration $vaultConfiguration

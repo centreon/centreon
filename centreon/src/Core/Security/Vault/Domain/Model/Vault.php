@@ -38,6 +38,7 @@ class Vault
     /**
      * @param int $id
      * @param string $name
+     *
      * @throws AssertionFailedException
      */
     public function __construct(private int $id, private string $name)

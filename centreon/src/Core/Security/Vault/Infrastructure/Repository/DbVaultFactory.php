@@ -34,9 +34,9 @@ class DbVaultFactory
      *      name: string
      * } $recordData
      *
-     * @return Vault
-     *
      * @throws AssertionFailedException
+     *
+     * @return Vault
      */
     public function createFromRecord(array $recordData): Vault
     {
