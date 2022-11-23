@@ -53,7 +53,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                 INSERT INTO `:db`.`vault_configuration`
                 (`name`, `vault_id`, `url`, `port`, `storage`, `role_id`, `secret_id`, `salt`)
                 VALUES (:name, :vault_id, :url, :port, :storage, :role_id, :secret_id, :salt)
@@ -81,7 +81,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                 UPDATE `:db`.`vault_configuration`
                 SET `name`=:name,
                     `vault_id`=:vault_id,
