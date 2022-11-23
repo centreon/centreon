@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -45,24 +46,27 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
     /**
      * @param int $id
      *
+     * @throws AssertionFailedException
+     *
      * @return Vault|null
      */
     public function findById(int $id): ?Vault
     {
         $this->info('Getting vault by id');
-        $record = [];
         $statement = $this->db->prepare($this->translateDbName('SELECT * FROM `:db`.`vault` WHERE `id`=:id'));
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
 
-        if ($statement->execute() === false) {
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
 
         /**
-         * @var array<string,int|string> $record
+         * @var array{
+         * id: int,
+         * name: string
+         * } $record
          */
-        $record = $statement->fetch(\PDO::FETCH_ASSOC);
-
         return $this->factory->createFromRecord($record);
     }
 }

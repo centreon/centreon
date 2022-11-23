@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use Assert\AssertionFailedException;
+
 /**
  * This class represents already existing vault configuration.
  */
@@ -38,6 +40,8 @@ class VaultConfiguration extends NewVaultConfiguration
      * @param string $roleId
      * @param string $secretId
      * @param string $salt
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(
         private int $id,

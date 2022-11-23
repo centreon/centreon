@@ -4062,14 +4062,7 @@ paths:
         - Administration
       summary: "Create vault configuration"
       parameters:
-      - in: path
-        name: vault_id
-        description: "ID of vault provider"
-        required: true
-        schema:
-          type: integer
-          format: int64
-          example: 1
+      - $ref: '#/components/parameters/VaultId'
       requestBody:
         required: true
         content:
@@ -4083,6 +4076,33 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /administration/vaults/{vault_id}/configurations/{vault_configuration_id}:
+    put:
+      tags:
+        - Administration
+      summary: "Update vault configuration"
+      parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/VaultConfigurationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Administration.Vault'
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 components:
@@ -4471,6 +4491,24 @@ components:
       required: true
       schema:
         type: string
+    VaultId:
+      in: path
+      name: vault_id
+      description: "ID of vault provider"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    VaultConfigurationId:
+      in: path
+      name: vault_configuration_id
+      description: "ID of existing vault configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
   responses:
     Unauthorized:
       description: "Unauthorized"

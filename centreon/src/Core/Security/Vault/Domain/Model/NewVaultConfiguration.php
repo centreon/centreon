@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 /**
@@ -34,7 +35,6 @@ class NewVaultConfiguration
     public const MAX_LENGTH = 255;
     public const MIN_PORT_VALUE = 1;
     public const MAX_PORT_VALUE = 65535;
-    public const MIN_TYPE_ID = 1;
     public const SALT_LENGTH = 128;
 
     /**
@@ -46,6 +46,8 @@ class NewVaultConfiguration
      * @param string $roleId
      * @param string $secretId
      * @param string $salt
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(
         protected string $name,

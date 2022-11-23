@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,16 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\AssertionFailedException;
-use Assert\InvalidArgumentException;
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Domain\Exceptions\VaultException;
-use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
-class NewVaultConfigurationFactory
+class VaultConfigurationFactory
 {
     /**
      * @param EncryptionInterface $encryption
@@ -43,20 +42,17 @@ class NewVaultConfigurationFactory
     }
 
     /**
-     * This method will crypt $roleId and $secretId before instanciating NewVaultConfiguraiton.
-     *
-     * @param CreateVaultConfigurationRequest $request
+     * @param UpdateVaultConfigurationRequest $request
      *
      * @throws VaultException
-     * @throws InvalidArgumentException
-     * @throws AssertionFailedException
      * @throws \Exception
+     * @throws AssertionFailedException
      *
-     * @return NewVaultConfiguration
+     * @return VaultConfiguration
      */
-    public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
+    public function create(UpdateVaultConfigurationRequest $request): VaultConfiguration
     {
-        $salt = $this->encryption->generateRandomString(NewVaultConfiguration::SALT_LENGTH);
+        $salt = $this->encryption->generateRandomString(VaultConfiguration::SALT_LENGTH);
         $roleId = $this->encryption
             ->setSecondKey($salt)
             ->crypt($request->roleId);
@@ -70,7 +66,8 @@ class NewVaultConfigurationFactory
             throw VaultException::providerDoesNotExist();
         }
 
-        return new NewVaultConfiguration(
+        return new VaultConfiguration(
+            $request->vaultConfigurationId,
             $request->name,
             $vault,
             $request->address,

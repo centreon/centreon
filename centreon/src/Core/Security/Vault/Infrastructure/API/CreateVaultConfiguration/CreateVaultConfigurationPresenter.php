@@ -21,25 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\Repository;
+namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
 
-use Assert\AssertionFailedException;
-use Core\Security\Vault\Domain\Model\Vault;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\CreateVaultConfigurationPresenterInterface;
 
-class DbVaultFactory
+class CreateVaultConfigurationPresenter extends AbstractPresenter implements CreateVaultConfigurationPresenterInterface
 {
-    /**
-     * @param array{
-     *      id: int,
-     *      name: string
-     * } $recordData
-     *
-     * @throws AssertionFailedException
-     *
-     * @return Vault
-     */
-    public function createFromRecord(array $recordData): Vault
-    {
-        return new Vault((int) $recordData['id'], (string) $recordData['name']);
-    }
 }

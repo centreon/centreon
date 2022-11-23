@@ -3,5 +3,14 @@ centreon_security_create_vault_configuration:
     path: /administration/vaults/{vaultId}/configurations
     requirements:
         vaultId: '\d+'
-    controller: 'Core\Security\Vault\Infrastructure\Api\CreateVaultConfiguration\CreateVaultConfigurationController'
+    controller: 'Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration\CreateVaultConfigurationController'
+    condition: "request.attributes.get('version') >= 23.04"
+
+centreon_security_update_vault_configuration:
+    methods: PUT
+    path: /administration/vaults/{vaultId}/configurations/{vaultConfigurationId}
+    requirements:
+        vaultId: '\d+'
+        VaultConfigurationId: '\d+'
+    controller: 'Core\Security\Vault\Infrastructure\API\UpdateVaultConfiguration\UpdateVaultConfigurationController'
     condition: "request.attributes.get('version') >= 23.04"

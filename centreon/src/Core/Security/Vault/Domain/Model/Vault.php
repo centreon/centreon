@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 /**
@@ -37,6 +38,8 @@ class Vault
     /**
      * @param int $id
      * @param string $name
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(private int $id, private string $name)
     {

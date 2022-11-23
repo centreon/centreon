@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\Api\CreateVaultConfiguration;
+namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\CreateVaultConfigurationPresenterInterface;
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
+    UpdateVaultConfigurationPresenterInterface as PresenterInterface
+};
 
-class CreateVaultConfigurationPresenter extends AbstractPresenter implements CreateVaultConfigurationPresenterInterface
+class UpdateVaultConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
 }

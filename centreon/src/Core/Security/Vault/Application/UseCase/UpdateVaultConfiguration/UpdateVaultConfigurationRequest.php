@@ -21,27 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Domain\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-class VaultConfigurationException extends \Exception
+final class UpdateVaultConfigurationRequest
 {
-    /**
-     * Exception thrown when vault configuration already exists.
-     *
-     * @return self
-     */
-    public static function configurationExists(): self
-    {
-        return new self('Vault configuration with these properties already exists');
-    }
+    /** @var int */
+    public int $vaultConfigurationId = 0;
 
-    /**
-     * Exception thrown when unhandled error occurs.
-     *
-     * @return self
-     */
-    public static function impossibleToCreate(): self
-    {
-        return new self('Impossible to create vault configuration');
-    }
+    /** @var string */
+    public string $name = '';
+
+    /** @var int */
+    public int $typeId = 0;
+
+    /** @var string */
+    public string $address = '';
+
+    /** @var int */
+    public int $port = 0;
+
+    /** @var string */
+    public string $storage = '';
+
+    /** @var string */
+    public string $roleId = '';
+
+    /** @var string */
+    public string $secretId = '';
 }

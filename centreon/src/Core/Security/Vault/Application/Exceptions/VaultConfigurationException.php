@@ -21,31 +21,35 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Repository;
+namespace Core\Security\Vault\Application\Exceptions;
 
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-
-interface ReadVaultConfigurationRepositoryInterface
+class VaultConfigurationException extends \Exception
 {
     /**
-     * @param string $address
-     * @param int $port
-     * @param string $storage
+     * Exception thrown when vault configuration already exists.
      *
-     * @throws \Throwable
-     *
-     * @return VaultConfiguration|null
+     * @return self
      */
-    public function findByAddressAndPortAndStorage(
-        string $address,
-        int $port,
-        string $storage
-    ): ?VaultConfiguration;
+    public static function configurationExists(): self
+    {
+        return new self('Vault configuration with these properties already exists');
+    }
 
     /**
-     * @param int $id
+     * Exception thrown when unhandled error occurs.
      *
-     * @return VaultConfiguration|null
+     * @return self
      */
-    public function findById(int $id): ?VaultConfiguration;
+    public static function impossibleToCreate(): self
+    {
+        return new self('Impossible to create vault configuration');
+    }
+
+    /**
+     * @return self
+     */
+    public static function onlyForAdmin(): self
+    {
+        return new self('Only admin user can create vault configuration');
+    }
 }
