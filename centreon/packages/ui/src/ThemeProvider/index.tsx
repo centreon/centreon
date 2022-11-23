@@ -137,7 +137,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
         }
-      `,
+      `
     },
     MuiInputBase: {
       styleOverrides: {
