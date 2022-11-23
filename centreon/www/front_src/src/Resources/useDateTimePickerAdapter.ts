@@ -3,8 +3,8 @@ import { useCallback } from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
-import { equals, isNil, not, pipe } from 'ramda';
 import { useAtomValue } from 'jotai/utils';
+import { equals, isNil, not, pipe } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -104,9 +104,20 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   class Adapter extends DayjsAdapter {
     public formatByString = (value, formatKey: string): string => {
       return format({
-        date: value.tz(timezone, true),
+        date: value.tz(timezone),
         formatString: formatKey,
       });
+    };
+
+    public format = (date: dayjs.Dayjs, formatKey: string): string => {
+      if (equals(formatKey, 'monthAndYear')) {
+        return this.formatByString(
+          date.tz(timezone, true),
+          this.formats[formatKey],
+        );
+      }
+
+      return this.formatByString(date, this.formats[formatKey]);
     };
 
     public isEqual = (value, comparing): boolean => {
@@ -183,7 +194,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).isSame(comparing.tz(timezone), 'month');
     };
 
-    // a ameliorer pour cas utc
     public getMonth = (date: dayjs.Dayjs): number => {
       return date.month();
     };
