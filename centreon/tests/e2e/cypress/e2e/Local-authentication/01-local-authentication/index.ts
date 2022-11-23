@@ -1,4 +1,4 @@
-import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps';
+import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   getUserContactId,
