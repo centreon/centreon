@@ -108,4 +108,21 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
 
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $vaultConfigurationId): void
+    {
+        $this->info('Deleting vault configuration');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'DELETE FROM `:db`.`vault_configuration` WHERE `id`=:id'
+            )
+        );
+
+        $statement->bindValue(':id', $vaultConfigurationId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
 }
