@@ -99,7 +99,15 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
 
         $record = [];
         $statement = $this->db->prepare(
-            $this->translateDbName('SELECT * FROM `:db`.`vault_configuration` WHERE `id`=:id')
+            $this->translateDbName(
+                <<<SQL
+                SELECT conf.*, vault.name as vault_name
+                FROM `:db`.`vault_configuration` conf
+                INNER JOIN `:db`.`vault`
+                  ON vault.id = conf.vault_id
+                WHERE conf.`id`=:id
+                SQL
+            )
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         $statement->execute();

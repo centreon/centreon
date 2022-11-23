@@ -247,81 +247,81 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     );
 });
 
-// it(
-//     'should present InvalidArgumentResponse when update request matches different existing vault configuration with '
-//         . 'same vault provider',
-//     function ():void {
-//         $this->user
-//             ->expects($this->once())
-//             ->method('isAdmin')
-//             ->willReturn(true);
+it(
+    'should present InvalidArgumentResponse when update request matches different existing vault configuration with '
+        . 'same vault provider',
+    function ():void {
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
 
-//         $vault = new Vault(1, 'myVaultProvider');
-//         $this->readVaultRepository
-//             ->expects($this->once())
-//             ->method('findById')
-//             ->willReturn($vault);
+        $vault = new Vault(1, 'myVaultProvider');
+        $this->readVaultRepository
+            ->expects($this->once())
+            ->method('findById')
+            ->willReturn($vault);
 
-//         $vaultConfiguration = new VaultConfiguration(
-//             2,
-//             'myVaultConfiguration',
-//             $vault,
-//             '127.0.0.2',
-//             8200,
-//             'myStorageFolder',
-//             'myRoleId',
-//             'mySecretId',
-//             'mySalt'
-//         );
-//         $this->readVaultConfigurationRepository
-//             ->expects($this->once())
-//             ->method('findById')
-//             ->willReturn($vaultConfiguration);
+        $vaultConfiguration = new VaultConfiguration(
+            2,
+            'myVaultConfiguration',
+            $vault,
+            '127.0.0.2',
+            8200,
+            'myStorageFolder',
+            'myRoleId',
+            'mySecretId',
+            'mySalt'
+        );
+        $this->readVaultConfigurationRepository
+            ->expects($this->once())
+            ->method('findById')
+            ->willReturn($vaultConfiguration);
 
-//         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
-//         $updateVaultConfigurationRequest->vaultConfigurationId = 2;
-//         $updateVaultConfigurationRequest->name = 'myVaultConfiguration';
-//         $updateVaultConfigurationRequest->typeId = 1;
-//         $updateVaultConfigurationRequest->address = '127.0.0.1';
-//         $updateVaultConfigurationRequest->port = 8200;
-//         $updateVaultConfigurationRequest->storage = 'myStorageFolder';
-//         $updateVaultConfigurationRequest->roleId = 'myRoleId';
-//         $updateVaultConfigurationRequest->secretId = 'mySecretId';
+        $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
+        $updateVaultConfigurationRequest->vaultConfigurationId = 2;
+        $updateVaultConfigurationRequest->name = 'myVaultConfiguration';
+        $updateVaultConfigurationRequest->typeId = 1;
+        $updateVaultConfigurationRequest->address = '127.0.0.1';
+        $updateVaultConfigurationRequest->port = 8200;
+        $updateVaultConfigurationRequest->storage = 'myStorageFolder';
+        $updateVaultConfigurationRequest->roleId = 'myRoleId';
+        $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
-//         $existingVaultConfiguration = new VaultConfiguration(
-//             1,
-//             'myExistingVaultCXonfiguration',
-//             $vault,
-//             '127.0.0.1',
-//             8200,
-//             'myStorageFolder',
-//             'myAnotherRoleId',
-//             'myAnotherSecretId',
-//             'MyAnotherSalt'
-//         );
+        $existingVaultConfiguration = new VaultConfiguration(
+            1,
+            'myExistingVaultConfiguration',
+            $vault,
+            '127.0.0.1',
+            8200,
+            'myStorageFolder',
+            'myAnotherRoleId',
+            'myAnotherSecretId',
+            'MyAnotherSalt'
+        );
 
-//         $this->readVaultConfigurationRepository
-//             ->expects($this->once())
-//             ->method('findByAddressAndPortAndStorage')
-//             ->willReturn($existingVaultConfiguration);
+        $this->readVaultConfigurationRepository
+            ->expects($this->once())
+            ->method('findByAddressAndPortAndStorage')
+            ->willReturn($existingVaultConfiguration);
 
-//         $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
-//         $useCase = new UpdateVaultConfiguration(
-//             $this->readVaultConfigurationRepository,
-//             $this->writeVaultConfigurationRepository,
-//             $this->readVaultRepository,
-//             $this->factory,
-//             $this->user
-//         );
+        $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
+        $useCase = new UpdateVaultConfiguration(
+            $this->readVaultConfigurationRepository,
+            $this->writeVaultConfigurationRepository,
+            $this->readVaultRepository,
+            $this->factory,
+            $this->user
+        );
 
-//         $useCase($presenter, $updateVaultConfigurationRequest);
+        $useCase($presenter, $updateVaultConfigurationRequest);
 
-//         expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
-//         expect($presenter->getResponseStatus()?->getMessage())->toBe(
-//             VaultConfigurationException::configurationExists()->getMessage()
-//         );
-//     }
-// );
+        expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+        expect($presenter->getResponseStatus()?->getMessage())->toBe(
+            VaultConfigurationException::configurationExists()->getMessage()
+        );
+    }
+)->only();
 
 it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user
