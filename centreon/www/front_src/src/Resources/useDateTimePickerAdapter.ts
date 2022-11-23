@@ -110,14 +110,10 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public format = (date: dayjs.Dayjs, formatKey: string): string => {
-      if (equals(formatKey, 'monthAndYear')) {
-        return this.formatByString(
-          date.tz(timezone, true),
-          this.formats[formatKey],
-        );
-      }
-
-      return this.formatByString(date, this.formats[formatKey]);
+      return this.formatByString(
+        date.tz(timezone, true),
+        this.formats[formatKey],
+      );
     };
 
     public isEqual = (value, comparing): boolean => {
@@ -180,7 +176,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public startOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.startOf('month') as dayjs.Dayjs;
+      return date.tz(timezone) as dayjs.Dayjs;
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
@@ -211,8 +207,27 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
-      const start = date.startOf('month').startOf('week') as dayjs.Dayjs;
-      const end = date.endOf('month').endOf('week') as dayjs.Dayjs;
+      if (date.isUTC()) {
+        const start = date.startOf('month').startOf('week').utc().local();
+        const end = date.endOf('month').endOf('week').utc().local();
+
+        let count = 0;
+        let current = start;
+        const nestedWeeks: Array<Array<dayjs.Dayjs>> = [];
+
+        while (current.isBefore(end)) {
+          const weekNumber = Math.floor(count / 7);
+          nestedWeeks[weekNumber] = nestedWeeks[weekNumber] || [];
+          nestedWeeks[weekNumber].push(current);
+
+          current = current.add(1, 'day') as dayjs.Dayjs;
+          count += 1;
+        }
+
+        return nestedWeeks;
+      }
+      const start = date.startOf('month').startOf('week');
+      const end = date.endOf('month').endOf('week');
 
       let count = 0;
       let current = start;
@@ -221,9 +236,9 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       while (current.isBefore(end)) {
         const weekNumber = Math.floor(count / 7);
         nestedWeeks[weekNumber] = nestedWeeks[weekNumber] || [];
-        nestedWeeks[weekNumber].push(current.tz(timezone));
+        nestedWeeks[weekNumber].push(current);
 
-        current = current.add(1, 'day') as dayjs.Dayjs;
+        current = current.tz(timezone, true).add(1, 'day') as dayjs.Dayjs;
         count += 1;
       }
 
