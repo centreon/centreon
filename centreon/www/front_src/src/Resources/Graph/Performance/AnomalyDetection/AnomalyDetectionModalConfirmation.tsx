@@ -21,7 +21,7 @@ const AnomalyDetectionModalConfirmation = ({
   sendCancel,
   sendConfirm,
   children,
-  labelConfirm,
+  labelConfirm
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 

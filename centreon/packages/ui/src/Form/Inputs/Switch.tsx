@@ -19,7 +19,7 @@ const Switch = ({
   switchInput,
   getDisabled,
   hideInput,
-  additionalMemoProps,
+  additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -63,7 +63,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden],
+    memoProps: [value, disabled, additionalMemoProps, hidden]
   });
 };
 

@@ -4,7 +4,7 @@ import {
   SetStateAction,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
 
 import { equals } from 'ramda';
@@ -21,7 +21,7 @@ import { Page } from '../../models';
 import {
   selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom,
-  setHoveredNavigationItemsDerivedAtom,
+  setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
 
 import MenuItems from './MenuItems';
@@ -56,20 +56,20 @@ const useStyles = makeStyles<StyleProps>()(
       currentWidth,
       collapseScrollMaxHeight,
       collapseScrollMaxWidth,
-      currentTop,
-    },
+      currentTop
+    }
   ) => ({
     label: {
-      fontWeight: 'bold',
+      fontWeight: 'bold'
     },
     root: {
       '& .MuiListItemIcon-root': {
         color: theme.palette.text.primary,
         minWidth: theme.spacing(2.25),
-        padding: theme.spacing(0, 0.25, 0, 0.1),
+        padding: theme.spacing(0, 0.25, 0, 0.1)
       },
       boxShadow: theme.shadows[3],
-      outline: 'none',
+      outline: 'none'
     },
     subHeader: {
       backgroundColor: 'rgba(0,0,0,.05)',
@@ -78,20 +78,20 @@ const useStyles = makeStyles<StyleProps>()(
       fontWeight: 'bold',
       lineHeight: 1,
       padding: theme.spacing(1),
-      textAlign: 'center',
+      textAlign: 'center'
     },
     toggled: {
       '&::-webkit-scrollbar': {
-        width: theme.spacing(1),
+        width: theme.spacing(1)
       },
       '&::-webkit-scrollbar-corner': {
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.background.default
       },
       '&::-webkit-scrollbar-thumb': {
-        backgroundColor: theme.palette.action.disabled,
+        backgroundColor: theme.palette.action.disabled
       },
       '&::-webkit-scrollbar-track': {
-        border: `solid ${theme.palette.action.hover} 0.5px`,
+        border: `solid ${theme.palette.action.hover} 0.5px`
       },
       backgroundColor: theme.palette.background.default,
       left: theme.spacing(currentWidth),
@@ -106,9 +106,9 @@ const useStyles = makeStyles<StyleProps>()(
       top: currentTop,
       whiteSpace: 'normal',
       width: theme.spacing(collapseWidth),
-      zIndex: theme.zIndex.mobileStepper,
-    },
-  }),
+      zIndex: theme.zIndex.mobileStepper
+    }
+  })
 );
 
 const CollapsibleItems = ({
@@ -122,13 +122,13 @@ const CollapsibleItems = ({
   collapseScrollMaxHeight,
   collapseScrollMaxWidth,
   setCollapseScrollMaxWidth,
-  setCollapseScrollMaxHeight,
+  setCollapseScrollMaxHeight
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
     collapseScrollMaxHeight,
     collapseScrollMaxWidth,
     currentTop,
-    currentWidth,
+    currentWidth
   });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [itemTop, setItemTop] = useState<number>();
@@ -140,7 +140,7 @@ const CollapsibleItems = ({
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);
   const setHoveredNavigationItems = useUpdateAtom(
-    setHoveredNavigationItemsDerivedAtom,
+    setHoveredNavigationItemsDerivedAtom
   );
 
   const levelName = `level_${level}`;
@@ -158,7 +158,7 @@ const CollapsibleItems = ({
   const isItemHovered = ({
     navigationItem,
     levelTitle,
-    currentPage,
+    currentPage
   }): boolean => {
     if (navigationItem && navigationItem[levelTitle]) {
       return (
@@ -196,7 +196,7 @@ const CollapsibleItems = ({
   const updateCollapseSize = (el: HTMLElement): void => {
     const rect = el.getBoundingClientRect();
     setCollapseScrollMaxHeight(
-      (window.innerHeight - rect.top) / 8 - minimumMarginBottom,
+      (window.innerHeight - rect.top) / 8 - minimumMarginBottom
     );
     setCollapseScrollMaxWidth((window.innerWidth - rect.left) / 8);
   };
@@ -228,7 +228,7 @@ const CollapsibleItems = ({
             isItemHovered({
               currentPage: item,
               levelTitle: levelName,
-              navigationItem: selectedNavigationItems,
+              navigationItem: selectedNavigationItems
             }) || equals(hoveredIndex, index);
 
           const mouseEnterItem = (e: MouseEvent<HTMLElement>): void =>
@@ -264,17 +264,17 @@ const CollapsibleItems = ({
                   const nestedIndex = getNestedIndex({
                     childIndex: ind,
                     content: data,
-                    itemIndex: index,
+                    itemIndex: index
                   });
                   const nestedHover =
                     isItemHovered({
                       currentPage: content,
                       levelTitle: levelName,
-                      navigationItem: selectedNavigationItems,
+                      navigationItem: selectedNavigationItems
                     }) || equals(hoveredIndex, nestedIndex);
 
                   const mouseEnterContent = (
-                    e: MouseEvent<HTMLElement>,
+                    e: MouseEvent<HTMLElement>
                   ): void =>
                     hoverItem({ currentPage: content, e, index: nestedIndex });
 
@@ -336,7 +336,7 @@ const CollapsibleItems = ({
                           }
                         />
                       </div>
-                    ),
+                    )
                 )
               )}
             </List>
@@ -352,8 +352,8 @@ const CollapsibleItems = ({
       nestedScrollCollapsMaxWidth,
       hoveredIndex,
       selectedNavigationItems,
-      hoveredNavigationItems,
-    ],
+      hoveredNavigationItems
+    ]
   });
 };
 

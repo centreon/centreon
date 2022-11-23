@@ -23,32 +23,32 @@ interface Props {
 const useStyles = makeStyles<Pick<Threshold, 'color'>>()(
   (theme, { color }) => ({
     linear: {
-      backgroundColor: color,
+      backgroundColor: color
     },
     linearBackground: {
       backgroundColor: alpha(color, 0.3),
-      width: '100%',
+      width: '100%'
     },
     progressContainer: {
       alignItems: 'center',
       columnGap: theme.spacing(1),
       display: 'flex',
-      width: '100%',
-    },
-  }),
+      width: '100%'
+    }
+  })
 );
 
 const StrengthProgress = ({
   thresholds,
   max,
   value,
-  isInverted = false,
+  isInverted = false
 }: Props): JSX.Element => {
   const currentThreshold = useMemo(
     () =>
       findLast((threshold) => value >= threshold.value, thresholds) ||
       thresholds[0],
-    [thresholds, value],
+    [thresholds, value]
   );
   const { classes } = useStyles(currentThreshold);
   const { t } = useTranslation();
@@ -71,7 +71,7 @@ const StrengthProgress = ({
         aria-label={t(label)}
         classes={{
           bar: classes.linear,
-          root: classes.linearBackground,
+          root: classes.linearBackground
         }}
         value={progressValue}
         variant="determinate"
@@ -83,5 +83,5 @@ const StrengthProgress = ({
 
 export default memoizeComponent<Props>({
   Component: StrengthProgress,
-  memoProps: ['thresholds', 'max', 'value'],
+  memoProps: ['thresholds', 'max', 'value']
 });

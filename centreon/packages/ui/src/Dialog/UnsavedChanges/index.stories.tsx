@@ -8,10 +8,10 @@ import UnsavedChangesDialog from '.';
 export default {
   argTypes: {
     isSubmitting: { control: 'boolean' },
-    isValidForm: { control: 'boolean' },
+    isValidForm: { control: 'boolean' }
   },
   component: UnsavedChangesDialog,
-  title: 'Dialog/Unsaved Changes Dialog',
+  title: 'Dialog/Unsaved Changes Dialog'
 } as ComponentMeta<typeof UnsavedChangesDialog>;
 
 interface Props {
@@ -47,7 +47,7 @@ const TemplateUnsavedChangesDialog: ComponentStory<
 > = (args) => <Story {...args} />;
 
 export const PlaygroundUnsavedChangesDialog = TemplateUnsavedChangesDialog.bind(
-  {},
+  {}
 );
 
 export const normal = (): JSX.Element => (

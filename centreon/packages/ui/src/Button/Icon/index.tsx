@@ -3,15 +3,15 @@ import { makeStyles } from 'tss-react/mui';
 import {
   IconButton as MuiIconButton,
   IconButtonProps,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
 
 import getNormalizedId from '../../utils/getNormalizedId';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
-    padding: theme.spacing(0.25),
-  },
+    padding: theme.spacing(0.25)
+  }
 }));
 
 type Props = {

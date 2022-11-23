@@ -7,48 +7,48 @@ import { InputProps, InputType } from './models';
 const getSkeleton = cond<InputType, JSX.Element>([
   [
     equals(InputType.Switch) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={38} />),
+    always(<LoadingSkeleton height={38} />)
   ],
   [
     equals(InputType.Radio) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={104} />),
+    always(<LoadingSkeleton height={104} />)
   ],
   [
     equals(InputType.Text) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.Password) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.SingleConnectedAutocomplete) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.FieldsTable) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.Grid) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
+    always(<LoadingSkeleton height={52} />)
   ],
   [
     equals(InputType.Custom) as (b: InputType) => boolean,
-    always(<LoadingSkeleton height={52} />),
-  ],
+    always(<LoadingSkeleton height={52} />)
+  ]
 ]);
 
 interface Props {

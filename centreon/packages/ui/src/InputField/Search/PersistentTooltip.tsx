@@ -10,7 +10,7 @@ import IconClose from '@mui/icons-material/HighlightOff';
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {
     position: 'absolute',
-    right: theme.spacing(0.5),
+    right: theme.spacing(0.5)
   },
   tooltip: {
     backgroundColor: theme.palette.common.white,
@@ -18,8 +18,8 @@ const useStyles = makeStyles()((theme) => ({
     color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(12),
     maxWidth: 500,
-    padding: theme.spacing(1, 2, 1, 1),
-  },
+    padding: theme.spacing(1, 2, 1, 1)
+  }
 }));
 
 interface Props {
@@ -35,7 +35,7 @@ const PersistentTooltip = ({
   labelSearchHelp,
   openTooltip,
   toggleTooltip: toggleTooltipProp,
-  closeTooltip: closeTooltipProp,
+  closeTooltip: closeTooltipProp
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -44,7 +44,7 @@ const PersistentTooltip = ({
   const toggleTooltip = (): void => {
     cond([
       [isNil, (): void => setOpen(!open)],
-      [T, (): void => toggleTooltipProp?.()],
+      [T, (): void => toggleTooltipProp?.()]
     ])(openTooltip);
   };
 

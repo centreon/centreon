@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableCellBaseProps,
+  TableCellBaseProps
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -28,8 +28,8 @@ const height = 28;
 const HeaderCell = withStyles(TableCell, (theme) => ({
   root: {
     height,
-    padding: theme.spacing(0),
-  },
+    padding: theme.spacing(0)
+  }
 }));
 
 const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
@@ -39,23 +39,23 @@ const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
     display: 'grid',
     gridTemplateColumns: 'repeat(2, min-content)',
     height,
-    padding: theme.spacing(0, 0, 0, 0.5),
-  },
+    padding: theme.spacing(0, 0, 0, 0.5)
+  }
 }));
 
 const useStyles = makeStyles()((theme) => ({
   compactCell: {
-    paddingLeft: theme.spacing(0.5),
+    paddingLeft: theme.spacing(0.5)
   },
   headerLabelDragging: {
-    cursor: 'grabbing',
+    cursor: 'grabbing'
   },
   predefinedRowsMenu: {
-    width: theme.spacing(2),
+    width: theme.spacing(2)
   },
   row: {
-    display: 'contents',
-  },
+    display: 'contents'
+  }
 }));
 
 type Props = Pick<
@@ -100,13 +100,13 @@ const ListingHeader = ({
   checkable,
   predefinedRowsSelection,
   onSelectRowsWithCondition,
-  memoProps,
+  memoProps
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns,
+    columns
   });
 
   const getColumnById = (id: string): Column => {
@@ -121,7 +121,7 @@ const ListingHeader = ({
       style,
       isDragging,
       itemRef,
-      id,
+      id
     }: ContentProps): JSX.Element => {
       return (
         <SortableHeaderCellContent
@@ -139,7 +139,7 @@ const ListingHeader = ({
         />
       );
     },
-    [columnConfiguration, columns, sortField, sortOrder],
+    [columnConfiguration, columns, sortField, sortOrder]
   );
 
   return (
@@ -201,7 +201,7 @@ const columnMemoProps = [
   'rowMemoProps',
   'sortField',
   'sortable',
-  'type',
+  'type'
 ];
 
 const MemoizedListingHeader = React.memo<Props>(
@@ -213,11 +213,11 @@ const MemoizedListingHeader = React.memo<Props>(
     equals(prevProps.rowCount, nextProps.rowCount) &&
     equals(
       map(pick(columnMemoProps), prevProps.columns),
-      map(pick(columnMemoProps), nextProps.columns),
+      map(pick(columnMemoProps), nextProps.columns)
     ) &&
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
-    equals(prevProps.memoProps, nextProps.memoProps),
+    equals(prevProps.memoProps, nextProps.memoProps)
 );
 
 export default MemoizedListingHeader;

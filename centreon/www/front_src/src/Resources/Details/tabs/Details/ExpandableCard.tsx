@@ -22,13 +22,13 @@ const useStyles = makeStyles<Pick<Props, 'severityCode'>>()(
     const getStatusBackgroundColor = (): string =>
       getStatusColors({
         severityCode,
-        theme,
+        theme
       }).backgroundColor;
 
     const getStatusTextColor = (): string =>
       getStatusColors({
         severityCode,
-        theme,
+        theme
       }).color;
 
     return {
@@ -36,14 +36,14 @@ const useStyles = makeStyles<Pick<Props, 'severityCode'>>()(
         ...(severityCode && {
           backgroundColor: getStatusBackgroundColor(),
           border: 0,
-          color: getStatusTextColor(),
-        }),
+          color: getStatusTextColor()
+        })
       },
       title: {
-        ...(severityCode && { color: getStatusTextColor() }),
-      },
+        ...(severityCode && { color: getStatusTextColor() })
+      }
     };
-  },
+  }
 );
 
 interface Props {
@@ -59,7 +59,7 @@ const ExpandableCard = ({
   content,
   severityCode,
   expandedCard,
-  changeExpandedCards,
+  changeExpandedCards
 }: Props): JSX.Element => {
   const { classes } = useStyles({ severityCode });
   const { t } = useTranslation();
@@ -68,7 +68,7 @@ const ExpandableCard = ({
   const threeFirstLines = lines.slice(0, 3);
   const lastLines = pipe(
     slice(3, lines.length),
-    reject(isEmpty),
+    reject(isEmpty)
   )(lines) as Array<string>;
 
   const toggleOutputExpanded = (): void => {

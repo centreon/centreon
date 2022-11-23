@@ -10,21 +10,21 @@ const useStyles = makeStyles()((theme: Theme) => ({
     background: theme.palette.divider,
     borderRadius: theme.spacing(0.5),
     height: theme.spacing(5),
-    width: theme.spacing(30),
-  },
+    width: theme.spacing(30)
+  }
 }));
 
 export default {
   argTypes: {
     height: { control: 'number' },
-    width: { control: 'number' },
+    width: { control: 'number' }
   },
   component: LoadingSkeleton,
-  title: 'Loading Skeleton',
+  title: 'Loading Skeleton'
 } as ComponentMeta<typeof LoadingSkeleton>;
 
 const TemplateLoadingSkeleton: ComponentStory<typeof LoadingSkeleton> = (
-  args,
+  args
 ) => <LoadingSkeleton {...args} />;
 
 export const PlaygroundLoadingSkeleton = TemplateLoadingSkeleton.bind({});

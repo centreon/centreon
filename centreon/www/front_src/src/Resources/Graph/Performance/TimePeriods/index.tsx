@@ -17,7 +17,7 @@ import {
   changeCustomTimePeriodDerivedAtom,
   changeSelectedTimePeriodDerivedAtom,
   customTimePeriodAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from './timePeriodAtoms';
 
 interface StylesProps {
@@ -27,11 +27,11 @@ interface StylesProps {
 const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
   button: {
     fontSize: theme.typography.body2.fontSize,
-    pointerEvents: 'all',
+    pointerEvents: 'all'
   },
   buttonGroup: {
     alignSelf: 'center',
-    height: '100%',
+    height: '100%'
   },
   header: {
     alignItems: 'center',
@@ -43,8 +43,8 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
     gridTemplateColumns: `repeat(3, auto)`,
     gridTemplateRows: '1fr',
     justifyContent: 'center',
-    padding: theme.spacing(1, 0.5),
-  },
+    padding: theme.spacing(1, 0.5)
+  }
 }));
 
 interface Props {
@@ -58,7 +58,7 @@ const timePeriodOptions = map(pick(['id', 'name', 'largeName']), timePeriods);
 const TimePeriodButtonGroup = ({
   disabled = false,
   disableGraphOptions = false,
-  disablePaper = false,
+  disablePaper = false
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disablePaper });
   const { t } = useTranslation();
@@ -69,16 +69,16 @@ const TimePeriodButtonGroup = ({
   const { themeMode } = useAtomValue(userAtom);
 
   const changeCustomTimePeriod = useUpdateAtom(
-    changeCustomTimePeriodDerivedAtom,
+    changeCustomTimePeriodDerivedAtom
   );
   const changeSelectedTimePeriod = useUpdateAtom(
-    changeSelectedTimePeriodDerivedAtom,
+    changeSelectedTimePeriodDerivedAtom
   );
 
   const translatedTimePeriodOptions = timePeriodOptions.map((timePeriod) => ({
     ...timePeriod,
     largeName: t(timePeriod.largeName),
-    name: t(timePeriod.name),
+    name: t(timePeriod.name)
   }));
 
   const changeDate = ({ property, date }): void =>
@@ -115,12 +115,12 @@ const TimePeriodButtonGroup = ({
                       >
                         {cond([
                           [lte(theme.breakpoints.values.md), always(largeName)],
-                          [T, always(name)],
+                          [T, always(name)]
                         ])(width)}
                       </Button>
                     </Tooltip>
                   ),
-                  translatedTimePeriodOptions,
+                  translatedTimePeriodOptions
                 )}
               </ButtonGroup>
               <CustomTimePeriodPickers
@@ -140,8 +140,8 @@ const TimePeriodButtonGroup = ({
       disableGraphOptions,
       disablePaper,
       selectedTimePeriod?.id,
-      themeMode,
-    ],
+      themeMode
+    ]
   });
 };
 

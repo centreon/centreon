@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export enum LegendMarkerVariant {
   'dot',
-  'bar',
+  'bar'
 }
 
 interface StylesProps {
@@ -13,15 +13,15 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { color, variant }) => ({
   disabled: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.disabled
   },
   icon: {
     backgroundColor: color,
     borderRadius: equals(LegendMarkerVariant.dot, variant) ? '50%' : 0,
     height: equals(LegendMarkerVariant.dot, variant) ? 9 : '100%',
     marginRight: theme.spacing(0.5),
-    width: 9,
-  },
+    width: 9
+  }
 }));
 
 interface Props {
@@ -33,7 +33,7 @@ interface Props {
 const LegendMarker = ({
   disabled,
   color,
-  variant = LegendMarkerVariant.bar,
+  variant = LegendMarkerVariant.bar
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ color, variant });
 

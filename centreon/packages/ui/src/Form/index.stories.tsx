@@ -6,7 +6,7 @@ import {
   basicFormInitialValues,
   basicFormInputs,
   basicFormValidationSchema,
-  CustomButton,
+  CustomButton
 } from './storiesData';
 
 import Form, { GroupDirection } from '.';
@@ -24,7 +24,7 @@ const mandatoryProps = {
   initialValues: basicFormInitialValues,
   inputs: basicFormInputs,
   submit,
-  validationSchema: basicFormValidationSchema,
+  validationSchema: basicFormValidationSchema
 };
 
 export const basicForm = (): JSX.Element => (

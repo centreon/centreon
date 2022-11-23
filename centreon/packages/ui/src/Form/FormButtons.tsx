@@ -15,7 +15,7 @@ import {
   labelReset,
   labelSave,
   labelSaved,
-  labelSaving,
+  labelSaving
 } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
@@ -25,8 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(2),
-  },
+    marginTop: theme.spacing(2)
+  }
 }));
 
 const FormButtons = (): JSX.Element => {
@@ -80,7 +80,7 @@ const FormButtons = (): JSX.Element => {
         />
       </div>
     ),
-    memoProps: [canSubmit, canReset, isSubmitting, submitted, classes],
+    memoProps: [canSubmit, canReset, isSubmitting, submitted, classes]
   });
 };
 

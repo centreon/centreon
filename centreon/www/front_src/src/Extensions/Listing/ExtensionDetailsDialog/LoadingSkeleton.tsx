@@ -6,8 +6,8 @@ import { headerHeight } from '../../../Header';
 
 const useStyles = makeStyles()((theme) => ({
   nextContent: {
-    marginTop: theme.spacing(1.5),
-  },
+    marginTop: theme.spacing(1.5)
+  }
 }));
 
 interface Props {
@@ -23,7 +23,7 @@ const BaseSkeleton = ({
 
 export const SliderSkeleton = ({
   animate = true,
-  width,
+  width
 }: Props & { width }): JSX.Element => {
   const theme = useTheme();
 

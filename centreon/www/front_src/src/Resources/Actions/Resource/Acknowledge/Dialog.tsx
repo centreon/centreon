@@ -7,7 +7,7 @@ import {
   FormControlLabel,
   FormHelperText,
   Grid,
-  Alert,
+  Alert
 } from '@mui/material';
 
 import { Dialog, TextField } from '@centreon/ui';
@@ -20,7 +20,7 @@ import {
   labelNotifyHelpCaption,
   labelAcknowledgeServices,
   labelSticky,
-  labelPersistent,
+  labelPersistent
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
@@ -39,8 +39,8 @@ interface Props extends Pick<FormikHandlers, 'handleChange'> {
 
 const useStyles = makeStyles()((theme) => ({
   notify: {
-    marginBottom: theme.spacing(2),
-  },
+    marginBottom: theme.spacing(2)
+  }
 }));
 
 const DialogAcknowledge = ({
@@ -51,7 +51,7 @@ const DialogAcknowledge = ({
   errors,
   values,
   submitting,
-  handleChange,
+  handleChange
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
