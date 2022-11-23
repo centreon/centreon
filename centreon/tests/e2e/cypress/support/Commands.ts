@@ -112,8 +112,8 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add(
-  'handleRequestOnDatabase',
-  ({ database, query }: handleRequestOnDatabaseProps): void => {
+  'requestOnDatabase',
+  ({ database, query }: requestOnDatabaseProps): void => {
     const command = `docker exec -i ${Cypress.env(
       'dockerName',
     )} mysql -ucentreon -pcentreon ${database} <<< "${query}"`;
@@ -203,7 +203,7 @@ interface LoginByTypeOfUserProps {
   preserveToken?: boolean;
 }
 
-interface handleRequestOnDatabaseProps {
+interface requestOnDatabaseProps {
   database: string;
   query: string;
 }
@@ -215,10 +215,6 @@ declare global {
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getRefreshDataOnIframe: () => Cypress.Chainable;
-      handleRequestOnDatabase: ({
-        database,
-        query,
-      }: handleRequestOnDatabaseProps) => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
@@ -234,6 +230,10 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
+      requestOnDatabase: ({
+        database,
+        query,
+      }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: () => Cypress.Chainable;
     }
   }

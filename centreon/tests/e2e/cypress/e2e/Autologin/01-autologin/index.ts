@@ -18,13 +18,13 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100',
-  }).as('getLastesUserFilters');
+  }).as('getLastestUserFilters');
 });
 
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@getNavigationList')
-    .wait('@getLastesUserFilters')
+    .wait('@getLastestUserFilters')
     .navigateTo({
       page: 'Centreon UI',
       rootItemNumber: 4,

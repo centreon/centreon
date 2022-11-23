@@ -34,7 +34,7 @@ beforeEach(() => {
     .as('user1Id')
     .then(() => {
       cy.get('@user1Id').then((userid) => {
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`,
         }).as('user1CreationPasswordDate');
@@ -44,7 +44,7 @@ beforeEach(() => {
     .as('user2Id')
     .then(() => {
       cy.get('@user2Id').then((userid) => {
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`,
         }).as('user2CreationPasswordDate');
@@ -188,7 +188,7 @@ When(
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
         const newDateOfCreationDate =
           Number(userPasswordCreationDate) - millisecondsValueForSixMonth;
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}';`,
         });
@@ -206,7 +206,7 @@ Then('the existing user can not authenticate and is notified about it', () => {
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
-      cy.handleRequestOnDatabase({
+      cy.requestOnDatabase({
         database: 'centreon',
         query: `UPDATE contact_password SET creation_date = '${userPasswordCreationDate}' WHERE contact_id = '${idUser}';`,
       });
@@ -244,7 +244,7 @@ When(
 
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForFourHour
@@ -301,7 +301,7 @@ Then('user can not change password unless the minimum time has passed', () => {
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
-      cy.handleRequestOnDatabase({
+      cy.requestOnDatabase({
         database: 'centreon',
         query: `UPDATE contact_password SET creation_date = '${
           Number(userPasswordCreationDate) - millisecondsValueForFourHour
@@ -335,7 +335,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
-      cy.handleRequestOnDatabase({
+      cy.requestOnDatabase({
         database: 'centreon',
         query: `UPDATE contact_password SET creation_date = '${Number(
           userPasswordCreationDate,
@@ -377,7 +377,7 @@ When(
 
     cy.get('@user2Id').then((idUser) => {
       cy.get('@user2CreationPasswordDate').then((userPasswordCreationDate) => {
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForSixMonth
@@ -387,7 +387,7 @@ When(
     });
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
-        cy.handleRequestOnDatabase({
+        cy.requestOnDatabase({
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForSixMonth
@@ -482,7 +482,7 @@ Then(
   'the user must wait for the defined duration before attempting again',
   () => {
     cy.get('@user2Id').then((idUser) => {
-      cy.handleRequestOnDatabase({
+      cy.requestOnDatabase({
         database: 'centreon',
         query: `UPDATE contact SET login_attempts = NULL, blocking_time = NULL WHERE contact_id = '${idUser}';`,
       });
