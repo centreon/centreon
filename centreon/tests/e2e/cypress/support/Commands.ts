@@ -112,9 +112,24 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add(
-  'getFormFieldByIndex',
-  (rootItemNumber: number): Cypress.Chainable => {
-    return cy.getIframeBody().find('#Form').find('tr').eq(rootItemNumber);
+  'requestOnDatabase',
+  ({ database, query }: requestOnDatabaseProps): void => {
+    const command = `docker exec -i ${Cypress.env(
+      'dockerName',
+    )} mysql -ucentreon -pcentreon ${database} <<< "${query}"`;
+
+    cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
+      ({ code, stdout, stderr }) => {
+        if (!stderr && code === 0) {
+          cy.log('Request on database done');
+
+          return cy.wrap(parseInt(stdout.split('\n')[1], 10) || true);
+        }
+        cy.log("Can't execute command on database : ", stderr);
+
+        return cy.wrap(false);
+      },
+    );
   },
 );
 
@@ -168,6 +183,10 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add('getRefreshDataOnIframe', () => {
+  return cy.wait('@getTimeZone').wait('@getTimeZone');
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -184,13 +203,18 @@ interface LoginByTypeOfUserProps {
   preserveToken?: boolean;
 }
 
+interface requestOnDatabaseProps {
+  database: string;
+  query: string;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
-      getFormFieldByIndex: (rootItemNumber: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getRefreshDataOnIframe: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
@@ -206,6 +230,10 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
+      requestOnDatabase: ({
+        database,
+        query,
+      }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: () => Cypress.Chainable;
     }
   }

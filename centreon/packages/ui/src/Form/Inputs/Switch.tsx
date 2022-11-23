@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
 import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
@@ -50,10 +51,11 @@ const Switch = ({
         control={
           <MUISwitch
             checked={value}
+            data-testid={dataTestId}
             disabled={disabled}
+            id={getNormalizedId(dataTestId || '')}
             inputProps={{
               'aria-label': t(label),
-              'data-testid': dataTestId,
             }}
             onChange={changeSwitchValue}
           />
