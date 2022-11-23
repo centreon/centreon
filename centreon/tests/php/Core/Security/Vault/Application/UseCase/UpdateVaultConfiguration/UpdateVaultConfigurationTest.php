@@ -250,7 +250,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 it(
     'should present InvalidArgumentResponse when update request matches different existing vault configuration with '
         . 'same vault provider',
-    function ():void {
+    function (): void {
         $this->user
             ->expects($this->once())
             ->method('isAdmin')
@@ -278,15 +278,10 @@ it(
             ->method('findById')
             ->willReturn($vaultConfiguration);
 
-        $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
-        $updateVaultConfigurationRequest->vaultConfigurationId = 2;
-        $updateVaultConfigurationRequest->name = 'myVaultConfiguration';
-        $updateVaultConfigurationRequest->typeId = 1;
-        $updateVaultConfigurationRequest->address = '127.0.0.1';
-        $updateVaultConfigurationRequest->port = 8200;
-        $updateVaultConfigurationRequest->storage = 'myStorageFolder';
-        $updateVaultConfigurationRequest->roleId = 'myRoleId';
-        $updateVaultConfigurationRequest->secretId = 'mySecretId';
+        $this->factory
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($vaultConfiguration);
 
         $existingVaultConfiguration = new VaultConfiguration(
             1,
@@ -305,6 +300,16 @@ it(
             ->method('findByAddressAndPortAndStorage')
             ->willReturn($existingVaultConfiguration);
 
+        $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
+        $updateVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
+        $updateVaultConfigurationRequest->name = $vaultConfiguration->getName();
+        $updateVaultConfigurationRequest->typeId = $vault->getId();
+        $updateVaultConfigurationRequest->address = $existingVaultConfiguration->getAddress();
+        $updateVaultConfigurationRequest->port = $existingVaultConfiguration->getPort();
+        $updateVaultConfigurationRequest->storage = $existingVaultConfiguration->getStorage();
+        $updateVaultConfigurationRequest->roleId = $vaultConfiguration->getRoleId();
+        $updateVaultConfigurationRequest->secretId = $vaultConfiguration->getSecretId();
+
         $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
         $useCase = new UpdateVaultConfiguration(
             $this->readVaultConfigurationRepository,
@@ -321,7 +326,7 @@ it(
             VaultConfigurationException::configurationExists()->getMessage()
         );
     }
-)->only();
+);
 
 it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user

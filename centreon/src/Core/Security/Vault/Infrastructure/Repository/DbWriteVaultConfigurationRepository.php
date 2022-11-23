@@ -54,10 +54,10 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                INSERT INTO `:db`.`vault_configuration`
-                (`name`, `vault_id`, `url`, `port`, `storage`, `role_id`, `secret_id`, `salt`)
-                VALUES (:name, :vault_id, :url, :port, :storage, :role_id, :secret_id, :salt)
-                SQL
+                    INSERT INTO `:db`.`vault_configuration`
+                    (`name`, `vault_id`, `url`, `port`, `storage`, `role_id`, `secret_id`, `salt`)
+                    VALUES (:name, :vault_id, :url, :port, :storage, :role_id, :secret_id, :salt)
+                    SQL
             )
         );
         $statement->bindValue(':name', $vaultConfiguration->getName(), \PDO::PARAM_STR);
@@ -82,17 +82,17 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                UPDATE `:db`.`vault_configuration`
-                SET `name`=:name,
-                    `vault_id`=:vault_id,
-                    `url`=:url,
-                    `port`=:port,
-                    `storage`=:storage,
-                    `role_id`=:role_id,
-                    `secret_id`=:secret_id,
-                    `salt`=:salt
-                WHERE `id`=:id
-                SQL
+                    UPDATE `:db`.`vault_configuration`
+                    SET `name`=:name,
+                        `vault_id`=:vault_id,
+                        `url`=:url,
+                        `port`=:port,
+                        `storage`=:storage,
+                        `role_id`=:role_id,
+                        `secret_id`=:secret_id,
+                        `salt`=:salt
+                    WHERE `id`=:id
+                    SQL
             )
         );
 

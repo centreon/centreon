@@ -46,9 +46,9 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
     /**
      * @param int $id
      *
-     * @return Vault|null
-     *
      * @throws AssertionFailedException
+     *
+     * @return Vault|null
      */
     public function findById(int $id): ?Vault
     {
@@ -63,8 +63,8 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
 
         /**
          * @var array{
-         *      id: int,
-         *      name: string
+         * id: int,
+         * name: string
          * } $record
          */
         return $this->factory->createFromRecord($record);
