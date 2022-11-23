@@ -282,14 +282,16 @@ class CentreonDowntime
         foreach (array_keys($relations) as $resourceType) {
             switch ($resourceType) {
                 case 'hosts':
-                    $query = 'SELECT
-                        dhr.host_host_id AS resource_id,
-                        h.host_activate AS activated
-                    FROM downtime_host_relation dhr
-                    INNER JOIN host h
-                        ON dhr.host_host_id = h.host_id
-                    WHERE
-                        dt_id = :downtimeId';
+                    $query = <<<'SQL'
+                        SELECT
+                            dhr.host_host_id AS resource_id,
+                            h.host_activate AS activated
+                        FROM downtime_host_relation dhr
+                        INNER JOIN host h
+                            ON dhr.host_host_id = h.host_id
+                        WHERE
+                            dt_id = :downtimeId';
+                        SQL;
                     break;
                 case 'hostgroups':
                     $query = 'SELECT
