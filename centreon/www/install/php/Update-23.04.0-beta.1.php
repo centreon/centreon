@@ -20,12 +20,10 @@
  */
 
 require_once __DIR__ . '/../../class/centreonLog.class.php';
-
 $centreonLog = new CentreonLog();
 
 //error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.0-beta.1: ';
-
 $errorMessage = '';
 
 try {
