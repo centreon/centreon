@@ -6,10 +6,12 @@
 
 %define debug_package %{nil}
 %define centreon_www %{_datadir}/centreon/www
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
 
 Name:           centreon-awie
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Version:        %{version}
+Release:        %{release}
 Summary:        Centreon API Web Import Export
 %define thismajor 22.10.0
 %define nextmajor 22.11.0
@@ -47,7 +49,7 @@ find .          \
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__install} -d %buildroot%{centreon_www}/modules/%{name}
-%{__cp} -rp www/modules/%{name}/* %buildroot%{centreon_www}/modules/%{name}
+%{__cp} -rp centreon-awie/www/modules/%{name}/* %buildroot%{centreon_www}/modules/%{name}
 %{__install} -d -m 0770 %buildroot%{_localstatedir}/cache/centreon/filesUpload
 
 %clean

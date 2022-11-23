@@ -1,0 +1,11 @@
+FROM registry-docker.centreon.com/docker-global/debian:bullseye
+
+RUN <<EOF
+
+apt-get update
+apt-get install -y debmake pbuilder aptitude zstd
+apt-get clean
+
+EOF
+
+WORKDIR /src

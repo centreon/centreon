@@ -7,10 +7,10 @@ import useSnackbar from './useSnackbar';
 
 export default {
   argTypes: {
-    maxSnackbars: { control: 'number' },
+    maxSnackbars: { control: 'number' }
   },
   component: SnackbarProvider,
-  title: 'Snackbar',
+  title: 'Snackbar'
 } as ComponentMeta<typeof SnackbarProvider>;
 
 interface Props {
@@ -26,36 +26,36 @@ const Story = ({ displayMessages = false }: Props): JSX.Element => {
     showSuccessMessage,
     showSuccessMessages,
     showWarningMessage,
-    showWarningMessages,
+    showWarningMessages
   } = useSnackbar();
 
   const message = 'This is a message';
 
   const messages = {
     first: 'my first message',
-    second: 'my second message',
+    second: 'my second message'
   };
 
   const snackbars = [
     {
-      showSnackbar: displayMessages ? showSuccessMessages : showSuccessMessage,
+      showSnackbar: displayMessages ? showSuccessMessages : showSuccessMessage
     },
     {
-      showSnackbar: displayMessages ? showErrorMessages : showErrorMessage,
+      showSnackbar: displayMessages ? showErrorMessages : showErrorMessage
     },
     {
-      showSnackbar: displayMessages ? showWarningMessages : showWarningMessage,
+      showSnackbar: displayMessages ? showWarningMessages : showWarningMessage
     },
     {
-      showSnackbar: displayMessages ? showInfoMessages : showInfoMessage,
-    },
+      showSnackbar: displayMessages ? showInfoMessages : showInfoMessage
+    }
   ];
 
   useEffect(() => {
     snackbars.forEach(({ showSnackbar }) => {
       showSnackbar(
         (displayMessages ? messages : message) as string &
-          Record<string, string>,
+          Record<string, string>
       );
     });
   }, [displayMessages]);
@@ -70,11 +70,11 @@ const StoryWithSnackbar = ({ displayMessages }: Props): JSX.Element => (
 );
 
 const TemplateSnackbarProvider: ComponentStory<typeof SnackbarProvider> = (
-  args,
+  args
 ) => <StoryWithSnackbar {...args} displayMessages />;
 export const PlaygroundSnackbar = TemplateSnackbarProvider.bind({});
 PlaygroundSnackbar.args = {
-  maxSnackbars: 4,
+  maxSnackbars: 4
 };
 
 export const snackbar = (): JSX.Element => <StoryWithSnackbar />;

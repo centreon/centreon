@@ -12,7 +12,7 @@ interface Props {
 }
 const useCopyToClipboard = ({
   successMessage,
-  errorMessage,
+  errorMessage
 }: Props): Result => {
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 

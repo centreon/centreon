@@ -6,7 +6,7 @@ import {
   horizontalListSortingStrategy,
   rectSortingStrategy,
   SortingStrategy,
-  verticalListSortingStrategy,
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -18,7 +18,7 @@ import SortableItems, { RootComponentProps } from '.';
 
 export default {
   component: SortableItems,
-  title: 'SortableItems',
+  title: 'SortableItems'
 } as ComponentMeta<typeof SortableItems>;
 
 interface Entity {
@@ -31,33 +31,33 @@ const items: Array<Entity> = [
   {
     id: 'label',
     name: 'This is a label content',
-    xs: 6,
+    xs: 6
   },
   {
     id: 'description',
     name: 'This is a description content',
-    xs: 6,
+    xs: 6
   },
   {
     id: 'custom',
     name: 'This is a custom content',
-    xs: 12,
+    xs: 12
   },
   {
     id: 'FQDN',
     name: 'This is a FQDN content',
-    xs: 12,
+    xs: 12
   },
   {
     id: 'music',
     name: 'This is a music content',
-    xs: 3,
+    xs: 3
   },
   {
     id: 'AWS',
     name: 'This is a AWS content',
-    xs: 9,
-  },
+    xs: 9
+  }
 ];
 
 interface StylesProps {
@@ -67,23 +67,23 @@ interface StylesProps {
 const useContentStyles = makeStyles<StylesProps>()((theme, { isDragging }) => ({
   content: {
     '&:hover': {
-      boxShadow: theme.shadows[3],
+      boxShadow: theme.shadows[3]
     },
     cursor: isDragging ? 'grabbing' : 'grab',
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
   contentWithHandler: {
     '&:hover': {
-      boxShadow: theme.shadows[3],
+      boxShadow: theme.shadows[3]
     },
     display: 'grid',
     gridTemplateColumns: 'min-content auto',
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
 
   handler: {
-    cursor: isDragging ? 'grabbing' : 'grab',
-  },
+    cursor: isDragging ? 'grabbing' : 'grab'
+  }
 }));
 
 interface ContentProps extends Entity {
@@ -100,7 +100,7 @@ const Content = ({
   style,
   isDragging,
   itemRef,
-  name,
+  name
 }: ContentProps): JSX.Element => {
   const { classes } = useContentStyles({ isDragging });
 
@@ -124,7 +124,7 @@ const ContentWithHandler = ({
   style,
   isDragging,
   itemRef,
-  name,
+  name
 }: ContentProps): JSX.Element => {
   const { classes } = useContentStyles({ isDragging });
 
@@ -151,22 +151,22 @@ const useStyles = makeStyles()((theme) => ({
     grid: 'auto-flow / 1fr 1.2fr 1.1fr',
     height: '100%',
     rowGap: theme.spacing(1),
-    width: '550px',
+    width: '550px'
   },
   horizontalContainer: {
     columnGap: theme.spacing(1),
     display: 'flex',
     flexDirection: 'row',
     height: '40px',
-    width: '100%',
+    width: '100%'
   },
   verticalContainer: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
     rowGap: theme.spacing(1),
-    width: '550px',
-  },
+    width: '550px'
+  }
 }));
 
 interface StoryProps {
@@ -178,7 +178,7 @@ interface StoryProps {
 const Story = ({
   direction,
   sortingStrategy,
-  handler = false,
+  handler = false
 }: StoryProps): JSX.Element => {
   const { classes } = useStyles();
 
@@ -226,7 +226,7 @@ const ContentWithGrid = ({
   isDragging,
   itemRef,
   name,
-  xs,
+  xs
 }: ContentProps): JSX.Element => {
   const { classes } = useContentStyles({ isDragging });
 
@@ -241,7 +241,7 @@ const ContentWithGrid = ({
 
 const RootComponent = ({
   children,
-  isInDragOverlay,
+  isInDragOverlay
 }: RootComponentProps): JSX.Element => (
   <Grid container spacing={1} style={{ width: '550px' }}>
     {not(isInDragOverlay) && (

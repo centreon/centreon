@@ -11,17 +11,17 @@ import Severity from './Severity';
 
 const useStyles = makeStyles()({
   alertIcon: {
-    paddingTop: '10px',
+    paddingTop: '10px'
   },
   closeIcon: {
     fontSize: 20,
-    opacity: 0.9,
+    opacity: 0.9
   },
   message: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });
 
 export interface SnackbarProps {
@@ -33,7 +33,7 @@ export interface SnackbarProps {
 const Snackbar = React.forwardRef(
   (
     { message, id, severity }: SnackbarProps,
-    ref: React.ForwardedRef<HTMLDivElement>,
+    ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
@@ -63,7 +63,7 @@ const Snackbar = React.forwardRef(
               onClick={close}
             >
               <IconClose className={classes.closeIcon} />
-            </IconButton>,
+            </IconButton>
           ]}
           classes={{ icon: classes.alertIcon, message: classes.message }}
           severity={severity}
@@ -73,7 +73,7 @@ const Snackbar = React.forwardRef(
         </Alert>
       </SnackbarContent>
     );
-  },
+  }
 );
 
 export default Snackbar;

@@ -7,7 +7,7 @@ import {
   FormGroup,
   FormLabel,
   RadioGroup,
-  Radio as MUIRadio,
+  Radio as MUIRadio
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';
@@ -22,7 +22,7 @@ const Radio = ({
   getDisabled,
   hideInput,
   change,
-  additionalMemoProps,
+  additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -71,7 +71,7 @@ const Radio = ({
                   disabled={disabled}
                   inputProps={{
                     'aria-label': t(optionLabel),
-                    'data-testid': dataTestId,
+                    'data-testid': dataTestId
                   }}
                 />
               }
@@ -83,7 +83,7 @@ const Radio = ({
         </RadioGroup>
       </FormGroup>
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden],
+    memoProps: [value, disabled, additionalMemoProps, hidden]
   });
 };
 

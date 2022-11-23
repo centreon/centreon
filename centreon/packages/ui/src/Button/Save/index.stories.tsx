@@ -9,8 +9,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     background: theme.palette.error.main,
     borderRadius: theme.spacing(0.5),
-    width: theme.spacing(10),
-  },
+    width: theme.spacing(10)
+  }
 }));
 
 export default {
@@ -21,12 +21,12 @@ export default {
     loading: { control: 'boolean' },
     size: { control: 'select', options: ['small', 'medium', 'large'] },
     succeeded: { control: 'boolean' },
-    tooltipLabel: { control: 'text' },
+    tooltipLabel: { control: 'text' }
   },
 
   component: ButtonSave,
 
-  title: 'Button/Save',
+  title: 'Button/Save'
 } as ComponentMeta<typeof ButtonSave>;
 
 const TemplateButtonSave: ComponentStory<typeof ButtonSave> = (args) => (

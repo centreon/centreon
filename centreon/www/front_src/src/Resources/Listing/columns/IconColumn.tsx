@@ -1,21 +1,21 @@
 import { ReactNode } from 'react';
 
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 interface Props {
   children: ReactNode;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   column: {
     display: 'flex',
     justifyContent: 'center',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const IconColumn = ({ children }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return <div className={classes.column}>{children}</div>;
 };

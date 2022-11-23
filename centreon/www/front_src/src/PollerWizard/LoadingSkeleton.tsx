@@ -1,21 +1,22 @@
-import { Skeleton } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme) => ({
+import { Skeleton } from '@mui/material';
+
+const useStyles = makeStyles()((theme) => ({
   skeleton: {
     height: theme.spacing(5),
-    width: '100%',
+    width: '100%'
   },
   skeletonContainer: {
     columnGap: theme.spacing(3),
     display: 'flex',
     flexDirection: 'column',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const LoadingSkeleton = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.skeletonContainer}>

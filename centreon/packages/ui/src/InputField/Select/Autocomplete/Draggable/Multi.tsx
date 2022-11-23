@@ -3,7 +3,7 @@ import MultiAutocompleteField from '../Multi';
 import DraggableAutocompleteField from '.';
 
 const MultiDraggableAutocompleteField = DraggableAutocompleteField(
-  MultiAutocompleteField,
+  MultiAutocompleteField
 );
 
 export default MultiDraggableAutocompleteField;

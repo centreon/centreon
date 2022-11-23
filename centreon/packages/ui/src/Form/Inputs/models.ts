@@ -16,7 +16,7 @@ export enum InputType {
   MultiConnectedAutocomplete,
   FieldsTable,
   Grid,
-  Custom,
+  Custom
 }
 
 interface FieldsTableGetRequiredProps {

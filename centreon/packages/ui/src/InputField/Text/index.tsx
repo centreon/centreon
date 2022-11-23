@@ -8,22 +8,22 @@ import {
   InputAdornment,
   TextFieldProps,
   Theme,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
-    fontSize: 'x-small',
+    fontSize: 'x-small'
   },
   input: {
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: theme.typography.body1.fontSize
   },
   noLabelInput: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
   transparent: {
-    backgroundColor: 'transparent',
-  },
+    backgroundColor: 'transparent'
+  }
 }));
 
 interface OptionalLabelInputAdornmentProps {
@@ -35,7 +35,7 @@ interface OptionalLabelInputAdornmentProps {
 const OptionalLabelInputAdornment = ({
   label,
   position,
-  children,
+  children
 }: OptionalLabelInputAdornmentProps): JSX.Element => {
   const noMarginWhenNoLabel = !label && { style: { marginTop: 0 } };
 
@@ -74,7 +74,7 @@ const TextField = forwardRef(
       className,
       ...rest
     }: Props,
-    ref: React.ForwardedRef<HTMLDivElement>,
+    ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes, cx } = useStyles();
 
@@ -87,9 +87,9 @@ const TextField = forwardRef(
             ...rest.InputProps,
             className: cx(
               {
-                [classes.transparent]: transparent,
+                [classes.transparent]: transparent
               },
-              className,
+              className
             ),
             disableUnderline: true,
             endAdornment: EndAdornment && (
@@ -101,14 +101,14 @@ const TextField = forwardRef(
               <OptionalLabelInputAdornment label={label} position="start">
                 <StartAdornment />
               </OptionalLabelInputAdornment>
-            ),
+            )
           }}
           error={!isNil(error)}
           helperText={displayErrorInTooltip ? undefined : error}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            'data-testid': dataTestId,
+            'data-testid': dataTestId
           }}
           label={label}
           ref={ref}
@@ -117,7 +117,7 @@ const TextField = forwardRef(
         />
       </Tooltip>
     );
-  },
+  }
 );
 
 export default TextField;

@@ -20,5 +20,5 @@ export default {
   labelResolve,
   labelSave,
   labelThereAreErrorsInTheForm,
-  labelYourFormHasUnsavedChanges,
+  labelYourFormHasUnsavedChanges
 };

@@ -8,8 +8,8 @@ import { PageSkeletonProps } from '.';
 
 export const useSkeletonStyles = makeStyles()((theme) => ({
   skeletonLayout: {
-    borderRadius: theme.spacing(0.5),
-  },
+    borderRadius: theme.spacing(0.5)
+  }
 }));
 
 const BaseRectSkeleton = ({

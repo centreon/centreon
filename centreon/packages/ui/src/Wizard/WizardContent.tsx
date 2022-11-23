@@ -11,13 +11,13 @@ const useStyles = makeStyles()((theme) => ({
   content: {
     height: '100%',
     overflow: 'auto',
-    padding: theme.spacing(2, 3, 1, 3),
+    padding: theme.spacing(2, 3, 1, 3)
   },
   form: {
     display: 'flex',
     flex: 1,
-    flexDirection: 'column',
-  },
+    flexDirection: 'column'
+  }
 }));
 
 const WizardContent = ({
@@ -29,7 +29,7 @@ const WizardContent = ({
   goToPreviousStep,
   currentStep,
   actionsBarLabels,
-  goToNextStep,
+  goToNextStep
 }: WizardContentProps): JSX.Element => {
   const { classes } = useStyles();
   const { isSubmitting, isValid, dirty, handleSubmit, validateForm } =

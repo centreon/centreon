@@ -11,7 +11,7 @@ interface Props {
 
 const SnackbarProvider = ({
   children,
-  maxSnackbars = 1,
+  maxSnackbars = 1
 }: Props): JSX.Element => {
   return (
     <NotistackSnackbarProvider

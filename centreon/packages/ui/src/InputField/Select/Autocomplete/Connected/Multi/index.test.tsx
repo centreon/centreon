@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   resetMocks,
-  waitFor,
+  waitFor
 } from '../../../../../testRenderer';
 import { buildListingEndpoint } from '../../../../..';
 import TestQueryProvider from '../../../../../api/TestQueryProvider';
@@ -24,12 +24,12 @@ const optionsData = {
   meta: {
     limit: 2,
     page: 1,
-    total: 20,
+    total: 20
   },
   result: [
     { id: 0, name: 'My Option 1' },
-    { id: 1, name: 'My Option 2' },
-  ],
+    { id: 1, name: 'My Option 2' }
+  ]
 };
 
 const renderMultiAutocompleteField = (): RenderResult =>
@@ -42,7 +42,7 @@ const renderMultiAutocompleteField = (): RenderResult =>
         placeholder="Type here..."
         value={[optionsData.result[0]]}
       />
-    </TestQueryProvider>,
+    </TestQueryProvider>
   );
 
 describe(MultiConnectedAutocompleteField, () => {

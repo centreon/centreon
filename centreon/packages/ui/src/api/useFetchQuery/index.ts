@@ -6,7 +6,7 @@ import {
   QueryObserverBaseResult,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
+  UseQueryOptions
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
@@ -54,7 +54,7 @@ const useFetchQuery = <T extends object>({
   fetchHeaders,
   isPaginated,
   queryOptions,
-  httpCodesBypassErrorSnackbar = [],
+  httpCodesBypassErrorSnackbar = []
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -67,11 +67,11 @@ const useFetchQuery = <T extends object>({
         defaultFailureMessage,
         endpoint: getEndpoint(),
         headers: new Headers(fetchHeaders),
-        signal,
+        signal
       }),
     {
-      ...queryOptions,
-    },
+      ...queryOptions
+    }
   );
 
   const queryClient = useQueryClient();
@@ -81,7 +81,7 @@ const useFetchQuery = <T extends object>({
     if (data?.isError) {
       log.error(data.message);
       const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
-        data?.statusCode || 0,
+        data?.statusCode || 0
       );
 
       if (!hasACorrespondingHttpCode) {
@@ -108,8 +108,8 @@ const useFetchQuery = <T extends object>({
           defaultFailureMessage,
           endpoint: getEndpoint(endpointParams),
           headers: new Headers(fetchHeaders),
-          signal,
-        }),
+          signal
+        })
     );
   };
 
@@ -122,7 +122,7 @@ const useFetchQuery = <T extends object>({
 
     return prefetchQuery({
       endpointParams: { page: nextPage },
-      queryKey: getPrefetchQueryKey(nextPage),
+      queryKey: getPrefetchQueryKey(nextPage)
     });
   };
 
@@ -135,7 +135,7 @@ const useFetchQuery = <T extends object>({
 
     return prefetchQuery({
       endpointParams: { page: previousPage },
-      queryKey: getPrefetchQueryKey(previousPage),
+      queryKey: getPrefetchQueryKey(previousPage)
     });
   };
 
@@ -149,8 +149,8 @@ const useFetchQuery = <T extends object>({
           defaultFailureMessage,
           endpoint: getEndpoint(),
           headers: new Headers(fetchHeaders),
-          signal,
-        }),
+          signal
+        })
     );
   };
 
@@ -167,7 +167,7 @@ const useFetchQuery = <T extends object>({
     fetchQuery,
     prefetchNextPage,
     prefetchPreviousPage,
-    prefetchQuery,
+    prefetchQuery
   };
 };
 

@@ -16,7 +16,7 @@ const Content = ({
   labelSucceeded,
   labelSave,
   loading,
-  labelLoading,
+  labelLoading
 }: Props): JSX.Element | string => {
   const { t } = useTranslation();
 

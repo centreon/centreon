@@ -5,11 +5,11 @@ import DraggableAutocompleteField from '.';
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(
   MultiAutocompleteField,
-  false,
+  false
 );
 
 const MultiDraggableConnectedAutocompleteField = DraggableAutocompleteField(
-  MultiConnectedAutocompleteField,
+  MultiConnectedAutocompleteField
 );
 
 export default MultiDraggableConnectedAutocompleteField;
