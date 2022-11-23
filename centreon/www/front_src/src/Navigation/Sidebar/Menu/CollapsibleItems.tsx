@@ -8,12 +8,11 @@ import {
 } from 'react';
 
 import { equals } from 'ramda';
-import clsx from 'clsx';
 import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import Collapse from '@mui/material/Collapse';
 import List from '@mui/material/List';
-import makeStyles from '@mui/styles/makeStyles';
 import ListSubheader from '@mui/material/ListSubheader';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -50,59 +49,67 @@ interface StyleProps {
 
 const collapseWidth = 24;
 
-const useStyles = makeStyles((theme) => ({
-  label: {
-    fontWeight: 'bold'
-  },
-  root: {
-    '& .MuiListItemIcon-root': {
-      color: theme.palette.text.primary,
-      minWidth: theme.spacing(2.25),
-      padding: theme.spacing(0, 0.25, 0, 0.1)
+const useStyles = makeStyles<StyleProps>()(
+  (
+    theme,
+    {
+      currentWidth,
+      collapseScrollMaxHeight,
+      collapseScrollMaxWidth,
+      currentTop
+    }
+  ) => ({
+    label: {
+      fontWeight: 'bold'
     },
-    boxShadow: theme.shadows[3],
-    outline: 'none'
-  },
-  subHeader: {
-    backgroundColor: 'rgba(0,0,0,.05)',
-    color: theme.palette.text.secondary,
-    fontSize: theme.typography.caption.fontSize,
-    fontWeight: 'bold',
-    lineHeight: 1,
-    padding: theme.spacing(1),
-    textAlign: 'center'
-  },
-  toggled: {
-    '&::-webkit-scrollbar': {
-      width: theme.spacing(1)
+    root: {
+      '& .MuiListItemIcon-root': {
+        color: theme.palette.text.primary,
+        minWidth: theme.spacing(2.25),
+        padding: theme.spacing(0, 0.25, 0, 0.1)
+      },
+      boxShadow: theme.shadows[3],
+      outline: 'none'
     },
-    '&::-webkit-scrollbar-corner': {
-      backgroundColor: theme.palette.background.default
+    subHeader: {
+      backgroundColor: 'rgba(0,0,0,.05)',
+      color: theme.palette.text.secondary,
+      fontSize: theme.typography.caption.fontSize,
+      fontWeight: 'bold',
+      lineHeight: 1,
+      padding: theme.spacing(1),
+      textAlign: 'center'
     },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: theme.palette.action.disabled
-    },
-    '&::-webkit-scrollbar-track': {
-      border: `solid ${theme.palette.action.hover} 0.5px`
-    },
-    backgroundColor: theme.palette.background.default,
-    left: ({ currentWidth }: StyleProps): string => theme.spacing(currentWidth),
-    maxHeight: ({ collapseScrollMaxHeight }: StyleProps): string =>
-      collapseScrollMaxHeight
+    toggled: {
+      '&::-webkit-scrollbar': {
+        width: theme.spacing(1)
+      },
+      '&::-webkit-scrollbar-corner': {
+        backgroundColor: theme.palette.background.default
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: theme.palette.action.disabled
+      },
+      '&::-webkit-scrollbar-track': {
+        border: `solid ${theme.palette.action.hover} 0.5px`
+      },
+      backgroundColor: theme.palette.background.default,
+      left: theme.spacing(currentWidth),
+      maxHeight: collapseScrollMaxHeight
         ? theme.spacing(collapseScrollMaxHeight)
         : theme.spacing(50),
-    maxWidth: ({ collapseScrollMaxWidth }: StyleProps): string =>
-      collapseScrollMaxWidth
+      maxWidth: collapseScrollMaxWidth
         ? theme.spacing(collapseScrollMaxWidth)
         : theme.spacing(collapseWidth),
-    overflow: 'auto',
-    position: 'fixed',
-    top: ({ currentTop }: StyleProps): number | undefined => currentTop,
-    whiteSpace: 'normal',
-    width: theme.spacing(collapseWidth),
-    zIndex: theme.zIndex.mobileStepper
-  }
-}));
+      overflow: 'auto',
+      position: 'fixed',
+      top: ({ currentTop }: StyleProps): number | undefined => currentTop,
+      whiteSpace: 'normal',
+      width: theme.spacing(collapseWidth),
+      zIndex: theme.zIndex.mobileStepper
+    }
+  })
+);
 
 const CollapsibleItems = ({
   data,
@@ -117,7 +124,7 @@ const CollapsibleItems = ({
   setCollapseScrollMaxWidth,
   setCollapseScrollMaxHeight
 }: Props): JSX.Element => {
-  const classes = useStyles({
+  const { classes, cx } = useStyles({
     collapseScrollMaxHeight,
     collapseScrollMaxWidth,
     currentTop,
@@ -208,7 +215,7 @@ const CollapsibleItems = ({
     Component: (
       <Collapse
         unmountOnExit
-        className={clsx(classes.root, classes.toggled)}
+        className={cx(classes.root, classes.toggled)}
         data-cy="collapse"
         enter={false}
         exit={false}

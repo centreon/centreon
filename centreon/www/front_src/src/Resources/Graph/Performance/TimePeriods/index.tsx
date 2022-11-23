@@ -2,15 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { Responsive } from '@visx/visx';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
-import {
-  Paper,
-  ButtonGroup,
-  Button,
-  useTheme,
-  Tooltip,
-  Theme
-} from '@mui/material';
+import { Paper, ButtonGroup, Button, useTheme, Tooltip } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
 
@@ -32,7 +26,7 @@ interface StylesProps {
   disablePaper: boolean;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
   button: {
     fontSize: theme.typography.body2.fontSize,
     pointerEvents: 'all'
@@ -41,7 +35,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     alignSelf: 'center',
     height: '100%'
   },
-  header: ({ disablePaper }): CreateCSSProperties<StylesProps> => ({
+  header: {
     alignItems: 'center',
     backgroundColor: disablePaper ? 'transparent' : 'undefined',
     border: disablePaper ? 'unset' : 'undefined',
@@ -52,7 +46,7 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     gridTemplateRows: '1fr',
     justifyContent: 'center',
     padding: theme.spacing(1, 0.5)
-  })
+  }
 }));
 
 interface Props {
@@ -68,7 +62,7 @@ const TimePeriodButtonGroup = ({
   disableGraphOptions = false,
   disablePaper = false
 }: Props): JSX.Element => {
-  const classes = useStyles({ disablePaper });
+  const { classes } = useStyles({ disablePaper });
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -121,7 +115,7 @@ const TimePeriodButtonGroup = ({
                         }
                         onClick={(): void => changeSelectedTimePeriod(id)}
                       >
-                        {cond<number, string>([
+                        {cond([
                           [lte(theme.breakpoints.values.md), always(largeName)],
                           [T, always(name)]
                         ])(width)}

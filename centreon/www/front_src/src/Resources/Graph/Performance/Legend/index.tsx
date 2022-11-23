@@ -1,7 +1,6 @@
 /* eslint-disable hooks/sort */
 import { MouseEvent } from 'react';
 
-import clsx from 'clsx';
 import {
   equals,
   find,
@@ -15,19 +14,17 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Typography,
   useTheme,
   alpha,
-  Theme,
   Tooltip,
   Box,
   Button
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import { CreateCSSProperties } from '@mui/styles';
 
 import { Line, TimeValue } from '../models';
 import memoizeComponent from '../../../memoizedComponent';
@@ -58,74 +55,76 @@ interface FormattedMetricData {
 
 const maxLinesDisplayed = 11;
 
-const useStyles = makeStyles<Theme, MakeStylesProps, string>((theme) => ({
-  caption: ({ panelWidth }): CreateCSSProperties<MakeStylesProps> => ({
-    lineHeight: 1.2,
-    marginRight: theme.spacing(0.5),
-    maxWidth: 0.85 * panelWidth,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
-  }),
-  highlight: {
-    color: theme.typography.body1.color
-  },
-  item: {
-    display: 'grid',
-    gridTemplateColumns: 'min-content minmax(50px, 1fr)',
-    marginBottom: theme.spacing(1)
-  },
-  items: ({ limitLegendRows }): CreateCSSProperties<MakeStylesProps> => ({
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    justifyContent: 'center',
-    marginLeft: theme.spacing(0.5),
-    maxHeight: limitLegendRows ? theme.spacing(19) : 'unset',
-    overflowY: 'auto',
-    width: '100%'
-  }),
-  legend: {
-    maxHeight: theme.spacing(24),
-    overflowX: 'hidden',
-    overflowY: 'auto',
-    width: '100%'
-  },
-  legendData: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  legendName: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'start',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  },
-  legendUnit: {
-    justifyContent: 'end',
-    marginLeft: 'auto',
-    marginRight: theme.spacing(0.5),
-    overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  },
-  legendValue: {
-    fontWeight: theme.typography.body1.fontWeight
-  },
-  minMaxAvgContainer: {
-    columnGap: theme.spacing(0.5),
-    display: 'grid',
-    gridAutoRows: theme.spacing(2),
-    gridTemplateColumns: 'repeat(2, min-content)',
-    whiteSpace: 'nowrap'
-  },
-  minMaxAvgValue: { fontWeight: 600 },
-  normal: {
-    color: theme.palette.text.primary
-  },
-  toggable: {
-    cursor: 'pointer'
-  }
-}));
+const useStyles = makeStyles<MakeStylesProps>()(
+  (theme, { panelWidth, limitLegendRows }) => ({
+    caption: {
+      lineHeight: 1.2,
+      marginRight: theme.spacing(0.5),
+      maxWidth: 0.85 * panelWidth,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    },
+    highlight: {
+      color: theme.typography.body1.color
+    },
+    item: {
+      display: 'grid',
+      gridTemplateColumns: 'min-content minmax(50px, 1fr)',
+      marginBottom: theme.spacing(1)
+    },
+    items: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+      justifyContent: 'center',
+      marginLeft: theme.spacing(0.5),
+      maxHeight: limitLegendRows ? theme.spacing(19) : 'unset',
+      overflowY: 'auto',
+      width: '100%'
+    },
+    legend: {
+      maxHeight: theme.spacing(24),
+      overflowX: 'hidden',
+      overflowY: 'auto',
+      width: '100%'
+    },
+    legendData: {
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    legendName: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'start',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    },
+    legendUnit: {
+      justifyContent: 'end',
+      marginLeft: 'auto',
+      marginRight: theme.spacing(0.5),
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    },
+    legendValue: {
+      fontWeight: theme.typography.body1.fontWeight
+    },
+    minMaxAvgContainer: {
+      columnGap: theme.spacing(0.5),
+      display: 'grid',
+      gridAutoRows: theme.spacing(2),
+      gridTemplateColumns: 'repeat(2, min-content)',
+      whiteSpace: 'nowrap'
+    },
+    minMaxAvgValue: { fontWeight: 600 },
+    normal: {
+      color: theme.palette.text.primary
+    },
+    toggable: {
+      cursor: 'pointer'
+    }
+  })
+);
 
 interface Props {
   base: number;
@@ -162,7 +161,7 @@ const LegendContent = ({
   isEditAnomalyDetectionDataDialogOpen
 }: Props): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const classes = useStyles({ limitLegendRows, panelWidth });
+  const { classes, cx } = useStyles({ limitLegendRows, panelWidth });
   const theme = useTheme();
   const { t } = useTranslation();
   const timeValue = useAtomValue(timeValueAtom);
@@ -306,7 +305,7 @@ const LegendContent = ({
 
             return (
               <Box
-                className={clsx(
+                className={cx(
                   classes.item,
                   highlight ? classes.highlight : classes.normal,
                   toggable && classes.toggable

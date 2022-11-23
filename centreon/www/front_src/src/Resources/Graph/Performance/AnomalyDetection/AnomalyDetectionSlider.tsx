@@ -3,12 +3,12 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { equals, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ResetIcon from '@mui/icons-material/SettingsBackupRestore';
 import { Button, Divider, Slider, Tooltip, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { IconButton, putData, useRequest } from '@centreon/ui';
 
@@ -25,7 +25,7 @@ import {
 import { countedRedCirclesAtom } from './anomalyDetectionAtom';
 import { CustomFactorsData } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   body: {
     display: 'flex',
     flexDirection: 'column'
@@ -113,7 +113,7 @@ const AnomalyDetectionSlider = ({
   sendReloadGraphPerformance,
   setIsResizeEnvelope
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [currentValue, setCurrentValue] = useState(sensitivity.current_value);

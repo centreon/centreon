@@ -2,10 +2,10 @@ import { RefObject } from 'react';
 
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, last } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import ShortTypeChip from '../../../ShortTypeChip';
 import {
@@ -17,7 +17,7 @@ import SelectableResourceName from '../Details/SelectableResourceName';
 
 import { MetaServiceMetric } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   card: {
     alignItems: 'center',
     display: 'grid',
@@ -50,7 +50,7 @@ interface Props {
 }
 
 const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const selectResource = useUpdateAtom(selectResourceDerivedAtom);
   const setSelectedResourceDetails = useUpdateAtom(

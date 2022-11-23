@@ -2,14 +2,13 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import CheckIcon from '@mui/icons-material/Check';
 import InstallIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
-import { makeStyles } from '@mui/styles';
 import {
   Card,
   CardActions,
@@ -34,7 +33,7 @@ import {
   labelLicenseNotValid
 } from '../../translatedLabels';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
     [theme.breakpoints.up(767)]: {
       padding: theme.spacing(1.5, 1.5, 1.5, 0)
@@ -86,7 +85,7 @@ const ExtensionsHolder = ({
   deletingEntityId,
   type
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { timezone } = useAtomValue(userAtom);
   const { toDate } = useLocaleDateTimeFormat();
@@ -249,7 +248,7 @@ const ExtensionsHolder = ({
                   </CardActions>
                   <Paper
                     square
-                    className={clsx(classes.license, {
+                    className={cx(classes.license, {
                       [classes.licenseValid]: equals(
                         licenseInfo?.isInvalid,
                         false
