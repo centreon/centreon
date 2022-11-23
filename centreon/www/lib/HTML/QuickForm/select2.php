@@ -290,6 +290,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
         $readonly = '';
         $strHtml .= '<select id="' . $this->getName()
             . '" name="' . $this->getElementHtmlName()
+            . '" data-testid="' . $this->getName()
             . '" ' . $this->_multipleHtml . ' '
             . ' style="width: 300px;" ' . $readonly . '><option></option>'
             . '%%DEFAULT_SELECTED_VALUES%%'

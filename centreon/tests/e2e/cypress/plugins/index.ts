@@ -3,12 +3,47 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
 
-const webpackPreprocessor = require('@cypress/webpack-preprocessor');
+import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
+import webpackPreprocessor from '@cypress/webpack-preprocessor';
 
-module.exports = (on): void => {
-  const options = {
-    webpackOptions: require('../webpack.config'),
+const getWebpackOptions = (config): object => {
+  return {
+    module: {
+      rules: [
+        {
+          exclude: [/node_modules/],
+          test: /\.ts?$/,
+          use: [
+            {
+              loader: 'swc-loader',
+            },
+          ],
+        },
+        {
+          test: /\.feature$/,
+          use: [
+            {
+              loader: '@badeball/cypress-cucumber-preprocessor/webpack',
+              options: config,
+            },
+          ],
+        },
+      ],
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
+    },
   };
+};
+
+export default async (on, config): Promise<void> => {
+  await addCucumberPreprocessorPlugin(on, config);
+
+  const webpackOptions = await getWebpackOptions(config);
+  const options = {
+    webpackOptions,
+  };
+
   on('file:preprocessor', webpackPreprocessor(options));
 
   on('before:browser:launch', (browser = {}, launchOptions) => {
@@ -21,4 +56,6 @@ module.exports = (on): void => {
 
     return launchOptions;
   });
+
+  return config;
 };

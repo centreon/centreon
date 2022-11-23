@@ -1,8 +1,5 @@
 import { pipe, split, head, propOr, T } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType, Column } from '@centreon/ui';
 
@@ -44,7 +41,7 @@ interface StyleProps {
   isHovered: boolean;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
+const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
   resourceDetailsCell: {
     alignItems: 'center',
     display: 'flex',
@@ -56,12 +53,12 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
     marginLeft: theme.spacing(1),
     whiteSpace: 'nowrap',
   },
-  resourceNameText: ({ isHovered }): CreateCSSProperties => ({
+  resourceNameText: {
     color: isHovered
       ? theme.palette.text.primary
       : theme.palette.text.secondary,
     lineHeight: 1,
-  }),
+  },
 }));
 
 export interface ColumnProps {

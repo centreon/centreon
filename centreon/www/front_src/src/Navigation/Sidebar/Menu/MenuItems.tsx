@@ -13,17 +13,16 @@ import {
   LinkProps as RouterLinkProps,
 } from 'react-router-dom';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Theme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import { isDarkMode } from '../../../Header';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 import { Page } from '../../models';
 import {
@@ -32,6 +31,9 @@ import {
 } from '../sideBarAtoms';
 
 import ArrowIcon from './ArrowIcon';
+
+const isDarkMode = (theme: Theme): boolean =>
+  equals(theme.palette.mode, ThemeMode.dark);
 
 const rootHeightItem = 37;
 
@@ -49,8 +51,8 @@ interface Props {
   onMouseEnter: (e: MouseEvent<HTMLElement>) => void;
 }
 
-const useStyles = makeStyles((theme) => ({
-  activated: (): CreateCSSProperties => ({
+const useStyles = makeStyles<{ isRoot?: boolean }>()((theme, { isRoot }) => ({
+  activated: {
     '& .MuiListItemText-root': {
       '& .MuiTypography-root': {
         color: 'inherit',
@@ -62,17 +64,20 @@ const useStyles = makeStyles((theme) => ({
         : theme.palette.primary.main,
     },
     '&:hover': {
-      backgroundColor: isDarkMode(theme)
-        ? theme.palette.primary.dark
-        : theme.palette.primary.light,
+      backgroundColor:
+        isDarkMode(theme) && isRoot
+          ? theme.palette.primary.main
+          : theme.palette.primary.light,
     },
-    backgroundColor: isDarkMode(theme)
-      ? theme.palette.primary.dark
-      : theme.palette.primary.light,
-    color: isDarkMode(theme)
-      ? theme.palette.common.white
-      : theme.palette.primary.main,
-  }),
+    backgroundColor:
+      isDarkMode(theme) && isRoot
+        ? theme.palette.primary.main
+        : theme.palette.primary.light,
+    color:
+      isDarkMode(theme) && isRoot
+        ? theme.palette.common.white
+        : theme.palette.primary.main,
+  },
   arrowIcon: {
     color: 'inherit',
   },
@@ -113,7 +118,7 @@ const MenuItems = ({
   isRoot,
   isDoubleClickedFromRoot,
 }: Props): JSX.Element => {
-  const classes = useStyles({ isRoot });
+  const { classes } = useStyles({ isRoot });
   const user = useAtomValue(userAtom);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);
