@@ -32,6 +32,6 @@ Scenario: Editing the excluded users list
 
 Scenario: Enforcing a password blocking policy
     Given an administrator configuring a Centreon platform and an existing user account not blocked
-    When the administrator sets valid password policy blocking and the user attempts to login multiple times
+    When the administrator sets valid password blocking policy and the user attempts to login multiple times
     Then the user is locked after reaching the number of allowed attempts
     Then the user must wait for the defined duration before attempting again
