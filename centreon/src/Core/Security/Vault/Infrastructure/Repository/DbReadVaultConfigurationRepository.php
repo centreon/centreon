@@ -56,7 +56,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                 SELECT conf.*, vault.name as vault_name
                 FROM `:db`.`vault_configuration` conf
                 INNER JOIN `:db`.`vault`
