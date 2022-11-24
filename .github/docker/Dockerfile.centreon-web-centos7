@@ -41,14 +41,14 @@ EOF
 RUN <<EOF
 echo "[centreon-collect-unstable-noarch]
 name=Centreon open source software repository.
-baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/
+baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/el7/unstable/noarch
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 [centreon-collect-unstable]
 name=Centreon open source software repository.
-baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/
+baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable//el7/unstable/$basearch
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
