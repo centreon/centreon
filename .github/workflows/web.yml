@@ -22,6 +22,39 @@ env:
   base_directory: centreon
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            has_frontend_changes:
+              - '**/*.[jt]sx?'
+              - '**/www/front_src/**'
+              - '**/tests/e2e/**'
+              - '**/package*'
+              - '**/lighthouse/**'
+              - '**/tsconfig.json'
+              - '**/cypress/**|**/pnpm-*'
+            has_backend_changes:
+              - '**/*.php'
+              - '**/phpstan*.neon'
+              - '**/*.xml|**/bin/**'
+              - '**/tmpl/**'
+              - '**/features/**'
+              - '/centreon/src/**'
+              - '**/config/**'
+              - '**/composer.*'
+              - '**/tests/api/**'
+              - '**/tests/php/**'
+              - '**/tests/clapi_export/**'
+              - '**/www/!(front_src)/**'
+              - '**/doc/API/**'
+
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
@@ -86,6 +119,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: pnpm/action-setup@v2
@@ -111,6 +146,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -137,6 +174,8 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - name: Checkout sources
@@ -148,6 +187,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -179,6 +220,7 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
+    if: ${{ always() }}
     needs: [
       get-version,
       translation-build,
@@ -230,7 +272,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: package
+    if: ${{ always() }}
 
     strategy:
       matrix:
@@ -287,7 +330,8 @@ jobs:
           tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize]
+    needs: [dockerize,changes]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -301,7 +345,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize]
+    needs: [dockerize,changes]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
@@ -316,6 +361,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
 
     steps:
       - name: Checkout sources
@@ -338,6 +384,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
 
     steps:
       - uses: actions/checkout@v3
@@ -367,6 +414,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -388,6 +436,7 @@ jobs:
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
     strategy:
       matrix:
         distrib: [bullseye]
