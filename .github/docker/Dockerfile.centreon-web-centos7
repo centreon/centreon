@@ -37,6 +37,31 @@ yum clean all
 
 EOF
 
+# Add temporary artifactory repo for collect 23.04 rpms
+RUN <<EOF
+echo "[centreon-collect-unstable-noarch]
+name=Centreon open source software repository.
+baseurl=https://registry-docker.centreon.com/ui/native/rpm-23.04-unstable/el7/unstable/noarch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-collect-unstable]
+name=Centreon open source software repository.
+baseurl=https://registry-docker.centreon.com/ui/native/rpm-23.04-unstable/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+" > /etc/yum.repo.d/centreon-collect.repo
+
+yum-config-manager --enable 'centreon-collect-unstable*'
+
+yum clean all
+
+EOF
+
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
