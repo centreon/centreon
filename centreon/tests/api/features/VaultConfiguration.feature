@@ -246,7 +246,7 @@ Feature: Vault Configuration API
     """
     And I am logged in with "kev"/"Centreon@2022"
 
-    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/2'
+    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
     Then the response code should be "403"
 
   Scenario: Delete vault configuration as an admin user while vault provider id does not exist
