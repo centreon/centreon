@@ -53,7 +53,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
-" > /etc/yum.repo.d/centreon-collect.repo
+" > /etc/yum.repos.d/centreon-collect.repo
 
 yum-config-manager --enable 'centreon-collect-unstable*'
 
