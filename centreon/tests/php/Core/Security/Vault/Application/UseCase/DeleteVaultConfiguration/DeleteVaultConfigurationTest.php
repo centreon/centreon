@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\{
     NotFoundResponse
 };
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
@@ -40,7 +41,6 @@ use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
     DeleteVaultConfiguration,
     DeleteVaultConfigurationRequest
 };
-use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 
 beforeEach(function (): void {
