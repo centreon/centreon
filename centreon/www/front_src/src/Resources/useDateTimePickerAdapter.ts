@@ -194,6 +194,14 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.month();
     };
 
+    public isAfter = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
+      return date.isAfter(value.endOf('month'));
+    };
+
+    public isBefore = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
+      return date.isBefore(value.startOf('month'));
+    };
+
     public getDaysInMonth = (date: dayjs.Dayjs): number => {
       return date.tz(timezone).daysInMonth();
     };
