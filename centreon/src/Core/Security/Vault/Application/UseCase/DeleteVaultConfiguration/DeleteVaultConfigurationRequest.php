@@ -29,5 +29,5 @@ final class DeleteVaultConfigurationRequest
     public int $vaultConfigurationId = 0;
 
     /** @var int */
-    public int $typeId = 1;
+    public int $typeId = 0;
 }
