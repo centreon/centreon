@@ -39,7 +39,14 @@ EOF
 
 # Add temporary artifactory repo for collect 23.04 rpms
 RUN <<EOF
-echo "
+echo "[centreon-collect-unstable-noarch]
+name=Centreon open source software repository.
+baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
 [centreon-collect-unstable]
 name=Centreon open source software repository.
 baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/
