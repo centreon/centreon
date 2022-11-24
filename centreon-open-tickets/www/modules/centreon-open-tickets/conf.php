@@ -39,7 +39,7 @@ $module_conf['centreon-open-tickets']["author"] = "Centreon";
 $module_conf['centreon-open-tickets']["stability"] = "stable";
 $module_conf['centreon-open-tickets']["last_update"] = "2022-10-24";
 $module_conf['centreon-open-tickets']["release_note"] =
-    "https://docs.centreon.com/22.10/en/releases/centreon-os-extensions.html";
+    "https://docs.centreon.com/23.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-open-tickets']["images"] = [
     'images/image1.png',
     'images/image2.png',

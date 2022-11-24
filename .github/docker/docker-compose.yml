@@ -42,7 +42,7 @@ services:
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: registry-docker.centreon.com/docker-global/mon-mediawiki-22.10:latest
+    image: registry-docker.centreon.com/docker-global/mon-mediawiki-23.04:latest
     ports: ["80"]
     profiles: ["mediawiki"]
 

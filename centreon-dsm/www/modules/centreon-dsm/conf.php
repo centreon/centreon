@@ -54,7 +54,7 @@ $module_conf['centreon-dsm']["author"] = "Centreon";
 $module_conf['centreon-dsm']["stability"] = "stable";
 $module_conf['centreon-dsm']["last_update"] = "2022-10-24";
 $module_conf['centreon-dsm']["release_note"] =
-    "https://docs.centreon.com/22.10/en/releases/centreon-os-extensions.html";
+    "https://docs.centreon.com/23.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-dsm']["images"] = [
     'images/dsm_snmp_events_tray.png'
 ];
