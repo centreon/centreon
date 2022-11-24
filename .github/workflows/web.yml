@@ -28,6 +28,8 @@ jobs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
+      - uses: actions/checkout@v3
+      
       - uses: dorny/paths-filter@v2
         id: filter
         with:
