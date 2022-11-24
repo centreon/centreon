@@ -61,6 +61,9 @@ yum clean all
 
 EOF
 
+RUN echo 'checking basearch var'
+RUN python -c 'import yum, json; yb = yum.YumBase(); print json.dumps(yb.conf.yumvar, indent=2)'
+
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
