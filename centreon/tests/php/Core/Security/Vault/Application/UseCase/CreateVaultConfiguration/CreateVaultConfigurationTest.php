@@ -56,35 +56,35 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         ->method('isAdmin')
         ->willReturn(false);
 
-        $vault = new Vault(1, 'myVaultProvider');
+    $vault = new Vault(1, 'myVaultProvider');
 
-        $vaultConfiguration = new VaultConfiguration(
-            1,
-            'myConf',
-            $vault,
-            '127.0.0.1',
-            8200,
-            'myStorage',
-            'myRoleId',
-            'mySecretId',
-            'mySalt'
-        );
+    $vaultConfiguration = new VaultConfiguration(
+        1,
+        'myConf',
+        $vault,
+        '127.0.0.1',
+        8200,
+        'myStorage',
+        'myRoleId',
+        'mySecretId',
+        'mySalt'
+    );
 
-        $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
-        $useCase = new CreateVaultConfiguration(
-            $this->readVaultConfigurationRepository,
-            $this->writeVaultConfigurationRepository,
-            $this->readVaultRepository,
-            $this->factory,
-            $this->user
-        );
+    $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new CreateVaultConfiguration(
+        $this->readVaultConfigurationRepository,
+        $this->writeVaultConfigurationRepository,
+        $this->readVaultRepository,
+        $this->factory,
+        $this->user
+    );
 
-        $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
+    $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
 
-        $useCase($presenter, $createVaultConfigurationRequest);
+    $useCase($presenter, $createVaultConfigurationRequest);
 
-        expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-        expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
+    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+    expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
 });
 
 it('should present InvalidArgumentResponse when vault configuration already exists', function (): void {
