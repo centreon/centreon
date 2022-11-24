@@ -4,6 +4,8 @@ import { Threshold } from '@visx/threshold';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { difference, equals, isNil, prop } from 'ramda';
 
+import { useTheme } from '@mui/material/styles';
+
 import { ResourceDetails } from '../../../../Details/models';
 import { ExclusionPeriodThresholdData } from '../models';
 import { TimeValue } from '../../models';
@@ -33,6 +35,8 @@ const AnomalyDetectionExclusionPeriodsThreshold = ({
   rightScale,
   leftScale,
 }: Props): JSX.Element | null => {
+  const theme = useTheme();
+
   const { timeSeries, lines } = data;
 
   const { newLines } = getNewLinesAnomalyDetection({
@@ -103,7 +107,7 @@ const AnomalyDetectionExclusionPeriodsThreshold = ({
         height={5}
         id="lines"
         orientation={['diagonal']}
-        stroke="black"
+        stroke={theme.palette.text.primary}
         strokeWidth={1}
         width={5}
       />

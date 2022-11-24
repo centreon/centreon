@@ -24,10 +24,10 @@ import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
 import {
   labelButtonExcludeAPeriod,
+  labelConfirmationExclusionPeriod,
   labelExcludedPeriods,
   labelExclusionOfPeriods,
   labelSubTitleExclusionOfPeriods,
-  labelConfirmationExclusionPeriod,
   titleExcludeAPeriod,
 } from '../../../../translatedLabels';
 import { GraphData, Line, TimeValue } from '../../models';
@@ -42,6 +42,7 @@ import AnomalyDetectionModalConfirmation from '../editDataDialog/AnomalyDetectio
 
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriods';
 import AnomalyDetectionFooterExclusionPeriods from './AnomalyDetectionFooterExclusionPeriods';
+import AnomalyDetectionItemsExclusionPeriods from './AnomalyDetectionItemsExclusionPeriods';
 import AnomalyDetectionTitleExclusionPeriods from './AnomalyDetectionTitleExclusionPeriods';
 
 const useStyles = makeStyles()((theme) => ({
@@ -64,7 +65,7 @@ const useStyles = makeStyles()((theme) => ({
   excludedPeriods: {
     display: 'flex',
     flexDirection: 'column',
-    width: '50%',
+    width: '65%',
   },
   exclusionButton: {
     width: theme.spacing(22.5),
@@ -143,8 +144,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const maxDateEndInputPicker = dayjs(exclusionTimePeriods?.end).add(1, 'day');
 
   const listExcludedDates =
-    thresholdsAnomalyDetectionData?.exclusionPeriodsThreshold
-      ?.selectedDateToDelete;
+    thresholdsAnomalyDetectionData?.exclusionPeriodsThreshold?.data;
 
   const exclude = (): void => {
     setOpen(true);
@@ -188,7 +188,12 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const addCurrentData = (): void => {
     const filteredData = data.map((item) => {
       if (item.isConfirmed === false) {
-        return { isConfirmed: false, lines: lineData, timeSeries };
+        return {
+          id: { endDate, startDate },
+          isConfirmed: false,
+          lines: lineData,
+          timeSeries,
+        };
       }
 
       return item;
@@ -224,12 +229,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         ...thresholdsAnomalyDetectionData.exclusionPeriodsThreshold,
         data: [
           ...excludedData,
-          { isConfirmed: false, lines: [], timeSeries: [] },
-        ],
-        selectedDateToDelete: [
-          ...thresholdsAnomalyDetectionData.exclusionPeriodsThreshold
-            .selectedDateToDelete,
-          { end: endDate, start: startDate },
+          { id: 0, isConfirmed: false, lines: [], timeSeries: [] },
         ],
       },
     });
@@ -241,7 +241,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const deleteCurrentData = (): void => {
     const filteredData = data.map((item) => {
       if (item.isConfirmed === false) {
-        return { isConfirmed: false, lines: [], timeSeries: [] };
+        return { id: 0, isConfirmed: false, lines: [], timeSeries: [] };
       }
 
       return item;
@@ -414,15 +414,17 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         </Typography>
         <List className={classes.list} data-testid="listExcludedPeriods">
           {listExcludedDates.map((item) => {
-            const dateExist = !isNil(item?.start) && !isNil(item?.end);
+            const dateExist =
+              !isNil(item?.id?.startDate) && !isNil(item?.id?.endDate);
 
             return (
-              dateExist && (
-                <ListItem key={toDate(item?.start as Date)}>
+              dateExist &&
+              item?.isConfirmed && (
+                <ListItem key={toDate(item?.id?.start as Date)}>
                   <ListItemText
-                    primary={`From ${toDate(item?.start as Date)} To ${toDate(
-                      item?.end as Date,
-                    )}`}
+                    primary={
+                      <AnomalyDetectionItemsExclusionPeriods item={item?.id} />
+                    }
                   />
                 </ListItem>
               )
