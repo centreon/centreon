@@ -100,11 +100,10 @@ final class UpdateVaultConfiguration
             }
 
             $vaultConfiguration = $this->vaultConfigurationFactory->create($updateVaultConfigurationRequest);
-            if ($this->isVaultConfigurationAlreadyExistsForSameProvider($vaultConfiguration)) {
+            if ($this->isVaultConfigurationAlreadyExists($vaultConfiguration)) {
                 $this->error(
                     'Vault configuration with these properties already exists for same provider',
                     [
-                        'provider' => $vaultConfiguration->getVault()->getName(),
                         'address' => $vaultConfiguration->getAddress(),
                         'port' => $vaultConfiguration->getPort(),
                         'storage' => $vaultConfiguration->getStorage(),
@@ -171,7 +170,7 @@ final class UpdateVaultConfiguration
      *
      * @return bool
      */
-    private function isVaultConfigurationAlreadyExistsForSameProvider(
+    private function isVaultConfigurationAlreadyExists(
         VaultConfiguration $vaultConfiguration
     ): bool {
         $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
@@ -181,7 +180,6 @@ final class UpdateVaultConfiguration
         );
 
         return $existingVaultConfiguration !== null
-            && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId()
-            && $existingVaultConfiguration->getVault()->getId() === $vaultConfiguration->getVault()->getId();
+            && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId();
     }
 }
