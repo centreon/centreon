@@ -71,16 +71,8 @@ jobs:
         working-directory: ${{ env.directory }}
 
       - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
+        run: pnpm test --silent
         working-directory: ${{ env.directory }}
-
-      - name: Publish unit tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: centreon-frontend-unit-tests-report
-          comment_mode: failures
-          junit_files: ${{ env.directory }}/junit.xml
 
   deliver-npm:
     runs-on: ubuntu-22.04

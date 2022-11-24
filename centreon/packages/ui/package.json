@@ -5,7 +5,7 @@
   "main": "src",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "pnpm run eslint --fix",
+    "eslint:fix": "pnpm eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
