@@ -34,7 +34,7 @@ class CsvFormatter extends AbstractFormatter implements PresenterFormatterInterf
     public function format(mixed $data): Response
     {
         $response = new StreamedResponse(null, Response::HTTP_OK, $this->responseHeaders);
-        $response->setCallback(function () use ($data) {
+        $response->setCallback(function () use ($data): void {
             $handle = fopen('php://output', 'r+');
             if ($handle === false) {
                 throw new \RuntimeException('Unable to open the output buffer');

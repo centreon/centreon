@@ -30,12 +30,12 @@ abstract class AbstractPresenter implements PresenterInterface
     /**
      * @var ResponseStatusInterface|null
      */
-    protected ?ResponseStatusInterface $responseStatus = null;
+    private ?ResponseStatusInterface $responseStatus = null;
 
     /**
      * @var mixed
      */
-    protected mixed $presentedData;
+    private mixed $presentedData;
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
