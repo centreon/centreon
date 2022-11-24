@@ -63,8 +63,8 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
 
         /**
          * @var array{
-         * id: int,
-         * name: string
+         *  id: int,
+         *  name: string
          * } $record
          */
         return $this->factory->createFromRecord($record);

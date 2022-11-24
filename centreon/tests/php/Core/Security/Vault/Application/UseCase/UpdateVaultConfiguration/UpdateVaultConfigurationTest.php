@@ -26,19 +26,25 @@ namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{ErrorResponse,
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
     NoContentResponse,
-    NotFoundResponse};
+    NotFoundResponse
+};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface};
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{UpdateVaultConfiguration,
+    WriteVaultConfigurationRepositoryInterface
+};
+use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
+    UpdateVaultConfiguration,
     UpdateVaultConfigurationRequest,
-    VaultConfigurationFactory};
+    VaultConfigurationFactory
+};
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 
 beforeEach(function (): void {

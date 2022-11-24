@@ -39,16 +39,16 @@ class DbVaultConfigurationFactory
 
     /**
      * @param array{
-     *     id: int,
-     *     name: string,
-     *     vault_id: int,
-     *     vault_name: string,
-     *     url: string,
-     *     port: int,
-     *     storage: string,
-     *     role_id: string,
-     *     secret_id: string,
-     *     salt: string
+     *  id: int,
+     *  name: string,
+     *  vault_id: int,
+     *  vault_name: string,
+     *  url: string,
+     *  port: int,
+     *  storage: string,
+     *  role_id: string,
+     *  secret_id: string,
+     *  salt: string
      * } $recordData
      *
      * @throws AssertionFailedException

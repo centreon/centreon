@@ -26,16 +26,20 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ErrorResponse,
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
     NoContentResponse,
-    NotFoundResponse};
+    NotFoundResponse
+};
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface};
-use Core\Security\Vault\Domain\Exceptions\{VaultException};
+    WriteVaultConfigurationRepositoryInterface
+};
+use Core\Security\Vault\Domain\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class UpdateVaultConfiguration
@@ -128,7 +132,7 @@ final class UpdateVaultConfiguration
         } catch (\Throwable $ex) {
             $this->error(
                 'An error occured in while updating vault configuration',
-                ['trace' => (string) $ex]
+                ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
                 new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())

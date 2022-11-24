@@ -30,8 +30,8 @@ class DbVaultFactory
 {
     /**
      * @param array{
-     *      id: int,
-     *      name: string
+     *  id: int,
+     *  name: string
      * } $recordData
      *
      * @throws AssertionFailedException
