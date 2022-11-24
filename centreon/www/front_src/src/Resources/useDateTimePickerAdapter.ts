@@ -216,8 +216,8 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
       if (date.isUTC()) {
-        const start = date.startOf('month').startOf('week').utc().local();
-        const end = date.endOf('month').endOf('week').utc().local();
+        const start = date.utc().startOf('month').startOf('week');
+        const end = date.utc().endOf('month').endOf('week');
 
         let count = 0;
         let current = start;
