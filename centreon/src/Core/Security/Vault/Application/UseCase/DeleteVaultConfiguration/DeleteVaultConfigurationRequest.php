@@ -26,7 +26,7 @@ namespace Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
 final class DeleteVaultConfigurationRequest
 {
     /** @var int */
-    public int $vaultConfigurationId = 1;
+    public int $vaultConfigurationId = 0;
 
     /** @var int */
     public int $typeId = 1;
