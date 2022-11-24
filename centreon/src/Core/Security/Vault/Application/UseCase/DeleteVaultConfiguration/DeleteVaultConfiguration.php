@@ -101,7 +101,7 @@ final class DeleteVaultConfiguration
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $this->error(
-                'An error occured in while updating vault configuration',
+                'An error occured in while deleting vault configuration',
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
