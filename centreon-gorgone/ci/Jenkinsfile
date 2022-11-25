@@ -1,0 +1,17 @@
+/*
+** Pipeline code.
+*/
+
+stage('Dependencies containers creation') {
+    parallel 'debian 11 dependencies': {
+        node {
+            dir('centreon-gorgone-debian11') {
+                checkout scm
+                dir ('ci/docker') {
+                    sh 'docker build --no-cache . -f Dockerfile.gorgone-debian11-dependencies -t registry.centreon.com/centreon-gorgone-debian11-dependencies:22.10'
+                    /*sh 'docker push registry.centreon.com/centreon-gorgone-debian10-dependencies:22.04'*/
+                }
+            }
+        }
+    }
+}
