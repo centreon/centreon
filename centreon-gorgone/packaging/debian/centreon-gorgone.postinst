@@ -40,7 +40,7 @@ if [ "$1" = "configure" ] ; then
   chmod 0755 \
     /usr/local/bin/gorgone_config_init.pl \
     /usr/local/bin/gorgone_audit.pl
-  
+
   chmod 0750 \
     /usr/local/bin/gorgone_install_plugins.pl
 
