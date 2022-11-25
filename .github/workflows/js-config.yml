@@ -35,8 +35,8 @@ jobs:
 
       - name: Update JS config version
         run: |
-          git config user.email "technique-ci@users.noreply.github.com"
-          git config user.name "technique-ci"
+          git config --local user.email "technique-ci@users.noreply.github.com"
+          git config --local user.name "technique-ci"
           git config pull.rebase false
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
