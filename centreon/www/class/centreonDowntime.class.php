@@ -412,18 +412,18 @@ class CentreonDowntime
                 h.host_id,
                 h.host_name,
                 s.service_id,
-                s.service_description,
+                s.service_description
             FROM downtime_period dtp,
                 downtime dt,
                 downtime_service_relation dtr,
                 service s,
                 host h,
                 host_service_relation hsr
-            WHERE dtp.dt_id = dtr.dt_id,
-                AND dtp.dt_id = dt.dt_id,
-                AND dtr.service_service_id = s.service_id,
-                AND hsr.service_service_id = s.service_id,
-                AND hsr.host_host_id = h.host_id,
+            WHERE dtp.dt_id = dtr.dt_id
+                AND dtp.dt_id = dt.dt_id
+                AND dtr.service_service_id = s.service_id
+                AND hsr.service_service_id = s.service_id
+                AND hsr.host_host_id = h.host_id
                 AND h.host_id = dtr.host_host_id
                 AND s.service_activate = '1'
             UNION
