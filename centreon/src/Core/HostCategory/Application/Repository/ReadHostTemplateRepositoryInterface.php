@@ -21,10 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\FindHostCategories;
+namespace Core\HostCategory\Application\Repository;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\HostCategory\Domain\Model\HostTemplate;
 
-interface FindHostCategoriesPresenterInterface extends PresenterInterface
+interface ReadHostTemplateRepositoryInterface
 {
+    /**
+     * @param int[] $hostCategoryIds
+     * @return array<int,HostTemplate[]>
+     */
+    public function findHostTemplatesByHostCategoryIds(array $hostCategoryIds): array;
 }

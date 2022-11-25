@@ -48,6 +48,8 @@ final class FindHostCategories
      */
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private ReadHostRepositoryInterface $readHostRepository,
+        private ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private RequestParametersInterface $requestParameters,
         private ContactInterface $user
@@ -92,6 +94,8 @@ final class FindHostCategories
 
     /**
      * @param HostCategory[] $hostCategories
+     * @param Host[] $hosts
+     * @param HostTemplates[] $hostTemplates
      * @return FindHostCategoriesResponse
      */
     private function createResponse(
