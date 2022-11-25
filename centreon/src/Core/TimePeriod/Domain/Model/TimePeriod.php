@@ -27,7 +27,7 @@ class TimePeriod extends NewTimePeriod
 {
     private int $id;
     /**
-     * @var Exception[]
+     * @var TimePeriodException[]
      */
     private array $exceptions = [];
 
@@ -55,7 +55,7 @@ class TimePeriod extends NewTimePeriod
     }
 
     /**
-     * @param Exception $exception
+     * @param TimePeriodException $exception
      * @return void
      */
     public function addException(NewException $exception): void
@@ -64,7 +64,7 @@ class TimePeriod extends NewTimePeriod
     }
 
     /**
-     * @return Exception[]
+     * @return TimePeriodException[]
      */
     public function getExceptions(): array
     {
@@ -72,7 +72,7 @@ class TimePeriod extends NewTimePeriod
     }
 
     /**
-     * @param Exception[] $exceptions
+     * @param TimePeriodException[] $exceptions
      */
     public function setExceptions(array $exceptions): void
     {

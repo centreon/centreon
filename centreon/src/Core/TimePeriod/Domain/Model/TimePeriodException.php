@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-class Exception extends NewException
+class TimePeriodException extends NewException
 {
     public function __construct(private int $id, private string $dayRange, private string $timeRange)
     {

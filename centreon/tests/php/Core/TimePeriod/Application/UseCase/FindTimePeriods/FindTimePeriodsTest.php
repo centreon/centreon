@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Infrastructure\Common\Presenter\JsonPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
+use Core\TimePeriod\Domain\Model\TimePeriodException;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\TimeRange;
@@ -38,18 +41,20 @@ use function PHPUnit\Framework\assertCount;
 beforeEach(function () {
     $this->repository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->requestParameter = $this->createMock(RequestParametersInterface::class);
+    $this->requestParameter = $this->createMock(RequestParameters::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
     $this->repository
         ->expects($this->once())
         ->method('findByRequestParameter')
         ->with($this->requestParameter)
         ->willThrowException(new \Exception());
 
-    $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);
+    $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
+    $presenter = new FindTimePeriodsPresenterStub(
+        $this->createMock(JsonPresenter::class)
+    );
     $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
@@ -58,30 +63,67 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a FindTimePeriodsResponse', function () {
-    $useCase = new FindTimePeriods($this->repository);
+    $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
 
+    $timePeriod = new TimePeriod(
+        1,
+        'fakeName',
+        'fakeAlias'
+    );
     $days = [new Day(1, new TimeRange('00:00-12:00'))];
-    $timePeriod = new TimePeriod(1, 'fakeName', 'fakeAlias', $days);
+    $timePeriod->setDays($days);
+
+    $templates = [
+        new TimePeriod(2, 'fakeName2', 'fakeAlias2'),
+        new TimePeriod(3, 'fakeName3', 'fakeAlias3'),
+    ];
+    $timePeriod->setTemplates($templates);
+
+    $exceptions = new TimePeriodException(1, 'monday 1', '06:00-07:00');
+    $timePeriod->addException($exceptions);
 
     $this->repository
         ->expects($this->once())
         ->method('findByRequestParameter')
+        ->with($this->requestParameter)
         ->willReturn([$timePeriod]);
 
     $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);
     $useCase($presenter);
     assertCount(1, $presenter->response->timePeriods);
+    /**
+     * @var TimePeriod $timePeriodToBeExpected
+     */
+    $timePeriodToBeExpected = $presenter->response->timePeriods[0];
+
     expect($presenter->response)
         ->toBeInstanceOf(FindTimePeriodsResponse::class)
-        ->and($presenter->response->timePeriods[0])->toBe(
+        ->and($timePeriodToBeExpected)->toBe(
             [
                 'id' => 1,
                 'name' => 'fakeName',
                 'alias' => 'fakeAlias',
                 'days' => [
                     [
-                        'day' => $days[0]->getDay(),
-                        'time_range' => $days[0]->getTimeRange()
+                        'day' => $timePeriod->getDays()[0]->getDay(),
+                        'time_range' => (string) $timePeriod->getDays()[0]->getTimeRange()
+                    ]
+                ],
+                'templates' => [
+                    [
+                        'id' => $timePeriod->getTemplates()[0]->getId(),
+                        'alias' => $timePeriod->getTemplates()[0]->getAlias()
+                    ],
+                    [
+                        'id' => $timePeriod->getTemplates()[1]->getId(),
+                        'alias' => $timePeriod->getTemplates()[1]->getAlias()
+                    ],
+                ],
+                'exceptions' => [
+                    [
+                        'id' => $timePeriod->getExceptions()[0]->getId(),
+                        'day_range' => $timePeriod->getExceptions()[0]->getDayRange(),
+                        'time_range' => $timePeriod->getExceptions()[0]->getTimeRange()
                     ]
                 ]
             ]

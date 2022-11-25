@@ -28,7 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\{Day, Exception, TimePeriod, TimeRange};
+use Core\TimePeriod\Domain\Model\{Day, TimePeriodException, TimePeriod, TimeRange};
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
@@ -144,7 +144,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
              * @var array{exception_id: int, timeperiod_id: int, days: string, timerange: string} $result
              */
             $timePeriods[$result["timeperiod_id"]]->addException(
-                new Exception(
+                new TimePeriodException(
                     $result['exception_id'],
                     $result["days"],
                     $result["timerange"]

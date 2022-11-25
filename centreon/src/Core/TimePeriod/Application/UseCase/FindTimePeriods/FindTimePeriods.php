@@ -28,7 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\Exception;
+use Core\TimePeriod\Domain\Model\TimePeriodException;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
 
@@ -43,8 +43,7 @@ class FindTimePeriods
     public function __construct(
         private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         private RequestParametersInterface $requestParameters,
-    )
-    {
+    ) {
     }
 
     /**
@@ -86,7 +85,7 @@ class FindTimePeriods
                         'alias' => $template->getAlias(),
                     ];
                 }, $timePeriod->getTemplates()),
-                'exceptions' => array_map(function (Exception $exception) {
+                'exceptions' => array_map(function (TimePeriodException $exception) {
                     return [
                         'id' => $exception->getId(),
                         'day_range' => $exception->getDayRange(),
