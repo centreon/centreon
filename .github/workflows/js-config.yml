@@ -39,7 +39,7 @@ jobs:
           git config pull.rebase false
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
-          git pull origin ${{ github.ref }}
+          git pull origin ${{ github.head_ref || github.ref_name }}
           git add .
           git commit -m "chore: release ${VERSION}"
           git tag ${VERSION}
@@ -48,7 +48,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          branch: ${{ github.ref }}
+          branch: ${{ github.head_ref || github.ref_name }}
           github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           ssh: true
       
