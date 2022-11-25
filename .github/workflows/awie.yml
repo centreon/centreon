@@ -21,12 +21,12 @@ env:
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
-    with: 
+    with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
   package:
     needs: [get-version]
-    
+
     strategy:
       fail-fast: true
       matrix:
@@ -54,7 +54,7 @@ jobs:
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       artifactory_username: ${{ secrets.ARTI_USER }}
-      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+      artifactory_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery-rpm:
     needs: [get-version, package]
@@ -74,6 +74,7 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ${{ matrix.module_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
@@ -96,6 +97,7 @@ jobs:
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ matrix.module_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
