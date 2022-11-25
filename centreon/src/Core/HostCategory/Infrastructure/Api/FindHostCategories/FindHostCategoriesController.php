@@ -25,11 +25,11 @@ namespace Core\HostCategory\Infrastructure\Api\FindHostCategories;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesPresenterInterface;
+use Core\HostCategory\Infrastructure\Api\FindHostCategories\FindHostCategoriesPresenter;
 
 class FindHostCategoriesController extends AbstractController
 {
-    public function __invoke(FindHostCategories $useCase, FindHostCategoriesPresenterInterface $presenter): object
+    public function __invoke(FindHostCategories $useCase, FindHostCategoriesPresenter $presenter): object
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Infrastructure\Api\FindHostCategories;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesPresenterInterface;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
-class FindHostCategoriesPresenter extends AbstractPresenter implements FindHostCategoriesPresenterInterface
+class FindHostCategoriesPresenter extends AbstractPresenter
 {
     /**
      * @param RequestParametersInterface $requestParameters
@@ -42,9 +42,51 @@ class FindHostCategoriesPresenter extends AbstractPresenter implements FindHostC
 
     public function present(mixed $data): void
     {
+        foreach ($data->hostCategories as $hostCategory) {
+            $result[]= [
+                'id' => $hostCategory['id'],
+                'name' => $hostCategory['name'],
+                'alias' => $hostCategory['alias'],
+                'hosts' => $this->presentHostsForHostCategories($data->hosts[$hostCategory['id']] ?? []),
+                'host_templates' => $this->presentHostTemplatesForHostCategories(
+                    $data->hostTemplate[$hostCategory['id']] ?? []
+                ),
+            ];
+        }
+
         parent::present([
-            'result' => $data->hostCategories,
+            'result' => $result ?? [],
             'meta' => $this->requestParameters->toArray()
         ]);
+    }
+
+    /**
+     * @param array<array<{id:string,name:string}>> $data
+     * @return array<array<{id:string,name:string}>>
+     */
+    private function presentHostsForHostCategories(array $data): array
+    {
+        foreach ($data as $host) {
+            $result[] = [
+                'id' => $host['id'],
+                'name' => $host['name']
+            ];
+        }
+        return $result ?? [];
+    }
+
+    /**
+     * @param array<array<{id:string,name:string}>> $data
+     * @return array<array<{id:string,name:string}>>
+     */
+    private function presentHostTemplatesForHostCategories(array $data): array
+    {
+        foreach ($data as $hostTemplate) {
+            $result[] = [
+                'id' => $hostTemplate['id'],
+                'name' => $hostTemplate['name']
+            ];
+        }
+        return $result ?? [];
     }
 }
