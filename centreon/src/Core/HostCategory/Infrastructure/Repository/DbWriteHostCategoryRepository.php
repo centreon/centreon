@@ -43,6 +43,8 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
      */
     public function deleteById(int $hostCategoryId): void
     {
+        $this->debug('Delete host category', ['hostCategoryId' => $hostCategoryId]);
+
         $request = $this->translateDbName(
             'DELETE hc FROM `:db`.hostcategories hc
             WHERE hc.hc_id = :hostCategoryId'
@@ -69,6 +71,11 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
+
+        $this->debug('Delete host category by access groups', [
+            'hostCategoryId' => $hostCategoryId,
+            'accessGroupIds' => $accessGroupIds
+        ]);
 
         $request = $this->translateDbName(
             'DELETE hc FROM `:db`.hostcategories hc
