@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf63993b3306d01e026ae5dfb17acfc2",
+    "content-hash": "0ceaa42b31a91c3ef21a25beb52bbed4",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6566,16 +6566,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-monorepo",
+            "version": "dev-monorepo-panther",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "fb55016237baac05629bf1984ad769d1997de6dd"
+                "reference": "65780385e936250d4cd1b6fddb3138ed500d8fa6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/fb55016237baac05629bf1984ad769d1997de6dd",
-                "reference": "fb55016237baac05629bf1984ad769d1997de6dd",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/65780385e936250d4cd1b6fddb3138ed500d8fa6",
+                "reference": "65780385e936250d4cd1b6fddb3138ed500d8fa6",
                 "shasum": ""
             },
             "require": {
@@ -6622,9 +6622,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo-panther"
             },
-            "time": "2022-10-18T13:26:42+00:00"
+            "time": "2022-11-25T09:18:30+00:00"
         },
         {
             "name": "composer/pcre",
@@ -7813,6 +7813,75 @@
             "time": "2021-06-28T04:27:21+00:00"
         },
         {
+            "name": "masterminds/html5",
+            "version": "2.7.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "897eb517a343a2281f11bc5556d6548db7d93947"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/897eb517a343a2281f11bc5556d6548db7d93947",
+                "reference": "897eb517a343a2281f11bc5556d6548db7d93947",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.7.6"
+            },
+            "time": "2022-08-18T16:18:26+00:00"
+        },
+        {
             "name": "myclabs/deep-copy",
             "version": "1.11.0",
             "source": {
@@ -8440,6 +8509,71 @@
                 "wiki": "https://github.com/michael-donat/php-vfs/wiki"
             },
             "time": "2020-10-14T06:51:31+00:00"
+        },
+        {
+            "name": "php-webdriver/webdriver",
+            "version": "1.13.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-webdriver/php-webdriver.git",
+                "reference": "6dfe5f814b796c1b5748850aa19f781b9274c36c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver/zipball/6dfe5f814b796c1b5748850aa19f781b9274c36c",
+                "reference": "6dfe5f814b796c1b5748850aa19f781b9274c36c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-zip": "*",
+                "php": "^5.6 || ~7.0 || ^8.0",
+                "symfony/polyfill-mbstring": "^1.12",
+                "symfony/process": "^2.8 || ^3.1 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "replace": {
+                "facebook/webdriver": "*"
+            },
+            "require-dev": {
+                "ondram/ci-detector": "^2.1 || ^3.5 || ^4.0",
+                "php-coveralls/php-coveralls": "^2.4",
+                "php-mock/php-mock-phpunit": "^1.1 || ^2.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpunit/phpunit": "^5.7 || ^7 || ^8 || ^9",
+                "squizlabs/php_codesniffer": "^3.5",
+                "symfony/var-dumper": "^3.3 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "suggest": {
+                "ext-SimpleXML": "For Firefox profile creation"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/Exception/TimeoutException.php"
+                ],
+                "psr-4": {
+                    "Facebook\\WebDriver\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PHP client for Selenium WebDriver. Previously facebook/webdriver.",
+            "homepage": "https://github.com/php-webdriver/php-webdriver",
+            "keywords": [
+                "Chromedriver",
+                "geckodriver",
+                "php",
+                "selenium",
+                "webdriver"
+            ],
+            "support": {
+                "issues": "https://github.com/php-webdriver/php-webdriver/issues",
+                "source": "https://github.com/php-webdriver/php-webdriver/tree/1.13.1"
+            },
+            "time": "2022-10-11T11:49:44+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -9468,6 +9602,76 @@
             "time": "2021-10-18T09:56:35+00:00"
         },
         {
+            "name": "robertfausk/mink-panther-driver",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/robertfausk/mink-panther-driver.git",
+                "reference": "2a4067d419655eda0604ac4085916a7c42b3b904"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/robertfausk/mink-panther-driver/zipball/2a4067d419655eda0604ac4085916a7c42b3b904",
+                "reference": "2a4067d419655eda0604ac4085916a7c42b3b904",
+                "shasum": ""
+            },
+            "require": {
+                "behat/mink": "~1.8",
+                "ext-dom": "*",
+                "php": ">=7.2",
+                "symfony/panther": "~0.7|~1.0|~2.0"
+            },
+            "require-dev": {
+                "dbrekelmans/bdi": "^1.0",
+                "mink/driver-testsuite": "dev-master",
+                "phpunit/phpunit": "~8.5|~9.3",
+                "symfony/dom-crawler": "~4.0|~5.0|~6.0",
+                "symfony/http-kernel": "~4.0|~5.0|~6.0"
+            },
+            "suggest": {
+                "ext-gd": "*"
+            },
+            "type": "mink-driver",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Behat\\Mink\\Driver\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Robert Freigang",
+                    "email": "robertfreigang@gmx.de"
+                }
+            ],
+            "description": "Symfony Panther driver for Mink framework",
+            "homepage": "http://mink.behat.org/",
+            "keywords": [
+                "Mink",
+                "Panther",
+                "browser",
+                "chrome",
+                "chromium",
+                "firefox",
+                "headless",
+                "symfony",
+                "testing"
+            ],
+            "support": {
+                "issues": "https://github.com/robertfausk/mink-panther-driver/issues",
+                "source": "https://github.com/robertfausk/mink-panther-driver/tree/v1.1.0"
+            },
+            "time": "2022-07-25T16:04:56+00:00"
+        },
+        {
             "name": "sebastian/cli-parser",
             "version": "1.0.1",
             "source": {
@@ -10488,6 +10692,77 @@
             "time": "2021-12-12T21:44:58+00:00"
         },
         {
+            "name": "symfony/browser-kit",
+            "version": "v6.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/browser-kit.git",
+                "reference": "2e3b6a4406c2af963c634d7bd0457402b67dcc56"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/2e3b6a4406c2af963c634d7bd0457402b67dcc56",
+                "reference": "2e3b6a4406c2af963c634d7bd0457402b67dcc56",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/dom-crawler": "^5.4|^6.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^5.4|^6.0",
+                "symfony/http-client": "^5.4|^6.0",
+                "symfony/mime": "^5.4|^6.0",
+                "symfony/process": "^5.4|^6.0"
+            },
+            "suggest": {
+                "symfony/process": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\BrowserKit\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Simulates the behavior of a web browser, allowing you to make requests, click on links and submit forms programmatically",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/browser-kit/tree/v6.1.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-07-27T15:50:51+00:00"
+        },
+        {
             "name": "symfony/css-selector",
             "version": "v6.1.3",
             "source": {
@@ -10551,6 +10826,165 @@
                 }
             ],
             "time": "2022-06-27T17:24:16+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v6.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "66be2a0ccc90105b90b9393c984cfc3ea0e320df"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/66be2a0ccc90105b90b9393c984cfc3ea0e320df",
+                "reference": "66be2a0ccc90105b90b9393c984cfc3ea0e320df",
+                "shasum": ""
+            },
+            "require": {
+                "masterminds/html5": "^2.6",
+                "php": ">=8.1",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^5.4|^6.0"
+            },
+            "suggest": {
+                "symfony/css-selector": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases DOM navigation for HTML and XML documents",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dom-crawler/tree/v6.1.7"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-10-28T16:23:08+00:00"
+        },
+        {
+            "name": "symfony/panther",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/panther.git",
+                "reference": "dc572828ee81051b87c39db8a9be1bb78980d738"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/panther/zipball/dc572828ee81051b87c39db8a9be1bb78980d738",
+                "reference": "dc572828ee81051b87c39db8a9be1bb78980d738",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": ">=8.0",
+                "php-webdriver/webdriver": "^1.8.2",
+                "symfony/browser-kit": "^5.3 || ^6.0",
+                "symfony/dependency-injection": "^5.3 || ^6.0",
+                "symfony/deprecation-contracts": "^2.4 || ^3",
+                "symfony/dom-crawler": "^5.3 || ^6.0",
+                "symfony/http-client": "^5.3 || ^6.0",
+                "symfony/http-kernel": "^5.3 || ^6.0",
+                "symfony/process": "^5.3 || ^6.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^5.3 || ^6.0",
+                "symfony/framework-bundle": "^5.3 || ^6.0",
+                "symfony/mime": "^5.3 || ^6.0",
+                "symfony/phpunit-bridge": "^5.3 || ^6.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Panther\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kévin Dunglas",
+                    "email": "dunglas@gmail.com",
+                    "homepage": "https://dunglas.fr"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "A browser testing and web scraping library for PHP and Symfony.",
+            "homepage": "https://dunglas.fr",
+            "keywords": [
+                "e2e",
+                "scraping",
+                "selenium",
+                "symfony",
+                "testing",
+                "webdriver"
+            ],
+            "support": {
+                "issues": "https://github.com/symfony/panther/issues",
+                "source": "https://github.com/symfony/panther/tree/v2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.panthera.org/donate",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/dunglas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/panther",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-12-02T17:32:12+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",
