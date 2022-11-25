@@ -40,10 +40,13 @@ class FindHostCategoriesPresenter extends AbstractPresenter
     ) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function present(mixed $data): void
     {
         foreach ($data->hostCategories as $hostCategory) {
-            $result[]= [
+            $result[] = [
                 'id' => $hostCategory['id'],
                 'name' => $hostCategory['name'],
                 'alias' => $hostCategory['alias'],
@@ -61,8 +64,8 @@ class FindHostCategoriesPresenter extends AbstractPresenter
     }
 
     /**
-     * @param array<array<{id:string,name:string}>> $data
-     * @return array<array<{id:string,name:string}>>
+     * @param array<array{id:string,name:string}> $data
+     * @return array<array{id:string,name:string}>
      */
     private function presentHostsForHostCategories(array $data): array
     {
@@ -76,8 +79,8 @@ class FindHostCategoriesPresenter extends AbstractPresenter
     }
 
     /**
-     * @param array<array<{id:string,name:string}>> $data
-     * @return array<array<{id:string,name:string}>>
+     * @param array<array{id:string,name:string}> $data
+     * @return array<array{id:string,name:string}>
      */
     private function presentHostTemplatesForHostCategories(array $data): array
     {
