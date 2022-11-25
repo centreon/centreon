@@ -7,8 +7,8 @@ import LoadingSkeleton from '../LoadingSkeleton';
 const useStyles = makeStyles()((theme) => ({
   skeleton: {
     backgroundColor: alpha(theme.palette.grey[50], 0.4),
-    borderRadius: 5,
-  },
+    borderRadius: 5
+  }
 }));
 
 interface Props {
@@ -24,7 +24,7 @@ const MenuLoader = ({
   height = 5,
   className,
   variant = 'rectangular',
-  animate = true,
+  animate = true
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes, cx } = useStyles();

@@ -1,58 +1,57 @@
 import { useState } from 'react';
 
-import clsx from 'clsx';
 import { useLocation } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import { ListItemText, Switch } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { patchData, useRequest } from '@centreon/ui';
 
 import useSwitchThemeMode from './useSwitchThemeMode';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     '& .MuiSwitch-thumb': {
-      backgroundColor: 'white',
+      backgroundColor: 'white'
     },
     '& .MuiSwitch-track, & .Mui-checked + .MuiSwitch-track': {
       backgroundColor: theme.palette.text.primary,
-      opacity: 0.5,
+      opacity: 0.5
     },
     alignItems: 'center',
-    display: 'flex',
+    display: 'flex'
   },
   containerMode: {
     display: 'flex',
-    justifyContent: 'space-around',
+    justifyContent: 'space-around'
   },
   containerSwitch: {
     '&.Mui-checked': {
       '&:hover': {
-        backgroundColor: 'unset',
-      },
+        backgroundColor: 'unset'
+      }
     },
     '&:hover': {
-      backgroundColor: 'unset',
-    },
+      backgroundColor: 'unset'
+    }
   },
   disabledMode: {
-    opacity: 0.5,
+    opacity: 0.5
   },
   mode: {
-    paddingLeft: theme.spacing(1),
-  },
+    paddingLeft: theme.spacing(1)
+  }
 }));
 
 const SwitchThemeMode = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const { pathname } = useLocation();
   const [isPending, isDarkMode, themeMode, updateUser] = useSwitchThemeMode();
 
   const [isDark, setIsDark] = useState(isDarkMode);
 
   const { sendRequest } = useRequest({
-    request: patchData,
+    request: patchData
   });
 
   const switchEndPoint = './api/latest/configuration/users/current/parameters';
@@ -63,7 +62,7 @@ const SwitchThemeMode = (): JSX.Element => {
     updateUser();
     sendRequest({
       data: { theme: themeMode },
-      endpoint: switchEndPoint,
+      endpoint: switchEndPoint
     }).then(() => {
       if (isCurrentPageLegacy) {
         window.location.reload();
@@ -83,14 +82,14 @@ const SwitchThemeMode = (): JSX.Element => {
       />
       <div className={classes.containerMode}>
         <ListItemText
-          className={clsx(classes.mode, { [classes.disabledMode]: isDark })}
+          className={cx(classes.mode, { [classes.disabledMode]: isDark })}
         >
           Light
         </ListItemText>
 
         <ListItemText
-          className={clsx(classes.mode, {
-            [classes.disabledMode]: !isDark,
+          className={cx(classes.mode, {
+            [classes.disabledMode]: !isDark
           })}
         >
           Dark

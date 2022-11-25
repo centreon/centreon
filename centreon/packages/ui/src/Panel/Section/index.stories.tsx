@@ -7,10 +7,10 @@ import SectionPanel from '.';
 export default {
   argsType: {
     loading: { control: 'bolean' },
-    sections: { control: 'object' },
+    sections: { control: 'object' }
   },
   component: SectionPanel,
-  title: 'Panel/Section',
+  title: 'Panel/Section'
 } as ComponentMeta<typeof SectionPanel>;
 
 interface Props {
@@ -22,7 +22,7 @@ interface Props {
 const PanelWithHeader = ({
   sections,
   secondaryPanel = undefined,
-  loading = false,
+  loading = false
 }: Props): JSX.Element => (
   <div
     style={{ display: 'flex', flexDirection: 'row-reverse', height: '100vh' }}
@@ -42,20 +42,20 @@ const sections = [
     expandable: true,
     id: 'first section',
     section: <Typography>First section</Typography>,
-    title: 'First section',
+    title: 'First section'
   },
   {
     expandable: true,
     id: 'second section',
     section: <Typography>Second section</Typography>,
-    title: 'Second section',
+    title: 'Second section'
   },
   {
     expandable: true,
     id: 'third section',
     section: <Typography>Third section</Typography>,
-    title: 'Third section',
-  },
+    title: 'Third section'
+  }
 ];
 
 const moreSections = [
@@ -63,38 +63,38 @@ const moreSections = [
     expandable: true,
     id: 'fourth section',
     section: <Typography>Fourth section</Typography>,
-    title: 'Fourth section',
+    title: 'Fourth section'
   },
   {
     expandable: true,
     id: 'fifth section',
     section: <Typography>Fifth section</Typography>,
-    title: 'Fifth section',
+    title: 'Fifth section'
   },
   {
     expandable: true,
     id: 'sixth section',
     section: <Typography>Sixth section</Typography>,
-    title: 'Sixth section',
+    title: 'Sixth section'
   },
   {
     expandable: true,
     id: 'seventh section',
     section: <Typography>Seventh section</Typography>,
-    title: 'Seventh section',
+    title: 'Seventh section'
   },
   {
     expandable: true,
     id: 'eighth section',
     section: <Typography>Eighth section</Typography>,
-    title: 'Eighth section',
+    title: 'Eighth section'
   },
   {
     expandable: true,
     id: 'nineth section',
     section: <Typography>Nineth section</Typography>,
-    title: 'Nineth section',
-  },
+    title: 'Nineth section'
+  }
 ];
 
 const TemplateSectionPanel: ComponentStory<typeof SectionPanel> = (args) => (
@@ -104,7 +104,7 @@ const TemplateSectionPanel: ComponentStory<typeof SectionPanel> = (args) => (
 export const PlaygroundSection = TemplateSectionPanel.bind({});
 PlaygroundSection.args = {
   loading: false,
-  sections,
+  sections
 };
 
 export const normal = (): JSX.Element => (

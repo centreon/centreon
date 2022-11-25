@@ -10,7 +10,7 @@ import {
   pipe,
   not,
   has,
-  omit,
+  omit
 } from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
@@ -21,7 +21,7 @@ import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 import {
   ConditionsSearchParameter,
-  SearchParameter,
+  SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
 import useDebounce from '../../../../utils/useDebounce';
 import useFetchQuery from '../../../../api/useFetchQuery';
@@ -39,7 +39,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
 
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
-  multiple: boolean,
+  multiple: boolean
 ): ((props) => JSX.Element) => {
   const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
@@ -68,7 +68,7 @@ const ConnectedAutocompleteField = (
         setPage(1);
       },
       memoProps: [page, searchConditions],
-      wait: 500,
+      wait: 500
     });
 
     const theme = useTheme();
@@ -80,22 +80,22 @@ const ConnectedAutocompleteField = (
       getEndpoint: (params) => {
         return getEndpoint({
           page: params?.page || page,
-          search: searchParameter,
+          search: searchParameter
         });
       },
       getQueryKey: () => [`autocomplete-${props.label}`, page, searchParameter],
       isPaginated: true,
       queryOptions: {
         enabled: false,
-        suspense: false,
-      },
+        suspense: false
+      }
     });
 
     const lastOptionRef = useIntersectionObserver({
       action: () => setPage(page + 1),
       loading: isFetching,
       maxPage,
-      page,
+      page
     });
 
     const getExcludeSelectedValueCondition = ():
@@ -118,14 +118,14 @@ const ConnectedAutocompleteField = (
             prop(conditionField),
             selectedValues as Array<
               Record<keyof SelectEntry, string | undefined>
-            >,
-          ) as Array<string>,
-        },
+            >
+          ) as Array<string>
+        }
       };
     };
 
     const getSearchedValueCondition = (
-      searchedValue: string,
+      searchedValue: string
     ): ConditionsSearchParameter | undefined => {
       if (isEmpty(searchedValue)) {
         return undefined;
@@ -134,8 +134,8 @@ const ConnectedAutocompleteField = (
       return {
         field,
         values: {
-          $lk: `%${searchedValue}%`,
-        },
+          $lk: `%${searchedValue}%`
+        }
       };
     };
 
@@ -146,7 +146,7 @@ const ConnectedAutocompleteField = (
       const conditions = [
         excludeSelectedValueCondition,
         searchedValueCondition,
-        ...searchConditions,
+        ...searchConditions
       ].filter(pipe(isNil, not)) as Array<ConditionsSearchParameter>;
 
       if (isEmpty(conditions)) {
@@ -154,7 +154,7 @@ const ConnectedAutocompleteField = (
       }
 
       return {
-        conditions,
+        conditions
       };
     };
 
@@ -181,7 +181,7 @@ const ConnectedAutocompleteField = (
 
       const optionProps = {
         checkboxSelected: multiple ? selected : undefined,
-        thumbnailUrl: displayOptionThumbnail ? option.url : undefined,
+        thumbnailUrl: displayOptionThumbnail ? option.url : undefined
       };
 
       return (
@@ -220,7 +220,7 @@ const ConnectedAutocompleteField = (
 
         if (!isEmpty(labelKey) && !isNil(labelKey)) {
           const list = newOptions.result.map((item) =>
-            renameKey({ key: labelKey, newKey: 'name', object: item }),
+            renameKey({ key: labelKey, newKey: 'name', object: item })
           );
           setOptions(moreOptions.concat(list as Array<TData>));
 
@@ -244,9 +244,9 @@ const ConnectedAutocompleteField = (
           getPrefetchQueryKey: (newPage) => [
             `autocomplete-${props.label}`,
             newPage,
-            searchParameter,
+            searchParameter
           ],
-          page,
+          page
         });
       });
     };
@@ -258,7 +258,7 @@ const ConnectedAutocompleteField = (
         setSearchParameter(
           !isEmpty(searchConditions)
             ? { conditions: searchConditions }
-            : undefined,
+            : undefined
         );
       }
     }, [optionsOpen]);
@@ -267,7 +267,7 @@ const ConnectedAutocompleteField = (
       setSearchParameter(
         !isEmpty(searchConditions)
           ? { conditions: searchConditions }
-          : undefined,
+          : undefined
       );
     }, [searchConditions]);
 

@@ -1,7 +1,7 @@
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { ResourceType } from '../../../models';
 import { TabProps } from '..';
@@ -12,31 +12,31 @@ import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 
 import HostGraph from './HostGraph';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme: Theme) => ({
   container: {
     display: 'grid',
     gridRowGap: theme.spacing(2),
-    gridTemplateRows: 'auto 1fr',
+    gridTemplateRows: 'auto 1fr'
   },
   exportToPngButton: {
     display: 'flex',
     justifyContent: 'space-between',
-    margin: theme.spacing(0, 1, 1, 2),
+    margin: theme.spacing(0, 1, 1, 2)
   },
   graph: {
     height: '100%',
     margin: 'auto',
-    width: '100%',
+    width: '100%'
   },
   graphContainer: {
     display: 'grid',
     gridTemplateRows: '1fr',
-    padding: theme.spacing(2, 1, 1),
-  },
+    padding: theme.spacing(2, 1, 1)
+  }
 }));
 
 const GraphTabContent = ({ details }: TabProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const type = details?.type as ResourceType;
   const equalsService = equals(ResourceType.service);
@@ -78,7 +78,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
 
 const MemoizedGraphTabContent = memoizeComponent<TabProps>({
   Component: GraphTabContent,
-  memoProps: ['details', 'ariaLabel'],
+  memoProps: ['details', 'ariaLabel']
 });
 
 const GraphTab = ({ details }: TabProps): JSX.Element => {

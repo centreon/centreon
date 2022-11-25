@@ -19,7 +19,7 @@ interface UseFederatedModulesState {
 
 const useFederatedModules = (): UseFederatedModulesState => {
   const { sendRequest } = useRequest<FederatedModule>({
-    request: getData,
+    request: getData
   });
   const [federatedModules, setFederatedModules] = useAtom(federatedModulesAtom);
   const { getModules } = usePlatformVersions();
@@ -33,8 +33,8 @@ const useFederatedModules = (): UseFederatedModulesState => {
 
     Promise.all(
       modules?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedModule(moduleName) }),
-      ) || [],
+        sendRequest({ endpoint: getFederatedModule(moduleName) })
+      ) || []
     ).then(setFederatedModules);
   }, [modules]);
 
@@ -44,7 +44,7 @@ const useFederatedModules = (): UseFederatedModulesState => {
 
   return {
     federatedModules,
-    getFederatedModulesConfigurations,
+    getFederatedModulesConfigurations
   };
 };
 

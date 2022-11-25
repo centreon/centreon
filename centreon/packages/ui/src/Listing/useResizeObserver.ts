@@ -9,7 +9,7 @@ interface Props<TRef> {
 
 const useResizeObserver = <TRef extends Element>({
   ref,
-  onResize,
+  onResize
 }: Props<TRef>): void => {
   useEffect(() => {
     const ro = new ResizeObserver(onResize);

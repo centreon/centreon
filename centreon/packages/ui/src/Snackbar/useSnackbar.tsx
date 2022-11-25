@@ -42,7 +42,7 @@ const useSnackbar = (): UseSnackbar => {
   const showMessage = ({ message, severity }: ShowMessageProps): void => {
     notistackHookProps?.enqueueSnackbar(message, {
       content: snackbarContent(severity),
-      variant: severity,
+      variant: severity
     });
   };
 
@@ -51,7 +51,7 @@ const useSnackbar = (): UseSnackbar => {
 
     const formattedMessages = messageKeys.map(
       (messageKey) => `${messageKey}: ${messages[messageKey]}`,
-      [],
+      []
     );
 
     showMessage({
@@ -64,7 +64,7 @@ const useSnackbar = (): UseSnackbar => {
           ))}
         </div>
       ),
-      severity,
+      severity
     });
   };
 
@@ -108,7 +108,7 @@ const useSnackbar = (): UseSnackbar => {
     showSuccessMessage,
     showSuccessMessages,
     showWarningMessage,
-    showWarningMessages,
+    showWarningMessages
   };
 };
 

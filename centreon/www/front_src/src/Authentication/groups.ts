@@ -7,36 +7,36 @@ import {
   labelAutoImportUsers,
   labelClientAddresses,
   labelGroupsMapping,
-  labelIdentityProvider,
+  labelIdentityProvider
 } from './translatedLabels';
 
 export const groups: Array<Group> = [
   {
     name: labelActivation,
-    order: 1,
+    order: 1
   },
   {
     name: labelIdentityProvider,
-    order: 2,
+    order: 2
   },
   {
     name: labelAuthenticationConditions,
-    order: 3,
+    order: 3
   },
   {
     name: labelClientAddresses,
-    order: 4,
+    order: 4
   },
   {
     name: labelAutoImportUsers,
-    order: 5,
+    order: 5
   },
   {
     name: labelRolesMapping,
-    order: 6,
+    order: 6
   },
   {
     name: labelGroupsMapping,
-    order: 7,
-  },
+    order: 7
+  }
 ];

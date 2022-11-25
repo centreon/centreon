@@ -24,22 +24,22 @@ const useStyles = makeStyles<StyleProps>()((theme) => ({
   active: {
     backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
       ? theme.palette.common.black
-      : theme.palette.primary.dark,
+      : theme.palette.primary.dark
   },
   bottom: {
-    display: 'flex',
+    display: 'flex'
   },
   link: {
-    textDecoration: 'none',
+    textDecoration: 'none'
   },
   subMenuCounters: {
     display: 'flex',
-    gap: theme.spacing(0.5),
+    gap: theme.spacing(0.5)
   },
   subMenuRight: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   submenu: {
     backgroundColor: theme.palette.background.default,
@@ -51,19 +51,19 @@ const useStyles = makeStyles<StyleProps>()((theme) => ({
     textAlign: 'left',
     top: 'calc(100% + 10px)',
     width: theme.spacing(18),
-    zIndex: theme.zIndex.mobileStepper,
+    zIndex: theme.zIndex.mobileStepper
   },
   submenuDisplayed: {
-    display: 'block',
+    display: 'block'
   },
   top: {
     display: 'flex',
-    position: 'relative',
+    position: 'relative'
   },
   wrapMiddleIcon: {
     color: 'inherit',
-    fontSize: 0,
-  },
+    fontSize: 0
+  }
 }));
 
 interface IconHeaderProps {
@@ -132,7 +132,7 @@ const SubmenuHeader = ({
     >
       <div
         className={cx(classes.top, {
-          [classes.active]: active,
+          [classes.active]: active
         })}
         {...props}
       >
@@ -171,7 +171,7 @@ const SubmenuHeader = ({
 
         <div
           className={cx(classes.submenu, {
-            [classes.submenuDisplayed]: toggled,
+            [classes.submenuDisplayed]: toggled
           })}
         >
           <SubmenuItems>
@@ -183,7 +183,7 @@ const SubmenuHeader = ({
                 severityCode,
                 submenuCount,
                 submenuTitle,
-                titleTestId,
+                titleTestId
               }) => {
                 return (
                   <SubmenuItem
@@ -197,7 +197,7 @@ const SubmenuHeader = ({
                     onClick={onClick}
                   />
                 );
-              },
+              }
             )}
           </SubmenuItems>
         </div>

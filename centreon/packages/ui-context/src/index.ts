@@ -15,5 +15,5 @@ export type {
   Downtime,
   CloudServices,
   Acknowledgement,
-  Acl,
+  Acl
 } from './types';

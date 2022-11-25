@@ -2,20 +2,19 @@ import { useState, useRef, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil } from 'ramda';
-import clsx from 'clsx';
 import { useAtomValue } from 'jotai/utils';
 import { useNavigate } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
 import PollerIcon from '@mui/icons-material/DeviceHub';
 import { Button, ClickAwayListener, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 
 import {
   MenuSkeleton,
   getData,
   useRequest,
   IconHeader,
-  IconToggleSubmenu,
+  IconToggleSubmenu
 } from '@centreon/ui';
 import { refreshIntervalAtom, ThemeMode } from '@centreon/ui-context';
 
@@ -28,7 +27,7 @@ import {
   labelDatabaseUpdatesNotActive,
   labelLatencyDetected,
   labelPoller,
-  labelPollerNotRunning,
+  labelPollerNotRunning
 } from './translatedLabels';
 import ExportConfiguration from './ExportConfiguration';
 import PollerStatusIcon from './PollerStatusIcon';
@@ -38,7 +37,7 @@ export const pollerConfigurationPageNumber = '60901';
 const pollerIssueKeyToMessage = {
   database: labelDatabaseUpdatesNotActive,
   latency: labelLatencyDetected,
-  stability: labelPollerNotRunning,
+  stability: labelPollerNotRunning
 };
 
 interface PollerData {
@@ -46,10 +45,10 @@ interface PollerData {
   total: number;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   confButton: {
     '&:hover': {
-      background: theme.palette.grey[500],
+      background: theme.palette.grey[500]
     },
     backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
       ? theme.palette.background.default
@@ -58,16 +57,16 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     display: 'flex',
     fontSize: theme.typography.body2.fontSize,
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
   container: {
     borderRight: '1px solid white',
     display: 'flex',
     paddingRight: theme.spacing(3),
     [theme.breakpoints.down(768)]: {
-      paddingRight: theme.spacing(1),
+      paddingRight: theme.spacing(1)
     },
-    position: 'relative',
+    position: 'relative'
   },
   iconToggleMenu: {
     alignItems: 'flex-end',
@@ -76,11 +75,11 @@ const useStyles = makeStyles((theme) => ({
       alignItems: 'center',
       justifyContent: 'center',
       position: 'relative',
-      right: theme.spacing(0.5),
-    },
+      right: theme.spacing(0.5)
+    }
   },
   link: {
-    textDecoration: 'none',
+    textDecoration: 'none'
   },
   pollarHeaderRight: {
     display: 'flex',
@@ -88,16 +87,16 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     [theme.breakpoints.down(768)]: {
       flexDirection: 'row',
-      gap: theme.spacing(0.5),
-    },
+      gap: theme.spacing(0.5)
+    }
   },
   pollerDetailRow: {
     borderBottom: '1px solid',
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   pollerDetailTitle: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   subMenuToggle: {
     backgroundColor: theme.palette.background.default,
@@ -111,20 +110,20 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
     top: `calc(100% + ${theme.spacing(1.25)})`,
     width: theme.spacing(20),
-    zIndex: theme.zIndex.mobileStepper,
+    zIndex: theme.zIndex.mobileStepper
   },
   subMenuToggleActive: {
-    display: 'block',
-  },
+    display: 'block'
+  }
 }));
 
 const PollerMenu = (): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   const { t } = useTranslation();
   const { allowedPages } = useNavigation();
   const allowPollerConfiguration = allowedPages?.includes(
-    pollerConfigurationPageNumber,
+    pollerConfigurationPageNumber
   );
 
   const [issues, setIssues] = useState<Issues | null>(null);
@@ -136,7 +135,7 @@ const PollerMenu = (): JSX.Element | null => {
   const navigate = useNavigate();
   const { sendRequest } = useRequest<PollerData>({
     httpCodesBypassErrorSnackbar: [401],
-    request: getData,
+    request: getData
   });
   const refreshInterval = useAtomValue(refreshIntervalAtom);
 
@@ -225,8 +224,8 @@ const PollerMenu = (): JSX.Element | null => {
         </div>
 
         <div
-          className={clsx(classes.subMenuToggle, {
-            [classes.subMenuToggleActive]: toggled,
+          className={cx(classes.subMenuToggle, {
+            [classes.subMenuToggleActive]: toggled
           })}
         >
           {!isEmpty(issues) ? (

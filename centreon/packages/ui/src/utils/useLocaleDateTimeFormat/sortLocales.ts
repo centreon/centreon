@@ -7,7 +7,7 @@ export default {
     ms: (): string => 'ms',
     s: (): string => 's',
     w: (): string => 'w',
-    y: (): string => 'y',
+    y: (): string => 'y'
   },
   shortES: {
     d: (): string => 'd',
@@ -17,7 +17,7 @@ export default {
     ms: (): string => 'ms',
     s: (): string => 's',
     w: (): string => 'sem',
-    y: (): string => 'a',
+    y: (): string => 'a'
   },
   shortFR: {
     d: (): string => 'j',
@@ -27,7 +27,7 @@ export default {
     ms: (): string => 'ms',
     s: (): string => 's',
     w: (): string => 'sem',
-    y: (): string => 'a',
+    y: (): string => 'a'
   },
   shortPT: {
     d: (): string => 'd',
@@ -37,6 +37,6 @@ export default {
     ms: (): string => 'ms',
     s: (): string => 's',
     w: (): string => 'sem',
-    y: (): string => 'a',
-  },
+    y: (): string => 'a'
+  }
 };

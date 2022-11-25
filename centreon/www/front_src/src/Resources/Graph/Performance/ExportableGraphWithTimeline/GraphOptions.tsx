@@ -1,32 +1,32 @@
 import { pluck, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import { FormControlLabel, FormGroup, Switch } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '@centreon/ui';
 
 import { GraphOption, GraphOptions } from '../../../Details/models';
 import {
   setGraphTabParametersDerivedAtom,
-  tabParametersAtom,
+  tabParametersAtom
 } from '../../../Details/detailsAtoms';
 
 import {
   changeGraphOptionsDerivedAtom,
-  graphOptionsAtom,
+  graphOptionsAtom
 } from './graphOptionsAtoms';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   optionLabel: {
     justifyContent: 'space-between',
-    margin: 0,
-  },
+    margin: 0
+  }
 }));
 
 const Options = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const graphOptions = useAtomValue(graphOptionsAtom);
@@ -38,13 +38,13 @@ const Options = (): JSX.Element => {
 
   const graphOptionsConfigurationValue = pluck<keyof GraphOption, GraphOption>(
     'value',
-    graphOptionsConfiguration,
+    graphOptionsConfiguration
   );
 
   const changeTabGraphOptions = (options: GraphOptions): void => {
     setGraphTabParameters({
       ...tabParameters.graph,
-      options,
+      options
     });
   };
 
@@ -62,7 +62,7 @@ const Options = (): JSX.Element => {
                 onChange={(): void =>
                   changeGraphOptions({
                     changeTabGraphOptions,
-                    graphOptionId: id,
+                    graphOptionId: id
                   })
                 }
               />
@@ -75,7 +75,7 @@ const Options = (): JSX.Element => {
         ))}
       </FormGroup>
     ),
-    memoProps: [graphOptionsConfigurationValue],
+    memoProps: [graphOptionsConfigurationValue]
   });
 };
 

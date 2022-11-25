@@ -9,7 +9,7 @@ import {
   IconButton as MuiIconButton,
   Typography,
   ListItemButton,
-  Box,
+  Box
 } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -26,23 +26,23 @@ interface Props {
 
 const useStyles = makeStyles()((theme) => ({
   expandCollapseIcon: {
-    justifySelf: 'flex-end',
+    justifySelf: 'flex-end'
   },
   groupTitleContainer: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   groupTitleIcon: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   tooltip: {
-    maxWidth: theme.spacing(60),
-  },
+    maxWidth: theme.spacing(60)
+  }
 }));
 
 const CollapsibleGroup = ({
@@ -50,7 +50,7 @@ const CollapsibleGroup = ({
   isCollapsible,
   group,
   hasGroupTitle,
-  defaultIsOpen = false,
+  defaultIsOpen = false
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -64,7 +64,7 @@ const CollapsibleGroup = ({
   const CollapseIcon = isOpen ? ExpandMore : ChevronRightIcon;
   const ContainerComponent = useCallback(
     ({
-      children: containerComponentChildren,
+      children: containerComponentChildren
     }: Pick<Props, 'children'>): JSX.Element =>
       isCollapsible ? (
         <ListItemButton
@@ -82,7 +82,7 @@ const CollapsibleGroup = ({
           {containerComponentChildren}
         </Box>
       ),
-    [isCollapsible],
+    [isCollapsible]
   );
 
   return (
@@ -95,7 +95,7 @@ const CollapsibleGroup = ({
             {group?.EndIcon && (
               <Tooltip
                 classes={{
-                  tooltip: classes.tooltip,
+                  tooltip: classes.tooltip
                 }}
                 placement="top"
                 title={group?.TooltipContent ? <group.TooltipContent /> : ''}

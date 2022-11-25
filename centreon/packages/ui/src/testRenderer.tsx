@@ -3,7 +3,7 @@ import { ReactElement } from 'react';
 import {
   render as rtlRender,
   RenderOptions,
-  RenderResult,
+  RenderResult
 } from '@testing-library/react';
 import fetchMock, { MockParams } from 'jest-fetch-mock';
 
@@ -22,7 +22,7 @@ const ThemeProviderWrapper = ({ children }: Props): JSX.Element => {
 const render = (ui: ReactElement, options?: RenderOptions): RenderResult =>
   rtlRender(ui, {
     wrapper: ThemeProviderWrapper as (props) => ReactElement | null,
-    ...options,
+    ...options
   });
 
 // re-export everything
