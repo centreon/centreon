@@ -17201,4 +17201,4 @@ msgid "Impossible to create vault configuration"
 msgstr "Impossible de créer la configuration du coffre-fort"
 
 msgid "Vault provider does not exist"
-msgstr "Vault provider n'existe pas"
+msgstr "Le fournisseur de coffre-fort n'existe pas"
