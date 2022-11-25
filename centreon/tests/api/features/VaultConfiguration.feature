@@ -8,7 +8,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -24,7 +24,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user for vault provider that not exists
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/2/configurations' with body:
     """
       {
