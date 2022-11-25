@@ -31,7 +31,9 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostCategory\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostCategory\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
+use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostCategory\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class FindHostCategories
@@ -55,7 +57,7 @@ class FindHostCategories
             } else {
                 $this->debug('User is not admin, retrieve data via ACLs', ['user' => $this->user->getName()]);
 
-                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
+                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
                 $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups($accessGroups);
             }
 
@@ -77,12 +79,15 @@ class FindHostCategories
 
     /**
      * @param HostCategory[] $hostCategories
-     * @param Host[] $hosts
-     * @param HostTemplates[] $hostTemplates
+     * @param array<int,Host[]> $hosts
+     * @param array<int,HostTemplate[]> $hostTemplates
      * @return FindHostCategoriesResponse
      */
-    private function createResponse(array $hostCategories, array $hosts, array $hostTemplates): FindHostCategoriesResponse
-    {
+    private function createResponse(
+        array $hostCategories,
+        array $hosts,
+        array $hostTemplates
+    ): FindHostCategoriesResponse {
         $response = new FindHostCategoriesResponse();
 
         foreach ($hostCategories as $hostCategory) {
@@ -92,17 +97,17 @@ class FindHostCategories
                 'alias' => $hostCategory->getAlias()
             ];
         }
-        foreach ($hosts as $hostCategoryId => $host) {
-            $response->hosts[$hostCategoryId][] = [
-                'id' => $host->getId(),
-                'name' => $host->getName()
-            ];
+        foreach ($hosts as $hostCategoryId => $hostsArray) {
+            $response->hosts[$hostCategoryId][] = array_map(
+                fn($host) => ['id' => $host->getId(), 'name' => $host->getName()],
+                $hostsArray
+            );
         }
-        foreach ($hostTemplates as $hostTemplate) {
-           $response->hosts[$hostCategoryId][] = [
-                'id' => $hostTemplate->getId(),
-                'name' => $hostTemplate->getName()
-            ];
+        foreach ($hostTemplates as $hostCategoryId => $hostTemplatesArray) {
+            $response->hosts[$hostCategoryId][] = array_map(
+                fn($hostTemplate) => ['id' => $hostTemplate->getId(), 'name' => $hostTemplate->getName()],
+                $hostTemplatesArray
+            );
         }
 
         return $response;

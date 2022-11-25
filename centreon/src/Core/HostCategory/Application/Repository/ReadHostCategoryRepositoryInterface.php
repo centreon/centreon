@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Application\Repository;
 
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostCategoryRepositoryInterface
 {

@@ -24,17 +24,11 @@ declare(strict_types=1);
 namespace Tests\Core\HostCategory\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-// use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
 
 beforeEach(function () {
     $this->categoryName = 'host-name';
     $this->categoryAlias = 'host-alias';
-    // TODO : test hosts and hosttemplates setters ?
-    // $this->hosts = [
-    //     (new Host(1, 'hostA')),
-    //     (new Host(2, 'hostB')),
-    // ];
 });
 
 it('should return properly set host category instance', function () {

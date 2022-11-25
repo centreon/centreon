@@ -26,6 +26,8 @@ namespace Tests\Core\HostCategory\Application\UseCase\FindHostCategories;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Application\Repository\ReadHostRepositoryInterface;
+use Core\HostCategory\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -34,14 +36,24 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 beforeEach(function () {
     $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->hostRepository = $this->createMock(ReadHostRepositoryInterface::class);
+    $this->hostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new FindHostCategories($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
-    $this->contact
+    $useCase = new FindHostCategories(
+        $this->hostCategoryRepository,
+        $this->hostRepository,
+        $this->hostTemplateRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
+    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
+
+    $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -50,7 +62,6 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('findAll')
         ->willThrowException(new \Exception());
 
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
     $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
@@ -59,12 +70,17 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a FindHostCategoriesResponse', function () {
-    $useCase = new FindHostCategories($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
-
-    // TODO : add a host and a hostemplate in hostcategory ?
+    $useCase = new FindHostCategories(
+        $this->hostCategoryRepository,
+        $this->hostRepository,
+        $this->hostTemplateRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
     $hostCategory = new HostCategory(1, 'hc-name', 'hc-alias');
+    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -72,8 +88,6 @@ it('should present a FindHostCategoriesResponse', function () {
         ->expects($this->once())
         ->method('findAll')
         ->willReturn([$hostCategory]);
-
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
 
     $useCase($presenter);
 
@@ -83,9 +97,7 @@ it('should present a FindHostCategoriesResponse', function () {
             [
                 'id' => 1,
                 'name' => 'hc-name',
-                'alias' => 'hc-alias',
-                'hosts' => [],
-                'host_templates' => []
+                'alias' => 'hc-alias'
             ]
         );
 });
