@@ -54,8 +54,9 @@ runs:
             SUBREPO="stable"
             ;;
           *)
-            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            exit 0
+            SUBREPO="unstable"
+            #echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
+            #exit 0
             ;;
         esac
 
