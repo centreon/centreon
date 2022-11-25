@@ -16,7 +16,6 @@ on:
       - js-config-*
 
 env:
-  version: "22.10"
   directory: "centreon/packages/js-config"
   centreon_directory: "centreon"
 
