@@ -80,8 +80,7 @@ jobs:
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
+    needs: [package]
     strategy:
       matrix:
         distrib: [bullseye]
