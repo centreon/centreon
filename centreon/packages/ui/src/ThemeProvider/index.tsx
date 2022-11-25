@@ -12,6 +12,7 @@ import {
   InputBaseProps,
   ButtonProps
 } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
 
@@ -98,6 +99,46 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
         })
       }
     },
+    MuiCssBaseline: {
+      styleOverrides: (theme) => `
+        ::-webkit-scrollbar {
+          height: ${theme.spacing(1)};
+          width: ${theme.spacing(1)};
+          background-color: ${theme.palette.background.default};
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          };
+          border-radius: ${theme.spacing(0.5)};
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: ${theme.palette.primary.main};
+        }
+        * {
+          scrollbar-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          } ${theme.palette.background.default};
+          scrollbar-width: thin;
+        }
+        html {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
+          height: 100%;
+          padding: 0;
+          width: 100%;
+        }
+      `
+    },
     MuiInputBase: {
       styleOverrides: {
         root: ({ ownerState }) => getInputBaseRootStyle(ownerState)
@@ -182,7 +223,10 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
     </StyledEngineProvider>
   );
 };
