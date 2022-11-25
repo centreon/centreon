@@ -33,7 +33,9 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
+use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostCategory\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindHostCategories
@@ -94,8 +96,8 @@ final class FindHostCategories
 
     /**
      * @param HostCategory[] $hostCategories
-     * @param Host[] $hosts
-     * @param HostTemplates[] $hostTemplates
+     * @param array<int,Host[]> $hosts
+     * @param array<int,HostTemplate[]> $hostTemplates
      * @return FindHostCategoriesResponse
      */
     private function createResponse(

@@ -26,9 +26,8 @@ namespace Tests\Core\HostCategory\Application\UseCase\FindHostCategories;
 use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesPresenterInterface;
 
-class FindHostCategoriesPresenterStub extends AbstractPresenter implements FindHostCategoriesPresenterInterface
+class FindHostCategoriesPresenterStub extends AbstractPresenter
 {
     /**
      * @var FindHostCategoriesResponse

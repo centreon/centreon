@@ -62,14 +62,6 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
         $statement = $this->db->prepare($request);
         $statement->execute();
 
-        /**
-         *  Note: If user is not admin AND total result with ACLs is zero then ALL categories are accessible
-         */
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ( $result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
         $hosts = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
             $hosts[(int) $result['hostcategories_hc_id']][] = new Host(
