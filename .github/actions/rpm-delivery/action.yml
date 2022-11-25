@@ -4,6 +4,9 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -42,13 +45,13 @@ runs:
 
         case "$BRANCHNAME" in
           develop | dev-[2-9][0-9].[0-9][0-9].x)
-            REPO="unstable"
+            SUBREPO="unstable"
             ;;
           release* | hotfix*)
-            REPO="testing"
+            SUBREPO="testing"
             ;;
           master | [2-9][0-9].[0-9][0-9].x)
-            REPO="stable"
+            SUBREPO="stable"
             ;;
           *)
             echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
@@ -57,7 +60,7 @@ runs:
         esac
 
         FILES="*.rpm";
-        echo "[DEBUG] - Repo: $REPO"
+        echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
 
         for FILE in $FILES
@@ -72,6 +75,6 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION-$REPO/$DISTRIB/$REPO/$ARCH/$FILE" -T "./$FILE"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/yum/${{ inputs.repository_name }}/$VERSION/$DISTRIB/$SUBREPO/$ARCH/$FILE" -T "./$FILE"
         done
       shell: bash
