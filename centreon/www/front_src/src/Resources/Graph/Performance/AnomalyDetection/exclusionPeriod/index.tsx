@@ -85,9 +85,6 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     padding: 0,
   },
-  popover: {
-    backgrounColor: theme.palette.background.default,
-  },
   subContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -167,6 +164,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   const changeDate = ({ property, date }): void => {
+    console.log('change date', date);
     if (equals(property, 'end')) {
       setEndDate(date);
 
@@ -280,29 +278,29 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     property,
     date,
   }: CallbackForSelectMinutes): void => {
-    if (
-      (!equals(viewStartPicker, 'minutes') && equals(property, 'start')) ||
-      (!equals(viewEndPicker, 'minutes') && equals(property, 'end'))
-    ) {
-      return;
-    }
-    changeDate({
-      date,
-      property,
-    });
-    if (equals(viewStartPicker, 'minutes') && equals(property, 'start')) {
-      setViewStartPicker(null);
-    }
-    if (equals(viewEndPicker, 'minutes') && equals(property, 'end')) {
-      setViewEndPicker(null);
+    switch (viewStartPicker || viewEndPicker) {
+      case 'minutes':
+        switch (property) {
+          case 'start':
+            setViewStartPicker(null);
+            changeDate({ date, property });
+            break;
+          case 'end':
+            setViewEndPicker(null);
+            changeDate({ date, property });
+            break;
+          default:
+            break;
+        }
+
+        break;
+      default:
+        break;
     }
   };
 
   const getIsError = (value: boolean): void => {
     setIsErrorDatePicker(value);
-    if (value) {
-      setEndDate(null);
-    }
   };
 
   const handleCheckedExclusionPeriod = ({ target }): void => {
@@ -327,6 +325,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   useEffect(() => {
+    console.log({ endDate, startDate });
     if (!startDate || !endDate) {
       return;
     }
@@ -339,10 +338,12 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     if (!api) {
       return;
     }
+    console.log('graaphoo');
     sendGetGraphDataRequest({
       endpoint: api,
     })
       .then((graphData) => {
+        console.log({ graphData });
         setTimeSeries(getTimeSeries(graphData));
         const newLineData = getLineData(graphData);
 
@@ -360,7 +361,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
         setLineData(newLineData);
       })
-      .catch(() => undefined);
+      .catch((error) => console.log({ error }));
   };
 
   useEffect(() => {

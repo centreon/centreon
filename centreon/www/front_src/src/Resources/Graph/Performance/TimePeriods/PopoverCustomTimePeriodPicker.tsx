@@ -154,11 +154,7 @@ const PopoverCustomTimePeriodPickers = ({
       ],
     ])();
 
-    if (
-      dayjs(date).isSame(dayjs(currentDate)) ||
-      isInvalidDate({ endDate: end, startDate: start }) ||
-      !dayjs(date).isValid()
-    ) {
+    if (dayjs(date).isSame(dayjs(currentDate)) || !dayjs(date).isValid()) {
       return;
     }
 
