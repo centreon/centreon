@@ -39,7 +39,7 @@ jobs:
           git config pull.rebase false
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
-          git pull
+          git pull origin ${{ github.ref }}
           git add .
           git commit -m "chore: release ${VERSION}"
           git tag ${VERSION}
