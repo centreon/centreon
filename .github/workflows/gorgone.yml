@@ -59,7 +59,7 @@ jobs:
 
   deliver-rpm:
     runs-on: [self-hosted, common]
-    needs: [package]
+    needs: [get-version, package]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -80,7 +80,7 @@ jobs:
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [package]
+    needs: [get-version,package]
     strategy:
       matrix:
         distrib: [bullseye]
