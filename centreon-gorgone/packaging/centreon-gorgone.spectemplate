@@ -1,6 +1,6 @@
 Name:       centreon-gorgone
 Version:    22.10.0
-Release:    @RELEASE@%{?dist}
+Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
 License:    Apache2
