@@ -7,8 +7,8 @@ const useStyles = makeStyles()((theme) => ({
   icon: {
     color: theme.palette.common.white,
     cursor: 'pointer',
-    fontSize: theme.typography.body1.fontSize,
-  },
+    fontSize: theme.typography.body1.fontSize
+  }
 }));
 
 interface Props {

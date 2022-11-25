@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import {
   SingleConnectedAutocompleteField,
   buildListingEndpoint,
-  useMemoComponent,
+  useMemoComponent
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
 
@@ -26,7 +26,7 @@ const ConnectedAutocomplete = ({
   connectedAutocomplete,
   change,
   additionalMemoProps,
-  type,
+  type
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -45,12 +45,12 @@ const ConnectedAutocomplete = ({
         search: {
           conditions: [
             ...(connectedAutocomplete?.additionalConditionParameters || []),
-            ...(parameters.search?.conditions || []),
+            ...(parameters.search?.conditions || [])
           ],
-          ...parameters.search,
+          ...parameters.search
         },
-        sort: { [filterKey]: 'ASC' },
-      },
+        sort: { [filterKey]: 'ASC' }
+      }
     });
 
   const fieldNamePath = split('.', fieldName);
@@ -71,7 +71,7 @@ const ConnectedAutocomplete = ({
 
       setFieldTouched(fieldName, true);
     },
-    [fieldName, touched, additionalMemoProps],
+    [fieldName, touched, additionalMemoProps]
   );
 
   const blur = (): void => setFieldTouched(fieldName, true);
@@ -82,7 +82,7 @@ const ConnectedAutocomplete = ({
         ? false
         : equals(option[filterKey], value[filterKey]);
     },
-    [filterKey],
+    [filterKey]
   );
 
   const value = path(fieldNamePath, values);
@@ -100,7 +100,7 @@ const ConnectedAutocomplete = ({
       isMultiple
         ? MultiConnectedAutocompleteField
         : SingleConnectedAutocompleteField,
-    [isMultiple],
+    [isMultiple]
   );
 
   return useMemoComponent({
@@ -131,8 +131,8 @@ const ConnectedAutocomplete = ({
       isRequired,
       additionalMemoProps,
       connectedAutocomplete,
-      hidden,
-    ],
+      hidden
+    ]
   });
 };
 

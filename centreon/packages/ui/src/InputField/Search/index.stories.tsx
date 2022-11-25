@@ -19,7 +19,7 @@ const tooltipDescription = (
 const tooltipExamples = [
   <li key="first">First example</li>,
   <li key="second">Second example</li>,
-  <li key="third">Third example</li>,
+  <li key="third">Third example</li>
 ];
 
 const RegexpHelp = (): JSX.Element => (

@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
 import { useAtomValue } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { getData, useRequest, useSnackbar, Dialog } from '@centreon/ui';
 import { userAtom, ThemeMode } from '@centreon/ui-context';
@@ -18,7 +18,7 @@ import {
   labelExportConfiguration,
   labelExportingAndReloadingTheConfiguration,
   labelFailedToExportAndReloadConfiguration,
-  labelThisWillExportAndReloadOnAllOfYourPlatform,
+  labelThisWillExportAndReloadOnAllOfYourPlatform
 } from '../translatedLabels';
 
 import { exportAndReloadConfigurationEndpoint } from './api/endpoints';
@@ -28,10 +28,10 @@ interface Props {
   toggleDetailedView: () => void;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   exportButton: {
     '&:hover': {
-      background: theme.palette.grey[500],
+      background: theme.palette.grey[500]
     },
     backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
       ? theme.palette.background.default
@@ -40,28 +40,28 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     display: 'flex',
     fontSize: theme.typography.body2.fontSize,
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
   pollerText: {
-    margin: theme.spacing(0),
+    margin: theme.spacing(0)
   },
   pollersList: {
     maxHeight: '50vh',
-    overflowY: 'auto',
-  },
+    overflowY: 'auto'
+  }
 }));
 
 const ExportConfiguration = ({
   setIsExportingConfiguration,
-  toggleDetailedView,
+  toggleDetailedView
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [askingBeforeExportConfiguration, setAskingBeforeExportConfiguration] =
     useState(false);
   const { sendRequest, sending } = useRequest({
     defaultFailureMessage: t(labelFailedToExportAndReloadConfiguration),
-    request: getData,
+    request: getData
   });
   const { showInfoMessage, showSuccessMessage } = useSnackbar();
 
@@ -78,7 +78,7 @@ const ExportConfiguration = ({
     toggleDetailedView();
     showInfoMessage(t(labelExportingAndReloadingTheConfiguration));
     sendRequest({
-      endpoint: exportAndReloadConfigurationEndpoint,
+      endpoint: exportAndReloadConfigurationEndpoint
     }).then(() => {
       showSuccessMessage(t(labelConfigurationExportedAndReloaded));
     });

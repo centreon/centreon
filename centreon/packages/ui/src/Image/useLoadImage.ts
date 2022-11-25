@@ -10,7 +10,7 @@ interface Resource {
 enum Status {
   error = 'error',
   pending = 'pending',
-  success = 'success',
+  success = 'success'
 }
 
 const createImage = (imageSrc: string): Resource => {
@@ -44,7 +44,7 @@ const createImage = (imageSrc: string): Resource => {
       }
 
       return image;
-    },
+    }
   };
 };
 
@@ -59,7 +59,7 @@ export const useLoadImage = ({ imageSrc, alt }): Resource => {
 
   if (isEmpty(image)) {
     return {
-      read: () => '',
+      read: () => ''
     };
   }
 

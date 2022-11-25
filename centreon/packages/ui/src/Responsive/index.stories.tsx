@@ -6,10 +6,10 @@ import Responsive from '.';
 
 export default {
   argTypes: {
-    count: { margin: 'number' },
+    count: { margin: 'number' }
   },
   component: Responsive,
-  title: 'Responsive',
+  title: 'Responsive'
 } as ComponentMeta<typeof Responsive>;
 
 const Story: ComponentStory<typeof Responsive> = (args) => (
@@ -29,5 +29,5 @@ const Story: ComponentStory<typeof Responsive> = (args) => (
 
 export const Playground = Story.bind({});
 Playground.args = {
-  margin: 0,
+  margin: 0
 };

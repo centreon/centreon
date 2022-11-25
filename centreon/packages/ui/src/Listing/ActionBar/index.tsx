@@ -12,23 +12,23 @@ import ColumnMultiSelect from './ColumnMultiSelect';
 
 const useStyles = makeStyles()((theme) => ({
   actions: {
-    padding: theme.spacing(1, 0),
+    padding: theme.spacing(1, 0)
   },
   container: {
     alignItems: 'center',
     display: 'grid',
     gridGap: theme.spacing(1),
     gridTemplateColumns: '1fr auto auto',
-    width: '100%',
+    width: '100%'
   },
   pagination: {
-    padding: 0,
+    padding: 0
   },
   selectMenu: {
     '& .MuiMenuItem-root': {
-      lineHeight: 1,
-    },
-  },
+      lineHeight: 1
+    }
+  }
 }));
 
 type Props = Pick<
@@ -59,7 +59,7 @@ const MemoListingActionBar = ({
   onSelectColumns,
   onPaginate,
   onLimitChange,
-  actionsBarMemoProps = [],
+  actionsBarMemoProps = []
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -93,9 +93,9 @@ const MemoListingActionBar = ({
             ActionsComponent={PaginationActions}
             SelectProps={{
               MenuProps: {
-                className: classes.selectMenu,
+                className: classes.selectMenu
               },
-              id: labelRowsPerPage,
+              id: labelRowsPerPage
             }}
             className={classes.pagination}
             colSpan={3}
@@ -118,11 +118,11 @@ const MemoListingActionBar = ({
       limit,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns,
+        columns
       ),
       columnConfiguration,
-      ...actionsBarMemoProps,
-    ],
+      ...actionsBarMemoProps
+    ]
   });
 };
 
@@ -138,7 +138,7 @@ const ListingActionBar = ({
   columnConfiguration,
   onResetColumns,
   onSelectColumns,
-  actionsBarMemoProps,
+  actionsBarMemoProps
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&

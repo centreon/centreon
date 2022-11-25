@@ -37,14 +37,14 @@ export const customFetch = <T>({
   defaultFailureMessage = 'Something went wrong',
   isMutation = false,
   payload,
-  method = 'GET',
+  method = 'GET'
 }: CustomFetchProps<T>): Promise<T | ResponseError> => {
   const defaultOptions = { headers, method, signal };
 
   const options = isMutation
     ? {
         ...defaultOptions,
-        body: payload instanceof FormData ? payload : JSON.stringify(payload),
+        body: payload instanceof FormData ? payload : JSON.stringify(payload)
       }
     : defaultOptions;
 
@@ -59,7 +59,7 @@ export const customFetch = <T>({
         return {
           isError: true,
           message: data.message || defaultFailureMessage,
-          statusCode: response.status,
+          statusCode: response.status
         };
       }
 
@@ -73,13 +73,13 @@ export const customFetch = <T>({
       const defaultError = { code: -1, message: defaultFailureMessage };
       catchError({
         data: defaultError,
-        statusCode: 0,
+        statusCode: 0
       });
 
       return {
         isError: true,
         message: defaultFailureMessage,
-        statusCode: 0,
+        statusCode: 0
       };
     });
 };

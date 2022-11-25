@@ -5,13 +5,13 @@ on:
   pull_request:
     paths:
       - ".github/workflows/docker-builder-test-cypress.yml"
-      - "ci/docker/Dockerfile.cypress"
+      - ".github/docker/Dockerfile.cypress"
   push:
     branches:
       - develop
     paths:
       - ".github/workflows/docker-builder-test-cypress.yml"
-      - "ci/docker/Dockerfile.cypress"
+      - ".github/docker/Dockerfile.cypress"
 
 env:
   version: "22.10"
@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.ARTI_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
 
       - name: Login to Registry
         uses: docker/login-action@v2
@@ -45,6 +45,6 @@ jobs:
           registry: docker.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-          
+
       - name: push docker ${{ matrix.project }}
         run: docker push registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}

@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
@@ -19,7 +19,7 @@ export const isDarkMode = (theme: Theme): boolean =>
 
 export const headerHeight = 7;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   header: {
     alignItems: 'center',
     backgroundColor: isDarkMode(theme)
@@ -27,26 +27,26 @@ const useStyles = makeStyles((theme) => ({
       : theme.palette.primary.dark,
     display: 'flex',
     height: theme.spacing(headerHeight),
-    padding: `0 ${theme.spacing(3)}`,
+    padding: `0 ${theme.spacing(3)}`
   },
   item: {
-    flex: '1 0 120px',
+    flex: '1 0 120px'
   },
   leftContainer: {
     alignItems: 'center',
     display: 'flex',
     gap: theme.spacing(2),
     [theme.breakpoints.up(768)]: {
-      gap: theme.spacing(3),
-    },
+      gap: theme.spacing(3)
+    }
   },
   userMenuContainer: {
-    marginLeft: 'auto',
-  },
+    marginLeft: 'auto'
+  }
 }));
 
 const Header = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const headerRef = useRef<HTMLElement>(null);
 
   return (

@@ -12,19 +12,19 @@ import LoadingSkeleton from './LoadingSkeleton';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
-    request: listResources,
+    request: listResources
   });
 
   const details = useAtomValue(detailsAtom);
 
   const setSelectedResourceDetails = useUpdateAtom(
-    selectedResourcesDetailsAtom,
+    selectedResourcesDetailsAtom
   );
 
   const limit = 30;
 
   const sendListingRequest = ({
-    atPage,
+    atPage
   }: {
     atPage?: number;
   }): Promise<ListingModel<Resource>> => {
@@ -37,11 +37,11 @@ const ServicesTab = (): JSX.Element => {
           {
             field: 'h.name',
             values: {
-              $eq: details?.name,
-            },
-          },
-        ],
-      },
+              $eq: details?.name
+            }
+          }
+        ]
+      }
     });
   };
 

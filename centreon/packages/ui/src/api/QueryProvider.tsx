@@ -10,9 +10,9 @@ const client = new QueryClient({
       cacheTime: defaultCacheTime,
       refetchOnWindowFocus: false,
       staleTime: defaultCacheTime,
-      suspense: true,
-    },
-  },
+      suspense: true
+    }
+  }
 });
 
 interface Props {

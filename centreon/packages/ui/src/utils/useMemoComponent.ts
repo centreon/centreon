@@ -21,7 +21,7 @@ interface MemoComponent {
 
 const useMemoComponent = ({
   Component,
-  memoProps,
+  memoProps
 }: MemoComponent): JSX.Element =>
   useMemo(() => Component, useDeepCompare(memoProps));
 

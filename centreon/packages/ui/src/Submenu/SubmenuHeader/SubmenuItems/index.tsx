@@ -8,8 +8,8 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: theme.typography.body2.fontSize,
     listStyle: 'none',
     margin: 0,
-    padding: 0,
-  },
+    padding: 0
+  }
 }));
 
 interface Props {

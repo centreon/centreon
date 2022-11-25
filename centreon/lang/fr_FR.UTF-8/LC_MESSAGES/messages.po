@@ -17193,3 +17193,12 @@ msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer?"
 
 #  msgid "Confirm"
 #  msgstr "Confirmer"
+
+msgid "Vault configuration with these properties already exists"
+msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
+
+msgid "Impossible to create vault configuration"
+msgstr "Impossible de créer la configuration du coffre-fort"
+
+msgid "Vault provider does not exist"
+msgstr "Le fournisseur de coffre-fort n'existe pas"

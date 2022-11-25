@@ -5,7 +5,7 @@ import {
   ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
   createTheme,
-  CssBaseline,
+  CssBaseline
 } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
@@ -19,7 +19,7 @@ interface Props {
 
 const StoryBookThemeProvider = ({
   children,
-  themeMode,
+  themeMode
 }: Props): JSX.Element => {
   const theme = useMemo(() => createTheme(getTheme(themeMode)), [themeMode]);
 

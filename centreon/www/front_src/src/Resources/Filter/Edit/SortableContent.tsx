@@ -1,10 +1,10 @@
 import { RefObject } from 'react';
 
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
+import { makeStyles } from 'tss-react/mui';
 
 import MoveIcon from '@mui/icons-material/UnfoldMore';
-import { Paper, Theme } from '@mui/material';
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
+import { Paper } from '@mui/material';
 
 import { Filter } from '../models';
 
@@ -18,18 +18,20 @@ interface ContentProps extends Filter {
   style;
 }
 
-const useStyles = makeStyles<Theme, { isDragging: boolean }>((theme) => ({
-  filterCard: {
-    alignItems: 'center',
-    display: 'grid',
-    gridGap: theme.spacing(2),
-    gridTemplateColumns: '1fr auto',
-    padding: theme.spacing(1),
-  },
-  filterCardHandler: ({ isDragging }): CreateCSSProperties => ({
-    cursor: isDragging ? 'grabbing' : 'grab',
-  }),
-}));
+const useStyles = makeStyles<Pick<ContentProps, 'isDragging'>>()(
+  (theme, { isDragging }) => ({
+    filterCard: {
+      alignItems: 'center',
+      display: 'grid',
+      gridGap: theme.spacing(2),
+      gridTemplateColumns: '1fr auto',
+      padding: theme.spacing(1)
+    },
+    filterCardHandler: {
+      cursor: isDragging ? 'grabbing' : 'grab'
+    }
+  })
+);
 
 const SortableContent = ({
   listeners,
@@ -39,9 +41,9 @@ const SortableContent = ({
   criterias,
   id,
   name,
-  isDragging,
+  isDragging
 }: ContentProps): JSX.Element => {
-  const classes = useStyles({ isDragging });
+  const { classes } = useStyles({ isDragging });
 
   return (
     <Paper
