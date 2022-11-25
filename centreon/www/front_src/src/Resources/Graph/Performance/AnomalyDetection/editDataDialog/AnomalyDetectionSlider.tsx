@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
   },
   container: {
+    backgroundColor: theme.palette.background.default,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',

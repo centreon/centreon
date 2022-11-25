@@ -3,9 +3,9 @@ import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import {
   labelClose,
@@ -22,14 +22,13 @@ import AnomalyDetectionModalConfirmation from './editDataDialog/AnomalyDetection
 import { CustomFactorsData } from './models';
 import AnomalyDetectionExclusionPeriod from './exclusionPeriod/index';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   close: {
     display: 'flex',
     justifyContent: 'flex-end',
   },
   container: {
     '& .MuiDialog-paper': {
-      backgroundColor: theme.palette.background.default,
       maxWidth: '80%',
       padding: theme.spacing(2),
       width: '100%',
@@ -45,9 +44,14 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   exclusionPeriod: {
+    backgroundColor: theme.palette.background.default,
+
     flex: 2,
   },
   spacing: {
+    '& .MuiPaper-root': {
+      backgroundColor: theme.palette.background.default,
+    },
     paddingBottom: theme.spacing(1),
   },
 }));
@@ -73,7 +77,7 @@ const EditAnomalyDetectionDataDialog = ({
   renderGraph,
   renderSlider,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const [factorsData, setFactorsData] = useState<null | CustomFactorsData>(
@@ -120,39 +124,37 @@ const EditAnomalyDetectionDataDialog = ({
       data-testid="modalEditAnomalyDetection"
       open={showModalAnomalyDetection}
     >
-      <div>
-        <div className={classes.spacing}>
-          <TimePeriodButtonGroup />
-        </div>
-        <div className={classes.spacing}>{renderGraph({ factorsData })}</div>
-        <div className={classes.editEnvelopeSize}>
-          <Paper className={classes.envelopeSize}>
-            {renderSlider({
-              getFactors,
-              isEnvelopeResizingCanceled,
-              isResizingEnvelope,
-              openModalConfirmation,
-              setIsResizingEnvelope,
-            })}
-          </Paper>
-          <Paper className={classes.exclusionPeriod}>
-            <EditAnomalyDetectionDataDialog.ExclusionPeriod />
-          </Paper>
-        </div>
-        <EditAnomalyDetectionDataDialog.ModalConfirmation
-          dataTestid="modalConfirmation"
-          message={t(labelEditAnomalyDetectionConfirmation)}
-          open={isModalConfirmationOpened}
-          setOpen={setIsModalConfirmationOpened}
-          title={t(labelMenageEnvelope)}
-          onCancel={cancelResizeEnvelope}
-          onConfirm={resizeEnvelope}
-        />
-        <div className={classes.close}>
-          <Button data-testid="closeEditModal" onClick={handleClose}>
-            {t(labelClose)}
-          </Button>
-        </div>
+      <div className={classes.spacing}>
+        <TimePeriodButtonGroup />
+      </div>
+      <div className={classes.spacing}>{renderGraph({ factorsData })}</div>
+      <div className={classes.editEnvelopeSize}>
+        <Paper className={classes.envelopeSize}>
+          {renderSlider({
+            getFactors,
+            isEnvelopeResizingCanceled,
+            isResizingEnvelope,
+            openModalConfirmation,
+            setIsResizingEnvelope,
+          })}
+        </Paper>
+        <Paper className={classes.exclusionPeriod}>
+          <EditAnomalyDetectionDataDialog.ExclusionPeriod />
+        </Paper>
+      </div>
+      <EditAnomalyDetectionDataDialog.ModalConfirmation
+        dataTestid="modalConfirmation"
+        message={t(labelEditAnomalyDetectionConfirmation)}
+        open={isModalConfirmationOpened}
+        setOpen={setIsModalConfirmationOpened}
+        title={t(labelMenageEnvelope)}
+        onCancel={cancelResizeEnvelope}
+        onConfirm={resizeEnvelope}
+      />
+      <div className={classes.close}>
+        <Button data-testid="closeEditModal" onClick={handleClose}>
+          {t(labelClose)}
+        </Button>
       </div>
     </Dialog>
   );

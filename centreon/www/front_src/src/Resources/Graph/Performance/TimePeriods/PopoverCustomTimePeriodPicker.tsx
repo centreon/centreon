@@ -40,6 +40,7 @@ const useStyles = makeStyles()((theme) => ({
   paper: {
     '& .MuiPopover-paper': {
       minWidth: 250,
+      padding: theme.spacing(1),
     },
   },
   popover: {
@@ -186,12 +187,12 @@ const PopoverCustomTimePeriodPickers = ({
       anchorOrigin={anchorOrigin}
       anchorPosition={reference?.anchorPosition}
       anchorReference={anchorReference}
-      className={cx(classes.paper, classNamePaper)}
+      className={cx(classes.paper)}
       open={open}
       transformOrigin={transformOrigin}
       onClose={onClose}
     >
-      <div data-testid="popover">
+      <div className={classNamePaper} data-testid="popover">
         {renderTitle}
         <LocalizationProvider
           dateAdapter={Adapter}

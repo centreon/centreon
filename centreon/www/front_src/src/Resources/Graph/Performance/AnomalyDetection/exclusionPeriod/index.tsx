@@ -19,7 +19,6 @@ import {
 
 import { getData, useRequest } from '@centreon/ui';
 
-import { centreonUi } from '../../../../../Header/helpers';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { CustomTimePeriodProperty } from '../../../../Details/tabs/Graph/models';
 import {
@@ -52,6 +51,7 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: theme.spacing(5),
   },
   container: {
+    backgroundColor: theme.palette.background.default,
     display: 'flex',
     padding: theme.spacing(2),
   },
@@ -65,7 +65,7 @@ const useStyles = makeStyles()((theme) => ({
   excludedPeriods: {
     display: 'flex',
     flexDirection: 'column',
-    width: '65%',
+    width: '55%',
   },
   exclusionButton: {
     width: theme.spacing(22.5),
@@ -75,15 +75,18 @@ const useStyles = makeStyles()((theme) => ({
     maxHeight: theme.spacing(150 / 8),
     minHeight: theme.spacing(150 / 8),
     overflow: 'auto',
+    padding: theme.spacing(1),
   },
   paper: {
-    '& .MuiPopover-paper': {
-      padding: theme.spacing(2),
-    },
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(2),
   },
   picker: {
     flexDirection: 'row',
     padding: 0,
+  },
+  popover: {
+    backgrounColor: theme.palette.background.default,
   },
   subContainer: {
     display: 'flex',
@@ -139,7 +142,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const { data } = thresholdsAnomalyDetectionData.exclusionPeriodsThreshold;
 
   const endpoint = path(['links', 'endpoints', 'performance_graph'], details);
-  const { toDate } = centreonUi.useLocaleDateTimeFormat();
 
   const maxDateEndInputPicker = dayjs(exclusionTimePeriods?.end).add(1, 'day');
 
@@ -420,7 +422,10 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
             return (
               dateExist &&
               item?.isConfirmed && (
-                <ListItem key={toDate(item?.id?.start as Date)}>
+                <ListItem
+                  disablePadding
+                  key={`${item?.id.startDate}-${item?.id.endDate}`}
+                >
                   <ListItemText
                     primary={
                       <AnomalyDetectionItemsExclusionPeriods item={item?.id} />

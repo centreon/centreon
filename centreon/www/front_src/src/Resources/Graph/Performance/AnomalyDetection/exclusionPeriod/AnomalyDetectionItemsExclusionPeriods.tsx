@@ -1,14 +1,37 @@
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IconButton } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
+
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { thresholdsAnomalyDetectionDataAtom } from '../anomalyDetectionAtom';
 
+const useStyles = makeStyles()(() => ({
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  date: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  deleteIcon: {
+    padding: 0,
+  },
+}));
+
 const AnomalyDetectionItemsExclusionPeriods = ({ item }: any): JSX.Element => {
+  const { classes } = useStyles();
+
   const [thresholdsAnomalyDetectionData, setThresholdAnomalyDetectionData] =
     useAtom(thresholdsAnomalyDetectionDataAtom);
+  const { format } = useLocaleDateTimeFormat();
 
   const deletePeriod = (): void => {
     const newData =
@@ -35,23 +58,20 @@ const AnomalyDetectionItemsExclusionPeriods = ({ item }: any): JSX.Element => {
   };
 
   return (
-    <div
-      style={{
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-      }}
-    >
-      <div style={{ fontSize: 13.5, fontWeight: 'bold' }}>From</div>
-      <div style={{ fontSize: 13.5 }}>
-        {dayjs(item?.start as Date).format('L LT S')}
-      </div>
-      <div style={{ fontSize: 14, fontWeight: 'bold' }}>To</div>
-      <div style={{ fontSize: 13.5 }}>
-        {dayjs(item?.end as Date).format('L LT S')}
-      </div>
-      <IconButton aria-label="delete" onClick={deletePeriod}>
+    <div className={classes.container}>
+      <Typography variant="subtitle2">From</Typography>
+      <Typography className={classes.date}>
+        {format({ date: item.startDate, formatString: 'L LTS' })}
+      </Typography>
+      <Typography>To</Typography>
+      <Typography className={classes.date}>
+        {format({ date: item.endDate, formatString: 'L LTS' })}
+      </Typography>
+      <IconButton
+        aria-label="delete"
+        className={classes.deleteIcon}
+        onClick={deletePeriod}
+      >
         <DeleteIcon />
       </IconButton>
     </div>

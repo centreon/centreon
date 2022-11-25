@@ -10,7 +10,7 @@ import { labelFromBeginning } from '../../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    margin: theme.spacing(2, 0),
+    margin: theme.spacing(0, 0, 1, 0),
   },
   field: {
     width: '100%',
@@ -46,12 +46,15 @@ const AnomalyDetectionCommentExclusionPeriod = ({
           />
         }
         data-testid={labelFromBeginning}
-        label={labelFromBeginning}
+        label={<Typography>{labelFromBeginning}</Typography>}
       />
       <div className={classes.container}>
         <Typography>Comment </Typography>
         <TextField
           multiline
+          InputProps={{
+            disableUnderline: true,
+          }}
           className={classes.field}
           rows={3}
           value={comment}

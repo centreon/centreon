@@ -8,8 +8,11 @@ import {
 } from '../../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
-  container: { margin: theme.spacing(0, 0, 2, 0) },
-  divider: {},
+  container: { margin: theme.spacing(0, 0, 3, 0) },
+  divider: {
+    borderColor: theme.palette.text.secondary,
+    marginTop: theme.spacing(1),
+  },
 }));
 
 const AnomalyDetectionTitleExclusionPeriods = (): JSX.Element => {
@@ -23,7 +26,7 @@ const AnomalyDetectionTitleExclusionPeriods = (): JSX.Element => {
       <Typography variant="caption">
         {labelSubTitleExclusionOfPeriods}
       </Typography>
-      <Divider className={classes.divider} />
+      <Divider className={classes.divider} variant="fullWidth" />
     </div>
   );
 };
