@@ -55,7 +55,7 @@ jobs:
       - name: Push changes with tags
         uses: ad-m/github-push-action@master
         with:
-          branch: ${{ github.ref }}
+          branch: ${{ github.head_ref || github.ref_name }}
           github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           tags: true
           ssh: true
