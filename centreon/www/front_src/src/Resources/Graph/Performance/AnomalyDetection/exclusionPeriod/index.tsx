@@ -325,7 +325,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   useEffect(() => {
-    console.log({ endDate, startDate });
     if (!startDate || !endDate) {
       return;
     }
@@ -338,12 +337,10 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     if (!api) {
       return;
     }
-    console.log('graaphoo');
     sendGetGraphDataRequest({
       endpoint: api,
     })
       .then((graphData) => {
-        console.log({ graphData });
         setTimeSeries(getTimeSeries(graphData));
         const newLineData = getLineData(graphData);
 
@@ -361,7 +358,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
         setLineData(newLineData);
       })
-      .catch((error) => console.log({ error }));
+      .catch(() => undefined);
   };
 
   useEffect(() => {
