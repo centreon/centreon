@@ -26,8 +26,10 @@ namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesPresenterInterface;
+use Core\HostCategory\Application\Repository\ReadHostRepositoryInterface;
+use Core\HostCategory\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -38,17 +40,21 @@ class FindHostCategories
 
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private ReadHostRepositoryInterface $readHostRepository,
+        private ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $contact
+        private ContactInterface $user
     ) {
     }
 
-    public function __invoke(FindHostCategoriesPresenterInterface $presenter): void
+    public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->user->isAdmin()) {
                 $hostCategories = $this->readHostCategoryRepository->findAll();
             } else {
+                $this->debug('User is not admin, retrieve data via ACLs', ['user' => $this->user->getName()]);
+
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
                 $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups($accessGroups);
             }
@@ -58,28 +64,10 @@ class FindHostCategories
                 $hostCategories
             );
 
-            /**
-             * TODO :
-             *  model from HostCategory/Domain/Host or Host/Domain/Host
-             *      quid of mandatory parameter that I don't need ?
-             *  if from HostCategoryDomain :
-             *      request from readHostRepository or readHostCategoryRepository ?
-             *  same questions for hostTemplates
-             */
-            $hosts = $this->readHostCategoryRepository->findHostsByHostCategoryIds($hostCategoryIds);
-            foreach ($hostCategories as $hostCategory) {
-                if (! empty($hosts[$hostCategory->getId()])) {
-                    $hostCategory->setHosts($hosts[$hostCategory->getId()]);
-                }
-            }
+            $hosts = $this->readHostRepository->findHostsByHostCategoryIds($hostCategoryIds);
+            $hostTemplates = $this->readHostTemplateRepository->findHostTemplatesByHostCategoryIds($hostCategoryIds);
 
-            $hostTemplates = $this->readHostCategoryRepository->findHostTemplatesByHostCategoryIds($hostCategoryIds);
-            foreach ($hostCategories as $hostCategory) {
-                if (! empty($hostTemplates[$hostCategory->getId()])) {
-                    $hostCategory->setHostTemplates($hostTemplates[$hostCategory->getId()]);
-                }
-            }
-            $presenter->present($this->createResponse($hostCategories));
+            $presenter->present($this->createResponse($hostCategories, $hosts, $hostTemplates));
         } catch (\Throwable $th) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
             // TODO : translate error message
@@ -89,33 +77,34 @@ class FindHostCategories
 
     /**
      * @param HostCategory[] $hostCategories
+     * @param Host[] $hosts
+     * @param HostTemplates[] $hostTemplates
      * @return FindHostCategoriesResponse
      */
-    private function createResponse(array $hostCategories): FindHostCategoriesResponse
+    private function createResponse(array $hostCategories, array $hosts, array $hostTemplates): FindHostCategoriesResponse
     {
         $response = new FindHostCategoriesResponse();
+
         foreach ($hostCategories as $hostCategory) {
-            $hostCategoryData = [
+            $response->hostCategories[] = [
                 'id' => $hostCategory->getId(),
                 'name' => $hostCategory->getName(),
-                'alias' => $hostCategory->getAlias(),
-                'hosts' => [],
-                'host_templates' => []
+                'alias' => $hostCategory->getAlias()
             ];
-            foreach ($hostCategory->getHosts() as $host) {
-                $hostCategoryData['hosts'][] = [
-                    'id' => $host->getId(),
-                    'name' => $host->getName()
-                ];
-            }
-            foreach ($hostCategory->getHostTemplates() as $hostTemplate) {
-                $hostCategoryData['host_templates'][] = [
-                    'id' => $hostTemplate->getId(),
-                    'name' => $hostTemplate->getName()
-                ];
-            }
-            $response->hostCategories[] = $hostCategoryData;
         }
+        foreach ($hosts as $hostCategoryId => $host) {
+            $response->hosts[$hostCategoryId][] = [
+                'id' => $host->getId(),
+                'name' => $host->getName()
+            ];
+        }
+        foreach ($hostTemplates as $hostTemplate) {
+           $response->hosts[$hostCategoryId][] = [
+                'id' => $hostTemplate->getId(),
+                'name' => $hostTemplate->getName()
+            ];
+        }
+
         return $response;
     }
 }

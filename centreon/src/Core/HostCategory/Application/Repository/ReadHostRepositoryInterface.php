@@ -21,22 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\FindHostCategories;
+namespace Core\HostCategory\Application\Repository;
 
-class FindHostCategoriesResponse
+use Core\HostCategory\Domain\Model\Host;
+
+interface ReadHostRepositoryInterface
 {
     /**
-     * @var array<array{id:int,name:string,alias:string}>
+     * @param int[] $hostCategoryIds
+     * @return array<int,Host[]>
      */
-    public array $hostCategories = [];
-
-    /**
-     * @var array<int,array{id:int,name:string}>
-     */
-    public array $hosts = [];
-
-    /**
-     * @var array<int,array{id:int,name:string}>
-     */
-    public array $hostTemplates = [];
+    public function findHostsByHostCategoryIds(array $hostCategoryIds): array;
 }

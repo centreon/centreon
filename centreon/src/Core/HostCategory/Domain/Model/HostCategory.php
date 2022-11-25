@@ -26,7 +26,7 @@ namespace Core\HostCategory\Domain\Model;
 class HostCategory extends NewHostCategory
 {
     public function __construct(
-        protected int $id,
+        private int $id,
         string $name,
         string $alias
     ) {

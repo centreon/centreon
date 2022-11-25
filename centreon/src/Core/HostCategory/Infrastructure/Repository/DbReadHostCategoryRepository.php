@@ -29,9 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostCategory\Domain\Model\HostTemplate;
 
 class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements ReadHostCategoryRepositoryInterface
 {
@@ -60,6 +58,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAll(): array
     {
+        $this->info('Getting all host categories');
+
         $request = $this->translateDbName(
             'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc'
         );
@@ -116,7 +116,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByAccessGroups(array $accessGroups): array
     {
+        $this->info('Getting all host categories by access groups');
+
         if (empty($accessGroups)) {
+            $this->debug('No host category ids, return empty');
             return [];
         }
 
@@ -165,10 +168,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $statement->execute();
 
-        if ($statement === false) {
-            return [];
-        }
-
         // Set total
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
@@ -205,83 +204,5 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $hostCategories;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostsByHostCategoryIds(array $hostCategoryIds): array
-    {
-        if (empty($hostCategoryIds)) {
-            return [];
-        }
-
-        $request = $this->translateDbName(
-            "SELECT rel.hostcategories_hc_id, h.host_id, h.host_name
-            FROM hostcategories_relation rel
-            JOIN host h ON rel.host_host_id = h.host_id
-            WHERE h.host_register = '1'
-            AND rel.hostcategories_hc_id IN (" . implode(',', $hostCategoryIds) . ")"
-        );
-
-        $statement = $this->db->prepare($request);
-        $statement->execute();
-
-        if ($statement === false) {
-            return [];
-        }
-
-        /**
-         *  If user is not admin AND total result with ACLs is zero then ALL categories are accessible
-         */
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ( $result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        $hosts = [];
-        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $hosts[(int) $result['hostcategories_hc_id']][] = new Host(
-                $result['host_id'],
-                $result['host_name']
-            );
-        }
-
-        return $hosts;
-    }
-
-
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostTemplatesByHostCategoryIds(array $hostCategoryIds): array
-    {
-        if (empty($hostCategoryIds)) {
-            return [];
-        }
-
-        $request = "SELECT rel.hostcategories_hc_id, h.host_id, h.host_name
-            FROM hostcategories_relation rel
-            JOIN host h ON rel.host_host_id = h.host_id
-            WHERE h.host_register = '0'
-            AND rel.hostcategories_hc_id IN (" . implode(',', $hostCategoryIds) . ")";
-
-        $statement = $this->db->prepare($request);
-        $statement->execute();
-
-        if ($statement === false) {
-            return [];
-        }
-
-        $hosts = [];
-        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $hosts[(int) $result['hostcategories_hc_id']][] = new HostTemplate(
-                $result['host_id'],
-                $result['host_name']
-            );
-        }
-
-        return $hosts;
     }
 }

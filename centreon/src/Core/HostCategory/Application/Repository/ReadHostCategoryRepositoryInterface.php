@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\Repository;
 
-use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostCategory\Domain\Model\HostTemplate;
 
 interface ReadHostCategoryRepositoryInterface
 {
@@ -43,16 +41,4 @@ interface ReadHostCategoryRepositoryInterface
      * @return HostCategory[]
      */
     public function findAllByAccessGroups(array $accessGroups): array;
-
-    /**
-     * @param int[] $hostCategoryIds
-     * @return array<int,Host[]>
-     */
-    public function findHostsByHostCategoryIds(array $hostCategoryIds): array;
-
-    /**
-     * @param int[] $hostCategoryIds
-     * @return array<int,HostTemplate[]>
-     */
-    public function findHostTemplatesByHostCategoryIds(array $hostCategoryIds): array;
 }
