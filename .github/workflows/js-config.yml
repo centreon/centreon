@@ -49,14 +49,14 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           branch: ${{ github.ref }}
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           ssh: true
       
       - name: Push changes with tags
         uses: ad-m/github-push-action@master
         with:
           branch: ${{ github.ref }}
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           tags: true
           ssh: true
 
