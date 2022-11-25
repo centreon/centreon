@@ -24,8 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\Api\DeleteHostCategory;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryPresenterInterface;
 
-class DeleteHostCategoryPresenter extends AbstractPresenter implements DeleteHostCategoryPresenterInterface
+class DeleteHostCategoryPresenter extends AbstractPresenter
 {
 }

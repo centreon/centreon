@@ -1,4 +1,4 @@
-DeleteHostCategory:
+deleteHostCategory:
   methods: DELETE
   path: /configuration/hosts/categories/{hostCategoryId}
   requirements:
@@ -7,4 +7,3 @@ DeleteHostCategory:
   condition: "request.attributes.get('version') >= 22.10"
 
 # TODO : change version to 23.04 ?
-# TODO : change path ? /configuration/host/categories/{id}

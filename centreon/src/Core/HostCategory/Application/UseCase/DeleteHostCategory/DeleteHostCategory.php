@@ -27,8 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryPresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class DeleteHostCategory
@@ -38,18 +38,19 @@ class DeleteHostCategory
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $contact
+        private ContactInterface $user
     ) {
     }
 
-    public function __invoke(int $hostCategoryId, DeleteHostCategoryPresenterInterface $presenter): void
+    public function __invoke(int $hostCategoryId, PresenterInterface $presenter): void
     {
-        // TODO : handle ACLs ?
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->user->isAdmin()) {
                 $this->writeHostCategoryRepository->deleteById($hostCategoryId);
             } else {
-                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
+                $this->debug('User is not admin, delete data via ACLs', ['user' => $this->user->getName()]);
+
+                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
                 $this->writeHostCategoryRepository->deleteByIdAndAccessGroups($hostCategoryId, $accessGroups);
             }
 

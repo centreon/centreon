@@ -26,9 +26,8 @@ namespace Tests\Core\HostCategory\Application\UseCase\DeleteHostCategory;
 use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryResponse;
-use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryPresenterInterface;
 
-class DeleteHostCategoryPresenterStub extends AbstractPresenter implements DeleteHostCategoryPresenterInterface
+class DeleteHostCategoryPresenterStub extends AbstractPresenter
 {
     /**
      * @var DeleteHostCategoryResponse

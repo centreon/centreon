@@ -35,14 +35,14 @@ beforeEach(function () {
     $this->hostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
+    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->user);
     $hostCategoryId = 1;
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -60,10 +60,10 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a NoContentResponse on success', function () {
-    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->contact);
+    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->user);
     $hostCategoryId = 1;
 
-    $this->contact
+    $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);

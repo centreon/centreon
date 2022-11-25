@@ -25,14 +25,14 @@ namespace Core\HostCategory\Infrastructure\Api\DeleteHostCategory;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategory;
-use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategoryPresenterInterface;
+use Core\HostCategory\Infrastructure\Api\DeleteHostCategory\DeleteHostCategoryPresenter;
 
 class DeleteHostCategoryController extends AbstractController
 {
     public function __invoke(
         int $hostCategoryId,
         DeleteHostCategory $useCase,
-        DeleteHostCategoryPresenterInterface $presenter
+        DeleteHostCategoryPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
