@@ -36,20 +36,20 @@ beforeEach(function () {
     $this->hostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
     $this->acccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
     $this->request = new CreateHostCategoryRequest();
     $this->request->name = 'hc-name';
     $this->request->alias = 'hc-alias';
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->contact);
+    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->user);
     $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
 
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
+    // $this->contact
+    //     ->expects($this->once())
+    //     ->method('isAdmin')
+    //     ->willReturn(true);
     $this->hostCategoryRepository
         ->expects($this->once())
         ->method('create')
@@ -57,19 +57,20 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
     $useCase($this->request, $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
-            ->toBe('Error while creating host category');
+        ->toBe('Error while creating host category');
 });
 
 it('should present a NoContentResponse on success', function () {
-    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->contact);
+    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->user);
     $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
 
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
+    // $this->contact
+    //     ->expects($this->once())
+    //     ->method('isAdmin')
+    //     ->willReturn(true);
     $this->hostCategoryRepository
         ->expects($this->once())
         ->method('create');

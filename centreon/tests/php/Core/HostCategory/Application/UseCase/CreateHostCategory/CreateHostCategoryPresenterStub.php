@@ -26,9 +26,8 @@ namespace Tests\Core\HostCategory\Application\UseCase\CreateHostCategory;
 use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryResponse;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryPresenterInterface;
 
-class CreateHostCategoryPresenterStub extends AbstractPresenter implements CreateHostCategoryPresenterInterface
+class CreateHostCategoryPresenterStub extends AbstractPresenter
 {
     /**
      * @var CreateHostCategoryResponse

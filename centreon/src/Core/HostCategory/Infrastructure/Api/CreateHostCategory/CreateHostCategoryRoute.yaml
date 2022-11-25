@@ -1,6 +1,6 @@
 CreateHostCategory:
   methods: POST
-  path: /configuration/hostcategories
+  path: /configuration/host/categories
   controller: 'Core\HostCategory\Infrastructure\Api\CreateHostCategory\CreateHostCategoryController'
   condition: "request.attributes.get('version') >= 22.10"
 

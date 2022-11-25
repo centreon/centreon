@@ -24,8 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\Api\CreateHostCategory;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryPresenterInterface;
 
-class CreateHostCategoryPresenter extends AbstractPresenter implements CreateHostCategoryPresenterInterface
+class CreateHostCategoryPresenter extends AbstractPresenter
 {
 }

@@ -27,9 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryPresenterInterface;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -41,24 +40,21 @@ class CreateHostCategory
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $contact
+        private ContactInterface $user
     ) {
     }
 
-    public function __invoke(CreateHostCategoryRequest $request, CreateHostCategoryPresenterInterface $presenter): void
+    public function __invoke(CreateHostCategoryRequest $request, PresenterInterface $presenter): void
     {
         try {
-            if (! $this->contact->isAdmin()) {
-                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
-                // TODO : Is user allowed to create a host category ?
-                if (false) {
-                    $presenter->setResponseStatus(new UnauthorizedResponse('Unsufficient rights for this action'));
-                    // TODO : translate response message
-                    return;
-                }
-            }
-
-            $hostCategory = new NewHostCategory($request->name,$request->alias);
+            $hostCategory = new NewHostCategory($request->name, $request->alias);
+            /*
+             * TODO:
+             *  -  check is not already in use,
+             *  - trim
+             *  - (?) replace ' ' by '_'
+             *  - (?) add host cateogry to ACLs if non admin user
+             */
             $this->writeHostCategoryRepository->create($hostCategory);
 
             $presenter->setResponseStatus(new NoContentResponse());
