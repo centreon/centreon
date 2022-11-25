@@ -40,6 +40,55 @@ if (!isset($centreon)) {
     exit();
 }
 
+/**
+ * GetUserAclAllowedResources returns allowed resources for the user regarding resource type
+ *
+ * @param CentreonACL $userAcl
+ * @param string $resourceType
+ */
+function getUserAclAllowedResources(CentreonACL $userAcl, string $resourceType)
+{
+    return match ($resourceType) {
+        'hosts' => $userAcl->getHostAclConf(null, 'broker'),
+        'servicegroups' => $userAcl->getServiceGroupAclConf(null, 'broker'),
+        'hostgroups' => $userAcl->getHostGroupAclConf(null, 'broker'),
+    };
+}
+
+/**
+ * Check resources access regarding selected resources
+ *
+ * @param CentreonACL $userAcl
+ * @param int[] $selectedResources
+ * @param string $resourceType
+ * @return bool
+ **/
+function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources, string $resourceType): bool
+{
+    $allowedResources = getUserAclAllowedResources($userAcl, $resourceType);
+
+    $selectedResourceIds = array_map(
+        static fn (array $resource) => $resource['id'],
+        $selectedResources
+    );
+
+    $diff = array_diff($selectedResourceIds, array_keys($allowedResources));
+
+    if ($diff === []) {
+        return true;
+    }
+
+    foreach ($selectedResources as $resource) {
+        if (
+            in_array($resource['id'], $diff)
+            && $resource['activated'] === '1'
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /*
  * QuickForm Rules
@@ -64,7 +113,7 @@ function testDowntimeNameExistence($downtimeName = null)
 }
 
 if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {
-    $id = $_GET['dt_id'];
+    $id = filter_var($_GET['dt_id'], FILTER_VALIDATE_INT);
 } else {
     $o = 'a';
 }
@@ -87,21 +136,24 @@ $attrHosts = array(
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $hostsRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonHost'
+    'linkedObject' => 'centreonHost',
+    'showDisabled' => true
 );
 $hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
 $attrHostgroups = array(
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $hostgroupsRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonHostgroups'
+    'linkedObject' => 'centreonHostgroups',
+    'showDisabled' => true
 );
 $servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
 $attrServices = array(
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $servicesRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonService'
+    'linkedObject' => 'centreonService',
+    'showDisabled' => true
 );
 $servicegroupsRoute = './include/common/webServices/rest/internal.php' .
     '?object=centreon_configuration_servicegroup&action=list';
@@ -109,7 +161,8 @@ $attrServicegroups = array(
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $servicegroupsRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonServicegroups'
+    'linkedObject' => 'centreonServicegroups',
+    'showDisabled' => true
 );
 
 /*
@@ -166,7 +219,7 @@ $routeAttrHostgroup = './include/common/webServices/rest/internal.php?object=cen
     '&action=defaultValues&target=downtime&field=hostgroup_relation&id=' . $downtime_id;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
-    array('defaultDatasetRoute' => $routeAttrHostgroup)
+    array('defaultDatasetRoute' => $routeAttrHostgroup),
 );
 $form->addElement('select2', 'hostgroup_relation', _("Linked with Host Groups"), array(), $attrHostgroup1);
 
@@ -200,16 +253,16 @@ $form->setRequiredNote("<i class='red'>*</i>&nbsp;" . _("Required fields"));
 
 if ($o == "c" || $o == 'w') {
     $infos = $downtime->getInfos($id);
-    $relations = $downtime->getRelations($id);
+    $relations = $downtime->getRelations((int) $id);
     $default_dt = array(
         'dt_id' => $id,
         'downtime_name' => $infos['name'],
         'downtime_description' => $infos['description'],
         'downtime_activate' => $infos['activate'],
-        'host_relation' => $relations['host'],
-        'hostgroup_relation' => $relations['hostgrp'],
-        'svc_relation' => $relations['svc'],
-        'svcgroup_relation' => $relations['svcgrp']
+        'host_relations' => $relations['hosts'],
+        'hostgroup_relations' => $relations['hostgroups'],
+        'service_relations' => $relations['services'],
+        'servicegroup_relations' => $relations['servicegroups']
     );
 }
 
@@ -220,10 +273,14 @@ if ($o == "c" || $o == 'w') {
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
+/**
+ * $o parameter possible values
+ *
+ * $o = w - Watch the recurrent downtime = no possible edit
+ * $o = c - Edit the recurrent downtime
+ * $o = a - Add a recurrent downtime
+ */
 if ($o == "w") {
-    /*
-	 * Just watch a host information
-	 */
     if (!$min && $centreon->user->access->page($p) != 2) {
         $form->addElement("button", "change", _("Modify"), array(
             "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'",
@@ -233,39 +290,23 @@ if ($o == "w") {
     $form->setDefaults($default_dt);
     $form->freeze();
 } elseif ($o == "c") {
-    /*
-	 * Modify a service information
-	 */
-    require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
-
+    /**
+     * Only search for ACL if the user is not admin
+     */
     $userId = $centreon->user->user_id;
-    $isAdmin = $centreon->user->admin;
-    $acl = new CentreonACL($userId, $isAdmin);
+    $userIsAdmin = $centreon->user->admin;
 
-    //check host resources
-    $host = $acl->getHostAclConf(null, 'broker');
-    $accessHost = array_keys($host);
-    $result = array_diff($default_dt['host_relation'], $accessHost);
-    if (!empty($result)) {
-        $form->addElement('text', 'msgacl', _("error"), 'error');
-        $form->freeze();
-    } else {
-        //check hostgroup resources
-        $hgs = $acl->getHostGroupAclConf(null, 'broker');
-        $accessHg = array_keys($hgs);
-        $result = array_diff($default_dt['hostgroup_relation'], $accessHg);
-        if (!empty($result)) {
+    if ($userIsAdmin !== '1') {
+        require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
+        $userAcl = new CentreonACL($userId, $userIsAdmin);
+
+        if (
+            ! checkResourcesRelations($userAcl, $default_dt['host_relations'], 'hosts')
+            || ! checkResourcesRelations($userAcl, $default_dt['hostgroup_relations'], 'hostgroups')
+            || ! checkResourcesRelations($userAcl, $default_dt['servicegroup_relations'], 'servicegroups')
+        ) {
             $form->addElement('text', 'msgacl', _("error"), 'error');
             $form->freeze();
-        } else {
-            //check servicegroup resources
-            $sgs = $acl->getServiceGroupAclConf(null, 'broker');
-            $accessSg = array_keys($sgs);
-            $result = array_diff($default_dt['svcgroup_relation'], $accessSg);
-            if (!empty($result)) {
-                $form->addElement('text', 'msgacl', _("error"), 'error');
-                $form->freeze();
-            }
         }
     }
 
@@ -283,9 +324,6 @@ if ($o == "w") {
     );
     $form->setDefaults($default_dt);
 } elseif ($o == "a") {
-    /*
-	 * Add a service information
-	 */
     $subA = $form->addElement(
         'button',
         'submitA',
@@ -326,10 +364,12 @@ if ($form->validate()) {
             $tpl->assign('period_err', _("The end time must be greater than the start time."));
         }
     }
-    if ((!isset($values['host_relation']) || count($values['host_relation']) == 0)
-        && (!isset($values['hostgroup_relation']) || count($values['hostgroup_relation']) == 0)
-        && (!isset($values['svc_relation']) || count($values['svc_relation']) == 0)
-        && (!isset($values['svcgroup_relation']) || count($values['svcgroup_relation']) == 0)
+    /** validate that at least one relation has been configured */
+    if (
+        (! isset($values['host_relation']) || count($values['host_relation']) === 0)
+        && (! isset($values['hostgroup_relation']) || count($values['hostgroup_relation']) === 0)
+        && (! isset($values['svc_relation']) || count($values['svc_relation']) === 0)
+        && (! isset($values['svcgroup_relation']) || count($values['svcgroup_relation']) === 0)
     ) {
         $valid = false;
         $tpl->assign('msg_err', _('No relation set for this downtime'));
