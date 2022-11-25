@@ -92,7 +92,7 @@ sub getMetricsCentile {
     my $centileServiceCategories = $options{etlProperties}->{'centile.include.servicecategories'};
     my $query = 'SELECT id, metric_id FROM ' . $self->{today_servicemetrics} . ' sm ' .
         ' WHERE sm.sc_id IN (' . $centileServiceCategories . ')';
-    my $sth = $self->{centstorage}->query($query);
+    my $sth = $self->{centstorage}->query({ query => $query });
     while (my $row = $sth->fetchrow_arrayref()) {
         $results->{$$row[1]} = [] if (!defined($results->{$$row[1]}));
         push @{$results->{$$row[1]}}, $$row[0];
@@ -146,7 +146,7 @@ sub calcMetricsCentileValueMultipleDays {
         #Get Id for the couple centile / timeperiod
         my $centileId;
         my $query = "SELECT id FROM mod_bi_centiles WHERE centile_param = " . $centile . " AND liveservice_id = (SELECT id FROM mod_bi_liveservice WHERE timeperiod_id  = " . $timeperiodId . ")";
-        my $sth = $self->{centstorage}->query($query);
+        my $sth = $self->{centstorage}->query({ query => $query });
         while (my $row = $sth->fetchrow_hashref()) {
             if (defined($row->{id})) {
                 $centileId = $row->{id};
@@ -173,7 +173,7 @@ sub calcMetricsCentileValueMultipleDays {
                         '(servicemetric_id, time_id, liveservice_id, centile_value, centile_param, centile_id, total, warning_treshold, critical_treshold)' .
                         "SELECT '" . $_ . "', '" . $options{timeId} . "', '" . $liveServiceId . "', '" . $$row[0] . "', '" . $centile . "', '" . $centileId . "', " . 
                         'm.max, m.warn, m.crit FROM metrics m WHERE m.metric_id = ' . $metricId;
-                $self->{centstorage}->query($query_insert);
+                $self->{centstorage}->query({ query => $query_insert });
             }
         }
     }

@@ -267,7 +267,7 @@ sub create_child {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[engine] Event: $message");
@@ -289,15 +289,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'ENGINEREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
     while (1) {

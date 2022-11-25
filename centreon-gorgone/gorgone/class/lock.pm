@@ -100,9 +100,9 @@ sub new {
 
 sub is_set {
     my $self = shift;
-    my ($status, $sth) = $self->{dbc}->query(
-        "SELECT id,running,pid,time_launch FROM cron_operation WHERE name LIKE '$self->{name}'"
-    );
+    my ($status, $sth) = $self->{dbc}->query({
+        query => "SELECT id,running,pid,time_launch FROM cron_operation WHERE name LIKE '$self->{name}'"
+    });
     
     return 1 if ($status == -1);
     my $data = $sth->fetchrow_hashref();

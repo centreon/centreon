@@ -66,7 +66,7 @@ sub getAllHosts {
 				if ($activated == 1) {
 					$query .= " AND `host_activate` ='1'";
 				}
-	my $sth = $centreon->query($query);
+	my $sth = $centreon->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		$host_ids{$row->{"host_name"}} = $row->{"host_id"};
 		$host_names{$row->{"host_id"}} = $row->{"host_name"};
@@ -105,17 +105,17 @@ sub getHostGroups {
 	my %result = ();
 	
 	my $query = "SELECT `host_id`, `host_name`, `hg_id`, `hg_name`".
-				" FROM `host`, `hostgroup_relation`, `hostgroup`".
-				" WHERE `host_register`='1'".
-				" AND `hostgroup_hg_id` = `hg_id`".
-				" AND `host_id`= `host_host_id`";
-				if ($activated == 1) {
-					$query .= " AND `host_activate` ='1'";
-				}
-				if(!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne ''){
-					$query .= " AND `hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
-				}
-	my $sth = $centreon->query($query);
+        " FROM `host`, `hostgroup_relation`, `hostgroup`".
+        " WHERE `host_register`='1'".
+        " AND `hostgroup_hg_id` = `hg_id`".
+        " AND `host_id`= `host_host_id`";
+    if ($activated == 1) {
+        $query .= " AND `host_activate` ='1'";
+    }
+    if (!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne '') {
+        $query .= " AND `hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
+    }
+	my $sth = $centreon->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		my $new_entry = $row->{"hg_id"}.";".$row->{"hg_name"};
 		if (defined($result{$row->{"host_id"}})) {
@@ -153,16 +153,15 @@ sub getRecursiveCategoriesForOneHost{
 	#Get all categories linked to the templates associated with the host or just template associated with host to be able to call the method recursively 
 	
 	my $query = "SELECT host_id, host_name, template_id,template_name,  categories.hc_id as category_id, categories.hc_activate as hc_activate,".
-                " categories.hc_name as category_name ".
-                " FROM ( SELECT t1.host_id,t1.host_name,templates.host_id as template_id,templates.host_name as template_name ".
-                " FROM host t1, host_template_relation t2, host templates ".
-                " WHERE t1.host_id = t2.host_host_id AND t2.host_tpl_id = templates.host_id AND t1.host_activate ='1' AND t1.host_id = ".$host_id." ) r1 ".
-                " LEFT JOIN hostcategories_relation t3 ON t3.host_host_id = r1.template_id LEFT JOIN hostcategories categories ON t3.hostcategories_hc_id = categories.hc_id ";
-	
-	
+        " categories.hc_name as category_name ".
+        " FROM ( SELECT t1.host_id,t1.host_name,templates.host_id as template_id,templates.host_name as template_name ".
+        " FROM host t1, host_template_relation t2, host templates ".
+        " WHERE t1.host_id = t2.host_host_id AND t2.host_tpl_id = templates.host_id AND t1.host_activate ='1' AND t1.host_id = ".$host_id." ) r1 ".
+        " LEFT JOIN hostcategories_relation t3 ON t3.host_host_id = r1.template_id LEFT JOIN hostcategories categories ON t3.hostcategories_hc_id = categories.hc_id ";
+
 	my @hostCategoriesAllowed = split /,/, $etlProperties->{'dimension.hostcategories'};
 
-	my $sth = $centreon->query($query);
+	my $sth = $centreon->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		my @tab = ();
 		my $new_entry;
@@ -221,7 +220,7 @@ sub getDirectLinkedCategories{
 		$query .= " AND `hc_id` IN (".$etlProperties->{'dimension.hostcategories'}.")"; 
 	}
 
-	my $sth = $centreon->query($query);
+	my $sth = $centreon->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		my $new_entry = $row->{"hc_id"}.";".$row->{"hc_name"};
 		if (!scalar(@$ref_hostCat)){
@@ -257,10 +256,10 @@ sub getHostCategoriesWithTemplate{
 	}
 
 	my $query = "SELECT `host_id`".
-				" FROM `host`".
-				" WHERE `host_activate` ='1'";
+        " FROM `host`".
+        " WHERE `host_activate` ='1'";
 
-	my $sth = $centreon->query($query);
+	my $sth = $centreon->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		my @tab = ();
 		my $host_id = $row->{"host_id"};

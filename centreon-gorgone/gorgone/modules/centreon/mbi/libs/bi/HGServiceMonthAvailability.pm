@@ -81,13 +81,13 @@ sub insertStats {
 		$append = ',';
 		$counter++;
         if ($counter >= $insertParam) {
-            $self->{centstorage}->query($query);
+            $self->{centstorage}->query({ query => $query });
             $query = $query_start;
 			$counter = 0;
             $append = '';
 		}
 	}
-	$self->{centstorage}->query($query) if ($counter > 0);
+	$self->{centstorage}->query({ query => $query }) if ($counter > 0);
 }
 
 1;

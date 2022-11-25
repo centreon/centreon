@@ -75,20 +75,20 @@ sub routing {
     }
     
     if (gorgone::class::core::waiting_ready(ready => \$pullwss->{ready}) == 0) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => 'gorgone-pullwss: still no ready' },
             json_encode => 1
-        );
+        });
         return undef;
     }
 
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-pullwss',
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }
@@ -139,7 +139,11 @@ sub check {
     return $count;
 }
 
-sub broadcast {}
+sub broadcast {
+    my (%options) = @_;
+
+    routing(%options);
+}
 
 # Specific functions
 sub create_child {

@@ -56,7 +56,7 @@ sub getTimeColumn() {
 sub createTempBIEventsTable{
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
-	$db->query("DROP TABLE IF EXISTS `mod_bi_hoststateevents_tmp`");
+	$db->query({ query => "DROP TABLE IF EXISTS `mod_bi_hoststateevents_tmp`" });
 	my $createTable = " CREATE TABLE `mod_bi_hoststateevents_tmp` (";
 	$createTable .= " `host_id` int(11) NOT NULL,";
 	$createTable .= " `modbiliveservice_id` tinyint(4) NOT NULL,";
@@ -69,7 +69,7 @@ sub createTempBIEventsTable{
 	$createTable .= " `last_update` tinyint(4) NOT NULL DEFAULT '0',";
 	$createTable .= " KEY `modbihost_id` (`host_id`)";
 	$createTable .= " ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
-	$db->query($createTable);
+	$db->query({ query => $createTable });
 }
 
 sub prepareTempQuery {
@@ -77,10 +77,10 @@ sub prepareTempQuery {
 	my $db = $self->{"centstorage"};
 
 	my $query = "INSERT INTO `".$self->{'tmp_name'}."`".
-				" (`host_id`, `modbiliveservice_id`,".
-				" `state`, `start_time`, `sla_duration`,".
-				" `end_time`,  `ack_time`, `last_update`, `duration`) ".
-				" VALUES (?,?,?,?,?,?,?,?, TIMESTAMPDIFF(SECOND, FROM_UNIXTIME(?), FROM_UNIXTIME(?)))";
+        " (`host_id`, `modbiliveservice_id`,".
+        " `state`, `start_time`, `sla_duration`,".
+        " `end_time`,  `ack_time`, `last_update`, `duration`) ".
+        " VALUES (?,?,?,?,?,?,?,?, TIMESTAMPDIFF(SECOND, FROM_UNIXTIME(?), FROM_UNIXTIME(?)))";
 	$self->{'statement'} = $db->prepare($query);
 	$self->{'dbinstance'} = $db->getInstance;
 	($self->{'dbinstance'})->begin_work;
@@ -141,7 +141,7 @@ sub getDayEvents {
     $query .= " AND `end_time` > ".$start."";
     $query .= " AND `state` in (0,1,2)";
     $query .= " AND modbiliveservice_id = ".$liveserviceId;
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 
 	#For each events, for the current day, calculate statistics for the day
     my $rows = [];
@@ -218,7 +218,7 @@ sub getNbEvents {
 	$query .= " AND end_time > UNIX_TIMESTAMP('".$start."')";
 	$query .= " AND state in (1,2)";
 	$query .= " GROUP BY state";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	
 	my ($downEvents, $unrEvents) = (undef, undef);
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -237,7 +237,7 @@ sub deleteUnfinishedEvents {
 	
 	my $query = "DELETE FROM `mod_bi_hoststateevents`";
 	$query .= " WHERE last_update = 1 OR end_time is null";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 1;

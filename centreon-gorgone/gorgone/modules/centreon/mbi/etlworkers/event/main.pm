@@ -70,9 +70,9 @@ sub sql {
     foreach (@{$options{params}->{sql}}) {
         $etlwk->{messages}->writeLog('INFO', $_->[0]);
         if ($options{params}->{db} eq 'centstorage') {
-            $etlwk->{dbbi_centstorage_con}->query($_->[1]);
+            $etlwk->{dbbi_centstorage_con}->query({ query => $_->[1] });
         } elsif ($options{params}->{db} eq 'centreon') {
-            $etlwk->{dbbi_centreon_con}->query($_->[1]);
+            $etlwk->{dbbi_centreon_con}->query({ query => $_->[1] });
         }
     }
 }
@@ -109,13 +109,13 @@ sub processEventsHosts {
 	$request .= " INNER JOIN mod_bi_tmp_today_hosts t2 on t1.host_id = t2.host_id";
 
     $etlwk->{messages}->writeLog("INFO", "[HOST] Loading calculated events in reporting table");
-    $etlwk->{dbbi_centstorage_con}->query($request);
+    $etlwk->{dbbi_centstorage_con}->query({ query => $request });
 	
 	if ($options{options}->{rebuild} == 1 && $options{options}->{rebuild} == 0) {
 		$etlwk->{messages}->writeLog("DEBUG", "[HOST] Creating index");
-		$etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_hoststateevents ADD INDEX `modbihost_id` (`modbihost_id`,`modbiliveservice_id`,`state`,`start_time`,`end_time`)');
-		$etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_hoststateevents ADD INDEX `state` (`state`,`modbiliveservice_id`,`start_time`,`end_time`)');
-		$etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_hoststateevents ADD INDEX `idx_mod_bi_hoststateevents_end_time` (`end_time`)');
+		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_hoststateevents ADD INDEX `modbihost_id` (`modbihost_id`,`modbiliveservice_id`,`state`,`start_time`,`end_time`)' });
+		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_hoststateevents ADD INDEX `state` (`state`,`modbiliveservice_id`,`start_time`,`end_time`)' });
+		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_hoststateevents ADD INDEX `idx_mod_bi_hoststateevents_end_time` (`end_time`)' });
 	}
 }
 
@@ -151,13 +151,13 @@ sub processEventsServices {
 	$request .= " ON t1.host_id = t2.host_id AND t1.service_id = t2.service_id";
 
     $etlwk->{messages}->writeLog("INFO", "[SERVICE] Loading calculated events in reporting table");
-    $etlwk->{dbbi_centstorage_con}->query($request);
+    $etlwk->{dbbi_centstorage_con}->query({ query => $request });
 
 	if ($options{options}->{rebuild} == 1 && $options{options}->{rebuild} == 0) {
 		$etlwk->{messages}->writeLog("DEBUG", "[SERVICE] Creating index");
-        $etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_servicestateevents ADD INDEX `modbiservice_id` (`modbiservice_id`,`modbiliveservice_id`,`state`,`start_time`,`end_time`)');
-		$etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_servicestateevents ADD INDEX `state` (`state`,`modbiliveservice_id`,`start_time`,`end_time`)');
-		$etlwk->{dbbi_centstorage_con}->query('ALTER TABLE mod_bi_servicestateevents ADD INDEX `idx_mod_bi_servicestateevents_end_time` (`end_time`)');
+        $etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_servicestateevents ADD INDEX `modbiservice_id` (`modbiservice_id`,`modbiliveservice_id`,`state`,`start_time`,`end_time`)' });
+		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_servicestateevents ADD INDEX `state` (`state`,`modbiliveservice_id`,`start_time`,`end_time`)' });
+		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_servicestateevents ADD INDEX `idx_mod_bi_servicestateevents_end_time` (`end_time`)' });
 	}
 }
 

@@ -66,7 +66,7 @@ sub insertValues {
 	$query .= " FROM " . $self->{name_minmaxavg_tmp} . " mmavt";
 	$query .= " JOIN (metrics m, " . $self->{servicemetrics} . " sm, mod_bi_time t)";
 	$query .= " ON (mmavt.id_metric = m.metric_id and mmavt.id_metric = sm.metric_id AND mmavt.valueTime = t.dtime)";
-	$db->query($query);
+	$db->query({ query => $query });
 } 
 
 1;

@@ -142,12 +142,13 @@ sub read_message_client {
     }
 
     $connector->{logger}->writeLogDebug("[pull] read message from external: $options{data}");
-    $connector->send_internal_action(message => $options{data});
+    $connector->send_internal_action({ message => $options{data} });
 }
 
 sub event {
     while (1) {
-        my $message = transmit_back(message => $connector->read_message());
+        my ($message) = $connector->read_message();
+        $message = transmit_back(message => $message);
         last if (!defined($message));
 
         # Only send back SETLOGS and PONG
@@ -167,10 +168,10 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PULLREADY',
         data => {}
-    );
+    });
 
     $self->{client} = gorgone::class::clientzmq->new(
         identity => 'gorgone-' . $self->get_core_config(name => 'id'), 

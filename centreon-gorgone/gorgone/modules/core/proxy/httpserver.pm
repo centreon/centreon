@@ -148,12 +148,12 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PROXYREADY',
         data => {
             httpserver => 1
         }
-    );
+    });
     $self->read_zmq_events();
 
     my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
@@ -201,25 +201,25 @@ sub read_message_client {
         my ($rv, $data) = $connector->json_decode(argument => $3);
         return undef if ($rv == 1);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => 'PONG',
             data => $data,
             token => $token,
             target => ''
-        );
+        });
         $connector->read_zmq_events();
     } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS|SETLOGS)\]/) {
         return undef if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms);
 
         my ($action, $token, $data)  = ($1, $2, $3);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => $action,
             data => $data,
             data_noencode => 1,
             token => $token,
             target => ''
-        );
+        });
         $connector->read_zmq_events();
     }
 }
@@ -288,7 +288,7 @@ sub read_zmq_events {
 
     while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
-            my $message = $connector->read_message();
+            my ($message) = $connector->read_message();
             proxy(message => $message);
         } else {
             last;

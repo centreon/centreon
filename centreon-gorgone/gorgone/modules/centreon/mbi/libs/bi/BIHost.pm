@@ -50,7 +50,7 @@ sub getHostsInfo {
 
 	my $query = "SELECT `id`, `host_id`, `host_name`, `hc_id`, `hc_name`, `hg_id`, `hg_name`";
 	$query .= " FROM `".$self->{"today_table"}."`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		if (defined($result{$row->{'host_id'}})) {
@@ -80,7 +80,7 @@ sub insert {
 	my $fields = "id, host_name, host_id, hc_id, hc_name, hg_id, hg_name";
 	my $query = "INSERT INTO ".$self->{"today_table"}." (".$fields.")";
 	$query .= " SELECT ".$fields." FROM ".$self->{"table"}." ";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub update {
@@ -93,10 +93,10 @@ sub update {
     $self->createTempStorageTable($useMemory);
 	$self->joinNewAndCurrentEntries();
 	$self->insertNewEntries();
-	$db->query("DROP TABLE `".$self->{"tmp_comp_storage"}."`");
+	$db->query({ query => "DROP TABLE `".$self->{"tmp_comp_storage"}."`" });
 	$self->createTempTodayTable("false");
 	$self->insertTodayEntries();
-	$db->query("DROP TABLE `".$self->{"tmp_comp"}."`");
+	$db->query({ query => "DROP TABLE `".$self->{"tmp_comp"}."`" });
 }
 
 sub insertIntoTable {
@@ -141,7 +141,7 @@ sub insertIntoTable {
 sub createTempComparisonTable {
 	my ($self, $useMemory) = @_;
 	my $db = $self->{"centstorage"};
-	$db->query("DROP TABLE IF EXISTS `".$self->{"tmp_comp"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `" . $self->{"tmp_comp"} . "`" });
 	my $query = "CREATE TABLE `".$self->{"tmp_comp"}."` (";
 	$query .= "`host_id` int(11) NOT NULL,`host_name` varchar(255) NOT NULL,";
 	$query .= "`hc_id` int(11) DEFAULT NULL, `hc_name` varchar(255) NOT NULL,";
@@ -151,14 +151,14 @@ sub createTempComparisonTable {
 	}else {
 		$query .= ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
 	}
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub createTempStorageTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
 	
-	$db->query("DROP TABLE IF EXISTS `".$self->{"tmp_comp_storage"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `" . $self->{"tmp_comp_storage"} . "`" });
 	my $query = "CREATE TABLE `".$self->{"tmp_comp_storage"}."` (";
 	$query .= "`id` INT NOT NULL,";
 	$query .= "`host_id` int(11) NOT NULL,`host_name` varchar(255) NOT NULL,";
@@ -170,14 +170,14 @@ sub createTempStorageTable {
 	}else {
 		$query .= ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
 	}
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub createTempTodayTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
 	
-	$db->query("DROP TABLE IF EXISTS `".$self->{"today_table"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `".$self->{"today_table"}."` (";
 	$query .= "`id` INT NOT NULL,";
 	$query .= "`host_id` int(11) NOT NULL,`host_name` varchar(255) NOT NULL,";
@@ -189,7 +189,7 @@ sub createTempTodayTable {
 	}else {
 		$query .= ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
 	}
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub joinNewAndCurrentEntries {
@@ -199,7 +199,7 @@ sub joinNewAndCurrentEntries {
 	my $query = "INSERT INTO ".$self->{"tmp_comp_storage"}. " (id, host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
 	$query .= " SELECT IFNULL(h.id, 0), t.host_name, t.host_id, t.hc_id, t.hc_name, t.hg_id, t.hg_name FROM ".$self->{"tmp_comp"}." t";
 	$query .= " LEFT JOIN ".$self->{"table"}." h USING (host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub insertNewEntries {
@@ -209,7 +209,7 @@ sub insertNewEntries {
 	my $query = "  INSERT INTO `".$self->{"table"}."` (".$fields.") ";
 	$query .= " SELECT ".$fields." FROM ".$self->{"tmp_comp_storage"};
 	$query .= " WHERE id = 0";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub insertTodayEntries {
@@ -219,15 +219,15 @@ sub insertTodayEntries {
 	my $query = "INSERT INTO ".$self->{"today_table"}." (id, host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
 	$query .= " SELECT h.id, t.host_name, t.host_id, t.hc_id, t.hc_name, t.hg_id, t.hg_name FROM ".$self->{"tmp_comp"}." t";
 	$query .= " JOIN ".$self->{"table"}." h USING (host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	
-	$db->query("TRUNCATE TABLE `".$self->{"table"}."`");
-	$db->query("ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1");
+	$db->query({ query => "TRUNCATE TABLE `".$self->{"table"}."`" });
+	$db->query({ query => "ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1" });
 }
 
 1;

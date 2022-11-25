@@ -97,8 +97,10 @@ sub init {
     foreach (keys %{$options{clusters}}) {
         next if ($options{clusters}->{$_}->{live}->{status} != NOTREADY_STATUS);
 
-        my $query = 'SELECT `status` FROM gorgone_centreon_judge_spare WHERE cluster_name = ' . $options{module}->{db_gorgone}->quote($options{clusters}->{$_}->{name});
-        my ($status, $sth) = $options{module}->{db_gorgone}->query($query);
+        my ($status, $sth) = $options{module}->{db_gorgone}->query({
+            query => 'SELECT `status` FROM gorgone_centreon_judge_spare WHERE cluster_name = ?',
+            bind_values => [$options{clusters}->{$_}->{name}]
+        });
         if ($status == -1) {
             $options{module}->{logger}->writeLogError("[judge] -class- sqlite error to get cluster information '" . $options{clusters}->{$_}->{name} . "': cannot select");
             next;
@@ -107,11 +109,10 @@ sub init {
         if (my $row = $sth->fetchrow_hashref()) {
             $options{clusters}->{$_}->{live}->{status} = $row->{status};
         } else {
-            ($status) = $options{module}->{db_gorgone}->query(
-                'INSERT INTO gorgone_centreon_judge_spare (`cluster_name`, `status`) VALUES (' . 
-                    $options{module}->{db_gorgone}->quote($options{clusters}->{$_}->{name}) . ', ' . 
-                    READY_STATUS . ')'
-            );
+            ($status) = $options{module}->{db_gorgone}->query({
+                query => 'INSERT INTO gorgone_centreon_judge_spare (`cluster_name`, `status`) VALUES (?, ' . READY_STATUS . ')',
+                bind_values => [$options{clusters}->{$_}->{name}]
+            });
             if ($status == -1) {
                 $options{module}->{logger}->writeLogError("[judge] -class- sqlite error to get cluster information '" . $options{clusters}->{$_}->{name} . "': cannot insert");
                 next;
@@ -169,10 +170,10 @@ sub is_spare_ready {
 sub update_status {
     my (%options) = @_;
 
-    my ($status) = $options{module}->{db_gorgone}->query(
-        'UPDATE gorgone_centreon_judge_spare SET `status` = ' . $options{status} . ' ' .
-        'WHERE `cluster_name` = ' . $options{module}->{db_gorgone}->quote($options{cluster})
-    );
+    my ($status) = $options{module}->{db_gorgone}->query({
+        query => 'UPDATE gorgone_centreon_judge_spare SET `status` = ' . $options{status} . ' WHERE `cluster_name` = ?',
+        bind_values => [$options{cluster}]
+    });
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{cluster} . "' step $options{step}: cannot update status");
         return -1;
@@ -292,7 +293,8 @@ sub migrate_steps_1_2_3 {
     my ($status, $datas) = $options{module}->{class_object_centreon}->custom_execute(
         request => 'SELECT host_host_id ' .
             'FROM ns_host_relation ' .
-            'WHERE nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{node_src}),
+            'WHERE nagios_server_id = ?',
+        bind_values => [$options{node_src}],
         mode => 2
     );
     if ($status == -1) {
@@ -344,10 +346,10 @@ sub migrate_steps_1_2_3 {
         return -1;
     }
 
-    ($status) = $options{module}->{db_gorgone}->query(
-        'UPDATE gorgone_centreon_judge_spare SET `status` = ' . FAILOVER_RUNNING_STATUS . ', `data` = ' . $options{module}->{db_gorgone}->quote($encoded) . ' ' .
-        'WHERE `cluster_name` = ' . $options{module}->{db_gorgone}->quote($options{cluster})
-    );
+    ($status) = $options{module}->{db_gorgone}->query({
+        query => 'UPDATE gorgone_centreon_judge_spare SET `status` = ' . FAILOVER_RUNNING_STATUS . ', `data` = ? WHERE `cluster_name` = ?',
+        bind_values => [$encoded, $options{cluster}]
+    });
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_SQLITE: cannot update sqlite");
         send_log(
@@ -373,8 +375,9 @@ sub migrate_steps_1_2_3 {
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     ($status) = $options{module}->{class_object_centreon}->custom_execute(
-        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{spare}) .
-            ' WHERE host_host_id IN (' . join(',', @{$data->{hosts}}) . ')'
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ?' .
+            ' WHERE host_host_id IN (' . join(',', @{$data->{hosts}}) . ')',
+        bind_values => [$options{clusters}->{ $options{cluster} }->{spare}]
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_CENTREON_DB: cannot update database");
@@ -601,7 +604,8 @@ sub migrate_step_5 {
         $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} != 1) {
         my ($status) = $options{module}->{class_object_centstorage}->custom_execute(
             request => 'UPDATE instances SET running = 0 ' .
-                ' WHERE instance_id = ' . $options{module}->{class_object_centstorage}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_src})
+                ' WHERE instance_id = ?',
+            bind_values => [$options{clusters}->{ $options{cluster} }->{live}->{node_src}]
         );
         if ($status == -1) {
             $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED: cannot update database");
@@ -684,8 +688,10 @@ sub failback_start {
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_GET_SQLITE;
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
-    my $query = 'SELECT `status`, `data` FROM gorgone_centreon_judge_spare WHERE cluster_name = ' . $options{module}->{db_gorgone}->quote($options{clusters}->{ $options{cluster} }->{name});
-    my ($status, $sth) = $options{module}->{db_gorgone}->query($query);
+    my ($status, $sth) = $options{module}->{db_gorgone}->query({
+        query => 'SELECT `status`, `data` FROM gorgone_centreon_judge_spare WHERE cluster_name = ?',
+        bind_values => [$options{clusters}->{ $options{cluster} }->{name}]
+    });
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' cannot get sqlite information");
         send_log(
@@ -738,8 +744,9 @@ sub failback_start {
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     ($status) = $options{module}->{class_object_centreon}->custom_execute(
-        request => 'UPDATE ns_host_relation SET nagios_server_id = ' . $options{module}->{class_object_centreon}->quote(value => $options{clusters}->{ $options{cluster} }->{live}->{node_dst}) .
-            ' WHERE host_host_id IN (' . join(',', @{$decoded->{hosts}}) . ')'
+        request => 'UPDATE ns_host_relation SET nagios_server_id = ?' .
+            ' WHERE host_host_id IN (' . join(',', @{$decoded->{hosts}}) . ')',
+        bind_values => [$options{clusters}->{ $options{cluster} }->{live}->{node_dst}]
     );
     if ($status == -1) {
         $options{module}->{logger}->writeLogError("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_UPDATE_CENTREON_DB: cannot update database");

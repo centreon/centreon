@@ -254,18 +254,22 @@ sub save_centreon_previous_register {
     my ($self, %options) = @_;
 
     my ($query, $query_append) = ('', '');
+    my @bind_values = ();
     foreach (keys %{$self->{unregister_metrics_centreon}}) {
         $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
-            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}) . ',' .
-            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} . ',' .
-            ' saas_update_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} .
-            ' WHERE `id` = ' . $_;
+            ' saas_model_id = ?,' .
+            ' saas_metric_id = ?,' .
+            ' saas_creation_date = ?, ' .
+            ' saas_update_date = ?'
+            ' WHERE `id` = ?';
         $query_append = ';';
+        push @bind_values, $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}, $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id},
+            $self->{unregister_metrics_centreon}->{$_}->{creation_date}, $self->{unregister_metrics_centreon}->{$_}->{creation_date}, $_;
     }
+
     if ($query ne '') {
-        my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
+        my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query, bind_values => \@bind_values);
         if ($status == -1) {
             $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot save centreon previous register');
             return 1;
@@ -288,6 +292,10 @@ sub saas_register_metrics {
 
     my $register_centreon_metrics = {};
     my ($query, $query_append) = ('', '');
+<<<<<<< HEAD
+=======
+    my @bind_values = ();
+>>>>>>> centreon-gorgone/gorgone-save-memory
 
     $self->{generate_metrics_lua} = 0;
     foreach (keys %{$self->{centreon_metrics}}) {
@@ -360,17 +368,19 @@ sub saas_register_metrics {
 
         $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
-            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_model_id}) . ',' .
-            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} . ',' .
-            ' saas_update_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} .
-            ' WHERE `id` = ' . $_;
+            ' saas_model_id = ?,' . 
+            ' saas_metric_id = ?,' .
+            ' saas_creation_date = ?,' .
+            ' saas_update_date = ?' .
+            ' WHERE `id` = ?';
         $query_append = ';';
+        push @bind_values, $register_centreon_metrics->{$_}->{saas_model_id}, $register_centreon_metrics->{$_}->{saas_metric_id},
+            $register_centreon_metrics->{$_}->{saas_creation_date}, $register_centreon_metrics->{$_}->{saas_creation_date}, $_;
     }
 
     return 0 if ($query eq '');
 
-    my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
+    my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query, bind_values => \@bind_values);
     if ($status == -1) {
         $self->{unregister_metrics_centreon} = $register_centreon_metrics;
         $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update centreon register');
@@ -465,13 +475,13 @@ sub generate_lua_filter_file {
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class- reload centreon-broker');
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'COMMAND',
         token => $options{token},
         data => {
             content => [ { command => 'sudo ' . $poller->{broker_reload_command} } ]
-        },
-    );
+        }
+    });
 
     return 0;
 }
@@ -522,14 +532,14 @@ sub saas_get_predicts {
         $encoded_content = MIME::Base64::encode_base64($encoded_content, '');
 
         my $poller = $self->get_poller(instance => $self->{centreon_metrics}->{$_}->{instance_id});
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $self->{centreon_metrics}->{$_}->{instance_id},
             token => $options{token},
             data => {
                 content => [ { command => 'mkdir -p ' . $poller->{cfg_dir} . '/anomaly/' . '; echo -n ' . $encoded_content . ' | base64 -d | bzcat -d > "' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json"' } ]
             }
-        );
+        });
 
         $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = [] if (!defined($engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }));
         push @{$engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }}, $poller->{cfg_dir} . '/anomaly/' . $_ . '.json';
@@ -554,13 +564,13 @@ sub saas_get_predicts {
             };
         }
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'CENTREONCOMMAND',
             token => $options{token},
             data => {
                 content => $contents
             }
-        );
+        });
     }
 
     $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
@@ -629,7 +639,7 @@ sub action_saasregister {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("[anomalydetection] Event: $message");
@@ -669,15 +679,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'CENTREONADREADY',
         data => {}
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
     while (1) {

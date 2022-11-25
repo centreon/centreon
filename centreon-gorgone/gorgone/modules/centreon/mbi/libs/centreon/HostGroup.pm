@@ -71,7 +71,7 @@ sub getHostgroupServices {
 	if(!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne ''){
 		$query .= " AND hg.`hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		$result{$row->{"host_id"}.";".$row->{"service_id"}} = 1;
 	}
@@ -105,7 +105,7 @@ sub getHostgroupHostServices {
 	if(!defined($etlProperties{'etl.dimension.all.hostgroups'}) && $etlProperties{'etl.dimension.hostgroups'} ne ''){
 		$query .= " AND hg.`hg_id` IN (".$etlProperties{'etl.dimension.hostgroups'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		$result{$row->{"host_id"}.";".$row->{"service_id"}} = 1;
 	}
@@ -123,7 +123,7 @@ sub getAllEntries {
 	if(!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne ''){
 		$query .= " WHERE `hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @entries = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @entries, $row->{"hg_id"}.";".$row->{"hg_name"};

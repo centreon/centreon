@@ -177,7 +177,8 @@ sub get_poller_id {
     my ($self, %options) = @_;
 
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT id FROM nagios_server WHERE name = ' . $self->{class_object_centreon}->quote(value => $self->{poller_name}),
+        request => 'SELECT id FROM nagios_server WHERE name = ?',
+        bind_values => [$self->{poller_name}],
         mode => 2
     );
     if ($status == -1) {
@@ -197,17 +198,18 @@ sub get_poller_id {
 sub get_centreondb_cache {
     my ($self, %options) = @_;
     
-    my $request = '
+    my $request = "
         SELECT host.host_name, service.service_description 
         FROM host 
         LEFT JOIN (host_service_relation, service) ON 
             (host_service_relation.host_host_id = host.host_id AND 
              service.service_id = host_service_relation.service_service_id AND 
-             service.service_description LIKE ' . $self->{class_object_centreon}->quote(value => $self->{service_prefix}) . ') 
-        WHERE host_name LIKE ' . $self->{class_object_centreon}->quote(value => $self->{host_prefix}) . " AND host_register = '1'";
+             service.service_description LIKE ?) 
+        WHERE host_name LIKE ? AND host_register = '1'";
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => $request, 
+        request => $request,
+        bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
     );    
     if ($status == -1) {
@@ -229,11 +231,12 @@ sub get_centstoragedb_cache {
     my ($self, %options) = @_;
     
     my $request = 'SELECT hosts.name, services.description, services.last_check 
-                        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ' . $self->{class_object_centstorage}->quote(value => $self->{service_prefix}) . ')  
-                        WHERE name like ' . $self->{class_object_centstorage}->quote(value => $self->{host_prefix});
+        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ?  
+        WHERE name like ?';
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
-        request => $request, 
+        request => $request,
+        bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
     );    
     if ($status == -1) {
@@ -588,7 +591,7 @@ sub action_newtestresync {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("gorgone-newtest: class: $message");
@@ -635,15 +638,15 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'NEWTESTREADY',
         data => { container_id => $self->{container_id} }
-    );
+    });
     $self->{poll} = [
         {
             socket  => $connector->{internal_socket},
             events  => ZMQ_POLLIN,
-            callback => \&event,
+            callback => \&event
         }
     ];
     while (1) {
