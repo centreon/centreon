@@ -34,6 +34,9 @@ inputs:
   yum_repo_address:
     description: "The legacy yum repo address"
     required: true
+  yum_repo_key:
+    description: "The repo key"
+    required: true
 
 runs:
   using: "composite"
@@ -56,7 +59,7 @@ runs:
         echo "[DEBUG] - Branch name: $BRANCHNAME"
 
         case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
+          develop | dev-[2-9][0-9].[0-9][0-9].x | use-legacy-yum-repositories)
             SUBREPO="unstable"
             ;;
           release* | hotfix*)
@@ -85,6 +88,8 @@ runs:
         TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
         PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
         METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
+
+        ssh-add - <<< "${{ secrets.yum_repo_key }}"
 
         for FILE in $FILES
         do
