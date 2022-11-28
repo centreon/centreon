@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
-import { rectSortingStrategy  } from '@dnd-kit/sortable';
+import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 
 import {
   TableHead,
