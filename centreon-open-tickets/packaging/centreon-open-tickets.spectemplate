@@ -9,7 +9,7 @@
 
 Name:           centreon-open-tickets
 Version:        %{version}
-Release:        %{release}%{?dist}
+Release:        %{release}
 Summary:        Centreon Open Tickets add-on for Centreon
 %define thismajor 23.04.0
 %define nextmajor 23.05.0
