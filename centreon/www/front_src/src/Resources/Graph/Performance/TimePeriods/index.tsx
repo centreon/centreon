@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { Responsive } from '@visx/visx';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, ButtonGroup, Button, useTheme, Tooltip } from '@mui/material';
+import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';

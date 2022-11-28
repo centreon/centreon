@@ -27,9 +27,9 @@ import {
   sortBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
-import { Skeleton, Typography } from '@mui/material';
+import { Skeleton, Theme, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import {
   getData,
@@ -38,18 +38,17 @@ import {
   useRequest
 } from '@centreon/ui';
 
-import { labelNoDataForThisPeriod } from '../../translatedLabels';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { Resource, ResourceType } from '../../models';
 import { CommentParameters } from '../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import {
   CustomTimePeriod,
   CustomTimePeriodProperty
 } from '../../Details/tabs/Graph/models';
-import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
+import { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import { Resource } from '../../models';
+import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
-import { CustomFactorsData } from './AnomalyDetection/models';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -59,7 +58,9 @@ import { TimeShiftDirection } from './Graph/TimeShiftZones';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
+  AdditionalDataProps,
   AdjustTimePeriodProps,
+  GetDisplayAdditionalLinesConditionProps,
   GraphData,
   Line as LineModel,
   TimeValue
@@ -73,17 +74,16 @@ interface Props {
   displayEventAnnotations?: boolean;
   displayTitle?: boolean;
   endpoint?: string;
+  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   getPerformanceGraphRef?: (
     value: MutableRefObject<HTMLDivElement | null>
   ) => void;
   graphActions?: ReactNode;
   graphHeight: number;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
   isInViewport?: boolean;
+  isInteractive: boolean;
   limitLegendRows?: boolean;
-  modal?: ReactNode;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  resizeEnvelopeData?: CustomFactorsData;
   resource: Resource | ResourceDetails;
   resourceDetailsUpdated?: boolean;
   timeline?: Array<TimelineEvent>;
@@ -95,57 +95,57 @@ interface MakeStylesProps extends Pick<Props, 'graphHeight' | 'displayTitle'> {
   canAdjustTimePeriod: boolean;
 }
 
-const useStyles = makeStyles<MakeStylesProps>()(
-  (theme, { graphHeight, displayTitle, canAdjustTimePeriod }) => ({
-    container: {
-      display: 'grid',
-      flexDirection: 'column',
-      gridGap: theme.spacing(0.5),
-      gridTemplateRows: `${displayTitle ? 'min-content' : ''} ${theme.spacing(
+const useStyles = makeStyles<Theme, MakeStylesProps>((theme) => ({
+  container: {
+    display: 'grid',
+    flexDirection: 'column',
+    gridGap: theme.spacing(0.5),
+    gridTemplateRows: ({ graphHeight, displayTitle }): string =>
+      `${displayTitle ? 'min-content' : ''} ${theme.spacing(
         2
       )} ${graphHeight}px min-content`,
-      height: '100%',
-      width: 'auto'
-    },
-    graphHeader: {
-      display: 'grid',
-      gridTemplateColumns: '0.4fr 1fr 0.4fr',
-      justifyItems: 'end',
-      width: '100%'
-    },
-    graphTranslation: {
-      columnGap: theme.spacing(1),
-      display: 'grid',
-      gridTemplateColumns: canAdjustTimePeriod
-        ? 'min-content auto min-content'
-        : 'auto',
-      justifyContent: canAdjustTimePeriod ? 'space-between' : 'center',
-      margin: theme.spacing(0, 1),
-      width: '90%'
-    },
-    loadingContainer: {
-      height: theme.spacing(2),
-      width: theme.spacing(2)
-    },
-    noDataContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      height: '100%',
-      justifyContent: 'center'
-    },
-    title: {
-      maxWidth: '100%',
-      overflow: 'hidden',
-      placeSelf: 'center',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  })
-);
+    height: '100%',
+    width: 'auto'
+  },
+  graphHeader: {
+    display: 'grid',
+    gridTemplateColumns: '0.4fr 1fr 0.4fr',
+    justifyItems: 'end',
+    width: '100%'
+  },
+  graphTranslation: {
+    columnGap: theme.spacing(1),
+    display: 'grid',
+    gridTemplateColumns: ({ canAdjustTimePeriod }): string =>
+      canAdjustTimePeriod ? 'min-content auto min-content' : 'auto',
+    justifyContent: ({ canAdjustTimePeriod }): string =>
+      canAdjustTimePeriod ? 'space-between' : 'center',
+    margin: theme.spacing(0, 1),
+    width: '90%'
+  },
+  loadingContainer: {
+    height: theme.spacing(2),
+    width: theme.spacing(2)
+  },
+  noDataContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'center'
+  },
+  title: {
+    maxWidth: '100%',
+    overflow: 'hidden',
+    placeSelf: 'center',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  }
+}));
 
 const shiftRatio = 2;
 
-const PerformanceGraph = ({
+const PerformanceGraph = <T,>({
+  additionalData,
   endpoint,
   graphHeight,
   xAxisTickFormat = timeFormat,
@@ -161,13 +161,12 @@ const PerformanceGraph = ({
   limitLegendRows,
   isInViewport = true,
   displayCompleteGraph,
-  isEditAnomalyDetectionDataDialogOpen,
-  modal,
+  isInteractive,
   graphActions,
   getPerformanceGraphRef,
-  resizeEnvelopeData
-}: Props): JSX.Element => {
-  const { classes } = useStyles({
+  getDisplayAdditionalLinesCondition
+}: Props & AdditionalDataProps<T>): JSX.Element => {
+  const classes = useStyles({
     canAdjustTimePeriod: not(isNil(adjustTimePeriod)),
     displayTitle,
     graphHeight
@@ -295,7 +294,7 @@ const PerformanceGraph = ({
     metric.includes('thresholds')
   );
 
-  const newSortedLines = equals(resource.type, ResourceType.anomalydetection)
+  const newSortedLines = getDisplayAdditionalLinesCondition?.condition(resource)
     ? [...linesThreshold, ...lineOriginMetric]
     : sortedLines;
 
@@ -421,39 +420,36 @@ const PerformanceGraph = ({
             {title}
           </Typography>
           {graphActions}
-          {modal}
         </div>
       )}
 
       <div>
-        {displayTimeValues &&
-          timeTick &&
-          containsMetrics &&
-          !isEditAnomalyDetectionDataDialogOpen && (
-            <Typography align="center" variant="body1">
-              {toDateTime(timeTick)}
-            </Typography>
-          )}
+        {displayTimeValues && timeTick && containsMetrics && (
+          <Typography align="center" variant="body1">
+            {toDateTime(timeTick)}
+          </Typography>
+        )}
       </div>
       <div>
         <Responsive.ParentSize>
           {({ width, height }): JSX.Element => (
-            <Graph
+            <Graph<T>
+              additionalData={additionalData}
               applyZoom={adjustTimePeriod}
               base={base as number}
               canAdjustTimePeriod={not(isNil(adjustTimePeriod))}
               containsMetrics={containsMetrics}
               displayEventAnnotations={displayEventAnnotations}
               displayTimeValues={displayTimeValues}
-              height={height}
-              isEditAnomalyDetectionDataDialogOpen={
-                isEditAnomalyDetectionDataDialogOpen
+              getDisplayAdditionalLinesCondition={
+                getDisplayAdditionalLinesCondition
               }
+              height={height}
+              isInteractive={isInteractive}
               lines={displayedLines}
               loading={
                 not(resourceDetailsUpdated) && sendingGetGraphDataRequest
               }
-              resizeEnvelopeData={resizeEnvelopeData}
               resource={resource}
               shiftTime={shiftTime}
               timeSeries={timeSeries}
@@ -469,9 +465,6 @@ const PerformanceGraph = ({
         base={base as number}
         displayCompleteGraph={displayCompleteGraph}
         displayTimeValues={displayTimeValues}
-        isEditAnomalyDetectionDataDialogOpen={
-          isEditAnomalyDetectionDataDialogOpen
-        }
         limitLegendRows={limitLegendRows}
         lines={newSortedLines}
         timeSeries={timeSeries}

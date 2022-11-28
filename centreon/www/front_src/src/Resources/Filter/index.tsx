@@ -1,37 +1,37 @@
 import {
-  lazy,
-  useRef,
-  useState,
-  useEffect,
   KeyboardEvent,
+  lazy,
+  RefObject,
   Suspense,
-  RefObject
+  useEffect,
+  useRef,
+  useState
 } from 'react';
 
+import { useAtom } from 'jotai';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
-  isEmpty,
-  propEq,
-  pick,
-  find,
-  equals,
-  last,
-  inc,
-  length,
-  dec,
-  isNil,
-  not,
-  map,
-  difference,
-  pluck,
   concat,
-  pipe,
+  dec,
+  difference,
   dropLast,
+  equals,
+  find,
+  inc,
+  isEmpty,
+  isNil,
+  last,
+  length,
+  map,
+  not,
   or,
+  pick,
+  pipe,
+  pluck,
+  propEq,
   remove
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -44,34 +44,27 @@ import {
 } from '@mui/material';
 
 import {
+  getData,
+  IconButton,
+  LoadingSkeleton,
   MemoizedFilter,
   SearchField,
-  IconButton,
-  getData,
-  useRequest,
-  LoadingSkeleton
+  useRequest
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
-  labelStateFilter,
-  labelSearch,
-  labelNewFilter,
+  labelClearFilter,
   labelMyFilters,
-  labelClearFilter
+  labelNewFilter,
+  labelSearch,
+  labelStateFilter
 } from '../translatedLabels';
 
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
-  standardFilterById,
-  unhandledProblemsFilter,
-  resourceProblemsFilter,
-  allFilter
-} from './models';
-import {
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue,
-  DynamicCriteriaParametersAndValues
+  getDynamicCriteriaParametersAndValue
 } from './Criterias/searchQueryLanguage';
 import {
   applyCurrentFilterDerivedAtom,
@@ -83,6 +76,13 @@ import {
   sendingFilterAtom,
   setNewFilterDerivedAtom
 } from './filterAtoms';
+import FilterLoadingSkeleton from './FilterLoadingSkeleton';
+import {
+  allFilter,
+  resourceProblemsFilter,
+  standardFilterById,
+  unhandledProblemsFilter
+} from './models';
 import useFilterByModule from './useFilterByModule';
 
 const renderClearFilter = (onClear) => (): JSX.Element => {
@@ -566,7 +566,7 @@ const Filter = (): JSX.Element => {
             <Criterias />
           </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
-            <div data-testid={labelClearFilter}>
+            <div data-testid="searchBar">
               <SearchField
                 fullWidth
                 EndAdornment={renderClearFilter(clearFilter)}

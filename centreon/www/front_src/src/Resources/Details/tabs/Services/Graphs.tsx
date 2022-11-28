@@ -1,11 +1,11 @@
 import { RefObject } from 'react';
 
-import { path, isNil, equals, last, pipe, not } from 'ramda';
+import { equals, isNil, last, not, path, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { Resource } from '../../../models';
 
 interface Props {
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
@@ -47,8 +47,10 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ExportableGraphWithTimeline
+              isInteractive
               limitLegendRows
               graphHeight={120}
+              isRenderAdditionalGraphActions={false}
               resource={service}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}

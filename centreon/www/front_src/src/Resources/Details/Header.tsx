@@ -212,7 +212,6 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
               severityCode={
                 details.parent.status?.severity_code || SeverityCode.None
               }
-              size="small"
             />
             <SelectableResourceName
               name={details.parent.name}

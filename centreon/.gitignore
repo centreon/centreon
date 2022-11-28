@@ -66,3 +66,8 @@ config/packages/dev/Centreon*
 config/packages/prod/Centreon*
 
 docker-compose.yml
+
+# Php-CS-Fixer output file
+checkstyle.core.xml
+
+junit.xml

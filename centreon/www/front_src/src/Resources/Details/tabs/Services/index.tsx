@@ -17,9 +17,7 @@ const ServicesTab = (): JSX.Element => {
 
   const details = useAtomValue(detailsAtom);
 
-  const setSelectedResourceDetails = useUpdateAtom(
-    selectedResourcesDetailsAtom
-  );
+  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
 
   const limit = 30;
 
@@ -59,7 +57,7 @@ const ServicesTab = (): JSX.Element => {
           <ServiceList
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
             services={entities}
-            onSelectService={setSelectedResourceDetails}
+            onSelectService={selectResource}
           />
         );
       }}
