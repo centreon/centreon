@@ -378,7 +378,7 @@ describe('Anomaly detection - Global', () => {
   });
 
   it('displays resources of type anomaly-detection when  filters of anomaly detection are checked and search button is clicked', () => {
-    cy.fixture('resources/resourceListingByTypeAnomalyDetection.json').as(
+    cy.fixture('resources/resourceListingWithAnomalyDetectionType.json').as(
       'listResourceByType',
     );
     cy.route('GET', '**/resources?*', '@listResourceByType').as(
