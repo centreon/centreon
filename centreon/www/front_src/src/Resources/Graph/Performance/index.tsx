@@ -80,8 +80,8 @@ interface Props {
   ) => void;
   graphActions?: ReactNode;
   graphHeight: number;
-  interactWithGraph: boolean;
   isInViewport?: boolean;
+  isInteractive: boolean;
   limitLegendRows?: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
   resource: Resource | ResourceDetails;
@@ -161,7 +161,7 @@ const PerformanceGraph = <T,>({
   limitLegendRows,
   isInViewport = true,
   displayCompleteGraph,
-  interactWithGraph,
+  isInteractive,
   graphActions,
   getPerformanceGraphRef,
   getDisplayAdditionalLinesCondition,
@@ -445,7 +445,7 @@ const PerformanceGraph = <T,>({
                 getDisplayAdditionalLinesCondition
               }
               height={height}
-              interactWithGraph={interactWithGraph}
+              isInteractive={isInteractive}
               lines={displayedLines}
               loading={
                 not(resourceDetailsUpdated) && sendingGetGraphDataRequest

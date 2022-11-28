@@ -25,7 +25,7 @@ const AnomalyDetectionGraphActions = ({
           factorsData,
         )}
         graphHeight={180}
-        interactWithGraph={false}
+        isInteractive={false}
         isRenderAdditionalGraphActions={false}
         resource={details}
       />
