@@ -76,6 +76,21 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/yum/${{ inputs.repository_name }}/$VERSION/$DISTRIB/$SUBREPO/$ARCH/$FILE" -T "./$FILE"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" mkdir -p "$TARGET"
+          scp -o StrictHostKeyChecking=no "$FILE" "${{ secrets.YUM_REPO_URL }}:$TARGET"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" "ls -drc $PROJECT_LOCATION/* | head -n -6 | xargs rm -rf"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" "sh "${{ secrets.UPDATE_REPO_PATH }}" $METADATAS"
         done
+
+        local ID="${{ secrets.CLOUDFRONT_ID }}"
+        local PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        local ITERATIONS=1
+
+        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
+          if [ ${ITERATIONS} -eq 10 ]; then
+            return 0
+          fi
+          echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+          sleep 30s
+          ITERATIONS=$((ITERATIONS+1))
       shell: bash
