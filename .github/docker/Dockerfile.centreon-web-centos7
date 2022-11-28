@@ -27,42 +27,64 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-curl -o centreon-release.rpm "https://yum.centreon.com/standard/23.04/el7/stable/noarch/RPMS/centreon-release-23.04-1.el7.centos.noarch.rpm"
-yum install -y centreon-release.rpm
-rm -f centreon-release.rpm
+yum clean all
+
+# Add temporary artifactory repo for collect 23.04 rpms
+echo "[centreon-stable-noarch]
+name=Centreon open source software repository.
+baseurl=https://yum.centreon.com/standard/23.04/el7/stable/noarch/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-stable]
+name=Centreon open source software repository.
+baseurl=https://yum.centreon.com/standard/23.04/el7/stable/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-testing-noarch]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://yum.centreon.com/standard/23.04/el7/testing/noarch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-testing]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://yum.centreon.com/standard/23.04/el7/testing/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-unstable-noarch]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/noarch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-unstable]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+" > /etc/yum.repos.d/centreon.repo
+
 yum-config-manager --enable 'centreon-testing*'
 yum-config-manager --enable 'centreon-unstable*'
 
 yum clean all
 
 EOF
-
-# Add temporary artifactory repo for collect 23.04 rpms
-RUN <<EOF
-echo "[centreon-collect-unstable-noarch]
-name=Centreon open source software repository.
-baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/el7/unstable/noarch
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-[centreon-collect-unstable]
-name=Centreon open source software repository.
-baseurl=https://registry-docker.centreon.com/artifactory/rpm-23.04-unstable/el7/unstable/\$basearch
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-" > /etc/yum.repos.d/centreon-collect.repo
-
-yum-config-manager --enable 'centreon-collect-unstable*'
-
-yum clean all
-
-EOF
-
-RUN echo 'checking basearch var'
-RUN python -c 'import yum, json; yb = yum.YumBase(); print json.dumps(yb.conf.yumvar, indent=2)'
 
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
