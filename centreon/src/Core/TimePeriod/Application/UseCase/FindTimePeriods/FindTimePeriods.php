@@ -25,9 +25,9 @@ namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriodException;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
@@ -56,7 +56,7 @@ class FindTimePeriods
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse('Error while searching for the time periods'));
+            $presenter->setResponseStatus(new ErrorResponse('Error while searching for the time periods' . $ex->getMessage()));
             $this->error($ex->getMessage());
         }
     }
@@ -79,7 +79,7 @@ class FindTimePeriods
                         'time_range' => (string) $day->getTimeRange()
                     ];
                 }, $timePeriod->getDays()),
-                'templates' => array_map(function (TimePeriod $template) {
+                'templates' => array_map(function (Template $template) {
                     return [
                         'id' => $template->getId(),
                         'alias' => $template->getAlias(),

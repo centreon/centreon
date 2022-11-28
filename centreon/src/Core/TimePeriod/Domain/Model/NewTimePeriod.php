@@ -26,7 +26,7 @@ namespace Core\TimePeriod\Domain\Model;
 class NewTimePeriod
 {
     /**
-     * @var TimePeriod[]
+     * @var Template[]
      */
     private array $templates = [];
 
@@ -60,10 +60,10 @@ class NewTimePeriod
     }
 
     /**
-     * @param TimePeriod $template
+     * @param Template $template
      * @return void
      */
-    public function addTemplate(TimePeriod $template): void
+    public function addTemplate(Template $template): void
     {
         $this->templates[] = $template;
     }
@@ -101,7 +101,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return TimePeriod[]
+     * @return Template[]
      */
     public function getTemplates(): array
     {
@@ -128,7 +128,7 @@ class NewTimePeriod
     }
 
     /**
-     * @param TimePeriod[] $templates
+     * @param Template[] $templates
      */
     public function setTemplates(array $templates): void
     {

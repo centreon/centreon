@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Infrastructure\Common\Presenter\JsonPresenter;
+use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
+use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriodException;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
@@ -53,7 +53,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
     $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
     $presenter = new FindTimePeriodsPresenterStub(
-        $this->createMock(JsonPresenter::class)
+        $this->createMock(JsonFormatter::class)
     );
     $useCase($presenter);
 
@@ -73,10 +73,12 @@ it('should present a FindTimePeriodsResponse', function () {
     $days = [new Day(1, new TimeRange('00:00-12:00'))];
     $timePeriod->setDays($days);
 
-    $templates = [
-        new TimePeriod(2, 'fakeName2', 'fakeAlias2'),
-        new TimePeriod(3, 'fakeName3', 'fakeAlias3'),
-    ];
+    $template1 = new Template(2);
+    $template1->setAlias('fakeAlias2');
+    $template2 = new Template(3);
+    $template2->setAlias('fakeAlias3');
+
+    $templates = [$template1, $template2];
     $timePeriod->setTemplates($templates);
 
     $exceptions = new TimePeriodException(1, 'monday 1', '06:00-07:00');
@@ -90,6 +92,7 @@ it('should present a FindTimePeriodsResponse', function () {
 
     $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);
     $useCase($presenter);
+
     assertCount(1, $presenter->response->timePeriods);
     /**
      * @var TimePeriod $timePeriodToBeExpected

@@ -28,7 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\{Day, TimePeriodException, TimePeriod, TimeRange};
+use Core\TimePeriod\Domain\Model\{Day, Template, TimePeriodException, TimePeriod, TimeRange};
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
@@ -163,7 +163,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
         $requestTemplates = $this->translateDbName(
             <<<SQL
-            SELECT rel.timeperiod_id, tp.tp_id, tp.tp_name, tp.tp_alias
+            SELECT rel.timeperiod_id, tp.tp_id, tp.tp_alias
             FROM `:db`.timeperiod tp
             INNER JOIN `:db`.timeperiod_include_relations rel
               ON rel.timeperiod_include_id = tp.tp_id
@@ -176,15 +176,12 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /**
-             * @var array{tp_id: int, tp_name: string, tp_alias: string, timeperiod_id: int} $result
+             * @var array{tp_id: int, tp_alias: string, timeperiod_id: int} $result
              */
-            $timePeriods[$result["timeperiod_id"]]->addTemplate(
-                new TimePeriod(
-                    $result["tp_id"],
-                    $result["tp_name"],
-                    $result["tp_alias"]
-                )
-            );
+            $template = new Template($result["tp_id"]);
+            $template->setAlias($result["tp_alias"]);
+
+            $timePeriods[$result["timeperiod_id"]]->addTemplate($template);
         }
     }
 }
