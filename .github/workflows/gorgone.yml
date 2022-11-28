@@ -51,8 +51,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   deliver-rpm:
     runs-on: [self-hosted, common]
