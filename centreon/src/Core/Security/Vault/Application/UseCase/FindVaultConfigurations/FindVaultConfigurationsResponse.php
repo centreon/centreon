@@ -28,7 +28,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 final class FindVaultConfigurationsResponse
 {
     /**
-     * @var array {
+     * @var array<array{
      *  id: int,
      *  name: string,
      *  vault_provider: string,
@@ -36,7 +36,7 @@ final class FindVaultConfigurationsResponse
      *  port: int,
      *  storage: string,
      *  role_id: string
-     * }
+     * }>
      */
     public array $vaultConfigurations;
 
@@ -51,15 +51,15 @@ final class FindVaultConfigurationsResponse
     /**
      * @param VaultConfiguration[] $vaultConfigurations
      *
-     * @return array {
+     * @return array<array{
      *  id: int,
      *  name: string,
-     *  vault_provider: string
+     *  vault_provider: string,
      *  url: string,
      *  port: int,
      *  storage: string,
      *  role_id: string
-     * }
+     * }>
      */
     private function vaultConfigurationsToArray(array $vaultConfigurations): array
     {

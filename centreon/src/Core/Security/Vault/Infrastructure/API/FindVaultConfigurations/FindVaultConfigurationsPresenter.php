@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsPresenterInterface;
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
 
 class FindVaultConfigurationsPresenter extends AbstractPresenter implements FindVaultConfigurationsPresenterInterface
 {
@@ -41,7 +42,8 @@ class FindVaultConfigurationsPresenter extends AbstractPresenter implements Find
     }
 
     /**
-     * @param mixed $data
+     * {@inheritDoc}
+     * @param FindVaultConfigurationsResponse $data
      */
     public function present(mixed $data): void
     {
