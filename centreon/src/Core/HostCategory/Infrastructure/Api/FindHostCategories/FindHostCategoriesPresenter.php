@@ -49,11 +49,7 @@ class FindHostCategoriesPresenter extends AbstractPresenter
             $result[] = [
                 'id' => $hostCategory['id'],
                 'name' => $hostCategory['name'],
-                'alias' => $hostCategory['alias'],
-                'hosts' => $this->presentHostsForHostCategories($data->hosts[$hostCategory['id']] ?? []),
-                'host_templates' => $this->presentHostTemplatesForHostCategories(
-                    $data->hostTemplate[$hostCategory['id']] ?? []
-                ),
+                'alias' => $hostCategory['alias']
             ];
         }
 
@@ -61,35 +57,5 @@ class FindHostCategoriesPresenter extends AbstractPresenter
             'result' => $result ?? [],
             'meta' => $this->requestParameters->toArray()
         ]);
-    }
-
-    /**
-     * @param array<array{id:string,name:string}> $data
-     * @return array<array{id:string,name:string}>
-     */
-    private function presentHostsForHostCategories(array $data): array
-    {
-        foreach ($data as $host) {
-            $result[] = [
-                'id' => $host['id'],
-                'name' => $host['name']
-            ];
-        }
-        return $result ?? [];
-    }
-
-    /**
-     * @param array<array{id:string,name:string}> $data
-     * @return array<array{id:string,name:string}>
-     */
-    private function presentHostTemplatesForHostCategories(array $data): array
-    {
-        foreach ($data as $hostTemplate) {
-            $result[] = [
-                'id' => $hostTemplate['id'],
-                'name' => $hostTemplate['name']
-            ];
-        }
-        return $result ?? [];
     }
 }
