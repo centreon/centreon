@@ -222,7 +222,6 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     needs: [
       get-version,
       translation-build,
@@ -233,6 +232,7 @@ jobs:
       frontend-unit-test,
       frontend-component-test
     ]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       fail-fast: false
