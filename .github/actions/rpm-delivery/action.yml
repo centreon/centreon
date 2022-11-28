@@ -89,7 +89,7 @@ runs:
         PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
         METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
 
-        ssh-add - <<< "${{ secrets.yum_repo_key }}"
+        ssh-add - <<< "${{ inputs.yum_repo_key }}"
 
         for FILE in $FILES
         do
