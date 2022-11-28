@@ -42,3 +42,6 @@ jobs:
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
       artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      yum_repo_url: ${{ secrets.YUM_REPO_URL }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}

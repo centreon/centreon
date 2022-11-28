@@ -12,6 +12,15 @@ on:
         required: true
       artifactory_password:
         required: true
+      yum_repo_url:
+        description: "The legacy yum repo url"
+        required: true
+      update_repo_path:
+        description: "The update repo script path"
+        required: true
+      cloudfront_id:
+        description: "The cloudfront ID for repo url"
+        required: true
 
 jobs:
   delivery-rpm:
@@ -33,6 +42,9 @@ jobs:
           nexus_username: ${{ secrets.artifactory_username }}
           nexus_password: ${{ secrets.artifactory_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          yum_repo_url: ${{ inputs.yum_repo_url }}
+          update_repo_path: ${{ inputs.update_repo_path }}
+          cloudfront_id: $ {{ inputs.cloudfront_id }}
 
   delivery-deb:
     runs-on: [self-hosted, common]
