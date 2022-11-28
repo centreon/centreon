@@ -48,7 +48,6 @@ jobs:
           nexus_username: ${{ secrets.artifactory_username }}
           nexus_password: ${{ secrets.artifactory_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          yum_repo_url: ${{ inputs.yum_repo_address }}
           update_repo_path: ${{ inputs.update_repo_path }}
           cloudfront_id: $ {{ inputs.cloudfront_id }}
           yum_repo_address: ${{ inputs.yum_repo_address }}

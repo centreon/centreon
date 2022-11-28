@@ -77,7 +77,6 @@ jobs:
           nexus_username: ${{ secrets.REPOS_USERNAME }}
           nexus_password: ${{ secrets.REPOS_PASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
