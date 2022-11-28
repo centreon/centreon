@@ -194,7 +194,7 @@ const AutocompleteField = ({
         ...params.inputProps,
         'aria-label': label,
         'data-testid': label,
-        id: getNormalizedId(label || ''),
+        id: getNormalizedId(label || '')
       }}
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}

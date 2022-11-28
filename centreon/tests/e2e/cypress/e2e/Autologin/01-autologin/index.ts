@@ -9,15 +9,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php',
+    url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getLastestUserFilters');
 });
 
@@ -28,7 +28,7 @@ Given('an administrator is logged in the platform', () => {
     .navigateTo({
       page: 'Centreon UI',
       rootItemNumber: 4,
-      subMenu: 'Parameters',
+      subMenu: 'Parameters'
     })
     .wait('@getTimeZone');
 });
@@ -60,7 +60,7 @@ Then(
       .navigateTo({
         page: 'Contacts / Users',
         rootItemNumber: 3,
-        subMenu: 'Users',
+        subMenu: 'Users'
       })
       .reload()
       .wait('@getTimeZone')
@@ -76,7 +76,7 @@ Then(
         cy.get('#tab2 #generateAutologinKeyButton').should('be.exist');
         cy.get('#aKey').should('be.exist');
       });
-  },
+  }
 );
 
 Given(
@@ -95,7 +95,7 @@ Given(
         cy.get('#generateAutologinKeyButton').should('be.visible');
         cy.get('#aKey').should('be.visible');
       });
-  },
+  }
 );
 
 When('a user generates his autologin key', () => {
@@ -130,7 +130,7 @@ When('a user generates an autologin link', () => {
   cy.navigateTo({
     page: 'Templates',
     rootItemNumber: 2,
-    subMenu: 'Hosts',
+    subMenu: 'Hosts'
   })
     .wait('@getTimeZone')
     .getIframeBody()
@@ -162,7 +162,7 @@ Given(
       .reload()
       .url()
       .should('include', '/centreon/login');
-  },
+  }
 );
 
 When('the user opens the autologin link in a browser', () => {

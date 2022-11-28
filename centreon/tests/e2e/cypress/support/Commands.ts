@@ -11,7 +11,7 @@ Cypress.Commands.add(
   'getByLabel',
   ({ tag = '', label }: GetByLabelProps): Cypress.Chainable => {
     return cy.get(`${tag}[aria-label="${label}"]`);
-  },
+  }
 );
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
@@ -22,7 +22,7 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return executeActionViaClapi({
     action: 'DEL',
     object: 'HOST',
-    values: 'test_host',
+    values: 'test_host'
   });
 });
 
@@ -32,16 +32,16 @@ Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
       .request({
         body: {
           password: userAdmin.password,
-          username: userAdmin.login,
+          username: userAdmin.login
         },
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
-        url: `${apiActionV1}?action=authenticate`,
+        url: `${apiActionV1}?action=authenticate`
       })
       .then(({ body }) =>
-        window.localStorage.setItem('userTokenApiV1', body.authToken),
+        window.localStorage.setItem('userTokenApiV1', body.authToken)
       );
   });
 });
@@ -55,15 +55,15 @@ Cypress.Commands.add(
           return cy.request({
             body: {
               login: user.login,
-              password: user.password,
+              password: user.password
             },
             method: 'POST',
-            url: apiLoginV2,
+            url: apiLoginV2
           });
         })
         .then(() => {
           Cypress.Cookies.defaults({
-            preserve: 'PHPSESSID',
+            preserve: 'PHPSESSID'
           });
         });
     }
@@ -73,19 +73,19 @@ Cypress.Commands.add(
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          credential.password,
+          credential.password
         );
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
-  },
+  }
 );
 
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
     return cy.get('li').eq(rootItemNumber).trigger('mouseover');
-  },
+  }
 );
 
 Cypress.Commands.add(
@@ -95,12 +95,12 @@ Cypress.Commands.add(
       cy.wrap(
         Promise.all(
           listRequestConfig.map((request: ActionClapi) =>
-            executeActionViaClapi(request),
-          ),
-        ),
+            executeActionViaClapi(request)
+          )
+        )
       );
     });
-  },
+  }
 );
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
@@ -115,7 +115,7 @@ Cypress.Commands.add(
   'requestOnDatabase',
   ({ database, query }: requestOnDatabaseProps): void => {
     const command = `docker exec -i ${Cypress.env(
-      'dockerName',
+      'dockerName'
     )} mysql -ucentreon -pcentreon ${database} <<< "${query}"`;
 
     cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
@@ -128,9 +128,9 @@ Cypress.Commands.add(
         cy.log("Can't execute command on database : ", stderr);
 
         return cy.wrap(false);
-      },
+      }
     );
-  },
+  }
 );
 
 Cypress.Commands.add(
@@ -142,7 +142,7 @@ Cypress.Commands.add(
       .click()
       .get('div[role="tooltip"]')
       .contains(targetedMenu);
-  },
+  }
 );
 
 Cypress.Commands.add(
@@ -157,14 +157,14 @@ Cypress.Commands.add(
       return;
     }
     cy.hoverRootMenuItem(rootItemNumber).contains(page).click();
-  },
+  }
 );
 
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
   return cy.request({
     body: {},
     method: 'POST',
-    url: apiLogout,
+    url: apiLogout
   });
 });
 
@@ -173,12 +173,12 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
     executeActionViaClapi({
       action: 'DEL',
       object: 'ACLMENU',
-      values: 'acl_menu_test',
+      values: 'acl_menu_test'
     });
     executeActionViaClapi({
       action: 'DEL',
       object: 'ACLGROUP',
-      values: 'ACL Group test',
+      values: 'ACL Group test'
     });
   });
 });
@@ -219,20 +219,20 @@ declare global {
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',
-        preserveToken = false,
+        preserveToken = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
       navigateTo: ({
         page,
         rootItemNumber,
-        subMenu,
+        subMenu
       }: NavigateToProps) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
       requestOnDatabase: ({
         database,
-        query,
+        query
       }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: () => Cypress.Chainable;
     }

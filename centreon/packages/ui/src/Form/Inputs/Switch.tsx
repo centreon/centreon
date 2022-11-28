@@ -55,7 +55,7 @@ const Switch = ({
             disabled={disabled}
             id={getNormalizedId(dataTestId || '')}
             inputProps={{
-              'aria-label': t(label),
+              'aria-label': t(label)
             }}
             onChange={changeSwitchValue}
           />

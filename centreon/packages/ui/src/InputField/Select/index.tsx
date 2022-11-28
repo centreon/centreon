@@ -92,7 +92,7 @@ const SelectField = ({
           }),
           'data-testid': dataTestId,
           id: getNormalizedId(dataTestId || ''),
-          ...inputProps,
+          ...inputProps
         }}
         label={label}
         renderValue={(id): string => {

@@ -73,7 +73,7 @@ const Radio = ({
                   disabled={disabled}
                   id={getNormalizedId(`${dataTestId}${optionLabel}`)}
                   inputProps={{
-                    'aria-label': t(optionLabel),
+                    'aria-label': t(optionLabel)
                   }}
                 />
               }

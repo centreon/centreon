@@ -6,7 +6,7 @@ import {
   initializeConfigACLAndGetLoginPage,
   millisecondsValueForSixMonth,
   millisecondsValueForFourHour,
-  checkDefaultsValueForm,
+  checkDefaultsValueForm
 } from '../common';
 
 before(() => {
@@ -16,19 +16,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php',
+    url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/configuration/users?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D',
+    url: 'centreon/api/latest/configuration/users?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D'
   }).as('getListContact');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local',
+    url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('getLoginResponse');
   getUserContactId('user1')
     .as('user1Id')
@@ -36,7 +36,7 @@ beforeEach(() => {
       cy.get('@user1Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`,
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
         }).as('user1CreationPasswordDate');
       });
     });
@@ -46,7 +46,7 @@ beforeEach(() => {
       cy.get('@user2Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`,
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
         }).as('user2CreationPasswordDate');
       });
     });
@@ -55,13 +55,13 @@ beforeEach(() => {
 Given('an administrator deploying a new Centreon platform', () =>
   cy
     .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@getNavigationList'),
+    .wait('@getNavigationList')
 );
 
 When('the administrator opens the authentication configuration menu', () => {
   cy.navigateTo({
     page: 'Authentication',
-    rootItemNumber: 4,
+    rootItemNumber: 4
   })
     .get('div[role="tablist"] button')
     .eq(0)
@@ -78,7 +78,7 @@ Then(
       }
     });
     cy.logout().reload();
-  },
+  }
 );
 
 Given(
@@ -89,7 +89,7 @@ Given(
       .isInProfileMenu('Edit profile')
       .logout()
       .reload();
-  },
+  }
 );
 
 When(
@@ -99,7 +99,7 @@ When(
       .wait('@getNavigationList')
       .navigateTo({
         page: 'Authentication',
-        rootItemNumber: 4,
+        rootItemNumber: 4
       })
       .get('div[role="tablist"] button')
       .eq(0)
@@ -107,23 +107,24 @@ When(
     cy.get('#Minimumpasswordlength').clear().type('12');
     cy.get('#Passwordmustcontainlowercase').should(
       'have.class',
-      'MuiButton-containedPrimary',
+      'MuiButton-containedPrimary'
     );
     cy.get('#Passwordmustcontainuppercase').should(
       'have.class',
-      'MuiButton-containedPrimary',
+      'MuiButton-containedPrimary'
     );
     cy.get('#Passwordmustcontainnumbers').should(
       'have.class',
-      'MuiButton-containedPrimary',
+      'MuiButton-containedPrimary'
     );
     cy.get('#Passwordmustcontainspecialcharacters').should(
       'have.class',
-      'MuiButton-containedPrimary',
+      'MuiButton-containedPrimary'
     );
     cy.get('#Save').click({ force: true });
+
     cy.logout().reload();
-  },
+  }
 );
 
 Then(
@@ -151,20 +152,20 @@ Then(
       .find('#tab1 #passwd1')
       .parent()
       .contains(
-        "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'.",
+        "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
       );
 
     cy.logout().reload();
-  },
+  }
 );
 
 Given(
   'an administrator configuring a Centreon platform and an existing user account with password up to date',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList',
+      '@getNavigationList'
     );
-  },
+  }
 );
 
 When(
@@ -172,7 +173,7 @@ When(
   () => {
     cy.navigateTo({
       page: 'Authentication',
-      rootItemNumber: 4,
+      rootItemNumber: 4
     });
     cy.reload()
       .get('div[role="tablist"] button')
@@ -190,13 +191,13 @@ When(
           Number(userPasswordCreationDate) - millisecondsValueForSixMonth;
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}';`,
+          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}';`
         });
       });
     });
 
     cy.logout().reload();
-  },
+  }
 );
 
 Then('the existing user can not authenticate and is notified about it', () => {
@@ -208,7 +209,7 @@ Then('the existing user can not authenticate and is notified about it', () => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
       cy.requestOnDatabase({
         database: 'centreon',
-        query: `UPDATE contact_password SET creation_date = '${userPasswordCreationDate}' WHERE contact_id = '${idUser}';`,
+        query: `UPDATE contact_password SET creation_date = '${userPasswordCreationDate}' WHERE contact_id = '${idUser}';`
       });
     });
   });
@@ -220,9 +221,9 @@ Given(
   'an administrator configuring a Centreon platform and an existing user account with a first password',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList',
+      '@getNavigationList'
     );
-  },
+  }
 );
 
 When(
@@ -230,7 +231,7 @@ When(
   () => {
     cy.navigateTo({
       page: 'Authentication',
-      rootItemNumber: 4,
+      rootItemNumber: 4
     });
     cy.reload()
       .get('div[role="tablist"] button')
@@ -248,13 +249,13 @@ When(
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForFourHour
-          }' WHERE contact_id = '${idUser}';`,
+          }' WHERE contact_id = '${idUser}';`
         });
       });
     });
 
     cy.logout().reload();
-  },
+  }
 );
 
 Then('user can not change password unless the minimum time has passed', () => {
@@ -296,7 +297,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#tab1 #passwd1')
     .parent()
     .contains(
-      "You can't change your password because the delay before changing password is not over.",
+      "You can't change your password because the delay before changing password is not over."
     );
 
   cy.get('@user1Id').then((idUser) => {
@@ -305,7 +306,7 @@ Then('user can not change password unless the minimum time has passed', () => {
         database: 'centreon',
         query: `UPDATE contact_password SET creation_date = '${
           Number(userPasswordCreationDate) - millisecondsValueForFourHour
-        }' WHERE contact_id = '${idUser}';`,
+        }' WHERE contact_id = '${idUser}';`
       });
     });
   });
@@ -330,7 +331,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#tab1 #passwd1')
     .parent()
     .contains(
-      'Your password has already been used. Please choose a different password from the previous three.',
+      'Your password has already been used. Please choose a different password from the previous three.'
     );
 
   cy.get('@user1Id').then((idUser) => {
@@ -338,8 +339,8 @@ Then('user can not reuse the last passwords more than 3 times', () => {
       cy.requestOnDatabase({
         database: 'centreon',
         query: `UPDATE contact_password SET creation_date = '${Number(
-          userPasswordCreationDate,
-        )}' WHERE contact_id = '${idUser}';`,
+          userPasswordCreationDate
+        )}' WHERE contact_id = '${idUser}';`
       });
     });
   });
@@ -349,7 +350,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 
 Given('an existing password policy configuration and 2 non admin users', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-    '@getNavigationList',
+    '@getNavigationList'
   );
 });
 
@@ -358,7 +359,7 @@ When(
   () => {
     cy.navigateTo({
       page: 'Authentication',
-      rootItemNumber: 4,
+      rootItemNumber: 4
     });
     cy.reload()
       .get('div[role="tablist"] button')
@@ -381,7 +382,7 @@ When(
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForSixMonth
-          }' WHERE contact_id = '${idUser}';`,
+          }' WHERE contact_id = '${idUser}';`
         });
       });
     });
@@ -391,13 +392,13 @@ When(
           database: 'centreon',
           query: `UPDATE contact_password SET creation_date = '${
             Number(userPasswordCreationDate) - millisecondsValueForSixMonth
-          }' WHERE contact_id = '${idUser}';`,
+          }' WHERE contact_id = '${idUser}';`
         });
       });
     });
 
     cy.logout().reload();
-  },
+  }
 );
 
 Then('the password expiration policy is applied to the removed user', () => {
@@ -412,23 +413,23 @@ Then(
   () => {
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-local-authentication',
-      preserveToken: false,
+      preserveToken: false
     })
       .wait('@getNavigationList')
       .url()
       .should('include', '/monitoring/resources');
 
     cy.logout().reload();
-  },
+  }
 );
 
 Given(
   'an administrator configuring a Centreon platform and an existing user account not blocked',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList',
+      '@getNavigationList'
     );
-  },
+  }
 );
 
 When(
@@ -436,7 +437,7 @@ When(
   () => {
     cy.navigateTo({
       page: 'Authentication',
-      rootItemNumber: 4,
+      rootItemNumber: 4
     });
     cy.reload()
       .get('div[role="tablist"] button')
@@ -450,26 +451,26 @@ When(
       .click({ force: true });
 
     cy.logout().reload();
-  },
+  }
 );
 
 Then('the user is locked after reaching the number of allowed attempts', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
-    preserveToken: false,
+    preserveToken: false
   })
     .wait('@getLoginResponse')
     .reload();
 
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
-    preserveToken: false,
+    preserveToken: false
   })
     .wait('@getLoginResponse')
     .reload()
     .loginByTypeOfUser({
       jsonName: 'user-non-admin-with-wrong-password',
-      preserveToken: false,
+      preserveToken: false
     })
     .wait('@getLoginResponse')
     .get('.SnackbarContent-root > .MuiPaper-root')
@@ -484,20 +485,20 @@ Then(
     cy.get('@user2Id').then((idUser) => {
       cy.requestOnDatabase({
         database: 'centreon',
-        query: `UPDATE contact SET login_attempts = NULL, blocking_time = NULL WHERE contact_id = '${idUser}';`,
+        query: `UPDATE contact SET login_attempts = NULL, blocking_time = NULL WHERE contact_id = '${idUser}';`
       });
     });
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-local-authentication',
-      preserveToken: false,
+      preserveToken: false
     })
       .wait('@getNavigationList')
       .url()
       .should('include', '/monitoring/resources');
 
     cy.logout().reload();
-  },
+  }
 );
 
 after(() => {

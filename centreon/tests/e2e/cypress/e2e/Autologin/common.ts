@@ -1,12 +1,12 @@
 import {
   applyConfigurationViaClapi,
-  executeActionViaClapi,
+  executeActionViaClapi
 } from '../../commons';
 
 const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .executeCommandsViaClapi(
-      'resources/clapi/config-ACL/autologin-configuration-acl-user.json',
+      'resources/clapi/config-ACL/autologin-configuration-acl-user.json'
     )
     .then(applyConfigurationViaClapi)
     .then(() => cy.visit(`${Cypress.config().baseUrl}`))
@@ -18,7 +18,7 @@ const removeContact = (): Cypress.Chainable => {
     executeActionViaClapi({
       action: 'DEL',
       object: 'CONTACT',
-      values: 'user1',
+      values: 'user1'
     });
   });
 };

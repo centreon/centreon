@@ -1,6 +1,6 @@
 import {
   applyConfigurationViaClapi,
-  executeActionViaClapi,
+  executeActionViaClapi
 } from '../../commons';
 
 interface DataToUseForCheckForm {
@@ -15,10 +15,10 @@ const millisecondsValueForFourHour = 14400;
 const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .executeCommandsViaClapi(
-      'resources/clapi/config-ACL/local-authentication-acl-user.json',
+      'resources/clapi/config-ACL/local-authentication-acl-user.json'
     )
     .executeCommandsViaClapi(
-      'resources/clapi/config-ACL/local-authentication-acl-user-non-admin.json',
+      'resources/clapi/config-ACL/local-authentication-acl-user-non-admin.json'
     )
     .then(applyConfigurationViaClapi)
     .then(() => cy.visit(`${Cypress.config().baseUrl}`))
@@ -30,12 +30,12 @@ const removeContact = (): Cypress.Chainable => {
     executeActionViaClapi({
       action: 'DEL',
       object: 'CONTACT',
-      values: 'user1',
+      values: 'user1'
     });
     executeActionViaClapi({
       action: 'DEL',
       object: 'CONTACT',
-      values: 'user2',
+      values: 'user2'
     });
   });
 };
@@ -43,7 +43,7 @@ const removeContact = (): Cypress.Chainable => {
 const getUserContactId = (userName: string): Cypress.Chainable => {
   const query = `SELECT contact_id FROM contact WHERE contact_name = '${userName}';`;
   const command = `docker exec -i ${Cypress.env(
-    'dockerName',
+    'dockerName'
   )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
 
   return cy
@@ -62,58 +62,58 @@ const getUserContactId = (userName: string): Cypress.Chainable => {
 const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   {
     selector: '#Minimumpasswordlength',
-    value: '12',
+    value: '12'
   },
   {
     custom: (): void => {
       cy.get('#Passwordmustcontainlowercase').should(
         'have.class',
-        'MuiButton-containedPrimary',
+        'MuiButton-containedPrimary'
       );
     },
     selector: '#Passwordmustcontainlowercase',
-    value: '',
+    value: ''
   },
   {
     custom: (): void => {
       cy.get('#Passwordmustcontainuppercase').should(
         'have.class',
-        'MuiButton-containedPrimary',
+        'MuiButton-containedPrimary'
       );
     },
 
     selector: '#Passwordmustcontainuppercase',
-    value: '',
+    value: ''
   },
   {
     custom: (): void => {
       cy.get('#Passwordmustcontainnumbers').should(
         'have.class',
-        'MuiButton-containedPrimary',
+        'MuiButton-containedPrimary'
       );
     },
 
     selector: '#Passwordmustcontainnumbers',
-    value: '',
+    value: ''
   },
   {
     custom: (): void => {
       cy.get('#Passwordmustcontainspecialcharacters').should(
         'have.class',
-        'MuiButton-containedPrimary',
+        'MuiButton-containedPrimary'
       );
     },
 
     selector: '#Passwordmustcontainspecialcharacters',
-    value: '',
+    value: ''
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayMonth',
-    value: '6',
+    value: '6'
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
-    value: '0',
+    value: '0'
   },
   {
     custom: (): void => {
@@ -122,39 +122,39 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
         .contains('centreon-gorgone');
     },
     selector: '#Excludedusers',
-    value: '',
+    value: ''
   },
   {
     selector: '#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordDay',
-    value: '0',
+    value: '0'
   },
   {
     selector: '#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordHour',
-    value: '1',
+    value: '1'
   },
   {
     selector: '#Last3passwordscanbereused',
-    value: 'on',
+    value: 'on'
   },
   {
     selector: '#Numberofattemptsbeforeuserisblocked',
-    value: '5',
+    value: '5'
   },
   {
     selector:
       '#TimethatmustpassbeforenewconnectionisallowedblockingDurationDay',
-    value: '0',
+    value: '0'
   },
   {
     selector:
       '#TimethatmustpassbeforenewconnectionisallowedblockingDurationHour',
-    value: '0',
+    value: '0'
   },
   {
     selector:
       '#TimethatmustpassbeforenewconnectionisallowedblockingDurationMinute',
-    value: '15',
-  },
+    value: '15'
+  }
 ];
 
 export {
@@ -164,5 +164,5 @@ export {
   removeContact,
   initializeConfigACLAndGetLoginPage,
   checkDefaultsValueForm,
-  DataToUseForCheckForm,
+  DataToUseForCheckForm
 };
