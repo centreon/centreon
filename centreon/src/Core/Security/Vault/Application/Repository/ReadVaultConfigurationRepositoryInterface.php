@@ -45,7 +45,18 @@ interface ReadVaultConfigurationRepositoryInterface
     /**
      * @param int $id
      *
+     * @throws \Throwable
+     *
      * @return VaultConfiguration|null
      */
     public function findById(int $id): ?VaultConfiguration;
+
+    /**
+     * @param int $vaultId
+     *
+     * @throws \Throwable
+     *
+     * @return VaultConfiguration[]
+     */
+    public function getVaultConfigurationsByVault(int $vaultId): array;
 }
