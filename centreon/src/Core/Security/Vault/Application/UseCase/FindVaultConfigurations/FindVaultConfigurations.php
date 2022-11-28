@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultRepositoryInterface,
+    ReadVaultConfigurationRepositoryInterface
+};
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsPresenterInterface;
 
 final class FindVaultConfigurations
