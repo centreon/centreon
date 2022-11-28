@@ -22,6 +22,15 @@ inputs:
   cache_key:
     description: "The cached package key"
     required: true
+  yum_repo_url:
+    description: "The legacy yum repo url"
+    required: true
+  update_repo_path:
+    description: "The update repo script path"
+    required: true
+  cloudfront_id:
+    description: "The cloudfront ID for repo url"
+    required: true
 
 runs:
   using: "composite"
@@ -63,6 +72,16 @@ runs:
         FILES="*.rpm";
         echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
+        MAJOR=$VERSION
+        DISTRIB=$DISTRIB
+        REPOTYPE=$SUBREPO
+        ARCH=$ARCH
+        PROJECT=${{ inputs.module_name }}
+        FOLDER=$(basename $FILE .rpm)
+        PROJECT_PATH="standard"
+        TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
+        PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
 
         for FILE in $FILES
         do
@@ -76,13 +95,13 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" mkdir -p "$TARGET"
-          scp -o StrictHostKeyChecking=no "$FILE" "${{ secrets.YUM_REPO_URL }}:$TARGET"
-          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" "ls -drc $PROJECT_LOCATION/* | head -n -6 | xargs rm -rf"
-          ssh -o StrictHostKeyChecking=no "${{ secrets.YUM_REPO_URL }}" "sh "${{ secrets.UPDATE_REPO_PATH }}" $METADATAS"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" mkdir -p "$TARGET"
+          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_url }}:$TARGET"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" "ls -drc $PROJECT_LOCATION/* | head -n -6 | xargs rm -rf"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" "sh "${{ inputs.update_repo_path }}" $METADATAS"
         done
 
-        local ID="${{ secrets.CLOUDFRONT_ID }}"
+        local ID="${{ inputs.cloudfront_id }}"
         local PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         local ITERATIONS=1
 

@@ -455,6 +455,9 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          yum_repo_url: ${{ secrets.YUM_REPO_URL }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
 
   deliver-deb:
     runs-on: [self-hosted, common]

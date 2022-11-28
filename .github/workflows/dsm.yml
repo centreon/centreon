@@ -21,12 +21,12 @@ env:
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
-    with: 
+    with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
   package:
     needs: [get-version]
-    
+
     strategy:
       fail-fast: true
       matrix:
@@ -54,7 +54,7 @@ jobs:
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       artifactory_username: ${{ secrets.ARTI_USER }}
-      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+      artifactory_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery-rpm:
     needs: [get-version, package]
@@ -79,6 +79,9 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          yum_repo_url: ${{ secrets.YUM_REPO_URL }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
 
   delivery-deb:
     needs: [get-version, package]
