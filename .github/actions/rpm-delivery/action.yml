@@ -78,16 +78,6 @@ runs:
         FILES="*.rpm";
         echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
-        MAJOR=$VERSION
-        DISTRIB=$DISTRIB
-        REPOTYPE=$SUBREPO
-        ARCH=$ARCH
-        PROJECT=${{ inputs.module_name }}
-        FOLDER=$(basename $FILE .rpm)
-        PROJECT_PATH="standard"
-        TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
-        PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
-        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
 
         eval `ssh-agent`
         ssh-add - <<< "${{ inputs.yum_repo_key }}"
@@ -103,6 +93,17 @@ runs:
           echo "[DEBUG] - Version: $VERSION"
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
+
+          MAJOR=$VERSION
+          DISTRIB=$DISTRIB
+          REPOTYPE=$SUBREPO
+          ARCH=$ARCH
+          PROJECT=${{ inputs.module_name }}
+          FOLDER=$(basename $FILE .rpm)
+          PROJECT_PATH="standard"
+          TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
+          PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+          METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
 
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET"
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET"
