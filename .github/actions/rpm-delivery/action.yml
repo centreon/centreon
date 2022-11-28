@@ -111,9 +111,9 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS"
         done
 
-        local ID="${{ inputs.cloudfront_id }}"
-        local PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
-        local ITERATIONS=1
+        ID="${{ inputs.cloudfront_id }}"
+        PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        ITERATIONS=1
 
         until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
           if [ ${ITERATIONS} -eq 10 ]; then
