@@ -164,7 +164,7 @@ const AnomalyDetectionSlider = ({
     setOpenTooltip(true);
   };
 
-  const handleChangeCheckBox = (event): void => {
+  const handleCheckboxChange = (event): void => {
     setIsResizingConfirmed(true);
     if (isDefaultValue) {
       return;
@@ -295,7 +295,7 @@ const AnomalyDetectionSlider = ({
           control={
             <Checkbox
               checked={isDefaultValue}
-              onChange={handleChangeCheckBox}
+              onChange={handleCheckboxChange}
             />
           }
           label={t(labelUseDefaultValue)}
