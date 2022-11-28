@@ -31,6 +31,9 @@ inputs:
   cloudfront_id:
     description: "The cloudfront ID for repo url"
     required: true
+  yum_repo_address:
+    description: "The legacy yum repo address"
+    required: true
 
 runs:
   using: "composite"
@@ -95,10 +98,10 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" mkdir -p "$TARGET"
-          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_url }}:$TARGET"
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" "ls -drc $PROJECT_LOCATION/* | head -n -6 | xargs rm -rf"
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_url }}" "sh "${{ inputs.update_repo_path }}" $METADATAS"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET"
+          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* | head -n -6 | xargs rm -rf"
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS"
         done
 
         local ID="${{ inputs.cloudfront_id }}"
