@@ -8,7 +8,7 @@ Feature: WebSSO Provider Configuration API
 
   Scenario: Update and retrieve WebSSO Provider Configuration
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 22.10)
+    And the endpoints are described in Centreon Web API documentation
 
     # Valid PUT request
     When I send a PUT request to '/api/latest/administration/authentication/providers/web-sso' with body:

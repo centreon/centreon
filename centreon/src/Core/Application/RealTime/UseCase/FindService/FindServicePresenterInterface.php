@@ -28,7 +28,7 @@ interface FindServicePresenterInterface extends PresenterInterface
 {
     /**
      * {@inheritDoc}
-     * @param FindServiceResponse $response
+     * @param FindServiceResponse $data
      */
-    public function present(mixed $response): void;
+    public function present(mixed $data): void;
 }
