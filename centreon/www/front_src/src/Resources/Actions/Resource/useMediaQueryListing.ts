@@ -3,7 +3,7 @@ import { lte, isNil } from 'ramda';
 
 import {
   panelWidthStorageAtom,
-  selectedResourcesDetailsAtom,
+  selectedResourcesDetailsAtom
 } from '../../Details/detailsAtoms';
 
 interface UseMediaQueryListing {
