@@ -27,8 +27,6 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-yum clean all
-
 # Add temporary artifactory repo for collect 23.04 rpms
 echo "[centreon-stable-noarch]
 name=Centreon open source software repository.
