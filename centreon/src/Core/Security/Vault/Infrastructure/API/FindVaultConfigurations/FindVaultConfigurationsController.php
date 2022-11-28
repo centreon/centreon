@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfigurations;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurations;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsRequest;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsPresenterInterface;
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
+    FindVaultConfigurations,
+    FindVaultConfigurationsRequest,
+    FindVaultConfigurationsPresenterInterface
+};
 
 final class FindVaultConfigurationsController extends AbstractController
 {

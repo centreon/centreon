@@ -26,8 +26,10 @@ namespace Core\Security\Vault\Infrastructure\API\FindVaultConfigurations;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsPresenterInterface;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
+    FindVaultConfigurationsPresenterInterface,
+    FindVaultConfigurationsResponse
+};
 
 class FindVaultConfigurationsPresenter extends AbstractPresenter implements FindVaultConfigurationsPresenterInterface
 {
