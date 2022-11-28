@@ -26,8 +26,6 @@ namespace Tests\Core\HostCategory\Application\UseCase\FindHostCategories;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostCategory\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -35,19 +33,16 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
-    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
-    $this->hostRepository = $this->createMock(ReadHostRepositoryInterface::class);
-    $this->hostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
-    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->hostCategoryName = 'hc-name';
+    $this->hostCategoryAlias = 'hc-alias';
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
     $useCase = new FindHostCategories(
         $this->hostCategoryRepository,
-        $this->hostRepository,
-        $this->hostTemplateRepository,
         $this->accessGroupRepository,
         $this->user
     );
@@ -72,12 +67,10 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 it('should present a FindHostCategoriesResponse', function () {
     $useCase = new FindHostCategories(
         $this->hostCategoryRepository,
-        $this->hostRepository,
-        $this->hostTemplateRepository,
         $this->accessGroupRepository,
         $this->user
     );
-    $hostCategory = new HostCategory(1, 'hc-name', 'hc-alias');
+    $hostCategory = new HostCategory(1, $this->hostCategoryName, $this->hostCategoryAlias);
     $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
 
     $this->user
@@ -96,8 +89,8 @@ it('should present a FindHostCategoriesResponse', function () {
         ->and($presenter->response->hostCategories[0])->toBe(
             [
                 'id' => 1,
-                'name' => 'hc-name',
-                'alias' => 'hc-alias'
+                'name' => $this->hostCategoryName,
+                'alias' => $this->hostCategoryAlias
             ]
         );
 });

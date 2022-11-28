@@ -29,14 +29,4 @@ class FindHostCategoriesResponse
      * @var array<array{id:int,name:string,alias:string}>
      */
     public array $hostCategories = [];
-
-    /**
-     * @var array<int,array{id:int,name:string}>
-     */
-    public array $hosts = [];
-
-    /**
-     * @var array<int,array{id:int,name:string}>
-     */
-    public array $hostTemplates = [];
 }

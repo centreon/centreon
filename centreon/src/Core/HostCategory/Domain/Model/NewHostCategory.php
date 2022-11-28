@@ -30,12 +30,6 @@ class NewHostCategory
     public const MAX_NAME_LENGTH = 255,
                 MAX_ALIAS_LENGTH = 255;
 
-    /** @var Host[] */
-    protected array $hosts = [];
-
-    /** @var HostTemplate[] */
-    protected array $hostTemplates = [];
-
     public function __construct(
         protected string $name,
         protected string $alias

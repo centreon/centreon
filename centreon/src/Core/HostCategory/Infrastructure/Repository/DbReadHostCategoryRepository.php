@@ -49,7 +49,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 'hc.hc_id',
             'name' => 'hc.hc_name',
-            'alias' => 'hc.hc_alias'
+            'alias' => 'hc.hc_alias',
+            // TODO : add search by is enabled or not ? with default is being enabled
         ]);
     }
 
@@ -184,12 +185,15 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
          *      if acl_resources_hc_relations is empty
          *      then by default access to NONE
          *      else access to only ones listed in acl_resources_hc_relations
+         *  - in clapi :
+         *      if acl_resources_hc_relations is empty
+         *      then ???
+         *      else ???
+         *
+         *  check if current behavior is OK, compared to UI results
          */
 
-        /**
-         * TODO : check if this behavior is OK, compared to UI results
-         *  If user is not admin AND total result by access groups is zero then ALL categories are accessible
-         */
+        // If user is not admin AND total result by access groups is zero then ALL categories are accessible
         if ($this->sqlRequestTranslator->getRequestParameters()->getTotal() === 0) {
             return $this->findAll();
         }

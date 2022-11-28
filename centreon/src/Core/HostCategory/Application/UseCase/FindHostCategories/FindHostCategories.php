@@ -23,17 +23,16 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostCategory\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
-use Core\HostCategory\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostCategory\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class FindHostCategories
@@ -42,8 +41,6 @@ class FindHostCategories
 
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private ReadHostRepositoryInterface $readHostRepository,
-        private ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private ContactInterface $user
     ) {
@@ -55,21 +52,26 @@ class FindHostCategories
             if ($this->user->isAdmin()) {
                 $hostCategories = $this->readHostCategoryRepository->findAll();
             } else {
-                $this->debug('User is not admin, retrieve data via ACLs', ['user' => $this->user->getName()]);
+                if (
+                    ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
+                    && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
+                ) {
+                    $this->error('User doesn\'t have sufficient right to see host groups', [
+                        'user_id' => $this->user->getId(),
+                    ]);
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse('You are not allowed to access host groups')
+                    );
 
+                    return;
+                }
+
+                $this->debug('User is not admin, use ACLs to retrieve host groups', ['user' => $this->user->getName()]);
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
                 $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups($accessGroups);
             }
 
-            $hostCategoryIds = array_map(
-                fn($hostCategory) => $hostCategory->getId(),
-                $hostCategories
-            );
-
-            $hosts = $this->readHostRepository->findHostsByHostCategoryIds($hostCategoryIds);
-            $hostTemplates = $this->readHostTemplateRepository->findHostTemplatesByHostCategoryIds($hostCategoryIds);
-
-            $presenter->present($this->createResponse($hostCategories, $hosts, $hostTemplates));
+            $presenter->present($this->createResponse($hostCategories));
         } catch (\Throwable $th) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
             // TODO : translate error message
@@ -79,14 +81,10 @@ class FindHostCategories
 
     /**
      * @param HostCategory[] $hostCategories
-     * @param array<int,Host[]> $hosts
-     * @param array<int,HostTemplate[]> $hostTemplates
      * @return FindHostCategoriesResponse
      */
     private function createResponse(
         array $hostCategories,
-        array $hosts,
-        array $hostTemplates
     ): FindHostCategoriesResponse {
         $response = new FindHostCategoriesResponse();
 
@@ -96,18 +94,6 @@ class FindHostCategories
                 'name' => $hostCategory->getName(),
                 'alias' => $hostCategory->getAlias()
             ];
-        }
-        foreach ($hosts as $hostCategoryId => $hostsArray) {
-            $response->hosts[$hostCategoryId][] = array_map(
-                fn($host) => ['id' => $host->getId(), 'name' => $host->getName()],
-                $hostsArray
-            );
-        }
-        foreach ($hostTemplates as $hostCategoryId => $hostTemplatesArray) {
-            $response->hosts[$hostCategoryId][] = array_map(
-                fn($hostTemplate) => ['id' => $hostTemplate->getId(), 'name' => $hostTemplate->getName()],
-                $hostTemplatesArray
-            );
         }
 
         return $response;
