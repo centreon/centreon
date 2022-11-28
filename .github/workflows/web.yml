@@ -275,6 +275,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-22.04
     needs: package
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -339,7 +340,7 @@ jobs:
 
   api-integration-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -354,7 +355,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
@@ -369,6 +370,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
       - name: Checkout sources
@@ -398,6 +400,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
       - uses: actions/checkout@v3
