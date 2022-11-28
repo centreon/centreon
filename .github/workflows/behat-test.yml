@@ -101,7 +101,7 @@ jobs:
           sed \
             -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#docker.centreon.com${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
             -e "s#@WEB_WIDGETS_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=`pwd`
