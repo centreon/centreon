@@ -3718,6 +3718,8 @@ paths:
                     description: |
                       upgrade available or not
                     example: true
+        500:
+          description: "centreon is not properly installed"
   /platform/topology:
     post:
       tags:
