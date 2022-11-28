@@ -135,7 +135,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @inheritDoc
      */
-    public function getVaultConfigurationsByVault(int $vaultId): array
+    public function findVaultConfigurationsByVault(int $vaultId): array
     {
         $this->info('Getting vault configurations by vault provider id');
 
