@@ -1,4 +1,4 @@
-FROM registry-docker.centreon.com/docker-global/centos:7 AS web_fresh
+FROM docker.centreon.com/centos:7 AS web_fresh
 
 RUN <<EOF
 
