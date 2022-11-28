@@ -1,6 +1,6 @@
 import { FormikValues, useFormikContext } from 'formik';
 import * as Yup from 'yup';
-import { equals, prop } from 'ramda';
+import { equals, prop, T } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -180,6 +180,7 @@ export const basicFormInputs: Array<InputProps> = [
     additionalLabel: 'This a very special label',
     fieldName: 'password',
     group: 'First group',
+    hideInput: (values) => values.active,
     label: 'Password',
     type: InputType.Password
   },

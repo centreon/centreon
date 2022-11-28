@@ -45,7 +45,6 @@ const Autocomplete = ({
   required,
   getDisabled,
   getRequired,
-  hideInput,
   change,
   additionalMemoProps,
   autocomplete,
@@ -138,7 +137,6 @@ const Autocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   const additionalLabel =
     inputText && isCreatable ? ` (${labelPressEnterToAccept})` : '';
@@ -149,9 +147,7 @@ const Autocomplete = ({
   );
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <div>
         <AutocompleteField
           dataTestId={dataTestId}
@@ -189,8 +185,7 @@ const Autocomplete = ({
       additionalMemoProps,
       isMultiple,
       autocomplete?.options,
-      isCreatable,
-      hidden
+      isCreatable
     ]
   });
 };
