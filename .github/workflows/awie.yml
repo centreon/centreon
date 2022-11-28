@@ -83,7 +83,7 @@ jobs:
           yum_repo_url: ${{ secrets.YUM_REPO_URL }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADRESS }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
 
   delivery-deb:
     needs: [get-version, package]
