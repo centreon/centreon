@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This widget displays for all service groups or a subset of groups the number of hosts and services in each status.</description>
-    <version>22.10.0</version>
+    <version>23.04.0</version>
     <keywords>centreon, widget, servicegroup, service, monitoring</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/servicegroup-monitoring/resources/centreon-logo.png</thumbnail>

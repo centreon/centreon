@@ -6,7 +6,7 @@ import Panel from '.';
 
 export default {
   component: Panel,
-  title: 'Panel',
+  title: 'Panel'
 } as ComponentMeta<typeof Panel>;
 
 const header = <Typography>Header</Typography>;

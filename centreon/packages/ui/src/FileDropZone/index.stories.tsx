@@ -7,19 +7,19 @@ import PersonIcon from '@mui/icons-material/Person';
 
 import FileDropZone, {
   CustomDropZoneContentProps,
-  transformFileListToArray,
+  transformFileListToArray
 } from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     background: theme.palette.divider,
     borderColor: theme.palette.primary.dark,
-    color: theme.palette.primary.dark,
-  },
+    color: theme.palette.primary.dark
+  }
 }));
 
 export default {
-  title: 'File Drop Zone',
+  title: 'File Drop Zone'
 };
 
 interface Props {
@@ -35,7 +35,7 @@ const Story = ({
   multiple,
   CustomDropZoneContent,
   maxFileSize,
-  className,
+  className
 }: Props): JSX.Element => {
   const [files, setFiles] = useState<FileList | null>(null);
 
@@ -72,7 +72,7 @@ export const basicSingleCustomExtension = (): JSX.Element => (
 );
 
 const DropZoneContent = ({
-  openFileExplorer,
+  openFileExplorer
 }: CustomDropZoneContentProps): JSX.Element => (
   <div style={{ height: '200px', position: 'relative', width: '200px' }}>
     <PersonIcon

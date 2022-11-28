@@ -18,31 +18,31 @@ interface StyleProps {
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
     actions: {
-      padding: theme.spacing(1, 0),
+      padding: theme.spacing(1, 0)
     },
     container: {
       alignItems: 'center',
       display: 'flex',
       flexWrap: 'wrap',
       justifyContent: 'space-between',
-      width: '100%',
+      width: '100%'
     },
     moving: {
-      marginRight: theme.spacing((width - marginWidthTableListing) / 8),
+      marginRight: theme.spacing((width - marginWidthTableListing) / 8)
     },
     pagination: {
-      padding: 0,
+      padding: 0
     },
     selectMenu: {
       '& .MuiMenuItem-root': {
-        lineHeight: 1,
-      },
+        lineHeight: 1
+      }
     },
     subContainer: {
       alignItems: 'center',
-      display: 'flex',
-    },
-  }),
+      display: 'flex'
+    }
+  })
 );
 
 type Props = Pick<
@@ -77,12 +77,12 @@ const MemoListingActionBar = ({
   onLimitChange,
   moveTablePagination = false,
   widthToMoveTablePagination = 550,
-  actionsBarMemoProps = [],
+  actionsBarMemoProps = []
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
     marginWidthTableListing,
-    width: widthToMoveTablePagination,
+    width: widthToMoveTablePagination
   });
   const { t } = useTranslation();
 
@@ -118,12 +118,12 @@ const MemoListingActionBar = ({
               ActionsComponent={PaginationActions}
               SelectProps={{
                 MenuProps: {
-                  className: classes.selectMenu,
+                  className: classes.selectMenu
                 },
-                id: labelRowsPerPage,
+                id: labelRowsPerPage
               }}
               className={cx(classes.pagination, {
-                [classes.moving]: moveTablePagination,
+                [classes.moving]: moveTablePagination
               })}
               colSpan={3}
               count={totalRows}
@@ -148,11 +148,11 @@ const MemoListingActionBar = ({
       limit,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns,
+        columns
       ),
       columnConfiguration,
-      ...actionsBarMemoProps,
-    ],
+      ...actionsBarMemoProps
+    ]
   });
 };
 
@@ -170,7 +170,7 @@ const ListingActionBar = ({
   onSelectColumns,
   actionsBarMemoProps,
   moveTablePagination,
-  widthToMoveTablePagination,
+  widthToMoveTablePagination
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&

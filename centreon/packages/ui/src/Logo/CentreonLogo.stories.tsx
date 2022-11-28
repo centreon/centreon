@@ -5,10 +5,10 @@ import { CentreonLogo } from './CentreonLogo';
 export default {
   argTypes: {
     className: { control: false },
-    fill: { control: 'text' },
+    fill: { control: 'text' }
   },
   component: CentreonLogo,
-  title: 'Logo/CentreonLogo',
+  title: 'Logo/CentreonLogo'
 } as ComponentMeta<typeof CentreonLogo>;
 
 const Logo: ComponentStory<typeof CentreonLogo> = (args) => (

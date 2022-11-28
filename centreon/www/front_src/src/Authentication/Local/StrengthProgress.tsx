@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import { findLast, gt, lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { alpha, LinearProgress, Theme, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { alpha, LinearProgress, Typography } from '@mui/material';
 
 import memoizeComponent from '../../Resources/memoizedComponent';
 
@@ -20,35 +20,37 @@ interface Props {
   thresholds: Array<Threshold>;
   value: number;
 }
-const useStyles = makeStyles<Theme, Threshold>((theme) => ({
-  linear: {
-    backgroundColor: ({ color }): string => color,
-  },
-  linearBackground: {
-    backgroundColor: ({ color }): string => alpha(color, 0.3),
-    width: '100%',
-  },
-  progressContainer: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    width: '100%',
-  },
-}));
+const useStyles = makeStyles<Pick<Threshold, 'color'>>()(
+  (theme, { color }) => ({
+    linear: {
+      backgroundColor: color
+    },
+    linearBackground: {
+      backgroundColor: alpha(color, 0.3),
+      width: '100%'
+    },
+    progressContainer: {
+      alignItems: 'center',
+      columnGap: theme.spacing(1),
+      display: 'flex',
+      width: '100%'
+    }
+  })
+);
 
 const StrengthProgress = ({
   thresholds,
   max,
   value,
-  isInverted = false,
+  isInverted = false
 }: Props): JSX.Element => {
   const currentThreshold = useMemo(
     () =>
       findLast((threshold) => value >= threshold.value, thresholds) ||
       thresholds[0],
-    [thresholds, value],
+    [thresholds, value]
   );
-  const classes = useStyles(currentThreshold);
+  const { classes } = useStyles(currentThreshold);
   const { t } = useTranslation();
 
   const { label } = currentThreshold;
@@ -69,19 +71,17 @@ const StrengthProgress = ({
         aria-label={t(label)}
         classes={{
           bar: classes.linear,
-          root: classes.linearBackground,
+          root: classes.linearBackground
         }}
         value={progressValue}
         variant="determinate"
       />
-      <Typography className={classes.label} variant="caption">
-        {t(label)}
-      </Typography>
+      <Typography variant="caption">{t(label)}</Typography>
     </div>
   );
 };
 
 export default memoizeComponent<Props>({
   Component: StrengthProgress,
-  memoProps: ['thresholds', 'max', 'value'],
+  memoProps: ['thresholds', 'max', 'value']
 });

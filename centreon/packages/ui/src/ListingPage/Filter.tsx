@@ -9,8 +9,8 @@ import { useMemoComponent } from '..';
 const useStyles = makeStyles()((theme) => ({
   content: {
     border: 'none',
-    padding: theme.spacing(1, 0),
-  },
+    padding: theme.spacing(1, 0)
+  }
 }));
 
 export interface FilterProps {
@@ -30,7 +30,7 @@ const Filter = React.forwardRef(
         {content}
       </Box>
     );
-  },
+  }
 );
 
 interface MemoizedFilterProps extends FilterProps {
@@ -43,7 +43,7 @@ export const MemoizedFilter = ({
 }: MemoizedFilterProps): JSX.Element =>
   useMemoComponent({
     Component: <Filter {...props} />,
-    memoProps: [...memoProps],
+    memoProps: [...memoProps]
   });
 
 export default Filter;

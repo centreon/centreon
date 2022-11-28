@@ -1,11 +1,11 @@
 import {
   useTheme,
   Checkbox as MuiCheckbox,
-  CheckboxProps,
+  CheckboxProps
 } from '@mui/material';
 
 const Checkbox = (
-  props: Omit<CheckboxProps, 'size' | 'color'>,
+  props: Omit<CheckboxProps, 'size' | 'color'>
 ): JSX.Element => {
   const theme = useTheme();
 

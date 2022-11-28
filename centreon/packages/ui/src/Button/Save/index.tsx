@@ -9,8 +9,8 @@ import Content from './Content';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loadingButton: {
-    width: theme.spacing(5),
-  },
+    width: theme.spacing(5)
+  }
 }));
 
 interface Props extends Record<string, unknown> {
@@ -51,7 +51,7 @@ const SaveButton = ({
   const startIconConfig = {
     hasLabel,
     loading,
-    succeeded,
+    succeeded
   } as StartIconConfigProps;
 
   return (
@@ -61,9 +61,9 @@ const SaveButton = ({
           aria-label="save button"
           className={cx(
             {
-              [classes.loadingButton]: !hasLabel,
+              [classes.loadingButton]: !hasLabel
             },
-            className,
+            className
           )}
           color="primary"
           loading={loading}
@@ -78,7 +78,7 @@ const SaveButton = ({
             labelSave,
             labelSucceeded,
             loading,
-            succeeded,
+            succeeded
           })}
         </LoadingButton>
       </div>

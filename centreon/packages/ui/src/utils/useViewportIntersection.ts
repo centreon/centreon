@@ -6,7 +6,7 @@ interface ViewportIntersectionState {
 }
 
 export const useViewportIntersection = (
-  options?: IntersectionObserverInit,
+  options?: IntersectionObserverInit
 ): ViewportIntersectionState => {
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
   const [element, setElement] = useState<HTMLElement | null>(null);
@@ -20,7 +20,7 @@ export const useViewportIntersection = (
 
     observer.current = new window.IntersectionObserver(
       ([newEntry]) => setEntry(newEntry),
-      options,
+      options
     );
 
     if (element) {
@@ -34,6 +34,6 @@ export const useViewportIntersection = (
 
   return {
     isInViewport: entry?.isIntersecting ?? true,
-    setElement,
+    setElement
   };
 };

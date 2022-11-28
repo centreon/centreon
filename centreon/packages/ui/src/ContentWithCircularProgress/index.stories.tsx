@@ -7,11 +7,11 @@ import ContentWithCircularLoading from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   container: {
-    background: theme.palette.divider,
+    background: theme.palette.divider
   },
   root: {
-    color: theme.palette.common.black,
-  },
+    color: theme.palette.common.black
+  }
 }));
 
 export default {
@@ -19,10 +19,10 @@ export default {
     alignCenter: { control: 'boolean' },
     children: { control: 'text' },
     loading: { control: 'boolean' },
-    loadingIndicatorSize: { control: 'number' },
+    loadingIndicatorSize: { control: 'number' }
   },
   component: ContentWithCircularLoading,
-  title: 'ContentWithCircularLoading',
+  title: 'ContentWithCircularLoading'
 } as ComponentMeta<typeof ContentWithCircularLoading>;
 
 const TemplateContentWithCircularLoading: ComponentStory<

@@ -20,7 +20,7 @@ interface StylesProps {
 const useStyles = makeStyles<StylesProps>()((theme, { hasSecondaryPanel }) => ({
   closeIcon: {
     margin: 'auto',
-    width: 15,
+    width: 15
   },
   closeSecondaryPanelBar: {
     alignContent: 'center',
@@ -29,14 +29,14 @@ const useStyles = makeStyles<StylesProps>()((theme, { hasSecondaryPanel }) => ({
     borderBottom: 'none',
     borderTop: 'none',
     cursor: 'pointer',
-    display: 'flex',
+    display: 'flex'
   },
   container: {
     display: hasSecondaryPanel ? 'grid' : 'block',
     gridTemplateColumns: hasSecondaryPanel
       ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
       : '100%',
-    height: '100%',
+    height: '100%'
   },
   mainPanel: {
     bottom: 0,
@@ -45,8 +45,8 @@ const useStyles = makeStyles<StylesProps>()((theme, { hasSecondaryPanel }) => ({
     position: hasSecondaryPanel ? 'unset' : 'absolute',
     right: 0,
     top: 0,
-    width: panelWidth,
-  },
+    width: panelWidth
+  }
 }));
 
 interface Section {
@@ -73,12 +73,12 @@ const SectionPanel = ({
   onSecondaryPanelClose = (): undefined => undefined,
   onClose = (): undefined => undefined,
   onResize,
-  loading = false,
+  loading = false
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
   const { classes } = useStyles({
-    hasSecondaryPanel,
+    hasSecondaryPanel
   });
 
   const getWidth = (): number => {
@@ -103,7 +103,7 @@ const SectionPanel = ({
                   </ExpandableSection>
                 ) : (
                   <ListItem key={id}>{section}</ListItem>
-                ),
+                )
               )}
             </List>
 
@@ -155,7 +155,7 @@ export const MemoizedSectionPanel = ({
         {...props}
       />
     ),
-    memoProps: [...memoProps, sections, secondaryPanel, loading],
+    memoProps: [...memoProps, sections, secondaryPanel, loading]
   });
 
 export default SectionPanel;

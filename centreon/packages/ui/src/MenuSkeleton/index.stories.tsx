@@ -6,19 +6,19 @@ import MenuLoader from '.';
 export default {
   argTypes: {
     animate: { control: 'boolean' },
-    width: { control: 'number' },
+    width: { control: 'number' }
   },
   component: MenuLoader,
-  title: 'Menu Skeleton',
+  title: 'Menu Skeleton'
 } as ComponentMeta<typeof MenuLoader>;
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.main
   },
   root: {
-    backgroundColor: theme.palette.primary.dark,
-  },
+    backgroundColor: theme.palette.primary.dark
+  }
 }));
 
 interface Props {
@@ -42,7 +42,7 @@ const TemplateMenuLoaderStory: ComponentStory<typeof MenuLoader> = (args) => (
 export const PlaygroundMenuLoaderStory = TemplateMenuLoaderStory.bind({});
 PlaygroundMenuLoaderStory.args = {
   animate: false,
-  width: 40,
+  width: 40
 };
 
 export const menuLoader = (): JSX.Element => <MenuLoaderStory />;

@@ -8,15 +8,15 @@ const useStyles = makeStyles<StylesProps>()((_, { panelDynamicAndOpen }) => ({
   container: {
     display: 'grid',
     gridTemplateColumns: '1fr auto',
-    gridTemplateRows: '1fr',
+    gridTemplateRows: '1fr'
   },
   content: {
-    gridArea: panelDynamicAndOpen ? '1 / 1 / 1 / 1' : '1 / 1 / 1 / span 2',
+    gridArea: panelDynamicAndOpen ? '1 / 1 / 1 / 1' : '1 / 1 / 1 / span 2'
   },
   panel: {
     gridArea: '1 / 2',
-    zIndex: 4,
-  },
+    zIndex: 4
+  }
 }));
 
 interface Props {
@@ -30,7 +30,7 @@ const WithPanel = ({
   children,
   panel,
   open,
-  fixed = false,
+  fixed = false
 }: Props): JSX.Element => {
   const panelDynamicAndOpen = !!fixed && open;
   const { classes } = useStyles({ panelDynamicAndOpen });
