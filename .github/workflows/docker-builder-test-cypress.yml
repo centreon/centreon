@@ -39,9 +39,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker ${{ matrix.project }}
         run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
