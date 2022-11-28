@@ -21,22 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
+namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
+    FindVaultConfigurationsPresenterInterface as PresenterInterface
+};
 
-final class FindVaultConfigurationsResponse
+class FindVaultConfigurationsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var array<array{
-     *  id: int,
-     *  name: string,
-     *  vault_provider: string,
-     *  url: string,
-     *  port: int,
-     *  storage: string,
-     *  role_id: string
-     * }>
-     */
-    public array $vaultConfigurations;
 }

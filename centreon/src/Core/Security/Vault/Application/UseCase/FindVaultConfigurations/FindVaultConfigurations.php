@@ -73,7 +73,7 @@ final class FindVaultConfigurations
                 return;
             }
 
-            $vaultConfigurations = $this->readVaultConfigurationRepository->getVaultConfigurationsByVault(
+            $vaultConfigurations = $this->readVaultConfigurationRepository->findVaultConfigurationsByVault(
                 $findVaultConfigurationsRequest->vaultId
             );
 
@@ -110,6 +110,20 @@ final class FindVaultConfigurations
      */
     private function createResponse(array $vaultConfigurations): FindVaultConfigurationsResponse
     {
-        return new FindVaultConfigurationsResponse($vaultConfigurations);
+        $findVaultConfigurationsResponse = new FindVaultConfigurationsResponse();
+        $findVaultConfigurationsResponse->vaultConfigurations = array_map(
+            fn (VaultConfiguration $vaultConfiguration) => [
+                'id' => $vaultConfiguration->getId(),
+                'name' => $vaultConfiguration->getName(),
+                'vault_provider' => $vaultConfiguration->getVault()->getName(),
+                'url' => $vaultConfiguration->getAddress(),
+                'port' => $vaultConfiguration->getPort(),
+                'storage' => $vaultConfiguration->getStorage(),
+                'role_id' => $vaultConfiguration->getRoleId()
+            ],
+            $vaultConfigurations
+        );
+
+        return $findVaultConfigurationsResponse;
     }
 }
