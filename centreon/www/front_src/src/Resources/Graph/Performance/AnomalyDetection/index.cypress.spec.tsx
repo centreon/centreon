@@ -125,7 +125,7 @@ describe('Anomaly detection - Graph', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
 
-    cy.fixture('resources/performanceGraphAnomalyDetection.json').as(
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
       'graphAnomalyDetection',
     );
     cy.server();
@@ -179,7 +179,7 @@ describe('Anomaly detection - Graph', () => {
     cy.contains(labelLast31Days).should('be.visible');
     cy.contains(labelDisplayEvents).should('be.visible');
 
-    cy.fixture('resources/performanceGraphAnomalyDetection.json').then(
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').then(
       (data) => {
         cy.contains(data.global.title).should('be.visible');
         data.metrics.map(({ legend }) =>
@@ -278,7 +278,7 @@ describe('Anomaly detection - Global', () => {
     cy.fixture('resources/newDetailsAnomalyDetection.json').as(
       'newDetailsAnomalyDetection',
     );
-    cy.fixture('resources/performanceGraphAnomalyDetection.json').as(
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
       'graphAnomalyDetection',
     );
     cy.server();
