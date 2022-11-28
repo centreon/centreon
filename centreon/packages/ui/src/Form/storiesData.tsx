@@ -1,6 +1,6 @@
 import { FormikValues, useFormikContext } from 'formik';
 import * as Yup from 'yup';
-import { equals, prop, T } from 'ramda';
+import { equals, prop } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';

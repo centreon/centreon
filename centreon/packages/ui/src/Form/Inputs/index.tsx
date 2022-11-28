@@ -121,7 +121,7 @@ const Inputs = ({
 
   const visibleInputs = R.filter(
     ({ hideInput }) =>
-      (formikContext && !hideInput?.(formikContext?.values)) || false,
+      formikContext ? !hideInput?.(formikContext?.values) || false : true,
     inputs
   );
 
