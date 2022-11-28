@@ -131,4 +131,47 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
          */
         return $this->factory->createFromRecord($record);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVaultConfigurationsByVault(int $vaultId): array
+    {
+        $this->info('Getting vault configurations by vault provider id');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT conf.*, vault.name as vault_name
+                    FROM `:db`.`vault_configuration` conf
+                    INNER JOIN `:db`.`vault`
+                      ON vault.id = conf.vault_id
+                    WHERE conf.`vault_id`=:vaultId
+                    SQL
+            )
+        );
+        $statement->bindValue(':vaultId', $vaultId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $vaultConfigurations = [];
+        while ($statement !== false && is_array($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var array{
+             *  id: int,
+             *  name: string,
+             *  vault_id: int,
+             *  vault_name: string,
+             *  url: string,
+             *  port: int,
+             *  storage: string,
+             *  role_id: string,
+             *  secret_id: string,
+             *  salt: string
+             * } $record
+             */
+            $vaultConfigurations[] = $this->factory->createFromRecord($record);
+        }
+
+        return $vaultConfigurations;
+    }
 }
