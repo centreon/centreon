@@ -130,7 +130,7 @@ function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = "")
 
     $img_parts = explode(".", $dst_file);
     $img_name = $img_parts[0];
-    
+
     $prepare = $pearDB->prepare(
         "INSERT INTO view_img (img_name, img_path, img_comment) VALUES "
         . "(:image_name, :image_path, :image_comment)"
@@ -138,10 +138,10 @@ function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = "")
     $prepare->bindValue(':image_name', $img_name, \PDO::PARAM_STR);
     $prepare->bindValue(':image_path', $dst_file, \PDO::PARAM_STR);
     $prepare->bindValue(':image_comment', $img_comment, \PDO::PARAM_STR);
-   
+
     $prepare->execute();
     $image_id = $pearDB->lastInsertId();
-    
+
     $prepare2 = $pearDB->prepare(
         "INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) "
         . "VALUES (:dir_id, :image_id)"
@@ -182,7 +182,7 @@ function deleteImg($imageId)
         . "AND dir_dir_parent_id = dir_id"
     );
     while ($imagePath = $dbResult->fetch()) {
-        $fullpath = $mediadir.$imagePath["dir_alias"]."/".$imagePath["img_path"];
+        $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
         if (is_file($fullpath)) {
             unlink($fullpath);
         }
@@ -220,15 +220,18 @@ function moveImg($img_id, $dir_alias)
         return;
     }
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
-
+    $image_info_path = basename($img_info["img_path"]);
+    $image_info_dir_alias = basename($img_info["dir_alias"]);
     if ($dir_alias) {
         $dir_alias = sanitizePath($dir_alias);
     } else {
-        $dir_alias = $img_info["dir_alias"];
+        $dir_alias = $image_info_dir_alias;
     }
     if ($dir_alias != $img_info["dir_alias"]) {
-        $oldpath = $mediadir . $img_info["dir_alias"] . "/" . $img_info["img_path"];
-        $newpath = $mediadir . $dir_alias . "/" . $img_info["img_path"];
+
+
+        $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
+        $newpath = $mediadir . $dir_alias . "/" . $image_info_path;
 
         if (!file_exists($newpath)) {
             /**
@@ -304,10 +307,10 @@ function insertDirectory($dir_alias, $dir_comment = "")
 {
     global $pearDB;
     $mediadir = "./img/media/";
-    $dir_alias_safe = sanitizePath($dir_alias);
-    @mkdir($mediadir.$dir_alias);
-    if (is_dir($mediadir.$dir_alias)) {
-        touch($mediadir.$dir_alias."/index.html");
+    $dir_alias_safe = basename($dir_alias);
+    @mkdir($mediadir . $dir_alias_safe);
+    if (is_dir($mediadir . $dir_alias_safe)) {
+        touch($mediadir . $dir_alias_safe . "/index.html");
         $prepare = $pearDB->prepare(
             "INSERT INTO view_img_dir (dir_name, dir_alias, dir_comment) VALUES "
             . "(:dir_alias, :dir_alias, :dir_comment)"
@@ -357,14 +360,15 @@ function deleteDirectory($directoryId)
         "SELECT dir_alias FROM view_img_dir WHERE dir_id = $directoryId"
     );
     $dirAlias = $dbResult->fetch();
-    $filenames = scandir($mediadir . $dirAlias["dir_alias"]);
+    $safeDirAlias = basename($dirAlias["dir_alias"]);
+    $filenames = scandir($mediadir . $safeDirAlias);
     foreach ($filenames as $fileName) {
-        if (is_file($mediadir . $dirAlias["dir_alias"] . "/" . $fileName)) {
-            unlink($mediadir . $dirAlias["dir_alias"] . "/" . $fileName);
+        if (is_file($mediadir . $safeDirAlias . "/" . $fileName)) {
+            unlink($mediadir . $safeDirAlias . "/" . $fileName);
         }
     }
-    rmdir($mediadir.$dirAlias["dir_alias"]);
-    if (!is_dir($mediadir.$dirAlias["dir_alias"])) {
+    rmdir($mediadir . $safeDirAlias);
+    if (!is_dir($mediadir . $safeDirAlias)) {
         $dbResult = $pearDB->query("DELETE FROM view_img_dir WHERE dir_id = $directoryId");
     }
 }
@@ -381,10 +385,10 @@ function updateDirectory($dir_id, $dir_alias, $dir_comment = "")
     $dbResult = $pearDB->query($rq);
     $old_dir = $dbResult->fetch();
     $dir_alias = sanitizePath($dir_alias);
-    if (!is_dir($mediadir.$old_dir["dir_alias"])) {
-        mkdir($mediadir.$dir_alias);
+    if (!is_dir($mediadir . $old_dir["dir_alias"])) {
+        mkdir($mediadir . $dir_alias);
     } else {
-        rename($mediadir.$old_dir["dir_alias"], $mediadir.$dir_alias);
+        rename($mediadir . $old_dir["dir_alias"], $mediadir . $dir_alias);
     }
 
     if (is_dir($mediadir.$dir_alias)) {
