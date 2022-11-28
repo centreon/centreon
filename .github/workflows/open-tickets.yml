@@ -21,12 +21,12 @@ env:
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
-    with: 
+    with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
   package:
     needs: [get-version]
-    
+
     strategy:
       fail-fast: true
       matrix:
@@ -53,8 +53,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.ARTI_USER }}
-      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   delivery-rpm:
     needs: [get-version, package]
