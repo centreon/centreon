@@ -1,6 +1,6 @@
 Name:       centreon-gorgone
 Version:    21.10.3
-Release:    @RELEASE@%{?dist}
+Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
 License:    Apache2
@@ -65,25 +65,25 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d %buildroot%{_localstatedir}/lib/centreon-gorgone
 %{__install} -d %buildroot%{_localstatedir}/log/centreon-gorgone
 %{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone
-%{__cp} config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
+%{__cp} centreon-gorgone/config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
 %{__install} -d %{buildroot}%{_sysconfdir}/sysconfig
-%{__cp} config/systemd/gorgoned-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/gorgoned
+%{__cp} centreon-gorgone/config/systemd/gorgoned-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/gorgoned
 %{__install} -d %{buildroot}%{_sysconfdir}/logrotate.d
-%{__cp} config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
+%{__cp} centreon-gorgone/config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
 
-%{__cp} -R gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
-%{__cp} gorgoned %{buildroot}%{_bindir}/
-%{__cp} contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
-%{__cp} contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} -R centreon-gorgone/gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
+%{__cp} centreon-gorgone/gorgoned %{buildroot}%{_bindir}/
+%{__cp} centreon-gorgone/contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} centreon-gorgone/contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
 
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/cron.d/
 %{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone/autodiscovery
-%{__cp} packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
-%{__cp} packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
-%{__cp} packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
-%{__cp} packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+%{__cp} centreon-gorgone/packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
+%{__cp} centreon-gorgone/packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
+%{__cp} centreon-gorgone/packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%{__cp} centreon-gorgone/packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
