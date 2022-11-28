@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { RefObject } from 'react';
 
 import { equals, last } from 'ramda';
