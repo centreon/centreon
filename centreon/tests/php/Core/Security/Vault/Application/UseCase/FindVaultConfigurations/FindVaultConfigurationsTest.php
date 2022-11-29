@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Legacy\EventLogs\Export\Presenter;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
@@ -36,6 +37,7 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurations;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\VaultConfigurationFactory;
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsRequest;
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
 
 beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -122,3 +124,63 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
     );
 });
 
+it('should present FindVaultConfigurationsResponse', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $vault = new Vault(1, 'myVaultProvider');
+
+    $this->readVaultRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($vault);
+
+    $vaultConfiguration = new VaultConfiguration(
+        1,
+        'myVaultConfiguration',
+        $vault,
+        '127.0.0.1',
+        8200,
+        'myStorageFolder',
+        'myRoleId',
+        'mySecretId',
+        'mySalt'
+    );
+
+    $this->readVaultConfigurationRepository
+        ->expects($this->once())
+        ->method('findVaultConfigurationsByVault')
+        ->willReturn([$vaultConfiguration]);
+
+    $presenter = new FindVaultConfigurationsPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfigurations(
+        $this->readVaultConfigurationRepository,
+        $this->readVaultRepository,
+        $this->user
+    );
+
+    $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
+    $findVaultConfigurationsRequest->vaultId = $vault->getId();
+
+    $findVaultConfigurationsResponse = new FindVaultConfigurationsResponse();
+    $findVaultConfigurationsResponse->vaultConfigurations = [
+        [
+            'id' => $vaultConfiguration->getId(),
+            'name' => $vaultConfiguration->getName(),
+            'vault_id' => $vault->getId(),
+            'url' => $vaultConfiguration->getAddress(),
+            'port' => $vaultConfiguration->getPort(),
+            'storage' => 'myStorageFolder',
+            'role_id' => 'myRoleId'
+        ]
+    ];
+
+    $useCase($presenter, $findVaultConfigurationsRequest);
+
+    expect($presenter->response)
+        ->toBeInstanceOf(FindVaultConfigurationsResponse::class)
+        ->and($presenter->response->vaultConfigurations)
+        ->toBe($findVaultConfigurationsResponse->vaultConfigurations);
+});

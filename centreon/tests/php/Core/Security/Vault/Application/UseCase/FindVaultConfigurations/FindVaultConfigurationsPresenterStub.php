@@ -25,9 +25,22 @@ namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
-    FindVaultConfigurationsPresenterInterface as PresenterInterface
+    FindVaultConfigurationsPresenterInterface as PresenterInterface,
+    FindVaultConfigurationsResponse
 };
 
 class FindVaultConfigurationsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
+    /**
+     * @var FindVaultConfigurationsResponse
+     */
+    public FindVaultConfigurationsResponse $response;
+
+    /**
+     * @param FindVaultConfigurationsResponse $response
+     */
+    public function present(mixed $response): void
+    {
+        $this->response = $response;
+    }
 }
