@@ -302,6 +302,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/categories/{host_category_id}:
+    delete:
+      tags:
+        - Host category
+      summary: "Delete a host category"
+      description: |
+        Delete a host category configuration
+      parameters:
+        - $ref: '#/components/parameters/HostCategoryId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /monitoring/services/categories:
     get:
       tags:
@@ -4573,6 +4591,15 @@ components:
       in: path
       name: vault_configuration_id
       description: "ID of existing vault configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    HostCategoryId:
+      in: path
+      name: host_category_id
+      description: "ID of existing host category configuration"
       required: true
       schema:
         type: integer
