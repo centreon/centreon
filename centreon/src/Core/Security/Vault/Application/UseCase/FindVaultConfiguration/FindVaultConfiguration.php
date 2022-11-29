@@ -95,11 +95,11 @@ final class FindVaultConfiguration
                 return;
             }
 
+            /** @var VaultConfiguration $vaultConfiguration */
             $vaultConfiguration = $this->readVaultConfigurationRepository->findById(
                 $findVaultConfigurationRequest->vaultConfigurationId
             );
 
-            /** @var VaultConfiguration $vaultConfiguration */
             $presenter->present($this->createResponse($vaultConfiguration));
         } catch (\Throwable $ex) {
             $this->error(
