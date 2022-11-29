@@ -27,10 +27,21 @@ use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
 
 class HostACLProvider implements ResourceACLProviderInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function getACLSubRequest(): string
     {
         $requestPattern = 'resources.type = %d AND resources.id = acl.host_id AND acl.service_id IS NULL';
 
         return sprintf($requestPattern, HostResourceType::TYPE_ID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function usesIndex(): bool
+    {
+        return false;
     }
 }

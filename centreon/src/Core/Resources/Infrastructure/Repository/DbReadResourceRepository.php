@@ -285,18 +285,36 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
-        $orConditions = array_map(
-            fn(ResourceACLProviderInterface $provider) => '(' . $provider->getACLSubRequest() . ')',
-            iterator_to_array($this->resourceACLProviders)
-        );
+        $aclProviders = iterator_to_array($this->resourceACLProviders);
 
-        if (empty($orConditions)) {
+        $orConditionsIndex = [];
+        $orConditions = [];
+
+        foreach ($aclProviders as $provider) {
+            if ($provider->usesIndex() === true) {
+                $orConditionsIndex[] = $provider->getACLSubRequest();
+            } else {
+                $orConditions[] = $provider->getACLSubRequest();
+            }
+        }
+
+        if (
+            empty($orConditions)
+            && empty($orConditionsIndex)
+        ) {
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
-        $pattern = ' AND EXISTS (SELECT 1 FROM `:dbstg`.centreon_acl acl WHERE (%s) AND acl.group_id IN (%s) LIMIT 1)';
+        $pattern = ' AND EXISTS (
+            SELECT 1 FROM `:dbstg`.centreon_acl acl WHERE (%s) OR (%s) AND acl.group_id IN (%s) LIMIT 1
+        )';
 
-        return sprintf($pattern, join(' OR ', $orConditions), join(', ', $accessGroupIds));
+        return sprintf(
+            $pattern,
+            join(' OR ', $orConditionsIndex),
+            join(', ', $orConditions),
+            join(', ', $accessGroupIds)
+        );
     }
 
     private function fetchResources(string $request, StatementCollector $collector): void

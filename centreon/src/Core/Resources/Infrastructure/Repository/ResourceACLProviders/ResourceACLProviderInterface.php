@@ -25,5 +25,17 @@ namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
 
 interface ResourceACLProviderInterface
 {
+    /**
+     * Returns the ACL sub request for a given resource type
+     *
+     * @return string
+     */
     public function getACLSubRequest(): string;
+
+    /**
+     * Indicates is sub request matches indexation pattern
+     *
+     * @return bool
+     */
+    public function usesIndex(): bool;
 }
