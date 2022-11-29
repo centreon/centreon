@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-final class FindVaultConfigurationsResponse
+final class FindVaultConfigurationResponse
 {
     /**
-     * @var array<array{
+     * @var array{
      *  id: int,
      *  name: string,
      *  vault_id: int,
@@ -34,7 +34,7 @@ final class FindVaultConfigurationsResponse
      *  port: int,
      *  storage: string,
      *  role_id: string
-     * }>
+     * }
      */
-    public array $vaultConfigurations;
+    public array $vaultConfiguration;
 }

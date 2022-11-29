@@ -23,27 +23,25 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-use Core\Security\Vault\Domain\Model\Vault;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Legacy\EventLogs\Export\Presenter;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurations;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\VaultConfigurationFactory;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsRequest;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultRepositoryInterface,
+    ReadVaultConfigurationRepositoryInterface
+};
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
+    FindVaultConfigurations,
+    FindVaultConfigurationsRequest,
+    FindVaultConfigurationsResponse
+};
+use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 
 beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->factory = $this->createMock(VaultConfigurationFactory::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 

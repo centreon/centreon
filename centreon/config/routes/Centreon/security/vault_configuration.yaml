@@ -24,7 +24,7 @@ centreon_security_delete_vault_configuration:
     controller: 'Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration\DeleteVaultConfigurationController'
     condition: "request.attributes.get('version') >= 23.04"
 
-centreon_security_get_configurations_by_vault:
+centreon_security_get_vault_configurations_by_provider:
     methods: GET
     path: /administration/vaults/{vaultId}/configurations/
     requirements:
@@ -32,7 +32,7 @@ centreon_security_get_configurations_by_vault:
     controller: 'Core\Security\Vault\Infrastructure\API\FindVaultConfigurations\FindVaultConfigurationsController'
     condition: "request.attributes.get('version') >= 23.04"
 
-centreon_security_get_vault_configuration:
+centreon_security_get_vault_configuration_by_configuration_id:
     methods: GET
     path: /administration/vaults/{vaultId}/configurations/{vaultConfigurationId}
     requirements:
