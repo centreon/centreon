@@ -31,7 +31,7 @@ final class FindVaultConfigurationsResponse
      * @var array<array{
      *  id: int,
      *  name: string,
-     *  vault_provider: string,
+     *  vault_id: int,
      *  url: string,
      *  port: int,
      *  storage: string,

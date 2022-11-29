@@ -115,7 +115,7 @@ final class FindVaultConfigurations
             fn (VaultConfiguration $vaultConfiguration) => [
                 'id' => $vaultConfiguration->getId(),
                 'name' => $vaultConfiguration->getName(),
-                'vault_provider' => $vaultConfiguration->getVault()->getName(),
+                'vault_id' => $vaultConfiguration->getVault()->getId(),
                 'url' => $vaultConfiguration->getAddress(),
                 'port' => $vaultConfiguration->getPort(),
                 'storage' => $vaultConfiguration->getStorage(),
