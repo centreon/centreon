@@ -368,7 +368,6 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
