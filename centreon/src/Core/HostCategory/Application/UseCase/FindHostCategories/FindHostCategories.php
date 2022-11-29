@@ -29,7 +29,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -56,11 +55,11 @@ class FindHostCategories
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
                     && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
                 ) {
-                    $this->error('User doesn\'t have sufficient right to see host groups', [
+                    $this->error('User doesn\'t have sufficient right to see host categories', [
                         'user_id' => $this->user->getId(),
                     ]);
                     $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to access host groups')
+                        new ForbiddenResponse('You are not allowed to access host categories')
                     );
 
                     return;

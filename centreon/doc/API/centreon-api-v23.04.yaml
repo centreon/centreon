@@ -942,9 +942,9 @@ paths:
       summary: Update a user
       description: |
         Update a user
-        
+
         The available parameters to be updated are :
-        
+
         * theme
       requestBody:
         required: true
@@ -5259,14 +5259,6 @@ components:
           type: string
           description: "Host category alias"
           example: "host-category"
-        is_activated:
-          type: boolean
-          description: "Indicates whether this host category is enabled or not"
-          example: "true"
-        comments:
-          type: string
-          description: "Host category comments"
-          nullable: true
     Configuration.Host.Severity:
       type: object
       properties:
@@ -6551,7 +6543,7 @@ components:
             name:
               type: string
               description: "Name of the severity"
-              example: "Priority 1" 
+              example: "Priority 1"
             icon:
               type: object
               properties:
