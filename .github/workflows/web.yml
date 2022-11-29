@@ -371,7 +371,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    uses: ./.github/workflows/cypress-e2e-parrallelization.yml
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
       module_name: centreon
