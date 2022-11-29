@@ -1,7 +1,7 @@
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor } from '@centreon/ui';
+import { render, screen, waitFor } from '@centreon/ui/src/testRenderer';
 
 import { Resource } from '../../../../models';
 import { labelComment, labelAdd } from '../../../../translatedLabels';

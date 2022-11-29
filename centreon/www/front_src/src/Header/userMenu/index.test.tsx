@@ -4,7 +4,12 @@ import { Provider } from 'jotai';
 import mockdate from 'mockdate';
 import userEvent from '@testing-library/user-event';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen
+} from '@centreon/ui/src/testRenderer';
 import { userAtom } from '@centreon/ui-context';
 
 import { retrievedNavigation } from '../../Navigation/mocks';
