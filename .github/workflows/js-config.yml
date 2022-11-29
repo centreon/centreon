@@ -22,7 +22,7 @@ env:
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
-    # if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop'
 
     steps:
       - uses: actions/checkout@v3
@@ -40,23 +40,20 @@ jobs:
           git config pull.rebase false
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
-          echo "coucou"
+          git pull origin ${{ github.head_ref || github.ref_name }}
           git add .
           git commit -m "chore: release ${VERSION}"
-          git fetch
-          git checkout develop
-          git pull origin develop
           git tag ${VERSION}
         working-directory: ${{ env.directory }}
 
       - name: Push changes
         run: |
-          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon develop
+          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon ${{ github.head_ref || github.ref_name }}
         shell: bash
       
       - name: Push changes with tags
         run: |
-          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon develop --tags
+          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon ${{ github.head_ref || github.ref_name }} --tags
         shell: bash
 
       - uses: JS-DevTools/npm-publish@v1
