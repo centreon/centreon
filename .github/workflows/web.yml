@@ -371,21 +371,15 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Cypress e2e testing
-        uses: ./.github/workflows/cypress-e2e-parrallelization.yml
-        with:
-          name: e2e
-          module_name: centreon
-          image_name: docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}
-          features_path: features
-        secrets:
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+    uses: ./.github/workflows/cypress-e2e-parrallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}
+      features_path: features
+    secrets:
+      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   performances-test:
     runs-on: ubuntu-22.04
