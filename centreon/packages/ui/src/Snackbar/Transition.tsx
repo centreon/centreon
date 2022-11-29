@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import {
   TransitionProps as _TransitionProps,
-  TransitionActions,
+  TransitionActions
 } from 'react-transition-group/Transition';
 
 import { Fade } from '@mui/material';

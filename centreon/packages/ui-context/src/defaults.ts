@@ -8,7 +8,7 @@ const defaultUser: User = {
   name: '',
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  use_deprecated_pages: false,
+  use_deprecated_pages: false
 };
 
 const defaultResourceStorageOptimizationMode = false;
@@ -21,7 +21,7 @@ const defaultAcl = {
       comment: false,
       disacknowledgement: false,
       downtime: false,
-      submit_status: false,
+      submit_status: false
     },
     service: {
       acknowledgement: false,
@@ -29,15 +29,15 @@ const defaultAcl = {
       comment: false,
       disacknowledgement: false,
       downtime: false,
-      submit_status: false,
-    },
-  },
+      submit_status: false
+    }
+  }
 };
 
 const defaultDowntime = {
   duration: 3600,
   fixed: true,
-  with_services: false,
+  with_services: false
 };
 
 const defaultRefreshInterval = 15;
@@ -47,7 +47,7 @@ const defaultAcknowledgement = {
   notify: true,
   persistent: false,
   sticky: false,
-  with_services: true,
+  with_services: true
 };
 
 export {
@@ -56,5 +56,5 @@ export {
   defaultDowntime,
   defaultRefreshInterval,
   defaultAcknowledgement,
-  defaultResourceStorageOptimizationMode,
+  defaultResourceStorageOptimizationMode
 };

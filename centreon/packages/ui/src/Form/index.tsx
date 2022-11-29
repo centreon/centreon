@@ -1,20 +1,13 @@
 import { Formik, FormikHelpers, FormikValues } from 'formik';
 import * as Yup from 'yup';
-import { makeStyles } from 'tss-react/mui';
 
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
 
-const useStyles = makeStyles()((theme) => ({
-  formContainer: {
-    margin: theme.spacing(2, 0, 0),
-  },
-}));
-
 export enum GroupDirection {
   Horizontal = 'horizontal',
-  Vertical = 'vertical',
+  Vertical = 'vertical'
 }
 
 interface Props<T> {
@@ -40,10 +33,8 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
-  groupDirection = GroupDirection.Vertical,
+  groupDirection = GroupDirection.Vertical
 }: Props<T>): JSX.Element => {
-  const { classes } = useStyles();
-
   if (isLoading) {
     return (
       <Inputs
@@ -65,7 +56,7 @@ const Form = <T extends object>({
       validationSchema={validationSchema}
       onSubmit={submit}
     >
-      <div className={classes.formContainer}>
+      <div>
         <Inputs
           groupDirection={groupDirection}
           groups={groups}

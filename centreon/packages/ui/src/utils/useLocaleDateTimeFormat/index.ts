@@ -33,7 +33,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
     const normalizedLocale = locale.substring(0, 2);
 
     const timezoneDate = dayjs(
-      new Date(date).toLocaleString('en', { timeZone: timezone }),
+      new Date(date).toLocaleString('en', { timeZone: timezone })
     ).locale(normalizedLocale);
 
     return timezoneDate.format(formatString);
@@ -42,21 +42,21 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const toDateTime = (date: Date | string): string => {
     return format({
       date,
-      formatString: dateTimeFormat,
+      formatString: dateTimeFormat
     });
   };
 
   const toDate = (date: Date | string): string => {
     return format({
       date,
-      formatString: dateFormat,
+      formatString: dateFormat
     });
   };
 
   const toTime = (date: Date | string): string => {
     return format({
       date,
-      formatString: timeFormat,
+      formatString: timeFormat
     });
   };
 
@@ -75,7 +75,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
       language: `short${normalizedLocale}`,
       round: true,
       serialComma: false,
-      spacer: '',
+      spacer: ''
     });
   };
 
@@ -85,7 +85,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
     toDateTime,
     toHumanizedDuration,
     toIsoString,
-    toTime,
+    toTime
   };
 };
 

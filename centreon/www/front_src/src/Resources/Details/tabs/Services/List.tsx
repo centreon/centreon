@@ -15,7 +15,7 @@ interface Props {
 const ServiceList = ({
   services,
   onSelectService,
-  infiniteScrollTriggerRef,
+  infiniteScrollTriggerRef
 }: Props): JSX.Element => {
   return (
     <>
@@ -33,7 +33,7 @@ const ServiceList = ({
               onSelect={(): void =>
                 onSelectService({
                   resourceId: service.id,
-                  resourcesDetailsEndpoint: service.links?.endpoints?.details,
+                  resourcesDetailsEndpoint: service.links?.endpoints?.details
                 })
               }
             />

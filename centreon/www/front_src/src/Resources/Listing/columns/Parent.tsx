@@ -6,9 +6,9 @@ import { useColumnStyles } from '.';
 
 const ParentResourceColumn = ({
   row,
-  isHovered,
+  isHovered
 }: ComponentColumnProps): JSX.Element | null => {
-  const classes = useColumnStyles({ isHovered });
+  const { classes } = useColumnStyles({ isHovered });
 
   if (!row.parent) {
     return null;

@@ -29,36 +29,36 @@ const TimeBeforeNewPassword = (): JSX.Element => {
 
   const delayBeforeNewPasswordValue = getField<number>({
     field: delayBeforeNewPasswordFieldName,
-    object: values,
+    object: values
   });
 
   const delayBeforeNewPasswordError = getField<string>({
     field: delayBeforeNewPasswordFieldName,
-    object: errors,
+    object: errors
   });
 
   const maxHoursOption = useMemo(
     (): number | undefined =>
       lte(
         dayjs.duration({ days: 7 }).asMilliseconds(),
-        delayBeforeNewPasswordValue,
+        delayBeforeNewPasswordValue
       )
         ? 0
         : undefined,
-    [delayBeforeNewPasswordValue],
+    [delayBeforeNewPasswordValue]
   );
 
   const timeInputConfigurations: Array<TimeInputConfiguration> = [
     {
       dataTestId: 'local_timeBetweenPasswordChangesDays',
       maxOption: 7,
-      unit: 'days',
+      unit: 'days'
     },
     {
       dataTestId: 'local_timeBetweenPasswordChangesHours',
       maxOption: maxHoursOption,
-      unit: 'hours',
-    },
+      unit: 'hours'
+    }
   ];
 
   return useMemoComponent({
@@ -78,7 +78,7 @@ const TimeBeforeNewPassword = (): JSX.Element => {
         )}
       </div>
     ),
-    memoProps: [delayBeforeNewPasswordValue, delayBeforeNewPasswordError],
+    memoProps: [delayBeforeNewPasswordValue, delayBeforeNewPasswordError]
   });
 };
 

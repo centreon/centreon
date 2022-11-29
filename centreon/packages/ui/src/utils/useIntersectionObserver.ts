@@ -11,7 +11,7 @@ const useIntersectionObserver = ({
   maxPage,
   page,
   loading,
-  action,
+  action
 }: HookParam): ((node) => void) => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback(
@@ -36,7 +36,7 @@ const useIntersectionObserver = ({
         observer.current.observe(node);
       }
     },
-    [maxPage, page, loading],
+    [maxPage, page, loading]
   );
 
   return lastElementRef;

@@ -1,0 +1,43 @@
+Source: centreon-gorgone
+Section: net
+Priority: optional
+Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Build-Depends:
+  debhelper-compat (=12),
+  lsb-base
+Standards-Version: 4.5.0
+Homepage: https://wwww.centreon.com
+
+Package: centreon-gorgone
+Architecture: any
+Depends:
+  centreon-common (>= ${centreon:version}~),
+  libdatetime-perl,
+  libtry-tiny-perl,
+  libxml-simple-perl,
+  libxml-libxml-simple-perl,
+  libdigest-md5-file-perl,
+  libjson-pp-perl,
+  libjson-xs-perl,
+  libyaml-libyaml-perl,
+  libdbi-perl,
+  libdbd-sqlite3-perl,
+  libdbd-mysql-perl,
+  libhttp-daemon-perl,
+  libhttp-daemon-ssl-perl,
+  libnetaddr-ip-perl,
+  libschedule-cron-perl,
+  libhash-merge-perl,
+  libcryptx-perl,
+  libmojolicious-perl,
+  libauthen-simple-perl,
+  libauthen-simple-net-perl,
+  libnet-curl-perl,
+  libssh-session-perl,
+  libzmq-constants-perl,
+  libzmq5,
+  zmq-libzmq4-perl,
+  sudo,
+  ${shlibs:Depends},
+  ${misc:Depends}
+Description: Centreon Gorgone.
