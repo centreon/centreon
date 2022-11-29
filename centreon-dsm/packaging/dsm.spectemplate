@@ -8,8 +8,8 @@
 %define centreon_www %{_datadir}/centreon/www
 
 Name:           centreon-dsm
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Version:        %{version}
+Release:        %{release}
 Summary:        Centreon-dsm add-on for Centreon
 %define thismajor 22.04.0
 %define nextmajor 22.05.0
