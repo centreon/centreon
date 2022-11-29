@@ -51,7 +51,7 @@ jobs:
         with:
           branch: ${{ github.head_ref || github.ref_name }}
           github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-          ssh: true
+          ssh: false
       
       - name: Push changes with tags
         uses: ad-m/github-push-action@master
@@ -59,7 +59,7 @@ jobs:
           branch: ${{ github.head_ref || github.ref_name }}
           github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           tags: true
-          ssh: true
+          ssh: false
 
       - uses: JS-DevTools/npm-publish@v1
         with:
