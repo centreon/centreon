@@ -107,7 +107,7 @@ final class FindVaultConfiguration
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())
+                new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
 
             return;

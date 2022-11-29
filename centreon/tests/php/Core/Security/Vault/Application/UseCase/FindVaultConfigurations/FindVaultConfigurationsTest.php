@@ -118,7 +118,7 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultConfigurationException::impossibleToCreate()->getMessage()
+        VaultConfigurationException::impossibleToFind()->getMessage()
     );
 });
 
@@ -170,8 +170,8 @@ it('should present FindVaultConfigurationsResponse', function () {
             'vault_id' => $vault->getId(),
             'url' => $vaultConfiguration->getAddress(),
             'port' => $vaultConfiguration->getPort(),
-            'storage' => 'myStorageFolder',
-            'role_id' => 'myRoleId'
+            'storage' => $vaultConfiguration->getStorage(),
+            'role_id' => $vaultConfiguration->getRoleId()
         ]
     ];
 

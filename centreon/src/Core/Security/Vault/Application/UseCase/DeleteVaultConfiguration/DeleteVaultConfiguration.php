@@ -105,7 +105,7 @@ final class DeleteVaultConfiguration
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())
+                new ErrorResponse(VaultConfigurationException::impossibleToDelete()->getMessage())
             );
 
             return;

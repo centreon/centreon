@@ -360,7 +360,7 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultConfigurationException::impossibleToCreate()->getMessage()
+        VaultConfigurationException::impossibleToUpdate()->getMessage()
     );
 });
 

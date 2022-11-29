@@ -135,7 +135,7 @@ final class UpdateVaultConfiguration
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())
+                new ErrorResponse(VaultConfigurationException::impossibleToUpdate()->getMessage())
             );
 
             return;
