@@ -107,10 +107,20 @@ jobs:
           git tag ${VERSION}
         working-directory: ${{ env.directory }}
 
-      - name: Push changes to repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git push origin develop && git push --tags
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.head_ref || github.ref_name }}
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          ssh: false
+      
+      - name: Push changes with tags
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.head_ref || github.ref_name }}
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          tags: true
+          ssh: false
 
       - uses: JS-DevTools/npm-publish@v1
         with:
