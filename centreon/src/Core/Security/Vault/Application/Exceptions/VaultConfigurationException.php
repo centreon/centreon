@@ -48,6 +48,30 @@ class VaultConfigurationException extends \Exception
     /**
      * @return self
      */
+    public static function impossibleToDelete(): self
+    {
+        return new self('Impossible to delete vault configuration');
+    }
+
+    /**
+     * @return self
+     */
+    public static function impossibleToFind(): self
+    {
+        return new self('Impossible to find vault configuration(s)');
+    }
+
+    /**
+     * @return self
+     */
+    public static function impossibleToUpdate(): self
+    {
+        return new self('Impossible to update vault configuration');
+    }
+
+    /**
+     * @return self
+     */
     public static function onlyForAdmin(): self
     {
         return new self('Only admin user can create vault configuration');
