@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Core\Security\Vault\Domain\Model\Vault;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfiguration;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationRequest;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationResponse;
-use Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationPresenterStub;
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface,
+    ReadVaultRepositoryInterface
+};
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
+    FindVaultConfiguration,
+    FindVaultConfigurationRequest,
+    FindVaultConfigurationResponse
+};
+use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 
 beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
