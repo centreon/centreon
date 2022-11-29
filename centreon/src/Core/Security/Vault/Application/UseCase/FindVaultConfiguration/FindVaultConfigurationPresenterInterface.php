@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,20 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-final class FindVaultConfigurationsResponse
+use Core\Application\Common\UseCase\PresenterInterface;
+
+interface FindVaultConfigurationPresenterInterface extends PresenterInterface
 {
-    /**
-     * @var array<array{
-     *  id: int,
-     *  name: string,
-     *  vault_id: int,
-     *  url: string,
-     *  port: int,
-     *  storage: string,
-     *  role_id: string
-     * }>
-     */
-    public array $vaultConfigurations;
 }
