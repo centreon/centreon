@@ -26,27 +26,41 @@ namespace Tests\Core\HostCategory\Application\UseCase\DeleteHostCategory;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategory;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
-    $this->hostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
+    $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
+    $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->hostCategory = $this->createMock(HostCategory::class);
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->user);
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
     $hostCategoryId = 1;
 
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->hostCategoryRepository
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostCategory);
+    $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('deleteById')
         ->willThrowException(new \Exception());
@@ -59,15 +73,50 @@ it('should present an ErrorResponse when an exception is thrown', function () {
             ->toBe('Error while deleting host category #' . $hostCategoryId);
 });
 
-it('should present a NoContentResponse on success', function () {
-    $useCase = new DeleteHostCategory($this->hostCategoryRepository, $this->accessGroupRepository, $this->user);
+it('should present a NotFoundResponse when the host category does not exist', function () {
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
     $hostCategoryId = 1;
 
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->hostCategoryRepository
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(null);
+
+    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
+    $useCase($hostCategoryId, $presenter);
+
+    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class)
+        ->and($presenter->getResponseStatus()?->getMessage())
+            ->toBe('Host category with id #' . $hostCategoryId . ' not found');
+});
+
+it('should present a NoContentResponse on success', function () {
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
+    $hostCategoryId = 1;
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostCategory);
+    $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('deleteById');
 
