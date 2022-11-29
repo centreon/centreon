@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+
 import 'cypress-wait-until';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1, executeActionViaClapi } from '../commons';
@@ -11,7 +12,7 @@ Cypress.Commands.add(
   'getByLabel',
   ({ tag = '', label }: GetByLabelProps): Cypress.Chainable => {
     return cy.get(`${tag}[aria-label="${label}"]`);
-  },
+  }
 );
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
@@ -22,7 +23,7 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return executeActionViaClapi({
     action: 'DEL',
     object: 'HOST',
-    values: 'test_host',
+    values: 'test_host'
   });
 });
 
@@ -32,16 +33,16 @@ Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
       .request({
         body: {
           password: userAdmin.password,
-          username: userAdmin.login,
+          username: userAdmin.login
         },
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
-        url: `${apiActionV1}?action=authenticate`,
+        url: `${apiActionV1}?action=authenticate`
       })
       .then(({ body }) =>
-        window.localStorage.setItem('userTokenApiV1', body.authToken),
+        window.localStorage.setItem('userTokenApiV1', body.authToken)
       );
   });
 });
