@@ -47,4 +47,21 @@ interface ReadHostCategoryRepositoryInterface
      * @throws \Throwable
      */
     public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Find a host category by id
+     *
+     * @param int $hostCategoryId
+     * @return HostCategory|null
+     */
+    public function findById(int $hostCategoryId): ?HostCategory;
+
+    /**
+     * Find a host category by id and access groups
+     *
+     * @param int $hostCategoryId
+     * @param AccessGroup[] $accessGroups
+     * @return HostCategory|null
+     */
+    public function findByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): ?HostCategory;
 }

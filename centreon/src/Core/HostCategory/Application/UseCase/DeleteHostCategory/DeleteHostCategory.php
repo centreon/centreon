@@ -23,13 +23,18 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\DeleteHostCategory;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DeleteHostCategory
 {
@@ -37,6 +42,7 @@ class DeleteHostCategory
 
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
+        private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private ContactInterface $user
     ) {
@@ -46,19 +52,58 @@ class DeleteHostCategory
     {
         try {
             if ($this->user->isAdmin()) {
+                if (! $this->doesHostCategoryExist($hostCategoryId)) {
+                    $presenter->setResponseStatus(
+                        new NotFoundResponse('Host category with id #' . $hostCategoryId)
+                    );
+
+                    return;
+                }
                 $this->writeHostCategoryRepository->deleteById($hostCategoryId);
             } else {
-                $this->debug('User is not admin, delete data via ACLs', ['user' => $this->user->getName()]);
+                if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
+                    $this->error('User doesn\'t have sufficient right to see host category', [
+                        'user_id' => $this->user->getId(),
+                    ]);
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse('You are not allowed to access host category')
+                    );
+
+                    return;
+                }
 
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $this->writeHostCategoryRepository->deleteByIdAndAccessGroups($hostCategoryId, $accessGroups);
+
+                if (! $this->doesHostCategoryExist($hostCategoryId, $accessGroups)) {
+                    $presenter->setResponseStatus(
+                        new NotFoundResponse('Host category with id #' . $hostCategoryId)
+                    );
+
+                    return;
+                }
+
+                $this->writeHostCategoryRepository->deleteById($hostCategoryId);
             }
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $th) {
             $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category #' . $hostCategoryId));
-            // TODO : translate error message
+            // TODO : translate error messages
             $this->error($th->getMessage());
         }
+    }
+
+    /**
+     * @param int $hostCategoryId
+     * @param AccessGroup[]|null $accessGroups
+     * @return bool
+     */
+    private function doesHostCategoryExist(int $hostCategoryId, ?array $accessGroups = null): bool
+    {
+        $hostCategory = $accessGroups === null
+        ? $this->readHostCategoryRepository->findById($hostCategoryId)
+        : $this->readHostCategoryRepository->findByIdAndAccessGroups($hostCategoryId, $accessGroups);
+
+        return (bool) ($hostCategory ?? false);
     }
 }

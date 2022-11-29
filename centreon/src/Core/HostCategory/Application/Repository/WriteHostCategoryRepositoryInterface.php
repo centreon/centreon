@@ -33,12 +33,4 @@ interface WriteHostCategoryRepositoryInterface
      * @param int $hostCategoryId
      */
     public function deleteById(int $hostCategoryId): void;
-
-    /**
-     * Delete host category by id and access groups
-     *
-     * @param int $hostCategoryId
-     * @param AccessGroup[] $accessGroups
-     */
-    public function deleteByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): void;
 }

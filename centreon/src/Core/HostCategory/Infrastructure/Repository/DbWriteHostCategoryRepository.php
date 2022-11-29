@@ -57,46 +57,4 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
 
         $statement->execute();
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function deleteByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): void
-    {
-        if (empty($accessGroups)) {
-            return ;
-        }
-
-        $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        $this->debug('Delete host category by access groups', [
-            'hostCategoryId' => $hostCategoryId,
-            'accessGroupIds' => $accessGroupIds
-        ]);
-
-        $request = $this->translateDbName(
-            'DELETE hc FROM `:db`.hostcategories hc
-            INNER JOIN `:db`.acl_resources_hc_relations arhr
-                ON hc.hc_id = arhr.hc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE hc.hc_id = :hostCategoryId'
-        );
-
-        $request .= " AND hc.level IS NULL ";
-        $request .= ' ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
-
-        $statement = $this->db->prepare($request);
-
-        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
-
-        $statement->execute();
-    }
 }

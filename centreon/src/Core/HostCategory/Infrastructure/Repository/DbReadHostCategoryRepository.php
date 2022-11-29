@@ -221,4 +221,83 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         return (bool) $statement->fetchColumn();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $hostCategoryId): ?HostCategory
+    {
+        $this->info('Getting host category with id #' . $hostCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            return null;
+        }
+
+        $hostCategory = new HostCategory(
+            $result['hc_id'],
+            $result['hc_name'],
+            $result['hc_alias']
+        );
+
+        return $hostCategory;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): ?HostCategory
+    {
+        $this->info(
+            'Getting a host category by access group',
+            ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('No host category ids, return null');
+            return null;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $request = $this->translateDbName(
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+        $request .= 'AND ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            return null;
+        }
+
+        $hostCategory = new HostCategory(
+            $result['hc_id'],
+            $result['hc_name'],
+            $result['hc_alias']
+        );
+
+        return $hostCategory;
+    }
 }
