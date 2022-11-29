@@ -41,11 +41,11 @@ jobs:
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
           echo "coucou"
+          git add .
+          git commit -m "chore: release ${VERSION}"
           git fetch
           git checkout develop
           git pull origin develop
-          git add .
-          git commit -m "chore: release ${VERSION}"
           git tag ${VERSION}
         working-directory: ${{ env.directory }}
 
