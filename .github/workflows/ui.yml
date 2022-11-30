@@ -96,8 +96,8 @@ jobs:
 
       - name: Update JS config version
         run: |
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git config user.name "$GITHUB_ACTOR"
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
           git config pull.rebase false
           npm version patch -m "ui-%s" --legacy-peer-deps
           VERSION=ui-$(node -p "require('./package.json').version")
@@ -108,19 +108,18 @@ jobs:
         working-directory: ${{ env.directory }}
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          branch: ${{ github.head_ref || github.ref_name }}
-          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-          ssh: false
+        run: |
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }}
+        shell: bash
       
       - name: Push changes with tags
-        uses: ad-m/github-push-action@master
-        with:
-          branch: ${{ github.head_ref || github.ref_name }}
-          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-          tags: true
-          ssh: false
+        run: |
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }} --tags
+        shell: bash
 
       - uses: JS-DevTools/npm-publish@v1
         with:
