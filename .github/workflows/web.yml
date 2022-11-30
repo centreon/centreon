@@ -374,7 +374,7 @@ jobs:
     with:
       name: e2e
       module_name: centreon
-      image_name: docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}
+      image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
     secrets:
       username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
