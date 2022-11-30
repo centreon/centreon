@@ -108,19 +108,14 @@ jobs:
         working-directory: ${{ env.directory }}
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          branch: ${{ github.head_ref || github.ref_name }}
-          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-          ssh: false
+        run: |
+          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon origin ${{ github.head_ref || github.ref_name }}
+        shell: bash
       
       - name: Push changes with tags
-        uses: ad-m/github-push-action@master
-        with:
-          branch: ${{ github.head_ref || github.ref_name }}
-          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-          tags: true
-          ssh: false
+        run: |
+          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon origin ${{ github.head_ref || github.ref_name }} --tags
+        shell: bash
 
       - uses: JS-DevTools/npm-publish@v1
         with:
