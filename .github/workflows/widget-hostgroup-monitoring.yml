@@ -10,7 +10,7 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/centreon-widget-hostgroup-monitoring.yml"
+      - ".github/workflows/widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
     tags:
       - centreon-widget-hostgroup-monitoring-*
