@@ -10,7 +10,7 @@ on:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/centreon-widget-httploader.yml"
+      - ".github/workflows/widget-httploader.yml"
       - "widgets/centreon-widget-httploader/**"
     tags:
       - centreon-widget-httploader-*

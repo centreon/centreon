@@ -10,7 +10,7 @@ on:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/centreon-widget-live-top10-memory-usage.yml"
+      - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
     tags:
       - centreon-widget-live-top10-memory-usage-*
