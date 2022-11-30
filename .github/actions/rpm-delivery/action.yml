@@ -122,6 +122,7 @@ runs:
         PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         ITERATIONS=1
 
+        aws sts get-caller-identity
         until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
           if [ ${ITERATIONS} -eq 10 ]; then
             return 0
