@@ -286,7 +286,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            fn (ResourceACLProviderInterface $provider) =>  $provider->buildACLSubRequest($accessGroupIds),
+            fn (ResourceACLProviderInterface $provider) => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -294,7 +294,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
-        return sprintf(' AND (%s)', join(' OR ', $orConditions));
+        return sprintf(' AND (%s)', implode(' OR ', $orConditions));
     }
 
     private function fetchResources(string $request, StatementCollector $collector): void
