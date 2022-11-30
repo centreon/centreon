@@ -25,7 +25,6 @@ namespace Core\TimePeriod\Domain\Model;
 
 class TimePeriod extends NewTimePeriod
 {
-    private int $id;
     /**
      * @var TimePeriodException[]
      */
@@ -37,12 +36,10 @@ class TimePeriod extends NewTimePeriod
      * @param string $alias
      */
     public function __construct(
-        int $id,
+        private int $id,
         string $name,
-        string $alias
-
+        string $alias,
     ) {
-        $this->id = $id;
         parent::__construct($name, $alias);
     }
 
@@ -58,7 +55,7 @@ class TimePeriod extends NewTimePeriod
      * @param TimePeriodException $exception
      * @return void
      */
-    public function addException(NewException $exception): void
+    public function addException(NewTimePeriodException $exception): void
     {
         $this->exceptions[] = $exception;
     }

@@ -36,7 +36,7 @@ class NewTimePeriod
     private array $days = [];
 
     /**
-     * @var NewException[]
+     * @var NewTimePeriodException[]
      */
     private array $exceptions = [];
 
@@ -51,10 +51,10 @@ class NewTimePeriod
     }
 
     /**
-     * @param NewException $exception
+     * @param NewTimePeriodException $exception
      * @return void
      */
-    public function addException(NewException $exception): void
+    public function addException(NewTimePeriodException $exception): void
     {
         $this->exceptions[] = $exception;
     }
@@ -85,7 +85,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return NewException[]
+     * @return NewTimePeriodException[]
      */
     public function getExceptions(): array
     {
@@ -117,7 +117,7 @@ class NewTimePeriod
     }
 
     /**
-     * @param NewException[] $exceptions
+     * @param NewTimePeriodException[] $exceptions
      */
     public function setExceptions(array $exceptions): void
     {

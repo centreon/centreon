@@ -23,12 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsPresenterInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
 
-class FindTimePeriodsPresenterStub extends AbstractPresenter implements FindTimePeriodsPresenterInterface
+class FindTimePeriodsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
     /**
      * @var FindTimePeriodsResponse

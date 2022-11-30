@@ -41,6 +41,21 @@ class AddTimePeriodController extends AbstractController
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         try {
+            /**
+             * @var array{
+             *     name: string,
+             *     alias: string,
+             *     days: array<array{
+             *         day: integer,
+             *         time_range: string
+             *     }>,
+             *     templates: int[],
+             *     exceptions: array<array{
+             *         day_range: string,
+             *         time_range: string
+             *     }>
+             * } $dataSent
+             */
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddTimePeriodSchema.json');
             $dtoRequest = $this->createDtoRequest($dataSent);
             $useCase($dtoRequest, $presenter);
@@ -71,7 +86,6 @@ class AddTimePeriodController extends AbstractController
     private function createDtoRequest(array $dataSent): AddTimePeriodRequest
     {
         $dto = new AddTimePeriodRequest();
-        $dto->id = $dataSent['id'];
         $dto->name = $dataSent['name'];
         $dto->alias = $dataSent['alias'];
         $dto->days = array_map(function (array $day): array {

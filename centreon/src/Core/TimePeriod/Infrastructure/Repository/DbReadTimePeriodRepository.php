@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Infrastructure\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -50,7 +51,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     /**
      * @inheritDoc
      */
-    public function findByRequestParameter(RequestParameters $requestParameters): array
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlRequestTranslator->setConcordanceArray([
@@ -178,10 +179,9 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
             /**
              * @var array{tp_id: int, tp_alias: string, timeperiod_id: int} $result
              */
-            $template = new Template($result["tp_id"]);
-            $template->setAlias($result["tp_alias"]);
-
-            $timePeriods[$result["timeperiod_id"]]->addTemplate($template);
+            $timePeriods[$result["timeperiod_id"]]->addTemplate(
+                new Template($result["tp_id"], $result["tp_alias"])
+            );
         }
     }
 }

@@ -25,9 +25,7 @@ namespace Core\TimePeriod\Domain\Model;
 
 class Template
 {
-    private ?string $alias = null;
-
-    public function __construct(private int $id)
+    public function __construct(private int $id, private string $alias)
     {
     }
 
@@ -40,17 +38,9 @@ class Template
     }
 
     /**
-     * @param string|null $alias
+     * @return string
      */
-    public function setAlias(?string $alias): void
-    {
-        $this->alias = $alias;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getAlias(): ?string
+    public function getAlias(): string
     {
         return $this->alias;
     }

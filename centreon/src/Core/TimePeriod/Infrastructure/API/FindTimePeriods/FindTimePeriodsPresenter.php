@@ -25,11 +25,11 @@ namespace Core\TimePeriod\Infrastructure\API\FindTimePeriods;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsPresenterInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 
-class FindTimePeriodsPresenter extends AbstractPresenter implements FindTimePeriodsPresenterInterface
+class FindTimePeriodsPresenter extends AbstractPresenter implements PresenterInterface
 {
     public function __construct(
         private RequestParametersInterface $requestParameters,

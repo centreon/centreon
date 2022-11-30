@@ -73,12 +73,10 @@ it('should present a FindTimePeriodsResponse', function () {
     $days = [new Day(1, new TimeRange('00:00-12:00'))];
     $timePeriod->setDays($days);
 
-    $template1 = new Template(2);
-    $template1->setAlias('fakeAlias2');
-    $template2 = new Template(3);
-    $template2->setAlias('fakeAlias3');
-
-    $templates = [$template1, $template2];
+    $templates = [
+        new Template(2, 'fakeAlias2'),
+        new Template(3, 'fakeAlias3')
+    ];
     $timePeriod->setTemplates($templates);
 
     $exceptions = new TimePeriodException(1, 'monday 1', '06:00-07:00');

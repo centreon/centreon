@@ -23,19 +23,11 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-class TimePeriodException extends NewException
+class TimePeriodException extends NewTimePeriodException
 {
     public function __construct(private int $id, private string $dayRange, private string $timeRange)
     {
         parent::__construct($this->dayRange, $this->timeRange);
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
     }
 
     /**
