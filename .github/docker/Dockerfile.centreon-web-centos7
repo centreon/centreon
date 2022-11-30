@@ -38,7 +38,7 @@ module_hotfixes=1
 
 [centreon-stable]
 name=Centreon open source software repository.
-baseurl=https://yum.centreon.com/standard/23.04/el7/stable/$basearch/
+baseurl=https://yum.centreon.com/standard/23.04/el7/stable/\$basearch/
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
@@ -54,7 +54,7 @@ module_hotfixes=1
 
 [centreon-testing]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el7/testing/$basearch/
+baseurl=https://yum.centreon.com/standard/23.04/el7/testing/\$basearch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
@@ -70,7 +70,7 @@ module_hotfixes=1
 
 [centreon-unstable]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/$basearch/
+baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/\$basearch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
