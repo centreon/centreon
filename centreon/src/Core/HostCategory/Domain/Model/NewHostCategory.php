@@ -27,8 +27,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewHostCategory
 {
-    public const MAX_NAME_LENGTH = 255,
-                MAX_ALIAS_LENGTH = 255;
+    public const MAX_NAME_LENGTH = 200,
+                MAX_ALIAS_LENGTH = 200;
 
     public function __construct(
         protected string $name,

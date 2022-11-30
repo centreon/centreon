@@ -12,11 +12,9 @@ Feature:
     And the following CLAPI import data:
     """
     HC;ADD;host-cat1;host-cat1-alias
-    HC;setparam;host-cat1;hc_comment;blabla bla
-    HC;setparam;host-cat1;hc_activate;1
     """
 
-    When I send a GET request to '/api/v21.10/configuration/hosts/categories'
+    When I send a GET request to '/api/v23.04/configuration/hosts/categories'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -25,9 +23,7 @@ Feature:
             {
                 "id": 1,
                 "name": "host-cat1",
-                "alias": "host-cat1-alias",
-                "comments": "blabla bla",
-                "is_activated": true
+                "alias": "host-cat1-alias"
             }
         ],
         "meta": {
