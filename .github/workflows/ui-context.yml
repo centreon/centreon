@@ -73,12 +73,16 @@ jobs:
 
       - name: Push changes
         run: |
-          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon origin ${{ github.head_ref || github.ref_name }}
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }}
         shell: bash
       
       - name: Push changes with tags
         run: |
-          git -c https.extraHeader="AUTHORIZATION: Basic ${{ secrets.CENTREON_TECHNIQUE_PAT }}" push https://github.com/centreon/centreon origin ${{ github.head_ref || github.ref_name }} --tags
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }} --tags
         shell: bash
 
       - uses: JS-DevTools/npm-publish@v1
