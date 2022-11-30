@@ -42,6 +42,6 @@ class ServiceACLProvider implements ResourceACLProviderInterface
                 AND acl.group_id IN (%s)
         )';
 
-        return sprintf($requestPattern, ServiceResourceType::TYPE_ID, join(', ', $accessGroupIds));
+        return sprintf($requestPattern, ServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
     }
 }

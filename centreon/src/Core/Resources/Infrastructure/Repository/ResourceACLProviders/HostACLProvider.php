@@ -41,6 +41,6 @@ class HostACLProvider implements ResourceACLProviderInterface
                 AND acl.group_id IN (%s)
         )';
 
-        return sprintf($requestPattern, HostResourceType::TYPE_ID, join(', ', $accessGroupIds));
+        return sprintf($requestPattern, HostResourceType::TYPE_ID, implode(', ', $accessGroupIds));
     }
 }

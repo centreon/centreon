@@ -42,6 +42,6 @@ class MetaServiceACLProvider implements ResourceACLProviderInterface
                 AND acl.group_id IN (%s)
         )';
 
-        return sprintf($requestPattern, MetaServiceResourceType::TYPE_ID, join(', ', $accessGroupIds));
+        return sprintf($requestPattern, MetaServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
     }
 }
