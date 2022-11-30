@@ -39,6 +39,9 @@ try {
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     decodeIllegalCharactersNagios($pearDB);
 
+    $errorMessage = "Unable to remove app_key column";
+    $pearDB->query("ALTER TABLE `remote_servers` DROP COLUMN `app_key`");
+
     $pearDB->commit();
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
