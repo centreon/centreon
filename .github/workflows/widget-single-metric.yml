@@ -10,7 +10,7 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/centreon-widget-single-metric.yml"
+      - ".github/workflows/widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
     tags:
       - centreon-widget-single-metric-*
