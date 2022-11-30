@@ -186,9 +186,9 @@ it('should present FindVaultConfigurationResponse', function () {
         ->willReturn($vault);
 
     $this->readVaultConfigurationRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findById')
-        ->with($vaultConfiguration->getId())
+        ->with($findVaultConfigurationRequest->vaultConfigurationId)
         ->willReturn($vaultConfiguration);
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -211,6 +211,6 @@ it('should present FindVaultConfigurationResponse', function () {
 
     $useCase($presenter, $findVaultConfigurationRequest);
 
-    expect($presenter->response)->toBeInstanceOf(FindVaultConfiguration::class);
+    expect($presenter->response)->toBeInstanceOf(FindVaultConfigurationResponse::class);
     expect($presenter->response->vaultConfiguration)->toBe($findVaultConfigurationResponse->vaultConfiguration);
 });
