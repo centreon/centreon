@@ -26,6 +26,7 @@ namespace Centreon\Domain\Authentication\UseCase;
 use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
+use Core\Security\Application\Repository\WriteTokenRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 

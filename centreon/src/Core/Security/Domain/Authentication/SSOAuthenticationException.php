@@ -177,4 +177,37 @@ class SSOAuthenticationException extends \Exception
     {
         return new self(_("An error occured while decoding Identity Provider ID Token"));
     }
+
+    /**
+     * Exception thrown when the request to authentication condition fail
+     *
+     * @return self
+     */
+    public static function missingRemoteLoginAttribute(): self
+    {
+        return new self('Missing Login Attribute', 400);
+    }
+
+    /**
+     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database
+     *
+     * @param string $alias
+     * @return self
+     */
+    public static function aliasNotFound(string $alias): self
+    {
+        return new self(sprintf('Contact %s does not exist', $alias), 404);
+    }
+
+    /**
+     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database
+     *
+     * @param string $message
+     * @param int $code
+     * @return self
+     */
+    public static function withMessageAndCode(string $message, int $code): self
+    {
+        return new self($message, $code);
+    }
 }
