@@ -286,7 +286,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            fn (ResourceACLProviderInterface $provider) =>  $provider->buildACLSubRequest($accessGroupIds),
+            fn (ResourceACLProviderInterface $provider) => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
