@@ -164,12 +164,6 @@ it('should present FindVaultConfigurationResponse', function () {
         ->willReturn(true);
 
     $vault = new Vault(1, 'myVaultProvider');
-
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
-
     $vaultConfiguration = new VaultConfiguration(
         1,
         'myVaultConfiguration',
@@ -182,9 +176,19 @@ it('should present FindVaultConfigurationResponse', function () {
         'mySalt'
     );
 
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
+    $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
+    $findVaultConfigurationRequest->vaultId = $vaultConfiguration->getVault()->getId();
+
+    $this->readVaultRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($vault);
+
     $this->readVaultConfigurationRepository
         ->expects($this->once())
         ->method('findById')
+        ->with($vaultConfiguration->getId())
         ->willReturn($vaultConfiguration);
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -193,10 +197,6 @@ it('should present FindVaultConfigurationResponse', function () {
         $this->readVaultRepository,
         $this->user
     );
-
-    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-    $findVaultConfigurationRequest->vaultId = $vault->getId();
-    $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
 
     $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
     $findVaultConfigurationResponse->vaultConfiguration = [
@@ -211,8 +211,6 @@ it('should present FindVaultConfigurationResponse', function () {
 
     $useCase($presenter, $findVaultConfigurationRequest);
 
-    expect($presenter->response)
-        ->toBeInstanceOf(FindVaultConfigurationResponse::class)
-        ->and($presenter->response->vaultConfiguration)
-        ->toBe($findVaultConfigurationResponse->vaultConfiguration);
+    expect($presenter->response)->toBeInstanceOf(FindVaultConfiguration::class);
+    expect($presenter->response->vaultConfiguration)->toBe($findVaultConfigurationResponse->vaultConfiguration);
 });
