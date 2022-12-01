@@ -22,6 +22,7 @@ env:
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
+    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
     # if: github.ref == 'refs/heads/develop'
 
     steps:
@@ -39,7 +40,12 @@ jobs:
   check-package-version:
     runs-on: ubuntu-22.04
     if: ${{ startsWith(github.head_ref, 'MON-update-package-versions') }}
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
       - uses: ./.github/actions/check-package-version
         with:
           base_branch: develop
