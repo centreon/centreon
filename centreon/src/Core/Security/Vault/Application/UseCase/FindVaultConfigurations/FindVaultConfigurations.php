@@ -115,7 +115,7 @@ final class FindVaultConfigurations
     {
         $findVaultConfigurationsResponse = new FindVaultConfigurationsResponse();
         $findVaultConfigurationsResponse->vaultConfigurations = array_map(
-            fn (VaultConfiguration $vaultConfiguration) => [
+            static fn (VaultConfiguration $vaultConfiguration): array => [
                 'id' => $vaultConfiguration->getId(),
                 'name' => $vaultConfiguration->getName(),
                 'vault_id' => $vaultConfiguration->getVault()->getId(),
