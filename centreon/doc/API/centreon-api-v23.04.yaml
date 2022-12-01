@@ -7457,7 +7457,7 @@ components:
     Administration.Vault.Configuration.Write:
       type: object
       required: [name, address, port, storage, role_id, secret_id]
-      description: "Vault configuration for POST and PUT"
+      description: "Vault configuration"
       properties:
         name:
           type: string
