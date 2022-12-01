@@ -36,7 +36,7 @@ final class CreateVaultConfigurationController extends AbstractController
     /**
      * @param integer $vaultId
      * @param CreateVaultConfiguration $useCase
-     * @param PresenterInterface $presenter
+     * @param CreateVaultConfigurationPresenter $presenter
      * @param Request $request
      *
      * @return object
@@ -44,7 +44,7 @@ final class CreateVaultConfigurationController extends AbstractController
     public function __invoke(
         int $vaultId,
         CreateVaultConfiguration $useCase,
-        PresenterInterface $presenter,
+        CreateVaultConfigurationPresenter $presenter,
         Request $request
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();

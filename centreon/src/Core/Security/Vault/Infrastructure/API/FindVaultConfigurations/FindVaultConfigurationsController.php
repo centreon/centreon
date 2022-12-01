@@ -35,14 +35,14 @@ final class FindVaultConfigurationsController extends AbstractController
     /**
      * @param integer $vaultId
      * @param FindVaultConfigurations $useCase
-     * @param PresenterInterface $presenter
+     * @param FindVaultConfigurationsPresenter $presenter
      *
      * @return object
      */
     public function __invoke(
         int $vaultId,
         FindVaultConfigurations $useCase,
-        PresenterInterface $presenter
+        FindVaultConfigurationsPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

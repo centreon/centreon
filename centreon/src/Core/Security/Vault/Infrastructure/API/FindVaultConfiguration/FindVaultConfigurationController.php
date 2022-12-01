@@ -36,7 +36,7 @@ final class FindVaultConfigurationController extends AbstractController
      * @param integer $vaultId
      * @param integer $vaultConfigurationId
      * @param FindVaultConfiguration $useCase
-     * @param PresenterInterface $presenter
+     * @param FindVaultConfigurationPresenter $presenter
      *
      * @return object
      */
@@ -44,7 +44,7 @@ final class FindVaultConfigurationController extends AbstractController
         int $vaultId,
         int $vaultConfigurationId,
         FindVaultConfiguration $useCase,
-        PresenterInterface $presenter
+        FindVaultConfigurationPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

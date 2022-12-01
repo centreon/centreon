@@ -36,7 +36,7 @@ final class DeleteVaultConfigurationController extends AbstractController
      * @param integer $vaultId
      * @param integer $vaultConfigurationId
      * @param DeleteVaultConfiguration $useCase
-     * @param PresenterInterface $presenter
+     * @param DeleteVaultConfigurationPresenter $presenter
      *
      * @return object
      */
@@ -44,7 +44,7 @@ final class DeleteVaultConfigurationController extends AbstractController
         int $vaultId,
         int $vaultConfigurationId,
         DeleteVaultConfiguration $useCase,
-        PresenterInterface $presenter
+        DeleteVaultConfigurationPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
