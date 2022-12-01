@@ -101,19 +101,16 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     return newValue;
   };
 
+  interface Chunk {
+    array: Array<unknown>;
+    size: number;
+  }
   class Adapter extends DayjsAdapter {
     public formatByString = (value, formatKey: string): string => {
       return format({
         date: value.tz(timezone),
         formatString: formatKey,
       });
-    };
-
-    public format = (date: dayjs.Dayjs, formatKey: string): string => {
-      return this.formatByString(
-        date.tz(timezone, true),
-        this.formats[formatKey],
-      );
     };
 
     public isEqual = (value, comparing): boolean => {
@@ -125,6 +122,21 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         format({ date: value, formatString: 'LT' }),
         format({ date: comparing, formatString: 'LT' }),
       );
+    };
+
+    public format = (date: dayjs.Dayjs, formatKey: string): string => {
+      return this.formatByString(
+        date.tz(timezone, true),
+        this.formats[formatKey],
+      );
+    };
+
+    public startOfWeek = (date: dayjs.Dayjs): dayjs.Dayjs => {
+      if (date.tz(timezone).isUTC()) {
+        return date.tz(timezone).startOf('week').utc();
+      }
+
+      return date.tz(timezone).startOf('week');
     };
 
     public getHours = (date): number => {
@@ -176,7 +188,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public startOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.tz(timezone) as dayjs.Dayjs;
+      if (date.tz(timezone).isUTC()) {
+        return date.tz(timezone).utc();
+      }
+
+      return date.tz(timezone);
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
@@ -214,43 +230,57 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       );
     };
 
+    public chunk = ({ array, size }: Chunk): Array<unknown> => {
+      if (!array.length) {
+        return [];
+      }
+      const head = array.slice(0, size);
+      const tail = array.slice(size);
+
+      return [head, ...this.chunk({ array: tail, size })];
+    };
+
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
-      if (date.isUTC()) {
-        const start = date.utc().startOf('month').startOf('week');
-        const end = date.utc().endOf('month').endOf('week');
+      const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
 
-        let count = 0;
-        let current = start;
-        const nestedWeeks: Array<Array<dayjs.Dayjs>> = [];
+      const startOfWeek = date.startOf('month').startOf('week');
+      const endOfWeek = date.endOf('month').endOf('week');
+      const start = isMorning
+        ? startOfWeek.startOf('day')
+        : startOfWeek.endOf('day');
 
-        while (current.isBefore(end)) {
-          const weekNumber = Math.floor(count / 7);
-          nestedWeeks[weekNumber] = nestedWeeks[weekNumber] || [];
-          nestedWeeks[weekNumber].push(current);
+      const end = isMorning ? endOfWeek.startOf('day') : endOfWeek.endOf('day');
 
-          current = current.add(1, 'day') as dayjs.Dayjs;
-          count += 1;
-        }
+      const current = start.isUTC() ? start.tz(timezone, true) : start;
+      const currentEnd = end.isUTC() ? end.tz(timezone, true) : end;
 
-        return nestedWeeks;
-      }
-      const start = date.startOf('month').startOf('week');
-      const end = date.endOf('month').endOf('week');
+      const numberOfDaysInCurrentMonth = currentEnd.diff(current, 'd');
 
-      let count = 0;
-      let current = start;
-      const nestedWeeks: Array<Array<dayjs.Dayjs>> = [];
+      const daysOfMonthWithTimeZone = [
+        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys(),
+      ].reduce(
+        (acc, _, currentIndex) => {
+          if (acc[currentIndex].isUTC()) {
+            const newCurrent = acc[currentIndex]
+              .utc()
+              .add(1, 'day')
+              .tz(timezone, true);
 
-      while (current.isBefore(end)) {
-        const weekNumber = Math.floor(count / 7);
-        nestedWeeks[weekNumber] = nestedWeeks[weekNumber] || [];
-        nestedWeeks[weekNumber].push(current);
+            return [...acc, newCurrent];
+          }
+          const newCurrent = acc[currentIndex].add(1, 'day');
 
-        current = current.tz(timezone, true).add(1, 'day') as dayjs.Dayjs;
-        count += 1;
-      }
+          return [...acc, newCurrent];
+        },
+        [current],
+      );
 
-      return nestedWeeks;
+      const arrayWeeks = this.chunk({
+        array: daysOfMonthWithTimeZone,
+        size: 7,
+      });
+
+      return arrayWeeks as Array<Array<dayjs.Dayjs>>;
     };
 
     public mergeDateAndTime = (
