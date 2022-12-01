@@ -59,7 +59,7 @@ runs:
           This updates the ${{ inputs.package }} package version to ${{ env.VERSION }}.
           This is an automatic PR.
         labels: |
-          auto-merge
+          automerge
         draft: false
         signoff: true
         delete-branch: true
