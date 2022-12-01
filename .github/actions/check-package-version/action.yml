@@ -20,7 +20,7 @@ runs:
         run: |
           BASE_VERSION=$(node -p "require('./package.json').version")
         shell: bash
-        working_directory: ${{ inputs.directory }}
+        working-directory: ${{ inputs.directory }}
 
       - uses: actions/checkout@v3
         with:
@@ -31,4 +31,4 @@ runs:
           NEW_VERSION=$(node -p "require('./package.json').version")
           [[ $BASE_VERSION -eq $NEW_VERSION ]] || { echo >&2 "The base version ($BASE_VERSION) is not the same as the new version ($NEW_VERSION)"; exit 1; }
         shell: bash
-        working_directory: ${{ inputs.directory }}
+        working-directory: ${{ inputs.directory }}
