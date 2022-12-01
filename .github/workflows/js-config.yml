@@ -2,28 +2,23 @@ name: centreon-js-config
 
 on:
   pull_request:
+    types: [closed]
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
-  push:
     branches:
       - develop
-    paths:
-      - ".github/workflows/js-config.yml"
-      - "centreon/packages/js-config/**"
-    tags-ignore:
-      - js-config-*
 
 env:
   directory: "centreon/packages/js-config"
   centreon_directory: "centreon"
   package: 'js-config'
+  base_branch: develop
 
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
-    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
-    # if: github.ref == 'refs/heads/develop'
+    if: ${{ github.event.pull_request.merged == true && github.base_ref == env.base_branch && !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
@@ -48,5 +43,5 @@ jobs:
 
       - uses: ./.github/actions/check-package-version
         with:
-          base_branch: develop
+          base_branch: ${{ env.base_branch }}
           directory: ${{ env.directory }}
