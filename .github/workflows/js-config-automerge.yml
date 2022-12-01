@@ -20,6 +20,7 @@ on:
 jobs:
   automerge:
     runs-on: ubuntu-latest
+    if: ${{ startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - id: automerge
