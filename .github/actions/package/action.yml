@@ -113,14 +113,14 @@ runs:
 
         ls -lath .
 
-        if [ -f "packaging/debian/substvars" ]; then
+        if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
 
-        ls -lath .
+        ls -lath ..
       shell: bash
 
     - name: Upload package artifacts
