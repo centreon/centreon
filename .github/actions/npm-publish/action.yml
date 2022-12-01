@@ -29,7 +29,7 @@ runs:
       run: |
         npm version patch -m "js-config-%s" --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
-        git checkout centreon/package-lock.json
+        rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
       working-directory: ${{ env.directory }}
       shell: bash
