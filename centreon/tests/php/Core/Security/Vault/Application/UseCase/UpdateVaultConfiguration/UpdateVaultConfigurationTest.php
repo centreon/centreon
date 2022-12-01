@@ -46,6 +46,7 @@ use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     VaultConfigurationFactory
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -64,7 +65,11 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
 
     $vault = new Vault(1, 'myVaultProvider');
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         1,
         'myConf',
         $vault,
@@ -72,8 +77,7 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         8200,
         'myStorage',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
 
     $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -187,7 +191,11 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         ->method('findById')
         ->willReturn($vault);
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         2,
         'myVaultConfiguration',
         $vault,
@@ -195,8 +203,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         8201,
         'myStorageFolder',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())
@@ -268,7 +275,11 @@ it(
             ->method('findById')
             ->willReturn($vault);
 
+        $encryption = new Encryption();
+        $encryption->setFirstKey("myFirstKey");
+
         $vaultConfiguration = new VaultConfiguration(
+            $encryption,
             2,
             'myVaultConfiguration',
             $vault,
@@ -276,8 +287,7 @@ it(
             8200,
             'myStorageFolder',
             'myRoleId',
-            'mySecretId',
-            'mySalt'
+            'mySecretId'
         );
         $this->readVaultConfigurationRepository
             ->expects($this->once())
@@ -289,7 +299,11 @@ it(
             ->method('create')
             ->willReturn($vaultConfiguration);
 
+        $encryption = new Encryption();
+        $encryption->setFirstKey("myFirstKey");
+
         $existingVaultConfiguration = new VaultConfiguration(
+            $encryption,
             1,
             'myExistingVaultConfiguration',
             $vault,
@@ -297,8 +311,7 @@ it(
             8200,
             'myStorageFolder',
             'myAnotherRoleId',
-            'myAnotherSecretId',
-            'MyAnotherSalt'
+            'myAnotherSecretId'
         );
 
         $this->readVaultConfigurationRepository
@@ -376,7 +389,11 @@ it('should present NoContentResponse when vault configuration is created with su
         ->method('findById')
         ->willReturn($vault);
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         2,
         'myVaultConfiguration',
         $vault,
@@ -384,8 +401,7 @@ it('should present NoContentResponse when vault configuration is created with su
         8201,
         'myStorageFolder',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())

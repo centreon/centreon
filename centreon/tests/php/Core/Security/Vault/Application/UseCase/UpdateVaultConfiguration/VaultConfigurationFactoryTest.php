@@ -65,35 +65,3 @@ it(
         expect($vaultConfiguration)->toBeInstanceOf(VaultConfiguration::class);
     }
 );
-
-it('should encrypt roleId and secretId correctly', function (): void {
-    $encryption = new Encryption();
-    $encryption = $encryption->setFirstKey('myFirstKey');
-
-    $vault = new Vault(1, 'myVaultProvider');
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
-
-    $factory = new VaultConfigurationFactory($encryption, $this->readVaultRepository);
-    $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
-    $updateVaultConfigurationRequest->vaultConfigurationId = 1;
-    $updateVaultConfigurationRequest->name = 'myVault';
-    $updateVaultConfigurationRequest->typeId = 1;
-    $updateVaultConfigurationRequest->address = '127.0.0.1';
-    $updateVaultConfigurationRequest->port = 8200;
-    $updateVaultConfigurationRequest->storage = 'myStorage';
-    $updateVaultConfigurationRequest->roleId = 'myRoleId';
-    $updateVaultConfigurationRequest->secretId = 'mySecretId';
-
-    $vaultConfiguration = $factory->create($updateVaultConfigurationRequest);
-
-    $encryption = $encryption->setSecondKey($vaultConfiguration->getSalt());
-
-    $roleId = $encryption->decrypt($vaultConfiguration->getRoleId());
-    $secretId = $encryption->decrypt($vaultConfiguration->getSecretId());
-
-    expect($roleId)->toBe($updateVaultConfigurationRequest->roleId);
-    expect($secretId)->toBe($updateVaultConfigurationRequest->secretId);
-});

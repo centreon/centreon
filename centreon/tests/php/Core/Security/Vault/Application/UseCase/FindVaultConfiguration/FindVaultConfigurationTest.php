@@ -37,6 +37,7 @@ use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
     FindVaultConfigurationResponse
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -164,7 +165,12 @@ it('should present FindVaultConfigurationResponse', function () {
         ->willReturn(true);
 
     $vault = new Vault(1, 'myVaultProvider');
+
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         1,
         'myVaultConfiguration',
         $vault,
@@ -172,8 +178,7 @@ it('should present FindVaultConfigurationResponse', function () {
         8200,
         'myStorageFolder',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
 
     $findVaultConfigurationRequest = new FindVaultConfigurationRequest();

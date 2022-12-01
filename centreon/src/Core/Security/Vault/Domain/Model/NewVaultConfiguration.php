@@ -53,6 +53,7 @@ class NewVaultConfiguration
      * @param string $storage
      * @param string $unencryptedRoleId
      * @param string $unencryptedSecretId
+     *
      * @throws AssertionFailedException
      * @throws \Exception
      */
@@ -150,7 +151,9 @@ class NewVaultConfiguration
     /**
      * @param string $unencrypted
      * @param string $salt
+     *
      * @return string
+     *
      * @throws \Exception
      */
     private function crypt(string $unencrypted, string $salt): string

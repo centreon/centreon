@@ -66,7 +66,7 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
     $vault = new Vault(1, 'myVaultProvider');
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("1");
+    $encryption->setFirstKey("myFirstKey");
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
@@ -105,7 +105,11 @@ it('should present InvalidArgumentResponse when vault configuration already exis
 
     $vault = new Vault(1, 'myVaultProvider');
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         1,
         'myConf',
         $vault,
@@ -113,8 +117,7 @@ it('should present InvalidArgumentResponse when vault configuration already exis
         8200,
         'myStorage',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())

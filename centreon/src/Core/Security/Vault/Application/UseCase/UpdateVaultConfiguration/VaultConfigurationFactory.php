@@ -52,14 +52,6 @@ class VaultConfigurationFactory
      */
     public function create(UpdateVaultConfigurationRequest $request): VaultConfiguration
     {
-        $salt = $this->encryption->generateRandomString(VaultConfiguration::SALT_LENGTH);
-        $roleId = $this->encryption
-            ->setSecondKey($salt)
-            ->crypt($request->roleId);
-        $secretId = $this->encryption
-            ->setSecondKey($salt)
-            ->crypt($request->secretId);
-
         $vault = $this->readVaultRepository->findById($request->typeId);
 
         if ($vault === null) {
@@ -67,15 +59,15 @@ class VaultConfigurationFactory
         }
 
         return new VaultConfiguration(
+            $this->encryption,
             $request->vaultConfigurationId,
             $request->name,
             $vault,
             $request->address,
             $request->port,
             $request->storage,
-            $roleId,
-            $secretId,
-            $salt
+            $request->roleId,
+            $request->secretId
         );
     }
 }

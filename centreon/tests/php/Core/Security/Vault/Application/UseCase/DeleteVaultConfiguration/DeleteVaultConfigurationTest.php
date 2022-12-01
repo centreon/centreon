@@ -42,6 +42,7 @@ use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
     DeleteVaultConfigurationRequest
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -170,7 +171,7 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
     );
 });
 
-it('should present NoContentResponse when vault configuration is created with success', function (): void {
+it('should present NoContentResponse when vault configuration is deleted with success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -182,7 +183,11 @@ it('should present NoContentResponse when vault configuration is created with su
         ->method('findById')
         ->willReturn($vault);
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         2,
         'myVaultConfiguration',
         $vault,
@@ -191,7 +196,6 @@ it('should present NoContentResponse when vault configuration is created with su
         'myStorageFolder',
         'myRoleId',
         'mySecretId',
-        'mySalt'
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())

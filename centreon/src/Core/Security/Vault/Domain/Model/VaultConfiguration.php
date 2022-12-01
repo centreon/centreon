@@ -43,6 +43,7 @@ class VaultConfiguration extends NewVaultConfiguration
      * @param string $storage
      * @param string $unencryptedRoleId
      * @param string $unencryptedSecretId
+     *
      * @throws AssertionFailedException
      */
     public function __construct(
