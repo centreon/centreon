@@ -25,14 +25,13 @@ namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
+use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse, PresenterInterface};
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultRepositoryInterface,
     ReadVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsPresenterInterface;
 
 final class FindVaultConfigurations
 {
@@ -50,8 +49,12 @@ final class FindVaultConfigurations
     ) {
     }
 
+    /**
+     * @param PresenterInterface $presenter
+     * @param FindVaultConfigurationsRequest $findVaultConfigurationsRequest
+     */
     public function __invoke(
-        FindVaultConfigurationsPresenterInterface $presenter,
+        PresenterInterface $presenter,
         FindVaultConfigurationsRequest $findVaultConfigurationsRequest
     ): void {
         try {

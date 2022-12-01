@@ -23,11 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
-    FindVaultConfigurationsPresenterInterface as PresenterInterface,
-    FindVaultConfigurationsResponse
-};
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
 
 class FindVaultConfigurationsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
