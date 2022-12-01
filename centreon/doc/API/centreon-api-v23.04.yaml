@@ -7483,7 +7483,7 @@ components:
           description: "Vault secret id"
     Administration.Vault.Configuration.Read:
       type: object
-      description: "Vault configuration for GET"
+      description: "Vault configuration"
       properties:
         id:
           type: integer
