@@ -40,7 +40,7 @@ use Core\Security\Vault\Application\Repository\{
     ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Domain\Exceptions\VaultException;
+use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class UpdateVaultConfiguration

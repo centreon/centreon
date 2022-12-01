@@ -31,6 +31,8 @@ interface ReadVaultRepositoryInterface
      * @param int $id
      *
      * @return Vault|null
+     *
+     * @throws \Throwable
      */
     public function findById(int $id): ?Vault;
 }

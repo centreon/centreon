@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     CreateVaultConfiguration,
     CreateVaultConfigurationRequest
@@ -36,7 +36,7 @@ final class CreateVaultConfigurationController extends AbstractController
     /**
      * @param integer $vaultId
      * @param CreateVaultConfiguration $useCase
-     * @param CreateVaultConfigurationPresenter $presenter
+     * @param DefaultPresenter $presenter
      * @param Request $request
      *
      * @return object
@@ -44,7 +44,7 @@ final class CreateVaultConfigurationController extends AbstractController
     public function __invoke(
         int $vaultId,
         CreateVaultConfiguration $useCase,
-        CreateVaultConfigurationPresenter $presenter,
+        DefaultPresenter $presenter,
         Request $request
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();

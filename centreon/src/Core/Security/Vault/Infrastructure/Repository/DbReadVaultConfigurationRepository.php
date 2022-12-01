@@ -62,7 +62,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
                     WHERE `url`=:address AND `port`=:port AND `storage`=:storage
-                    SQL
+                SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
@@ -97,7 +97,6 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     {
         $this->info('Getting existing vault configuration by id');
 
-        $record = [];
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
@@ -106,7 +105,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
                     WHERE conf.`id`=:id
-                    SQL
+                SQL
             )
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -147,14 +146,14 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
                     WHERE conf.`vault_id`=:vaultId
-                    SQL
+                SQL
             )
         );
         $statement->bindValue(':vaultId', $vaultId, \PDO::PARAM_INT);
         $statement->execute();
 
         $vaultConfigurations = [];
-        while ($statement !== false && is_array($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /**
              * @var array{
              *  id: int,

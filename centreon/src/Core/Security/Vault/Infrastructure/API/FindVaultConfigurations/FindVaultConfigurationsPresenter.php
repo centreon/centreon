@@ -38,6 +38,7 @@ class FindVaultConfigurationsPresenter extends AbstractPresenter implements Pres
         private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
+        parent::__construct($this->presenterFormatter);
     }
 
     /**

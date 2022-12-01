@@ -46,6 +46,7 @@ use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     NewVaultConfigurationFactory
 };
 use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -64,7 +65,11 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
 
     $vault = new Vault(1, 'myVaultProvider');
 
+    $encryption = new Encryption();
+    $encryption->setFirstKey("1");
+
     $vaultConfiguration = new VaultConfiguration(
+        $encryption,
         1,
         'myConf',
         $vault,
@@ -72,8 +77,7 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         8200,
         'myStorage',
         'myRoleId',
-        'mySecretId',
-        'mySalt'
+        'mySecretId'
     );
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);

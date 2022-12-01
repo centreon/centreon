@@ -24,37 +24,49 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Domain\Model;
 
 use Assert\AssertionFailedException;
+use Security\Interfaces\EncryptionInterface;
 
 /**
  * This class represents already existing vault configuration.
  */
 class VaultConfiguration extends NewVaultConfiguration
 {
+    private int $id;
+
     /**
+     * @param EncryptionInterface $encryption
      * @param int $id
      * @param string $name
      * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $storage
-     * @param string $roleId
-     * @param string $secretId
-     * @param string $salt
-     *
+     * @param string $unencryptedRoleId
+     * @param string $unencryptedSecretId
      * @throws AssertionFailedException
      */
     public function __construct(
-        private int $id,
+        EncryptionInterface $encryption,
+        int $id,
         string $name,
         Vault $vault,
         string $address,
         int $port,
         string $storage,
-        string $roleId,
-        string $secretId,
-        string $salt
+        string $unencryptedRoleId,
+        string $unencryptedSecretId
     ) {
-        parent::__construct($name, $vault, $address, $port, $storage, $roleId, $secretId, $salt);
+        $this->id = $id;
+        parent::__construct(
+            $encryption,
+            $name,
+            $vault,
+            $address,
+            $port,
+            $storage,
+            $unencryptedRoleId,
+            $unencryptedSecretId
+        );
     }
 
     /**

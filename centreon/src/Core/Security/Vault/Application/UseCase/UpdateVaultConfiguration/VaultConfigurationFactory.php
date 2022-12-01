@@ -25,7 +25,7 @@ namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\AssertionFailedException;
 use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Security\Vault\Domain\Exceptions\VaultException;
+use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 

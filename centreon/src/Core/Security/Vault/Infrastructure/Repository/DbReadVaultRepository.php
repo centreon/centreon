@@ -44,11 +44,8 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
     }
 
     /**
-     * @param int $id
-     *
+     * {@inheritDoc}
      * @throws AssertionFailedException
-     *
-     * @return Vault|null
      */
     public function findById(int $id): ?Vault
     {

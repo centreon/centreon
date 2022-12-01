@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
+namespace Core\Infrastructure\Common\Api;
 
-use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
+use Core\Application\Common\UseCase\AbstractPresenter;
 
-class CreateVaultConfigurationPresenter extends AbstractPresenter implements PresenterInterface
+class DefaultPresenter extends AbstractPresenter
 {
 }

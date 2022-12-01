@@ -32,10 +32,6 @@ use Core\Security\Vault\Application\Repository\{
     ReadVaultRepositoryInterface,
     ReadVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
-    FindVaultConfigurationRequest,
-    FindVaultConfigurationResponse
-};
 
 final class FindVaultConfiguration
 {
@@ -108,8 +104,6 @@ final class FindVaultConfiguration
             $presenter->setResponseStatus(
                 new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
-
-            return;
         }
     }
 
@@ -129,8 +123,8 @@ final class FindVaultConfiguration
      * Checks if vault configuration exists.
      *
      * @param int $id
-     *
      * @return bool
+     * @throws \Throwable
      */
     private function isVaultConfigurationExists(int $id): bool
     {

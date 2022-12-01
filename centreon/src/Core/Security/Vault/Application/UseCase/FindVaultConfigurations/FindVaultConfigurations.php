@@ -89,8 +89,6 @@ final class FindVaultConfigurations
             $presenter->setResponseStatus(
                 new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
-
-            return;
         }
     }
 

@@ -117,8 +117,6 @@ final class CreateVaultConfiguration
             $presenter->setResponseStatus(
                 new InvalidArgumentResponse($ex->getMessage())
             );
-
-            return;
         } catch (\Throwable $ex) {
             $this->error(
                 'An error occured in while creating vault configuration',
@@ -127,8 +125,6 @@ final class CreateVaultConfiguration
             $presenter->setResponseStatus(
                 new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())
             );
-
-            return;
         }
     }
 
