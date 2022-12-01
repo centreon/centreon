@@ -181,7 +181,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements Resource
         FROM `:dbstg`.`resources`
         LEFT JOIN `:dbstg`.`resources` parent_resource
             ON parent_resource.id = resources.parent_id
-        LEFT JOIN `:dbstg`.`severities`
+            AND parent_resource.type = " . self::RESOURCE_TYPE_HOST .
+        " LEFT JOIN `:dbstg`.`severities`
             ON `severities`.severity_id = `resources`.severity_id
         LEFT JOIN `:dbstg`.`resources_tags` AS rtags
             ON `rtags`.resource_id = `resources`.resource_id
@@ -209,20 +210,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements Resource
          * Handle ACL
          */
         if (! $this->contact->isAdmin()) {
-            $accessGroupIds = array_map(
-                function (AccessGroup $accessGroup) {
-                    return $accessGroup->getId();
-                },
-                $this->accessGroups
-            );
-            $request .= ' AND EXISTS (
-              SELECT 1 FROM `:dbstg`.centreon_acl acl WHERE
-                  (resources.type IN (0,2) AND resources.parent_id = acl.host_id AND resources.id = acl.service_id)
-                  OR
-                  (resources.type = 1 AND resources.id = acl.host_id AND acl.service_id IS NULL)
-                  AND acl.group_id IN (' . implode(', ', $accessGroupIds) . ')
-              LIMIT 1
-            )';
+            $request .= $this->buildACLSubRequest();
         }
 
         /**
@@ -413,6 +401,102 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements Resource
         }
 
         return $subRequest;
+    }
+
+    /**
+     * Build Host ACL subrequest
+     *
+     * @param array int[] $accessGroupIds
+     * @return string
+     */
+    private function buildHostACLSubRequest(array $accessGroupIds): string
+    {
+        $pattern = <<<'SQL'
+            EXISTS (
+                SELECT 1
+                FROM `:dbstg`.centreon_acl acl
+                WHERE
+                    resources.type = %d
+                    AND resources.id = acl.host_id
+                    AND acl.group_id IN (%s)
+                LIMIT 1
+            )
+        SQL;
+
+        return sprintf($pattern, self::RESOURCE_TYPE_HOST, implode(', ', $accessGroupIds));
+    }
+
+    /**
+     * Build Service ACL subrequest
+     *
+     * @param array int[] $accessGroupIds
+     * @return string
+     */
+    private function buildServiceACLSubRequest(array $accessGroupIds): string
+    {
+        $pattern = <<<'SQL'
+            EXISTS (
+                SELECT
+                    1
+                FROM `:dbstg`.centreon_acl acl
+                WHERE
+                    resources.type = %d
+                    AND resources.parent_id = acl.host_id
+                    AND resources.id = acl.service_id
+                    AND acl.group_id IN (%s)
+                LIMIT 1
+            )
+        SQL;
+
+        return sprintf($pattern, self::RESOURCE_TYPE_SERVICE, implode(', ', $accessGroupIds));
+    }
+
+    /**
+     * Build Metaservice ACL subrequest
+     *
+     * @param array int[] $accessGroupIds
+     * @return string
+     */
+    private function buildMetaServiceACLSubRequest(array $accessGroupIds): string
+    {
+        $pattern = <<<'SQL'
+            EXISTS (
+                SELECT
+                    1
+                FROM `:dbstg`.centreon_acl acl
+                WHERE
+                    resources.type = %d
+                    AND resources.parent_id = acl.host_id
+                    AND resources.id = acl.service_id
+                    AND acl.group_id IN (%s)
+                LIMIT 1
+            )
+        SQL;
+
+        return sprintf($pattern, self::RESOURCE_TYPE_METASERVICE, implode(', ', $accessGroupIds));
+    }
+
+    /**
+     * Create ACL Sub Request regarding accessgoups of the user
+     *
+     * @return string
+     */
+    private function buildACLSubRequest(): string
+    {
+        $accessGroupIds = array_map(
+            function (AccessGroup $accessGroup) {
+                return $accessGroup->getId();
+            },
+            $this->accessGroups
+        );
+
+        $orConditions = [
+            $this->buildHostACLSubRequest($accessGroupIds),
+            $this->buildServiceACLSubRequest($accessGroupIds),
+            $this->buildMetaServiceACLSubRequest($accessGroupIds)
+        ];
+
+        return sprintf(' AND (%s)', implode(' OR ', $orConditions));
     }
 
     /**
