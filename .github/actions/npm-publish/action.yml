@@ -12,8 +12,11 @@ inputs:
     description: The NPM token
     required: true
   package:
-    description: The package
+    description: The frontend package
     required: true
+  version:
+    description: The version
+    default: latest
 
 runs:
   using: "composite"
@@ -26,6 +29,8 @@ runs:
       run: |
         npm version patch -m "js-config-%s" --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
+        git checkout centreon/package-lock.json
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
       working-directory: ${{ env.directory }}
       shell: bash
 
@@ -35,12 +40,12 @@ runs:
         git config user.name "technique-ci"
       shell: bash
 
-    - uses: JS-DevTools/npm-publish@v1
-      with:
-        token: ${{ inputs.npm_token }}
-        package: ${{ inputs.directory }}/package.json
-        tag: latest
-        access: public
+    # - uses: JS-DevTools/npm-publish@v1
+    #   with:
+    #     token: ${{ inputs.npm_token }}
+    #     package: ${{ inputs.directory }}/package.json
+    #     tag: ${{ inputs.version }}
+    #     access: public
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
@@ -48,10 +53,10 @@ runs:
         token: ${{ inputs.pat }}
         committer: Technique CI <technique-ci@centreon.com>
         author: technique-ci <technique-ci@centreon.com>
-        branch: MON-update-package-versions-${{ inputs.package }}-$VERSION
-        title: "chore(${{ inputs.package }} version): Update package ${{ inputs.package }} version to $VERSION"
+        branch: MON-update-package-versions-${{ inputs.package }}-${{ env.VERSION }}
+        title: "chore(${{ inputs.package }} version): Update package ${{ inputs.package }} version to ${{ env.VERSION }}"
         body: |
-          This updates the ${{ inputs.package }} package version to $VERSION.
+          This updates the ${{ inputs.package }} package version to ${{ env.VERSION }}.
           This is an automatic PR.
         labels: |
           auto-merge
