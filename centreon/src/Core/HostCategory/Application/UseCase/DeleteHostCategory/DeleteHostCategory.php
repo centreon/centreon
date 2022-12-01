@@ -66,7 +66,7 @@ class DeleteHostCategory
                         'user_id' => $this->user->getId(),
                     ]);
                     $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to access host category')
+                        new ForbiddenResponse('You are not allowed to access host categories')
                     );
 
                     return;

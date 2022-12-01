@@ -25,6 +25,7 @@ namespace Tests\Core\HostCategory\Application\UseCase\DeleteHostCategory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -41,6 +42,7 @@ beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->hostCategory = $this->createMock(HostCategory::class);
+    $this->hostCategoryId = 1;
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
@@ -50,7 +52,6 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         $this->accessGroupRepository,
         $this->user
     );
-    $hostCategoryId = 1;
 
     $this->user
         ->expects($this->once())
@@ -66,21 +67,48 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willThrowException(new \Exception());
 
     $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
-    $useCase($hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->getResponseStatus()?->getMessage())
-            ->toBe('Error while deleting host category #' . $hostCategoryId);
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($presenter->getResponseStatus()->getMessage())
+        ->toBe('Error while deleting host category #' . $this->hostCategoryId);
 });
 
-it('should present a NotFoundResponse when the host category does not exist', function () {
+it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
         $this->accessGroupRepository,
         $this->user
     );
-    $hostCategoryId = 1;
+    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
+
+    $useCase($this->hostCategoryId, $presenter);
+
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($presenter->getResponseStatus()->getMessage())
+        ->toBe('You are not allowed to access host categories');
+});
+
+it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
+    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $this->user
         ->expects($this->once())
@@ -91,15 +119,45 @@ it('should present a NotFoundResponse when the host category does not exist', fu
         ->method('findById')
         ->willReturn(null);
 
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
-    $useCase($hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class)
-        ->and($presenter->getResponseStatus()?->getMessage())
-            ->toBe('Host category with id #' . $hostCategoryId . ' not found');
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($presenter->getResponseStatus()->getMessage())
+        ->toBe('Host category with id #' . $this->hostCategoryId . ' not found');
 });
 
-it('should present a NoContentResponse on success', function () {
+it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function () {
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
+    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->willReturn(null);
+
+    $useCase($this->hostCategoryId, $presenter);
+
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($presenter->getResponseStatus()->getMessage())
+        ->toBe('Host category with id #' . $this->hostCategoryId . ' not found');
+});
+
+it('should present a NoContentResponse on success (with admin user)', function () {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
@@ -123,6 +181,36 @@ it('should present a NoContentResponse on success', function () {
     $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $useCase($hostCategoryId, $presenter);
+
+    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should present a NoContentResponse on success (with non-admin user)', function () {
+    $useCase = new DeleteHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->user
+    );
+    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->willReturn($this->hostCategory);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('deleteById');
+
+    $useCase($this->hostCategoryId, $presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
