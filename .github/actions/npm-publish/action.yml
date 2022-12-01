@@ -27,6 +27,7 @@ runs:
         npm version patch -m "js-config-%s" --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
       working-directory: ${{ env.directory }}
+      shell: bash
 
     - name: Configure git
       run: |
