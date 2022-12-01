@@ -1,0 +1,34 @@
+name: Check package version
+description: The checks the package version validity
+
+inputs:
+  base_branch:
+    description: The branch to base on
+    required: true
+  directory:
+    description: The package directory
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.base_branch }}
+
+      - name: Get base version
+        run: |
+          BASE_VERSION=$(node -p "require('./package.json').version")
+        shell: bash
+        working_directory: ${{ inputs.directory }}
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Check package version
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          [[ $BASE_VERSION -eq $NEW_VERSION ]] || { echo >&2 "The base version ($BASE_VERSION) is not the same as the new version ($NEW_VERSION)"; exit 1; }
+        shell: bash
+        working_directory: ${{ inputs.directory }}
