@@ -24,14 +24,11 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfigurations;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
-    FindVaultConfigurationsPresenterInterface,
-    FindVaultConfigurationsResponse
-};
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
 
-class FindVaultConfigurationsPresenter extends AbstractPresenter implements FindVaultConfigurationsPresenterInterface
+class FindVaultConfigurationsPresenter extends AbstractPresenter implements PresenterInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters

@@ -23,13 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
-    FindVaultConfigurationResponse,
-    FindVaultConfigurationPresenterInterface
-};
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationResponse;
 
-class FindVaultConfigurationPresenter extends AbstractPresenter implements FindVaultConfigurationPresenterInterface
+class FindVaultConfigurationPresenter extends AbstractPresenter implements PresenterInterface
 {
     /**
      * {@inheritDoc}

@@ -23,9 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\DeleteVaultConfigurationPresenterInterface;
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
 
-class DeleteVaultConfigurationPresenter extends AbstractPresenter implements DeleteVaultConfigurationPresenterInterface
+class DeleteVaultConfigurationPresenter extends AbstractPresenter implements PresenterInterface
 {
 }

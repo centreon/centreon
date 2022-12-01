@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     CreateVaultConfiguration,
-    CreateVaultConfigurationPresenterInterface,
     CreateVaultConfigurationRequest
 };
 use Symfony\Component\HttpFoundation\Request;
@@ -34,18 +34,18 @@ use Symfony\Component\HttpFoundation\Request;
 final class CreateVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
+     * @param integer $vaultId
      * @param CreateVaultConfiguration $useCase
+     * @param PresenterInterface $presenter
      * @param Request $request
-     * @param CreateVaultConfigurationPresenterInterface $presenter
      *
      * @return object
      */
     public function __invoke(
         int $vaultId,
         CreateVaultConfiguration $useCase,
-        Request $request,
-        CreateVaultConfigurationPresenterInterface $presenter
+        PresenterInterface $presenter,
+        Request $request
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

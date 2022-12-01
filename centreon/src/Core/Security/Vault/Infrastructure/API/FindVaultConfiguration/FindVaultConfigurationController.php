@@ -24,19 +24,19 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
     FindVaultConfiguration,
-    FindVaultConfigurationRequest,
-    FindVaultConfigurationPresenterInterface
+    FindVaultConfigurationRequest
 };
 
 final class FindVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
+     * @param integer $vaultId
+     * @param integer $vaultConfigurationId
      * @param FindVaultConfiguration $useCase
-     * @param FindVaultConfigurationPresenterInterface $presenter
+     * @param PresenterInterface $presenter
      *
      * @return object
      */
@@ -44,7 +44,7 @@ final class FindVaultConfigurationController extends AbstractController
         int $vaultId,
         int $vaultConfigurationId,
         FindVaultConfiguration $useCase,
-        FindVaultConfigurationPresenterInterface $presenter
+        PresenterInterface $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
