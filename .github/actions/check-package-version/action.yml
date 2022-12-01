@@ -43,3 +43,4 @@ runs:
 
       - name: Result
         run: '[[ "<" == "${{ steps.check-versions.outputs.comparison-result }}" ]]'
+        shell: bash
