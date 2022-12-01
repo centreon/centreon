@@ -51,4 +51,3 @@ jobs:
     secrets:
       artifactory_username: ${{ secrets.artifactory_username }}
       artifactory_password: ${{ secrets.artifactory_password }}
-
