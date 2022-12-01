@@ -7,6 +7,9 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
   nexus_username:
     description: "Artifact Manager technical username"
     required: true
@@ -42,22 +45,25 @@ runs:
 
         case "$BRANCHNAME" in
           develop | dev-[2-9][0-9].[0-9][0-9].x)
-            REPO="unstable"
+            SUBREPO="unstable"
             ;;
           release* | hotfix*)
-            REPO="testing"
+            SUBREPO="testing"
             ;;
           master | [2-9][0-9].[0-9][0-9].x)
-            REPO="stable"
+            SUBREPO="stable"
             ;;
           *)
+            SUBREPO="unstable"
+            #echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
+            #exit 0
             echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
             exit 0
             ;;
         esac
 
         FILES="*.deb";
-        echo "[DEBUG] - Repo: $REPO"
+        echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Deb FILES: $FILES"
 
         for FILE in $FILES
@@ -65,10 +71,11 @@ runs:
           echo "[DEBUG] - File: $FILE"
 
           VERSION=${{ inputs.version }}
+          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
+          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
 
           echo "[DEBUG] - Version: $VERSION"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION-$REPO/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "./$FILE"
-
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/$SUBREPO/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
         done
       shell: bash
