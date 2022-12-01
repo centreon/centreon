@@ -111,6 +111,8 @@ runs:
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
+        ls -lath .
+
         if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
