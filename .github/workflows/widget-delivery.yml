@@ -12,9 +12,6 @@ on:
         required: true
       artifactory_password:
         required: true
-      yum_repo_url:
-        description: "The legacy yum repo url"
-        required: true
       update_repo_path:
         description: "The update repo script path"
         required: true
