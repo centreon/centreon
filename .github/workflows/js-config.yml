@@ -38,7 +38,7 @@ jobs:
 
   check-package-version:
     runs-on: ubuntu-22.04
-    if: startsWith(github.head_ref, MON-update-package-versions)
+    if: ${{ startsWith(github.head_ref, "MON-update-package-versions") }}
     steps:
       - uses: ./.github/actions/check-package-version
         with:
