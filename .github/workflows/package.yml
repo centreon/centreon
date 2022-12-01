@@ -101,7 +101,6 @@ jobs:
 
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
-    name: Sign ${{ inputs.package_extension }}
     needs: [package]
     runs-on: ubuntu-22.04
     container:
