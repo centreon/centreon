@@ -29,7 +29,8 @@ use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
     NoContentResponse,
-    NotFoundResponse
+    NotFoundResponse,
+    PresenterInterface
 };
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
@@ -57,11 +58,11 @@ final class DeleteVaultConfiguration
     }
 
     /**
-     * @param DeleteVaultConfigurationPresenterInterface $presenter
+     * @param PresenterInterface $presenter
      * @param DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
      */
     public function __invoke(
-        DeleteVaultConfigurationPresenterInterface $presenter,
+        PresenterInterface $presenter,
         DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
     ): void {
         try {

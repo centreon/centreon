@@ -23,10 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
-    DeleteVaultConfigurationPresenterInterface as PresenterInterface
-};
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
 
 class DeleteVaultConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {

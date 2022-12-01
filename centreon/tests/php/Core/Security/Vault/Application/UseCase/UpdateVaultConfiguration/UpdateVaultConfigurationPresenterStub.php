@@ -23,10 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
-    UpdateVaultConfigurationPresenterInterface as PresenterInterface
-};
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
 
 class UpdateVaultConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {

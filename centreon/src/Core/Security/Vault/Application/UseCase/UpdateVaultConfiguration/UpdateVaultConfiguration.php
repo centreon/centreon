@@ -31,7 +31,8 @@ use Core\Application\Common\UseCase\{
     ForbiddenResponse,
     InvalidArgumentResponse,
     NoContentResponse,
-    NotFoundResponse
+    NotFoundResponse,
+    PresenterInterface
 };
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
@@ -63,11 +64,11 @@ final class UpdateVaultConfiguration
     }
 
     /**
-     * @param UpdateVaultConfigurationPresenterInterface $presenter
+     * @param PresenterInterface $presenter
      * @param UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
      */
     public function __invoke(
-        UpdateVaultConfigurationPresenterInterface $presenter,
+        PresenterInterface $presenter,
         UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
     ): void {
         try {
