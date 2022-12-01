@@ -122,7 +122,7 @@ runs:
 
         # This makes shure that widget pkgs end up in the same dir as non widgets
         if [[ $MODULE_BASENAME = "centreon-widget"* ]]; then
-          find / -name "*centreon-widget*.deb" -exec mv {} ../ \;
+          find / -name "*centreon-widget*.deb" -exec mv {} ../../ \;
         fi
         ls -lath ..
       shell: bash
