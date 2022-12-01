@@ -46,3 +46,5 @@ jobs:
       cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
       yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+
