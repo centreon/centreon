@@ -40,12 +40,12 @@ runs:
         git config user.name "technique-ci"
       shell: bash
 
-    # - uses: JS-DevTools/npm-publish@v1
-    #   with:
-    #     token: ${{ inputs.npm_token }}
-    #     package: ${{ inputs.directory }}/package.json
-    #     tag: ${{ inputs.version }}
-    #     access: public
+    - uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ inputs.npm_token }}
+        package: ${{ inputs.directory }}/package.json
+        tag: ${{ inputs.version }}
+        access: public
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
