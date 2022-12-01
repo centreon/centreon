@@ -122,6 +122,7 @@ runs:
 
         ls -lath ..
         cd ..
+        find / -name "*.deb"
       shell: bash
 
     - name: Upload package artifacts
