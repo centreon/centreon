@@ -100,6 +100,7 @@ jobs:
           cache_key: ${{ inputs.cache_key }}
 
   sign:
+    name: Sign ${{ inputs.package_extension }}
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
     runs-on: ubuntu-22.04
