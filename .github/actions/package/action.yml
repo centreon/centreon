@@ -122,7 +122,8 @@ runs:
 
         ls -lath ..
         cd ..
-        find / -name "*centreon*.deb"
+        find / -name "*centreon*.deb" -exec mv {} ../ \;
+        ls -lath ..
       shell: bash
 
     - name: Upload package artifacts
