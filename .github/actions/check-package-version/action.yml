@@ -19,6 +19,7 @@ runs:
       - name: Get base version
         run: |
           BASE_VERSION=$(node -p "require('./package.json').version")
+          echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
         shell: bash
         working-directory: ${{ inputs.directory }}
 
@@ -26,9 +27,19 @@ runs:
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
-      - name: Check package version
+      - name: Get current version
         run: |
           NEW_VERSION=$(node -p "require('./package.json').version")
-          [[ $BASE_VERSION -eq $NEW_VERSION ]] || { echo >&2 "The base version ($BASE_VERSION) is not the same as the new version ($NEW_VERSION)"; exit 1; }
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         shell: bash
         working-directory: ${{ inputs.directory }}
+
+      - name: Check versions
+        id: check-versions
+        uses: madhead/semver-utils@latest
+        with:
+          version: ${{ env.BASE_VERSION }}
+          compare-to: ${{ env.NEW_VERSION }}
+
+      - name: Result
+        run: '[[ "<" == "${{ steps.check-versions.outputs.comparison-result }}" ]]'
