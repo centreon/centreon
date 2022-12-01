@@ -32,7 +32,7 @@ AutoReqProv: no
 The module allows to open tickets on ITSM providers.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}
 
 # Change CENTREON_ETC Macro
 find .          \
