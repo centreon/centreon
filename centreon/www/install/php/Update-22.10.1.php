@@ -18,7 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-<<<<<<< HEAD
-
-=======
->>>>>>> centreon-archived/release-22.10.0-next
