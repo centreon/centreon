@@ -54,7 +54,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     private $hostId;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $serviceId;
 
@@ -199,7 +199,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     }
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getServiceId(): ?int
     {
@@ -207,10 +207,10 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     }
 
     /**
-     * @param int $serviceId
+     * @param int|null $serviceId
      * @return Acknowledgement
      */
-    public function setServiceId(int $serviceId): Acknowledgement
+    public function setServiceId(?int $serviceId): Acknowledgement
     {
         $this->serviceId = $serviceId;
         return $this;
