@@ -23,15 +23,18 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
 use Core\HostCategory\Domain\Model\NewHostCategory;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class CreateHostCategory
 {
@@ -39,7 +42,7 @@ class CreateHostCategory
 
     public function __construct(
         private WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
+        private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ContactInterface $user
     ) {
     }
@@ -47,14 +50,28 @@ class CreateHostCategory
     public function __invoke(CreateHostCategoryRequest $request, PresenterInterface $presenter): void
     {
         try {
-            $hostCategory = new NewHostCategory($request->name, $request->alias);
-            /*
-             * TODO:
-             *  -  check is not already in use,
-             *  - trim
-             *  - (?) replace ' ' by '_'
-             *  - (?) add host cateogry to ACLs if non admin user
-             */
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
+                $this->error('User doesn\'t have sufficient right to see host category', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse('You are not allowed to access host category')
+                );
+
+                return;
+            }
+
+            $hostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
+
+            if ($this->readHostCategoryRepository->findByName($hostCategory->getName())) {
+                $this->error('Host category name already exists', [
+                    'hostcategory_name' => trim($request->name),
+                ]);
+                $presenter->setResponseStatus(
+                    new InvalidArgumentResponse('Host category name already exists')
+                );
+            }
+
             $this->writeHostCategoryRepository->create($hostCategory);
 
             $presenter->setResponseStatus(new NoContentResponse());

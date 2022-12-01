@@ -26,15 +26,15 @@ namespace Tests\Core\HostCategory\Application\UseCase\CreateHostCategory;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategory;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
-    $this->hostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
-    $this->acccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
+    $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->request = new CreateHostCategoryRequest();
@@ -43,14 +43,10 @@ beforeEach(function () {
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->user);
+    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
     $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
 
-    // $this->contact
-    //     ->expects($this->once())
-    //     ->method('isAdmin')
-    //     ->willReturn(true);
-    $this->hostCategoryRepository
+    $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('create')
         ->willThrowException(new \Exception());
@@ -64,14 +60,10 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 });
 
 it('should present a NoContentResponse on success', function () {
-    $useCase = new CreateHostCategory($this->hostCategoryRepository,$this->acccessGroupRepository, $this->user);
+    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
     $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
 
-    // $this->contact
-    //     ->expects($this->once())
-    //     ->method('isAdmin')
-    //     ->willReturn(true);
-    $this->hostCategoryRepository
+    $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('create');
 

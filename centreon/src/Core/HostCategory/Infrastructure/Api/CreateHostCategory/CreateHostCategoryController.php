@@ -38,7 +38,9 @@ class CreateHostCategoryController extends AbstractController
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        /** @var array{name:string,alias:string} $data */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/CreateHostCategorySchema.json');
+
         $hostCategoryRequest = $this->createRequestDto($data);
 
         $useCase($hostCategoryRequest, $presenter);

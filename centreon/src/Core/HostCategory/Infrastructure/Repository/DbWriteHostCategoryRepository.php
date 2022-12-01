@@ -68,16 +68,8 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         );
         $statement = $this->db->prepare($request);
 
-        $statement->bindValue(
-            ':name',
-            \HtmlAnalyzer::sanitizeAndRemoveTags($hostCategory->getName()),
-            \PDO::PARAM_STR
-        );
-        $statement->bindValue(
-            ':alias',
-            \HtmlAnalyzer::sanitizeAndRemoveTags($hostCategory->getAlias()),
-            \PDO::PARAM_STR
-        );
+        $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
 
         $statement->execute();
     }
