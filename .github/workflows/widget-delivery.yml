@@ -12,6 +12,18 @@ on:
         required: true
       artifactory_password:
         required: true
+      update_repo_path:
+        description: "The update repo script path"
+        required: true
+      cloudfront_id:
+        description: "The cloudfront ID for repo url"
+        required: true
+      yum_repo_address:
+        description: "The yum legacy repo address"
+        required: true
+      yum_repo_key:
+        description: "The yum repo key"
+        required: true
 
 jobs:
   delivery-rpm:
