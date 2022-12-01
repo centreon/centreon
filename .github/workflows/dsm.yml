@@ -84,25 +84,3 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-
-  delivery-deb:
-    needs: [get-version, package]
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        include:
-          - module_name: dsm
-            distrib: bullseye
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: ${{ matrix.module_name }}
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
