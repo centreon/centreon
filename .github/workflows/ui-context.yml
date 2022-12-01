@@ -16,7 +16,7 @@ on:
       - ui-context-*
 
 env:
-  version: "22.10"
+  version: "23.04"
   directory: "centreon/packages/ui-context"
   centreon_directory: "centreon"
 
@@ -60,8 +60,8 @@ jobs:
 
       - name: Update JS config version
         run: |
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git config user.name "$GITHUB_ACTOR"
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
           git config pull.rebase false
           npm version patch -m "ui-context-%s" --legacy-peer-deps
           VERSION=ui-context-$(node -p "require('./package.json').version")
@@ -71,10 +71,19 @@ jobs:
           git tag ${VERSION}
         working-directory: ${{ env.directory }}
 
-      - name: Push changes to repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git push origin develop && git push --tags
+      - name: Push changes
+        run: |
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }}
+        shell: bash
+      
+      - name: Push changes with tags
+        run: |
+          git config user.email "technique-ci@centreon.com"
+          git config user.name "technique-ci"
+          git push https://${{ secrets.CENTREON_TECHNIQUE_PAT }}@github.com/centreon/centreon ${{ github.head_ref || github.ref_name }} --tags
+        shell: bash
 
       - uses: JS-DevTools/npm-publish@v1
         with:

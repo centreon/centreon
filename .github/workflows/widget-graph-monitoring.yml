@@ -10,7 +10,7 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/centreon-widget-graph-monitoring.yml"
+      - ".github/workflows/widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"
     tags:
       - centreon-widget-graph-monitoring-*
@@ -42,3 +42,8 @@ jobs:
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
       artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
