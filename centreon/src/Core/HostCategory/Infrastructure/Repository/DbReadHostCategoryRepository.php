@@ -64,7 +64,12 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
-     * @inheritDoc
+     * Determine if host cateogries are filtered for given access group ids
+     * true: accessible host categories are filtered
+     * false: accessible host categories are not filtered
+     *
+     * @param int[] $accessGroupIds
+     * @return bool
      */
     public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array
     {
@@ -135,6 +140,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $sqlTranslator?->bindSearchValues($statement);
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
+        $result = $statement->fetchColumn();
 
         $sqlTranslator?->calculateNumberOfRows($this->db);
 
@@ -144,7 +150,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $hostCategories[] = $this->createHostCategoryFromArray($result);
         }
 
-        return $hostCategories;
+        return false;
     }
 
     /**
