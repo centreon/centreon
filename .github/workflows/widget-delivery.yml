@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ inputs.widget_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.artifactory_username }}
