@@ -65,11 +65,11 @@ final class UpdateVaultConfiguration
 
     /**
      * @param PresenterInterface $presenter
-     * @param UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
+     * @param UpdateVaultConfigurationRequest $request
      */
     public function __invoke(
         PresenterInterface $presenter,
-        UpdateVaultConfigurationRequest $updateVaultConfigurationRequest
+        UpdateVaultConfigurationRequest $request
     ): void {
         try {
             if (! $this->user->isAdmin()) {
@@ -81,20 +81,20 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if (! $this->isVaultExists($updateVaultConfigurationRequest->typeId)) {
-                $this->error('Vault provider not found', ['id' => $updateVaultConfigurationRequest->typeId]);
+            if (! $this->isVaultExists($request->typeId)) {
+                $this->error('Vault provider not found', ['id' => $request->typeId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
                 );
 
                 return;
             }
-
-            if (! $this->isVaultConfigurationExists($updateVaultConfigurationRequest->vaultConfigurationId)) {
+            $vaultConfiguration = $this->readVaultConfigurationRepository->findById($request->vaultConfigurationId);
+            if ($vaultConfiguration === null) {
                 $this->error(
                     'Vault configuration not found',
                     [
-                        'id' => $updateVaultConfigurationRequest->vaultConfigurationId,
+                        'id' => $request->vaultConfigurationId,
                     ]
                 );
                 $presenter->setResponseStatus(
@@ -104,7 +104,6 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            $vaultConfiguration = $this->vaultConfigurationFactory->create($updateVaultConfigurationRequest);
             if ($this->isVaultConfigurationAlreadyExists($vaultConfiguration)) {
                 $this->error(
                     'Vault configuration with these properties already exists for same provider',
@@ -120,6 +119,8 @@ final class UpdateVaultConfiguration
 
                 return;
             }
+
+            $this->updateVaultConfiguration($request, $vaultConfiguration);
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
@@ -169,11 +170,8 @@ final class UpdateVaultConfiguration
 
     /**
      * @param VaultConfiguration $vaultConfiguration
-     *
-     * @throws VaultException
-     * @throws \Throwable
-     *
      * @return bool
+     * @throws \Throwable
      */
     private function isVaultConfigurationAlreadyExists(
         VaultConfiguration $vaultConfiguration
@@ -186,5 +184,17 @@ final class UpdateVaultConfiguration
 
         return $existingVaultConfiguration !== null
             && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId();
+    }
+
+    private function updateVaultConfiguration(
+        UpdateVaultConfigurationRequest $request,
+        VaultConfiguration $vaultConfiguration
+    ) {
+        $vaultConfiguration->setName($request->name);
+        $vaultConfiguration->setAddress($request->address);
+        $vaultConfiguration->setStorage($request->storage);
+        $vaultConfiguration->setPort($request->port);
+        $vaultConfiguration->setNewRoleId($request->roleId);
+        $vaultConfiguration->setNewSecretId($request->secretId);
     }
 }

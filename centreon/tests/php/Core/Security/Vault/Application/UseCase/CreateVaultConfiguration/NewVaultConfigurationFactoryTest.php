@@ -88,8 +88,8 @@ it('should encrypt roleId and secretId correctly', function (): void {
 
     $encryption = $encryption->setSecondKey($newVaultConfiguration->getSalt());
 
-    $roleId = $encryption->decrypt($newVaultConfiguration->getRoleId());
-    $secretId = $encryption->decrypt($newVaultConfiguration->getSecretId());
+    $roleId = $encryption->decrypt($newVaultConfiguration->getEncryptedRoleId());
+    $secretId = $encryption->decrypt($newVaultConfiguration->getEncryptedSecretId());
 
     expect($roleId)->toBe($createVaultConfigurationRequest->roleId);
     expect($secretId)->toBe($createVaultConfigurationRequest->secretId);

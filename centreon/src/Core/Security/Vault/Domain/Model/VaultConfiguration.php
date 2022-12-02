@@ -23,15 +23,25 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
-use Assert\AssertionFailedException;
 use Security\Interfaces\EncryptionInterface;
 
 /**
  * This class represents already existing vault configuration.
  */
-class VaultConfiguration extends NewVaultConfiguration
+class VaultConfiguration
 {
     private int $id;
+    private EncryptionInterface $encryption;
+    private string $name;
+    private Vault $vault;
+    private string $address;
+    private int $port;
+    private string $storage;
+    private ?string $secretId;
+    private ?string $roleId;
+    private string $salt;
+    private string $encryptedRoleId;
+    private string $encryptedSecretId;
 
     /**
      * @param EncryptionInterface $encryption
@@ -41,10 +51,11 @@ class VaultConfiguration extends NewVaultConfiguration
      * @param string $address
      * @param int $port
      * @param string $storage
-     * @param string $unencryptedRoleId
-     * @param string $unencryptedSecretId
+     * @param string $salt
+     * @param string $encryptedRoleId
+     * @param string $encryptedSecretId
      *
-     * @throws AssertionFailedException
+     * @throws \Exception
      */
     public function __construct(
         EncryptionInterface $encryption,
@@ -54,20 +65,20 @@ class VaultConfiguration extends NewVaultConfiguration
         string $address,
         int $port,
         string $storage,
-        string $unencryptedRoleId,
-        string $unencryptedSecretId
+        string $salt,
+        string $encryptedRoleId,
+        string $encryptedSecretId
     ) {
         $this->id = $id;
-        parent::__construct(
-            $encryption,
-            $name,
-            $vault,
-            $address,
-            $port,
-            $storage,
-            $unencryptedRoleId,
-            $unencryptedSecretId
-        );
+        $this->encryption = $encryption;
+        $this->name = $name;
+        $this->vault = $vault;
+        $this->address = $address;
+        $this->port = $port;
+        $this->storage = $storage;
+        $this->encryptedSecretId = $encryptedSecretId;
+        $this->encryptedRoleId = $encryptedRoleId;
+        $this->salt = $salt;
     }
 
     /**
@@ -76,5 +87,145 @@ class VaultConfiguration extends NewVaultConfiguration
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return string|null
+     * @throws \Exception
+     */
+    public function getRoleId(): ?string
+    {
+        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
+    }
+
+    /**
+     * @return string|null
+     * @throws \Exception
+     */
+    public function getSecretId(): ?string
+    {
+        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorage(): string
+    {
+        return $this->storage;
+    }
+
+    /**
+     * @return Vault
+     */
+    public function getVault(): Vault
+    {
+        return $this->vault;
+    }
+
+    /**
+     * @param string|null $secretId
+     * @throws \Exception
+     */
+    public function setNewSecretId(?string $secretId): void
+    {
+        $this->secretId = $this->encryption->setSecondKey($this->salt)->crypt($secretId);
+    }
+
+    /**
+     * @param string|null $roleId
+     * @throws \Exception
+     */
+    public function setNewRoleId(?string $roleId): void
+    {
+        $this->roleId = $this->encryption->setSecondKey($this->salt)->crypt($roleId);
+    }
+
+    /**
+     * @return string
+     */
+    public function getEncryptedRoleId(): string
+    {
+        return $this->encryptedRoleId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEncryptedSecretId(): string
+    {
+        return $this->encryptedSecretId;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @param int $port
+     */
+    public function setPort(int $port): void
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * @param string $storage
+     */
+    public function setStorage(string $storage): void
+    {
+        $this->storage = $storage;
+    }
+
+    /**
+     * @param string|null $secretId
+     */
+    public function setSecretId(?string $secretId): void
+    {
+        $this->secretId = $secretId;
+    }
+
+    /**
+     * @param string|null $roleId
+     */
+    public function setRoleId(?string $roleId): void
+    {
+        $this->roleId = $roleId;
     }
 }

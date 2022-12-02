@@ -145,7 +145,6 @@ final class FindVaultConfiguration
         $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
         $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();
         $findVaultConfigurationResponse->vaultConfiguration['storage'] = $vaultConfiguration->getStorage();
-        $findVaultConfigurationResponse->vaultConfiguration['role_id'] = $vaultConfiguration->getRoleId();
 
         return $findVaultConfigurationResponse;
     }

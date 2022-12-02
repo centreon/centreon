@@ -119,8 +119,7 @@ final class FindVaultConfigurations
                 'vault_id' => $vaultConfiguration->getVault()->getId(),
                 'url' => $vaultConfiguration->getAddress(),
                 'port' => $vaultConfiguration->getPort(),
-                'storage' => $vaultConfiguration->getStorage(),
-                'role_id' => $vaultConfiguration->getRoleId()
+                'storage' => $vaultConfiguration->getStorage()
             ],
             $vaultConfigurations
         );

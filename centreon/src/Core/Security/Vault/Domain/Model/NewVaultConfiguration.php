@@ -38,9 +38,9 @@ class NewVaultConfiguration
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
 
-    protected string $secretId;
+    protected string $encryptedSecretId;
 
-    protected string $roleId;
+    protected string $encryptedRoleId;
 
     protected string $salt;
 
@@ -80,8 +80,8 @@ class NewVaultConfiguration
         Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
         Assertion::maxLength($unencryptedSecretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
         $this->salt = $this->encryption->generateRandomString(NewVaultConfiguration::SALT_LENGTH);
-        $this->secretId = $this->crypt($unencryptedSecretId, $this->salt);
-        $this->roleId = $this->crypt($unencryptedRoleId, $this->salt);
+        $this->encryptedSecretId = $this->crypt($unencryptedSecretId, $this->salt);
+        $this->encryptedRoleId = $this->crypt($unencryptedRoleId, $this->salt);
     }
 
     /**
@@ -127,17 +127,17 @@ class NewVaultConfiguration
     /**
      * @return string
      */
-    public function getRoleId(): string
+    public function getEncryptedRoleId(): string
     {
-        return $this->roleId;
+        return $this->encryptedRoleId;
     }
 
     /**
      * @return string
      */
-    public function getSecretId(): string
+    public function getEncryptedSecretId(): string
     {
-        return $this->secretId;
+        return $this->encryptedSecretId;
     }
 
     /**
