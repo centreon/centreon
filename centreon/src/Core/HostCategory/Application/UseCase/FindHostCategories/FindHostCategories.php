@@ -26,6 +26,7 @@ namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
@@ -41,6 +42,7 @@ class FindHostCategories
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
+        private RequestParametersInterface $requestParameters,
         private ContactInterface $user
     ) {
     }
@@ -49,7 +51,7 @@ class FindHostCategories
     {
         try {
             if ($this->user->isAdmin()) {
-                $hostCategories = $this->readHostCategoryRepository->findAll();
+                $hostCategories = $this->readHostCategoryRepository->findAll($this->requestParameters);
             } else {
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
@@ -67,7 +69,10 @@ class FindHostCategories
 
                 $this->debug('User is not admin, use ACLs to retrieve host groups', ['user' => $this->user->getName()]);
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups($accessGroups);
+                $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups(
+                    $accessGroups,
+                    $this->requestParameters
+                );
             }
 
             $presenter->present($this->createResponse($hostCategories));

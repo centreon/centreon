@@ -25,6 +25,7 @@ namespace Tests\Core\HostCategory\Application\UseCase\FindHostCategories;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -37,7 +38,15 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 beforeEach(function () {
     $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->usecase = new FindHostCategories(
+        $this->hostCategoryRepository,
+        $this->accessGroupRepository,
+        $this->requestParameters,
+        $this->user
+    );
+    $this->presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
     $this->hostCategoryName = 'hc-name';
     $this->hostCategoryAlias = 'hc-alias';
     $this->hostCategory = new HostCategory(1, $this->hostCategoryName, $this->hostCategoryAlias);
@@ -49,13 +58,6 @@ beforeEach(function () {
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new FindHostCategories(
-        $this->hostCategoryRepository,
-        $this->accessGroupRepository,
-        $this->user
-    );
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -65,22 +67,15 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('findAll')
         ->willThrowException(new \Exception());
 
-    $useCase($presenter);
+    ($this->usecase)($this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe('Error while searching for host categories');
 });
 
 it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
-    $useCase = new FindHostCategories(
-        $this->hostCategoryRepository,
-        $this->accessGroupRepository,
-        $this->user
-    );
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -95,22 +90,15 @@ it('should present an ForbiddenResponse when a non-admin user has unsufficient r
             ]
         );
 
-    $useCase($presenter);
+    ($this->usecase)($this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe('You are not allowed to access host categories');
 });
 
 it('should present a FindHostGroupsResponse when a non-admin user has read only rights', function (): void {
-    $useCase = new FindHostCategories(
-        $this->hostCategoryRepository,
-        $this->accessGroupRepository,
-        $this->user
-    );
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -129,22 +117,15 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
         ->method('findAllByAccessGroups')
         ->willReturn([$this->hostCategory]);
 
-    $useCase($presenter);
+    ($this->usecase)($this->presenter);
 
-    expect($presenter->response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($presenter->response->hostCategories[0])
+        ->and($this->presenter->response->hostCategories[0])
         ->toBe($this->responseArray);
 });
 
 it('should present a FindHostGroupsResponse when a non-admin user has read/write rights', function (): void {
-    $useCase = new FindHostCategories(
-        $this->hostCategoryRepository,
-        $this->accessGroupRepository,
-        $this->user
-    );
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -163,23 +144,16 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
         ->method('findAllByAccessGroups')
         ->willReturn([$this->hostCategory]);
 
-    $useCase($presenter);
+    ($this->usecase)($this->presenter);
 
-    expect($presenter->response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($presenter->response->hostCategories[0])
+        ->and($this->presenter->response->hostCategories[0])
         ->toBe($this->responseArray);
 });
 
 
 it('should present a FindHostCategoriesResponse with admin user', function () {
-    $useCase = new FindHostCategories(
-        $this->hostCategoryRepository,
-        $this->accessGroupRepository,
-        $this->user
-    );
-    $presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -189,10 +163,10 @@ it('should present a FindHostCategoriesResponse with admin user', function () {
         ->method('findAll')
         ->willReturn([$this->hostCategory]);
 
-    $useCase($presenter);
+    ($this->usecase)($this->presenter);
 
-    expect($presenter->response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($presenter->response->hostCategories[0])
+        ->and($this->presenter->response->hostCategories[0])
         ->toBe($this->responseArray);
 });

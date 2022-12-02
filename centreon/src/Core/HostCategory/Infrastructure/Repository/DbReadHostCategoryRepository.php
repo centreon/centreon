@@ -24,103 +24,43 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Utility\SqlConcatenator;
 
 class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements ReadHostCategoryRepositoryInterface
 {
     // TODO : update abstract with AbstractRepositoryRDB (cf. PR Laurent)
     use LoggerTrait;
 
-    /** @var SqlRequestParametersTranslator */
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
-        $this->sqlRequestTranslator->setConcordanceArray([
-            'id' => 'hc.hc_id',
-            'name' => 'hc.hc_name',
-            'alias' => 'hc.hc_alias',
-            // TODO : add search by is enabled or not ? with default is being enabled
-        ]);
     }
 
     /**
      * @inheritDoc
      */
-    public function findAll(): array
+    public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all host categories');
 
-        $request = $this->translateDbName(
-            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc'
-        );
-
-        // Search
-        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $request .= "hc.level IS NULL ";
-
-        // Sort
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY hc.hc_id';
-
-        // Pagination
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
-
-        $statement = $this->db->prepare($request);
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        $statement->execute();
-
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        $hostCategories = [];
-        if ($statement === false) {
-            return $hostCategories;
-        }
-        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $hostCategories[] = new HostCategory(
-                $result['hc_id'],
-                $result['hc_name'],
-                $result['hc_alias']
-            );
-        }
-
-        return $hostCategories;
+        return $this->findAllRequest(null, $requestParameters);
     }
 
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(array $accessGroups): array
+    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all host categories by access groups');
 
-        if (empty($accessGroups)) {
-            $this->debug('No host category ids, return empty');
+        if ($accessGroups === []) {
+            $this->debug('No access group for this user, return empty');
             return [];
         }
 
@@ -129,74 +69,73 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $accessGroups
         );
 
-        $request = $this->translateDbName(
-            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
-            FROM `:db`.hostcategories hc
-            INNER JOIN `:db`.acl_resources_hc_relations arhr
-                ON hc.hc_id = arhr.hc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
-        );
-
-        // Search
-        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $request .= "hc.level IS NULL ";
-        $request .= 'AND ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
-
-        // Sort
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY hc.hc_id';
-
-        // Pagination
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
-
-        $statement = $this->db->prepare($request);
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        $statement->execute();
-
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
         /**
          * TODO :
          *  - in UI :
          *      if acl_resources_hc_relations is empty
          *      then by default access to ALL
          *      else access to only ones listed in acl_resources_hc_relations
-         *  - in old API:
-         *      if acl_resources_hc_relations is empty
-         *      then by default access to NONE
-         *      else access to only ones listed in acl_resources_hc_relations
-         *  - in clapi :
-         *      if acl_resources_hc_relations is empty
-         *      then ???
-         *      else ???
-         *
-         *  check if current behavior is OK, compared to UI results
          */
 
-        // If user is not admin AND total result by access groups is zero then ALL categories are accessible
-        if ($this->sqlRequestTranslator->getRequestParameters()->getTotal() === 0) {
-            return $this->findAll();
+        // if host categories are not filtered, then user has access to ALL host categories
+        $accessGroupIds = $this->hasRestrictedAccessToHostCategories($accessGroupIds) ? $accessGroupIds : null;
+
+        return $this->findAllRequest($accessGroupIds, $requestParameters);
+    }
+
+    /**
+     * @param int[]|null $accessGroupIds
+     * @param RequestParametersInterface|null $requestParameters
+     * @return HostCategory[]
+     */
+    private function findAllRequest(?array $accessGroupIds, ?RequestParametersInterface $requestParameters): array
+    {
+        $concat = new SqlConcatenator();
+
+        if ($accessGroupIds === null) {
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
+                FROM `:db`.hostcategories hc';
+        } else {
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
+                FROM `:db`.hostcategories hc
+                INNER JOIN `:db`.acl_resources_hc_relations arhr
+                    ON hc.hc_id = arhr.hc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id';
+
+            $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+                ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
         }
+        $concat->appendWhere('hc.level IS NULL');
+
+        if ( ! $requestParameters?->hasSearchParameter('is_activated')) {
+            $concat->appendWhere("hc.hc_activate = '1'");
+        }
+
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'hc.hc_id',
+            'alias' => 'hc.hc_alias',
+            'name' => 'hc.hc_name',
+            'is_activated' => 'hc.hc_activate'
+        ]);
+        $sqlTranslator?->translateForConcatenator($concat);
+
+        $ret = $sqlTranslator->getSearchValues();
+
+        $statement = $this->db->prepare($this->translateDbName($query . ' ' . $concat));
+
+        $sqlTranslator?->bindSearchValues($statement);
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->execute();
+
+        $sqlTranslator?->calculateNumberOfRows($this->db);
 
         $hostCategories = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
@@ -208,5 +147,47 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $hostCategories;
+    }
+
+    /**
+     * Determine if host cateogries are filtered for given access group ids
+     * true: accessible host categories are filtered
+     * false: accessible host categories are not filtered
+     *
+     * @param int[] $accessGroupIds
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $concat = new SqlConcatenator();
+
+        $query = 'SELECT COUNT(arhr.hc_id)
+            FROM `:db`.acl_resources_hc_relations arhr
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id';
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($query . ' ' . $concat));
+
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->execute();
+        $result = $statement->fetchColumn();
+
+        return ($result === false || $result >= 1);
+    }
+
+
+    private function isActivationStatusSpecified(array $searchParameters): bool
+    {
+
+        return false;
     }
 }

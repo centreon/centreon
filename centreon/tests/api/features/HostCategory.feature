@@ -41,7 +41,7 @@ Feature:
     """
     HC;ADD;host-cat1;host-cat1-alias
     HC;ADD;host-cat2;host-cat2-alias
-    CONTACT;ADD;ala;ala;ala@localhost;Centreon@2022;0;1;en_US;local
+    CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
     ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories

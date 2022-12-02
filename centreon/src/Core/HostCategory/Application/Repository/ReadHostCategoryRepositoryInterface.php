@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -31,15 +32,17 @@ interface ReadHostCategoryRepositoryInterface
     /**
      * Find all host categories
      *
+     * @param RequestParametersInterface|null $requestParameters
      * @return HostCategory[]
      */
-    public function findAll(): array;
+    public function findAll(?RequestParametersInterface $requestParameters): array;
 
     /**
      * Find all host categories by access groups
      *
      * @param AccessGroup[] $accessGroups
+     * @param RequestParametersInterface|null $requestParameters
      * @return HostCategory[]
      */
-    public function findAllByAccessGroups(array $accessGroups): array;
+    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
 }
