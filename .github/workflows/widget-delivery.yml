@@ -35,6 +35,7 @@ jobs:
       matrix:
         distrib: [el7, el8]
 
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -42,7 +43,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
+          module_name: ${{ inputs.widget_name }}
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
