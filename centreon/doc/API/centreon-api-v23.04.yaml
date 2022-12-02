@@ -272,9 +272,16 @@ paths:
     get:
       tags:
         - Host category
-      summary: "List all host categories"
+      summary: "List host categories"
       description: |
-        List of all host category configurations
+        List of host category configurations
+        (by default filter on activated host categories)
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * alias
+        * is_activated
       responses:
         "200":
           description: "OK"
