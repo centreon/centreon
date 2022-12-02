@@ -117,6 +117,11 @@ runs:
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
+
+        # This makes shure that widget pkgs end up in the same dir as non widgets
+        if [[ $MODULE_BASENAME = "centreon-widget"* ]]; then
+          find / -name "*centreon-widget*.deb" -exec mv {} ../../ \;
+        fi
       shell: bash
 
     - name: Upload package artifacts
