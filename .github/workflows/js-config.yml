@@ -2,15 +2,7 @@ name: centreon-js-config
 
 on:
   pull_request:
-    types: 
-      - labeled
-      - unlabeled
-      - synchronize
-      - opened
-      - edited
-      - ready_for_review
-      - reopened
-      - unlocked
+    types:
       - closed
     paths:
       - ".github/workflows/js-config.yml"
@@ -41,9 +33,7 @@ jobs:
 
       - name: test
         run: |
-          echo ${{ github.base_ref }}
-          echo ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
-          echo ${{ github.event.pull_request.base.ref }}
+          echo ${{ github.event.pull_request }}
 
   check-package-version:
     runs-on: ubuntu-22.04
