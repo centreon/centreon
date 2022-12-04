@@ -3,9 +3,15 @@ name: centreon-js-config
 on:
   pull_request:
     types: 
-      - closed
+      - labeled
+      - unlabeled
+      - synchronize
       - opened
       - edited
+      - ready_for_review
+      - reopened
+      - unlocked
+      - closed
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
