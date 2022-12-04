@@ -7,6 +7,8 @@ on:
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
+    branches:
+      - develop
 
 env:
   directory: "centreon/packages/js-config"
