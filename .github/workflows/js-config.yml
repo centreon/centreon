@@ -2,7 +2,10 @@ name: centreon-js-config
 
 on:
   pull_request:
-    types: [closed]
+    types: 
+      - closed
+      - opened
+      - edited
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
