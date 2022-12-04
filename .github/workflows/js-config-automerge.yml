@@ -11,7 +11,7 @@ on:
       - reopened
       - unlocked
     paths:
-      - ".github/workflows/js-config.yml"
+      - ".github/workflows/js-config-automerge.yml"
       - "centreon/packages/js-config/**"
   check_suite:
     types:
