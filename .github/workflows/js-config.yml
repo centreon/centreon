@@ -2,15 +2,7 @@ name: centreon-js-config
 
 on:
   pull_request:
-    types: 
-      - labeled
-      - unlabeled
-      - synchronize
-      - opened
-      - edited
-      - ready_for_review
-      - reopened
-      - unlocked
+    types:
       - closed
     paths:
       - ".github/workflows/js-config.yml"
@@ -25,25 +17,19 @@ env:
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
-    # if: ${{ github.event.pull_request.merged == true && github.base_ref == env.base_branch && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+    if: ${{ github.event.pull_request.merged == true && github.base_ref == env.base_branch && !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
-      # - uses: ./.github/actions/npm-publish
-      #   with:
-      #     directory: ${{ env.directory }}
-      #     pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-      #     npm_token: ${{ secrets.NPM_TOKEN }}
-      #     package: ${{ env.package }}
-
-      - name: test
-        run: |
-          echo ${{ github.base_ref }}
-          echo ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
-          echo ${{ github.event.pull_request }}
+      - uses: ./.github/actions/npm-publish
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.package }}
 
   check-package-version:
     runs-on: ubuntu-22.04
