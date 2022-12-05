@@ -59,7 +59,7 @@ class HostCategoryConfigurationContext extends CentreonContext
         'host_templates' => 'hostTemplate2Name',
         'severity' => 1,
         'severity_level' => 3,
-        'severity_icon' => '       centreon (png)',
+        'severity_icon' => 'centreon (png)',
         'enabled' => 0,
         'comments' => 'hostCategoryCommentChanged'
     );

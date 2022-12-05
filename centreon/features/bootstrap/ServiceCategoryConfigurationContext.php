@@ -30,7 +30,7 @@ class ServiceCategoryConfigurationContext extends CentreonContext
         'template' => 'Ping-WAN',
         'severity' => 1,
         'level' => '3',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'status' => 0
     );
 

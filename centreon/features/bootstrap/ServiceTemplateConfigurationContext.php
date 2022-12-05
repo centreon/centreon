@@ -21,7 +21,7 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'description' => 'serviceCategory1Description',
         'severity' => 1,
         'level' => 3,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $serviceCategory2 = array(
@@ -29,7 +29,7 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'description' => 'serviceCategory2Description',
         'severity' => 1,
         'level' => 2,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $initialProperties = array(
@@ -83,7 +83,7 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
         'status' => 1,
@@ -141,7 +141,7 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
         'status' => 1,

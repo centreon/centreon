@@ -56,7 +56,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'description' => 'serviceCategoryDescription',
         'severity' => 1,
         'level' => 12,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $serviceGroup = array(
@@ -136,7 +136,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -198,7 +198,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -260,7 +260,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',

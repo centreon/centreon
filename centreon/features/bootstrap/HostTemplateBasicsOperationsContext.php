@@ -14,7 +14,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'alias' => 'hostCategory1Alias',
         'severity' => 1,
         'severity_level' => 2,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory2 = array(
@@ -22,7 +22,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'alias' => 'hostCategory2Alias',
         'severity' => 1,
         'severity_level' => 13,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory3 = array(
@@ -89,7 +89,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'url' => 'hostTemplateChangeUrl',
         'notes' => 'hostTemplateChangeNotes',
         'action_url' => 'hostTemplateChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostTemplateChangeIcon',
         'status_map_image' => '',
         '2d_coords' => '15,84',
@@ -153,7 +153,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'url' => 'hostTemplateChangeUrl',
         'notes' => 'hostTemplateChangeNotes',
         'action_url' => 'hostTemplateChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostTemplateChangeIcon',
         'status_map_image' => '',
         '2d_coords' => '15,84',
@@ -219,7 +219,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'action_url' => 'hostTemplateChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostTemplateChangeIconChanged',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         '2d_coords' => '48,29',
         '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',
@@ -284,7 +284,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'action_url' => 'hostTemplateChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostTemplateChangeIconChanged',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         '2d_coords' => '48,29',
         '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',

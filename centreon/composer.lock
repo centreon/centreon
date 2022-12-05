@@ -6570,12 +6570,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "65780385e936250d4cd1b6fddb3138ed500d8fa6"
+                "reference": "cb441ad02d069d3a01173f8c08504163e5f82d72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/65780385e936250d4cd1b6fddb3138ed500d8fa6",
-                "reference": "65780385e936250d4cd1b6fddb3138ed500d8fa6",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cb441ad02d069d3a01173f8c08504163e5f82d72",
+                "reference": "cb441ad02d069d3a01173f8c08504163e5f82d72",
                 "shasum": ""
             },
             "require": {
@@ -6624,7 +6624,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo-panther"
             },
-            "time": "2022-11-25T09:18:30+00:00"
+            "time": "2022-12-05T07:45:27+00:00"
         },
         {
             "name": "composer/pcre",

@@ -15,7 +15,7 @@ class HostGroupServiceConfigurationContext extends CentreonContext
         'description' => 'serviceCategory1Description',
         'severity' => 1,
         'level' => 3,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $serviceCategory2 = array(
@@ -23,7 +23,7 @@ class HostGroupServiceConfigurationContext extends CentreonContext
         'description' => 'serviceCategory2Description',
         'severity' => 1,
         'level' => 2,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $serviceGroup1 = array(
@@ -88,7 +88,7 @@ class HostGroupServiceConfigurationContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -148,7 +148,7 @@ class HostGroupServiceConfigurationContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
         'geo_coordinates' => '2.3522219,48.856614',

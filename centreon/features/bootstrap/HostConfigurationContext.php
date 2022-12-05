@@ -38,7 +38,7 @@ class HostConfigurationContext extends CentreonContext
         'alias' => 'hostCategoryAlias1',
         'severity' => 1,
         'severity_level' => 2,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory2 = array(
@@ -109,7 +109,7 @@ class HostConfigurationContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
         'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -173,7 +173,7 @@ class HostConfigurationContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
         'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -242,7 +242,7 @@ class HostConfigurationContext extends CentreonContext
         'action_url' => 'hostMassiveChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostMassiveChangeIconChanged',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '2,3',
         '3d_coords' => '42,24,66',
