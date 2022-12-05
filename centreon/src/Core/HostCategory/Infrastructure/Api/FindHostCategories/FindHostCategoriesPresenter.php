@@ -25,7 +25,7 @@ namespace Core\HostCategory\Infrastructure\Api\FindHostCategories;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindHostCategoriesPresenter extends AbstractPresenter
@@ -49,7 +49,8 @@ class FindHostCategoriesPresenter extends AbstractPresenter
             $result[] = [
                 'id' => $hostCategory['id'],
                 'name' => $hostCategory['name'],
-                'alias' => $hostCategory['alias']
+                'alias' => $hostCategory['alias'],
+                'is_activated' => $hostCategory['is_activated'] === HostCategory::IS_ACTIVE ? true : false,
             ];
         }
 

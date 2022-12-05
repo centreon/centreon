@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ it('should return properly set host category instance', function () {
 
     expect($hostCategory->getId())->toBe(1)
         ->and($hostCategory->getName())->toBe($this->categoryName)
-        ->and($hostCategory->getAlias())->toBe($this->categoryAlias);
+        ->and($hostCategory->getAlias())->toBe($this->categoryAlias)
+        ->and($hostCategory->isActivated())->toBe(HostCategory::IS_ACTIVE);
 });
 
 it('should throw an exception when host category name is empty', function () {
