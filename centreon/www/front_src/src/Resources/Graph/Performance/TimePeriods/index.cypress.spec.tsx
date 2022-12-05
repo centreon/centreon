@@ -10,7 +10,7 @@ import { equals } from 'ramda';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import { userAtom } from '@centreon/ui-context/src';
+import { userAtom } from '@centreon/ui-context';
 
 import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
