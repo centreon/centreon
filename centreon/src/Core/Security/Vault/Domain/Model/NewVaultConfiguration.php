@@ -80,8 +80,8 @@ class NewVaultConfiguration
         Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
         Assertion::maxLength($unencryptedSecretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
         $this->salt = $this->encryption->generateRandomString(NewVaultConfiguration::SALT_LENGTH);
-        $this->encryptedSecretId = $this->crypt($unencryptedSecretId, $this->salt);
-        $this->encryptedRoleId = $this->crypt($unencryptedRoleId, $this->salt);
+        $this->encryptedSecretId = $this->encrypt($unencryptedSecretId, $this->salt);
+        $this->encryptedRoleId = $this->encrypt($unencryptedRoleId, $this->salt);
     }
 
     /**
@@ -156,7 +156,7 @@ class NewVaultConfiguration
      *
      * @throws \Exception
      */
-    private function crypt(string $unencrypted, string $salt): string
+    private function encrypt(string $unencrypted, string $salt): string
     {
         return $this->encryption
             ->setSecondKey($salt)

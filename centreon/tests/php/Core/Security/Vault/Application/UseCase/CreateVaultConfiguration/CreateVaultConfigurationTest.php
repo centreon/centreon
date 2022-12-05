@@ -76,8 +76,9 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         '127.0.0.1',
         8200,
         'myStorage',
-        'myRoleId',
-        'mySecretId'
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedRoleId'
     );
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -116,8 +117,9 @@ it('should present InvalidArgumentResponse when vault configuration already exis
         '127.0.0.1',
         8200,
         'myStorage',
-        'myRoleId',
-        'mySecretId'
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedRoleId'
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())

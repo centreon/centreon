@@ -177,8 +177,9 @@ it('should present FindVaultConfigurationResponse', function () {
         '127.0.0.1',
         8200,
         'myStorageFolder',
-        'myRoleId',
-        'mySecretId'
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedSecretId'
     );
 
     $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
@@ -210,8 +211,7 @@ it('should present FindVaultConfigurationResponse', function () {
         'vault_id' => $vaultConfiguration->getVault()->getId(),
         'url' => $vaultConfiguration->getAddress(),
         'port' => $vaultConfiguration->getPort(),
-        'storage' => $vaultConfiguration->getStorage(),
-        'role_id' => $vaultConfiguration->getRoleId()
+        'storage' => $vaultConfiguration->getStorage()
     ];
 
     $useCase($presenter, $findVaultConfigurationRequest);

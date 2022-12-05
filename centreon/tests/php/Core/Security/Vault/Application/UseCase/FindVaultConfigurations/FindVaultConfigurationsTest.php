@@ -147,8 +147,9 @@ it('should present FindVaultConfigurationsResponse', function () {
         '127.0.0.1',
         8200,
         'myStorageFolder',
-        'myRoleId',
-        'mySecretId'
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedSecretId'
     );
 
     $this->readVaultConfigurationRepository
@@ -174,8 +175,7 @@ it('should present FindVaultConfigurationsResponse', function () {
             'vault_id' => $vault->getId(),
             'url' => $vaultConfiguration->getAddress(),
             'port' => $vaultConfiguration->getPort(),
-            'storage' => $vaultConfiguration->getStorage(),
-            'role_id' => $vaultConfiguration->getRoleId()
+            'storage' => $vaultConfiguration->getStorage()
         ]
     ];
 

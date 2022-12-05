@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
 
 /**
@@ -30,55 +31,45 @@ use Security\Interfaces\EncryptionInterface;
  */
 class VaultConfiguration
 {
-    private int $id;
-    private EncryptionInterface $encryption;
-    private string $name;
-    private Vault $vault;
-    private string $address;
-    private int $port;
-    private string $storage;
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 255;
+    public const MIN_PORT_VALUE = 1;
+    public const MAX_PORT_VALUE = 65535;
+    public const SALT_LENGTH = 128;
+
     private ?string $secretId;
     private ?string $roleId;
-    private string $salt;
-    private string $encryptedRoleId;
-    private string $encryptedSecretId;
 
     /**
      * @param EncryptionInterface $encryption
-     * @param int $id
+     * @param integer $id
      * @param string $name
      * @param Vault $vault
      * @param string $address
-     * @param int $port
+     * @param integer $port
      * @param string $storage
-     * @param string $salt
      * @param string $encryptedRoleId
      * @param string $encryptedSecretId
+     * @param string $salt
      *
      * @throws \Exception
      */
     public function __construct(
-        EncryptionInterface $encryption,
-        int $id,
+        private EncryptionInterface $encryption,
+        private int $id,
         string $name,
-        Vault $vault,
+        private Vault $vault,
         string $address,
         int $port,
-        string $storage,
-        string $salt,
-        string $encryptedRoleId,
-        string $encryptedSecretId
+        private string $storage,
+        private string $encryptedRoleId,
+        private string $encryptedSecretId,
+        private string $salt
     ) {
-        $this->id = $id;
-        $this->encryption = $encryption;
-        $this->name = $name;
-        $this->vault = $vault;
-        $this->address = $address;
-        $this->port = $port;
-        $this->storage = $storage;
-        $this->encryptedSecretId = $encryptedSecretId;
-        $this->encryptedRoleId = $encryptedRoleId;
-        $this->salt = $salt;
+        $this->setName($name);
+        $this->setAddress($address);
+        $this->setPort($port);
+        $this->setStorage($storage);
     }
 
     /**
@@ -92,51 +83,9 @@ class VaultConfiguration
     /**
      * @return string
      */
-    public function getAddress(): string
-    {
-        return $this->address;
-    }
-
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPort(): int
-    {
-        return $this->port;
-    }
-
-    /**
-     * @return string|null
-     * @throws \Exception
-     */
-    public function getRoleId(): ?string
-    {
-        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
-    }
-
-    /**
-     * @return string|null
-     * @throws \Exception
-     */
-    public function getSecretId(): ?string
-    {
-        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorage(): string
-    {
-        return $this->storage;
     }
 
     /**
@@ -148,21 +97,47 @@ class VaultConfiguration
     }
 
     /**
-     * @param string|null $secretId
-     * @throws \Exception
+     * @return string
      */
-    public function setNewSecretId(?string $secretId): void
+    public function getAddress(): string
     {
-        $this->secretId = $this->encryption->setSecondKey($this->salt)->crypt($secretId);
+        return $this->address;
     }
 
     /**
-     * @param string|null $roleId
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorage(): string
+    {
+        return $this->storage;
+    }
+
+    /**
+     * @return string|null
+     *
      * @throws \Exception
      */
-    public function setNewRoleId(?string $roleId): void
+    public function getRoleId(): ?string
     {
-        $this->roleId = $this->encryption->setSecondKey($this->salt)->crypt($roleId);
+        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
+    }
+
+    /**
+     * @return string|null
+     *
+     * @throws \Exception
+     */
+    public function getSecretId(): ?string
+    {
+        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
     }
 
     /**
@@ -186,6 +161,8 @@ class VaultConfiguration
      */
     public function setName(string $name): void
     {
+        Assertion::minLength($name, self::MIN_LENGTH, 'VaultConfiguration::name');
+        Assertion::maxLength($name, self::MAX_LENGTH, 'VaultConfiguration::name');
         $this->name = $name;
     }
 
@@ -194,6 +171,8 @@ class VaultConfiguration
      */
     public function setAddress(string $address): void
     {
+        Assertion::minLength($address, self::MIN_LENGTH, 'VaultConfiguration::address');
+        Assertion::ipOrDomain($address, 'VaultConfiguration::address');
         $this->address = $address;
     }
 
@@ -202,6 +181,8 @@ class VaultConfiguration
      */
     public function setPort(int $port): void
     {
+        Assertion::max($port, self::MAX_PORT_VALUE, 'VaultConfiguration::port');
+        Assertion::min($port, self::MIN_PORT_VALUE, 'VaultConfiguration::port');
         $this->port = $port;
     }
 
@@ -210,7 +191,17 @@ class VaultConfiguration
      */
     public function setStorage(string $storage): void
     {
+        Assertion::minLength($storage, self::MIN_LENGTH, 'VaultConfiguration::storage');
+        Assertion::maxLength($storage, self::MAX_LENGTH, 'VaultConfiguration::storage');
         $this->storage = $storage;
+    }
+
+    /**
+     * @param string|null $roleId
+     */
+    public function setRoleId(?string $roleId): void
+    {
+        $this->roleId = $roleId;
     }
 
     /**
@@ -223,9 +214,25 @@ class VaultConfiguration
 
     /**
      * @param string|null $roleId
+     *
+     * @throws \Exception
      */
-    public function setRoleId(?string $roleId): void
+    public function setNewRoleId(?string $roleId): void
     {
-        $this->roleId = $roleId;
+        Assertion::minLength($roleId, self::MIN_LENGTH, 'VaultConfiguration::roleId');
+        Assertion::maxLength($roleId, self::MAX_LENGTH, 'VaultConfiguration::roleId');
+        $this->encryptedRoleId = $this->encryption->setSecondKey($this->salt)->crypt($roleId);
+    }
+
+    /**
+     * @param string|null $secretId
+     *
+     * @throws \Exception
+     */
+    public function setNewSecretId(?string $secretId): void
+    {
+        Assertion::minLength($secretId, self::MIN_LENGTH, 'VaultConfiguration::secretId');
+        Assertion::maxLength($secretId, self::MAX_LENGTH, 'VaultConfiguration::secretId');
+        $this->encryptedSecretId = $this->encryption->setSecondKey($this->salt)->crypt($secretId);
     }
 }

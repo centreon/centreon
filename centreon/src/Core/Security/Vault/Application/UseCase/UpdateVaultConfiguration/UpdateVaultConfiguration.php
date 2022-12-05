@@ -51,14 +51,12 @@ final class UpdateVaultConfiguration
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
      * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
      * @param ReadVaultRepositoryInterface $readVaultRepository
-     * @param VaultConfigurationFactory $vaultConfigurationFactory
      * @param ContactInterface $user
      */
     public function __construct(
         private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private ReadVaultRepositoryInterface $readVaultRepository,
-        private VaultConfigurationFactory $vaultConfigurationFactory,
         private ContactInterface $user
     ) {
     }
@@ -89,6 +87,7 @@ final class UpdateVaultConfiguration
 
                 return;
             }
+
             $vaultConfiguration = $this->readVaultConfigurationRepository->findById($request->vaultConfigurationId);
             if ($vaultConfiguration === null) {
                 $this->error(
@@ -186,6 +185,10 @@ final class UpdateVaultConfiguration
             && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId();
     }
 
+    /**
+     * @param UpdateVaultConfigurationRequest $request
+     * @param VaultConfiguration $vaultConfiguration
+     */
     private function updateVaultConfiguration(
         UpdateVaultConfigurationRequest $request,
         VaultConfiguration $vaultConfiguration

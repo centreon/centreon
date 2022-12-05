@@ -194,8 +194,9 @@ it('should present NoContentResponse when vault configuration is deleted with su
         '127.0.0.2',
         8201,
         'myStorageFolder',
-        'myRoleId',
-        'mySecretId',
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedSecretId',
     );
     $this->readVaultConfigurationRepository
         ->expects($this->once())
