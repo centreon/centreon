@@ -230,7 +230,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       );
     };
 
-    public chunk = ({ array, size }: Chunk): Array<unknown> => {
+    public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
       if (!array.length) {
         return [];
       }
