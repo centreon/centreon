@@ -33,7 +33,7 @@ const days = [
 
 const date = '2023-02-01T12:59:41.041Z';
 const timeZoneParis = 'Europe/Paris';
-const Months2023 = [
+const months2023 = [
   {
     January: {
       firstDay: { day: days[0], value: 1 },
