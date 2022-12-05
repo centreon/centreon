@@ -101,8 +101,8 @@ Cypress.Commands.add(
     return cy
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
-        cy.get('#username').clear().type(credential.login);
-        cy.get('#password').clear().type(credential.password);
+        cy.get('#username').type(credential.login);
+        cy.get('#password').type(credential.password);
       })
       .get('#kc-login')
       .click();
