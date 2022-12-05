@@ -294,7 +294,7 @@ Then('user can not change password unless the minimum time has passed', () => {
   cy.getRefreshDataOnIframe()
     .getIframeBody()
     .find('#Form')
-    .find('#tab1 #passwd1')
+    .find('#tab1')
     .parent()
     .contains(
       "You can't change your password because the delay before changing password is not over."
@@ -324,10 +324,12 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait('@getTimeZone')
+  cy.getRefreshDataOnIframe().getIframeBody().find('#Form').find('#tab1');
+
+  cy.getRefreshDataOnIframe()
     .getIframeBody()
-    .find('form')
-    .find('#tab1 #passwd1')
+    .find('#Form')
+    .find('#tab1')
     .parent()
     .contains(
       'Your password has already been used. Please choose a different password from the previous three.'
