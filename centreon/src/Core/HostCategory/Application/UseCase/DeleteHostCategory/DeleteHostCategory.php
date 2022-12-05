@@ -53,8 +53,11 @@ class DeleteHostCategory
         try {
             if ($this->user->isAdmin()) {
                 if (! $this->doesHostCategoryExist($hostCategoryId)) {
+                    $this->error('Host category not found', [
+                        'hostcategory_id' => $hostCategoryId,
+                    ]);
                     $presenter->setResponseStatus(
-                        new NotFoundResponse('Host category with id #' . $hostCategoryId)
+                        new NotFoundResponse('Host category')
                     );
 
                     return;
@@ -66,7 +69,7 @@ class DeleteHostCategory
                         'user_id' => $this->user->getId(),
                     ]);
                     $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to access host categories')
+                        new ForbiddenResponse('You are not allowed to delete host categories')
                     );
 
                     return;
@@ -75,8 +78,12 @@ class DeleteHostCategory
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
 
                 if (! $this->doesHostCategoryExist($hostCategoryId, $accessGroups)) {
+                    $this->error('Host category not found', [
+                        'hostcategory_id' => $hostCategoryId,
+                        'accessgroups' => $accessGroups
+                    ]);
                     $presenter->setResponseStatus(
-                        new NotFoundResponse('Host category with id #' . $hostCategoryId)
+                        new NotFoundResponse('Host category')
                     );
 
                     return;
@@ -87,7 +94,7 @@ class DeleteHostCategory
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $th) {
-            $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category #' . $hostCategoryId));
+            $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category'));
             // TODO : translate error messages
             $this->error($th->getMessage());
         }
