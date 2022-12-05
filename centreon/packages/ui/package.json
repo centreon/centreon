@@ -5,11 +5,12 @@
   "main": "src",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "pnpm run eslint --fix",
+    "eslint:fix": "pnpm eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
-    "test:storyshot": "pnpm test storyshots.test.js --story"
+    "test:storyshot": "node testRunner.js storyshots.test.js",
+    "test:ci": "node testRunner.js --silent --reporter=jest-junit"
   },
   "sideEffects": false,
   "repository": {
@@ -51,5 +52,9 @@
     "humanize-duration": "^3.27.3",
     "notistack": "^2.0.8",
     "ulog": "^2.0.0-beta.19"
+  },
+  "jest-junit": {
+    "suiteName": "jest tests",
+    "output": "./junit.xml"
   }
 }

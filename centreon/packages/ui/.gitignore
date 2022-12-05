@@ -31,5 +31,4 @@ yarn-debug.log*
 yarn-error.log*
 
 .out/
-
 junit.xml
