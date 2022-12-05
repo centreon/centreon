@@ -149,7 +149,7 @@ Then(
     cy.getRefreshDataOnIframe()
       .getIframeBody()
       .find('#Form')
-      .find('#tab1 #passwd1')
+      .find('#tab1')
       .parent()
       .contains(
         "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
