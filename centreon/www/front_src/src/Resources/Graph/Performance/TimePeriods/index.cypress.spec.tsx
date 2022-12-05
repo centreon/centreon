@@ -89,7 +89,7 @@ describe('calendar', () => {
     cy.get('[role="rowgroup"]')
       .children()
       .each(($week, indexWeek, $listWeeks) => {
-        if (indexWeek === 0) {
+        if (equals(indexWeek, 0)) {
           cy.wrap($listWeeks[indexWeek])
             .children()
             .each(($elementDays, indexDays, $listDays) => {
