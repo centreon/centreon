@@ -89,6 +89,20 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  'loginKeycloack',
+  (jsonName: string): Cypress.Chainable => {
+    return cy
+      .fixture(`users/${jsonName}.json`)
+      .then((credential) => {
+        cy.get('#username').type(credential.login);
+        cy.get('#password').type(credential.password);
+      })
+      .get('#kc-login')
+      .click();
+  }
+);
+
+Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
     return cy
@@ -236,6 +250,7 @@ declare global {
         jsonName = 'admin',
         preserveToken = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
+      loginKeycloack: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
       navigateTo: ({
         page,
