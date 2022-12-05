@@ -72,7 +72,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('Error while deleting host category #' . $this->hostCategoryId);
+        ->toBe('Error while deleting host category');
 });
 
 it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
@@ -98,7 +98,7 @@ it('should present an ForbiddenResponse when a non-admin user has unsufficient r
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('You are not allowed to access host categories');
+        ->toBe('You are not allowed to delete host categories');
 });
 
 it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
@@ -124,7 +124,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('Host category with id #' . $this->hostCategoryId . ' not found');
+        ->toBe('Host category not found');
 });
 
 it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function () {
@@ -154,7 +154,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('Host category with id #' . $this->hostCategoryId . ' not found');
+        ->toBe('Host category not found');
 });
 
 it('should present a NoContentResponse on success (with admin user)', function () {
