@@ -275,7 +275,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait('@getTimeZone')
+  cy.getRefreshDataOnIframe()
     .getIframeBody()
     .find('#Form')
     .find('#validForm input[name="change"]')
