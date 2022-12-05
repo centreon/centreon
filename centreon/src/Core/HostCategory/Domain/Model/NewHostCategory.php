@@ -29,6 +29,10 @@ class NewHostCategory
 {
     public const MAX_NAME_LENGTH = 200,
                 MAX_ALIAS_LENGTH = 200;
+    public const IS_ACTIVE = '1',
+                IS_INACTIVE = '0';
+
+    protected string $isActivated = self::IS_ACTIVE;
 
     public function __construct(
         protected string $name,
@@ -48,5 +52,16 @@ class NewHostCategory
     public function getAlias(): string
     {
         return $this->alias;
+    }
+
+    public function isActivated(): string
+    {
+        return $this->isActivated;
+    }
+
+    public function setActivated(string $isActivated): void
+    {
+        Assertion::inArray($isActivated, [self::IS_ACTIVE, self::IS_INACTIVE], 'HostCategory::isActivated');
+        $this->isActivated = $isActivated === self::IS_ACTIVE ? true : false;
     }
 }

@@ -96,7 +96,8 @@ class FindHostCategories
             $response->hostCategories[] = [
                 'id' => $hostCategory->getId(),
                 'name' => $hostCategory->getName(),
-                'alias' => $hostCategory->getAlias()
+                'alias' => $hostCategory->getAlias(),
+                'is_activated' => $hostCategory->isActivated()
             ];
         }
 

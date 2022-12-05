@@ -23,7 +23,8 @@ Feature:
             {
                 "id": 1,
                 "name": "host-cat1",
-                "alias": "host-cat1-alias"
+                "alias": "host-cat1-alias",
+                "is_activated": true
             }
         ],
         "meta": {
@@ -63,7 +64,8 @@ Feature:
             {
                 "id": 2,
                 "name": "host-cat2",
-                "alias": "host-cat2-alias"
+                "alias": "host-cat2-alias",
+                "is_activated": true
             }
         ],
         "meta": {

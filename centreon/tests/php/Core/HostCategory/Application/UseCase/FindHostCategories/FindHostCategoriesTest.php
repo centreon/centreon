@@ -53,7 +53,8 @@ beforeEach(function () {
     $this->responseArray = [
         'id' => 1,
         'name' => $this->hostCategoryName,
-        'alias' => $this->hostCategoryAlias
+        'alias' => $this->hostCategoryAlias,
+        'is_activated' => '1'
     ];
 });
 

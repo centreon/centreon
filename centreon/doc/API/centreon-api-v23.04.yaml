@@ -5266,6 +5266,10 @@ components:
           type: string
           description: "Host category alias"
           example: "host-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enable/disable)
+          example: true
     Configuration.Host.Severity:
       type: object
       properties:

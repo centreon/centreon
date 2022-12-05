@@ -94,10 +94,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $concat = new SqlConcatenator();
 
         if ($accessGroupIds === null) {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate
                 FROM `:db`.hostcategories hc';
         } else {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate
                 FROM `:db`.hostcategories hc
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
                     ON hc.hc_id = arhr.hc_id
@@ -112,10 +112,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
                 ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
         }
         $concat->appendWhere('hc.level IS NULL');
-
-        if ( ! $requestParameters?->hasSearchParameter('is_activated')) {
-            $concat->appendWhere("hc.hc_activate = '1'");
-        }
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
@@ -139,11 +135,13 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $hostCategories = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $hostCategories[] = new HostCategory(
+            $hostCategory = new HostCategory(
                 $result['hc_id'],
                 $result['hc_name'],
                 $result['hc_alias']
             );
+            $hostCategory->setActivated($result['is_activated']);
+            $hostCategories[] = $hostCategory;
         }
 
         return $hostCategories;
@@ -182,12 +180,5 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $result = $statement->fetchColumn();
 
         return ($result === false || $result >= 1);
-    }
-
-
-    private function isActivationStatusSpecified(array $searchParameters): bool
-    {
-
-        return false;
     }
 }
