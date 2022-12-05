@@ -121,3 +121,21 @@ Feature:
         }
     }
     """
+
+  Scenario: Delete a host category
+    Given I am logged in
+    And the following CLAPI import data:
+    """
+    HC;ADD;host-cat1;host-cat1-alias
+    """
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
