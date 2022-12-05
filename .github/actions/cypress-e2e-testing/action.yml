@@ -21,13 +21,13 @@ runs:
       with:
         version: 7
     - name: Install dependencies
-        run: pnpm install
-        working-directory: ${{ inputs.module }}
-        shell: bash
+      run: pnpm install
+      working-directory: ${{ inputs.module }}
+      shell: bash
 
     - name: "Start Centreon container"
-        run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
-        shell: bash
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
     
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v4
