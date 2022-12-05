@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -123,9 +124,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             'name' => 'hc.hc_name',
             'is_activated' => 'hc.hc_activate'
         ]);
+        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator?->translateForConcatenator($concat);
-
-        $ret = $sqlTranslator->getSearchValues();
 
         $statement = $this->db->prepare($this->translateDbName($query . ' ' . $concat));
 
