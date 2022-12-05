@@ -62,6 +62,6 @@ class NewHostCategory
     public function setActivated(string $isActivated): void
     {
         Assertion::inArray($isActivated, [self::IS_ACTIVE, self::IS_INACTIVE], 'HostCategory::isActivated');
-        $this->isActivated = $isActivated === self::IS_ACTIVE ? true : false;
+        $this->isActivated = $isActivated;
     }
 }
