@@ -4,6 +4,9 @@ on:
   pull_request:
     types:
       - closed
+      - opened
+      - edited
+      - ready_for_review
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
