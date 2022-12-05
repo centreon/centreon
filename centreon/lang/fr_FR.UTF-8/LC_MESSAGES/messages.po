@@ -17228,4 +17228,4 @@ msgid "Host category not found"
 msgstr "Catégorie d'hôte introuvable"
 
 msgid "Error while deleting host category"
-msgstr "Erreur lors de la deletion d'une catégorie d'hôte"
+msgstr "Erreur lors de la suppression d'une catégorie d'hôte"
