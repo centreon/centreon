@@ -21,6 +21,10 @@ dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
 
+const date = '2023-02-01T12:59:41.041Z';
+const timeZoneParis = 'Europe/Paris';
+const numberDaysInWeek = 7;
+
 const days = [
   'Sunday',
   'Monday',
@@ -31,8 +35,6 @@ const days = [
   'Saturday',
 ];
 
-const date = '2023-02-01T12:59:41.041Z';
-const timeZoneParis = 'Europe/Paris';
 const months2023 = [
   {
     January: {
@@ -52,8 +54,8 @@ const months2023 = [
 const changeDate = (): void => undefined;
 
 const setStart = undefined;
-describe('calendar', () => {
-  beforeEach(() => {
+describe('calendar for timeZone=Europe/Paris', () => {
+  before(() => {
     const userData = renderHook(() => useAtomValue(userAtom));
 
     act(() => {
@@ -61,8 +63,8 @@ describe('calendar', () => {
       userData.result.current.locale = 'en_US';
     });
   });
-  
-  it('first test ,tz = europe/Paris', () => {
+
+  beforeEach(() => {
     const { result } = renderHook(() => useDateTimePickerAdapter());
 
     act(() => {
@@ -78,41 +80,42 @@ describe('calendar', () => {
         </LocalizationProvider>,
       );
     });
+  });
 
-    const currentDateByTimeZone = dayjs(date).tz(timeZoneParis);
+  // it('date must be correct in input calendar', () => {
+  //   const currentDateByTimeZone = dayjs(date).tz(timeZoneParis);
 
-    const dateInput = currentDateByTimeZone.format('L hh:mm A');
-    const currentMonth = currentDateByTimeZone.format('M');
-    const month = months2023[Number(currentMonth) - 1];
-    const { firstDay, lastDay, numberWeeks } = Object.values(month)[0];
+  //   const dateInput = currentDateByTimeZone.format('L hh:mm A');
+  //   cy.get('input').should('have.value', dateInput);
+  // });
 
-    cy.get('input').should('have.value', dateInput);
+  it.only('the first/last day of selected month ,must correspond to the correct beginning/end of the week', () => {
+    const { firstDay, lastDay, numberWeeks } = Object.values(months2023[1])[0];
+
     cy.get('input').click();
-    cy.get('[role="rowgroup"]')
-      .children()
-      .each(($week, indexWeek, $listWeeks) => {
-        if (equals(indexWeek, 0)) {
-          cy.wrap($listWeeks[indexWeek])
-            .children()
-            .each(($elementDays, indexDays, $listDays) => {
-              if (equals(indexDays, firstDay.indexDayInRowWeek)) {
-                cy.wrap($listDays[firstDay.indexDayInRowWeek]).contains(
-                  firstDay.value,
-                );
-              }
-            });
-        }
-        if (equals(indexWeek, numberWeeks - 1)) {
-          cy.wrap($listWeeks[indexWeek])
-            .children()
-            .each(($elementDays, indexDays, $listDays) => {
-              if (equals(indexDays, lastDay.indexDayInRowWeek)) {
-                cy.wrap($listDays[lastDay.indexDayInRowWeek]).contains(
-                  lastDay.value,
-                );
-              }
-            });
-        }
-      });
+
+    cy.get('[role="rowgroup"]').children().as('listWeeks');
+
+    cy.get('@listWeeks').should('have.length', numberWeeks);
+    cy.get('@listWeeks').eq(0).as('firstWeek');
+    cy.get('@firstWeek').children().as('listDaysInFirstWeek');
+
+    cy.get('@listDaysInFirstWeek').should('have.length', numberDaysInWeek);
+    cy.get('@listDaysInFirstWeek')
+      .eq(firstDay.indexDayInRowWeek)
+      .as('firstDayInWeek');
+    cy.get('@firstDayInWeek').contains(firstDay.value);
+
+    cy.get('@listWeeks')
+      .eq(numberWeeks - 1)
+      .as('lastWeek');
+
+    cy.get('@lastWeek').children().as('listDaysInLastWeek');
+    cy.get('@listDaysInLastWeek').should('have.length', numberDaysInWeek);
+
+    cy.get('@listDaysInLastWeek')
+      .eq(lastDay.indexDayInRowWeek)
+      .as('lastDayInWeek');
+    cy.get('@lastDayInWeek').contains(lastDay.value);
   });
 });

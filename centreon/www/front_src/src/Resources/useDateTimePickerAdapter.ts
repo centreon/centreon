@@ -237,7 +237,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const head = array.slice(0, size);
       const tail = array.slice(size);
 
-      return [head, ...this.chunk({ array: tail, size })];
+      return [head, ...this.getChunkFromArray({ array: tail, size })];
     };
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
