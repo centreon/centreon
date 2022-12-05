@@ -80,6 +80,10 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const onRefresh = jest.fn();
 
+jest.mock('@centreon/ui-context', () =>
+  jest.requireActual('@centreon/ui-context')
+);
+
 const mockUser = {
   alias: 'admin',
   isExportButtonEnabled: true,
@@ -121,6 +125,22 @@ const mockAcknowledgement = {
 };
 
 jest.mock('../icons/Downtime');
+
+interface UseMediaQueryListing {
+  applyBreakPoint: boolean;
+}
+
+jest.mock('./Resource/useMediaQueryListing', () => {
+  const originalModule = jest.requireActual('./Resource/useMediaQueryListing');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    default: (): UseMediaQueryListing => ({
+      applyBreakPoint: false
+    })
+  };
+});
 
 const ActionsWithLoading = (): JSX.Element => {
   useLoadResources();
