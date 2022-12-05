@@ -17216,7 +17216,7 @@ msgid "Event queues maximum total size"
 msgstr "Taille maximale de l'ensemble des queues d'évènements"
 
 msgid "You are not allowed to access host categories"
-msgstr "Vous n'étes pas autorisé à accéder aux catégories d'hôtes"
+msgstr "Vous n'êtes pas autorisé à accéder aux catégories d'hôtes"
 
 msgid "Error while searching for host categories"
-msgstr "Erreur lors de la recherche"
+msgstr "Erreur lors de la recherche des catégories d'hôtes"

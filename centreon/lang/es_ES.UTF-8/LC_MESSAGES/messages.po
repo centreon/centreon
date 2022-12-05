@@ -15361,3 +15361,18 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Confirm"
 #  msgstr "Confirmar"
+
+#  msgid "Vault configuration with these properties already exists"
+#  msgstr ""
+
+#  msgid "Impossible to create vault configuration"
+#  msgstr ""
+
+#  msgid "Vault provider does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host categories"
+#  msgstr ""
+
+#  msgid "Error while searching for host categories"
+#  msgstr ""
