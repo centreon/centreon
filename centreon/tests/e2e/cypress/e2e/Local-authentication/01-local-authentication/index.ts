@@ -314,9 +314,9 @@ Then('user can not change password unless the minimum time has passed', () => {
 
 Then('user can not reuse the last passwords more than 3 times', () => {
   cy.visit('/centreon/main.php?p=50104&o=c')
-    .wait('@getTimeZone')
+    .getRefreshDataOnIframe()
     .getIframeBody()
-    .find('form')
+    .find('#Form')
     .within(() => {
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
@@ -325,15 +325,6 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .click();
 
   cy.getRefreshDataOnIframe()
-    .wait('@getTimeZone')
-    .getIframeBody()
-    .find('form')
-    .within(() => {
-      cy.get('#passwd1').should('be.visible');
-      cy.get('#passwd2').should('be.visible');
-    });
-
-  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
