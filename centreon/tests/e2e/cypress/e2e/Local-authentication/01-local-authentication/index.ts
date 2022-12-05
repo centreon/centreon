@@ -314,7 +314,7 @@ Then('user can not change password unless the minimum time has passed', () => {
 
 Then('user can not reuse the last passwords more than 3 times', () => {
   cy.visit('/centreon/main.php?p=50104&o=c')
-    .getRefreshDataOnIframe()
+    .wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .within(() => {
@@ -329,7 +329,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#Form')
     .find('#tab1')
     .parent()
-    .contains('Your password has already been used');
+    .should('be.visible');
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
