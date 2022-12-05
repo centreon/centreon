@@ -50,6 +50,7 @@ const months2023 = [
 ];
 
 const changeDate = (): void => undefined;
+
 const setStart = undefined;
 describe('calendar', () => {
   beforeEach(() => {
