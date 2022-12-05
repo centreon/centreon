@@ -81,7 +81,7 @@ describe('calendar', () => {
 
     const dateInput = currentDateByTimeZone.format('L hh:mm A');
     const currentMonth = currentDateByTimeZone.format('M');
-    const month = Months2023[Number(currentMonth) - 1];
+    const month = months2023[Number(currentMonth) - 1];
     const { firstDay, lastDay, numberWeeks } = Object.values(month)[0];
 
     cy.get('input').should('have.value', dateInput);
