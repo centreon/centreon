@@ -324,9 +324,16 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.getRefreshDataOnIframe().getIframeBody().find('#Form').find('#tab1');
-
   cy.getRefreshDataOnIframe()
+    .wait('@getTimeZone')
+    .getIframeBody()
+    .find('form')
+    .within(() => {
+      cy.get('#passwd1').should('be.visible');
+      cy.get('#passwd2').should('be.visible');
+    });
+
+  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
