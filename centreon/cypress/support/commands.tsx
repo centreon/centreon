@@ -1,9 +1,26 @@
-import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
+/* eslint-disable @typescript-eslint/no-namespace */
+import React from 'react';
 
-addMatchImageSnapshotCommand({
-  capture: 'viewport',
-  customDiffConfig: { threshold: 0.1 },
-  customSnapshotsDir: './cypress/visual-testing-snapshots',
-  failureThreshold: 0.03,
-  failureThresholdType: 'percent',
+import { mount } from 'cypress/react18';
+
+import { ThemeProvider } from '@centreon/ui';
+
+window.React = React;
+
+Cypress.Commands.add('mount', ({ Component, options }) => {
+  const wrapped = <ThemeProvider>{Component}</ThemeProvider>;
+
+  return mount(wrapped, options);
 });
+
+interface MountProps {
+  Component: React.Element;
+  options: object;
+}
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
+    }
+  }
+}

@@ -11,11 +11,14 @@ import SideBar from './index';
 describe('Navigation menu', () => {
   beforeEach(() => {
     cy.fixture('menuData').then((data) => {
-      cy.mount(
-        <Router>
-          <SideBar navigationData={data.result} />
-        </Router>
-      );
+      return cy.mount({
+        Component: (
+          <Router>
+            <SideBar navigationData={data.result} />
+          </Router>
+        ),
+        options: {}
+      });
     });
 
     const { result } = renderHook(() => useAtom(selectedNavigationItemsAtom));
