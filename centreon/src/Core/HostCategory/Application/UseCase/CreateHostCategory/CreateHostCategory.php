@@ -51,11 +51,11 @@ class CreateHostCategory
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
-                $this->error('User doesn\'t have sufficient right to see host category', [
+                $this->error('User doesn\'t have sufficient right to see host categories', [
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('You are not allowed to access host category')
+                    new ForbiddenResponse('You are not allowed to create host categories')
                 );
 
                 return;

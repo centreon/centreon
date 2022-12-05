@@ -17274,3 +17274,12 @@ msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être cré
 
 msgid "The host group icon '%s' with id '%d' does not exist"
 msgstr "L'icône '%s' avec l'identifiant '%d' n'existe pas"
+
+msgid "You are not allowed to create host categories"
+msgstr "Vous n'êtes pas autorisé à créer des catégories d'hôtes"
+
+msgid "Host category name already exists"
+msgstr "Nom de catégorie d'hôtes déjà existant"
+
+msgid "Error while creating host category"
+msgstr "Erreur lors de la création d'une catégorie d'hôtes"
