@@ -329,7 +329,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#Form')
     .find('#tab1')
     .parent()
-    .contains('Your password has already been used.');
+    .contains('Your password has already been used');
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
