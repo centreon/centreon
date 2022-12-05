@@ -15376,3 +15376,12 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Error while searching for host categories"
 #  msgstr ""
+
+#  msgid "You are not allowed to delete host categories"
+#  msgstr ""
+
+#  msgid "Host category not found"
+#  msgstr ""
+
+#  msgid "Error while deleting host category"
+#  msgstr ""

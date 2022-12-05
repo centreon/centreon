@@ -264,6 +264,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             return null;
         }
 
+        $concat = new SqlConcatenator();
+
         $accessGroupIds = array_map(
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
@@ -282,10 +284,16 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
                 ON argr.acl_group_id = ag.acl_group_id
             WHERE hc.hc_id = :hostCategoryId'
         );
-        $request .= 'AND ag.acl_group_id IN (' . implode(', ', $accessGroupIds) . ')';
 
-        $statement = $this->db->prepare($request);
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+
         $statement->execute();
 
         if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
