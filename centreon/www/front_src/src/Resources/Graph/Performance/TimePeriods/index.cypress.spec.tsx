@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { act, renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
@@ -9,10 +9,11 @@ import { useAtomValue } from 'jotai';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
+import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 import DateTimePickerInput from './DateTimePickerInput';
 
@@ -136,6 +137,10 @@ const months2023 = [
 const changeDate = (): void => undefined;
 
 const setStart = undefined;
+const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
+  return new Set(arr).size !== arr.length;
+};
+
 describe('calendar for timeZone=Europe/Paris', () => {
   before(() => {
     const userData = renderHook(() => useAtomValue(userAtom));
@@ -165,11 +170,50 @@ describe('calendar for timeZone=Europe/Paris', () => {
   });
 
   it('input calendar value contains correct date', () => {
-    const currentDateByTimeZone = dayjs(initialDate).tz(timeZoneParis);
+    const { result } = renderHook(() => useLocaleDateTimeFormat());
+    act(() => {
+      const { format } = result.current;
 
-    const dateInput = currentDateByTimeZone.format('L hh:mm A');
-    cy.get('input').should('have.value', dateInput);
+      const dateInput = format({
+        date: dayjs(initialDate).tz(timeZoneParis),
+        formatString: 'L hh:mm A',
+      });
+
+      cy.get('input').should('have.value', dateInput);
+    });
   });
+
+  it('check number of days in current month , when clicking on nextMonth button', () => {
+    cy.get('input').click();
+    months2023.forEach((data) => {
+      const { lastDay } = Object.values(data)[0];
+
+      cy.get('[role="rowgroup"]').children().as('listWeeks');
+      cy.get('@listWeeks').children('button').as('days');
+      cy.get('@days').should('have.length', lastDay.value);
+
+      cy.get('[aria-label="Next month"]').click();
+    });
+  });
+
+  // it.only(' days should not be duplicated in current month, when clicking on nextMonth button', () => {
+  //   cy.get('input').click();
+  //   months2023.forEach((data) => {
+  //     const daysInCurrentMonth: Array<string> = [];
+
+  //     cy.get('[role="rowgroup"]').children().as('listWeeks');
+  //     cy.get('@listWeeks')
+  //       .children('button')
+  //       .each(($day) => daysInCurrentMonth.push($day.text()))
+  //       .as('allDaysInCurrentMonth');
+  //     cy.get('@allDaysInCurrentMonth').then(() => {
+  //       console.log({ daysInCurrentMonth });
+  //       expect(checkIfDuplicateExists(daysInCurrentMonth)).to.be.false;
+
+  //       cy.get('[aria-label="Next month"]').click();
+  //     });
+  //   });
+  // });
 
   it('the first/last day of the current month ,must correspond to the  beginning/end of the week to this current month , when clicking on nextMonth button ', () => {
     cy.get('input').click();
@@ -207,17 +251,46 @@ describe('calendar for timeZone=Europe/Paris', () => {
 
   it('the correspond month and year must be displayed in the calendars header ,when clicking on nextMonth button', () => {
     cy.get('input').click();
+    const { result } = renderHook(() => useLocaleDateTimeFormat());
 
     months2023.forEach((data) => {
       const { date } = Object.values(data)[0];
 
-      const monthAndYear = dayjs(date).tz(timeZoneParis).format('MMMM YYYY');
+      act(() => {
+        const { format } = result.current;
+        const monthAndYear = format({
+          date: dayjs(date).tz(timeZoneParis),
+          formatString: 'MMMM YYYY',
+        });
+        cy.contains(monthAndYear);
+      });
 
-      cy.contains(monthAndYear);
       cy.get('[aria-label="Next month"]').click();
     });
   });
 
-  // days should be displayed
-  // days should not be duplicated
+  it('the appropriate days should be displayed on calendar header, when clicking on nextMonth button', () => {
+    cy.get('input').click();
+    const { result } = renderHook(() => useLocaleDateTimeFormat());
+
+    months2023.forEach((data) => {
+      const { date } = Object.values(data)[0];
+      const dateByTimeZone = dayjs(date).tz(timeZoneParis);
+      const firstDay = dateByTimeZone.isUTC()
+        ? dateByTimeZone.utc().startOf('month').startOf('week')
+        : dateByTimeZone.startOf('month').startOf('week');
+
+      act(() => {
+        const { format } = result.current;
+        const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+          format({
+            date: firstDay.add(diff, 'day'),
+            formatString: 'dd',
+          }),
+        );
+        daysArray.forEach((day) => cy.contains(day.toUpperCase()));
+        cy.get('[aria-label="Next month"]').click();
+      });
+    });
+  });
 });
