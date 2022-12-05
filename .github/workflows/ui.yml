@@ -6,7 +6,7 @@ on:
       - closed
       - opened
       - edited
-      - ready_for_review
+      - synchronize
     paths:
       - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
