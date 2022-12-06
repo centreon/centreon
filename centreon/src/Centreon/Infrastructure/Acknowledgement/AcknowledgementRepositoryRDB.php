@@ -174,7 +174,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
               ON contact.contact_alias = ack.author'
             . $accessGroupFilter
             . 'WHERE ack.host_id = :host_id
-              AND ack.service_id IS NULL';
+              AND ack.service_id = 0';
 
         $this->sqlRequestTranslator->addSearchValue('host_id', [\PDO::PARAM_INT => $hostId]);
 
@@ -247,7 +247,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
             FROM `:dbstg`.acknowledgements ack2'
             . $accessGroupFilter
             . 'WHERE ack2.host_id = :host_id
-            AND ack2.service_id IS NULL)';
+            AND ack2.service_id = 0)';
 
         $request = $this->translateDbName($request);
         $statement = $this->db->prepare($request);
@@ -355,7 +355,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
             LEFT JOIN `:db`.contact
                 ON contact.contact_alias = ack.author '
             . $accessGroupFilter
-            . 'WHERE ack.service_id ' . (($type === Acknowledgement::TYPE_HOST_ACKNOWLEDGEMENT) ? ' IS NULL' : ' IS NOT NULL');
+            . 'WHERE ack.service_id ' . (($type === Acknowledgement::TYPE_HOST_ACKNOWLEDGEMENT) ? ' = 0' : ' != 0');
 
         return $this->processListingRequest($request);
     }
