@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\{
@@ -43,7 +42,6 @@ use Core\Security\Vault\Application\Repository\{
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     UpdateVaultConfiguration,
     UpdateVaultConfigurationRequest,
-    VaultConfigurationFactory
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Security\Encryption;
