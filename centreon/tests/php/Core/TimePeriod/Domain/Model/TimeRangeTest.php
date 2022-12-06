@@ -42,21 +42,21 @@ it('should throw exception with wrong time format', function() {
     new TimeRange('00:00-12d00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::BadTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat()->getMessage()
 );
 
 it('should throw exception with wrong time ranges format', function() {
     new TimeRange('00:00 12:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::BadTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat()->getMessage()
 );
 
 it('should throw exception with wrong time ranges repetition', function() {
     new TimeRange('00:00-12:00 13:00-14:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::BadTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat()->getMessage()
 );
 
 it('should throw exception when the start of the interval is equal to the end of the interval',
@@ -64,7 +64,7 @@ it('should throw exception when the start of the interval is equal to the end of
     new TimeRange('12:00-12:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::OrderTimeIntervalsNotConsistent()->getMessage()
+    TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
 
 it('should throw exception when the start of the interval is greater than at the end of the interval',
@@ -72,7 +72,7 @@ it('should throw exception when the start of the interval is greater than at the
     new TimeRange('12:01-12:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::OrderTimeIntervalsNotConsistent()->getMessage()
+    TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
 
 it(
@@ -82,7 +82,7 @@ it(
     }
 )->throws(
     TimeRangeException::class,
-    TimeRangeException::OrderTimeIntervalsNotConsistent()->getMessage()
+    TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
 
 it(
@@ -92,5 +92,5 @@ it(
     }
 )->throws(
     TimeRangeException::class,
-    TimeRangeException::OrderTimeIntervalsNotConsistent()->getMessage()
+    TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );

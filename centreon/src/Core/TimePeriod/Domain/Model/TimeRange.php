@@ -29,7 +29,7 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
 /**
  * Value object
  */
-class TimeRange
+class TimeRange implements \Stringable
 {
     /**
      * @var string Comma-delimited time range (00:00-12:00) for a particular day of the week
@@ -38,16 +38,19 @@ class TimeRange
 
     /**
      * @param string $timeRange
+     *
      * @throws \Assert\AssertionFailedException
+     * @throws TimeRangeException
      */
-    public function __construct(string $timeRange) {
+    public function __construct(string $timeRange)
+    {
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
         if (! $this->isValidTimeRangeFormat($timeRange)) {
-            throw TimeRangeException::BadTimeRangeFormat();
+            throw TimeRangeException::badTimeRangeFormat($timeRange);
         }
         if (! $this->areTimeRangesConsistent($timeRange)) {
-            throw TimeRangeException::OrderTimeIntervalsNotConsistent();
+            throw TimeRangeException::orderTimeIntervalsNotConsistent();
         }
         $this->timeRange = $timeRange;
     }

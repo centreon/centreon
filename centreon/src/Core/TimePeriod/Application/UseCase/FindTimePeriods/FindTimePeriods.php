@@ -29,7 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\TimePeriodException;
+use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
 
@@ -54,11 +54,16 @@ class FindTimePeriods
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
+            $this->info('Find the time periods');
+            $this->debug('Request', ['parameters' => $this->requestParameters->getSearch()]);
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for the time periods'));
-            $this->error($ex->getMessage());
+            $this->error(
+                'Error while searching for the time periods',
+                ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+            );
         }
     }
 
@@ -86,13 +91,13 @@ class FindTimePeriods
                         'alias' => $template->getAlias(),
                     ];
                 }, $timePeriod->getTemplates()),
-                'exceptions' => array_map(function (TimePeriodException $exception) {
+                'exceptions' => array_map(function (ExtraTimePeriod $exception) {
                     return [
                         'id' => $exception->getId(),
                         'day_range' => $exception->getDayRange(),
-                        'time_range' => $exception->getTimeRange(),
+                        'time_range' => (string) $exception->getTimeRange(),
                     ];
-                }, $timePeriod->getExceptions())
+                }, $timePeriod->getExtraTimePeriods())
             ];
         }
         return $response;

@@ -23,16 +23,22 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\NewTimePeriod;
+use Core\TimePeriod\Domain\Model\{
+    Day, ExtraTimePeriod, NewExtraTimePeriod, NewTimePeriod, Template, TimePeriod
+};
 
 class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements WriteTimePeriodRepositoryInterface
 {
+    use LoggerTrait;
+
+    private SqlRequestParametersTranslator $sqlRequestTranslator;
+
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
@@ -41,42 +47,251 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $this->sqlRequestTranslator->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \PDOException
+     */
     public function add(NewTimePeriod $newTimePeriod): void
     {
+        $this->info('Add a new time period');
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        $this->info('Add new time period');
+        try {
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    <<<SQL
+                    INSERT INTO `:db`.timeperiod
+                    (tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday,
+                    tp_thursday, tp_friday, tp_saturday)
+                    VALUES (:name, :alias, :sunday, :monday, :tuesday, :wednesday,
+                            :thursday, :friday, :saturday)
+                    SQL
+                )
+            );
+            $this->bindValueOfTimePeriod($statement, $newTimePeriod);
+            $statement->execute();
+            $newTimePeriodId = (int) $this->db->lastInsertId();
+
+            $this->addTimePeriodTemplates($newTimePeriodId, $newTimePeriod->getTemplates());
+            $this->addExtraTimePeriods($newTimePeriodId, $newTimePeriod->getExtraTimePeriods());
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+            throw $ex;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \PDOException
+     */
+    public function delete(int $timePeriodId): void
+    {
+        $this->info('Delete time period');
+        $statement = $this->db->prepare(
+            $this->translateDbName('DELETE FROM `:db`.timeperiod WHERE tp_id = :id')
+        );
+        $statement->bindValue(':id', $timePeriodId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \PDOException
+     */
+    public function update(TimePeriod $timePeriod): void
+    {
+        $this->info('Update the time period');
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    <<<SQL
+                    UPDATE `:db`.timeperiod
+                    SET tp_name = :name,
+                        tp_alias = :alias,
+                        tp_monday = :monday,
+                        tp_tuesday = :tuesday,
+                        tp_wednesday = :wednesday,
+                        tp_thursday = :thursday,
+                        tp_friday = :friday,
+                        tp_saturday = :saturday,
+                        tp_sunday = :sunday
+                    WHERE tp_id = :id
+                    SQL
+                )
+            );
+            $this->bindValueOfTimePeriod($statement, $timePeriod);
+            $statement->bindValue(':id', $timePeriod->getId(), \PDO::PARAM_INT);
+            $statement->execute();
+
+            $this->deleteExtraTimePeriods($timePeriod->getId());
+            $this->deleteTimePeriodTemplates($timePeriod->getId());
+
+            $this->addTimePeriodTemplates($timePeriod->getId(), $timePeriod->getTemplates());
+            $this->addExtraTimePeriods($timePeriod->getId(), $timePeriod->getExtraTimePeriods());
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param int $timePeriodId
+     * @param list<ExtraTimePeriod|NewExtraTimePeriod> $extraTimePeriods
+     *
+     * @return void
+     *
+     * @throws \PDOException
+     */
+    private function addExtraTimePeriods(int $timePeriodId, array $extraTimePeriods): void
+    {
+        $subRequest = [];
+        $bindValues = [];
+        foreach ($extraTimePeriods as $index => $extraTimePeriod) {
+            $subRequest[$index] = "(:timeperiod_id_$index, :days_$index, :timerange_$index)";
+            $bindValues[$index]['day'] = $extraTimePeriod->getDayRange();
+            $bindValues[$index]['timerange'] = $extraTimePeriod->getTimeRange();
+        }
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                INSERT INTO `:dbstg`.acknowledgements
-                (tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday,
-                tp_thursday, tp_friday, tp_saturday)
-                VALUES (:name, :alias, :sunday, :monday, :tuesday, :wednesday,
-                        :thursday, :friday, :saturday)
-                SQL
+                INSERT INTO `:db`.timeperiod_exceptions
+                (timeperiod_id, days, timerange)
+                VALUES 
+                SQL . implode(', ', $subRequest)
             )
         );
-        /**
-         * @var array<int, string> $days
-         */
-        $days = array_fill(1, 7, null);
-        array_map(function (Day $day) use (&$days): void {
-            $days[$day->getDay()] = $day->getTimeRange() !== null
-                ? (string) $day->getTimeRange()
-                : null;
-        }, $newTimePeriod->getDays());
-        $statement->bindValue(':name', $newTimePeriod->getName());
-        $statement->bindValue(':alias', $newTimePeriod->getAlias());
-        $statement->bindValue(':monday', $days[1]);
-        $statement->bindValue(':tuesday', $days[2]);
-        $statement->bindValue(':wednesday', $days[3]);
-        $statement->bindValue(':thursday', $days[4]);
-        $statement->bindValue(':friday', $days[5]);
-        $statement->bindValue(':saturday', $days[6]);
-        $statement->bindValue(':sunday', $days[7]);
+        foreach ($bindValues as $index => $extraTimePeriod) {
+            $statement->bindValue(':timeperiod_id_' . $index, $timePeriodId, \PDO::PARAM_INT);
+            $statement->bindValue(':days_' . $index, $extraTimePeriod['day']);
+            $statement->bindValue(':timerange_' . $index, $extraTimePeriod['timerange']);
+        }
         $statement->execute();
+    }
+
+    /**
+     * @param int $timePeriodId
+     * @param Template[] $templates
+     *
+     * @return void
+     *
+     * @throws \PDOException
+     */
+    private function addTimePeriodTemplates(int $timePeriodId, array $templates): void
+    {
+        $templateIds = array_map(function (Template $template): int {
+            return $template->getId();
+        }, $templates);
+        $subRequest = [];
+        $bindValues = [];
+        foreach ($templateIds as $index => $templateId) {
+            $subRequest[$index] = "(:timeperiod_id_$index, :template_id_$index)";
+            $bindValues[$index] = $templateId;
+        }
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                INSERT INTO `:db`.timeperiod_include_relations
+                (timeperiod_id, timeperiod_include_id)
+                VALUES 
+                SQL . implode(', ', $subRequest)
+            )
+        );
+        foreach ($bindValues as $index => $templateId) {
+            $statement->bindValue(':timeperiod_id_' . $index, $timePeriodId, \PDO::PARAM_INT);
+            $statement->bindValue(':template_id_' . $index, $templateId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+    }
+
+    /**
+     * @param \PDOStatement $statement
+     * @param \Core\TimePeriod\Domain\Model\TimePeriod|\Core\TimePeriod\Domain\Model\NewTimePeriod $timePeriod
+     *
+     * @return void
+     */
+    private function bindValueOfTimePeriod(\PDOStatement $statement, TimePeriod|NewTimePeriod $timePeriod): void
+    {
+        $statement->bindValue(':name', $timePeriod->getName());
+        $statement->bindValue(':alias', $timePeriod->getAlias());
+        $statement->bindValue(':monday', $this->extractTimeRange($timePeriod, 1));
+        $statement->bindValue(':tuesday', $this->extractTimeRange($timePeriod, 2));
+        $statement->bindValue(':wednesday', $this->extractTimeRange($timePeriod, 3));
+        $statement->bindValue(':thursday', $this->extractTimeRange($timePeriod, 4));
+        $statement->bindValue(':friday', $this->extractTimeRange($timePeriod, 5));
+        $statement->bindValue(':saturday', $this->extractTimeRange($timePeriod, 6));
+        $statement->bindValue(':sunday', $this->extractTimeRange($timePeriod, 7));
+    }
+
+    /**
+     * @param int $timePeriodId
+     * @return void
+     *
+     * @throws \PDOException
+     */
+    private function deleteExtraTimePeriods(int $timePeriodId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName('DELETE FROM `:db`.timeperiod_exceptions WHERE timeperiod_id = :id')
+        );
+        $statement->bindValue(':id', $timePeriodId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @param int $timePeriodId
+     * @return void
+     *
+     * @throws \PDOException
+     */
+    private function deleteTimePeriodTemplates(int $timePeriodId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName('DELETE FROM `:db`.timeperiod_include_relations WHERE timeperiod_id = :id')
+        );
+        $statement->bindValue(':id', $timePeriodId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @param TimePeriod|NewTimePeriod $timePeriod
+     * @param int $id
+     * @return string|null
+     */
+    private function extractTimeRange(TimePeriod|NewTimePeriod $timePeriod, int $id): ?string
+    {
+        foreach ($timePeriod->getDays() as $day) {
+            if ($day->getDay() === $id) {
+                return (string) $day->getTimeRange();
+            }
+        }
+        return null;
     }
 }

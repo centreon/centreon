@@ -21,29 +21,32 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
+namespace Core\TimePeriod\Infrastructure\API\UpdateTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
-    AddTimePeriod, AddTimePeriodRequest
-};
+use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriod;
+use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriodRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class AddTimePeriodController extends AbstractController
+class UpdateTimePeriodController extends AbstractController
 {
     /**
      * @param Request $request
-     * @param AddTimePeriod $useCase
+     * @param UpdateTimePeriod $useCase
      * @param DefaultPresenter $presenter
+     * @param int $id
      *
      * @return object
+     *
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException
      */
     public function __invoke(
         Request $request,
-        AddTimePeriod $useCase,
+        UpdateTimePeriod $useCase,
         DefaultPresenter $presenter,
+        int $id
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         try {
@@ -62,8 +65,8 @@ class AddTimePeriodController extends AbstractController
              *     }>
              * } $dataSent
              */
-            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddTimePeriodSchema.json');
-            $dtoRequest = $this->createDtoRequest($dataSent);
+            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateTimePeriodSchema.json');
+            $dtoRequest = $this->createDtoRequest($dataSent, $id);
             $useCase($dtoRequest, $presenter);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
@@ -87,11 +90,14 @@ class AddTimePeriodController extends AbstractController
      *         time_range: string
      *     }>
      * } $dataSent
-     * @return AddTimePeriodRequest
+     * @param int $id
+     *
+     * @return UpdateTimePeriodRequest
      */
-    private function createDtoRequest(array $dataSent): AddTimePeriodRequest
+    private function createDtoRequest(array $dataSent, int $id): UpdateTimePeriodRequest
     {
-        $dto = new AddTimePeriodRequest();
+        $dto = new UpdateTimePeriodRequest();
+        $dto->id = $id;
         $dto->name = $dataSent['name'];
         $dto->alias = $dataSent['alias'];
         $dto->days = array_map(function (array $day): array {

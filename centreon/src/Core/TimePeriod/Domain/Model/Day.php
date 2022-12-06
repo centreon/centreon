@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\Assertion;;
+use Centreon\Domain\Common\Assertion\Assertion;
 
 class Day
 {
@@ -37,7 +37,8 @@ class Day
     /**
      * @param int $day
      * @param TimeRange $timeRange
-     * @throws \Throwable
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct(int $day, TimeRange $timeRange)
     {

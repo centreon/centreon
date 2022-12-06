@@ -31,7 +31,7 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\TimePeriodException;
+use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\TimeRange;
@@ -79,8 +79,8 @@ it('should present a FindTimePeriodsResponse', function () {
     ];
     $timePeriod->setTemplates($templates);
 
-    $exceptions = new TimePeriodException(1, 'monday 1', '06:00-07:00');
-    $timePeriod->addException($exceptions);
+    $exceptions = new ExtraTimePeriod(1, 'monday 1', new TimeRange('06:00-07:00'));
+    $timePeriod->addExtraTimePeriod($exceptions);
 
     $this->repository
         ->expects($this->once())
@@ -122,9 +122,9 @@ it('should present a FindTimePeriodsResponse', function () {
                 ],
                 'exceptions' => [
                     [
-                        'id' => $timePeriod->getExceptions()[0]->getId(),
-                        'day_range' => $timePeriod->getExceptions()[0]->getDayRange(),
-                        'time_range' => $timePeriod->getExceptions()[0]->getTimeRange()
+                        'id' => $timePeriod->getExtraTimePeriods()[0]->getId(),
+                        'day_range' => $timePeriod->getExtraTimePeriods()[0]->getDayRange(),
+                        'time_range' => (string) $timePeriod->getExtraTimePeriods()[0]->getTimeRange()
                     ]
                 ]
             ]

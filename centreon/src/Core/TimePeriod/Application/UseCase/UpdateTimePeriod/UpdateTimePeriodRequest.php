@@ -21,18 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Infrastructure\API\FindTimePeriods;
+namespace Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\PresenterInterface;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
-
-class FindTimePeriodsController extends AbstractController
+final class UpdateTimePeriodRequest
 {
-    public function __invoke(FindTimePeriods $useCase, FindTimePeriodsPresenter $presenter): object
-    {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        $useCase($presenter);
-        return $presenter->show();
-    }
+    public int $id = 0;
+    public string $name = '';
+    public string $alias = '';
+    /**
+     * @var array<array{day: integer, time_range: string}>
+     */
+    public array $days = [];
+    /**
+     * @var int[]
+     */
+    public array $templates = [];
+    /**
+     * @var array<array{day_range: string, time_range: string}>
+     */
+    public array $exceptions = [];
 }

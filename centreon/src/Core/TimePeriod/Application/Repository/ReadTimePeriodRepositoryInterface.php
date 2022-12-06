@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Infrastructure\Repository\DbReadTimePeriodRepository;
 
 interface ReadTimePeriodRepositoryInterface
 {
@@ -34,7 +34,31 @@ interface ReadTimePeriodRepositoryInterface
      *
      * @param RequestParametersInterface $requestParameters
      * @return TimePeriod[]
+     *
      * @throws \Throwable
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * @param int $timePeriodId
+     * @return TimePeriod|null
+     *
+     * @throws \Throwable
+     */
+    public function findById(int $timePeriodId): ?TimePeriod;
+
+    /**
+     * @param int $timePeriodId
+     * @return bool
+     *
+     * @throws \Throwable
+     */
+    public function exists(int $timePeriodId): bool;
+
+    /**
+     * @param string $timePeriodName
+     * @param int|null $timePeriodId
+     * @return bool
+     */
+    public function nameAlreadyExists(string $timePeriodName, int $timePeriodId = null): bool;
 }

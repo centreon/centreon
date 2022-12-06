@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\Repository;
 
 use Core\TimePeriod\Domain\Model\NewTimePeriod;
+use Core\TimePeriod\Domain\Model\TimePeriod;
 
 interface WriteTimePeriodRepositoryInterface
 {
@@ -34,4 +35,20 @@ interface WriteTimePeriodRepositoryInterface
      * @throws \Throwable
      */
     public function add(NewTimePeriod $newTimePeriod): void;
+
+    /**
+     * @param int $timePeriodId
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function delete(int $timePeriodId): void;
+
+    /**
+     * @param TimePeriod $timePeriod
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function update(TimePeriod $timePeriod): void;
 }

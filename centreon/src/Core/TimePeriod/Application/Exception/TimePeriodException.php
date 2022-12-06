@@ -21,24 +21,33 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Domain\Exception;
+namespace Core\TimePeriod\Application\Exception;
 
-class TimeRangeException extends \InvalidArgumentException
+class TimePeriodException extends \Exception
 {
     /**
-     * @param string $badTimeRange
+     * @param int $timePeriodId
      * @return self
      */
-    public static function badTimeRangeFormat(string $badTimeRange): self
+    public static function errorOnDelete(int $timePeriodId): self
     {
-        return new self(_(sprintf('The time range format is wrong (%s)', $badTimeRange)));
+        return new self(sprintf(_('Error when deleting the time period %d'), $timePeriodId));
     }
 
     /**
      * @return self
      */
-    public static function orderTimeIntervalsNotConsistent(): self
+    public static function errorOnUpdate(): self
     {
-        return new self(_('The order of the time intervals is not consistent'));
+        return new self(_('Error when updating the time period'));
+    }
+
+    /**
+     * @param string $timePeriodName
+     * @return self
+     */
+    public static function nameAlreadyExists(string $timePeriodName): self
+    {
+        return new self(sprintf(_('The time period name \'%s\' already exists'), $timePeriodName));
     }
 }

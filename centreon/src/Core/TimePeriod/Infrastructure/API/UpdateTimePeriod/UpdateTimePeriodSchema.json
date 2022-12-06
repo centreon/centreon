@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Add a new time period",
+    "title": "Update a time period",
     "type": "object",
     "required": [
         "name",

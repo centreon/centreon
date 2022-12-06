@@ -21,43 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Domain\Model;
+namespace Core\TimePeriod\Infrastructure\API\DeleteTimePeriod;
 
-class NewTimePeriodException
+use Centreon\Application\Controller\AbstractController;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\TimePeriod\Application\UseCase\DeleteTimePeriod\DeleteTimePeriod;
+
+class DeleteTimePeriodController extends AbstractController
 {
-    public function __construct(private string $dayRange, private string $timeRange)
-    {
-    }
-
     /**
-     * @param string $dayRange
+     * @param DeleteTimePeriod $useCase
+     * @param DefaultPresenter $presenter
+     * @param int $id
+     *
+     * @return object
      */
-    public function setDayRange(string $dayRange): void
+    public function __invoke(DeleteTimePeriod $useCase, DefaultPresenter $presenter, int $id): object
     {
-        $this->dayRange = $dayRange;
-    }
+        $useCase($id, $presenter);
 
-    /**
-     * @return string
-     */
-    public function getDayRange(): string
-    {
-        return $this->dayRange;
-    }
-
-    /**
-     * @param string $timeRange
-     */
-    public function setTimeRange(string $timeRange): void
-    {
-        $this->timeRange = $timeRange;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTimeRange(): string
-    {
-        return $this->timeRange;
+        return $presenter->show();
     }
 }

@@ -24,19 +24,23 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\TimePeriod\Application\Exception\TimePeriodException;
+use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
 
 class AddTimePeriod
 {
     use LoggerTrait;
 
     /**
+     * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
      * @param WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
      */
-    public function __construct(private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository)
-    {
+    public function __construct(
+        readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+    ) {
     }
 
     /**
@@ -47,9 +51,24 @@ class AddTimePeriod
     public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
     {
         try {
+            $this->info('Add a new time period');
+            $this->debug('Time period', ['request' => $request]);
+
+            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
+                $this->error('Time period name already exists');
+                $presenter->setResponseStatus(
+                    new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
+                );
+                return;
+            }
             $newTimePeriod = NewTimePeriodFactory::create($request);
             $this->writeTimePeriodRepository->add($newTimePeriod);
+            $presenter->setResponseStatus(new CreatedResponse());
         } catch (\Throwable $ex) {
+            $this->error(
+                'Error when adding the time period',
+                ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+            );
             $presenter->setResponseStatus(new ErrorResponse('Error'));
         }
     }

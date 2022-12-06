@@ -23,8 +23,13 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class NewTimePeriod
 {
+    private string $name;
+    private string $alias;
+
     /**
      * @var Template[]
      */
@@ -36,27 +41,35 @@ class NewTimePeriod
     private array $days = [];
 
     /**
-     * @var NewTimePeriodException[]
+     * @var NewExtraTimePeriod[]
      */
-    private array $exceptions = [];
+    private array $extraTimePeriods = [];
 
     /**
      * @param string $name
      * @param string $alias
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected string $name,
-        protected string $alias,
+        string $name,
+        string $alias,
     ) {
+        Assertion::minLength($name, 1, 'NewTimePeriod::name');
+        Assertion::maxLength($name, 200, 'NewTimePeriod::name');
+        Assertion::minLength($alias, 1, 'NewTimePeriod::alias');
+        Assertion::maxLength($alias, 200, 'NewTimePeriod::alias');
+        $this->name = $name;
+        $this->alias = $alias;
     }
 
     /**
-     * @param NewTimePeriodException $exception
+     * @param NewExtraTimePeriod $exception
      * @return void
      */
-    public function addException(NewTimePeriodException $exception): void
+    public function addException(NewExtraTimePeriod $exception): void
     {
-        $this->exceptions[] = $exception;
+        $this->extraTimePeriods[] = $exception;
     }
 
     /**
@@ -85,11 +98,11 @@ class NewTimePeriod
     }
 
     /**
-     * @return NewTimePeriodException[]
+     * @return NewExtraTimePeriod[]
      */
-    public function getExceptions(): array
+    public function getExtraTimePeriods(): array
     {
-        return $this->exceptions;
+        return $this->extraTimePeriods;
     }
 
     /**
@@ -117,12 +130,12 @@ class NewTimePeriod
     }
 
     /**
-     * @param NewTimePeriodException[] $exceptions
+     * @param NewExtraTimePeriod[] $extraTimePeriods
      */
-    public function setExceptions(array $exceptions): void
+    public function setExtraTimePeriods(array $extraTimePeriods): void
     {
-        $this->exceptions = [];
-        foreach ($exceptions as $exception) {
+        $this->extraTimePeriods = [];
+        foreach ($extraTimePeriods as $exception) {
             $this->addException($exception);
         }
     }

@@ -23,18 +23,35 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
-class TimePeriodException extends NewTimePeriodException
+interface TimePeriodInterface
 {
-    public function __construct(private int $id, private string $dayRange, private string $timeRange)
-    {
-        parent::__construct($this->dayRange, $this->timeRange);
-    }
-
-    /**
+     /**
      * @return int
      */
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    public function getId(): int;
+
+    /**
+     * @return string
+     */
+    public function getAlias(): string;
+
+    /**
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
+     * @return Day[]
+     */
+    public function getDays(): array;
+
+    /**
+     * @return ExtraTimePeriod[]
+     */
+    public function getExceptions(): array;
+
+    /**
+     * @return Template[]
+     */
+    public function getTemplates(): array;
 }

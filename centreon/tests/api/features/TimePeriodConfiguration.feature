@@ -135,3 +135,12 @@ Feature:
       }
     }
     """
+
+  Scenario: Add a new Time period
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/timeperiods' with body:
+    """
+
+    """
+
+    Then the response code should be 204

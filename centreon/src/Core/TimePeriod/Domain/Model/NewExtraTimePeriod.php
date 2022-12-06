@@ -21,24 +21,43 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Domain\Exception;
+namespace Core\TimePeriod\Domain\Model;
 
-class TimeRangeException extends \InvalidArgumentException
+class NewExtraTimePeriod
 {
-    /**
-     * @param string $badTimeRange
-     * @return self
-     */
-    public static function badTimeRangeFormat(string $badTimeRange): self
+    public function __construct(private string $dayRange, private TimeRange $timeRange)
     {
-        return new self(_(sprintf('The time range format is wrong (%s)', $badTimeRange)));
     }
 
     /**
-     * @return self
+     * @param string $dayRange
      */
-    public static function orderTimeIntervalsNotConsistent(): self
+    public function setDayRange(string $dayRange): void
     {
-        return new self(_('The order of the time intervals is not consistent'));
+        $this->dayRange = $dayRange;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDayRange(): string
+    {
+        return $this->dayRange;
+    }
+
+    /**
+     * @param TimeRange $timeRange
+     */
+    public function setTimeRange(TimeRange $timeRange): void
+    {
+        $this->timeRange = $timeRange;
+    }
+
+    /**
+     * @return TimeRange
+     */
+    public function getTimeRange(): TimeRange
+    {
+        return $this->timeRange;
     }
 }

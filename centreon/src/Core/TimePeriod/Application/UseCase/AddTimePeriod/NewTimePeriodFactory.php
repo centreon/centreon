@@ -23,11 +23,9 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\NewTimePeriodException;
-use Core\TimePeriod\Domain\Model\NewTimePeriod;
-use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\TimeRange;
+use Core\TimePeriod\Domain\Model\{
+    Day, NewTimePeriod, NewExtraTimePeriod, Template, TimeRange
+};
 
 final class NewTimePeriodFactory
 {
@@ -53,11 +51,11 @@ final class NewTimePeriodFactory
                 return new Template($templateId, '');
             }, $dto->templates)
         );
-        $newTimePeriod->setExceptions(
-            array_map(function (array $exception): NewTimePeriodException {
-                return new NewTimePeriodException(
+        $newTimePeriod->setExtraTimePeriods(
+            array_map(function (array $exception): NewExtraTimePeriod {
+                return new NewExtraTimePeriod(
                     $exception['day_range'],
-                    $exception['time_range']
+                    new TimeRange($exception['time_range'])
                 );
             }, $dto->exceptions)
         );
