@@ -6,6 +6,7 @@ module.exports = {
     '\\.(s?css|png|svg)$': 'identity-obj-proxy',
     '^react($|/.+)': '<rootDir>/../../node_modules/react$1'
   },
+  reporters: ['default', ['jest-junit', { outputName: 'junit.xml' }]],
   roots: ['<rootDir>/src/'],
   setupFilesAfterEnv: [
     '<rootDir>/setupTests.js',

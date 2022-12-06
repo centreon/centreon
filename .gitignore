@@ -23,7 +23,7 @@ checkstyle.core.xml
 **/build/
 
 # Mac Os cache files
-.DS_store
+.DS_Store
 
 # Windows thumbnail cache files
 Thumbs.db
