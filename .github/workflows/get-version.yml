@@ -74,7 +74,7 @@ jobs:
               echo "release=$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
               ;;
             *)
-              echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               ;;
           esac
         shell: bash
