@@ -121,7 +121,7 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -148,7 +148,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -176,7 +176,7 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -189,7 +189,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -235,7 +235,6 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el7, el8, bullseye]
         include:
@@ -274,7 +273,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: package
+    needs: [package]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
@@ -339,7 +338,7 @@ jobs:
           tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize,changes]
+    needs: [dockerize, changes]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -354,7 +353,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize,changes]
+    needs: [dockerize, changes]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -455,6 +454,10 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
 
   deliver-deb:
     runs-on: [self-hosted, common]

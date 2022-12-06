@@ -31,7 +31,6 @@ services:
     profiles: ["openldap"]
 
   squid-simple:
-
     image: docker.centreon.com/mon-squid-simple:latest
     ports: ["3128"]
     profiles: ["squid-simple"]
@@ -45,8 +44,3 @@ services:
     image: docker.centreon.com/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
-
-  influxdb:
-    image: docker.centreon.com/influxdb:centreon
-    ports: ["8083", "8086"]
-    profiles: ["influxdb"]
