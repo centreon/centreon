@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/npm-publish
         with:
           directory: ${{ env.directory }}
-          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
 
