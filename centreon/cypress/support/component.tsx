@@ -1,4 +1,5 @@
 import React from 'react';
+import 'cypress-msw-interceptor';
 
 import './commands';
 import { mount } from 'cypress/react18';
