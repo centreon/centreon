@@ -235,7 +235,6 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el7, el8, bullseye]
         include:
