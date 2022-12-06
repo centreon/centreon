@@ -209,14 +209,15 @@ describe('calendar for timeZone=Europe/Paris', () => {
 
       cy.get('@currentDays').then(() => {
         const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
-        expect(isDuplicateExist).to.be.false;
+
+        return expect(isDuplicateExist).to.be.false;
       });
 
       cy.get('[aria-label="Next month"]').click();
     });
   });
 
-  it('the first/last day of the current month ,must correspond to the  beginning/end of the week to this current month , when clicking on nextMonth button ', () => {
+  it('the first/last day of the current month ,must correspond to the beginning/end of the week to this current month , when clicking on nextMonth button', () => {
     cy.get('input').click();
 
     months2023.forEach((data) => {
