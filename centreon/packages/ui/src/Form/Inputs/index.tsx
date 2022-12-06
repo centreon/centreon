@@ -3,6 +3,7 @@ import { Fragment, useMemo } from 'react';
 import * as R from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { FormikValues, useFormikContext } from 'formik';
 
 import { Divider, Typography } from '@mui/material';
 
@@ -21,7 +22,7 @@ import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
 
 export const getInput = R.cond<
-  InputType,
+  Array<InputType>,
   (props: InputPropsWithoutGroup) => JSX.Element | null
 >([
   [
@@ -114,17 +115,24 @@ const Inputs = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles({ groupDirection });
   const { t } = useTranslation();
+  const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = R.pluck('name', groups);
+
+  const visibleInputs = R.filter(
+    ({ hideInput }) =>
+      formikContext ? !hideInput?.(formikContext?.values) || false : true,
+    inputs
+  );
 
   const inputsByGroup = useMemo(
     () =>
       R.groupBy(
         ({ group }) => R.find(R.equals(group), groupsName) as string,
-        inputs
+        visibleInputs
       ),
-    [inputs]
-  );
+    [visibleInputs]
+  ) as Record<string, Array<InputProps>>;
 
   const sortedGroupNames = useMemo(() => {
     const sortedGroups = R.sort(R.ascend(R.prop('order')), groups);
@@ -150,14 +158,14 @@ const Inputs = ({
         {},
         sortedGroupNames
       ),
-    [inputs]
+    [visibleInputs]
   );
 
   const lastGroup = useMemo(() => R.last(sortedGroupNames), []);
 
   const normalizedInputsByGroup = (
     R.isEmpty(sortedInputsByGroup)
-      ? [[null, inputs]]
+      ? [[null, visibleInputs]]
       : R.toPairs(sortedInputsByGroup)
   ) as Array<[string | null, Array<InputProps>]>;
 
