@@ -6,6 +6,7 @@ import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
@@ -21,8 +22,6 @@ dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
 
-const initialDate = '2023-01-01T12:59:41.041Z';
-const timeZoneParis = 'Europe/Paris';
 const numberDaysInWeek = 7;
 
 const days = [
@@ -134,6 +133,89 @@ const months2023 = [
   },
 ];
 
+const temporaryMonths = [...months2023];
+
+const dataTest = [
+  {
+    button: 'Next month',
+    data: months2023,
+    initialDate: '2023-01-01T12:59:41.041Z',
+    timezone: 'Europe/Paris',
+  },
+  {
+    button: 'Previous month',
+    data: temporaryMonths.reverse(),
+    initialDate: '2023-12-01T12:59:41.041Z',
+    timezone: 'Europe/Paris',
+  },
+  {
+    button: 'Next month',
+    data: months2023,
+    initialDate: '2023-01-01T12:59:41.041Z',
+    timezone: 'Europe/London',
+  },
+  {
+    button: 'Previous month',
+    data: temporaryMonths.reverse(),
+    initialDate: '2023-12-01T12:59:41.041Z',
+    timezone: 'Europe/London',
+  },
+  {
+    button: 'Next month',
+    data: months2023,
+    initialDate: '2023-01-01T12:59:41.041Z',
+    timezone: 'Atlantic/Madeira',
+  },
+  {
+    button: 'Previous month',
+    data: temporaryMonths.reverse(),
+    initialDate: '2023-12-01T12:59:41.041Z',
+    timezone: 'Atlantic/Madeira',
+  },
+  {
+    button: 'Next month',
+    data: months2023,
+    initialDate: '2023-01-01T12:59:41.041Z',
+    timezone: 'UTC',
+  },
+  {
+    button: 'Previous month',
+    data: temporaryMonths.reverse(),
+    initialDate: '2023-12-01T12:59:41.041Z',
+    timezone: 'UTC',
+  },
+];
+
+enum ButtonCalendar {
+  NMONTH = 'Next month',
+  PMONTH = 'Previous month',
+}
+interface GetPreviousNextMonth {
+  currentMonth: string;
+  labelButton: string;
+}
+
+const getPreviousNextMonth = ({
+  currentMonth,
+  labelButton,
+}: GetPreviousNextMonth): void => {
+  switch (labelButton) {
+    case ButtonCalendar.PMONTH:
+      if (!equals(currentMonth, 'January')) {
+        cy.get(`[aria-label="${labelButton}"]`).click();
+      }
+
+      break;
+    case ButtonCalendar.NMONTH:
+      if (!equals(currentMonth, 'December')) {
+        cy.get(`[aria-label="${labelButton}"]`).click();
+      }
+      break;
+    default:
+      break;
+  }
+};
+
 const changeDate = (): void => undefined;
 
 const setStart = undefined;
@@ -141,158 +223,173 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
 };
 
-describe('calendar for timeZone=Europe/Paris', () => {
-  before(() => {
-    const userData = renderHook(() => useAtomValue(userAtom));
-
-    act(() => {
-      userData.result.current.timezone = timeZoneParis;
-      userData.result.current.locale = 'en_US';
-    });
-  });
-
-  beforeEach(() => {
-    const { result } = renderHook(() => useDateTimePickerAdapter());
-
-    act(() => {
-      const { Adapter } = result.current;
-      cy.mount(
-        <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-          <DateTimePickerInput
-            changeDate={changeDate}
-            date={new Date(initialDate)}
-            property={CustomTimePeriodProperty.start}
-            setDate={setStart}
-          />
-        </LocalizationProvider>,
-      );
-    });
-  });
-
-  it('input calendar value contains correct date', () => {
-    const { result } = renderHook(() => useLocaleDateTimeFormat());
-    act(() => {
-      const { format } = result.current;
-
-      const dateInput = format({
-        date: dayjs(initialDate).tz(timeZoneParis),
-        formatString: 'L hh:mm A',
-      });
-
-      cy.get('input').should('have.value', dateInput);
-    });
-  });
-
-  it('check number of days in current month , when clicking on nextMonth button', () => {
-    cy.get('input').click();
-    months2023.forEach((data) => {
-      const { lastDay } = Object.values(data)[0];
-
-      cy.get('[role="rowgroup"]').children().as('listWeeks');
-      cy.get('@listWeeks').children('button').as('days');
-      cy.get('@days').should('have.length', lastDay.value);
-
-      cy.get('[aria-label="Next month"]').click();
-    });
-  });
-
-  it(' days should not be duplicated in each month of the year, when clicking on nextMonth button', () => {
-    cy.get('input').click();
-    months2023.forEach(() => {
-      const daysInCurrentMonth: Array<string> = [];
-      cy.get('[role="rowgroup"]').first().children().as('listWeeks');
-      cy.get('@listWeeks').children('button').as('days');
-
-      cy.get('@days')
-        .each(($day) => daysInCurrentMonth.push($day.text()))
-        .as('currentDays');
-
-      cy.get('@currentDays').then(() => {
-        const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
-
-        return expect(isDuplicateExist).to.be.false;
-      });
-
-      cy.get('[aria-label="Next month"]').click();
-    });
-  });
-
-  it('the first/last day of the current month ,must correspond to the beginning/end of the week to this current month , when clicking on nextMonth button', () => {
-    cy.get('input').click();
-
-    months2023.forEach((data) => {
-      const { firstDay, lastDay, numberWeeks } = Object.values(data)[0];
-
-      cy.get('[role="rowgroup"]').children().as('listWeeks');
-
-      cy.get('@listWeeks').should('have.length', numberWeeks);
-      cy.get('@listWeeks').eq(0).as('firstWeek');
-      cy.get('@firstWeek').children().as('listDaysInFirstWeek');
-
-      cy.get('@listDaysInFirstWeek').should('have.length', numberDaysInWeek);
-      cy.get('@listDaysInFirstWeek')
-        .eq(firstDay.indexDayInRowWeek)
-        .as('firstDayInWeek');
-      cy.get('@firstDayInWeek').contains(firstDay.value);
-
-      cy.get('@listWeeks')
-        .eq(numberWeeks - 1)
-        .as('lastWeek');
-
-      cy.get('@lastWeek').children().as('listDaysInLastWeek');
-      cy.get('@listDaysInLastWeek').should('have.length', numberDaysInWeek);
-
-      cy.get('@listDaysInLastWeek')
-        .eq(lastDay.indexDayInRowWeek)
-        .as('lastDayInWeek');
-      cy.get('@lastDayInWeek').contains(lastDay.value);
-
-      cy.get('[aria-label="Next month"]').click();
-    });
-  });
-
-  it('the correspond month and year must be displayed in the calendars header ,when clicking on nextMonth button', () => {
-    cy.get('input').click();
-    const { result } = renderHook(() => useLocaleDateTimeFormat());
-
-    months2023.forEach((data) => {
-      const { date } = Object.values(data)[0];
+dataTest.forEach((item) =>
+  describe(`calendar for timeZone=${item.timezone} check months for ${item.button} button`, () => {
+    before(() => {
+      const userData = renderHook(() => useAtomValue(userAtom));
 
       act(() => {
-        const { format } = result.current;
-        const monthAndYear = format({
-          date: dayjs(date).tz(timeZoneParis),
-          formatString: 'MMMM YYYY',
-        });
-        cy.contains(monthAndYear);
+        userData.result.current.timezone = item.timezone;
+        userData.result.current.locale = 'en_US';
       });
-
-      cy.get('[aria-label="Next month"]').click();
     });
-  });
 
-  it('the appropriate name of days should be displayed on calendar header, when clicking on nextMonth button', () => {
-    cy.get('input').click();
-    const { result } = renderHook(() => useLocaleDateTimeFormat());
-
-    months2023.forEach((data) => {
-      const { date } = Object.values(data)[0];
-      const dateByTimeZone = dayjs(date).tz(timeZoneParis);
-      const firstDay = dateByTimeZone.isUTC()
-        ? dateByTimeZone.utc().startOf('month').startOf('week')
-        : dateByTimeZone.startOf('month').startOf('week');
+    beforeEach(() => {
+      const { result } = renderHook(() => useDateTimePickerAdapter());
 
       act(() => {
-        const { format } = result.current;
-        const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-          format({
-            date: firstDay.add(diff, 'day'),
-            formatString: 'dd',
-          }),
+        const { Adapter } = result.current;
+        cy.mount(
+          <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
+            <DateTimePickerInput
+              changeDate={changeDate}
+              date={new Date(item.initialDate)}
+              property={CustomTimePeriodProperty.start}
+              setDate={setStart}
+            />
+          </LocalizationProvider>,
         );
-        daysArray.forEach((day) => cy.contains(day.toUpperCase()));
-        cy.get('[aria-label="Next month"]').click();
       });
     });
-  });
-});
+
+    it('input calendar value contains correct date', () => {
+      const { result } = renderHook(() => useLocaleDateTimeFormat());
+      act(() => {
+        const { format } = result.current;
+
+        const dateInput = format({
+          date: dayjs(item.initialDate).tz(item.timezone),
+          formatString: 'L hh:mm A',
+        });
+
+        cy.get('input').should('have.value', dateInput);
+        cy.matchImageSnapshot();
+      });
+    });
+
+    it(`check number of days in current month , when clicking on ${item.button} button`, () => {
+      cy.get('input').click();
+      item.data.forEach((element) => {
+        const { lastDay } = Object.values(element)[0];
+
+        cy.get('[role="rowgroup"]').children().as('listWeeks');
+        cy.get('@listWeeks').children('button').as('days');
+        cy.get('@days').should('have.length', lastDay.value);
+
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
+
+    it(`days should not be duplicated in each month of the year, when clicking on ${item.button} button`, () => {
+      cy.get('input').click();
+      item.data.forEach((element) => {
+        const daysInCurrentMonth: Array<string> = [];
+        cy.get('[role="rowgroup"]').first().children().as('listWeeks');
+        cy.get('@listWeeks').children('button').as('days');
+
+        cy.get('@days')
+          .each(($day) => daysInCurrentMonth.push($day.text()))
+          .as('currentDays');
+
+        cy.get('@currentDays').then(() => {
+          const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
+
+          return expect(isDuplicateExist).to.be.false;
+        });
+
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
+
+    it(`the first/last day of the current month ,must correspond to the beginning/end of the week to this current month , when clicking on ${item.button} button`, () => {
+      cy.get('input').click();
+
+      item.data.forEach((element) => {
+        const { firstDay, lastDay, numberWeeks } = Object.values(element)[0];
+
+        cy.get('[role="rowgroup"]').children().as('listWeeks');
+
+        cy.get('@listWeeks').should('have.length', numberWeeks);
+        cy.get('@listWeeks').eq(0).as('firstWeek');
+        cy.get('@firstWeek').children().as('listDaysInFirstWeek');
+
+        cy.get('@listDaysInFirstWeek').should('have.length', numberDaysInWeek);
+        cy.get('@listDaysInFirstWeek')
+          .eq(firstDay.indexDayInRowWeek)
+          .as('firstDayInWeek');
+        cy.get('@firstDayInWeek').contains(firstDay.value);
+
+        cy.get('@listWeeks')
+          .eq(numberWeeks - 1)
+          .as('lastWeek');
+
+        cy.get('@lastWeek').children().as('listDaysInLastWeek');
+        cy.get('@listDaysInLastWeek').should('have.length', numberDaysInWeek);
+
+        cy.get('@listDaysInLastWeek')
+          .eq(lastDay.indexDayInRowWeek)
+          .as('lastDayInWeek');
+        cy.get('@lastDayInWeek').contains(lastDay.value);
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
+
+    it(`the correspond month and year must be displayed in the calendars header ,when clicking on ${item.button} button`, () => {
+      cy.get('input').click();
+      const { result } = renderHook(() => useLocaleDateTimeFormat());
+
+      item.data.forEach((element) => {
+        const { date } = Object.values(element)[0];
+
+        act(() => {
+          const { format } = result.current;
+          const monthAndYear = format({
+            date: dayjs(date).tz(item.timezone),
+            formatString: 'MMMM YYYY',
+          });
+          cy.contains(monthAndYear);
+        });
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
+
+    it(`the appropriate name of days should be displayed on calendar header, when clicking on ${item.button} button`, () => {
+      cy.get('input').click();
+      const { result } = renderHook(() => useLocaleDateTimeFormat());
+
+      item.data.forEach((element, index) => {
+        const { date } = Object.values(element)[0];
+        const dateByTimeZone = dayjs(date).tz(item.timezone);
+        const firstDay = dateByTimeZone.isUTC()
+          ? dateByTimeZone.utc().startOf('month').startOf('week')
+          : dateByTimeZone.startOf('month').startOf('week');
+
+        act(() => {
+          const { format } = result.current;
+          const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+            format({
+              date: firstDay.add(diff, 'day'),
+              formatString: 'dd',
+            }),
+          );
+          daysArray.forEach((day) => cy.contains(day.toUpperCase()));
+          const currentMonth = Object.keys(element)[0];
+          getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        });
+      });
+    });
+    // it.only(`snapShots for tz=${item.timezone} when clicking on ${item.button}`, () => {
+    //   cy.get('input').click();
+
+    //   item.data.forEach((element) => {
+    //     cy.matchImageSnapshot();
+    //     const currentMonth = Object.keys(element)[0];
+    //     getPreviousNextMonth({ currentMonth, labelButton: item.button });
+    //   });
+    // });
+  }),
+);
