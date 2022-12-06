@@ -212,9 +212,11 @@ class InfluxdbContext extends CentreonContext
         $this->spin(
             function ($context) use ($self) {
                 $return = $context->container->execute('influx -database "metrics" -execute "SHOW SERIES"', 'influxdb');
-                return preg_match('/status\.' . $self->hostName . '\.' . $self->serviceName . '/m', $return['output']);
-            },
-            "Cannot get metrics from InfluxDB."
+                if (preg_match('/status\.' . $self->hostName . '\.' . $self->serviceName . '/m', $return['output'])) {
+                    return true;
+                }
+                throw new \Exception("Cannot get metrics from InfluxDB : " . $return['output']);
+            }
         );
     }
 }

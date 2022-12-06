@@ -53,6 +53,6 @@ Feature:
     """
     And I wait to get 1 result from "/api/v21.10/monitoring/hosts/<hostId>/services/<serviceId>/timeline" (tries: 30)
 
-    When I send a GET request to '/api/v21.10/monitoring/hosts/<hostId>/services/<serviceId>/timeline?search={"$and":[{"type":"event"},{"content":{"$lk":"%No output%"}}]}'
+    When I send a GET request to '/api/v21.10/monitoring/hosts/<hostId>/services/<serviceId>/timeline?search={"$and":[{"type":"event"},{"content":{"$lk":"%No%20output%"}}]}'
 
     Then the JSON node "result[0].status.name" should be equal to the string "UNKNOWN"
