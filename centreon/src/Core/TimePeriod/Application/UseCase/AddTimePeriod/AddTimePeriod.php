@@ -26,10 +26,18 @@ namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
 
 class AddTimePeriod
 {
     use LoggerTrait;
+
+    /**
+     * @param WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+     */
+    public function __construct(private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository)
+    {
+    }
 
     /**
      * @param AddTimePeriodRequest $request
@@ -40,6 +48,7 @@ class AddTimePeriod
     {
         try {
             $newTimePeriod = NewTimePeriodFactory::create($request);
+            $this->writeTimePeriodRepository->add($newTimePeriod);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error'));
         }
