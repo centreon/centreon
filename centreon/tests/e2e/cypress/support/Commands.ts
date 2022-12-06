@@ -183,7 +183,7 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('getRefreshDataOnIframe', () => {
-  return cy.wait('@getTimeZone').wait('@getTimeZone');
+  return cy.wait(['@getTimeZone', '@getTimeZone']);
 });
 
 interface GetByLabelProps {
