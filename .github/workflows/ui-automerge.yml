@@ -1,4 +1,4 @@
-name: js-config-automerge
+name: ui-context-automerge
 on:
   pull_request:
     types:
@@ -11,8 +11,8 @@ on:
       - reopened
       - unlocked
     paths:
-      - ".github/workflows/js-config-automerge.yml"
-      - "centreon/packages/js-config/**"
+      - ".github/workflows/ui-automerge.yml"
+      - "centreon/packages/ui/**"
   check_suite:
     types:
       - completed

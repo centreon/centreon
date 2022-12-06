@@ -21,7 +21,6 @@ const Radio = ({
   label,
   radio,
   getDisabled,
-  hideInput,
   change,
   additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
@@ -56,12 +55,9 @@ const Radio = ({
   const value = path(fieldNamePath, values);
 
   const disabled = getDisabled?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
         <RadioGroup value={value} onChange={changeRadio}>
@@ -85,7 +81,7 @@ const Radio = ({
         </RadioGroup>
       </FormGroup>
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden]
+    memoProps: [value, disabled, additionalMemoProps]
   });
 };
 
