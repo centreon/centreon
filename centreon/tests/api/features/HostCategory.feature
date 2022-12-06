@@ -139,3 +139,23 @@ Feature:
     When I send a GET request to '/api/latest/configuration/hosts/categories'
     Then the response code should be "200"
     And the json node "result" should have 0 elements
+
+
+  Scenario: Delete a host category
+    Given I am logged in
+
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+    """
+    {
+        "name": "host-cat-name",
+        "alias": "host-cat-alias"
+    }
+    """
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+    And the JSON node "result[0].name" should be equal to the string "host-cat-name"
+    And the JSON node "result[0].alias" should be equal to the string "host-cat-alias"
+    And the JSON node "result[0].is_activated" should be true
