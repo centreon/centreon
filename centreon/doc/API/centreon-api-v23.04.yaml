@@ -5,7 +5,7 @@ info:
     # New features
     + Added vault configuration endpoints
     + Added time period configuration endpoints
-    + Added host categories endpoint (DELETE)
+    + Added host categories endpoints (DELETE, POST)
     +
     # Updated features
     + Updated host categories endpoint (GET)
@@ -413,9 +413,9 @@ paths:
         * name
         * alias
         * is_activated
-        
+
         Changes in 23.04 :
-        
+
         * `icon` was renamed `icon_id` and is no longer an object but the image ID
         * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
       responses:
@@ -965,9 +965,9 @@ paths:
       summary: "Get all time periods"
       description: |
         Get list of all time periods
-        
+
         The available parameters to **search** / **sort_by** are:
-        
+
         * id
         * name
         * alias
@@ -5570,7 +5570,7 @@ components:
           type: string
           description: |
             Directives, including weekdays, days of the month, and calendar dates
-            
+
             * Calendar date (2008-01-01)
             * Specific month date (January 1st)
             * Generic month date (Day 15)
