@@ -6,15 +6,12 @@ const {
 } = require('cypress-image-snapshot/plugin');
 
 module.exports = (on, config) => {
-  console.log(config);
   if (config.testingType === 'component') {
     addMatchImageSnapshotPlugin(on, config);
 
     const { startDevServer } = require('@cypress/webpack-dev-server');
 
     const webpackConfig = require('../../webpack.config.dev');
-
-    console.log(webpackConfig);
 
     on('dev-server:start', (options) =>
       startDevServer({ options, webpackConfig }),

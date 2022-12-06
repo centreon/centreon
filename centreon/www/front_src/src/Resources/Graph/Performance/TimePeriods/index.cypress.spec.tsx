@@ -224,7 +224,7 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
 };
 
 dataTest.forEach((item) =>
-  describe(`calendar for timeZone=${item.timezone} check months for ${item.button} button`, () => {
+  describe(`calendar`, () => {
     before(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
 
@@ -252,7 +252,7 @@ dataTest.forEach((item) =>
       });
     });
 
-    it('input calendar value contains correct date', () => {
+    it('check input calendar value contains correct date', () => {
       const { result } = renderHook(() => useLocaleDateTimeFormat());
       act(() => {
         const { format } = result.current;
@@ -361,7 +361,7 @@ dataTest.forEach((item) =>
       cy.get('input').click();
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
-      item.data.forEach((element, index) => {
+      item.data.forEach((element) => {
         const { date } = Object.values(element)[0];
         const dateByTimeZone = dayjs(date).tz(item.timezone);
         const firstDay = dateByTimeZone.isUTC()
@@ -382,14 +382,15 @@ dataTest.forEach((item) =>
         });
       });
     });
-    // it.only(`snapShots for tz=${item.timezone} when clicking on ${item.button}`, () => {
-    //   cy.get('input').click();
+    it.only(`check calendar for current month , tz=${item.timezone} when clicking on ${item.button}`, () => {
+      cy.get('input').click();
 
-    //   item.data.forEach((element) => {
-    //     cy.matchImageSnapshot();
-    //     const currentMonth = Object.keys(element)[0];
-    //     getPreviousNextMonth({ currentMonth, labelButton: item.button });
-    //   });
-    // });
+      item.data.forEach((element) => {
+        // cy.matchImageSnapshot();
+
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
   }),
 );
