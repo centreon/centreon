@@ -32,8 +32,7 @@ describe('User Menu', () => {
             <UserMenu />
           </div>
         </Router>
-      ),
-      options: {}
+      )
     });
   });
 

@@ -15,8 +15,9 @@ Cypress.Commands.add('mount', ({ Component, options }) => {
 
 interface MountProps {
   Component: React.Element;
-  options: object;
+  options?: object;
 }
+
 declare global {
   namespace Cypress {
     interface Chainable {

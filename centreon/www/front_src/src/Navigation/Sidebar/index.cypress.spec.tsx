@@ -16,8 +16,7 @@ describe('Navigation menu', () => {
           <Router>
             <SideBar navigationData={data.result} />
           </Router>
-        ),
-        options: {}
+        )
       });
     });
 
