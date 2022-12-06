@@ -10,7 +10,7 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/centreon-widget-live-top10-memory-usage.yml"
+      - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
     tags:
       - centreon-widget-live-top10-memory-usage-*
@@ -42,3 +42,8 @@ jobs:
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
       artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
