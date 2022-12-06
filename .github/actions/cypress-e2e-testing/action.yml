@@ -42,7 +42,7 @@ runs:
       if: ${{ failure() }}
       with:
         name: cypress-videos
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/${{ inputs.path_spec }}
 
     - name: Publish tests report
       uses: EnricoMi/publish-unit-test-result-action@v2
