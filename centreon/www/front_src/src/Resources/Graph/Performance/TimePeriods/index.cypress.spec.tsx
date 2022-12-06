@@ -196,24 +196,25 @@ describe('calendar for timeZone=Europe/Paris', () => {
     });
   });
 
-  // it.only(' days should not be duplicated in current month, when clicking on nextMonth button', () => {
-  //   cy.get('input').click();
-  //   months2023.forEach((data) => {
-  //     const daysInCurrentMonth: Array<string> = [];
+  it(' days should not be duplicated in each month of the year, when clicking on nextMonth button', () => {
+    cy.get('input').click();
+    months2023.forEach(() => {
+      const daysInCurrentMonth: Array<string> = [];
+      cy.get('[role="rowgroup"]').first().children().as('listWeeks');
+      cy.get('@listWeeks').children('button').as('days');
 
-  //     cy.get('[role="rowgroup"]').children().as('listWeeks');
-  //     cy.get('@listWeeks')
-  //       .children('button')
-  //       .each(($day) => daysInCurrentMonth.push($day.text()))
-  //       .as('allDaysInCurrentMonth');
-  //     cy.get('@allDaysInCurrentMonth').then(() => {
-  //       console.log({ daysInCurrentMonth });
-  //       expect(checkIfDuplicateExists(daysInCurrentMonth)).to.be.false;
+      cy.get('@days')
+        .each(($day) => daysInCurrentMonth.push($day.text()))
+        .as('currentDays');
 
-  //       cy.get('[aria-label="Next month"]').click();
-  //     });
-  //   });
-  // });
+      cy.get('@currentDays').then(() => {
+        const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
+        expect(isDuplicateExist).to.be.false;
+      });
+
+      cy.get('[aria-label="Next month"]').click();
+    });
+  });
 
   it('the first/last day of the current month ,must correspond to the  beginning/end of the week to this current month , when clicking on nextMonth button ', () => {
     cy.get('input').click();
@@ -269,7 +270,7 @@ describe('calendar for timeZone=Europe/Paris', () => {
     });
   });
 
-  it('the appropriate days should be displayed on calendar header, when clicking on nextMonth button', () => {
+  it('the appropriate name of days should be displayed on calendar header, when clicking on nextMonth button', () => {
     cy.get('input').click();
     const { result } = renderHook(() => useLocaleDateTimeFormat());
 
