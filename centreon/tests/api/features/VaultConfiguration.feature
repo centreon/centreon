@@ -309,8 +309,7 @@ Feature: Vault Configuration API
             "vault_id": 1,
             "url": "127.0.0.1",
             "port": 8200,
-            "storage": "myStorageFolder",
-            "role_id": "myRoleId"
+            "storage": "myStorageFolder"
           }
         ],
         "meta": {
@@ -387,8 +386,7 @@ Feature: Vault Configuration API
         "vault_id": 1,
         "url": "127.0.0.1",
         "port": 8200,
-        "storage": "myStorageFolder",
-        "role_id": "myRoleId"
+        "storage": "myStorageFolder"
       }
     """
 
