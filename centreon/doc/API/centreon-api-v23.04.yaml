@@ -4,6 +4,9 @@ info:
   description: |
     # New features
     + Added vault configuration endpoints
+    +
+    # Updated features
+    + Updated host categories endpoint (GET)
     # Information
     All dates are in **ISO 8601** format
     # Authentication
