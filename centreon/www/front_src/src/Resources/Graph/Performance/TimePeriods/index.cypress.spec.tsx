@@ -260,20 +260,15 @@ const getPreviousNextMonth = ({
   currentMonth,
   labelButton
 }: GetPreviousNextMonth): void => {
-  switch (labelButton) {
-    case ButtonCalendar.PMONTH:
-      if (!equals(currentMonth, 'January')) {
-        cy.get(`[aria-label="${labelButton}"]`).click();
-      }
-
-      break;
-    case ButtonCalendar.NMONTH:
-      if (!equals(currentMonth, 'December')) {
-        cy.get(`[aria-label="${labelButton}"]`).click();
-      }
-      break;
-    default:
-      break;
+  if (equals(labelButton, ButtonCalendar.PMONTH)) {
+    if (!equals(currentMonth, 'January')) {
+      cy.get(`[aria-label="${labelButton}"]`).click();
+    }
+  }
+  if (equals(labelButton, ButtonCalendar.NMONTH)) {
+    if (!equals(currentMonth, 'December')) {
+      cy.get(`[aria-label="${labelButton}"]`).click();
+    }
   }
 };
 
@@ -300,16 +295,18 @@ dataTest.forEach((item) =>
 
       act(() => {
         const { Adapter } = result.current;
-        cy.mount(
-          <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-            <DateTimePickerInput
-              changeDate={changeDate}
-              date={new Date(item.initialDate)}
-              property={CustomTimePeriodProperty.start}
-              setDate={setStart}
-            />
-          </LocalizationProvider>
-        );
+        cy.mount({
+          Component: (
+            <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
+              <DateTimePickerInput
+                changeDate={changeDate}
+                date={new Date(item.initialDate)}
+                property={CustomTimePeriodProperty.start}
+                setDate={setStart}
+              />
+            </LocalizationProvider>
+          )
+        });
       });
     });
 
