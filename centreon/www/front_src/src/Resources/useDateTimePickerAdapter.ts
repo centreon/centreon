@@ -268,7 +268,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         true
       );
 
-      const daysOfMonthWithTimeZone = [
+      const daysOfMonthWithTimezone = [
         ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
       ].reduce(
         (acc, _, currentIndex) => {
