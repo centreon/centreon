@@ -133,7 +133,104 @@ const months2023 = [
   },
 ];
 
-const temporaryMonths = [...months2023];
+const month2023Reverse = [
+  {
+    December: {
+      date: '2023-12-01T12:59:41.041Z',
+      firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
+      lastDay: { day: days[0], indexDayInRowWeek: 0, value: 31 },
+      numberWeeks: 6,
+    },
+  },
+  {
+    November: {
+      date: '2023-11-01T12:59:41.041Z',
+      firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
+      lastDay: { day: days[4], indexDayInRowWeek: 4, value: 30 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    October: {
+      date: '2023-10-01T12:59:41.041Z',
+      firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
+      lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    September: {
+      date: '2023-09-01T12:59:41.041Z',
+      firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
+      lastDay: { day: days[6], indexDayInRowWeek: 6, value: 30 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    August: {
+      date: '2023-08-01T12:59:41.041Z',
+      firstDay: { day: days[2], indexDayInRowWeek: 2, value: 1 },
+      lastDay: { day: days[4], indexDayInRowWeek: 4, value: 31 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    July: {
+      date: '2023-07-01T12:59:41.041Z',
+      firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
+      lastDay: { day: days[1], indexDayInRowWeek: 1, value: 31 },
+      numberWeeks: 6,
+    },
+  },
+  {
+    June: {
+      date: '2023-06-01T12:59:41.041Z',
+      firstDay: { day: days[4], indexDayInRowWeek: 4, value: 1 },
+      lastDay: { day: days[5], indexDayInRowWeek: 5, value: 30 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    May: {
+      date: '2023-05-01T12:59:41.041Z',
+      firstDay: { day: days[1], indexDayInRowWeek: 1, value: 1 },
+      lastDay: { day: days[3], indexDayInRowWeek: 3, value: 31 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    April: {
+      date: '2023-04-01T12:59:41.041Z',
+      firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
+      lastDay: { day: days[0], indexDayInRowWeek: 0, value: 30 },
+      numberWeeks: 6,
+    },
+  },
+  {
+    March: {
+      date: '2023-03-01T12:59:41.041Z',
+      firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
+      lastDay: { day: days[5], indexDayInRowWeek: 5, value: 31 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    February: {
+      date: '2023-02-01T12:59:41.041Z',
+      firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
+      lastDay: { day: days[2], indexDayInRowWeek: 2, value: 28 },
+      numberWeeks: 5,
+    },
+  },
+  {
+    January: {
+      date: '2023-01-01T12:59:41.041Z',
+      firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
+      lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
+      numberWeeks: 5,
+    },
+  },
+];
 
 const dataTest = [
   {
@@ -144,7 +241,7 @@ const dataTest = [
   },
   {
     button: 'Previous month',
-    data: temporaryMonths.reverse(),
+    data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
     timezone: 'Europe/Paris',
   },
@@ -156,7 +253,7 @@ const dataTest = [
   },
   {
     button: 'Previous month',
-    data: temporaryMonths.reverse(),
+    data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
     timezone: 'Europe/London',
   },
@@ -168,7 +265,7 @@ const dataTest = [
   },
   {
     button: 'Previous month',
-    data: temporaryMonths.reverse(),
+    data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
     timezone: 'Atlantic/Madeira',
   },
@@ -180,7 +277,7 @@ const dataTest = [
   },
   {
     button: 'Previous month',
-    data: temporaryMonths.reverse(),
+    data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
     timezone: 'UTC',
   },
@@ -263,7 +360,6 @@ dataTest.forEach((item) =>
         });
 
         cy.get('input').should('have.value', dateInput);
-        cy.matchImageSnapshot();
       });
     });
 
@@ -382,11 +478,15 @@ dataTest.forEach((item) =>
         });
       });
     });
-    it.only(`check calendar for current month , tz=${item.timezone} when clicking on ${item.button}`, () => {
+    it(`check calendar for current month , tz=${item.timezone} when clicking on ${item.button}`, () => {
       cy.get('input').click();
 
       item.data.forEach((element) => {
-        // cy.matchImageSnapshot();
+        cy.matchImageSnapshot(
+          `calendar-${item.timezone}-${
+            Object.keys(element)[0]
+          }-when-clicking-on-${item.button}`,
+        );
 
         const currentMonth = Object.keys(element)[0];
         getPreviousNextMonth({ currentMonth, labelButton: item.button });

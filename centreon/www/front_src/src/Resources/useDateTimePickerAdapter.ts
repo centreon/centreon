@@ -245,16 +245,28 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       const startOfWeek = date.startOf('month').startOf('week');
       const endOfWeek = date.endOf('month').endOf('week');
-      const start = isMorning
+
+      const start = startOfWeek.endOf('day');
+
+      const end = endOfWeek.endOf('day');
+      const customStart = isMorning
         ? startOfWeek.startOf('day')
         : startOfWeek.endOf('day');
 
-      const end = isMorning ? endOfWeek.startOf('day') : endOfWeek.endOf('day');
+      const customEnd = isMorning
+        ? endOfWeek.startOf('day')
+        : endOfWeek.endOf('day');
 
-      const current = start.isUTC() ? start.tz(timezone, true) : start;
-      const currentEnd = end.isUTC() ? end.tz(timezone, true) : end;
+      const currentStart = start.isUTC()
+        ? start.tz(timezone, true)
+        : customStart;
+      const currentEnd = end.isUTC() ? end.tz(timezone, true) : customEnd;
 
-      const numberOfDaysInCurrentMonth = currentEnd.diff(current, 'd');
+      const numberOfDaysInCurrentMonth = currentEnd.diff(
+        currentStart,
+        'd',
+        true,
+      );
 
       const daysOfMonthWithTimeZone = [
         ...Array(Math.round(numberOfDaysInCurrentMonth)).keys(),
@@ -272,7 +284,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
           return [...acc, newCurrent];
         },
-        [current],
+        [currentStart],
       );
 
       const arrayWeeks = this.getChunkFromArray({
