@@ -66,7 +66,7 @@ runs:
         echo "[DEBUG] - Branch name: $BRANCHNAME"
 
         case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
+          develop | dev-[2-9][0-9].[0-9][0-9].x | fix-delivery-createrepo)
             SUBREPO="unstable"
             ;;
           release* | hotfix*)
@@ -119,8 +119,9 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
           #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
         done
+
+        ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
 
         ID="${{ inputs.cloudfront_id }}"
         PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
