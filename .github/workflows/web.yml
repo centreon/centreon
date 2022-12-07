@@ -49,7 +49,12 @@ jobs:
             has_backend_changes:
               - '**/*.php'
               - '**/phpstan*.neon'
-              - '**/*.xml|**/bin/**'
+              - 'centreon/codingstyle.xml'
+              - 'centreon/config/**/*.xml'
+              - 'centreon/phpunit.xml'
+              - 'centreon/ruleset.xml'
+              - 'centreon/www/**/*.xml'
+              - '**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
               - '/centreon/src/**'

@@ -2,13 +2,13 @@ import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 
+import { SnackbarProvider } from '@centreon/ui';
 import {
   render,
   waitFor,
   RenderResult,
-  screen,
-  SnackbarProvider
-} from '@centreon/ui';
+  screen
+} from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import { cancelTokenRequestParam } from '../../../Resources/testUtils';

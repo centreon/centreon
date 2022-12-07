@@ -9,7 +9,7 @@ import PageLoader from '../components/PageLoader';
 
 import useApp from './useApp';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()({
   content: {
     display: 'flex',
     flexDirection: 'column',
@@ -41,7 +41,7 @@ const useStyles = makeStyles()(() => ({
     height: '100%',
     overflow: 'hidden'
   }
-}));
+});
 
 const MainRouter = lazy(() => import('../components/mainRouter'));
 const Header = lazy(() => import('../Header'));
