@@ -9,21 +9,21 @@ import IconButton from '.';
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     '&:hover': {
-      background: theme.palette.primary.dark,
+      background: theme.palette.primary.dark
     },
     background: theme.palette.primary.light,
-    color: theme.palette.common.white,
-  },
+    color: theme.palette.common.white
+  }
 }));
 
 export default {
   argTypes: {
     ariaLabel: { control: 'text' },
-    title: { control: 'text' },
+    title: { control: 'text' }
   },
 
   component: IconButton,
-  title: 'Button/Icon',
+  title: 'Button/Icon'
 } as ComponentMeta<typeof IconButton>;
 
 const TemplateIconButton: ComponentStory<typeof IconButton> = (args) => (

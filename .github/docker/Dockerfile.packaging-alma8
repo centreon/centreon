@@ -1,4 +1,4 @@
-FROM registry-docker.centreon.com/docker-global/almalinux:8.5
+FROM docker-proxy.centreon.com/almalinux:8.5
 
 RUN <<EOF
 

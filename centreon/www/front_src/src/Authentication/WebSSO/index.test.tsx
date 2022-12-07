@@ -1,7 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { render, RenderResult, screen, waitFor } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  screen,
+  waitFor
+} from '@centreon/ui/src/testRenderer';
 
 import { Provider } from '../models';
 import { authenticationProvidersEndpoint } from '../api/endpoints';
@@ -9,7 +14,7 @@ import {
   labelDoYouWantToResetTheForm,
   labelReset,
   labelResetTheForm,
-  labelSave,
+  labelSave
 } from '../Local/translatedLabels';
 import { labelActivation } from '../translatedLabels';
 
@@ -24,7 +29,7 @@ import {
   labelPatternMatchLogin,
   labelPatternReplaceLogin,
   labelTrustedClientAddresses,
-  labelWebSSOOnly,
+  labelWebSSOOnly
 } from './translatedLabels';
 
 import WebSSOConfigurationForm from '.';
@@ -38,8 +43,8 @@ const cancelTokenRequestParam = { cancelToken: {} };
 const cancelTokenPutParams = {
   ...cancelTokenRequestParam,
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
 };
 
 const renderWebSSOConfigurationForm = (): RenderResult =>
@@ -52,19 +57,19 @@ const retrievedWebSSOConfiguration = {
   login_header_attribute: '',
   pattern_matching_login: null,
   pattern_replace_login: null,
-  trusted_client_addresses: ['127.0.0.1'],
+  trusted_client_addresses: ['127.0.0.1']
 };
 
 describe('Web SSOconfiguration form', () => {
   beforeEach(() => {
     mockedAxios.get.mockReset();
     mockedAxios.get.mockResolvedValue({
-      data: retrievedWebSSOConfiguration,
+      data: retrievedWebSSOConfiguration
     });
 
     mockedAxios.put.mockReset();
     mockedAxios.put.mockResolvedValue({
-      data: {},
+      data: {}
     });
   });
 
@@ -72,13 +77,13 @@ describe('Web SSOconfiguration form', () => {
     renderWebSSOConfigurationForm();
 
     expect(
-      screen.getByText(labelDefineWebSSOConfiguration),
+      screen.getByText(labelDefineWebSSOConfiguration)
     ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -88,21 +93,21 @@ describe('Web SSOconfiguration form', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByLabelText(labelEnableWebSSOAuthentication),
+        screen.getByLabelText(labelEnableWebSSOAuthentication)
       ).toBeChecked();
     });
 
     expect(screen.getByLabelText(labelWebSSOOnly)).not.toBeChecked();
     expect(screen.getByLabelText(labelMixed)).toBeChecked();
     expect(
-      screen.getByLabelText(`${labelTrustedClientAddresses}`),
+      screen.getByLabelText(`${labelTrustedClientAddresses}`)
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText(`${labelBlacklistClientAddresses}`),
+      screen.getByLabelText(`${labelBlacklistClientAddresses}`)
     ).toBeInTheDocument();
     expect(screen.getAllByText('127.0.0.1')).toHaveLength(2);
     expect(screen.getByLabelText(labelLoginHeaderAttributeName)).toHaveValue(
-      '',
+      ''
     );
     expect(screen.getByLabelText(labelPatternMatchLogin)).toHaveValue('');
     expect(screen.getByLabelText(labelPatternReplaceLogin)).toHaveValue('');
@@ -114,7 +119,7 @@ describe('Web SSOconfiguration form', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -124,13 +129,13 @@ describe('Web SSOconfiguration form', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByLabelText(labelEnableWebSSOAuthentication),
+        screen.getByLabelText(labelEnableWebSSOAuthentication)
       ).toBeChecked();
     });
 
     userEvent.type(
       screen.getByLabelText(labelPatternMatchLogin),
-      '{selectall}{backspace}invalid-pattern^',
+      '{selectall}{backspace}invalid-pattern^'
     );
     userEvent.tab();
 
@@ -140,7 +145,7 @@ describe('Web SSOconfiguration form', () => {
 
     userEvent.type(
       screen.getByLabelText(labelPatternReplaceLogin),
-      '{selectall}{backspace}$invalid-pattern',
+      '{selectall}{backspace}$invalid-pattern'
     );
     userEvent.tab();
 
@@ -150,25 +155,25 @@ describe('Web SSOconfiguration form', () => {
 
     userEvent.type(
       screen.getByLabelText(`${labelTrustedClientAddresses}`),
-      'invalid domain',
+      'invalid domain'
     );
     userEvent.keyboard('{Enter}');
 
     await waitFor(() => {
       expect(
-        screen.getByText(`invalid domain: ${labelInvalidIPAddress}`),
+        screen.getByText(`invalid domain: ${labelInvalidIPAddress}`)
       ).toBeInTheDocument();
     });
 
     userEvent.type(
       screen.getByLabelText(`${labelBlacklistClientAddresses}`),
-      '127.0.0.1111',
+      '127.0.0.1111'
     );
     userEvent.keyboard('{Enter}');
 
     await waitFor(() => {
       expect(
-        screen.getByText(`127.0.0.1111: ${labelInvalidIPAddress}`),
+        screen.getByText(`127.0.0.1111: ${labelInvalidIPAddress}`)
       ).toBeInTheDocument();
     });
 
@@ -182,7 +187,7 @@ describe('Web SSOconfiguration form', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -192,13 +197,13 @@ describe('Web SSOconfiguration form', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByLabelText(labelEnableWebSSOAuthentication),
+        screen.getByLabelText(labelEnableWebSSOAuthentication)
       ).toBeChecked();
     });
 
     userEvent.type(
       screen.getByLabelText(labelLoginHeaderAttributeName),
-      'admin',
+      'admin'
     );
     userEvent.tab();
 
@@ -213,16 +218,16 @@ describe('Web SSOconfiguration form', () => {
         authenticationProvidersEndpoint(Provider.WebSSO),
         {
           ...retrievedWebSSOConfiguration,
-          login_header_attribute: 'admin',
+          login_header_attribute: 'admin'
         },
-        cancelTokenPutParams,
+        cancelTokenPutParams
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
   });
@@ -233,7 +238,7 @@ describe('Web SSOconfiguration form', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -243,13 +248,13 @@ describe('Web SSOconfiguration form', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByLabelText(labelEnableWebSSOAuthentication),
+        screen.getByLabelText(labelEnableWebSSOAuthentication)
       ).toBeChecked();
     });
 
     userEvent.type(
       screen.getByLabelText(labelLoginHeaderAttributeName),
-      'admin',
+      'admin'
     );
     userEvent.tab();
 
@@ -269,7 +274,7 @@ describe('Web SSOconfiguration form', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(labelLoginHeaderAttributeName)).toHaveValue(
-        '',
+        ''
       );
     });
   });

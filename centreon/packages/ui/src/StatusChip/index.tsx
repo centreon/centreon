@@ -12,7 +12,7 @@ enum SeverityCode {
   Low = 3,
   Pending = 4,
   Ok = 5,
-  None = 6,
+  None = 6
 }
 
 interface StatusColorProps {
@@ -23,6 +23,7 @@ interface StatusColorProps {
 
 export interface Colors {
   backgroundColor: string;
+  color: string;
 }
 
 const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
@@ -31,29 +32,29 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   const colorMapping = {
     [SeverityCode.High]: {
       backgroundColor: palette.error.main,
-      color: palette.error.contrastText,
+      color: palette.error.contrastText
     },
     [SeverityCode.Medium]: {
       backgroundColor: palette.warning.main,
-      color: palette.warning.contrastText,
+      color: palette.warning.contrastText
     },
     [SeverityCode.Low]: {
       backgroundColor:
         grey[equals(ThemeMode.dark, theme.palette.mode) ? 600 : 300],
-      color: '#000',
+      color: '#000'
     },
     [SeverityCode.Pending]: {
       backgroundColor: palette.pending.main,
-      color: '#fff',
+      color: '#fff'
     },
     [SeverityCode.Ok]: {
       backgroundColor: palette.success.main,
-      color: palette.success.contrastText,
+      color: palette.success.contrastText
     },
     [SeverityCode.None]: {
       backgroundColor: alpha(palette.primary.main, 0.1),
-      color: palette.text.primary,
-    },
+      color: palette.text.primary
+    }
   };
 
   return colorMapping[severityCode];
@@ -68,8 +69,8 @@ export type Props = {
 const useStyles = makeStyles<Props>()((theme, { severityCode }) => ({
   chip: {
     '&:hover': { ...getStatusColors({ severityCode, theme }) },
-    ...getStatusColors({ severityCode, theme }),
-  },
+    ...getStatusColors({ severityCode, theme })
+  }
 }));
 
 const StatusChip = ({

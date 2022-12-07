@@ -1,0 +1,128 @@
+%define debug_package %{nil}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
+%define centreon_etc /etc/centreon
+%define centreon_dir %{_datadir}/centreon
+%define centreon_log /var/log/centreon
+%define centreon_varlib /var/lib/centreon
+%define centreon_www %{_datadir}/centreon/www
+
+Name:           centreon-dsm
+Version:        %{version}
+Release:        %{release}
+Summary:        Centreon-dsm add-on for Centreon
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
+
+Group:          System Environment/Base
+License:        GPLv2
+URL:            https://github.com/centreon/centreon-dsm
+Source0:        %{name}-%{version}.tar.gz
+Source1:        centreon-macroreplacement.txt
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:      noarch
+Requires:       centreon
+Requires:	    centreon-dsm-client = %{version}-%{release}
+Requires:       centreon-dsm-server = %{version}-%{release}
+
+%description
+This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
+into the configuration. This module give possibility to collect all alerts into a tray of
+events.
+
+%package server
+Summary:        Centreon-dsm server
+Group:          Networking/Other
+Requires(post): /sbin/chkconfig
+Requires:	centreon-web >= %{thismajor}
+Requires:       centreon-web < %{nextmajor}
+
+%description server
+Centreon-dsm server package
+
+%package client
+Summary:	Centreon-dsm client
+Group:		Networking/Other
+
+%description client
+Centreon-dsm client package
+
+######################################################
+# Prepare the build
+######################################################
+%prep
+%setup -q -n %{name}-%{version}
+
+# Change macro
+find . -type f | xargs sed -i -f %{SOURCE1}
+
+%build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+# Install centreon-dsm README
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}
+%{__cp} centreon-dsm/README $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}/README
+
+# Install centreon-dsm web files
+%{__cp} -rp centreon-dsm/www/modules/%{name} $RPM_BUILD_ROOT%{centreon_www}/modules/
+
+# Install centreon-dsm bin
+%{__install} -d -m 0775 %buildroot/usr/share/centreon/bin
+%{__install} -m 0755 centreon-dsm/bin/* %buildroot/usr/share/centreon/bin
+
+# Install centreon-dsm cron
+%{__install} -d $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
+%{__cp} centreon-dsm/cron/* $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
+
+# Install daemon starting script
+%{__install} -d -m 0755 %buildroot%{_unitdir}
+%{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
+%{__install} -m 0755 centreon-dsm/libinstall/redhat/dsmd.systemd %buildroot%{_unitdir}/dsmd.service
+%{__install} -m 0644 centreon-dsm/libinstall/redhat/dsmd.sysconfig %buildroot%{_sysconfdir}/sysconfig/dsmd
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+######################################################
+# Package centreon-dsm
+######################################################
+%files
+
+######################################################
+# Package centreon-dsm-server
+######################################################
+%files server
+
+%defattr(-,root,root,-)
+# %doc www/modules/%{name}/CHANGELOG
+
+%defattr(-,apache,apache,-)
+%{centreon_www}/modules/%{name}
+%{centreon_www}/modules/%{name}/README
+
+%defattr(-,centreon,centreon,0755)
+%{_datadir}/centreon/bin/dsmd.pl
+
+%attr(-,root,root)
+%{_sysconfdir}/cron.d/centreon-dsm
+
+%defattr(0755,root,root,-)
+%{_unitdir}/dsmd.service
+%{_sysconfdir}/sysconfig/dsmd
+
+%post server
+/sbin/chkconfig --add dsmd
+/sbin/chkconfig --level 345 dsmd on
+service dsmd start > /dev/null 2>&1 || echo
+
+######################################################
+# Package centreon-dsm-client
+######################################################
+%files client
+
+%defattr(-,centreon,centreon,0755)
+%{_datadir}/centreon/bin/dsmclient.pl
+
+%changelog

@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This widget lists hosts ordered by memory usage (percentage). It is possible to select the number of lines in the table or to select a subset of resources.</description>
-    <version>22.10.0</version>
+    <version>23.04.0</version>
     <keywords>centreon, widget, memory</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/live-top10-memory-usage/resources/logo1.png</thumbnail>

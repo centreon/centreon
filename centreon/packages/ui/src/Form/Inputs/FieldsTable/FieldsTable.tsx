@@ -21,7 +21,7 @@ import {
   map,
   or,
   is,
-  clone,
+  clone
 } from 'ramda';
 
 import { FormHelperText, IconButton, Typography } from '@mui/material';
@@ -33,7 +33,7 @@ import { DragEnd } from '../../../SortableItems';
 import { SortableItems, useMemoComponent } from '../../..';
 import {
   InputPropsWithoutGroup,
-  InputPropsWithoutGroupAndType,
+  InputPropsWithoutGroupAndType
 } from '../models';
 
 import Row from './Row';
@@ -47,33 +47,33 @@ const useStyles = makeStyles<StylesProps>()((theme, { columns }) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing(1),
+    rowGap: theme.spacing(1)
   },
   icon: {
-    marginTop: theme.spacing(0.5),
+    marginTop: theme.spacing(0.5)
   },
   inputsRow: {
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: `repeat(${columns}, 1fr) min-content`,
+    gridTemplateColumns: `repeat(${columns}, 1fr) min-content`
   },
   table: {
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing(2),
-  },
+    rowGap: theme.spacing(2)
+  }
 }));
 
 const useContentStyles = makeStyles<StylesProps>()((theme, { isDragging }) => ({
   content: {
     '&:hover': {
-      boxShadow: theme.shadows[3],
+      boxShadow: theme.shadows[3]
     },
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
   handler: {
-    cursor: isDragging ? 'grabbing' : 'grab',
-  },
+    cursor: isDragging ? 'grabbing' : 'grab'
+  }
 }));
 
 interface TableRowValue {
@@ -112,7 +112,7 @@ const SortableRow = ({
   fieldsTableRows,
   defaultRowValue,
   label,
-  fieldName,
+  fieldName
 }: ContentProps): JSX.Element | null => {
   const { classes } = useContentStyles({ isDragging });
 
@@ -156,10 +156,10 @@ const SortableRow = ({
 const FieldsTable = ({
   fieldsTable,
   fieldName,
-  label,
+  label
 }: InputPropsWithoutGroup): JSX.Element => {
   const { classes } = useStyles({
-    columns: fieldsTable?.columns.length,
+    columns: fieldsTable?.columns.length
   });
 
   const { t } = useTranslation();
@@ -181,13 +181,13 @@ const FieldsTable = ({
   const defaultRowValue = is(Object, fieldsTable?.defaultRowValue)
     ? {
         ...(fieldsTable?.defaultRowValue as TableRowValue),
-        priority: tableValues.length,
+        priority: tableValues.length
       }
     : fieldsTable?.defaultRowValue;
 
   const fieldsToMemoize = pick(
     fieldsTable?.additionalFieldsToMemoize || [],
-    values,
+    values
   );
 
   const createNewRow = isNil(fieldsTableError);
@@ -205,7 +205,7 @@ const FieldsTable = ({
    */
   const deleteRowAndUpdatePriority = (
     indexToRemove: number,
-    arrayToUpdate: Array<TableRowValue>,
+    arrayToUpdate: Array<TableRowValue>
   ): Array<TableRowValue> => {
     const filterIndexToRemoveAndUpdatePriority = pipe(
       filter((item: TableRowValue) => item.priority !== indexToRemove),
@@ -213,10 +213,10 @@ const FieldsTable = ({
         item.priority && item.priority > indexToRemove
           ? {
               ...item,
-              priority: dec(item.priority),
+              priority: dec(item.priority)
             }
-          : item,
-      ),
+          : item
+      )
     );
 
     return filterIndexToRemoveAndUpdatePriority(arrayToUpdate);
@@ -239,13 +239,13 @@ const FieldsTable = ({
       const itemPosition = Number(
         isNotSortableOrLastEmptyItem(index)
           ? index
-          : tableValues[index].priority,
+          : tableValues[index].priority
       );
       acc[itemPosition] = index;
 
       return acc;
     },
-    [] as Array<number>,
+    [] as Array<number>
   );
 
   /**
@@ -259,7 +259,7 @@ const FieldsTable = ({
     fieldsTableRows,
     id: String(id),
     label,
-    onDeleteRow,
+    onDeleteRow
   }));
 
   useEffect(() => {
@@ -306,7 +306,7 @@ const FieldsTable = ({
                 'fieldsTableRows',
                 'id',
                 'label',
-                'onDeleteRow',
+                'onDeleteRow'
               ]}
               items={sortableItems}
               sortingStrategy={verticalListSortingStrategy}
@@ -353,8 +353,8 @@ const FieldsTable = ({
       fieldsTable,
       label,
       isSortable,
-      keysToIterate,
-    ],
+      keysToIterate
+    ]
   });
 };
 

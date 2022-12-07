@@ -1,14 +1,11 @@
-import React from 'react';
-
 import './commands';
-import { mount } from 'cypress/react18';
 
-import { ThemeProvider } from '@centreon/ui';
+import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
 
-window.React = React;
-
-Cypress.Commands.add('mount', (component, options = {}) => {
-  const wrapped = <ThemeProvider>{component}</ThemeProvider>;
-
-  return mount(wrapped, options);
+addMatchImageSnapshotCommand({
+  capture: 'viewport',
+  customDiffConfig: { threshold: 0.1 },
+  customSnapshotsDir: './cypress/visual-testing-snapshots',
+  failureThreshold: 0.03,
+  failureThresholdType: 'percent'
 });

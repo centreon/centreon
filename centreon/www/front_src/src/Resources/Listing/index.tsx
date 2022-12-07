@@ -16,17 +16,18 @@ import {
   openDetailsTabIdAtom,
   selectedResourceUuidAtom,
   selectedResourcesDetailsAtom,
+  panelWidthStorageAtom
 } from '../Details/detailsAtoms';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToCheckAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom,
+  selectedResourcesAtom
 } from '../Actions/actionsAtoms';
 import {
   getCriteriaValueDerivedAtom,
   searchAtom,
-  setCriteriaAndNewFilterDerivedAtom,
+  setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
@@ -37,7 +38,7 @@ import {
   listingAtom,
   pageAtom,
   selectedColumnIdsAtom,
-  sendingAtom,
+  sendingAtom
 } from './listingAtoms';
 
 export const okStatuses = ['OK', 'UP'];
@@ -48,23 +49,24 @@ const ResourceListing = (): JSX.Element => {
   const { showWarningMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
-    selectedResourceUuidAtom,
+    selectedResourceUuidAtom
   );
   const [page, setPage] = useAtom(pageAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
-    selectedColumnIdsAtom,
+    selectedColumnIdsAtom
   );
   const [selectedResources, setSelectedResources] = useAtom(
-    selectedResourcesAtom,
+    selectedResourcesAtom
   );
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
-    selectedResourcesDetailsAtom,
+    selectedResourcesDetailsAtom
   );
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
+  const panelWidth = useAtomValue(panelWidthStorageAtom);
 
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -72,16 +74,18 @@ const ResourceListing = (): JSX.Element => {
   const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
   const setResourcesToCheck = useUpdateAtom(resourcesToCheckAtom);
   const setCriteriaAndNewFilter = useUpdateAtom(
-    setCriteriaAndNewFilterDerivedAtom,
+    setCriteriaAndNewFilterDerivedAtom
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
   const changeSort = ({ sortField, sortOrder }): void => {
     setCriteriaAndNewFilter({
       apply: true,
       name: 'sort',
-      value: [sortField, sortOrder],
+      value: [sortField, sortOrder]
     });
   };
 
@@ -97,7 +101,7 @@ const ResourceListing = (): JSX.Element => {
     setSelectedResourceUuid(uuid);
     setSelectedResourceDetails({
       resourceId: id,
-      resourcesDetailsEndpoint: links?.endpoints?.details,
+      resourcesDetailsEndpoint: links?.endpoints?.details
     });
   };
 
@@ -114,7 +118,7 @@ const ResourceListing = (): JSX.Element => {
         ? equals(id, parentResourceId)
         : equals(id, selectedResourceDetails?.resourceId);
     },
-    name: 'detailsOpen',
+    name: 'detailsOpen'
   };
 
   const columns = getColumns({
@@ -132,16 +136,16 @@ const ResourceListing = (): JSX.Element => {
       },
       onDowntime: (resource): void => {
         setResourcesToSetDowntime([resource]);
-      },
+      }
     },
-    t,
+    t
   });
 
   const loading = sending;
 
   const [sortField, sortOrder] = getCriteriaValue('sort') as [
     string,
-    SortOrder,
+    SortOrder
   ];
 
   const getId = ({ uuid }: Resource): string => uuid;
@@ -163,13 +167,13 @@ const ResourceListing = (): JSX.Element => {
   const predefinedRowsSelection = [
     {
       label: `${t(labelStatus).toLowerCase()}:OK`,
-      rowCondition: ({ status }): boolean => includes(status.name, okStatuses),
+      rowCondition: ({ status }): boolean => includes(status.name, okStatuses)
     },
     {
       label: `${t(labelStatus).toLowerCase()}:NOK`,
       rowCondition: ({ status }): boolean =>
-        not(includes(status.name, okStatuses)),
-    },
+        not(includes(status.name, okStatuses))
+    }
   ];
 
   return (
@@ -178,7 +182,7 @@ const ResourceListing = (): JSX.Element => {
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true,
+        sortable: true
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
@@ -195,18 +199,20 @@ const ResourceListing = (): JSX.Element => {
         selectedResourceUuid,
         sending,
         enabledAutoRefresh,
-        selectedResourceDetails,
+        selectedResourceDetails
       ]}
+      moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[
         resourceDetailsOpenCondition,
-        ...rowColorConditions(theme),
+        ...rowColorConditions(theme)
       ]}
       rows={listing?.result}
       selectedRows={selectedResources}
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
+      widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}

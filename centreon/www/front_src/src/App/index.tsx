@@ -1,8 +1,7 @@
 import { lazy, Suspense } from 'react';
 
 import { not } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
@@ -10,48 +9,46 @@ import PageLoader from '../components/PageLoader';
 
 import useApp from './useApp';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()({
   content: {
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
     height: '100%',
     overflow: 'hidden',
-    position: 'relative',
+    position: 'relative'
   },
   fullScreenWrapper: {
     flexGrow: 1,
     height: '100%',
     overflow: 'hidden',
-    width: '100%',
+    width: '100%'
   },
   fullscreenButton: {
     bottom: '10px',
     position: 'absolute',
     right: '20px',
-    zIndex: 1500,
+    zIndex: 1500
   },
   mainContent: {
     '& iframe': {
-      display: 'block',
+      display: 'block'
     },
-    flexGrow: 1,
+    flexGrow: 1
   },
   wrapper: {
-    backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    fontFamily: theme.typography.fontFamily,
     height: '100%',
-    overflow: 'hidden',
-  },
-}));
+    overflow: 'hidden'
+  }
+});
 
 const MainRouter = lazy(() => import('../components/mainRouter'));
 const Header = lazy(() => import('../Header'));
 const Navigation = lazy(() => import('../Navigation'));
 
 const App = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { hasMinArgument } = useApp();
 
   const min = hasMinArgument();

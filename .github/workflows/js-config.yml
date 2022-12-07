@@ -1,35 +1,51 @@
 name: centreon-js-config
 
 on:
-  workflow_dispatch:
   pull_request:
+    types:
+      - closed
+      - opened
+      - edited
+      - synchronize
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
-  push:
     branches:
       - develop
-    paths:
-      - ".github/workflows/js-config.yml"
-      - "centreon/packages/js-config/**"
-    tags-ignore:
-      - js-config-*
 
 env:
-  version: "22.10"
   directory: "centreon/packages/js-config"
   centreon_directory: "centreon"
+  package: 'js-config'
+  base_branch: develop
 
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
+    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/publish-npm
         with:
-          package: js-config
-          release_branch: develop
+          ref: ${{ env.base_branch }}
+
+      - uses: ./.github/actions/npm-publish
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package: ${{ env.package }}
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+    if: ${{ startsWith(github.head_ref, 'MON-update-package-versions') }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

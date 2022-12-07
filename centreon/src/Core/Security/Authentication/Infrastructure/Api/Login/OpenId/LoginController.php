@@ -78,9 +78,9 @@ class LoginController extends AbstractController
                 );
             default:
                 /**
-                 * @var LoginResponse
+                 * @var LoginResponse $response
                  */
-                $response = $presenter->getResponseStatus();
+                $response = $presenter->getPresentedData();
                 return View::createRedirect(
                     $this->getBaseUrl() . $response->getRedirectUri(),
                     Response::HTTP_FOUND,

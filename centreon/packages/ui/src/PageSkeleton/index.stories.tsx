@@ -5,10 +5,10 @@ import PageSkeleton from '.';
 export default {
   argTypes: {
     animate: { control: 'boolean' },
-    displayHeaderAndNavigation: { control: 'boolean' },
+    displayHeaderAndNavigation: { control: 'boolean' }
   },
   component: PageSkeleton,
-  title: 'Page Skeleton',
+  title: 'Page Skeleton'
 } as ComponentMeta<typeof PageSkeleton>;
 
 const TemplatePageSkeleton: ComponentStory<typeof PageSkeleton> = (args) => (
@@ -18,7 +18,7 @@ const TemplatePageSkeleton: ComponentStory<typeof PageSkeleton> = (args) => (
 export const PlaygroundPageSkeleton = TemplatePageSkeleton.bind({});
 PlaygroundPageSkeleton.args = {
   animate: true,
-  displayHeaderAndNavigation: true,
+  displayHeaderAndNavigation: true
 };
 
 export const normal = (): JSX.Element => <PageSkeleton animate={false} />;
