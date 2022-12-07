@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, renderHook } from '@testing-library/react-hooks/dom';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
@@ -284,44 +284,38 @@ dataTest.forEach((item) =>
     before(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
 
-      act(() => {
-        userData.result.current.timezone = item.timezone;
-        userData.result.current.locale = 'en_US';
-      });
+      userData.result.current.timezone = item.timezone;
+      userData.result.current.locale = 'en_US';
     });
 
     beforeEach(() => {
       const { result } = renderHook(() => useDateTimePickerAdapter());
 
-      act(() => {
-        const { Adapter } = result.current;
-        cy.mount({
-          Component: (
-            <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-              <DateTimePickerInput
-                changeDate={changeDate}
-                date={new Date(item.initialDate)}
-                property={CustomTimePeriodProperty.start}
-                setDate={setStart}
-              />
-            </LocalizationProvider>
-          )
-        });
+      const { Adapter } = result.current;
+      cy.mount({
+        Component: (
+          <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
+            <DateTimePickerInput
+              changeDate={changeDate}
+              date={new Date(item.initialDate)}
+              property={CustomTimePeriodProperty.start}
+              setDate={setStart}
+            />
+          </LocalizationProvider>
+        )
       });
     });
 
     it('checks input calendar value contains correct date', () => {
       const { result } = renderHook(() => useLocaleDateTimeFormat());
-      act(() => {
-        const { format } = result.current;
+      const { format } = result.current;
 
-        const dateInput = format({
-          date: dayjs(item.initialDate).tz(item.timezone),
-          formatString: 'L hh:mm A'
-        });
-
-        cy.get('input').should('have.value', dateInput);
+      const dateInput = format({
+        date: dayjs(item.initialDate).tz(item.timezone),
+        formatString: 'L hh:mm A'
       });
+
+      cy.get('input').should('have.value', dateInput);
     });
 
     it(`checks number of days in current month when the ${item.button} button is clicked`, () => {
@@ -416,14 +410,12 @@ dataTest.forEach((item) =>
       item.data.forEach((element) => {
         const { date } = Object.values(element)[0];
 
-        act(() => {
-          const { format } = result.current;
-          const monthAndYear = format({
-            date: dayjs(date).tz(item.timezone),
-            formatString: 'MMMM YYYY'
-          });
-          cy.contains(monthAndYear);
+        const { format } = result.current;
+        const monthAndYear = format({
+          date: dayjs(date).tz(item.timezone),
+          formatString: 'MMMM YYYY'
         });
+        cy.contains(monthAndYear);
         const currentMonth = Object.keys(element)[0];
         getPreviousNextMonth({ currentMonth, labelButton: item.button });
       });
@@ -440,18 +432,16 @@ dataTest.forEach((item) =>
           ? dateByTimeZone.utc().startOf('month').startOf('week')
           : dateByTimeZone.startOf('month').startOf('week');
 
-        act(() => {
-          const { format } = result.current;
-          const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-            format({
-              date: firstDay.add(diff, 'day'),
-              formatString: 'dd'
-            })
-          );
-          daysArray.forEach((day) => cy.contains(day.toUpperCase()));
-          const currentMonth = Object.keys(element)[0];
-          getPreviousNextMonth({ currentMonth, labelButton: item.button });
-        });
+        const { format } = result.current;
+        const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+          format({
+            date: firstDay.add(diff, 'day'),
+            formatString: 'dd'
+          })
+        );
+        daysArray.forEach((day) => cy.contains(day.toUpperCase()));
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
       });
     });
 
