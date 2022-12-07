@@ -180,7 +180,7 @@ final class UpdateVaultConfiguration
     private function updateVaultConfiguration(
         UpdateVaultConfigurationRequest $request,
         VaultConfiguration $vaultConfiguration
-    ) {
+    ): void {
         $vaultConfiguration->setName($request->name);
         $vaultConfiguration->setAddress($request->address);
         $vaultConfiguration->setStorage($request->storage);

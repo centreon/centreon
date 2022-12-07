@@ -51,7 +51,7 @@ final class FindVaultConfigurations
 
     /**
      * @param PresenterInterface $presenter
-     * @param FindVaultConfigurationsRequest $findVaultConfigurationsRequest
+     * @param integer $vaultId
      */
     public function __invoke(
         PresenterInterface $presenter,

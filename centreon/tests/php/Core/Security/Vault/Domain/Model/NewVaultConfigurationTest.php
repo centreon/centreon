@@ -52,8 +52,7 @@ it(
             8200,
             'myStorage',
             'myRoleId',
-            'mySecretId',
-            'mySalt'
+            'mySecretId'
         );
     }
 )->throws(

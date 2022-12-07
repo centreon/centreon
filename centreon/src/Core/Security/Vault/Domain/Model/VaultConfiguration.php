@@ -57,10 +57,10 @@ class VaultConfiguration
     public function __construct(
         private EncryptionInterface $encryption,
         private int $id,
-        string $name,
+        private string $name,
         private Vault $vault,
-        string $address,
-        int $port,
+        private string $address,
+        private int $port,
         private string $storage,
         private string $encryptedRoleId,
         private string $encryptedSecretId,
@@ -127,7 +127,8 @@ class VaultConfiguration
      */
     public function getRoleId(): ?string
     {
-        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
+        $this->roleId = $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
+        return $this->roleId;
     }
 
     /**
@@ -137,7 +138,8 @@ class VaultConfiguration
      */
     public function getSecretId(): ?string
     {
-        return $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
+        $this->secretId = $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
+        return $this->secretId;
     }
 
     /**
@@ -213,11 +215,11 @@ class VaultConfiguration
     }
 
     /**
-     * @param string|null $roleId
+     * @param string $roleId
      *
      * @throws \Exception
      */
-    public function setNewRoleId(?string $roleId): void
+    public function setNewRoleId(string $roleId): void
     {
         Assertion::minLength($roleId, self::MIN_LENGTH, 'VaultConfiguration::roleId');
         Assertion::maxLength($roleId, self::MAX_LENGTH, 'VaultConfiguration::roleId');
@@ -225,11 +227,11 @@ class VaultConfiguration
     }
 
     /**
-     * @param string|null $secretId
+     * @param string $secretId
      *
      * @throws \Exception
      */
-    public function setNewSecretId(?string $secretId): void
+    public function setNewSecretId(string $secretId): void
     {
         Assertion::minLength($secretId, self::MIN_LENGTH, 'VaultConfiguration::secretId');
         Assertion::maxLength($secretId, self::MAX_LENGTH, 'VaultConfiguration::secretId');
