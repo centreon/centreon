@@ -18,6 +18,7 @@ on:
       - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
+
     tags:
       - centreon-*
 
