@@ -453,6 +453,7 @@ dataTest.forEach((item) =>
         });
       });
     });
+
     it(`displays the calendar for the timezone ${item.timezone} when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
 
