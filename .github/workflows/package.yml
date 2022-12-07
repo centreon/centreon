@@ -134,6 +134,7 @@ jobs:
           ls -lath *.rpm
           echo "check signature"
           rpm -qpi *.rpm
+          md5sum *.rpm
         shell: bash
 
       - uses: actions/cache@v3
