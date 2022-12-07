@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  systemctl daemon-reload
+  systemctl enable dsmd.service
+
+fi
+exit 0

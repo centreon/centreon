@@ -637,11 +637,15 @@ class OpenIdProvider implements OpenIdProviderInterface
             $data["client_secret"] = $this->configuration->getClientSecret();
         }
 
+        $url = str_starts_with($this->configuration->getTokenEndpoint(), '/')
+            ? $this->configuration->getBaseUrl() . $this->configuration->getTokenEndpoint()
+            : $this->configuration->getTokenEndpoint();
+
         // Send the request to IDP
         try {
             return $this->client->request(
                 'POST',
-                $this->configuration->getBaseUrl() . '/' . ltrim($this->configuration->getTokenEndpoint(), '/'),
+                $url,
                 [
                     'headers' => $headers,
                     'body' => $data,

@@ -10,28 +10,40 @@ on:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/centreon-widget-ntopng-listing.yml"
+      - ".github/workflows/widget-ntopng-listing.yml"
       - "widgets/centreon-widget-ntopng-listing/**"
     tags:
-      - centreon-widget-ntopng-listing-22.04.**
-
-env:
-  version: "22.04"
+      - centreon-widget-ntopng-listing-*
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-ntopng-listing/ntopng-listing/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: ntopng-listing
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: ntopng-listing
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
