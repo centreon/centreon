@@ -280,6 +280,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
             return [...acc, newCurrent];
           }
+
           const newCurrent = acc[currentIndex].add(1, 'day');
 
           return [...acc, newCurrent];
