@@ -75,8 +75,8 @@ it('should present NotFound Response when vault provider does not exist', functi
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
@@ -101,17 +101,15 @@ it('should present NotFound Response when vault configuration does not exist for
         ->method('isAdmin')
         ->willReturn(true);
 
-    $vault = new Vault(1, 'myVaultProvider');
-
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfiguration(
@@ -138,7 +136,7 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('exists')
         ->willThrowException(new \Exception());
 
     $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -188,11 +186,17 @@ it('should present FindVaultConfigurationResponse', function () {
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $this->readVaultConfigurationRepository
-        ->expects($this->any())
+        ->expects($this->once())
+        ->method('exists')
+        ->with($findVaultConfigurationRequest->vaultConfigurationId)
+        ->willReturn(true);
+
+    $this->readVaultConfigurationRepository
+        ->expects($this->once())
         ->method('findById')
         ->with($findVaultConfigurationRequest->vaultConfigurationId)
         ->willReturn($vaultConfiguration);

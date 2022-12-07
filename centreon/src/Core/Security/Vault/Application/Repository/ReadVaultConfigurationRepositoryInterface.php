@@ -38,6 +38,17 @@ interface ReadVaultConfigurationRepositoryInterface
 
     /**
      * @param string $address
+     * @param integer $port
+     * @param string $storage
+     *
+     * @throws \Throwable
+     *
+     * @return boolean
+     */
+    public function existsSameConfiguration(string $address, int $port, string $storage): bool;
+
+    /**
+     * @param string $address
      * @param int $port
      * @param string $storage
      *

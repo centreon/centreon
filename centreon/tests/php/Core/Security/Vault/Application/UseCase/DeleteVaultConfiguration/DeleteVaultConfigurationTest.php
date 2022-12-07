@@ -82,8 +82,8 @@ it('should present NotFoundResponse when vault provider does not exist', functio
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new DeleteVaultConfiguration(
@@ -111,16 +111,15 @@ it('should present NotFoundResponse when vault configuration does not exist for 
         ->method('isAdmin')
         ->willReturn(true);
 
-    $vault = new Vault(1, 'myVaultProvider');
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new deleteVaultConfiguration(
@@ -150,7 +149,7 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('exists')
         ->willThrowException(new \Exception());
 
     $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -177,31 +176,18 @@ it('should present NoContentResponse when vault configuration is deleted with su
         ->method('isAdmin')
         ->willReturn(true);
 
-    $vault = new Vault(1, 'myVaultProvider');
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $encryption = new Encryption();
     $encryption->setFirstKey("myFirstKey");
 
-    $vaultConfiguration = new VaultConfiguration(
-        $encryption,
-        2,
-        'myVaultConfiguration',
-        $vault,
-        '127.0.0.2',
-        8201,
-        'myStorageFolder',
-        'mySalt',
-        'myEncryptedRoleId',
-        'myEncryptedSecretId',
-    );
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vaultConfiguration);
+        ->method('exists')
+        ->willReturn(true);
 
     $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new DeleteVaultConfiguration(

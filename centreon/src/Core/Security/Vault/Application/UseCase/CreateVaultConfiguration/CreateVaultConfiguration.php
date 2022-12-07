@@ -78,7 +78,7 @@ final class CreateVaultConfiguration
             }
 
             if (
-                $this->isSameVaultConfigurationExists(
+                $this->readVaultConfigurationRepository->existsSameConfiguration(
                     $createVaultConfigurationRequest->address,
                     $createVaultConfigurationRequest->port,
                     $createVaultConfigurationRequest->storage,
@@ -126,29 +126,5 @@ final class CreateVaultConfiguration
                 new ErrorResponse(VaultConfigurationException::impossibleToCreate()->getMessage())
             );
         }
-    }
-
-    /**
-     * Checks if same vault configuration exists.
-     *
-     * @param string $address
-     * @param int $port
-     * @param string $storage
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    private function isSameVaultConfigurationExists(
-        string $address,
-        int $port,
-        string $storage,
-    ): bool {
-        return
-            $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
-                $address,
-                $port,
-                $storage
-            ) !== null;
     }
 }

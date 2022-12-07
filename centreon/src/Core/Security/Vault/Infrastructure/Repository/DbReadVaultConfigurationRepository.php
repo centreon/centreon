@@ -106,6 +106,45 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
+     * @param string $address
+     * @param integer $port
+     * @param string $storage
+     *
+     * @throws \Throwable
+     *
+     * @return boolean
+     */
+    public function existsSameConfiguration(string $address, int $port, string $storage): bool
+    {
+        $this->info(
+            'Check if same vault configuration exists',
+            [
+                'address' => $address,
+                'port' => $port,
+                'storage' => $storage
+            ]
+        );
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1, vault.name as vault_name
+                    FROM `:db`.`vault_configuration` conf
+                    INNER JOIN `:db`.`vault`
+                      ON vault.id = conf.vault_id
+                    WHERE `url`=:address AND `port`=:port AND `storage`=:storage
+                SQL
+            )
+        );
+        $statement->bindValue(':address', $address, \PDO::PARAM_STR);
+        $statement->bindValue(':port', $port, \PDO::PARAM_INT);
+        $statement->bindValue(':storage', $storage, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+    }
+
+    /**
      * @inheritDoc
      */
     public function findById(int $id): ?VaultConfiguration

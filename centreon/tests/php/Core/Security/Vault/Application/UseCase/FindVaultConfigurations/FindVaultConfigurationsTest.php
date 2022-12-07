@@ -75,8 +75,8 @@ it('should present NotFound Response when vault provider does not exist', functi
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new FindVaultConfigurationsPresenterStub($this->presenterFormatter);
     $useCase = new FindVaultConfigurations(
@@ -103,7 +103,7 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('exists')
         ->willThrowException(new \Exception());
 
     $presenter = new FindVaultConfigurationsPresenterStub($this->presenterFormatter);
@@ -133,8 +133,8 @@ it('should present FindVaultConfigurationsResponse', function () {
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $encryption = new Encryption();
     $encryption->setFirstKey("myFirstKey");
