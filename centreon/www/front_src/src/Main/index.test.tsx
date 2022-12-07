@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { Provider } from 'jotai';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen
+} from '@centreon/ui/src/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,

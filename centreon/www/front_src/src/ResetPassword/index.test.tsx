@@ -3,13 +3,13 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
+import { SnackbarProvider } from '@centreon/ui';
 import {
   render,
   RenderResult,
   screen,
-  waitFor,
-  SnackbarProvider,
-} from '@centreon/ui';
+  waitFor
+} from '@centreon/ui/src/testRenderer';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';

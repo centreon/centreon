@@ -5,15 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 import dayjs from 'dayjs';
 
+import { SeverityCode } from '@centreon/ui';
 import {
   render,
   RenderResult,
   waitFor,
   fireEvent,
   act,
-  SeverityCode,
-  screen,
-} from '@centreon/ui';
+  screen
+} from '@centreon/ui/src/testRenderer';
 import {
   acknowledgementAtom,
   aclAtom,
