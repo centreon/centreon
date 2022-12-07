@@ -442,7 +442,7 @@ dataTest.forEach((item) =>
         });
       });
     });
-    it(`check calendar for current month , tz=${item.timezone} when clicking on ${item.button}`, () => {
+    it(`displays the calendar for the timezone ${item.timezone} when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
 
       item.data.forEach((element) => {
