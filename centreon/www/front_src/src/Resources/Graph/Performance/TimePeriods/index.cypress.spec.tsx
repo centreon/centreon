@@ -417,7 +417,7 @@ dataTest.forEach((item) =>
       });
     });
 
-    it(`the appropriate name of days should be displayed on calendar header, when clicking on ${item.button} button`, () => {
+    it(`displays the correct name of days on calendar's header, when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
