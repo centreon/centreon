@@ -25,13 +25,15 @@ describe('User Menu', () => {
       toTime: (): string => '4:20 PM'
     });
 
-    cy.mount(
-      <Router>
-        <div style={{ backgroundColor: '#000' }}>
-          <UserMenu />
-        </div>
-      </Router>
-    );
+    cy.mount({
+      Component: (
+        <Router>
+          <div style={{ backgroundColor: '#000' }}>
+            <UserMenu />
+          </div>
+        </Router>
+      )
+    });
   });
 
   it('matches the current snapshot "user menu"', () => {
