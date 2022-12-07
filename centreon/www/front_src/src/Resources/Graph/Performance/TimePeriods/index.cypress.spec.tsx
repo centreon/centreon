@@ -360,11 +360,11 @@ dataTest.forEach((item) =>
       });
     });
 
-    it(`the first/last day of the current month ,must correspond to the beginning/end of the week to this current month , when clicking on ${item.button} button`, () => {
+    it.only(`checks that the first day must match with the start of the week when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
 
       item.data.forEach((element) => {
-        const { firstDay, lastDay, numberWeeks } = Object.values(element)[0];
+        const { firstDay, numberWeeks } = Object.values(element)[0];
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
@@ -377,6 +377,20 @@ dataTest.forEach((item) =>
           .eq(firstDay.indexDayInRowWeek)
           .as('firstDayInWeek');
         cy.get('@firstDayInWeek').contains(firstDay.value);
+
+        const currentMonth = Object.keys(element)[0];
+        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+      });
+    });
+    it.only(`checks that the last day must match with the end of the week when the ${item.button} button is clicked`, () => {
+      cy.get('input').click();
+
+      item.data.forEach((element) => {
+        const { lastDay, numberWeeks } = Object.values(element)[0];
+
+        cy.get('[role="rowgroup"]').children().as('listWeeks');
+
+        cy.get('@listWeeks').should('have.length', numberWeeks);
 
         cy.get('@listWeeks')
           .eq(numberWeeks - 1)
