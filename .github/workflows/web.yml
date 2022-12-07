@@ -435,4 +435,4 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
-          cache_key: cache-${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
