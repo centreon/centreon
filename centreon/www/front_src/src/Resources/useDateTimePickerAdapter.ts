@@ -289,7 +289,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       );
 
       const arrayWeeks = this.getChunkFromArray({
-        array: daysOfMonthWithTimeZone,
+        array: daysOfMonthWithTimezone,
         size: 7
       });
 
