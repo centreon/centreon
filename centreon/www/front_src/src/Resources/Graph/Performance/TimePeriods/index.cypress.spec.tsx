@@ -341,7 +341,7 @@ dataTest.forEach((item) =>
       });
     });
 
-    it(`days should not be duplicated in each month of the year, when clicking on ${item.button} button`, () => {
+    it(`does not duplicate days in each month of the year, when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
       item.data.forEach((element) => {
         const daysInCurrentMonth: Array<string> = [];
