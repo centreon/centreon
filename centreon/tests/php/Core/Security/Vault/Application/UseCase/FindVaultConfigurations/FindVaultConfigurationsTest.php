@@ -59,9 +59,9 @@ it('should present Forbidden Response when user is not admin', function () {
         $this->user
     );
 
-    $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
+    $vaultId = 1;
 
-    $useCase($presenter, $findVaultConfigurationsRequest);
+    $useCase($presenter, $vaultId);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
@@ -85,9 +85,9 @@ it('should present NotFound Response when vault provider does not exist', functi
         $this->user
     );
 
-    $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
+    $vaultId = 2;
 
-    $useCase($presenter, $findVaultConfigurationsRequest);
+    $useCase($presenter, $vaultId);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -113,9 +113,9 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
         $this->user
     );
 
-    $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
+    $vaultId = 3;
 
-    $useCase($presenter, $findVaultConfigurationsRequest);
+    $useCase($presenter, $vaultId);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -164,9 +164,6 @@ it('should present FindVaultConfigurationsResponse', function () {
         $this->user
     );
 
-    $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
-    $findVaultConfigurationsRequest->vaultId = $vault->getId();
-
     $findVaultConfigurationsResponse = new FindVaultConfigurationsResponse();
     $findVaultConfigurationsResponse->vaultConfigurations = [
         [
@@ -179,7 +176,7 @@ it('should present FindVaultConfigurationsResponse', function () {
         ]
     ];
 
-    $useCase($presenter, $findVaultConfigurationsRequest);
+    $useCase($presenter, $vault->getId());
 
     expect($presenter->response)
         ->toBeInstanceOf(FindVaultConfigurationsResponse::class)

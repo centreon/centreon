@@ -55,7 +55,7 @@ final class FindVaultConfigurations
      */
     public function __invoke(
         PresenterInterface $presenter,
-        FindVaultConfigurationsRequest $findVaultConfigurationsRequest
+        int $vaultId
     ): void {
         try {
             if (! $this->user->isAdmin()) {
@@ -67,8 +67,8 @@ final class FindVaultConfigurations
                 return;
             }
 
-            if (! $this->isVaultExists($findVaultConfigurationsRequest->vaultId)) {
-                $this->error('Vault provider not found', ['id' => $findVaultConfigurationsRequest->vaultId]);
+            if (! $this->isVaultExists($vaultId)) {
+                $this->error('Vault provider not found', ['id' => $vaultId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
                 );
@@ -76,9 +76,7 @@ final class FindVaultConfigurations
                 return;
             }
 
-            $vaultConfigurations = $this->readVaultConfigurationRepository->findVaultConfigurationsByVault(
-                $findVaultConfigurationsRequest->vaultId
-            );
+            $vaultConfigurations = $this->readVaultConfigurationRepository->findVaultConfigurationsByVault($vaultId);
 
             $presenter->present($this->createResponse($vaultConfigurations));
         } catch (\Throwable $ex) {

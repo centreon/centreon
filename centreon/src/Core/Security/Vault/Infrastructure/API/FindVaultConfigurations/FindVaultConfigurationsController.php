@@ -46,22 +46,8 @@ final class FindVaultConfigurationsController extends AbstractController
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $findVaultConfigurationsRequest = $this->createDtoRequest($vaultId);
-
-        $useCase($presenter, $findVaultConfigurationsRequest);
+        $useCase($presenter, $vaultId);
 
         return $presenter->show();
-    }
-
-    /**
-     * @param int $vaultId
-     * @return FindVaultConfigurationsRequest
-     */
-    private function createDtoRequest(int $vaultId): FindVaultConfigurationsRequest
-    {
-        $findVaultConfigurationsRequest = new FindVaultConfigurationsRequest();
-        $findVaultConfigurationsRequest->vaultId = $vaultId;
-
-        return $findVaultConfigurationsRequest;
     }
 }
