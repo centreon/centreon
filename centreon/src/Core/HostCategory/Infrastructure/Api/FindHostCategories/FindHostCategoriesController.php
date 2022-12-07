@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Infrastructure\Api\FindHostCategories\FindHostCategoriesPresenter;
 
-class FindHostCategoriesController extends AbstractController
+final class FindHostCategoriesController extends AbstractController
 {
     public function __invoke(FindHostCategories $useCase, FindHostCategoriesPresenter $presenter): object
     {
