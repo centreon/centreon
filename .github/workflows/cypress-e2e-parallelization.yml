@@ -68,4 +68,4 @@ jobs:
           image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
-          path_spec: ${{matrix.feature}}
+          feature_file_path: ${{matrix.feature}}

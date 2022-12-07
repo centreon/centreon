@@ -10,7 +10,7 @@ inputs:
   module:
     description: "module"
     required: true
-  path_spec:
+  feature_file_path:
     description: "feature file"
     required: true
 
@@ -34,14 +34,14 @@ runs:
         browser: chrome
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
-        spec: cypress/e2e/**/${{ inputs.path_spec }}
+        spec: cypress/e2e/**/${{ inputs.feature_file_path }}
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-videos
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/${{ inputs.path_spec }}/
+        name: cypress-videos-${{ inputs.feature_file_path }}
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
 
     - name: Publish tests report
       uses: EnricoMi/publish-unit-test-result-action@v2
