@@ -17,10 +17,9 @@ const Text = ({
   required,
   getDisabled,
   getRequired,
-  hideInput,
   change,
   additionalMemoProps,
-  text,
+  text
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -65,7 +64,7 @@ const Text = ({
           isVisible={isVisible}
         />
       ) : null,
-    [isVisible],
+    [isVisible]
   );
 
   const getInputType = (): string => {
@@ -80,12 +79,9 @@ const Text = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <TextField
         fullWidth
         EndAdornment={passwordEndAdornment}
@@ -107,9 +103,8 @@ const Text = ({
       isVisible,
       disabled,
       isRequired,
-      additionalMemoProps,
-      hidden,
-    ],
+      additionalMemoProps
+    ]
   });
 };
 

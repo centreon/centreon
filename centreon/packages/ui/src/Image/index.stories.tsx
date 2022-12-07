@@ -10,11 +10,11 @@ export default {
   argTypes: {
     alt: { control: 'text' },
     height: { control: 'number' },
-    width: { control: 'number' },
+    width: { control: 'number' }
   },
   component: Image,
 
-  title: 'Image',
+  title: 'Image'
 };
 
 const Template: ComponentStory<typeof Image> = (args) => (
@@ -29,7 +29,7 @@ const size = 50;
 
 export const basic = Template.bind({});
 basic.args = {
-  alt: 'Centreon logo light',
+  alt: 'Centreon logo light'
 };
 
 export const multipleImages = (): JSX.Element => {
@@ -38,7 +38,7 @@ export const multipleImages = (): JSX.Element => {
       style={{
         columnGap: '16px',
         display: 'grid',
-        gridTemplateColumns: `repeat(2, ${size}px)`,
+        gridTemplateColumns: `repeat(2, ${size}px)`
       }}
     >
       <Image
@@ -79,7 +79,7 @@ withWidthAndHeight.args = {
   fallback: <LoadingSkeleton height={size} width={size} />,
   height: size,
   imagePath: CentreonLogoLight,
-  width: size,
+  width: size
 };
 
 export const imageNotFound = (): JSX.Element => (
@@ -97,5 +97,5 @@ variantContain.args = {
   alt: 'Centreon logo light',
   height: size,
   variant: ImageVariant.Contain,
-  width: size,
+  width: size
 };

@@ -32,11 +32,11 @@ class DownloadPerformanceMetricsPresenter extends AbstractPresenter implements F
 {
     /**
      * {@inheritDoc}
-     * @param FindPerformanceMetricResponse $presentedData
+     * @param FindPerformanceMetricResponse $data
      */
-    public function present(mixed $presentedData): void
+    public function present(mixed $data): void
     {
-        parent::present($presentedData->performanceMetrics);
+        parent::present($data->performanceMetrics);
     }
 
     /**

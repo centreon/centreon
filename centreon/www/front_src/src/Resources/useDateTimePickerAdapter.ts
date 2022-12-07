@@ -13,14 +13,14 @@ interface UseDateTimePickerAdapterProps {
   Adapter;
   formatKeyboardValue: (value?: string) => string | undefined;
   getDestinationAndConfiguredTimezoneOffset: (
-    destinationTimezone?: string,
+    destinationTimezone?: string
   ) => number;
 }
 
 enum DSTState {
   SUMMER,
   WINTER,
-  NODST,
+  NODST
 }
 
 interface ToTimezonedDateProps {
@@ -38,7 +38,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
   const toTimezonedDate = ({
     date,
-    timeZone = undefined,
+    timeZone = undefined
   }: ToTimezonedDateProps): Date => {
     if (isNil(timeZone)) {
       return new Date(date.toLocaleString('en-US'));
@@ -48,23 +48,23 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   };
 
   const getDestinationAndConfiguredTimezoneOffset = (
-    destinationTimezone?: string,
+    destinationTimezone?: string
   ): number => {
     const now = new Date();
     const currentTimezoneDate = toTimezonedDate({
       date: now,
-      timeZone: destinationTimezone,
+      timeZone: destinationTimezone
     });
     const destinationTimezoneDate = toTimezonedDate({
       date: now,
-      timeZone: timezone,
+      timeZone: timezone
     });
 
     return Math.floor(
       (currentTimezoneDate.getTime() - destinationTimezoneDate.getTime()) /
         60 /
         60 /
-        1000,
+        1000
     );
   };
 
@@ -72,7 +72,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     (date: dayjs.Dayjs): DSTState => {
       const currentYear = toTimezonedDate({
         date: new Date(),
-        timeZone: timezone,
+        timeZone: timezone
       }).getFullYear();
 
       const january = dayjs(new Date(currentYear, 0, 1))
@@ -86,7 +86,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       return july === date.utcOffset() ? DSTState.SUMMER : DSTState.WINTER;
     },
-    [timezone],
+    [timezone]
   );
 
   const formatKeyboardValue = (value?: string): string | undefined => {
@@ -120,7 +120,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       return equals(
         format({ date: value, formatString: 'LT' }),
-        format({ date: comparing, formatString: 'LT' }),
+        format({ date: comparing, formatString: 'LT' })
       );
     };
 
@@ -149,7 +149,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const isNotASummerDate = pipe(isSummerDate, not)(dateDSTState);
       const isInUTC = equals(
         getDestinationAndConfiguredTimezoneOffset('UTC'),
-        0,
+        0
       );
 
       if ((isInUTC && isNotASummerDate) || equals('UTC', timezone)) {
@@ -163,7 +163,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public isSameHour = (
       date: dayjs.Dayjs,
-      comparing: dayjs.Dayjs,
+      comparing: dayjs.Dayjs
     ): boolean => {
       return date.tz(timezone).isSame(comparing.tz(timezone), 'hour');
     };
@@ -201,7 +201,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public isSameMonth = (
       date: dayjs.Dayjs,
-      comparing: dayjs.Dayjs,
+      comparing: dayjs.Dayjs
     ): boolean => {
       return date.tz(timezone).isSame(comparing.tz(timezone), 'month');
     };
@@ -226,7 +226,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(start.add(diff, 'day'), 'dd'),
+        this.formatByString(start.add(diff, 'day'), 'dd')
       );
     };
 
@@ -297,7 +297,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public mergeDateAndTime = (
       date: dayjs.Dayjs,
-      time: dayjs.Dayjs,
+      time: dayjs.Dayjs
     ): dayjs.Dayjs => {
       const dateWithTimezone = date.tz(timezone).startOf('day');
       const timeWithTimezone = time.tz(timezone);
@@ -321,7 +321,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   return {
     Adapter,
     formatKeyboardValue,
-    getDestinationAndConfiguredTimezoneOffset,
+    getDestinationAndConfiguredTimezoneOffset
   };
 };
 

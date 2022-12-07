@@ -17,7 +17,7 @@ type Props = Pick<
 const toSelectEntries = (columns: Array<Column>): Array<SelectEntry> => {
   return columns.map(({ id, label, shortLabel }) => ({
     id,
-    name: `${label}${!isNil(shortLabel) ? ` (${shortLabel})` : ''}`,
+    name: `${label}${!isNil(shortLabel) ? ` (${shortLabel})` : ''}`
   }));
 };
 
@@ -25,13 +25,13 @@ const ColumnMultiSelect = ({
   columns,
   columnConfiguration,
   onSelectColumns,
-  onResetColumns,
+  onResetColumns
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns,
+    columns
   });
 
   const selectColumnIds = (updatedColumns): void => {

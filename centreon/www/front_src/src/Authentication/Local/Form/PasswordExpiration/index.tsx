@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
 import dayjs from 'dayjs';
 import { lte } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, FormLabel } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -18,19 +18,19 @@ import { twelveMonths } from '../../timestamps';
 
 const passwordExpirationFieldName = 'passwordExpiration.expirationDelay';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'flex-end',
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
+    gridTemplateColumns: 'repeat(2, 1fr)'
   },
   passwordExpiration: {
-    marginTop: theme.spacing(1),
-  },
+    marginTop: theme.spacing(1)
+  }
 }));
 
 const PasswordExpiration = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { values, setFieldValue, errors } = useFormikContext<FormikValues>();
@@ -41,34 +41,34 @@ const PasswordExpiration = (): JSX.Element => {
 
   const passwordExpirationValue = getField<number>({
     field: passwordExpirationFieldName,
-    object: values,
+    object: values
   });
 
   const passwordExpirationError = getField<string>({
     field: passwordExpirationFieldName,
-    object: errors,
+    object: errors
   });
 
   const minDaysOption = useMemo(
     (): number | undefined =>
       lte(
         dayjs.duration({ months: 1 }).asMilliseconds(),
-        passwordExpirationValue,
+        passwordExpirationValue
       )
         ? undefined
         : 7,
-    [passwordExpirationValue],
+    [passwordExpirationValue]
   );
 
   const maxDaysOption = useMemo(
     (): number | undefined =>
       lte(
         dayjs.duration({ years: 1 }).asMilliseconds(),
-        passwordExpirationValue,
+        passwordExpirationValue
       )
         ? 0
         : undefined,
-    [passwordExpirationValue],
+    [passwordExpirationValue]
   );
 
   const timeInputConfiguration: Array<TimeInputConfiguration> = [
@@ -77,8 +77,8 @@ const PasswordExpiration = (): JSX.Element => {
       dataTestId: 'local_passwordExpirationDays',
       maxOption: maxDaysOption,
       minOption: minDaysOption,
-      unit: 'days',
-    },
+      unit: 'days'
+    }
   ];
 
   return useMemoComponent({
@@ -98,7 +98,7 @@ const PasswordExpiration = (): JSX.Element => {
         )}
       </div>
     ),
-    memoProps: [passwordExpirationValue, passwordExpirationError, classes],
+    memoProps: [passwordExpirationValue, passwordExpirationError, classes]
   });
 };
 

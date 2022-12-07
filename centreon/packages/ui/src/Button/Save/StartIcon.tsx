@@ -18,7 +18,7 @@ const StartIcon = ({ startIconConfig }: Props): JSX.Element | null =>
     [pipe(propEq('hasLabel', true), not), always(null)],
     [propEq('succeeded', true), always(<CheckIcon />)],
     [propEq('loading', true), always(<SaveIcon />)],
-    [T, always(<SaveIcon />)],
+    [T, always(<SaveIcon />)]
   ])(startIconConfig);
 
 export default StartIcon;

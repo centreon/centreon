@@ -11,7 +11,7 @@ import {
   gte,
   difference,
   lte,
-  length,
+  length
 } from 'ramda';
 import {
   Shape,
@@ -19,31 +19,30 @@ import {
   Scale,
   Group,
   Tooltip as VisxTooltip,
-  Event,
+  Event
 } from '@visx/visx';
 import { bisector } from 'd3-array';
 import { ScaleLinear } from 'd3-scale';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
   ClickAwayListener,
   Paper,
   Typography,
-  Theme,
   alpha,
   useTheme,
   CircularProgress,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { grey } from '@mui/material/colors';
 
 import {
   dateTimeFormat,
   useLocaleDateTimeFormat,
-  useMemoComponent,
+  useMemoComponent
 } from '@centreon/ui';
 
 import AnomalyDetectionEnvelopeThreshold from '../AnomalyDetection/AnomalyDetectionEnvelopeThreshold';
@@ -58,12 +57,12 @@ import {
   getMetricValuesForLines,
   getSortedStackedLines,
   getStackedMetricValues,
-  hasUnitStackedLines,
+  hasUnitStackedLines
 } from '../timeSeries';
 import Lines from '../Lines';
 import {
   labelActionNotPermitted,
-  labelAddComment,
+  labelAddComment
 } from '../../../translatedLabels';
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource, ResourceType } from '../../../models';
@@ -78,17 +77,17 @@ import Annotations from './Annotations';
 import Axes from './Axes';
 import TimeShiftZones, {
   TimeShiftContext,
-  TimeShiftDirection,
+  TimeShiftDirection
 } from './TimeShiftZones';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
   changeTimeValueDerivedAtom,
   MousePosition,
-  mousePositionAtom,
+  mousePositionAtom
 } from './mouseTimeValueAtoms';
 import {
   annotationHoveredAtom,
-  changeAnnotationHoveredDerivedAtom,
+  changeAnnotationHoveredDerivedAtom
 } from './annotationsAtoms';
 
 const propsAreEqual = (prevProps, nextProps): boolean =>
@@ -117,67 +116,68 @@ interface Props {
   xAxisTickFormat: string;
 }
 
-const useStyles = makeStyles<Theme, Pick<Props, 'onAddComment'>>((theme) => ({
-  addCommentButton: {
-    fontSize: 10,
-  },
-  addCommentTooltip: {
-    display: 'grid',
-    fontSize: 10,
-    gridAutoFlow: 'row',
-    justifyItems: 'center',
-    padding: theme.spacing(0.5),
-    position: 'absolute',
-  },
-  container: {
-    '& .visx-axis-bottom': {
-      '& .visx-axis-tick': {
+const useStyles = makeStyles<Pick<Props, 'onAddComment'>>()(
+  (theme, { onAddComment }) => ({
+    addCommentButton: {
+      fontSize: 10
+    },
+    addCommentTooltip: {
+      display: 'grid',
+      fontSize: 10,
+      gridAutoFlow: 'row',
+      justifyItems: 'center',
+      padding: theme.spacing(0.5),
+      position: 'absolute'
+    },
+    container: {
+      '& .visx-axis-bottom': {
+        '& .visx-axis-tick': {
+          '& .visx-line': {
+            stroke: theme.palette.text.primary
+          }
+        }
+      },
+      '& .visx-axis-line': {
+        stroke: theme.palette.text.primary
+      },
+      '& .visx-axis-right': {
+        '& .visx-axis-tick': {
+          '& .visx-line': {
+            stroke: theme.palette.text.primary
+          }
+        }
+      },
+      '& .visx-columns': {
         '& .visx-line': {
-          stroke: theme.palette.text.primary,
-        },
+          stroke: theme.palette.divider
+        }
       },
-    },
-    '& .visx-axis-line': {
-      stroke: theme.palette.text.primary,
-    },
-    '& .visx-axis-right': {
-      '& .visx-axis-tick': {
+      '& .visx-rows': {
         '& .visx-line': {
-          stroke: theme.palette.text.primary,
-        },
+          stroke: theme.palette.divider
+        }
       },
+      fill: theme.palette.text.primary,
+      position: 'relative'
     },
-    '& .visx-columns': {
-      '& .visx-line': {
-        stroke: theme.palette.divider,
-      },
+    graphLoader: {
+      alignItems: 'center',
+      backgroundColor: alpha(theme.palette.common.white, 0.5),
+      display: 'flex',
+      height: '100%',
+      justifyContent: 'center',
+      position: 'absolute',
+      width: '100%'
     },
-    '& .visx-rows': {
-      '& .visx-line': {
-        stroke: theme.palette.divider,
-      },
+    overlay: {
+      cursor: isNil(onAddComment) ? 'normal' : 'crosshair'
     },
-    fill: theme.palette.text.primary,
-    position: 'relative',
-  },
-  graphLoader: {
-    alignItems: 'center',
-    backgroundColor: alpha(theme.palette.common.white, 0.5),
-    display: 'flex',
-    height: '100%',
-    justifyContent: 'center',
-    position: 'absolute',
-    width: '100%',
-  },
-  overlay: {
-    cursor: ({ onAddComment }): string =>
-      isNil(onAddComment) ? 'normal' : 'crosshair',
-  },
-  tooltip: {
-    padding: 12,
-    zIndex: theme.zIndex.tooltip,
-  },
-}));
+    tooltip: {
+      padding: 12,
+      zIndex: theme.zIndex.tooltip
+    }
+  })
+);
 
 interface ZoomBoundaries {
   end: number;
@@ -215,7 +215,7 @@ interface GraphContentProps {
 const getScale = ({
   values,
   height,
-  stackedValues,
+  stackedValues
 }): ScaleLinear<number, number> => {
   const minValue = min(getMin(values), getMin(stackedValues));
   const maxValue = max(getMax(values), getMax(stackedValues));
@@ -225,7 +225,7 @@ const getScale = ({
   return Scale.scaleLinear<number>({
     domain: [minValue, maxValue],
     nice: true,
-    range: [height, upperRangeValue],
+    range: [height, upperRangeValue]
   });
 };
 
@@ -256,29 +256,29 @@ const GraphContent = ({
   isInViewport,
   isEditAnomalyDetectionDataDialogOpen,
   displayTimeValues,
-  resizeEnvelopeData,
+  resizeEnvelopeData
 }: GraphContentProps): JSX.Element => {
-  const classes = useStyles({ onAddComment });
+  const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
 
   const [addingComment, setAddingComment] = useState(false);
   const [commentDate, setCommentDate] = useState<Date>();
   const [zoomPivotPosition, setZoomPivotPosition] = useState<number | null>(
-    null,
+    null
   );
   const [zoomBoundaries, setZoomBoundaries] = useState<ZoomBoundaries | null>(
-    null,
+    null
   );
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
   const { canComment } = useAclQuery();
   const mousePosition = useAtomValue(mousePositionAtom);
   const changeMousePositionAndTimeValue = useUpdateAtom(
-    changeMousePositionAndTimeValueDerivedAtom,
+    changeMousePositionAndTimeValueDerivedAtom
   );
   const changeTimeValue = useUpdateAtom(changeTimeValueDerivedAtom);
   const setAnnotationHovered = useUpdateAtom(annotationHoveredAtom);
   const changeAnnotationHovered = useUpdateAtom(
-    changeAnnotationHoveredDerivedAtom,
+    changeAnnotationHoveredDerivedAtom
   );
 
   const theme = useTheme();
@@ -287,7 +287,7 @@ const GraphContent = ({
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
   const hideAddCommentTooltipOnEspcapePress = (
-    event: globalThis.KeyboardEvent,
+    event: globalThis.KeyboardEvent
   ): void => {
     if (event.key === 'Escape') {
       hideAddCommentTooltip();
@@ -298,14 +298,14 @@ const GraphContent = ({
     document.addEventListener(
       'keydown',
       hideAddCommentTooltipOnEspcapePress,
-      false,
+      false
     );
 
     return (): void => {
       document.removeEventListener(
         'keydown',
         hideAddCommentTooltipOnEspcapePress,
-        false,
+        false
       );
     };
   }, []);
@@ -315,11 +315,11 @@ const GraphContent = ({
       Scale.scaleTime<number>({
         domain: [
           getMin(timeSeries.map(getTime)),
-          getMax(timeSeries.map(getTime)),
+          getMax(timeSeries.map(getTime))
         ],
-        range: [0, graphWidth],
+        range: [0, graphWidth]
       }),
-    [graphWidth, timeSeries],
+    [graphWidth, timeSeries]
   );
 
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
@@ -337,7 +337,7 @@ const GraphContent = ({
     const stackedValues = firstUnitHasStackedLines
       ? getStackedMetricValues({
           lines: getSortedStackedLines(lines),
-          timeSeries,
+          timeSeries
         })
       : [0];
 
@@ -348,7 +348,7 @@ const GraphContent = ({
     const values = getMetricValuesForUnit({
       lines,
       timeSeries,
-      unit: secondUnit,
+      unit: secondUnit
     });
 
     const secondUnitHasStackedLines = isNil(secondUnit)
@@ -358,7 +358,7 @@ const GraphContent = ({
     const stackedValues = secondUnitHasStackedLines
       ? getStackedMetricValues({
           lines: getSortedStackedLines(lines),
-          timeSeries,
+          timeSeries
         })
       : [0];
 
@@ -376,7 +376,7 @@ const GraphContent = ({
     if (isNil(position)) {
       changeMousePositionAndTimeValue({
         position: null,
-        timeValue: null,
+        timeValue: null
       });
 
       return;
@@ -389,7 +389,7 @@ const GraphContent = ({
   const displayTooltip = (event: MouseEvent<SVGRectElement>): void => {
     const { x, y } = Event.localPoint(
       graphSvgRef.current as SVGSVGElement,
-      event,
+      event
     ) || { x: 0, y: 0 };
 
     const mouseX = x - margin.left;
@@ -399,13 +399,13 @@ const GraphContent = ({
       mouseX,
       resourceId: resource.uuid,
       timeline,
-      xScale,
+      xScale
     });
 
     if (zoomPivotPosition) {
       setZoomBoundaries({
         end: gte(mouseX, zoomPivotPosition) ? mouseX : zoomPivotPosition,
-        start: lt(mouseX, zoomPivotPosition) ? mouseX : zoomPivotPosition,
+        start: lt(mouseX, zoomPivotPosition) ? mouseX : zoomPivotPosition
       });
       changeTimeValue({ isInViewport, newTimeValue: null });
 
@@ -442,7 +442,7 @@ const GraphContent = ({
     if (zoomBoundaries?.start !== zoomBoundaries?.end) {
       applyZoom?.({
         end: xScale.invert(zoomBoundaries?.end || graphWidth),
-        start: xScale.invert(zoomBoundaries?.start || 0),
+        start: xScale.invert(zoomBoundaries?.start || 0)
       });
 
       return;
@@ -459,7 +459,7 @@ const GraphContent = ({
 
     showAddCommentTooltip({
       tooltipLeft: displayLeft ? x - commentTooltipWidth : x,
-      tooltipTop: y,
+      tooltipTop: y
     });
   };
 
@@ -484,7 +484,7 @@ const GraphContent = ({
     setZoomPivotPosition(mouseX);
     setZoomBoundaries({
       end: mouseX,
-      start: mouseX,
+      start: mouseX
     });
     hideAddCommentTooltip();
   };
@@ -495,7 +495,7 @@ const GraphContent = ({
   const mousePositionY = (position?.[1] || 0) - margin.top;
 
   const zoomBarWidth = Math.abs(
-    (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0),
+    (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)
   );
 
   const mousePositionTimeTick = position
@@ -526,7 +526,7 @@ const GraphContent = ({
     secondUnit,
     thirdUnit,
     timeSeries,
-    xScale,
+    xScale
   };
 
   return (
@@ -635,7 +635,7 @@ const GraphContent = ({
                 ) : (
                   <g />
                 ),
-              memoProps: [mousePosition],
+              memoProps: [mousePosition]
             })}
             {!isEditAnomalyDetectionDataDialogOpen && (
               <MemoizedBar
@@ -661,7 +661,7 @@ const GraphContent = ({
                 loading,
                 marginLeft: margin.left,
                 marginTop: margin.top,
-                shiftTime,
+                shiftTime
               }),
               [
                 canAdjustTimePeriod,
@@ -669,8 +669,8 @@ const GraphContent = ({
                 graphWidth,
                 loading,
                 margin,
-                shiftTime,
-              ],
+                shiftTime
+              ]
             )}
           >
             <TimeShiftZones />
@@ -682,13 +682,13 @@ const GraphContent = ({
             style={{
               left: addCommentTooltipLeft,
               top: addCommentTooltipTop,
-              width: commentTooltipWidth,
+              width: commentTooltipWidth
             }}
           >
             <Typography variant="caption">
               {format({
                 date: new Date(commentDate as Date),
-                formatString: dateTimeFormat,
+                formatString: dateTimeFormat
               })}
             </Typography>
             <Tooltip title={commentTitle}>
@@ -739,12 +739,12 @@ const memoProps = [
   'displayEventAnnotations',
   'containsMetrics',
   'isInViewport',
-  'resizeEnvelopeData',
+  'resizeEnvelopeData'
 ];
 
 const MemoizedGraphContent = memoizeComponent<GraphContentProps>({
   Component: GraphContent,
-  memoProps,
+  memoProps
 });
 
 const Graph = (
@@ -758,7 +758,7 @@ const Graph = (
     | 'format'
     | 'changeMetricsValue'
     | 'isInViewport'
-  >,
+  >
 ): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const {
@@ -766,7 +766,7 @@ const Graph = (
     tooltipTop: addCommentTooltipTop,
     tooltipOpen: addCommentTooltipOpen,
     showTooltip: showAddCommentTooltip,
-    hideTooltip: hideAddCommentTooltip,
+    hideTooltip: hideAddCommentTooltip
   } = VisxTooltip.useTooltip();
 
   return (

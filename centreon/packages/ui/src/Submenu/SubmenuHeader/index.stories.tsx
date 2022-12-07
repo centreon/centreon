@@ -10,7 +10,7 @@ import SubmenuHeader, { Props } from '.';
 
 export default {
   component: SubmenuHeader,
-  title: 'SubmenuHeader',
+  title: 'SubmenuHeader'
 } as ComponentMeta<typeof SubmenuHeader>;
 
 interface HeaderProps {
@@ -37,68 +37,68 @@ HostMenu.args = {
       count: 5,
       onClick: (): void => undefined,
       severityCode: SeverityCode.High,
-      to: '#',
+      to: '#'
     },
     {
       count: 45,
       onClick: (): void => undefined,
       severityCode: SeverityCode.Low,
-      to: '#',
+      to: '#'
     },
     {
       count: 51,
       onClick: (): void => undefined,
       severityCode: SeverityCode.Ok,
-      to: '#',
-    },
+      to: '#'
+    }
   ],
   hasPending: false,
   iconHeader: {
     Icon: HostIcon,
     iconName: 'Host',
-    onClick: (): void => undefined,
+    onClick: (): void => undefined
   },
   iconToggleSubmenu: {
     onClick: (): void => undefined,
-    rotate: false,
+    rotate: false
   },
   submenuItems: [
     {
       onClick: (): void => undefined,
       submenuCount: 64,
       submenuTitle: 'All',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.High,
       submenuCount: 5,
       submenuTitle: 'Critical',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Low,
       submenuCount: 45,
       submenuTitle: 'Unknown',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Ok,
       submenuCount: 12,
       submenuTitle: 'Ok',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Pending,
       submenuCount: 2,
       submenuTitle: 'Pending',
-      to: '#',
-    },
+      to: '#'
+    }
   ],
-  toggled: false,
+  toggled: false
 };
 
 export const ServiceMenu = Template.bind({});
@@ -109,79 +109,79 @@ ServiceMenu.args = {
       count: SeverityCode.High,
       onClick: (): void => undefined,
       severityCode: 1,
-      to: '#',
+      to: '#'
     },
     {
       count: SeverityCode.Medium,
       onClick: (): void => undefined,
       severityCode: 2,
-      to: '#',
+      to: '#'
     },
     {
       count: SeverityCode.Low,
       onClick: (): void => undefined,
       severityCode: 5,
-      to: '#',
+      to: '#'
     },
     {
       count: SeverityCode.Ok,
       onClick: (): void => undefined,
       severityCode: 4,
-      to: '#',
-    },
+      to: '#'
+    }
   ],
   hasPending: false,
   iconHeader: {
     Icon: ServiceIcon,
     iconName: 'Service',
-    onClick: (): void => undefined,
+    onClick: (): void => undefined
   },
   iconToggleSubmenu: {
     onClick: (): void => undefined,
-    rotate: false,
+    rotate: false
   },
   submenuItems: [
     {
       onClick: (): void => undefined,
       submenuCount: 14,
       submenuTitle: 'All',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.High,
       submenuCount: 1,
       submenuTitle: 'Critical',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Medium,
       submenuCount: 2,
       submenuTitle: 'Warning',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Low,
       submenuCount: 5,
       submenuTitle: 'Unknown',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Ok,
       submenuCount: 4,
       submenuTitle: 'Ok',
-      to: '#',
+      to: '#'
     },
     {
       onClick: (): void => undefined,
       severityCode: SeverityCode.Pending,
       submenuCount: 2,
       submenuTitle: 'Pending',
-      to: '#',
-    },
+      to: '#'
+    }
   ],
-  toggled: false,
+  toggled: false
 };

@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { isEmpty, pipe, reject, slice } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Divider, CardActions, Button, Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Typography, Divider, CardActions, Button } from '@mui/material';
 
-import { getStatusColors } from '@centreon/ui';
+import { getStatusColors, SeverityCode } from '@centreon/ui';
 
 import { labelMore, labelLess } from '../../../translatedLabels';
 
@@ -18,38 +17,40 @@ const Line = (line, index): JSX.Element => (
   </Typography>
 );
 
-const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
-  const getStatusBackgroundColor = (severityCode): string =>
-    getStatusColors({
-      severityCode,
-      theme,
-    }).backgroundColor;
+const useStyles = makeStyles<Pick<Props, 'severityCode'>>()(
+  (theme, { severityCode }) => {
+    const getStatusBackgroundColor = (): string =>
+      getStatusColors({
+        severityCode,
+        theme
+      }).backgroundColor;
 
-  const getStatusTextColor = (severityCode): string =>
-    getStatusColors({
-      severityCode,
-      theme,
-    }).text;
+    const getStatusTextColor = (): string =>
+      getStatusColors({
+        severityCode,
+        theme
+      }).color;
 
-  return {
-    card: ({ severityCode }): CreateCSSProperties => ({
-      ...(severityCode && {
-        backgroundColor: getStatusBackgroundColor(severityCode),
-        border: 0,
-        color: getStatusTextColor(severityCode),
-      }),
-    }),
-    title: ({ severityCode }): CreateCSSProperties => ({
-      ...(severityCode && { color: getStatusTextColor(severityCode) }),
-    }),
-  };
-});
+    return {
+      card: {
+        ...(severityCode && {
+          backgroundColor: getStatusBackgroundColor(),
+          border: 0,
+          color: getStatusTextColor()
+        })
+      },
+      title: {
+        ...(severityCode && { color: getStatusTextColor() })
+      }
+    };
+  }
+);
 
 interface Props {
   changeExpandedCards: (props: ChangeExpandedCardsProps) => void;
   content: string;
   expandedCard: boolean;
-  severityCode?: number;
+  severityCode: SeverityCode;
   title: string;
 }
 
@@ -58,14 +59,17 @@ const ExpandableCard = ({
   content,
   severityCode,
   expandedCard,
-  changeExpandedCards,
+  changeExpandedCards
 }: Props): JSX.Element => {
-  const classes = useStyles({ severityCode });
+  const { classes } = useStyles({ severityCode });
   const { t } = useTranslation();
 
   const lines = content.split(/\n|\\n/);
   const threeFirstLines = lines.slice(0, 3);
-  const lastLines = pipe(slice(3, lines.length), reject(isEmpty))(lines);
+  const lastLines = pipe(
+    slice(3, lines.length),
+    reject(isEmpty)
+  )(lines) as Array<string>;
 
   const toggleOutputExpanded = (): void => {
     if (expandedCard) {

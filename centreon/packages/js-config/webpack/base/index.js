@@ -30,6 +30,9 @@ const getBaseConfiguration = ({
                 tsx: true,
               },
               transform: jscTransformConfiguration,
+              experimental: {
+                plugins: [ ['@swc/plugin-emotion', {}] ]
+              }
             },
           },
         },

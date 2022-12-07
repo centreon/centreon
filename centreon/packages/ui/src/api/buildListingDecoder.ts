@@ -6,9 +6,9 @@ const metaDecoder = JsonDecoder.object<ListingMeta>(
   {
     limit: JsonDecoder.number,
     page: JsonDecoder.number,
-    total: JsonDecoder.number,
+    total: JsonDecoder.number
   },
-  'ListingMeta',
+  'ListingMeta'
 );
 
 interface ListingDecoderOptions<TEntity> {
@@ -20,14 +20,14 @@ interface ListingDecoderOptions<TEntity> {
 const buildListingDecoder = <TEntity>({
   entityDecoder,
   entityDecoderName,
-  listingDecoderName,
+  listingDecoderName
 }: ListingDecoderOptions<TEntity>): JsonDecoder.Decoder<Listing<TEntity>> =>
   JsonDecoder.object<Listing<TEntity>>(
     {
       meta: metaDecoder,
-      result: JsonDecoder.array(entityDecoder, entityDecoderName),
+      result: JsonDecoder.array(entityDecoder, entityDecoderName)
     },
-    listingDecoderName,
+    listingDecoderName
   );
 
 export default buildListingDecoder;

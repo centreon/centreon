@@ -45,6 +45,8 @@ jobs:
             VERSION=`sed -n 's|\s*<version>\(.*\)</version>|\1|p' ${{ inputs.version_file }} 2>/dev/null`
           elif [[ "${{ inputs.version_file }}" == */pom.xml ]]; then
             VERSION=`grep '<revision>.*</revision>' ${{ inputs.version_file }} | cut -d '>' -f 2 | cut -d - -f 1`
+          elif [[ "${{ inputs.version_file }}" == */*.spectemplate ]]; then
+            VERSION=`grep 'Version: ' ${{ inputs.version_file }} | rev | cut -d' ' -f1 | rev`
           else
             echo "Unable to parse ${{ inputs.version_file }}"
             exit 1
@@ -72,7 +74,7 @@ jobs:
               echo "release=$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
               ;;
             *)
-              echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               ;;
           esac
         shell: bash

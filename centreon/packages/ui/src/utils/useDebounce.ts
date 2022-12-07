@@ -9,7 +9,7 @@ interface Props {
 const useDebounce = ({
   functionToDebounce,
   wait,
-  memoProps = [],
+  memoProps = []
 }: Props): ((...args) => void) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 

@@ -5,13 +5,13 @@ describe(buildListingEndpoint, () => {
   const parameters = {
     limit: 10,
     page: 1,
-    sort: { name: 'asc' },
+    sort: { name: 'asc' }
   };
   it('builds the listing endpoint string using the given params', () => {
     const endpoint = buildListingEndpoint({ baseEndpoint, parameters });
 
     expect(decodeURIComponent(endpoint)).toEqual(
-      'resources?page=1&limit=10&sort_by={"name":"asc"}',
+      'resources?page=1&limit=10&sort_by={"name":"asc"}'
     );
   });
 
@@ -23,14 +23,14 @@ describe(buildListingEndpoint, () => {
         search: {
           regex: {
             fields: ['h.name'],
-            value: 'h.name:hvalue',
-          },
-        },
-      },
+            value: 'h.name:hvalue'
+          }
+        }
+      }
     });
 
     expect(decodeURIComponent(endpoint)).toContain(
-      '&search={"$and":[{"h.name":{"$rg":"hvalue"}}]}',
+      '&search={"$and":[{"h.name":{"$rg":"hvalue"}}]}'
     );
   });
 
@@ -42,14 +42,14 @@ describe(buildListingEndpoint, () => {
         search: {
           regex: {
             fields: ['h.name', 's.description'],
-            value: 'searchValue',
-          },
-        },
-      },
+            value: 'searchValue'
+          }
+        }
+      }
     });
 
     expect(decodeURIComponent(endpoint)).toContain(
-      '&search={"$or":[{"h.name":{"$rg":"searchValue"}},{"s.description":{"$rg":"searchValue"}}]}',
+      '&search={"$or":[{"h.name":{"$rg":"searchValue"}},{"s.description":{"$rg":"searchValue"}}]}'
     );
   });
 
@@ -62,15 +62,15 @@ describe(buildListingEndpoint, () => {
           lists: [
             {
               field: 'h.status',
-              values: ['OK'],
-            },
-          ],
-        },
-      },
+              values: ['OK']
+            }
+          ]
+        }
+      }
     });
 
     expect(decodeURIComponent(endpoint)).toContain(
-      '&search={"$and":[{"h.status":{"$in":["OK"]}}]}',
+      '&search={"$and":[{"h.status":{"$in":["OK"]}}]}'
     );
   });
 
@@ -83,15 +83,15 @@ describe(buildListingEndpoint, () => {
           lists: [
             {
               field: 'h.status',
-              values: [1, 2, 3, 4],
-            },
-          ],
-        },
-      },
+              values: [1, 2, 3, 4]
+            }
+          ]
+        }
+      }
     });
 
     expect(decodeURIComponent(endpoint)).toContain(
-      '&search={"$and":[{"h.status":{"$in":[1,2,3,4]}}]}',
+      '&search={"$and":[{"h.status":{"$in":[1,2,3,4]}}]}'
     );
   });
 
@@ -106,16 +106,16 @@ describe(buildListingEndpoint, () => {
               field: 'date',
               values: {
                 $gt: '2020-12-01T07:00:00',
-                $lt: '2020-12-01T11:00:00',
-              },
-            },
-          ],
-        },
-      },
+                $lt: '2020-12-01T11:00:00'
+              }
+            }
+          ]
+        }
+      }
     });
 
     expect(decodeURIComponent(endpointWithValues)).toContain(
-      '&search={"$and":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}',
+      '&search={"$and":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}'
     );
 
     const endpointWithValue = buildListingEndpoint({
@@ -126,15 +126,15 @@ describe(buildListingEndpoint, () => {
           conditions: [
             {
               field: 'is_activated',
-              value: true,
-            },
-          ],
-        },
-      },
+              value: true
+            }
+          ]
+        }
+      }
     });
 
     expect(decodeURIComponent(endpointWithValue)).toContain(
-      '&search={"$and":[{"is_activated":true}]}',
+      '&search={"$and":[{"is_activated":true}]}'
     );
   });
 });

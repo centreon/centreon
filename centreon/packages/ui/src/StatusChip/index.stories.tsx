@@ -9,21 +9,21 @@ const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     '&:hover': {
       background: theme.palette.primary.dark,
-      cursor: 'pointer',
+      cursor: 'pointer'
     },
     background: theme.palette.primary.light,
     borderRadius: 0,
-    width: theme.spacing(50),
-  },
+    width: theme.spacing(50)
+  }
 }));
 
 export default {
   argTypes: {
     clickable: { control: 'boolean' },
-    label: { control: 'text' },
+    label: { control: 'text' }
   },
   component: StatusChip,
-  title: 'StatusChip',
+  title: 'StatusChip'
 } as ComponentMeta<typeof StatusChip>;
 
 const TemplateStatusChip: ComponentStory<typeof StatusChip> = (args) => (
@@ -33,7 +33,7 @@ const TemplateStatusChip: ComponentStory<typeof StatusChip> = (args) => (
 export const PlaygroundStatusChip = TemplateStatusChip.bind({});
 PlaygroundStatusChip.args = {
   clickable: true,
-  label: 'Status CHip Label',
+  label: 'Status CHip Label'
 };
 
 export const withOkSeverityCode = (): JSX.Element => (

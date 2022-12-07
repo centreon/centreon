@@ -12,7 +12,7 @@ import {
   Group,
   InputProps,
   InputPropsWithoutGroup,
-  InputType,
+  InputType
 } from './Inputs/models';
 
 export interface BasicForm {
@@ -43,13 +43,13 @@ export interface BasicForm {
 
 const selectEntryValidationSchema = Yup.object().shape({
   id: Yup.number().required('Required'),
-  name: Yup.string().required('Required'),
+  name: Yup.string().required('Required')
 });
 
 export const basicFormValidationSchema = Yup.object().shape({
   active: Yup.boolean().required('Active is required'),
   activeSortableFieldsTable: Yup.boolean().required(
-    'Active Sortable FieldsTable is required',
+    'Active Sortable FieldsTable is required'
   ),
   animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
   anotherText: Yup.string(),
@@ -62,8 +62,8 @@ export const basicFormValidationSchema = Yup.object().shape({
       email: Yup.string()
         .email('Invalid user email')
         .required('Email is required'),
-      role: selectEntryValidationSchema,
-    }),
+      role: selectEntryValidationSchema
+    })
   ),
   inviteUsers2: Yup.array().of(Yup.string().email('Invalid user email')),
   isForced: Yup.boolean().required('Is forced is required'),
@@ -73,30 +73,30 @@ export const basicFormValidationSchema = Yup.object().shape({
   roleMapping: Yup.array().of(
     Yup.object({
       role: selectEntryValidationSchema,
-      value: Yup.string().required('Role value is required'),
-    }),
+      value: Yup.string().required('Role value is required')
+    })
   ),
   scopes: Yup.array().of(
-    Yup.string().min(3, '3 characters min').required('Required'),
+    Yup.string().min(3, '3 characters min').required('Required')
   ),
   sports: Yup.array()
     .of(selectEntryValidationSchema.required('Required'))
-    .min(2, 'Choose at least 2 sports'),
+    .min(2, 'Choose at least 2 sports')
 });
 
 const roleEntries: Array<SelectEntry> = [
   {
     id: 1,
-    name: 'Administrator',
+    name: 'Administrator'
   },
   {
     id: 2,
-    name: 'User',
+    name: 'User'
   },
   {
     id: 3,
-    name: 'Editor',
-  },
+    name: 'Editor'
+  }
 ];
 
 export const basicFormInitialValues = {
@@ -117,44 +117,44 @@ export const basicFormInitialValues = {
     {
       priority: 0,
       role: roleEntries[0],
-      value: 'example',
+      value: 'example'
     },
     {
       priority: 1,
       role: roleEntries[1],
-      value: 'example2',
+      value: 'example2'
     },
     {
       priority: 2,
       role: roleEntries[2],
-      value: 'example3',
-    },
+      value: 'example3'
+    }
   ],
   scopes: [],
-  sports: [],
+  sports: []
 };
 
 export const classOptions = [...Array(10).keys()].map((idx) => ({
   id: idx,
-  name: `Class ${idx}`,
+  name: `Class ${idx}`
 }));
 
 export const sportOptions = [...Array(10).keys()].map((idx) => ({
   id: idx,
-  name: `Sport ${idx}`,
+  name: `Sport ${idx}`
 }));
 
 export const basicFormGroups: Array<Group> = [
   {
     name: 'First group',
-    order: 1,
+    order: 1
   },
   {
     EndIcon: HelpOutlineIcon,
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
-    order: 2,
-  },
+    order: 2
+  }
 ];
 
 export const basicFormInputs: Array<InputProps> = [
@@ -162,26 +162,27 @@ export const basicFormInputs: Array<InputProps> = [
     fieldName: 'name',
     group: 'First group',
     label: 'Name',
-    type: InputType.Text,
+    type: InputType.Text
   },
   {
     fieldName: 'email',
     group: 'First group',
     label: 'Email',
-    type: InputType.Text,
+    type: InputType.Text
   },
   {
     fieldName: 'active',
     group: 'Second group',
     label: 'Active',
-    type: InputType.Switch,
+    type: InputType.Switch
   },
   {
     additionalLabel: 'This a very special label',
     fieldName: 'password',
     group: 'First group',
+    hideInput: (values) => values.active,
     label: 'Password',
-    type: InputType.Password,
+    type: InputType.Password
   },
   {
     fieldName: 'language',
@@ -191,22 +192,22 @@ export const basicFormInputs: Array<InputProps> = [
       options: [
         {
           label: 'French',
-          value: 'French',
+          value: 'French'
         },
         {
           label: 'English',
-          value: 'English',
-        },
-      ],
+          value: 'English'
+        }
+      ]
     },
-    type: InputType.Radio,
+    type: InputType.Radio
   },
   {
     fieldName: 'anotherText',
     group: 'First group',
     hideInput: ({ language }) => equals(language, 'French'),
     label: 'Another Text input',
-    type: InputType.Text,
+    type: InputType.Text
   },
   {
     fieldName: 'isForced',
@@ -216,15 +217,15 @@ export const basicFormInputs: Array<InputProps> = [
       options: [
         {
           label: 'Is not forced',
-          value: false,
+          value: false
         },
         {
           label: 'Is forced',
-          value: true,
-        },
-      ],
+          value: true
+        }
+      ]
     },
-    type: InputType.Radio,
+    type: InputType.Radio
   },
   {
     fieldName: '',
@@ -232,35 +233,35 @@ export const basicFormInputs: Array<InputProps> = [
       columns: [
         {
           autocomplete: {
-            options: classOptions,
+            options: classOptions
           },
           fieldName: 'class',
           label: 'Class (Single autocomplete)',
-          type: InputType.SingleAutocomplete,
+          type: InputType.SingleAutocomplete
         },
         {
           autocomplete: {
-            options: sportOptions,
+            options: sportOptions
           },
           fieldName: 'sports',
           label: 'Sports (Multi autocomplete)',
-          type: InputType.MultiAutocomplete,
-        },
-      ],
+          type: InputType.MultiAutocomplete
+        }
+      ]
     },
     group: 'First group',
     label: 'autocompletes',
-    type: InputType.Grid,
+    type: InputType.Grid
   },
   {
     autocomplete: {
       creatable: true,
-      options: [],
+      options: []
     },
     fieldName: 'scopes',
     group: 'First group',
     label: 'Scopes (Multi autocomplete that allows value creation)',
-    type: InputType.MultiAutocomplete,
+    type: InputType.MultiAutocomplete
   },
   {
     fieldName: '',
@@ -269,38 +270,38 @@ export const basicFormInputs: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: 'endpoint',
+            endpoint: 'endpoint'
           },
           fieldName: 'group',
           label: 'Group (Single connected autocomplete)',
-          type: InputType.SingleConnectedAutocomplete,
+          type: InputType.SingleConnectedAutocomplete
         },
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: 'endpoint',
+            endpoint: 'endpoint'
           },
           fieldName: 'animals',
           label: 'Animals (Multi connected autocomplete)',
-          type: InputType.MultiConnectedAutocomplete,
-        },
+          type: InputType.MultiConnectedAutocomplete
+        }
       ],
-      gridTemplateColumns: '400px 1fr',
+      gridTemplateColumns: '400px 1fr'
     },
     group: 'First group',
     label: 'connected autocompletes',
-    type: InputType.Grid,
+    type: InputType.Grid
   },
   {
     custom: {
       Component: ({ label }: InputPropsWithoutGroup): JSX.Element => (
         <Typography>This is a {label} component</Typography>
-      ),
+      )
     },
     fieldName: 'custom',
     group: 'Second group',
     label: 'Custom',
-    type: InputType.Custom,
+    type: InputType.Custom
   },
   {
     fieldName: 'inviteUsers',
@@ -310,27 +311,27 @@ export const basicFormInputs: Array<InputProps> = [
           fieldName: 'email',
           label: 'Email',
           required: true,
-          type: InputType.Text,
+          type: InputType.Text
         },
         {
           autocomplete: {
             creatable: false,
-            options: roleEntries,
+            options: roleEntries
           },
           fieldName: 'role',
           label: 'Role',
-          type: InputType.SingleAutocomplete,
-        },
+          type: InputType.SingleAutocomplete
+        }
       ],
       defaultRowValue: {
         email: 'example@test.fr',
-        role: null,
+        role: null
       },
-      deleteLabel: 'Delete',
+      deleteLabel: 'Delete'
     },
     group: 'First group',
     label: 'inviteUsers',
-    type: InputType.FieldsTable,
+    type: InputType.FieldsTable
   },
   {
     fieldName: 'inviteUsers2',
@@ -340,22 +341,22 @@ export const basicFormInputs: Array<InputProps> = [
           fieldName: 'email',
           label: 'Email',
           required: true,
-          type: InputType.Text,
-        },
+          type: InputType.Text
+        }
       ],
       defaultRowValue: 'example',
       deleteLabel: 'Delete',
-      hasSingleValue: true,
+      hasSingleValue: true
     },
     group: 'First group',
     label: 'inviteUsers2',
-    type: InputType.FieldsTable,
+    type: InputType.FieldsTable
   },
   {
     fieldName: 'activeSortableFieldsTable',
     group: 'First group',
     label: 'Active Sortable Fields Table',
-    type: InputType.Switch,
+    type: InputType.Switch
   },
   {
     fieldName: 'roleMapping',
@@ -365,30 +366,30 @@ export const basicFormInputs: Array<InputProps> = [
           fieldName: 'value',
           label: 'RoleValue',
           required: true,
-          type: InputType.Text,
+          type: InputType.Text
         },
         {
           autocomplete: {
             creatable: false,
-            options: roleEntries,
+            options: roleEntries
           },
           fieldName: 'role',
           label: 'RoleAcl',
-          type: InputType.SingleAutocomplete,
-        },
+          type: InputType.SingleAutocomplete
+        }
       ],
       defaultRowValue: {
         role: null,
-        value: '',
+        value: ''
       },
       deleteLabel: 'Delete',
       getSortable: (values: FormikValues): boolean =>
-        prop('activeSortableFieldsTable', values),
+        prop('activeSortableFieldsTable', values)
     },
     group: 'First group',
     label: 'roleMapping',
-    type: InputType.FieldsTable,
-  },
+    type: InputType.FieldsTable
+  }
 ];
 
 export const CustomButton = (): JSX.Element => {
@@ -407,7 +408,7 @@ const buildEntities = (from): Array<SelectEntry> => {
     .fill(0)
     .map((_, index) => ({
       id: from + index,
-      name: `Entity ${from + index}`,
+      name: `Entity ${from + index}`
     }));
 };
 
@@ -415,7 +416,7 @@ export const buildResult = (page): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,
-    total: 40,
+    total: 40
   },
-  result: buildEntities((page - 1) * 10),
+  result: buildEntities((page - 1) * 10)
 });

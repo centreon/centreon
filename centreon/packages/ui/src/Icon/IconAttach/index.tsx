@@ -8,7 +8,7 @@ const useStyles = makeStyles()((theme) => ({
     color: theme.palette.text.secondary,
     cursor: 'initial',
     fontSize: 14,
-    verticalAlign: 'middle',
+    verticalAlign: 'middle'
   },
   iconAttach: {
     cursor: 'initial',
@@ -19,12 +19,12 @@ const useStyles = makeStyles()((theme) => ({
     marginRight: 15,
     textAlign: 'center',
     verticalAlign: 'middle',
-    width: 80,
+    width: 80
   },
   iconAttachImage: {
     maxHeight: '100%',
     maxWidth: '100%',
-    verticalAlign: 'middle',
+    verticalAlign: 'middle'
   },
   iconAttachLabel: {
     color: theme.palette.text.secondary,
@@ -32,13 +32,13 @@ const useStyles = makeStyles()((theme) => ({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: 12,
     marginLeft: 3,
-    verticalAlign: 'middle',
+    verticalAlign: 'middle'
   },
   root: {
     alignItems: 'center',
     display: 'flex',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 }));
 
 interface Props {
@@ -56,7 +56,7 @@ const IconAttach = ({
   uploadedImage,
   imgSource,
   title,
-  labelNoIcon = 'NO ICON',
+  labelNoIcon = 'NO ICON'
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 

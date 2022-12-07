@@ -8,8 +8,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     background: theme.palette.background.paper,
     borderRadius: theme.spacing(0.5),
-    width: theme.spacing(25),
-  },
+    width: theme.spacing(25)
+  }
 }));
 
 export default { title: 'InputField/Text' };

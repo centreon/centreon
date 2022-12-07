@@ -10,29 +10,29 @@ import LicenseCheck from '.';
 
 const useStyles = makeStyles()({
   container: {
-    height: '100vh',
-  },
+    height: '100vh'
+  }
 });
 
 export default {
   argTypes: {
     isLicenseValid: { control: 'boolean' },
-    moduleName: { control: 'text' },
+    moduleName: { control: 'text' }
   },
   component: LicenseCheck,
   decorators: [withMock],
-  title: 'LicenseCheck',
+  title: 'LicenseCheck'
 } as ComponentMeta<typeof LicenseCheck>;
 
 const getMockData = ({ moduleName, isLicenseValid }): Array<object> => [
   {
     method: 'GET',
     response: {
-      success: isLicenseValid,
+      success: isLicenseValid
     },
     status: 200,
-    url: getModuleLicenseCheckEndpoint(moduleName),
-  },
+    url: getModuleLicenseCheckEndpoint(moduleName)
+  }
 ];
 
 interface Props {
@@ -62,22 +62,22 @@ const TemplateLicenseCheck: ComponentStory<typeof LicenseCheck> = (args) => (
 );
 export const PlaygroundLicenseCheck = TemplateLicenseCheck.bind({});
 PlaygroundLicenseCheck.args = {
-  moduleName: 'paidModule1',
+  moduleName: 'paidModule1'
 };
 PlaygroundLicenseCheck.parameters = {
-  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule1' }),
+  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule1' })
 };
 
 export const withInvalidLicense = (): JSX.Element => (
   <Story moduleName="paidModule2" />
 );
 withInvalidLicense.parameters = {
-  mockData: getMockData({ isLicenseValid: false, moduleName: 'paidModule2' }),
+  mockData: getMockData({ isLicenseValid: false, moduleName: 'paidModule2' })
 };
 
 export const withValidLicense = (): JSX.Element => (
   <Story moduleName="paidModule3" />
 );
 withValidLicense.parameters = {
-  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule3' }),
+  mockData: getMockData({ isLicenseValid: true, moduleName: 'paidModule3' })
 };

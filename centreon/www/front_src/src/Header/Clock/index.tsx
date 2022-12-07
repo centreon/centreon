@@ -1,30 +1,31 @@
 import { useRef, useState, useEffect } from 'react';
 
+import { makeStyles } from 'tss-react/mui';
+
 import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { centreonUi } from '../helpers/index';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   dateTime: {
     color: theme.palette.common.white,
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   nowrap: {
-    whiteSpace: 'nowrap',
-  },
+    whiteSpace: 'nowrap'
+  }
 }));
 
 const Clock = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const refreshIntervalRef = useRef<number>();
   const [dateTime, setDateTime] = useState({
     date: '',
-    time: '',
+    time: ''
   });
 
   const { format, toTime } = centreonUi.useLocaleDateTimeFormat();
@@ -44,7 +45,7 @@ const Clock = (): JSX.Element => {
     const thirtySeconds = 30 * 1000;
     refreshIntervalRef.current = window.setInterval(
       updateDateTime,
-      thirtySeconds,
+      thirtySeconds
     );
 
     return (): void => {
