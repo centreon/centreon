@@ -132,6 +132,8 @@ jobs:
           ls -lath *.rpm
           rpmsign --addsign ./*.${{ inputs.package_extension }}
           ls -lath *.rpm
+          echo "check signature"
+          rpm -qpi *.rpm
         shell: bash
 
       - uses: actions/cache@v3
