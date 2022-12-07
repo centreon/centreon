@@ -97,7 +97,7 @@ jobs:
           major_version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
-          cache_key: ${{ inputs.cache_key }}-unsigned
+          cache_key: unsigned-${{ inputs.cache_key }}
 
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
@@ -119,7 +119,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
-          key: ${{ inputs.cache_key }}-unsigned
+          key: unsigned-${{ inputs.cache_key }}
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
         shell: bash
@@ -140,4 +140,4 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
-          key: ${{ inputs.cache_key }}-signed
+          key: ${{ inputs.cache_key }}
