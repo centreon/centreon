@@ -124,6 +124,9 @@ jobs:
       - run: echo "HOME=/root" >> $GITHUB_ENV
         shell: bash
 
+      - run: export GPG_TTY=$(tty)
+        shell: bash
+
       - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
