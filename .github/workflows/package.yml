@@ -127,7 +127,11 @@ jobs:
       - run: export GPG_TTY=$(tty)
         shell: bash
 
-      - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
+      - run: |
+          pwd
+          ls -lath *.rpm
+          rpmsign --addsign ./*.${{ inputs.package_extension }}
+          ls -lath *.rpm
         shell: bash
 
       - uses: actions/cache@v3
