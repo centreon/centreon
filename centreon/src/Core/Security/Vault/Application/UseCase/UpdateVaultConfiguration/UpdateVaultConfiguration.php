@@ -40,7 +40,6 @@ use Core\Security\Vault\Application\Repository\{
     ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
-use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class UpdateVaultConfiguration
@@ -103,13 +102,13 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if ($this->isVaultConfigurationAlreadyExists($vaultConfiguration)) {
+            if ($this->isVaultConfigurationAlreadyExists($request)) {
                 $this->error(
                     'Vault configuration with these properties already exists for same provider',
                     [
-                        'address' => $vaultConfiguration->getAddress(),
-                        'port' => $vaultConfiguration->getPort(),
-                        'storage' => $vaultConfiguration->getStorage(),
+                        'address' => $request->address,
+                        'port' => $request->port,
+                        'storage' => $request->storage,
                     ]
                 );
                 $presenter->setResponseStatus(
@@ -156,33 +155,22 @@ final class UpdateVaultConfiguration
     }
 
     /**
-     * Checks if vault configuration exists.
+     * @param UpdateVaultConfigurationRequest $request
      *
-     * @param int $id
-     *
-     * @return bool
-     */
-    private function isVaultConfigurationExists(int $id): bool
-    {
-        return $this->readVaultConfigurationRepository->findById($id) !== null;
-    }
-
-    /**
-     * @param VaultConfiguration $vaultConfiguration
-     * @return bool
      * @throws \Throwable
+     *
+     * @return boolean
      */
-    private function isVaultConfigurationAlreadyExists(
-        VaultConfiguration $vaultConfiguration
-    ): bool {
+    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request): bool
+    {
         $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
-            $vaultConfiguration->getAddress(),
-            $vaultConfiguration->getPort(),
-            $vaultConfiguration->getStorage()
+            $request->address,
+            $request->port,
+            $request->storage
         );
 
         return $existingVaultConfiguration !== null
-            && $existingVaultConfiguration->getId() !== $vaultConfiguration->getId();
+            && $existingVaultConfiguration->getId() !== $request->vaultConfigurationId;
     }
 
     /**
