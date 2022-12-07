@@ -140,4 +140,4 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
-          key: ${{ inputs.cache_key }}
+          key: signed-${{ inputs.cache_key }}
