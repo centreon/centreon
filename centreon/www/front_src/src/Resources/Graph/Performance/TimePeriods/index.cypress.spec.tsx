@@ -31,7 +31,7 @@ const days = [
   'Wednesday',
   'Thursday',
   'Friday',
-  'Saturday',
+  'Saturday'
 ];
 
 const months2023 = [
@@ -40,97 +40,97 @@ const months2023 = [
       date: '2023-01-01T12:59:41.041Z',
       firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     February: {
       date: '2023-02-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 28 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     March: {
       date: '2023-03-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[5], indexDayInRowWeek: 5, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     April: {
       date: '2023-04-01T12:59:41.041Z',
       firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
       lastDay: { day: days[0], indexDayInRowWeek: 0, value: 30 },
-      numberWeeks: 6,
-    },
+      numberWeeks: 6
+    }
   },
   {
     May: {
       date: '2023-05-01T12:59:41.041Z',
       firstDay: { day: days[1], indexDayInRowWeek: 1, value: 1 },
       lastDay: { day: days[3], indexDayInRowWeek: 3, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     June: {
       date: '2023-06-01T12:59:41.041Z',
       firstDay: { day: days[4], indexDayInRowWeek: 4, value: 1 },
       lastDay: { day: days[5], indexDayInRowWeek: 5, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     July: {
       date: '2023-07-01T12:59:41.041Z',
       firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
       lastDay: { day: days[1], indexDayInRowWeek: 1, value: 31 },
-      numberWeeks: 6,
-    },
+      numberWeeks: 6
+    }
   },
   {
     August: {
       date: '2023-08-01T12:59:41.041Z',
       firstDay: { day: days[2], indexDayInRowWeek: 2, value: 1 },
       lastDay: { day: days[4], indexDayInRowWeek: 4, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     September: {
       date: '2023-09-01T12:59:41.041Z',
       firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
       lastDay: { day: days[6], indexDayInRowWeek: 6, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     October: {
       date: '2023-10-01T12:59:41.041Z',
       firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     November: {
       date: '2023-11-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[4], indexDayInRowWeek: 4, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     December: {
       date: '2023-12-01T12:59:41.041Z',
       firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
       lastDay: { day: days[0], indexDayInRowWeek: 0, value: 31 },
-      numberWeeks: 6,
-    },
-  },
+      numberWeeks: 6
+    }
+  }
 ];
 
 const month2023Reverse = [
@@ -139,97 +139,97 @@ const month2023Reverse = [
       date: '2023-12-01T12:59:41.041Z',
       firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
       lastDay: { day: days[0], indexDayInRowWeek: 0, value: 31 },
-      numberWeeks: 6,
-    },
+      numberWeeks: 6
+    }
   },
   {
     November: {
       date: '2023-11-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[4], indexDayInRowWeek: 4, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     October: {
       date: '2023-10-01T12:59:41.041Z',
       firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     September: {
       date: '2023-09-01T12:59:41.041Z',
       firstDay: { day: days[5], indexDayInRowWeek: 5, value: 1 },
       lastDay: { day: days[6], indexDayInRowWeek: 6, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     August: {
       date: '2023-08-01T12:59:41.041Z',
       firstDay: { day: days[2], indexDayInRowWeek: 2, value: 1 },
       lastDay: { day: days[4], indexDayInRowWeek: 4, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     July: {
       date: '2023-07-01T12:59:41.041Z',
       firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
       lastDay: { day: days[1], indexDayInRowWeek: 1, value: 31 },
-      numberWeeks: 6,
-    },
+      numberWeeks: 6
+    }
   },
   {
     June: {
       date: '2023-06-01T12:59:41.041Z',
       firstDay: { day: days[4], indexDayInRowWeek: 4, value: 1 },
       lastDay: { day: days[5], indexDayInRowWeek: 5, value: 30 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     May: {
       date: '2023-05-01T12:59:41.041Z',
       firstDay: { day: days[1], indexDayInRowWeek: 1, value: 1 },
       lastDay: { day: days[3], indexDayInRowWeek: 3, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     April: {
       date: '2023-04-01T12:59:41.041Z',
       firstDay: { day: days[6], indexDayInRowWeek: 6, value: 1 },
       lastDay: { day: days[0], indexDayInRowWeek: 0, value: 30 },
-      numberWeeks: 6,
-    },
+      numberWeeks: 6
+    }
   },
   {
     March: {
       date: '2023-03-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[5], indexDayInRowWeek: 5, value: 31 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     February: {
       date: '2023-02-01T12:59:41.041Z',
       firstDay: { day: days[3], indexDayInRowWeek: 3, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 28 },
-      numberWeeks: 5,
-    },
+      numberWeeks: 5
+    }
   },
   {
     January: {
       date: '2023-01-01T12:59:41.041Z',
       firstDay: { day: days[0], indexDayInRowWeek: 0, value: 1 },
       lastDay: { day: days[2], indexDayInRowWeek: 2, value: 31 },
-      numberWeeks: 5,
-    },
-  },
+      numberWeeks: 5
+    }
+  }
 ];
 
 const dataTest = [
@@ -237,55 +237,19 @@ const dataTest = [
     button: 'Next month',
     data: months2023,
     initialDate: '2023-01-01T12:59:41.041Z',
-    timezone: 'Europe/Paris',
+    timezone: 'Europe/Paris'
   },
   {
     button: 'Previous month',
     data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
-    timezone: 'Europe/Paris',
-  },
-  {
-    button: 'Next month',
-    data: months2023,
-    initialDate: '2023-01-01T12:59:41.041Z',
-    timezone: 'Europe/London',
-  },
-  {
-    button: 'Previous month',
-    data: month2023Reverse,
-    initialDate: '2023-12-01T12:59:41.041Z',
-    timezone: 'Europe/London',
-  },
-  {
-    button: 'Next month',
-    data: months2023,
-    initialDate: '2023-01-01T12:59:41.041Z',
-    timezone: 'Atlantic/Madeira',
-  },
-  {
-    button: 'Previous month',
-    data: month2023Reverse,
-    initialDate: '2023-12-01T12:59:41.041Z',
-    timezone: 'Atlantic/Madeira',
-  },
-  {
-    button: 'Next month',
-    data: months2023,
-    initialDate: '2023-01-01T12:59:41.041Z',
-    timezone: 'UTC',
-  },
-  {
-    button: 'Previous month',
-    data: month2023Reverse,
-    initialDate: '2023-12-01T12:59:41.041Z',
-    timezone: 'UTC',
-  },
+    timezone: 'Europe/Paris'
+  }
 ];
 
 enum ButtonCalendar {
   NMONTH = 'Next month',
-  PMONTH = 'Previous month',
+  PMONTH = 'Previous month'
 }
 interface GetPreviousNextMonth {
   currentMonth: string;
@@ -294,7 +258,7 @@ interface GetPreviousNextMonth {
 
 const getPreviousNextMonth = ({
   currentMonth,
-  labelButton,
+  labelButton
 }: GetPreviousNextMonth): void => {
   switch (labelButton) {
     case ButtonCalendar.PMONTH:
@@ -344,7 +308,7 @@ dataTest.forEach((item) =>
               property={CustomTimePeriodProperty.start}
               setDate={setStart}
             />
-          </LocalizationProvider>,
+          </LocalizationProvider>
         );
       });
     });
@@ -356,7 +320,7 @@ dataTest.forEach((item) =>
 
         const dateInput = format({
           date: dayjs(item.initialDate).tz(item.timezone),
-          formatString: 'L hh:mm A',
+          formatString: 'L hh:mm A'
         });
 
         cy.get('input').should('have.value', dateInput);
@@ -444,7 +408,7 @@ dataTest.forEach((item) =>
           const { format } = result.current;
           const monthAndYear = format({
             date: dayjs(date).tz(item.timezone),
-            formatString: 'MMMM YYYY',
+            formatString: 'MMMM YYYY'
           });
           cy.contains(monthAndYear);
         });
@@ -469,8 +433,8 @@ dataTest.forEach((item) =>
           const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
             format({
               date: firstDay.add(diff, 'day'),
-              formatString: 'dd',
-            }),
+              formatString: 'dd'
+            })
           );
           daysArray.forEach((day) => cy.contains(day.toUpperCase()));
           const currentMonth = Object.keys(element)[0];
@@ -485,12 +449,12 @@ dataTest.forEach((item) =>
         cy.matchImageSnapshot(
           `calendar-${item.timezone}-${
             Object.keys(element)[0]
-          }-when-clicking-on-${item.button}`,
+          }-when-clicking-on-${item.button}`
         );
 
         const currentMonth = Object.keys(element)[0];
         getPreviousNextMonth({ currentMonth, labelButton: item.button });
       });
     });
-  }),
+  })
 );

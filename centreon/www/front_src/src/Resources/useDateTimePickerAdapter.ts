@@ -109,7 +109,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     public formatByString = (value, formatKey: string): string => {
       return format({
         date: value.tz(timezone),
-        formatString: formatKey,
+        formatString: formatKey
       });
     };
 
@@ -127,7 +127,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     public format = (date: dayjs.Dayjs, formatKey: string): string => {
       return this.formatByString(
         date.tz(timezone, true),
-        this.formats[formatKey],
+        this.formats[formatKey]
       );
     };
 
@@ -265,11 +265,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const numberOfDaysInCurrentMonth = currentEnd.diff(
         currentStart,
         'd',
-        true,
+        true
       );
 
       const daysOfMonthWithTimeZone = [
-        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys(),
+        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
       ].reduce(
         (acc, _, currentIndex) => {
           if (acc[currentIndex].isUTC()) {
@@ -284,12 +284,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
           return [...acc, newCurrent];
         },
-        [currentStart],
+        [currentStart]
       );
 
       const arrayWeeks = this.getChunkFromArray({
         array: daysOfMonthWithTimeZone,
-        size: 7,
+        size: 7
       });
 
       return arrayWeeks as Array<Array<dayjs.Dayjs>>;
