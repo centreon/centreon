@@ -313,7 +313,7 @@ dataTest.forEach((item) =>
       });
     });
 
-    it('check input calendar value contains correct date', () => {
+    it('checks input calendar value contains correct date', () => {
       const { result } = renderHook(() => useLocaleDateTimeFormat());
       act(() => {
         const { format } = result.current;
