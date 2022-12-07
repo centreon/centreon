@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 
-class FindHostCategoriesResponse
+final class FindHostCategoriesResponse
 {
     /**
      * @var array<array{id:int,name:string,alias:string}>

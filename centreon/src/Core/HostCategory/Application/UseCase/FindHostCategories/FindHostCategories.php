@@ -35,7 +35,7 @@ use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesR
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-class FindHostCategories
+final class FindHostCategories
 {
     use LoggerTrait;
 
@@ -76,10 +76,10 @@ class FindHostCategories
             }
 
             $presenter->present($this->createResponse($hostCategories));
-        } catch (\Throwable $th) {
+        } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
             // TODO : translate error message
-            $this->error($th->getMessage());
+            $this->error($ex->getMessage());
         }
     }
 
