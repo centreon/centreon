@@ -51,11 +51,11 @@ final class CreateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        private ReadVaultRepositoryInterface $readVaultRepository,
-        private NewVaultConfigurationFactory $newVaultConfigurationFactory,
-        private ContactInterface $user
+        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        readonly private ReadVaultRepositoryInterface $readVaultRepository,
+        readonly private NewVaultConfigurationFactory $newVaultConfigurationFactory,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -99,7 +99,7 @@ final class CreateVaultConfiguration
                 return;
             }
 
-            if (! $this->isVaultExists($createVaultConfigurationRequest->typeId)) {
+            if (! $this->readVaultRepository->exists($createVaultConfigurationRequest->typeId)) {
                 $this->error('Vault provider not found', ['id' => $createVaultConfigurationRequest->typeId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
@@ -150,17 +150,5 @@ final class CreateVaultConfiguration
                 $port,
                 $storage
             ) !== null;
-    }
-
-    /**
-     * Checks if vault provider exists.
-     *
-     * @param int $id
-     *
-     * @return bool
-     */
-    private function isVaultExists(int $id): bool
-    {
-        return $this->readVaultRepository->findById($id) !== null;
     }
 }

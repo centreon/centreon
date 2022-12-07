@@ -43,9 +43,9 @@ final class FindVaultConfigurations
      * @param ContactInterface $user
      */
     public function __construct(
-        private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private ReadVaultRepositoryInterface $readVaultRepository,
-        private ContactInterface $user
+        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        readonly private ReadVaultRepositoryInterface $readVaultRepository,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -67,7 +67,7 @@ final class FindVaultConfigurations
                 return;
             }
 
-            if (! $this->isVaultExists($vaultId)) {
+            if (! $this->readVaultRepository->exists($vaultId)) {
                 $this->error('Vault provider not found', ['id' => $vaultId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
@@ -88,18 +88,6 @@ final class FindVaultConfigurations
                 new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
         }
-    }
-
-    /**
-     * Checks if vault provider exists.
-     *
-     * @param int $id
-     *
-     * @return bool
-     */
-    private function isVaultExists(int $id): bool
-    {
-        return $this->readVaultRepository->findById($id) !== null;
     }
 
     /**

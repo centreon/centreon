@@ -28,6 +28,15 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 interface ReadVaultConfigurationRepositoryInterface
 {
     /**
+     * @param int $id
+     *
+     * @return bool
+     *
+     * @throws \Throwable
+     */
+    public function exists(int $id): bool;
+
+    /**
      * @param string $address
      * @param int $port
      * @param string $storage

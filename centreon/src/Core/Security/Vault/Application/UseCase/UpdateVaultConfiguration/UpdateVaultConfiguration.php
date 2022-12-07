@@ -53,10 +53,10 @@ final class UpdateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        private ReadVaultRepositoryInterface $readVaultRepository,
-        private ContactInterface $user
+        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        readonly private ReadVaultRepositoryInterface $readVaultRepository,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -78,7 +78,7 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if (! $this->isVaultExists($request->typeId)) {
+            if (! $this->readVaultRepository->exists($request->typeId)) {
                 $this->error('Vault provider not found', ['id' => $request->typeId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
@@ -131,7 +131,7 @@ final class UpdateVaultConfiguration
             return;
         } catch (\Throwable $ex) {
             $this->error(
-                'An error occured in while updating vault configuration',
+                'An error occurred in while updating vault configuration',
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
@@ -140,18 +140,6 @@ final class UpdateVaultConfiguration
 
             return;
         }
-    }
-
-    /**
-     * Checks if vault provider exists.
-     *
-     * @param int $id
-     *
-     * @return bool
-     */
-    private function isVaultExists(int $id): bool
-    {
-        return $this->readVaultRepository->findById($id) !== null;
     }
 
     /**
@@ -176,6 +164,7 @@ final class UpdateVaultConfiguration
     /**
      * @param UpdateVaultConfigurationRequest $request
      * @param VaultConfiguration $vaultConfiguration
+     * @throws \Exception
      */
     private function updateVaultConfiguration(
         UpdateVaultConfigurationRequest $request,
