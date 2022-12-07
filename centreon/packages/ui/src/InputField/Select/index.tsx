@@ -13,6 +13,8 @@ import {
   Divider
 } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 import Option from './Option';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -42,7 +44,7 @@ export interface SelectEntry {
 type Props = {
   ariaLabel?: string;
   compact?: boolean;
-  dataTestId?: string;
+  dataTestId: string;
   error?: string;
   label?: string;
   onChange;
@@ -89,6 +91,7 @@ const SelectField = ({
             [classes.compact]: compact
           }),
           'data-testid': dataTestId,
+          id: getNormalizedId(dataTestId || ''),
           ...inputProps
         }}
         label={label}

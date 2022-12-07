@@ -422,7 +422,7 @@ describe('Password expiration policy', () => {
       )
     ).toHaveTextContent('1');
 
-    expect(screen.getAllByText(labelExcludedUsers)).toHaveLength(2);
+    expect(screen.getByLabelText(labelExcludedUsers)).toBeInTheDocument();
   });
 
   it('does not display any error message when the password expiration time is cleared', async () => {
