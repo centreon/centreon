@@ -22,6 +22,9 @@ inputs:
   cache_key:
     description: "The cached package key"
     required: true
+  subrepo:
+    description: "The subrepo path (stable, testing, unstable)"
+    required: true
 
 runs:
   using: "composite"
