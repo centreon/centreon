@@ -7,6 +7,9 @@ on:
       major_version:
         required: true
         type: string
+      stability:
+        required: true
+        type: string
     secrets:
       artifactory_username:
         required: true
@@ -30,11 +33,11 @@ on:
 
 jobs:
   delivery-rpm:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
         distrib: [el7, el8]
-
 
     steps:
       - name: Checkout sources
@@ -55,8 +58,10 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ inputs.stability }}
 
   delivery-deb:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -76,3 +81,4 @@ jobs:
           nexus_username: ${{ secrets.artifactory_username }}
           nexus_password: ${{ secrets.artifactory_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ inputs.stability }}

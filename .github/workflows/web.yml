@@ -430,7 +430,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -452,11 +452,12 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [bullseye]
@@ -474,3 +475,4 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
