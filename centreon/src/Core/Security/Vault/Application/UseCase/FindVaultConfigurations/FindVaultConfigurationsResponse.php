@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,17 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Domain\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-class VaultException extends \Exception
+final class FindVaultConfigurationsResponse
 {
     /**
-     * Exception thrown when vault provider does not exist.
-     *
-     * @return self
+     * @var array<array{
+     *  id: int,
+     *  name: string,
+     *  vault_id: int,
+     *  url: string,
+     *  port: int,
+     *  storage: string
+     * }>
      */
-    public static function providerDoesNotExist(): self
-    {
-        return new self('Vault provider does not exist');
-    }
+    public array $vaultConfigurations;
 }

@@ -44,11 +44,22 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
     }
 
     /**
-     * @param int $id
-     *
+     * @inheritDoc
+     */
+    public function exists(int $id): bool
+    {
+        $this->info('Check if the vault exists', ['id' => $id]);
+        $statement = $this->db->prepare($this->translateDbName('SELECT 1 FROM `:db`.`vault` WHERE `id`=:id'));
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+    }
+
+
+    /**
+     * {@inheritDoc}
      * @throws AssertionFailedException
-     *
-     * @return Vault|null
      */
     public function findById(int $id): ?Vault
     {
