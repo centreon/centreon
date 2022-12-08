@@ -37,6 +37,9 @@ inputs:
   yum_repo_key:
     description: "The repo key"
     required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
 
 runs:
   using: "composite"
@@ -57,6 +60,7 @@ runs:
 
     - name: Publish RPMS to Nexus
       run: |
+<<<<<<< HEAD
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then
           export "BRANCHNAME"="$GITHUB_REF_NAME"
@@ -82,8 +86,9 @@ runs:
             ;;
         esac
 
+=======
+>>>>>>> 5ca54e4f89 (enh(ci): do not run delivery job when not needed (#427))
         FILES="*.rpm";
-        echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
 
         eval `ssh-agent`
@@ -101,7 +106,7 @@ runs:
 
           MAJOR=$VERSION
           DISTRIB=$DISTRIB
-          REPOTYPE=$SUBREPO
+          REPOTYPE=${{ inputs.stability }}
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
           FOLDER=$(basename $FILE .rpm)

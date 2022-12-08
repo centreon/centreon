@@ -43,6 +43,7 @@ jobs:
     with:
       widget_name: global-health
       major_version: ${{ needs.get-version.outputs.major_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
       artifactory_password: ${{ secrets.REPOS_PASSWORD }}
