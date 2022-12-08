@@ -11,8 +11,9 @@ on:
 
 jobs:
   clean-up-npm-beta:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
+    if: github.event.pull_request.merged == true
+
     steps:
       - uses: actions/checkout@v3
 

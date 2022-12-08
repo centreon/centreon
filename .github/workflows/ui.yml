@@ -75,7 +75,7 @@ jobs:
 
   deliver-npm:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
