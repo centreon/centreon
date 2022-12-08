@@ -7,7 +7,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* http://www.apache.org/licenses/LICENSE-2.0
+* https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,33 +52,28 @@ final class FindHostCategories
         try {
             if ($this->user->isAdmin()) {
                 $hostCategories = $this->readHostCategoryRepository->findAll($this->requestParameters);
-            } else {
-                if (
-                    ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
-                    && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
-                ) {
-                    $this->error('User doesn\'t have sufficient right to see host categories', [
-                        'user_id' => $this->user->getId(),
-                    ]);
-                    $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to access host categories')
-                    );
-
-                    return;
-                }
-
+                $presenter->present($this->createResponse($hostCategories));
+            } elseif (
+                $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
+                || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
+            ) {
                 $this->debug('User is not admin, use ACLs to retrieve host groups', ['user' => $this->user->getName()]);
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
                 $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups(
                     $accessGroups,
                     $this->requestParameters
                 );
+                $presenter->present($this->createResponse($hostCategories));
+            } else {
+                $this->error('User doesn\'t have sufficient rights to see host categories', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse('You are not allowed to access host categories')
+                );
             }
-
-            $presenter->present($this->createResponse($hostCategories));
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
-            // TODO : translate error message
             $this->error($ex->getMessage());
         }
     }

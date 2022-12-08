@@ -7,7 +7,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* http://www.apache.org/licenses/LICENSE-2.0
+* https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,15 +70,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $accessGroups
         );
 
-        /**
-         * TODO :
-         *  - in UI :
-         *      if acl_resources_hc_relations is empty
-         *      then by default access to ALL
-         *      else access to only ones listed in acl_resources_hc_relations
-         */
-
-        // if host categories are not filtered, then user has access to ALL host categories
+        // if host categories are not filtered in ACLs, then user has access to ALL host categories
         $accessGroupIds = $this->hasRestrictedAccessToHostCategories($accessGroupIds) ? $accessGroupIds : null;
 
         return $this->findAllRequest($accessGroupIds, $requestParameters);
