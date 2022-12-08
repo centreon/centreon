@@ -34,34 +34,7 @@ runs:
 
     - name: Publish DEBS to Nexus
       run: |
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          BRANCHNAME="$GITHUB_REF_NAME"
-        else
-          BRANCHNAME="$GITHUB_HEAD_REF"
-        fi
-
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
-
-        case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
-            SUBREPO="unstable"
-            ;;
-          release* | hotfix*)
-            SUBREPO="testing"
-            ;;
-          master | [2-9][0-9].[0-9][0-9].x)
-            SUBREPO="stable"
-            ;;
-          *)
-            SUBREPO="unstable"
-            #echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            #exit 0
-            ;;
-        esac
-
         FILES="*.deb";
-        echo "[DEBUG] - Repo: $SUBREPO"
         echo "[DEBUG] - Deb FILES: $FILES"
 
         for FILE in $FILES
@@ -74,7 +47,7 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/$SUBREPO/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/${{ inputs.subrepo }}/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
 
         done
       shell: bash
