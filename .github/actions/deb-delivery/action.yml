@@ -50,11 +50,7 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-<<<<<<< HEAD
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/$SUBREPO/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
-=======
           curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/${{ inputs.stability }}/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
 
->>>>>>> 5ca54e4f89 (enh(ci): do not run delivery job when not needed (#427))
         done
       shell: bash
