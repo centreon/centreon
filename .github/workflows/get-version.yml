@@ -14,9 +14,9 @@ on:
       release:
         description: "release"
         value: ${{ jobs.get-version.outputs.release }}
-      subrepo:
-        description: "subrepo path"
-        value: ${{ jobs.get-version.outputs.subrepo }}
+      stability:
+        description: "branch stability (stable, testing, unstable, canary)"
+        value: ${{ jobs.get-version.outputs.stability }}
 
 jobs:
   get-version:
@@ -84,18 +84,19 @@ jobs:
               ;;
           esac
 
-          SUBREPO=""
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)
-              SUBREPO="unstable"
+              STABILITY="unstable"
               ;;
             release* | hotfix*)
-              SUBREPO="testing"
+              STABILITY="testing"
               ;;
             master | [2-9][0-9].[0-9][0-9].x)
-              SUBREPO="stable"
+              STABILITY="stable"
+              ;;
+            *)
+              STABILITY="canary"
               ;;
           esac
-          echo "subrepo=$SUBREPO" >> $GITHUB_OUTPUT
-
+          echo "stability=$STABILITY" >> $GITHUB_OUTPUT
         shell: bash

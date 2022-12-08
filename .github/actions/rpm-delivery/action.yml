@@ -37,8 +37,8 @@ inputs:
   yum_repo_key:
     description: "The repo key"
     required: true
-  subrepo:
-    description: "The subrepo path (stable, testing, unstable)"
+  stability:
+    description: "The package stability (stable, testing, unstable)"
     required: true
 
 runs:
@@ -79,7 +79,7 @@ runs:
 
           MAJOR=$VERSION
           DISTRIB=$DISTRIB
-          REPOTYPE=${{ inputs.subrepo }}
+          REPOTYPE=${{ inputs.stability }}
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
           FOLDER=$(basename $FILE .rpm)

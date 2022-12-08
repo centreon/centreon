@@ -22,8 +22,8 @@ inputs:
   cache_key:
     description: "The cached package key"
     required: true
-  subrepo:
-    description: "The subrepo path (stable, testing, unstable)"
+  stability:
+    description: "The package stability (stable, testing, unstable)"
     required: true
 
 runs:
@@ -50,7 +50,7 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/${{ inputs.subrepo }}/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/${{ inputs.stability }}/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
 
         done
       shell: bash
