@@ -35,6 +35,7 @@ jobs:
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
 
   check-package-version:
     runs-on: ubuntu-22.04

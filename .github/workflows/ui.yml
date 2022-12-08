@@ -89,3 +89,4 @@ jobs:
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
