@@ -62,7 +62,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
                     WHERE `url`=:address AND `port`=:port AND `storage`=:storage
-                    SQL
+                SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
@@ -93,11 +93,64 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @inheritDoc
      */
+    public function exists(int $id): bool
+    {
+        $this->info('Check if the vault configuration exists', ['id' => $id]);
+        $statement = $this->db->prepare(
+            $this->translateDbName('SELECT 1 FROM `:db`.`vault_configuration` WHERE `id`=:id')
+        );
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @param string $address
+     * @param integer $port
+     * @param string $storage
+     *
+     * @throws \Throwable
+     *
+     * @return boolean
+     */
+    public function existsSameConfiguration(string $address, int $port, string $storage): bool
+    {
+        $this->info(
+            'Check if same vault configuration exists',
+            [
+                'address' => $address,
+                'port' => $port,
+                'storage' => $storage
+            ]
+        );
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1, vault.name as vault_name
+                    FROM `:db`.`vault_configuration` conf
+                    INNER JOIN `:db`.`vault`
+                      ON vault.id = conf.vault_id
+                    WHERE `url`=:address AND `port`=:port AND `storage`=:storage
+                SQL
+            )
+        );
+        $statement->bindValue(':address', $address, \PDO::PARAM_STR);
+        $statement->bindValue(':port', $port, \PDO::PARAM_INT);
+        $statement->bindValue(':storage', $storage, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findById(int $id): ?VaultConfiguration
     {
         $this->info('Getting existing vault configuration by id');
 
-        $record = [];
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
@@ -106,7 +159,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
                     WHERE conf.`id`=:id
-                    SQL
+                SQL
             )
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -130,5 +183,48 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
          * } $record
          */
         return $this->factory->createFromRecord($record);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findVaultConfigurationsByVault(int $vaultId): array
+    {
+        $this->info('Getting vault configurations by vault provider id');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT conf.*, vault.name as vault_name
+                    FROM `:db`.`vault_configuration` conf
+                    INNER JOIN `:db`.`vault`
+                      ON vault.id = conf.vault_id
+                    WHERE conf.`vault_id`=:vaultId
+                SQL
+            )
+        );
+        $statement->bindValue(':vaultId', $vaultId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $vaultConfigurations = [];
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var array{
+             *  id: int,
+             *  name: string,
+             *  vault_id: int,
+             *  vault_name: string,
+             *  url: string,
+             *  port: int,
+             *  storage: string,
+             *  role_id: string,
+             *  secret_id: string,
+             *  salt: string
+             * } $record
+             */
+            $vaultConfigurations[] = $this->factory->createFromRecord($record);
+        }
+
+        return $vaultConfigurations;
     }
 }

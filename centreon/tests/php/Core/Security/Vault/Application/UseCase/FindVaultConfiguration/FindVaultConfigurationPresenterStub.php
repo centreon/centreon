@@ -21,11 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\API\UpdateVaultConfiguration;
+namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationPresenterInterface;
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationResponse;
 
-class UpdateVaultConfigurationPresenter extends AbstractPresenter implements UpdateVaultConfigurationPresenterInterface
+class FindVaultConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
+    /**
+     * @var FindVaultConfigurationResponse
+     */
+    public FindVaultConfigurationResponse $response;
+
+    /**
+     * @param FindVaultConfigurationResponse $response
+     */
+    public function present(mixed $response): void
+    {
+        $this->response = $response;
+    }
 }
