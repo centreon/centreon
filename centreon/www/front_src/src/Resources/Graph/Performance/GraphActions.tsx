@@ -1,10 +1,11 @@
-import { MouseEvent, MutableRefObject, useState } from 'react';
+import { MouseEvent, MutableRefObject, useState, ReactNode } from 'react';
 
 import { isNil, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
+import { useUpdateAtom } from 'jotai/utils';
 
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
@@ -32,6 +33,7 @@ import memoizeComponent from '../../memoizedComponent';
 import { ResourceType } from '../../models';
 import { detailsAtom } from '../../Details/detailsAtoms';
 
+import { showModalAnomalyDetectionAtom } from './AnomalyDetection/anomalyDetectionAtom';
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 import {
   getDatesDerivedAtom,
@@ -40,11 +42,12 @@ import {
 
 interface Props {
   customTimePeriod?: CustomTimePeriod;
-  getIsModalOpened: (value: boolean) => void;
+  isRenderAdditionalGraphActions: boolean;
+  open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
+  renderAdditionalGraphActions?: ReactNode;
   resourceName: string;
   resourceParentName?: string;
-  resourceType?: string;
   timeline?: Array<TimelineEvent>;
 }
 
@@ -61,11 +64,12 @@ const GraphActions = ({
   customTimePeriod,
   resourceParentName,
   resourceName,
-  resourceType,
   timeline,
   performanceGraphRef,
-  getIsModalOpened
-}: Props): JSX.Element => {
+  open,
+  renderAdditionalGraphActions,
+  isRenderAdditionalGraphActions
+}: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
   const { t } = useTranslation();
@@ -73,10 +77,7 @@ const GraphActions = ({
   const [exporting, setExporting] = useState<boolean>(false);
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
-  const isResourceAnomalyDetection = equals(
-    resourceType,
-    ResourceType.anomalydetection
-  );
+
   const openSizeExportMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
   };
@@ -88,6 +89,9 @@ const GraphActions = ({
 
   const [start, end] = getIntervalDates(selectedTimePeriod);
   const details = useAtomValue(detailsAtom);
+  const setShowModalAnomalyDetection = useUpdateAtom(
+    showModalAnomalyDetectionAtom
+  );
   const graphToCsvEndpoint = `${details?.links.endpoints.performance_graph}/download?start_date=${start}&end_date=${end}`;
 
   const exportToCsv = (): void => {
@@ -131,9 +135,9 @@ const GraphActions = ({
     });
   };
 
-  const openModalAnomalyDetection = (): void => {
-    getIsModalOpened(true);
-  };
+  if (!open) {
+    return null;
+  }
 
   return (
     <div className={classes.buttonGroup}>
@@ -165,17 +169,20 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          {isResourceAnomalyDetection && (
-            <IconButton
-              disableTouchRipple
-              ariaLabel={t(labelPerformanceGraphAD)}
-              data-testid={labelPerformanceGraphAD}
-              size="small"
-              title={t(labelPerformanceGraphAD)}
-              onClick={openModalAnomalyDetection}
-            >
-              <WrenchIcon fontSize="inherit" />
-            </IconButton>
+          {isRenderAdditionalGraphActions && (
+            <>
+              <IconButton
+                disableTouchRipple
+                ariaLabel={t(labelPerformanceGraphAD)}
+                data-testid={labelPerformanceGraphAD}
+                size="small"
+                title={t(labelPerformanceGraphAD)}
+                onClick={(): void => setShowModalAnomalyDetection(true)}
+              >
+                <WrenchIcon fontSize="inherit" />
+              </IconButton>
+              {renderAdditionalGraphActions}
+            </>
           )}
           <Menu
             keepMounted
@@ -224,7 +231,8 @@ const MemoizedGraphActions = memoizeComponent<Props>({
     'resourceParentName',
     'resourceName',
     'timeline',
-    'performanceGraphRef'
+    'performanceGraphRef',
+    'renderAdditionalGraphActions'
   ]
 });
 

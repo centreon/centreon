@@ -23,13 +23,11 @@ import RegularLine from './RegularLine';
 import StackedLines from './StackedLines';
 
 interface Props {
-  anomalyDetectionEnvelope?: ReactNode;
-  anomalyDetectionResizeEnvelope: ReactNode;
   displayTimeValues: boolean;
   graphHeight: number;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
   leftScale: ScaleLinear<number, number>;
   lines: Array<Line>;
+  renderAdditionalLines?: ReactNode;
   rightScale: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   timeTick: Date | null;
@@ -84,9 +82,7 @@ const Lines = ({
   graphHeight,
   timeTick,
   displayTimeValues,
-  isEditAnomalyDetectionDataDialogOpen,
-  anomalyDetectionEnvelope,
-  anomalyDetectionResizeEnvelope
+  renderAdditionalLines
 }: Props): JSX.Element => {
   const [, secondUnit, thirdUnit] = getUnits(lines);
 
@@ -127,8 +123,8 @@ const Lines = ({
         yScale={stackedYScale}
       />
       <g>
-        {anomalyDetectionEnvelope}
-        {anomalyDetectionResizeEnvelope}
+        {renderAdditionalLines}
+
         {regularLines.map(
           ({
             metric,
@@ -151,19 +147,17 @@ const Lines = ({
 
             return (
               <g key={metric}>
-                {!isEditAnomalyDetectionDataDialogOpen && (
-                  <RegularAnchorPoint
-                    areaColor={areaColor}
-                    displayTimeValues={displayTimeValues}
-                    lineColor={lineColor}
-                    metric={metric}
-                    timeSeries={timeSeries}
-                    timeTick={timeTick}
-                    transparency={transparency}
-                    xScale={xScale}
-                    yScale={yScale}
-                  />
-                )}
+                <RegularAnchorPoint
+                  areaColor={areaColor}
+                  displayTimeValues={displayTimeValues}
+                  lineColor={lineColor}
+                  metric={metric}
+                  timeSeries={timeSeries}
+                  timeTick={timeTick}
+                  transparency={transparency}
+                  xScale={xScale}
+                  yScale={yScale}
+                />
                 <RegularLine
                   areaColor={areaColor}
                   filled={filled}

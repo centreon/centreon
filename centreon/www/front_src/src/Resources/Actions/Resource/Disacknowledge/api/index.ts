@@ -18,7 +18,7 @@ const disacknowledgeResources =
     disacknowledgeAttachedResources
   }: ResourcesWithDisacknowledgeParams): Promise<Array<AxiosResponse>> => {
     const payload = resources.map(({ type, id, parent, service_id }) => ({
-      id: equals(type, ResourceType.anomalydetection) ? service_id : id,
+      id: equals(type, ResourceType.anomalyDetection) ? service_id : id,
       parent: parent ? { id: parent?.id } : null,
       type: ResourceCategory[type]
     }));
