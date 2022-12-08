@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -16,6 +17,7 @@ on:
       - dev-22.10.x
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
 
