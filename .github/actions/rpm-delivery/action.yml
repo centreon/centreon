@@ -60,34 +60,6 @@ runs:
 
     - name: Publish RPMS to Nexus
       run: |
-<<<<<<< HEAD
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          export "BRANCHNAME"="$GITHUB_REF_NAME"
-        else
-          export "BRANCHNAME"="$GITHUB_HEAD_REF"
-        fi
-
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
-
-        case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
-            SUBREPO="unstable"
-            ;;
-          release* | hotfix*)
-            SUBREPO="testing"
-            ;;
-          master | [2-9][0-9].[0-9][0-9].x)
-            SUBREPO="stable"
-            ;;
-          *)
-            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            exit 0
-            ;;
-        esac
-
-=======
->>>>>>> 5ca54e4f89 (enh(ci): do not run delivery job when not needed (#427))
         FILES="*.rpm";
         echo "[DEBUG] - Rpm FILES: $FILES"
 
