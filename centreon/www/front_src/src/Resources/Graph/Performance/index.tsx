@@ -38,18 +38,17 @@ import {
   useRequest
 } from '@centreon/ui';
 
-import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
-import { labelNoDataForThisPeriod } from '../../translatedLabels';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { Resource, ResourceType } from '../../models';
 import { CommentParameters } from '../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import {
   CustomTimePeriod,
   CustomTimePeriodProperty
 } from '../../Details/tabs/Graph/models';
+import { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import { Resource } from '../../models';
+import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
-import { CustomFactorsData } from './AnomalyDetection/models';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -60,8 +59,8 @@ import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
   AdditionalDataProps,
-  GetDisplayAdditionalLinesConditionProps,
   AdjustTimePeriodProps,
+  GetDisplayAdditionalLinesConditionProps,
   GraphData,
   Line as LineModel,
   TimeValue
@@ -163,8 +162,8 @@ const PerformanceGraph = <T,>({
   limitLegendRows,
   isInViewport = true,
   displayCompleteGraph,
-  graphActions,
   isInteractive,
+  graphActions,
   getPerformanceGraphRef,
   getDisplayAdditionalLinesCondition
 }: Props & AdditionalDataProps<T>): JSX.Element => {
@@ -436,6 +435,7 @@ const PerformanceGraph = <T,>({
         <Responsive.ParentSize>
           {({ width, height }): JSX.Element => (
             <Graph<T>
+              additionalData={additionalData}
               applyZoom={adjustTimePeriod}
               base={base as number}
               canAdjustTimePeriod={not(isNil(adjustTimePeriod))}

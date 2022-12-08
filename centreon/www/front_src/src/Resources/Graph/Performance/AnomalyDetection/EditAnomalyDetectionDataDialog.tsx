@@ -3,9 +3,9 @@ import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { labelClose } from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
@@ -116,7 +116,6 @@ const EditAnomalyDetectionDataDialog = ({
       data-testid="modalEditAnomalyDetection"
       open={showModalAnomalyDetection}
     >
-      {' '}
       <div>
         <div className={classes.spacing}>
           <TimePeriodButtonGroup />

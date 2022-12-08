@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { Shape } from '@visx/visx';
 import { NumberValue, ScaleLinear } from 'd3-scale';
 import { useUpdateAtom } from 'jotai/utils';
@@ -97,7 +99,9 @@ const AnomalyDetectionShapeCircle = ({
 
   const circlesShown = circles.filter((item) => item.isCircleShown);
 
-  setCountedRedCircles(circlesShown.length);
+  useEffect(() => {
+    setCountedRedCircles(circlesShown.length);
+  });
 
   return (
     <>
