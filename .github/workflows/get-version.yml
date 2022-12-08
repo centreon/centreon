@@ -25,6 +25,7 @@ jobs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
       release: ${{ steps.get_version.outputs.release }}
+      stability: ${{ steps.get_version.outputs.stability }}
 
     steps:
       - uses: actions/checkout@v3
