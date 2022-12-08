@@ -21,10 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
+namespace Core\Security\Vault\Application\Exceptions;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface DeleteVaultConfigurationPresenterInterface extends PresenterInterface
+class VaultException extends \Exception
 {
+    /**
+     * Exception thrown when vault provider does not exist.
+     *
+     * @return self
+     */
+    public static function providerDoesNotExist(): self
+    {
+        return new self('Vault provider does not exist');
+    }
 }

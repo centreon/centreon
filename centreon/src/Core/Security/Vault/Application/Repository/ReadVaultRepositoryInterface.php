@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,25 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\Repository;
 
 use Core\Security\Vault\Domain\Model\Vault;
+use Core\Security\Vault\Infrastructure\Repository\DbReadVaultRepository;
 
 interface ReadVaultRepositoryInterface
 {
     /**
      * @param int $id
      *
+     * @return bool
+     *
+     * @throws \Throwable
+     */
+    public function exists(int $id): bool;
+
+    /**
+     * @param int $id
+     *
      * @return Vault|null
+     *
+     * @throws \Throwable
      */
     public function findById(int $id): ?Vault;
 }

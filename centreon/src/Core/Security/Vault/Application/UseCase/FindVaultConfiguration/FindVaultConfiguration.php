@@ -21,37 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{
-    ErrorResponse,
-    ForbiddenResponse,
-    NoContentResponse,
-    NotFoundResponse,
-    PresenterInterface
-};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
     ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface
+    ReadVaultConfigurationRepositoryInterface
 };
 
-final class DeleteVaultConfiguration
+final class FindVaultConfiguration
 {
     use LoggerTrait;
 
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
-     * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
      * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param ContactInterface $user
      */
     public function __construct(
         readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         readonly private ReadVaultRepositoryInterface $readVaultRepository,
         readonly private ContactInterface $user
     ) {
@@ -59,11 +51,11 @@ final class DeleteVaultConfiguration
 
     /**
      * @param PresenterInterface $presenter
-     * @param DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
+     * @param FindVaultConfigurationRequest $findVaultConfigurationRequest
      */
     public function __invoke(
         PresenterInterface $presenter,
-        DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
+        FindVaultConfigurationRequest $findVaultConfigurationRequest
     ): void {
         try {
             if (! $this->user->isAdmin()) {
@@ -75,8 +67,8 @@ final class DeleteVaultConfiguration
                 return;
             }
 
-            if (! $this->readVaultRepository->exists($deleteVaultConfigurationRequest->typeId)) {
-                $this->error('Vault provider not found', ['id' => $deleteVaultConfigurationRequest->typeId]);
+            if (! $this->readVaultRepository->exists($findVaultConfigurationRequest->vaultId)) {
+                $this->error('Vault provider not found', ['id' => $findVaultConfigurationRequest->vaultId]);
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault provider')
                 );
@@ -86,13 +78,13 @@ final class DeleteVaultConfiguration
 
             if (
                 ! $this->readVaultConfigurationRepository->exists(
-                    $deleteVaultConfigurationRequest->vaultConfigurationId
+                    $findVaultConfigurationRequest->vaultConfigurationId
                 )
             ) {
                 $this->error(
                     'Vault configuration not found',
                     [
-                        'id' => $deleteVaultConfigurationRequest->vaultConfigurationId,
+                        'id' => $findVaultConfigurationRequest->vaultConfigurationId,
                     ]
                 );
                 $presenter->setResponseStatus(
@@ -102,18 +94,38 @@ final class DeleteVaultConfiguration
                 return;
             }
 
-            $this->writeVaultConfigurationRepository->delete($deleteVaultConfigurationRequest->vaultConfigurationId);
-            $presenter->setResponseStatus(new NoContentResponse());
+            /** @var VaultConfiguration $vaultConfiguration */
+            $vaultConfiguration = $this->readVaultConfigurationRepository->findById(
+                $findVaultConfigurationRequest->vaultConfigurationId
+            );
+
+            $presenter->present($this->createResponse($vaultConfiguration));
         } catch (\Throwable $ex) {
             $this->error(
-                'An error occurred in while deleting vault configuration',
+                'An error occurred in while getting vault configuration',
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(VaultConfigurationException::impossibleToDelete()->getMessage())
+                new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
-
-            return;
         }
+    }
+
+    /**
+     * @param VaultConfiguration $vaultConfiguration
+     *
+     * @return FindVaultConfigurationResponse
+     */
+    private function createResponse(VaultConfiguration $vaultConfiguration): FindVaultConfigurationResponse
+    {
+        $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
+        $findVaultConfigurationResponse->vaultConfiguration['id'] = $vaultConfiguration->getId();
+        $findVaultConfigurationResponse->vaultConfiguration['name'] = $vaultConfiguration->getName();
+        $findVaultConfigurationResponse->vaultConfiguration['vault_id'] = $vaultConfiguration->getVault()->getId();
+        $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
+        $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();
+        $findVaultConfigurationResponse->vaultConfiguration['storage'] = $vaultConfiguration->getStorage();
+
+        return $findVaultConfigurationResponse;
     }
 }

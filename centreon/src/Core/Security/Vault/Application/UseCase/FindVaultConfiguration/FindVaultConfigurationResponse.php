@@ -21,10 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface UpdateVaultConfigurationPresenterInterface extends PresenterInterface
+final class FindVaultConfigurationResponse
 {
+    /**
+     * @var array{
+     *  id: int,
+     *  name: string,
+     *  vault_id: int,
+     *  url: string,
+     *  port: int,
+     *  storage: string
+     * }
+     */
+    public array $vaultConfiguration;
 }

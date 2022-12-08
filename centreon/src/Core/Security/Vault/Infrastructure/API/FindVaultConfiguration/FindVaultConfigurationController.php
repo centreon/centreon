@@ -21,21 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration;
+namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
-    DeleteVaultConfiguration,
-    DeleteVaultConfigurationRequest
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
+    FindVaultConfiguration,
+    FindVaultConfigurationRequest
 };
 
-final class DeleteVaultConfigurationController extends AbstractController
+final class FindVaultConfigurationController extends AbstractController
 {
     /**
      * @param integer $vaultId
      * @param integer $vaultConfigurationId
-     * @param DeleteVaultConfiguration $useCase
+     * @param FindVaultConfiguration $useCase
      * @param DefaultPresenter $presenter
      *
      * @return object
@@ -43,17 +43,14 @@ final class DeleteVaultConfigurationController extends AbstractController
     public function __invoke(
         int $vaultId,
         int $vaultConfigurationId,
-        DeleteVaultConfiguration $useCase,
+        FindVaultConfiguration $useCase,
         DefaultPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $deleteVaultConfigurationRequest = $this->createDtoRequest(
-            $vaultId,
-            $vaultConfigurationId
-        );
+        $findVaultConfigurationRequest = $this->createDtoRequest($vaultId, $vaultConfigurationId);
 
-        $useCase($presenter, $deleteVaultConfigurationRequest);
+        $useCase($presenter, $findVaultConfigurationRequest);
 
         return $presenter->show();
     }
@@ -62,16 +59,14 @@ final class DeleteVaultConfigurationController extends AbstractController
      * @param int $vaultId
      * @param int $vaultConfigurationId
      *
-     * @return DeleteVaultConfigurationRequest
+     * @return FindVaultConfigurationRequest
      */
-    private function createDtoRequest(
-        int $vaultId,
-        int $vaultConfigurationId
-    ): DeleteVaultConfigurationRequest {
-        $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
-        $deleteVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
-        $deleteVaultConfigurationRequest->typeId = $vaultId;
+    private function createDtoRequest(int $vaultId, int $vaultConfigurationId): FindVaultConfigurationRequest
+    {
+        $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
+        $findVaultConfigurationRequest->vaultId = $vaultId;
+        $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
 
-        return $deleteVaultConfigurationRequest;
+        return $findVaultConfigurationRequest;
     }
 }
