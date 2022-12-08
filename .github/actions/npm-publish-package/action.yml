@@ -55,7 +55,7 @@ runs:
         echo "Pushing changes to ${{ github.head_ref }}"
         git add .
         git commit -m "chore: pre-release ${VERSION}"
-        git push origin ${{ github.head_ref }}
+        git push
       shell: bash
 
     - uses: JS-DevTools/npm-publish@v1
