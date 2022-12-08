@@ -52,6 +52,7 @@ runs:
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
       run: |
+        echo "Pushing changes to ${{ github.head_ref }}"
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
