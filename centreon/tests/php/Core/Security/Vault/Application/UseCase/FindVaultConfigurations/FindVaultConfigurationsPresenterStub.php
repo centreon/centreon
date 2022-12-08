@@ -21,28 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
-final class CreateVaultConfigurationRequest
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
+use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\FindVaultConfigurationsResponse;
+
+class FindVaultConfigurationsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /** @var string */
-    public string $name = '';
+    /**
+     * @var FindVaultConfigurationsResponse
+     */
+    public FindVaultConfigurationsResponse $response;
 
-    /** @var int */
-    public int $typeId = 0;
-
-    /** @var string */
-    public string $address = '';
-
-    /** @var int */
-    public int $port = 0;
-
-    /** @var string */
-    public string $storage = '';
-
-    /** @var string */
-    public string $roleId = '';
-
-    /** @var string */
-    public string $secretId = '';
+    /**
+     * @param FindVaultConfigurationsResponse $response
+     */
+    public function present(mixed $response): void
+    {
+        $this->response = $response;
+    }
 }

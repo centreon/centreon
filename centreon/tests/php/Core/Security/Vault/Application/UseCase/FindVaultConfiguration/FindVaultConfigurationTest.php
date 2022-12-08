@@ -21,60 +21,53 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
+namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{
-    ErrorResponse,
-    ForbiddenResponse,
-    NoContentResponse,
-    NotFoundResponse
-};
+use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface
+    ReadVaultRepositoryInterface
 };
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
-    DeleteVaultConfiguration,
-    DeleteVaultConfigurationRequest
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
+    FindVaultConfiguration,
+    FindVaultConfigurationRequest,
+    FindVaultConfigurationResponse
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Security\Encryption;
 
-beforeEach(function (): void {
+beforeEach(function () {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
-    $this->writeVaultConfigurationRepository = $this->createMock(WriteVaultConfigurationRepositoryInterface::class);
     $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present ForbiddenResponse when user is not admin', function (): void {
+it('should present Forbidden Response when user is not admin', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
 
-    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new DeleteVaultConfiguration(
+    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
         $this->readVaultRepository,
         $this->user
     );
 
-    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
 
-    $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $findVaultConfigurationRequest);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
 });
 
-it('should present NotFoundResponse when vault provider does not exist', function (): void {
+it('should present NotFound Response when vault provider does not exist', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -85,19 +78,16 @@ it('should present NotFoundResponse when vault provider does not exist', functio
         ->method('exists')
         ->willReturn(false);
 
-    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new DeleteVaultConfiguration(
+    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
         $this->readVaultRepository,
         $this->user
     );
 
-    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
-    $deleteVaultConfigurationRequest->vaultConfigurationId = 1;
-    $deleteVaultConfigurationRequest->typeId = 3;
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
 
-    $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $findVaultConfigurationRequest);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -105,7 +95,7 @@ it('should present NotFoundResponse when vault provider does not exist', functio
     );
 });
 
-it('should present NotFoundResponse when vault configuration does not exist for a given id', function (): void {
+it('should present NotFound Response when vault configuration does not exist for a given id', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -121,19 +111,16 @@ it('should present NotFoundResponse when vault configuration does not exist for 
         ->method('exists')
         ->willReturn(false);
 
-    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new deleteVaultConfiguration(
+    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
         $this->readVaultRepository,
         $this->user
     );
 
-    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
-    $deleteVaultConfigurationRequest->vaultConfigurationId = 2;
-    $deleteVaultConfigurationRequest->typeId = 1;
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
 
-    $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $findVaultConfigurationRequest);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
@@ -141,7 +128,7 @@ it('should present NotFoundResponse when vault configuration does not exist for 
     );
 });
 
-it('should present ErrorResponse when an unhandled error occurs', function (): void {
+it('should present ErrorResponse when an unhandled error occurs', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -152,56 +139,87 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
         ->method('exists')
         ->willThrowException(new \Exception());
 
-    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new DeleteVaultConfiguration(
+    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
         $this->readVaultRepository,
         $this->user
     );
 
-    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
 
-    $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $findVaultConfigurationRequest);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        VaultConfigurationException::impossibleToDelete()->getMessage()
+        VaultConfigurationException::impossibleToFind()->getMessage()
     );
 });
 
-it('should present NoContentResponse when vault configuration is deleted with success', function (): void {
+it('should present FindVaultConfigurationResponse', function () {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
+
+    $vault = new Vault(1, 'myVaultProvider');
+
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
+
+    $vaultConfiguration = new VaultConfiguration(
+        $encryption,
+        1,
+        'myVaultConfiguration',
+        $vault,
+        '127.0.0.1',
+        8200,
+        'myStorageFolder',
+        'mySalt',
+        'myEncryptedRoleId',
+        'myEncryptedSecretId'
+    );
+
+    $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
+    $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
+    $findVaultConfigurationRequest->vaultId = $vaultConfiguration->getVault()->getId();
 
     $this->readVaultRepository
         ->expects($this->once())
         ->method('exists')
         ->willReturn(true);
 
-    $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
-
     $this->readVaultConfigurationRepository
         ->expects($this->once())
         ->method('exists')
+        ->with($findVaultConfigurationRequest->vaultConfigurationId)
         ->willReturn(true);
 
-    $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new DeleteVaultConfiguration(
+    $this->readVaultConfigurationRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with($findVaultConfigurationRequest->vaultConfigurationId)
+        ->willReturn($vaultConfiguration);
+
+    $presenter = new FindVaultConfigurationPresenterStub($this->presenterFormatter);
+    $useCase = new FindVaultConfiguration(
         $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
         $this->readVaultRepository,
         $this->user
     );
 
-    $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
-    $deleteVaultConfigurationRequest->vaultConfigurationId = 2;
-    $deleteVaultConfigurationRequest->typeId = 1;
+    $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
+    $findVaultConfigurationResponse->vaultConfiguration = [
+        'id' => $vaultConfiguration->getId(),
+        'name' => $vaultConfiguration->getName(),
+        'vault_id' => $vaultConfiguration->getVault()->getId(),
+        'url' => $vaultConfiguration->getAddress(),
+        'port' => $vaultConfiguration->getPort(),
+        'storage' => $vaultConfiguration->getStorage()
+    ];
 
-    $useCase($presenter, $deleteVaultConfigurationRequest);
+    $useCase($presenter, $findVaultConfigurationRequest);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    expect($presenter->response)->toBeInstanceOf(FindVaultConfigurationResponse::class);
+    expect($presenter->response->vaultConfiguration)->toBe($findVaultConfigurationResponse->vaultConfiguration);
 });

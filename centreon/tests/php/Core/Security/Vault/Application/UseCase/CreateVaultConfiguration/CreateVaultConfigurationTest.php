@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,6 +46,7 @@ use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     NewVaultConfigurationFactory
 };
 use Core\Security\Vault\Domain\Model\{NewVaultConfiguration, Vault, VaultConfiguration};
+use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -62,19 +63,8 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
         ->method('isAdmin')
         ->willReturn(false);
 
-    $vault = new Vault(1, 'myVaultProvider');
-
-    $vaultConfiguration = new VaultConfiguration(
-        1,
-        'myConf',
-        $vault,
-        '127.0.0.1',
-        8200,
-        'myStorage',
-        'myRoleId',
-        'mySecretId',
-        'mySalt'
-    );
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -99,23 +89,13 @@ it('should present InvalidArgumentResponse when vault configuration already exis
         ->method('isAdmin')
         ->willReturn(true);
 
-    $vault = new Vault(1, 'myVaultProvider');
+    $encryption = new Encryption();
+    $encryption->setFirstKey("myFirstKey");
 
-    $vaultConfiguration = new VaultConfiguration(
-        1,
-        'myConf',
-        $vault,
-        '127.0.0.1',
-        8200,
-        'myStorage',
-        'myRoleId',
-        'mySecretId',
-        'mySalt'
-    );
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
-        ->willReturn($vaultConfiguration);
+        ->method('existsSameConfiguration')
+        ->willReturn(true);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -144,14 +124,13 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
-        ->willReturn(null);
+        ->method('existsSameConfiguration')
+        ->willReturn(false);
 
-    $vault = new Vault(1, 'myVaultProvider');
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -210,13 +189,13 @@ it('should present NotFoundResponse when vault provider does not exist', functio
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
-        ->willReturn(null);
+        ->method('existsSameConfiguration')
+        ->willReturn(false);
 
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -252,7 +231,7 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
+        ->method('existsSameConfiguration')
         ->willThrowException(new \Exception());
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -282,14 +261,14 @@ it('should present CreatedResponse when vault configuration is created with succ
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
-        ->willReturn(null);
+        ->method('existsSameConfiguration')
+        ->willReturn(false);
 
     $vault = new Vault(1, 'myVaultProvider');
     $this->readVaultRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($vault);
+        ->method('exists')
+        ->willReturn(true);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
@@ -302,7 +281,7 @@ it('should present CreatedResponse when vault configuration is created with succ
 
     $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
     $createVaultConfigurationRequest->name = 'myVault';
-    $createVaultConfigurationRequest->typeId = 1;
+    $createVaultConfigurationRequest->typeId = $vault->getId();
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
     $createVaultConfigurationRequest->storage = 'myStorage';

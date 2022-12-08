@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\UpdateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\{
     UpdateVaultConfiguration,
-    UpdateVaultConfigurationPresenterInterface,
     UpdateVaultConfigurationRequest
 };
 use Symfony\Component\HttpFoundation\Request;
@@ -34,11 +34,11 @@ use Symfony\Component\HttpFoundation\Request;
 final class UpdateVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
+     * @param integer $vaultId
+     * @param integer $vaultConfigurationId
      * @param UpdateVaultConfiguration $useCase
+     * @param DefaultPresenter $presenter
      * @param Request $request
-     * @param UpdateVaultConfigurationPresenterInterface $presenter
      *
      * @return object
      */
@@ -46,8 +46,8 @@ final class UpdateVaultConfigurationController extends AbstractController
         int $vaultId,
         int $vaultConfigurationId,
         UpdateVaultConfiguration $useCase,
-        Request $request,
-        UpdateVaultConfigurationPresenterInterface $presenter
+        DefaultPresenter $presenter,
+        Request $request
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\DeleteVaultConfigurationPresenterInterface;
-
-class DeleteVaultConfigurationPresenter extends AbstractPresenter implements DeleteVaultConfigurationPresenterInterface
+final class FindVaultConfigurationRequest
 {
+    /** @var int */
+    public int $vaultId = 0;
+
+    /** @var int */
+    public int $vaultConfigurationId = 0;
 }
