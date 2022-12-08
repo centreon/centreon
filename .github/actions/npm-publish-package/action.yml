@@ -30,13 +30,13 @@ runs:
 
     - name: Is this a release?
       run: |
-        [ ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }} ] && echo "IS_RELEASE=true" >> $GITHUB_ENV || echo "IS_RELEASE=false" >> $GITHUB_ENV
+        [[ ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }} ]] && echo "IS_RELEASE=true" >> $GITHUB_ENV || echo "IS_RELEASE=false" >> $GITHUB_ENV
       shell: bash
 
     - name: Update JS config version
       run: |
         echo "is release?: ${{ env.IS_RELEASE }}"
-        [ ${{ env.IS_RELEASE }} ] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        [[ ${{ env.IS_RELEASE }} ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
