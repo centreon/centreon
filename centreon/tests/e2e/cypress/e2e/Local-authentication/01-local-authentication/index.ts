@@ -324,12 +324,14 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait('@getTimeZone')
+  cy.getRefreshDataOnIframe()
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
     .parent()
-    .should('be.visible');
+    .contains(
+      'Your password has already been used. Please choose a different password from the previous three.'
+    );
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
