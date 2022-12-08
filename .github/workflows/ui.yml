@@ -73,20 +73,20 @@ jobs:
         run: pnpm test:ci
         working-directory: ${{ env.directory }}
 
-  deliver-npm:
-    runs-on: ubuntu-22.04
-    needs: [lint, unit-test]
-    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
+  # deliver-npm:
+  #   runs-on: ubuntu-22.04
+  #   needs: [lint, unit-test]
+  #   if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.base_branch }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ env.base_branch }}
 
-      - uses: ./.github/actions/npm-publish
-        with:
-          directory: ${{ env.directory }}
-          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
-          npm_token: ${{ secrets.NPM_TOKEN }}
-          package: ${{ env.package }}
-          release_branch: ${{ env.base_branch }}
+  #     - uses: ./.github/actions/npm-publish
+  #       with:
+  #         directory: ${{ env.directory }}
+  #         pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+  #         npm_token: ${{ secrets.NPM_TOKEN }}
+  #         package: ${{ env.package }}
+  #         release_branch: ${{ env.base_branch }}
