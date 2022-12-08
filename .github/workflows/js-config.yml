@@ -26,8 +26,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.base_branch }}
 
       - uses: ./.github/actions/npm-publish-package
         with:
