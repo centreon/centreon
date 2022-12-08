@@ -39,7 +39,7 @@ try {
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
-    
+
     // Transactional queries
     $pearDB->beginTransaction();
 
