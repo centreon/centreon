@@ -55,6 +55,7 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
+      shell: bash
 
     - uses: JS-DevTools/npm-publish@v1
       if: ${{ !env.IS_RELEASE }}
