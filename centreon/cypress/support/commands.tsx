@@ -13,6 +13,16 @@ Cypress.Commands.add('mount', ({ Component, options }) => {
   return mount(wrapped, options);
 });
 
+Cypress.Commands.add('displayFilterMenu', () => {
+  cy.get('[aria-label="Filter options"]').click();
+
+  cy.contains('Type').should('be.visible').click();
+});
+
+Cypress.Commands.add('clickOutside', () => {
+  cy.get('body').click(0, 0);
+});
+
 interface MountProps {
   Component: React.Element;
   options?: object;

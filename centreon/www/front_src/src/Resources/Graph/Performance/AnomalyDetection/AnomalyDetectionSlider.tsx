@@ -310,6 +310,7 @@ const AnomalyDetectionSlider = ({
 
       <div className={classes.footer}>
         <Button
+          data-testid="cancel"
           size="small"
           variant="outlined"
           onClick={cancelResizingEnvelope}

@@ -1,37 +1,36 @@
-import { MouseEvent, MutableRefObject, useState, ReactNode } from 'react';
+import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
 
-import { isNil, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { useUpdateAtom } from 'jotai/utils';
+import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
-import { useUpdateAtom } from 'jotai/utils';
 
-import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
-import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
-import LaunchIcon from '@mui/icons-material/Launch';
 import WrenchIcon from '@mui/icons-material/Build';
+import LaunchIcon from '@mui/icons-material/Launch';
+import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
+import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
 
 import {
   ContentWithCircularLoading,
-  useLocaleDateTimeFormat,
-  IconButton
+  IconButton,
+  useLocaleDateTimeFormat
 } from '@centreon/ui';
 
-import {
-  labelExport,
-  labelAsDisplayed,
-  labelMediumSize,
-  labelPerformancePage,
-  labelSmallSize,
-  labelPerformanceGraphAD,
-  labelCSV
-} from '../../translatedLabels';
+import { detailsAtom } from '../../Details/detailsAtoms';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { ResourceType } from '../../models';
-import { detailsAtom } from '../../Details/detailsAtoms';
+import {
+  labelAsDisplayed,
+  labelCSV,
+  labelExport,
+  labelMediumSize,
+  labelPerformanceGraphAD,
+  labelPerformancePage,
+  labelSmallSize
+} from '../../translatedLabels';
 
 import { showModalAnomalyDetectionAtom } from './AnomalyDetection/anomalyDetectionAtom';
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
