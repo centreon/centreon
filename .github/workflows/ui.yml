@@ -75,6 +75,7 @@ jobs:
 
   deliver-npm:
     runs-on: ubuntu-22.04
+    needs: [lint, unit-test]
     if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
