@@ -30,8 +30,9 @@ runs:
 
     - name: Is this a release?
       run: |
-        echo "IS_RELEASE=${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}" >> $GITHUB_ENV
-        echo "TAG=[[ ${{ env.IS_RELEASE }} = true ]] && ${{ inputs.version }} || ${{ github.head_ref }}" >> $GITHUB_ENV
+        IS_RELEASE=${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+        echo "IS_RELEASE=$IS_RELEASE" >> $GITHUB_ENV
+        echo "TAG=[[ $IS_RELEASE = true ]] && ${{ inputs.version }} || ${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Update JS config version
