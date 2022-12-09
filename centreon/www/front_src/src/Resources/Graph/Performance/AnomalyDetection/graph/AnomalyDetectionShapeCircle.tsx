@@ -100,7 +100,7 @@ const AnomalyDetectionShapeCircle = ({
 
   useEffect(() => {
     setCountedRedCircles(circlesShown.length);
-  });
+  }, [circlesShown]);
 
   return (
     <>
