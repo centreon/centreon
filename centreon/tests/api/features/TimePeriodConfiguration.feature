@@ -8,139 +8,100 @@ Feature:
 
   Scenario: Time period listing
     Given I am logged in
-    When I send a GET request to '/api/latest/configuration/timeperiods'
+    When I send a POST request to '/api/latest/configuration/timeperiods' with body:
+    """
+    {
+        "name": "test_name",
+        "alias": "test_alias",
+        "days": [
+            {
+                "day": 1,
+                "time_range": "06:30-07:00"
+            },
+            {
+                "day": 7,
+                "time_range": "06:30-07:00,09:00-10:30"
+            }
+        ],
+        "templates": [
+            1
+        ],
+        "exceptions": [
+            {
+                "day_range": "monday 1",
+                "time_range": "06:00-07:00"
+            }
+        ]
+    }
+    """
+    When I send a GET request to '/api/latest/configuration/timeperiods?search={"name": "test_name"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
     {
-      "result": [
-          {
-              "id": 1,
-              "name": "24x7",
-              "alias": "Always",
-              "days": [
-                  {
-                      "day": 1,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 2,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 3,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 4,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 5,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 6,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 7,
-                      "time_range": "00:00-24:00"
-                  }
-              ],
-              "templates": [],
-              "exceptions": []
-          },
-          {
-              "id": 2,
-              "name": "none",
-              "alias": "Never",
-              "days": [],
-              "templates": [],
-              "exceptions": []
-          },
-          {
-              "id": 3,
-              "name": "nonworkhours",
-              "alias": "Non-Work Hours",
-              "days": [
-                  {
-                      "day": 1,
-                      "time_range": "00:00-09:00,17:00-24:00"
-                  },
-                  {
-                      "day": 2,
-                      "time_range": "00:00-09:00,17:00-24:00"
-                  },
-                  {
-                      "day": 3,
-                      "time_range": "00:00-09:00,17:00-24:00"
-                  },
-                  {
-                      "day": 4,
-                      "time_range": "00:00-09:00,17:00-24:00"
-                  },
-                  {
-                      "day": 5,
-                      "time_range": "00:00-09:00,17:00-24:00"
-                  },
-                  {
-                      "day": 6,
-                      "time_range": "00:00-24:00"
-                  },
-                  {
-                      "day": 7,
-                      "time_range": "00:00-24:00"
-                  }
-              ],
-              "templates": [],
-              "exceptions": []
-          },
-          {
-              "id": 4,
-              "name": "workhours",
-              "alias": "Work hours",
-              "days": [
-                  {
-                      "day": 1,
-                      "time_range": "09:00-17:00"
-                  },
-                  {
-                      "day": 2,
-                      "time_range": "09:00-17:00"
-                  },
-                  {
-                      "day": 3,
-                      "time_range": "09:00-17:00"
-                  },
-                  {
-                      "day": 4,
-                      "time_range": "09:00-17:00"
-                  },
-                  {
-                      "day": 5,
-                      "time_range": "09:00-17:00"
-                  }
-              ],
-              "templates": [],
-              "exceptions": []
-          }
-      ],
-      "meta": {
-          "page": 1,
-          "limit": 10,
-          "search": {},
-          "sort_by": {},
-          "total": 4
-      }
+        "result": [
+            {
+                "id": 5,
+                "name": "test_name",
+                "alias": "test_alias",
+                "days": [
+                    {
+                        "day": 1,
+                        "time_range": "06:30-07:00"
+                    },
+                    {
+                        "day": 7,
+                        "time_range": "06:30-07:00,09:00-10:30"
+                    }
+                ],
+                "templates": [
+                    {
+                        "id": 1,
+                        "alias": "Always"
+                    }
+                ],
+                "exceptions": [
+                    {
+                        "id": 1,
+                        "day_range": "monday 1",
+                        "time_range": "06:00-07:00"
+                    }
+                ]
+            }
+        ],
+        "meta": {
+            "page": 1,
+            "limit": 10,
+            "search": {},
+            "sort_by": {},
+            "total": 7
+        }
     }
     """
-
-  Scenario: Add a new Time period
-    Given I am logged in
     When I send a POST request to '/api/latest/configuration/timeperiods' with body:
     """
-
+    {
+        "name": "test_name",
+        "alias": "test_alias",
+        "days": [
+            {
+                "day": 1,
+                "time_range": "06:30-07:00"
+            },
+            {
+                "day": 7,
+                "time_range": "06:30-07:00,09:00-10:30"
+            }
+        ],
+        "templates": [
+            1
+        ],
+        "exceptions": [
+            {
+                "day_range": "monday 1",
+                "time_range": "06:00-07:00"
+            }
+        ]
+    }
     """
-
-    Then the response code should be 204
+    Then the response code should be 500
