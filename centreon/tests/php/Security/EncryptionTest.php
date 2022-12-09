@@ -95,8 +95,8 @@ class EncryptionTest extends TestCase
 
     public function testWarningOnBadHashAlgorihtmWhileEncryption(): void
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
+        $this->expectWarning();
+        $this->expectWarningMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
         $encryption = (new Encryption('bad-algorithm'))
             ->setFirstKey($this->secondKey)
             ->setSecondKey($this->secondKey);
@@ -143,8 +143,8 @@ class EncryptionTest extends TestCase
 
     public function testWarningOnBadHashAlgorihtmWhileDecryption(): void
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
+        $this->expectWarning();
+        $this->expectWarningMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
         $encryption = (new Encryption('bad-algorithm'))
             ->setFirstKey($this->secondKey)
             ->setSecondKey($this->secondKey);
