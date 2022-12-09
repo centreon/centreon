@@ -11,6 +11,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/authentication/providers/configurations/local'
+  }).as('localAuthentification');
 });
 
 Given('an administrator logged in the platform', () => {
@@ -46,9 +50,10 @@ Then(
         jsonName: 'user-non-admin-for-OIDC-authentication',
         preserveToken: true
       })
-      .wait('@getNavigationList')
-      .logout()
-      .reload();
+      .wait('@localAuthentification')
+      .its('response.statusCode')
+      .should('eq', 200)
+      .wait('@getNavigationList');
   }
 );
 

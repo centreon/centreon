@@ -101,11 +101,16 @@ Cypress.Commands.add(
     return cy
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
-        cy.get('#username').type(credential.login);
-        cy.get('#password').type(credential.password);
+        cy.get('#username').clear().type(credential.login);
+        cy.get('#password').clear().type(credential.password);
       })
       .get('#kc-login')
-      .click();
+      .click()
+      .then(() => {
+        Cypress.Cookies.defaults({
+          preserve: ['KC_RESTART', 'AUTH_SESSION_ID_LEGACY', 'PHPSESSID']
+        });
+      });
   }
 );
 
