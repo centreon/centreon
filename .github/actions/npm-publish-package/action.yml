@@ -59,7 +59,7 @@ runs:
       shell: bash
 
     - uses: JS-DevTools/npm-publish@v1
-      if: ${{ env.IS_RELEASE ==false }}
+      if: ${{ !env.IS_RELEASE }}
       with:
         access: public
         package: ${{ env.directory }}/package.json
@@ -67,7 +67,7 @@ runs:
         token: ${{ inputs.npm_token }}
 
     - uses: JS-DevTools/npm-publish@v1
-      if: ${{ env.IS_RELEASE == true }}
+      if: ${{ env.IS_RELEASE }}
       with:
         access: public
         package: ${{ env.directory }}/package.json
@@ -76,7 +76,7 @@ runs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
-      if: ${{ env.IS_RELEASE == true }}
+      if: ${{ env.IS_RELEASE }}
       with:
         token: ${{ inputs.pat }}
         committer: Technique CI <technique-ci@centreon.com>
