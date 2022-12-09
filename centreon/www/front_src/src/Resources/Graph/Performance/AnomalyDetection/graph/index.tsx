@@ -40,7 +40,7 @@ const AdditionalLines = ({
   additionalLinesProps,
   data,
   resource
-}: AdditionalLinesProps): JSX.Element => {
+}: AdditionalLinesProps): JSX.Element | null => {
   const details = useAtomValue(detailsAtom);
 
   const { lines } = additionalLinesProps;
@@ -50,18 +50,18 @@ const AdditionalLines = ({
     resource: resource ?? (details as ResourceDetails)
   });
 
+  if (!isDisplayedThresholds) {
+    return null;
+  }
+
   return (
-    <div>
-      {isDisplayedThresholds && (
-        <>
-          <AnomalyDetectionEnvelopeThreshold {...additionalLinesProps} />
-          <AnomalyDetectionEnvelopeThreshold
-            {...additionalLinesProps}
-            data={data}
-          />
-        </>
-      )}
-    </div>
+    <>
+      <AnomalyDetectionEnvelopeThreshold {...additionalLinesProps} />
+      <AnomalyDetectionEnvelopeThreshold
+        {...additionalLinesProps}
+        data={data}
+      />
+    </>
   );
 };
 

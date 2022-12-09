@@ -92,8 +92,6 @@ const AnomalyDetectionEnvelopeThreshold = ({
     );
   }
 
-  console.log('isShowThreshold');
-
   return (
     <Threshold
       aboveAreaProps={{
