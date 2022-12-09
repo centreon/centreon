@@ -45,12 +45,12 @@ const AdditionalLines = ({
 
   const { lines } = additionalLinesProps;
 
-  const isDisplayedThresholds = displayAdditionalLines({
+  const displayThresholds = displayAdditionalLines({
     lines,
     resource: resource ?? (details as ResourceDetails)
   });
 
-  if (!isDisplayedThresholds) {
+  if (!displayThresholds) {
     return null;
   }
 

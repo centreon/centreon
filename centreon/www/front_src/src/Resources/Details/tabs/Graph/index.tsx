@@ -65,7 +65,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
         <>
           <TimePeriodButtonGroup />
           <ExportablePerformanceGraphWithTimeline
-            isInteractive
+            interactWithGraph
             getDisplayAdditionalLinesCondition={
               getDisplayAdditionalLinesCondition
             }

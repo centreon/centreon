@@ -77,7 +77,7 @@ const Graph = ({
         endpoint={`${endpoint}${graphQueryParameters}`}
         getDisplayAdditionalLinesCondition={getDisplayAdditionalLinesCondition}
         graphHeight={150}
-        isInteractive={false}
+        interactWithGraph={false}
         resource={row}
         timeline={[]}
       />

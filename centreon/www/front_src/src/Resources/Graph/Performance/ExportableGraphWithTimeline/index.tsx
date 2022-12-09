@@ -58,7 +58,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
 interface Props {
   getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   graphHeight: number;
-  isInteractive: boolean;
+  interactWithGraph: boolean;
   limitLegendRows?: boolean;
   renderAdditionalGraphAction?: ReactNode;
   resource?: Resource | ResourceDetails;
@@ -68,7 +68,7 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
   resource,
   graphHeight,
   limitLegendRows,
-  isInteractive,
+  interactWithGraph,
   additionalData,
   renderAdditionalGraphAction,
   getDisplayAdditionalLinesCondition
@@ -214,7 +214,7 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
               getDisplayAdditionalLinesCondition={
                 getDisplayAdditionalLinesCondition
               }
-              open={isInteractive}
+              open={interactWithGraph}
               performanceGraphRef={
                 performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
               }
@@ -224,8 +224,8 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
             />
           }
           graphHeight={graphHeight}
+          interactWithGraph={interactWithGraph}
           isInViewport={isInViewport}
-          isInteractive={isInteractive}
           limitLegendRows={limitLegendRows}
           resource={resource as Resource}
           resourceDetailsUpdated={resourceDetailsUpdated}

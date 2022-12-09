@@ -194,8 +194,8 @@ interface GraphContentProps {
   getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   height: number;
   hideAddCommentTooltip: () => void;
+  interactWithGraph: boolean;
   isInViewport?: boolean;
-  isInteractive: boolean;
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
@@ -233,7 +233,7 @@ const GraphContent = <T,>({
   displayEventAnnotations,
   containsMetrics,
   isInViewport,
-  isInteractive,
+  interactWithGraph,
   displayTimeValues,
   additionalData,
   getDisplayAdditionalLinesCondition
@@ -537,7 +537,7 @@ const GraphContent = <T,>({
             <MemoizedBar
               fill={alpha(theme.palette.primary.main, 0.2)}
               height={graphHeight}
-              open={isInteractive}
+              open={interactWithGraph}
               stroke={alpha(theme.palette.primary.main, 0.5)}
               width={zoomBarWidth}
               x={zoomBoundaries?.start || 0}
@@ -571,7 +571,7 @@ const GraphContent = <T,>({
               className={classes.overlay}
               fill="transparent"
               height={graphHeight}
-              open={isInteractive}
+              open={interactWithGraph}
               width={graphWidth}
               x={0}
               y={0}
