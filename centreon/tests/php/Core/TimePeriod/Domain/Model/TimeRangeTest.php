@@ -42,21 +42,21 @@ it('should throw exception with wrong time format', function() {
     new TimeRange('00:00-12d00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::badTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat('00:00-12d00')->getMessage()
 );
 
 it('should throw exception with wrong time ranges format', function() {
     new TimeRange('00:00 12:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::badTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat('00:00 12:00')->getMessage()
 );
 
 it('should throw exception with wrong time ranges repetition', function() {
     new TimeRange('00:00-12:00 13:00-14:00');
 })->throws(
     TimeRangeException::class,
-    TimeRangeException::badTimeRangeFormat()->getMessage()
+    TimeRangeException::badTimeRangeFormat('00:00-12:00 13:00-14:00')->getMessage()
 );
 
 it('should throw exception when the start of the interval is equal to the end of the interval',
