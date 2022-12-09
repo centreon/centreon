@@ -146,14 +146,7 @@ Then(
       .find('#validForm input[name="submitC"]')
       .click();
 
-    cy.wait('@getTimeZone')
-      .getIframeBody()
-      .find('#Form')
-      .find('#tab1')
-      .parent()
-      .should('be.visible');
-
-    cy.wait('@getTimeZone')
+    cy.getRefreshDataOnIframe()
       .getIframeBody()
       .find('#Form')
       .find('#tab1')
@@ -305,8 +298,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .parent()
     .should('be.visible');
 
-  cy.wait('@getTimeZone')
-    .getIframeBody()
+  cy.getIframeBody()
     .find('#Form')
     .find('#tab1')
     .parent()
