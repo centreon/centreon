@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -146,7 +147,7 @@ Then(
       .find('#validForm input[name="submitC"]')
       .click();
 
-    cy.getRefreshDataOnIframe()
+    cy.wait(1000)
       .getIframeBody()
       .find('#Form')
       .find('#tab1')
@@ -291,14 +292,8 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait('@getTimeZone')
+  cy.wait(1000)
     .getIframeBody()
-    .find('#Form')
-    .find('#tab1')
-    .parent()
-    .should('be.visible');
-
-  cy.getIframeBody()
     .find('#Form')
     .find('#tab1')
     .parent()
@@ -330,12 +325,14 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait('@getTimeZone')
+  cy.wait(1000)
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
     .parent()
-    .should('be.visible');
+    .contains(
+      'Your password has already been used. Please choose a different password from the previous three.'
+    );
 
   cy.get('@user1Id').then((idUser) => {
     cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
