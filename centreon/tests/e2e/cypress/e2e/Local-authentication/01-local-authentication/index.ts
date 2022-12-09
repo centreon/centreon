@@ -280,9 +280,10 @@ Then('user can not change password unless the minimum time has passed', () => {
     .getIframeBody()
     .find('#Form')
     .find('#validForm input[name="change"]')
-    .click();
+    .should('be.visible');
 
-  cy.getRefreshDataOnIframe()
+  cy.visit('/centreon/main.php?p=50104&o=c')
+    .wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .within(() => {
