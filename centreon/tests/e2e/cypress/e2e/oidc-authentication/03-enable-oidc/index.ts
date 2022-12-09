@@ -53,18 +53,21 @@ When(
         tag: 'input'
       })
       .should('be.checked')
-      .and('have.value', 'on');
+      .and('have.value', 'on')
+      .logout()
+      .reload();
   }
 );
 
 Then(
   'any user can authenticate using the authentication provider that is configured',
   () => {
-    cy.logout()
-      .reload()
-      .get('a')
+    cy.get('a')
       .click()
-      .loginKeycloack('user-non-admin-for-OIDC-authentication');
+      .loginKeycloack('user-non-admin-for-OIDC-authentication')
+      .wait('@getNavigationList')
+      .url()
+      .should('include', '/monitoring/resources');
   }
 );
 

@@ -22,9 +22,7 @@ beforeEach(() => {
 });
 
 Given('an administrator logged in the platform', () => {
-  cy.logout()
-    .reload()
-    .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
@@ -60,18 +58,23 @@ When(
         tag: 'input'
       })
       .should('be.checked')
-      .and('have.value', 'true');
+      .and('have.value', 'true')
+      .logout()
+      .reload({ timeout: 6000 });
   }
 );
 
 Then(
   'only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate',
   () => {
-    cy.logout()
-      .reload()
-      .get('a')
-      .click()
-      .loginKeycloack('user-non-admin-for-OIDC-authentication');
+    cy.loginKeycloack('admin')
+      .get('#input-error')
+      .should('be.visible')
+      .and('include.text', 'Invalid username or password.')
+      .loginKeycloack('user-non-admin-for-OIDC-authentication')
+      .wait('@getNavigationList')
+      .url()
+      .should('include', '/monitoring/resources');
   }
 );
 
