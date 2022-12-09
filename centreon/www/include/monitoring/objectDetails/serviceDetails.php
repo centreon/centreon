@@ -305,7 +305,7 @@ if (!is_null($host_id)) {
                 $service_status = $data;
             }
             if (in_array($data["current_state"], array_keys($tab_status_service))) {
-                if (!isset($tab_status[$data["current_state"]])) {
+                if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
                     $tab_status[$tab_status_service[$data["current_state"]]] = 0;
                 }
                 $tab_status[$tab_status_service[$data["current_state"]]]++;
