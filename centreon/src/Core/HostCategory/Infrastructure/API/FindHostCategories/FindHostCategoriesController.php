@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\Api\FindHostCategories;
+namespace Core\HostCategory\Infrastructure\API\FindHostCategories;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
-use Core\HostCategory\Infrastructure\Api\FindHostCategories\FindHostCategoriesPresenter;
+use Core\HostCategory\Infrastructure\API\FindHostCategories\FindHostCategoriesPresenter;
 
 final class FindHostCategoriesController extends AbstractController
 {

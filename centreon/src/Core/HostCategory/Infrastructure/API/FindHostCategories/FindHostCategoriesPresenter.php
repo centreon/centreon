@@ -21,10 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\Api\FindHostCategories;
+namespace Core\HostCategory\Infrastructure\API\FindHostCategories;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
@@ -41,7 +42,7 @@ class FindHostCategoriesPresenter extends AbstractPresenter
     }
 
     /**
-     * {@inheritDoc}
+     * @param FindHostCategoriesResponse $data
      */
     public function present(mixed $data): void
     {
