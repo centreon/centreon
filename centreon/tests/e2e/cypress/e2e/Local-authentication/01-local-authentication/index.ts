@@ -146,7 +146,7 @@ Then(
       .find('#validForm input[name="submitC"]')
       .click();
 
-    cy.getRefreshDataOnIframe()
+    cy.wait('@getTimeZone')
       .getIframeBody()
       .find('#Form')
       .find('#tab1')
