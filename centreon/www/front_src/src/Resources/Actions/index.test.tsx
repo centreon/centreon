@@ -5,15 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 import dayjs from 'dayjs';
 
+import { SeverityCode } from '@centreon/ui';
 import {
   render,
   RenderResult,
   waitFor,
   fireEvent,
   act,
-  SeverityCode,
   screen
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -80,6 +80,10 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const onRefresh = jest.fn();
 
+jest.mock('@centreon/ui-context', () =>
+  jest.requireActual('@centreon/ui-context')
+);
+
 const mockUser = {
   alias: 'admin',
   isExportButtonEnabled: true,
@@ -121,6 +125,22 @@ const mockAcknowledgement = {
 };
 
 jest.mock('../icons/Downtime');
+
+interface UseMediaQueryListing {
+  applyBreakPoint: boolean;
+}
+
+jest.mock('./Resource/useMediaQueryListing', () => {
+  const originalModule = jest.requireActual('./Resource/useMediaQueryListing');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    default: (): UseMediaQueryListing => ({
+      applyBreakPoint: false
+    })
+  };
+});
 
 const ActionsWithLoading = (): JSX.Element => {
   useLoadResources();

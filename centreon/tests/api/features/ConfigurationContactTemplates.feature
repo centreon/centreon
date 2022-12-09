@@ -8,7 +8,7 @@ Feature: List Contact Templates API
 
   Scenario: List Contact Templates as an admin user
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 22.10)
+    And the endpoints are described in Centreon Web API documentation
 
     When I send a GET request to '/api/latest/configuration/contacts/templates'
     Then the response code should be "200"

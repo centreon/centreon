@@ -1,10 +1,15 @@
 name: web
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -12,6 +17,7 @@ on:
       - develop
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
 
@@ -45,7 +51,12 @@ jobs:
             has_backend_changes:
               - '**/*.php'
               - '**/phpstan*.neon'
-              - '**/*.xml|**/bin/**'
+              - 'centreon/codingstyle.xml'
+              - 'centreon/config/**/*.xml'
+              - 'centreon/phpunit.xml'
+              - 'centreon/ruleset.xml'
+              - 'centreon/www/**/*.xml'
+              - '**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
               - '/centreon/src/**'
@@ -121,7 +132,7 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -148,7 +159,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -176,7 +187,7 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -189,7 +200,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -235,7 +246,6 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el7, el8, bullseye]
         include:
@@ -274,7 +284,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: package
+    needs: [package]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
@@ -339,7 +349,7 @@ jobs:
           tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize,changes]
+    needs: [dockerize, changes]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -354,7 +364,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize,changes]
+    needs: [dockerize, changes]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
@@ -368,34 +378,17 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Cypress e2e testing
-        uses: ./.github/actions/cypress-e2e-testing
-        with:
-          image: docker.centreon.com/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          module: centreon
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/e2e/cypress/e2e
+    secrets:
+      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   performances-test:
     runs-on: ubuntu-22.04
@@ -437,7 +430,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -459,11 +452,12 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [bullseye]
@@ -481,3 +475,4 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}

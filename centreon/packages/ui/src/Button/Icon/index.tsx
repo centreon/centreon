@@ -6,6 +6,8 @@ import {
   Tooltip
 } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 const useStyles = makeStyles()((theme) => ({
   button: {
     padding: theme.spacing(0.25)
@@ -34,6 +36,8 @@ const IconButton = ({
           aria-label={ariaLabel}
           className={cx(classes.button, className)}
           color="primary"
+          data-testid={ariaLabel}
+          id={getNormalizedId(ariaLabel || '')}
           {...props}
         />
       </span>

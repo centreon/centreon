@@ -1,17 +1,16 @@
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
+import { buildListingEndpoint, TestQueryProvider } from '@centreon/ui';
 import {
   RenderResult,
   render,
   screen,
   waitFor,
-  buildListingEndpoint,
-  TestQueryProvider,
   resetMocks,
   mockResponseOnce,
   getFetchCall
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 
 import {
   authenticationProvidersEndpoint,
@@ -423,7 +422,7 @@ describe('Password expiration policy', () => {
       )
     ).toHaveTextContent('1');
 
-    expect(screen.getAllByText(labelExcludedUsers)).toHaveLength(2);
+    expect(screen.getByLabelText(labelExcludedUsers)).toBeInTheDocument();
   });
 
   it('does not display any error message when the password expiration time is cleared', async () => {

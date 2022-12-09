@@ -24,19 +24,19 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
     DeleteVaultConfiguration,
-    DeleteVaultConfigurationPresenterInterface,
     DeleteVaultConfigurationRequest
 };
 
 final class DeleteVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
+     * @param integer $vaultId
+     * @param integer $vaultConfigurationId
      * @param DeleteVaultConfiguration $useCase
-     * @param DeleteVaultConfigurationPresenterInterface $presenter
+     * @param DefaultPresenter $presenter
      *
      * @return object
      */
@@ -44,7 +44,7 @@ final class DeleteVaultConfigurationController extends AbstractController
         int $vaultId,
         int $vaultConfigurationId,
         DeleteVaultConfiguration $useCase,
-        DeleteVaultConfigurationPresenterInterface $presenter
+        DefaultPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

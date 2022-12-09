@@ -60,6 +60,7 @@ interface SectionPanelProps {
   header: JSX.Element;
   loading?: boolean;
   onClose: () => void;
+  onResize?: (width: number) => void;
   onSecondaryPanelClose?: () => void;
   secondaryPanel?: JSX.Element;
   sections: Array<Section>;
@@ -71,6 +72,7 @@ const SectionPanel = ({
   sections,
   onSecondaryPanelClose = (): undefined => undefined,
   onClose = (): undefined => undefined,
+  onResize,
   loading = false
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
@@ -128,6 +130,7 @@ const SectionPanel = ({
       }
       width={getWidth()}
       onClose={onClose}
+      onResize={onResize}
     />
   );
 };
