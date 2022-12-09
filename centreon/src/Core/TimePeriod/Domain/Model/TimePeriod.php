@@ -28,6 +28,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class TimePeriod
 {
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MAX_NAME_LENGTH = 200;
+
     private string $name;
     private string $alias;
     /**
@@ -78,12 +81,13 @@ class TimePeriod
     /**
      * @param string $alias
      * @return void
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function setAlias(string $alias): void
     {
-        Assertion::minLength($alias, 1, 'TimePeriod::alias');
-        Assertion::maxLength($alias, 200, 'TimePeriod::alias');
+        $alias = trim($alias);
+        Assertion::notEmpty($alias, 'TimePeriod::alias');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'TimePeriod::alias');
         $this->alias = $alias;
     }
 
@@ -98,12 +102,13 @@ class TimePeriod
     /**
      * @param string $name
      * @return void
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function setName(string $name): void
     {
-        Assertion::minLength($name, 1, 'TimePeriod::name');
-        Assertion::maxLength($name, 200, 'TimePeriod::name');
+        $name = trim($name);
+        Assertion::notEmpty($name, 'TimePeriod::name');
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'TimePeriod::name');
         $this->name = $name;
     }
 
@@ -164,6 +169,16 @@ class TimePeriod
     }
 
     /**
+     * @param Day $day
+     *
+     * @return void
+     */
+    public function addDay(Day $day): void
+    {
+        $this->days[] = $day;
+    }
+
+    /**
      * @return Day[]
      */
     public function getDays(): array
@@ -176,6 +191,9 @@ class TimePeriod
      */
     public function setDays(array $days): void
     {
-        $this->days = $days;
+        $this->days = [];
+        foreach ($days as $day) {
+            $this->addDay($day);
+        }
     }
 }

@@ -30,6 +30,7 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
     AddTimePeriod, AddTimePeriodRequest
 };
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AddTimePeriodController extends AbstractController
 {
@@ -39,6 +40,8 @@ class AddTimePeriodController extends AbstractController
      * @param DefaultPresenter $presenter
      *
      * @return object
+     *
+     * @throws AccessDeniedException
      */
     public function __invoke(
         Request $request,

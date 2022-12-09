@@ -21,14 +21,19 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\TimePeriod\Domain\Model;
+
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
 $timeRange = '';
-it('should throw exception with empty time range', function() use ($timeRange) {
-    new TimeRange($timeRange);
-})->throws(
+it(
+    'should throw exception with empty time range',
+    function () use ($timeRange): void {
+        new TimeRange($timeRange);
+    }
+)->throws(
     \InvalidArgumentException::class,
     AssertionException::minLength(
         $timeRange,
@@ -38,46 +43,59 @@ it('should throw exception with empty time range', function() use ($timeRange) {
     )->getMessage()
 );
 
-it('should throw exception with wrong time format', function() {
-    new TimeRange('00:00-12d00');
-})->throws(
+it(
+    'should throw exception with wrong time format',
+    function (): void {
+        new TimeRange('00:00-12d00');
+    }
+)->throws(
     TimeRangeException::class,
     TimeRangeException::badTimeRangeFormat('00:00-12d00')->getMessage()
 );
 
-it('should throw exception with wrong time ranges format', function() {
-    new TimeRange('00:00 12:00');
-})->throws(
+it(
+    'should throw exception with wrong time ranges format',
+    function (): void {
+        new TimeRange('00:00 12:00');
+    }
+)->throws(
     TimeRangeException::class,
     TimeRangeException::badTimeRangeFormat('00:00 12:00')->getMessage()
 );
 
-it('should throw exception with wrong time ranges repetition', function() {
-    new TimeRange('00:00-12:00 13:00-14:00');
-})->throws(
+it(
+    'should throw exception with wrong time ranges repetition',
+    function (): void {
+        new TimeRange('00:00-12:00 13:00-14:00');
+    }
+)->throws(
     TimeRangeException::class,
     TimeRangeException::badTimeRangeFormat('00:00-12:00 13:00-14:00')->getMessage()
 );
 
-it('should throw exception when the start of the interval is equal to the end of the interval',
-    function() {
-    new TimeRange('12:00-12:00');
-})->throws(
+it(
+    'should throw exception when the start of the interval is equal to the end of the interval',
+    function (): void {
+        new TimeRange('12:00-12:00');
+    }
+)->throws(
     TimeRangeException::class,
     TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
 
-it('should throw exception when the start of the interval is greater than at the end of the interval',
-    function() {
-    new TimeRange('12:01-12:00');
-})->throws(
+it(
+    'should throw exception when the start of the interval is greater than at the end of the interval',
+    function (): void {
+        new TimeRange('12:01-12:00');
+    }
+)->throws(
     TimeRangeException::class,
     TimeRangeException::orderTimeIntervalsNotConsistent()->getMessage()
 );
 
 it(
     'should throw exception when the start of the second interval is equal to the end of the first interval',
-    function() {
+    function (): void {
         new TimeRange('00:00-12:00,12:00-14:00');
     }
 )->throws(
@@ -87,7 +105,7 @@ it(
 
 it(
     'should throw exception when the start of the second interval is less than at the end of the first interval',
-    function() {
+    function (): void {
         new TimeRange('00:00-12:00,11:00-14:00');
     }
 )->throws(

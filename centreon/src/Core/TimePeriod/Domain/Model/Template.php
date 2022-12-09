@@ -23,10 +23,20 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class Template
 {
+
+    /**
+     * @throws AssertionFailedException
+     */
     public function __construct(private int $id, private string $alias)
     {
+        Assertion::min($id, 1, 'Template::id');
+        $this->alias = trim($alias);
+        Assertion::notEmpty($this->alias, 'Template::alias');
     }
 
     /**

@@ -170,7 +170,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         }
 
         $this->addTemplates($timePeriods);
-        $this->addExceptions($timePeriods);
+        $this->addExtraTimePeriods($timePeriods);
 
         return $timePeriods;
     }
@@ -211,8 +211,11 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      * @throws \Core\TimePeriod\Domain\Exception\TimeRangeException
      * @throws \PDOException
      */
-    private function addExceptions(array $timePeriods): void
+    private function addExtraTimePeriods(array $timePeriods): void
     {
+        if ($timePeriods === []) {
+            return;
+        }
         $timePeriodIds = array_keys($timePeriods);
         $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
         $requestTemplates = $this->translateDbName(
@@ -249,6 +252,9 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      */
     private function addTemplates(array $timePeriods): void
     {
+        if ($timePeriods === []) {
+            return;
+        }
         $timePeriodIds = array_keys($timePeriods);
         $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
         $requestTemplates = $this->translateDbName(

@@ -31,7 +31,7 @@ class NewTimePeriod
     private string $alias;
 
     /**
-     * @var Template[]
+     * @var int[]
      */
     private array $templates = [];
 
@@ -55,9 +55,11 @@ class NewTimePeriod
         string $name,
         string $alias,
     ) {
-        Assertion::minLength($name, 1, 'NewTimePeriod::name');
+        $name = trim($name);
+        Assertion::notEmpty($name, 'NewTimePeriod::name');
         Assertion::maxLength($name, 200, 'NewTimePeriod::name');
-        Assertion::minLength($alias, 1, 'NewTimePeriod::alias');
+        $alias = trim($alias);
+        Assertion::notEmpty($alias, 'NewTimePeriod::alias');
         Assertion::maxLength($alias, 200, 'NewTimePeriod::alias');
         $this->name = $name;
         $this->alias = $alias;
@@ -73,10 +75,10 @@ class NewTimePeriod
     }
 
     /**
-     * @param Template $template
+     * @param int $template
      * @return void
      */
-    public function addTemplate(Template $template): void
+    public function addTemplate(int $template): void
     {
         $this->templates[] = $template;
     }
@@ -114,7 +116,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return Template[]
+     * @return int[]
      */
     public function getTemplates(): array
     {
@@ -122,11 +124,23 @@ class NewTimePeriod
     }
 
     /**
+     * @param Day $day
+     * @return void
+     */
+    public function addDay(Day $day): void
+    {
+        $this->days[] = $day;
+    }
+
+    /**
      * @param Day[] $days
      */
     public function setDays(array $days): void
     {
-        $this->days = $days;
+        $this->days = [];
+        foreach ($days as $day) {
+            $this->addDay($day);
+        }
     }
 
     /**
@@ -141,7 +155,7 @@ class NewTimePeriod
     }
 
     /**
-     * @param Template[] $templates
+     * @param int[] $templates
      */
     public function setTemplates(array $templates): void
     {

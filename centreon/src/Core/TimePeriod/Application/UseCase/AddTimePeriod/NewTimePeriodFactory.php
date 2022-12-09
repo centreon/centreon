@@ -46,11 +46,7 @@ final class NewTimePeriodFactory
                 );
             }, $dto->days)
         );
-        $newTimePeriod->setTemplates(
-            array_map(function (int $templateId): Template {
-                return new Template($templateId, '');
-            }, $dto->templates)
-        );
+        $newTimePeriod->setTemplates($dto->templates);
         $newTimePeriod->setExtraTimePeriods(
             array_map(function (array $exception): NewExtraTimePeriod {
                 return new NewExtraTimePeriod(

@@ -23,15 +23,21 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class ExtraTimePeriod extends NewExtraTimePeriod
 {
     /**
      * @param int $id
      * @param string $dayRange
      * @param TimeRange $timeRange
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(private int $id, private string $dayRange, private TimeRange $timeRange)
     {
+        Assertion::min($id, 1, 'ExtraTimePeriod::id');
         parent::__construct($this->dayRange, $this->timeRange);
     }
 

@@ -24,27 +24,40 @@ declare(strict_types=1);
 namespace Tests\Core\TimePeriod\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\TimePeriod\Domain\Model\Day;
+use Core\TimePeriod\Domain\Model\NewExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
-it('should throw an exception if the day id is less than 1', function() {
-    new Day(0, new TimeRange('00:00-12:00'));
-})->throws(
+$timeRange = new TimeRange('00:01-02:00');
+
+it(
+    'should throw exception with empty day range',
+    function () use ($timeRange): void {
+        new NewExtraTimePeriod('', $timeRange);
+    }
+)->throws(
     \InvalidArgumentException::class,
-    AssertionException::min(
-        0,
-        1,
-        'TimePeriodDay::day'
+    AssertionException::notEmpty(
+        'NewExtraTimePeriod::dayRange'
     )->getMessage()
 );
 
-it('should throw an exception if the day id is more than 7', function() {
-    new Day(8, new TimeRange('00:00-12:00'));
-})->throws(
+it(
+    'should throw exception if day range consists only of space',
+    function () use ($timeRange): void {
+        new NewExtraTimePeriod('   ', $timeRange);
+    }
+)->throws(
     \InvalidArgumentException::class,
-    AssertionException::max(
-        8,
-        7,
-        'TimePeriodDay::day'
+    AssertionException::notEmpty(
+        'NewExtraTimePeriod::dayRange'
     )->getMessage()
+);
+
+it(
+    'should apply trim on the day range value',
+    function () use ($timeRange): void {
+        $dayRange = '00:00-01:00 ';
+        $extraTimePeriod = new NewExtraTimePeriod($dayRange, $timeRange);
+        expect(trim($dayRange))->toBe($extraTimePeriod->getDayRange());
+    }
 );

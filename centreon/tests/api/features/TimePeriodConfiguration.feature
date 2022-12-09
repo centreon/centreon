@@ -105,3 +105,29 @@ Feature:
     }
     """
     Then the response code should be 500
+    And the JSON should be equal to:
+    """
+    {
+        "code": 500,
+        "message": "The time period name 'test_name' already exists"
+    }
+    """
+
+    When I send a DELETE request to '/api/latest/configuration/timeperiods/5'
+    Then the response code should be 204
+
+    When I send a GET request to '/api/latest/configuration/timeperiods?search={"name": "test_name"}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "result": [],
+        "meta": {
+            "page": 1,
+            "limit": 10,
+            "search": {},
+            "sort_by": {},
+            "total": 0
+        }
+    }
+    """

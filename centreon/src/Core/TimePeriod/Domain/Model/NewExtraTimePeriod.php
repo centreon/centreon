@@ -23,10 +23,14 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class NewExtraTimePeriod
 {
     public function __construct(private string $dayRange, private TimeRange $timeRange)
     {
+        $this->dayRange = trim($this->dayRange);
+        Assertion::notEmpty($this->dayRange, (new \ReflectionClass($this))->getShortName() . '::dayRange');
     }
 
     /**

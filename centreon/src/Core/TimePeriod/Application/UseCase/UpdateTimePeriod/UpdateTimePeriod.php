@@ -99,7 +99,7 @@ class UpdateTimePeriod
         );
         $timePeriod->setExtraTimePeriods(
             array_map(function (array $exception): ExtraTimePeriod {
-                return new ExtraTimePeriod(0, $exception['day_range'], new TimeRange($exception['time_range']));
+                return new ExtraTimePeriod(1, $exception['day_range'], new TimeRange($exception['time_range']));
             }, $request->exceptions)
         );
         $this->writeTimePeriodRepository->update($timePeriod);

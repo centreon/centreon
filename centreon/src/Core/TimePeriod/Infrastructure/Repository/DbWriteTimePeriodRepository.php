@@ -147,7 +147,10 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
             $this->deleteExtraTimePeriods($timePeriod->getId());
             $this->deleteTimePeriodTemplates($timePeriod->getId());
 
-            $this->addTimePeriodTemplates($timePeriod->getId(), $timePeriod->getTemplates());
+            $templateIds = array_map(function (Template $template): int {
+                return $template->getId();
+            }, $timePeriod->getTemplates());
+            $this->addTimePeriodTemplates($timePeriod->getId(), $templateIds);
             $this->addExtraTimePeriods($timePeriod->getId(), $timePeriod->getExtraTimePeriods());
 
             if (! $alreadyInTransaction) {
@@ -171,6 +174,9 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      */
     private function addExtraTimePeriods(int $timePeriodId, array $extraTimePeriods): void
     {
+        if ($extraTimePeriods === []) {
+            return;
+        }
         $subRequest = [];
         $bindValues = [];
         foreach ($extraTimePeriods as $index => $extraTimePeriod) {
@@ -197,17 +203,17 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 
     /**
      * @param int $timePeriodId
-     * @param Template[] $templates
+     * @param list<int> $templateIds
      *
      * @return void
      *
      * @throws \PDOException
      */
-    private function addTimePeriodTemplates(int $timePeriodId, array $templates): void
+    private function addTimePeriodTemplates(int $timePeriodId, array $templateIds): void
     {
-        $templateIds = array_map(function (Template $template): int {
-            return $template->getId();
-        }, $templates);
+        if ($templateIds === []) {
+            return;
+        }
         $subRequest = [];
         $bindValues = [];
         foreach ($templateIds as $index => $templateId) {
