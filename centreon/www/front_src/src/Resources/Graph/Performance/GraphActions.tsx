@@ -5,12 +5,12 @@ import { useUpdateAtom } from 'jotai/utils';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { makeStyles } from 'tss-react/mui';
 
 import WrenchIcon from '@mui/icons-material/Build';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 
 import {
   ContentWithCircularLoading,
@@ -18,7 +18,6 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
-import { detailsAtom } from '../../Details/detailsAtoms';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
@@ -31,6 +30,9 @@ import {
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
+import { ResourceDetails } from '../../Details/models';
+import { Resource } from '../../models';
+import { detailsAtom } from '../../Details/detailsAtoms';
 
 import { showModalAnomalyDetectionAtom } from './AnomalyDetection/anomalyDetectionAtom';
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
@@ -38,19 +40,21 @@ import {
   getDatesDerivedAtom,
   selectedTimePeriodAtom
 } from './TimePeriods/timePeriodAtoms';
+import { GetDisplayAdditionalLinesConditionProps } from './models';
 
 interface Props {
   customTimePeriod?: CustomTimePeriod;
-  isRenderAdditionalGraphActions: boolean;
+  getDisplayAdditionalLinesCondition:
+    | GetDisplayAdditionalLinesConditionProps
+    | undefined;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
   renderAdditionalGraphActions?: ReactNode;
-  resourceName: string;
-  resourceParentName?: string;
+  resource?: Resource | ResourceDetails;
   timeline?: Array<TimelineEvent>;
 }
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
@@ -61,19 +65,19 @@ const useStyles = makeStyles()((theme) => ({
 
 const GraphActions = ({
   customTimePeriod,
-  resourceParentName,
-  resourceName,
+  resource,
   timeline,
   performanceGraphRef,
   open,
   renderAdditionalGraphActions,
-  isRenderAdditionalGraphActions
+  getDisplayAdditionalLinesCondition
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
+  const classes = useStyles();
   const theme = useTheme();
   const { t } = useTranslation();
   const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
   const [exporting, setExporting] = useState<boolean>(false);
+
   const { format } = useLocaleDateTimeFormat();
   const navigate = useNavigate();
 
@@ -85,7 +89,6 @@ const GraphActions = ({
   };
   const getIntervalDates = useAtomValue(getDatesDerivedAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-
   const [start, end] = getIntervalDates(selectedTimePeriod);
   const details = useAtomValue(detailsAtom);
   const setShowModalAnomalyDetection = useUpdateAtom(
@@ -112,7 +115,7 @@ const GraphActions = ({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: `${resourceParentName};${resourceName}`
+        svc_id: `${resource?.parent?.name};${resource?.name}`
       });
 
       return params.toString();
@@ -128,7 +131,7 @@ const GraphActions = ({
       backgroundColor: theme.palette.background.paper,
       element: performanceGraphRef.current as HTMLElement,
       ratio,
-      title: `${resourceName}-performance`
+      title: `${resource?.name}-performance`
     }).finally(() => {
       setExporting(false);
     });
@@ -168,7 +171,9 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          {isRenderAdditionalGraphActions && (
+          {getDisplayAdditionalLinesCondition?.condition(
+            resource as ResourceDetails
+          ) && (
             <>
               <IconButton
                 disableTouchRipple

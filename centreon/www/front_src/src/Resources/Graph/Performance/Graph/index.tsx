@@ -1,32 +1,10 @@
 import { memo, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 import { AddSVGProps } from '@visx/shape/lib/types';
-import {
-  Event,
-  Grid,
-  Group,
-  Scale,
-  Shape,
-  Tooltip as VisxTooltip
-} from '@visx/visx';
+import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear } from 'd3-scale';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import {
-  difference,
-  equals,
-  gte,
-  identity,
-  isNil,
-  length,
-  lt,
-  lte,
-  max,
-  min,
-  not,
-  pick,
-  values
-} from 'ramda';
+import { equals, gte, identity, isNil, lt, not, pick, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -67,15 +45,10 @@ import {
 } from '../models';
 import {
   getDates,
-  getMax,
-  getMetricValuesForLines,
-  getMetricValuesForUnit,
-  getMin,
-  getSortedStackedLines,
-  getStackedMetricValues,
+  getLeftScale,
+  getRightScale,
   getTime,
-  getUnits,
-  hasUnitStackedLines
+  getXScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
@@ -235,23 +208,6 @@ interface GraphContentProps {
   xAxisTickFormat: string;
 }
 
-const getScale = ({
-  graphValues,
-  height,
-  stackedValues
-}): ScaleLinear<number, number> => {
-  const minValue = min(getMin(graphValues), getMin(stackedValues));
-  const maxValue = max(getMax(graphValues), getMax(stackedValues));
-
-  const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
-
-  return Scale.scaleLinear<number>({
-    domain: [minValue, maxValue],
-    nice: true,
-    range: [height, upperRangeValue]
-  });
-};
-
 export const bisectDate = bisector(identity).center;
 
 const GraphContent = <T,>({
@@ -335,58 +291,32 @@ const GraphContent = <T,>({
 
   const xScale = useMemo(
     () =>
-      Scale.scaleTime<number>({
-        domain: [
-          getMin(timeSeries.map(getTime)),
-          getMax(timeSeries.map(getTime))
-        ],
-        range: [0, graphWidth]
+      getXScale({
+        dataTime: timeSeries,
+        valueWidth: graphWidth
       }),
     [graphWidth, timeSeries]
   );
 
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const leftScale = useMemo(
+    () =>
+      getLeftScale({
+        dataLines: lines,
+        dataTimeSeries: timeSeries,
+        valueGraphHeight: graphHeight
+      }),
+    [timeSeries, lines, graphHeight]
+  );
 
-  const leftScale = useMemo(() => {
-    const graphValues = isNil(thirdUnit)
-      ? getMetricValuesForUnit({ lines, timeSeries, unit: firstUnit })
-      : getMetricValuesForLines({ lines, timeSeries });
-
-    const firstUnitHasStackedLines =
-      isNil(thirdUnit) && not(isNil(firstUnit))
-        ? hasUnitStackedLines({ lines, unit: firstUnit })
-        : false;
-
-    const stackedValues = firstUnitHasStackedLines
-      ? getStackedMetricValues({
-          lines: getSortedStackedLines(lines),
-          timeSeries
-        })
-      : [0];
-
-    return getScale({ graphValues, height: graphHeight, stackedValues });
-  }, [timeSeries, lines, firstUnit, graphHeight]);
-
-  const rightScale = useMemo(() => {
-    const graphValues = getMetricValuesForUnit({
-      lines,
-      timeSeries,
-      unit: secondUnit
-    });
-
-    const secondUnitHasStackedLines = isNil(secondUnit)
-      ? false
-      : hasUnitStackedLines({ lines, unit: secondUnit });
-
-    const stackedValues = secondUnitHasStackedLines
-      ? getStackedMetricValues({
-          lines: getSortedStackedLines(lines),
-          timeSeries
-        })
-      : [0];
-
-    return getScale({ graphValues, height: graphHeight, stackedValues });
-  }, [timeSeries, lines, secondUnit, graphHeight]);
+  const rightScale = useMemo(
+    () =>
+      getRightScale({
+        dataLines: lines,
+        dataTimeSeries: timeSeries,
+        valueGraphHeight: graphHeight
+      }),
+    [timeSeries, lines, graphHeight]
+  );
 
   const getTimeValue = (x: number): TimeValue => {
     const date = xScale.invert(x - margin.left);
@@ -531,28 +461,13 @@ const GraphContent = <T,>({
 
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
-  const stackedLines = getSortedStackedLines(lines);
-
-  const regularLines = difference(lines, stackedLines);
-
-  const isLegendClicked = lte(length(lines), 1);
-
-  const displayAdditionalLinesCondition =
-    getDisplayAdditionalLinesCondition?.condition(resource) || false;
-
-  const displayAdditionalLines =
-    displayAdditionalLinesCondition || !isLegendClicked;
-
   const additionalLinesProps = {
-    displayAdditionalLines,
     getTime,
     graphHeight,
+    graphWidth,
     leftScale,
     lines,
-    regularLines,
     rightScale,
-    secondUnit,
-    thirdUnit,
     timeSeries,
     xScale
   };
@@ -600,7 +515,8 @@ const GraphContent = <T,>({
               renderAdditionalLines={getDisplayAdditionalLinesCondition?.displayAdditionalLines(
                 {
                   additionalData,
-                  additionalLinesProps
+                  additionalLinesProps,
+                  resource
                 }
               )}
               rightScale={rightScale}

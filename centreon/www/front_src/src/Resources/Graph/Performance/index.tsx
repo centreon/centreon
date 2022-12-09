@@ -23,8 +23,7 @@ import {
   prop,
   propEq,
   propOr,
-  reject,
-  sortBy
+  reject
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -49,6 +48,7 @@ import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import { Resource } from '../../models';
 import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
+import { getNewLinesAnomalyDetection } from './AnomalyDetection/graph/helpers';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -277,29 +277,11 @@ const PerformanceGraph = <T,>({
     );
   }
 
-  const sortedLines = sortBy(prop('name'), lineData);
-
-  const originMetric = sortedLines.map(({ metric }) =>
-    metric.includes('_upper_thresholds')
-      ? metric.replace('_upper_thresholds', '')
-      : null
-  );
-
-  const lineOriginMetric = sortedLines.filter((item) => {
-    const name = originMetric.filter((element) => element);
-
-    return equals(item.metric, name[0]);
-  });
-
-  const linesThreshold = sortedLines.filter(({ metric }) =>
-    metric.includes('thresholds')
-  );
-
-  const newSortedLines = getDisplayAdditionalLinesCondition?.condition(resource)
-    ? [...linesThreshold, ...lineOriginMetric]
-    : sortedLines;
-
-  const displayedLines = reject(propEq('display', false), newSortedLines);
+  const { newLines: displayedLines, newSortedLines } =
+    getNewLinesAnomalyDetection({
+      lines: lineData,
+      resource
+    });
 
   const getLineByMetric = (metric): LineModel => {
     return find(propEq('metric', metric), lineData) as LineModel;

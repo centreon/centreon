@@ -1,5 +1,5 @@
 import { Scale } from '@visx/visx';
-import { ScaleLinear } from 'd3-scale';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
   map,
   pipe,
@@ -19,10 +19,20 @@ import {
   sortBy,
   add,
   isEmpty,
-  any
+  any,
+  not,
+  min,
+  max
 } from 'ramda';
 
-import { Metric, TimeValue, GraphData, Line } from '../models';
+import {
+  Metric,
+  TimeValue,
+  GraphData,
+  Line,
+  AxeScale,
+  Xscale
+} from '../models';
 
 interface TimeTickWithMetrics {
   metrics: Array<Metric>;
@@ -302,6 +312,93 @@ const getYScale = ({
     : scale;
 };
 
+const getScale = ({
+  graphValues,
+  height,
+  stackedValues
+}): ScaleLinear<number, number> => {
+  const minValue = min(getMin(graphValues), getMin(stackedValues));
+  const maxValue = max(getMax(graphValues), getMax(stackedValues));
+
+  const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
+
+  return Scale.scaleLinear<number>({
+    domain: [minValue, maxValue],
+    nice: true,
+    range: [height, upperRangeValue]
+  });
+};
+
+const getLeftScale = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight
+}: AxeScale): ScaleLinear<number, number> => {
+  const [firstUnit, thirdUnit] = getUnits(dataLines);
+
+  const graphValues = isNil(thirdUnit)
+    ? getMetricValuesForUnit({
+        lines: dataLines,
+        timeSeries: dataTimeSeries,
+        unit: firstUnit
+      })
+    : getMetricValuesForLines({
+        lines: dataLines,
+        timeSeries: dataTimeSeries
+      });
+
+  const firstUnitHasStackedLines =
+    isNil(thirdUnit) && not(isNil(firstUnit))
+      ? hasUnitStackedLines({ lines: dataLines, unit: firstUnit })
+      : false;
+
+  const stackedValues = firstUnitHasStackedLines
+    ? getStackedMetricValues({
+        lines: getSortedStackedLines(dataLines),
+        timeSeries: dataTimeSeries
+      })
+    : [0];
+
+  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+};
+
+const getXScale = ({
+  dataTime,
+  valueWidth
+}: Xscale): ScaleTime<number, number, never> => {
+  return Scale.scaleTime<number>({
+    domain: [getMin(dataTime.map(getTime)), getMax(dataTime.map(getTime))],
+    range: [0, valueWidth]
+  });
+};
+
+const getRightScale = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight
+}: AxeScale): ScaleLinear<number, number> => {
+  const [secondUnit] = getUnits(dataLines);
+
+  const graphValues = getMetricValuesForUnit({
+    lines: dataLines,
+    timeSeries: dataTimeSeries,
+    unit: secondUnit
+  });
+
+  const secondUnitHasStackedLines = isNil(secondUnit)
+    ? false
+    : hasUnitStackedLines({ lines: dataLines, unit: secondUnit });
+
+  const stackedValues = secondUnitHasStackedLines
+    ? getStackedMetricValues({
+        lines: getSortedStackedLines(dataLines),
+        timeSeries: dataTimeSeries
+      })
+    : [0];
+
+  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+};
+
 export {
   getTimeSeries,
   getLineData,
@@ -321,5 +418,9 @@ export {
   getInvertedStackedLines,
   getNotInvertedStackedLines,
   hasUnitStackedLines,
-  getYScale
+  getYScale,
+  getScale,
+  getLeftScale,
+  getXScale,
+  getRightScale
 };

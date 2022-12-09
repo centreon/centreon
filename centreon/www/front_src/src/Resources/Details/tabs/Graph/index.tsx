@@ -9,8 +9,8 @@ import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import memoizeComponent from '../../../memoizedComponent';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
-import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/AnomalyDetectionGraphActions';
-import { getDisplayAdditionalLinesCondition } from '../../../Graph/Performance/AnomalyDetection/AnomalyDetectionAdditionalLines';
+import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/graph/AnomalyDetectionGraphActions';
+import { getDisplayAdditionalLinesCondition } from '../../../Graph/Performance/AnomalyDetection/graph';
 
 import HostGraph from './HostGraph';
 
@@ -70,7 +70,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
               getDisplayAdditionalLinesCondition
             }
             graphHeight={280}
-            isRenderAdditionalGraphActions={equalsAnomalyDetection(type)}
             renderAdditionalGraphAction={
               <AnomalyDetectionGraphActions
                 details={details}

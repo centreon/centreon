@@ -22,7 +22,7 @@ import {
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
 import { lastDayPeriod } from '../../Details/tabs/Graph/models';
-import { getDisplayAdditionalLinesCondition } from '../../Graph/Performance/AnomalyDetection/AnomalyDetectionAdditionalLines';
+import { getDisplayAdditionalLinesCondition } from '../../Graph/Performance/AnomalyDetection/graph';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
@@ -67,8 +67,6 @@ const Graph = ({
       changeMousePositionAndTimeValue({ position: null, timeValue: null });
     };
   }, []);
-
-  console.log({ row });
 
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>

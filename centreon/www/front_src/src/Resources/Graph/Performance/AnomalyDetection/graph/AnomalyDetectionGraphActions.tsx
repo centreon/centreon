@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
 
-import { ResourceDetails } from '../../../Details/models';
-import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline/index';
+import EditAnomalyDetectionDataDialog from '..';
+import { ResourceDetails } from '../../../../Details/models';
+import ExportablePerformanceGraphWithTimeline from '../../ExportableGraphWithTimeline';
+import { CustomFactorsData } from '../models';
+import AnomalyDetectionSlider from '../AnomalyDetectionSlider';
 
-import { getDisplayAdditionalLinesConditionForGraphActions } from './AnomalyDetectionAdditionalLines';
-import AnomalyDetectionSlider from './AnomalyDetectionSlider';
-import EditAnomalyDetectionDataDialog from './EditAnomalyDetectionDataDialog';
-import { CustomFactorsData } from './models';
+import { getDisplayAdditionalLinesConditionForGraphActions } from '.';
 
 interface AdditionalGraphActionsProps {
   details: ResourceDetails | undefined;
@@ -26,7 +26,6 @@ const AnomalyDetectionGraphActions = ({
         )}
         graphHeight={180}
         isInteractive={false}
-        isRenderAdditionalGraphActions={false}
         resource={details}
       />
     )}

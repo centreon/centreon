@@ -1,24 +1,25 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai/utils';
 import { equals } from 'ramda';
 
-import { detailsAtom } from '../../../Details/detailsAtoms';
-import { ResourceDetails } from '../../../Details/models';
-import { Resource, ResourceType } from '../../../models';
+import { detailsAtom } from '../../../../Details/detailsAtoms';
+import { ResourceDetails } from '../../../../Details/models';
+import { Resource, ResourceType } from '../../../../models';
 import {
   GetDisplayAdditionalLinesConditionProps,
   Line,
   TimeValue
-} from '../models';
+} from '../../models';
+import { CustomFactorsData } from '../models';
 
 import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold';
 import { displayAdditionalLines } from './helpers';
-import { CustomFactorsData } from './models';
 
 interface LinesProps {
   displayAdditionalLines: boolean;
   getTime: (timeValue: TimeValue) => number;
   graphHeight: number;
+  graphWidth: number;
   leftScale: ScaleLinear<number, number, never>;
   lines: Array<Line>;
   regularLines: Array<Line>;
@@ -32,13 +33,14 @@ interface LinesProps {
 interface AdditionalLinesProps {
   additionalLinesProps: LinesProps;
   data: CustomFactorsData | null | undefined;
+  displayThresholdExclusionPeriod?: boolean;
   resource?: Resource | ResourceDetails;
 }
 const AdditionalLines = ({
   additionalLinesProps,
   data,
   resource
-}: AdditionalLinesProps): JSX.Element | null => {
+}: AdditionalLinesProps): JSX.Element => {
   const details = useAtomValue(detailsAtom);
 
   const { lines } = additionalLinesProps;
@@ -47,11 +49,6 @@ const AdditionalLines = ({
     lines,
     resource: resource ?? (details as ResourceDetails)
   });
-  console.log({ data, isDisplayedThresholds });
-
-  if (!isDisplayedThresholds) {
-    return null;
-  }
 
   return (
     <div>
@@ -69,11 +66,8 @@ const AdditionalLines = ({
 };
 
 export const getDisplayAdditionalLinesCondition = {
-  condition: (resource: Resource | ResourceDetails): boolean => {
-    console.log({ resource });
-
-    return equals(resource.type, ResourceType.anomalyDetection);
-  },
+  condition: (resource: Resource | ResourceDetails): boolean =>
+    equals(resource?.type, ResourceType.anomalyDetection),
   displayAdditionalLines: ({
     additionalData,
     additionalLinesProps,
@@ -82,6 +76,7 @@ export const getDisplayAdditionalLinesCondition = {
     <AdditionalLines
       additionalLinesProps={additionalLinesProps}
       data={additionalData}
+      displayThresholdExclusionPeriod={false}
       resource={resource}
     />
   )
