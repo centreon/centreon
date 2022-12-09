@@ -6,6 +6,7 @@ import { defineConfig } from 'cypress';
 import setupNodeEvents from './cypress/plugins';
 
 export default defineConfig({
+  chromeWebSecurity: false,
   defaultCommandTimeout: 6000,
   e2e: {
     baseUrl: 'http://0.0.0.0:4000',

@@ -1,6 +1,10 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { initializeOIDCUserAndGetLoginPage, removeContact } from '../common';
+import {
+  initializeOIDCUserAndGetLoginPage,
+  oidcConfigValues,
+  removeContact
+} from '../common';
 
 before(() => {
   initializeOIDCUserAndGetLoginPage();
@@ -42,27 +46,25 @@ When(
       .click()
       .getByLabel({ label: 'Base URL', tag: 'input' })
       .clear()
-      .type(
-        'http://10.25.11.254:8080/auth/realms/Centreon_SSO/protocol/openid-connect'
-      )
+      .type(oidcConfigValues.baseUrl)
       .getByLabel({ label: 'Authorization endpoint', tag: 'input' })
       .clear()
-      .type('/auth')
+      .type(oidcConfigValues.authEndpoint)
       .getByLabel({ label: 'Token endpoint', tag: 'input' })
       .clear()
-      .type('/token')
+      .type(oidcConfigValues.tokenEndpoint)
       .getByLabel({ label: 'Client ID', tag: 'input' })
       .clear()
-      .type('centreon-oidc-frontend')
+      .type(oidcConfigValues.clientID)
       .getByLabel({ label: 'Client secret', tag: 'input' })
       .clear()
-      .type('IKbUBottl5eoyhf0I5Io2nuDsTA85D50')
+      .type(oidcConfigValues.clientSecret)
       .getByLabel({ label: 'Login attribute path', tag: 'input' })
       .clear()
-      .type('preferred_username')
+      .type(oidcConfigValues.loginAttrPath)
       .getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
       .clear()
-      .type('/token/introspect')
+      .type(oidcConfigValues.introspectionTokenEndpoint)
       .getByLabel({
         label: 'Use basic authentication for token endpoint authentication',
         tag: 'input'
@@ -80,9 +82,7 @@ Then('the configuration is saved and secrets are not visible', () => {
     .its('response.statusCode')
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
-    .should('have.attr', 'type', 'password')
-    .logout()
-    .reload();
+    .should('have.attr', 'type', 'password');
 });
 
 after(() => {
