@@ -37,7 +37,9 @@ runs:
 
     - name: Update JS config version
       run: |
-        [[ ${{ env.IS_RELEASE }} = true ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        echo ${{ env.IS_RELEASE }}
+        echo ${{ env.TAG }}
+        [[[ ${{ env.IS_RELEASE }} = true ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
