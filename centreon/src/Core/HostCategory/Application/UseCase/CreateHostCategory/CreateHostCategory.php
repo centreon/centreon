@@ -7,7 +7,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* http://www.apache.org/licenses/LICENSE-2.0
+* https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterfac
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 
-class CreateHostCategory
+final class CreateHostCategory
 {
     use LoggerTrait;
 
@@ -63,22 +63,23 @@ class CreateHostCategory
 
             $hostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
 
-            if ($this->readHostCategoryRepository->findByName($hostCategory->getName())) {
+            if ($this->readHostCategoryRepository->existsByName($hostCategory->getName())) {
                 $this->error('Host category name already exists', [
                     'hostcategory_name' => trim($request->name),
                 ]);
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse('Host category name already exists')
                 );
+
+                return;
             }
 
             $this->writeHostCategoryRepository->create($hostCategory);
 
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (\Throwable $th) {
+        } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while creating host category'));
-            // TODO : translate error message
-            $this->error($th->getMessage());
+            $this->error($ex->getMessage());
         }
     }
 }

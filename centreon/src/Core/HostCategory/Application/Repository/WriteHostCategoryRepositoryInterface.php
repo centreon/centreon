@@ -38,6 +38,7 @@ interface WriteHostCategoryRepositoryInterface
      * Create a host category
      *
      * @param NewHostCategory $hostCategory
+     * @throws \Throwable
      */
     public function create(NewHostCategory $hostCategory): void;
 }

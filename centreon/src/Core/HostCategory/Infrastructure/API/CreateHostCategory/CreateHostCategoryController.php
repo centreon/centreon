@@ -21,20 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\Api\CreateHostCategory;
+namespace Core\HostCategory\Infrastructure\API\CreateHostCategory;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategory;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
-use Core\HostCategory\Infrastructure\Api\CreateHostCategory\CreateHostCategoryPresenter;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Request;
 
-class CreateHostCategoryController extends AbstractController
+final class CreateHostCategoryController extends AbstractController
 {
     public function __invoke(
         Request $request,
         CreateHostCategory $useCase,
-        CreateHostCategoryPresenter $presenter
+        DefaultPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

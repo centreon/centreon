@@ -270,27 +270,17 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findByName(string $hostCategoryName): ?HostCategory
+    public function existsByName(string $hostCategoryName): bool
     {
-        $this->info('Getting host category with name ' . $hostCategoryName);
+        $this->info('Check existance of host category with name ' . $hostCategoryName);
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
+            'SELECT hc.hc_id FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
         );
         $statement = $this->db->prepare($request);
-        $statement->bindValue(':hostCategoryName', $hostCategoryName, \PDO::PARAM_STR);
+        $statement->bindValue(':hostCategoryName', $hostCategoryName, \PDO::PARAM_INT);
         $statement->execute();
 
-        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            return null;
-        }
-
-        $hostCategory = new HostCategory(
-            $result['hc_id'],
-            $result['hc_name'],
-            $result['hc_alias']
-        );
-
-        return $hostCategory;
+        return (bool) $statement->fetchColumn();
     }
 }
