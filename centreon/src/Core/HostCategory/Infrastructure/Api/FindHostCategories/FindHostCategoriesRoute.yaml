@@ -1,5 +1,0 @@
-findHostCategories:
-  methods: GET
-  path: /configuration/hosts/categories
-  controller: 'Core\HostCategory\Infrastructure\Api\FindHostCategories\FindHostCategoriesController'
-  condition: "request.attributes.get('version') >= 23.04"
