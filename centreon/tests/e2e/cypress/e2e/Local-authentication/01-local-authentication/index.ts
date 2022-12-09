@@ -329,6 +329,13 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#Form')
     .find('#tab1')
     .parent()
+    .should('be.visible');
+
+  cy.wait('@getTimeZone')
+    .getIframeBody()
+    .find('#Form')
+    .find('#tab1')
+    .parent()
     .contains(
       'Your password has already been used. Please choose a different password from the previous three.'
     );
