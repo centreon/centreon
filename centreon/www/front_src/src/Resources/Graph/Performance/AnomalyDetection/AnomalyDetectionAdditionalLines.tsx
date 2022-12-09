@@ -1,6 +1,8 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
+import { detailsAtom } from '../../../Details/detailsAtoms';
 import { ResourceDetails } from '../../../Details/models';
 import { Resource, ResourceType } from '../../../models';
 import {
@@ -10,6 +12,7 @@ import {
 } from '../models';
 
 import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold';
+import { displayAdditionalLines } from './helpers';
 import { CustomFactorsData } from './models';
 
 interface LinesProps {
@@ -29,27 +32,57 @@ interface LinesProps {
 interface AdditionalLinesProps {
   additionalLinesProps: LinesProps;
   data: CustomFactorsData | null | undefined;
+  resource?: Resource | ResourceDetails;
 }
 const AdditionalLines = ({
   additionalLinesProps,
-  data
-}: AdditionalLinesProps): JSX.Element => (
-  <>
-    <AnomalyDetectionEnvelopeThreshold {...additionalLinesProps} />
-    <AnomalyDetectionEnvelopeThreshold {...additionalLinesProps} data={data} />
-  </>
-);
+  data,
+  resource
+}: AdditionalLinesProps): JSX.Element | null => {
+  const details = useAtomValue(detailsAtom);
+
+  const { lines } = additionalLinesProps;
+
+  const isDisplayedThresholds = displayAdditionalLines({
+    lines,
+    resource: resource ?? (details as ResourceDetails)
+  });
+  console.log({ data, isDisplayedThresholds });
+
+  if (!isDisplayedThresholds) {
+    return null;
+  }
+
+  return (
+    <div>
+      {isDisplayedThresholds && (
+        <>
+          <AnomalyDetectionEnvelopeThreshold {...additionalLinesProps} />
+          <AnomalyDetectionEnvelopeThreshold
+            {...additionalLinesProps}
+            data={data}
+          />
+        </>
+      )}
+    </div>
+  );
+};
 
 export const getDisplayAdditionalLinesCondition = {
-  condition: (resource: Resource | ResourceDetails): boolean =>
-    equals(resource.type, ResourceType.anomalyDetection),
+  condition: (resource: Resource | ResourceDetails): boolean => {
+    console.log({ resource });
+
+    return equals(resource.type, ResourceType.anomalyDetection);
+  },
   displayAdditionalLines: ({
     additionalData,
-    additionalLinesProps
+    additionalLinesProps,
+    resource
   }): JSX.Element => (
     <AdditionalLines
       additionalLinesProps={additionalLinesProps}
       data={additionalData}
+      resource={resource}
     />
   )
 };

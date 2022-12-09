@@ -22,6 +22,7 @@ import {
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
 import { lastDayPeriod } from '../../Details/tabs/Graph/models';
+import { getDisplayAdditionalLinesCondition } from '../../Graph/Performance/AnomalyDetection/AnomalyDetectionAdditionalLines';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
@@ -67,6 +68,8 @@ const Graph = ({
     };
   }, []);
 
+  console.log({ row });
+
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <PerformanceGraph
@@ -74,7 +77,9 @@ const Graph = ({
         displayCompleteGraph={displayCompleteGraph}
         displayTitle={false}
         endpoint={`${endpoint}${graphQueryParameters}`}
+        getDisplayAdditionalLinesCondition={getDisplayAdditionalLinesCondition}
         graphHeight={150}
+        isInteractive={false}
         resource={row}
         timeline={[]}
       />

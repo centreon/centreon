@@ -34,9 +34,9 @@ const AnomalyDetectionEnvelopeThreshold = ({
   data,
   displayAdditionalLines
 }: Props): JSX.Element | null => {
-  if (!displayAdditionalLines) {
-    return null;
-  }
+  // if (!displayAdditionalLines) {
+  //   return null;
+  // }
   const [
     { metric: metricY1, unit: unitY1, invert: invertY1, lineColor: lineColorY1 }
   ] = regularLines.filter((item) => equals(item.name, 'Upper Threshold'));
