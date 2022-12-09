@@ -58,9 +58,7 @@ final class DeleteHostCategory
                     $this->error('Host category not found', [
                         'hostcategory_id' => $hostCategoryId,
                     ]);
-                    $presenter->setResponseStatus(
-                        new NotFoundResponse('Host category')
-                    );
+                    $presenter->setResponseStatus(new NotFoundResponse('Host category'));
                 }
             } elseif ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
@@ -73,17 +71,16 @@ final class DeleteHostCategory
                         'hostcategory_id' => $hostCategoryId,
                         'accessgroups' => $accessGroups
                     ]);
-                    $presenter->setResponseStatus(
-                        new NotFoundResponse('Host category')
-                    );
+                    $presenter->setResponseStatus(new NotFoundResponse('Host category'));
                 }
+            } else {
+                $this->error('User doesn\'t have sufficient rights to see host category', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse('You are not allowed to delete host categories')
+                );
             }
-            $this->error('User doesn\'t have sufficient rights to see host category', [
-                'user_id' => $this->user->getId(),
-            ]);
-            $presenter->setResponseStatus(
-                new ForbiddenResponse('You are not allowed to delete host categories')
-            );
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category'));
             $this->error($ex->getMessage());

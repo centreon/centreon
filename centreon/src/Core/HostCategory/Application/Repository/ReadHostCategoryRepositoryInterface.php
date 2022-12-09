@@ -63,6 +63,7 @@ interface ReadHostCategoryRepositoryInterface
      * @param int $hostCategoryId
      * @param AccessGroup[] $accessGroups
      * @return bool
+     * @throws \Throwable
      */
     public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool;
 }

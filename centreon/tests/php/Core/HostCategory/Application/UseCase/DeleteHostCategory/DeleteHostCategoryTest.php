@@ -59,8 +59,8 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->hostCategory);
+        ->method('exists')
+        ->willReturn(true);
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('deleteById')
@@ -116,8 +116,8 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn(null);
+        ->method('exists')
+        ->willReturn(false);
 
     $useCase($this->hostCategoryId, $presenter);
 
@@ -146,8 +146,8 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
-        ->method('findByIdAndAccessGroups')
-        ->willReturn(null);
+        ->method('existsByAccessGroups')
+        ->willReturn(false);
 
     $useCase($this->hostCategoryId, $presenter);
 
@@ -172,8 +172,8 @@ it('should present a NoContentResponse on success (with admin user)', function (
         ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->hostCategory);
+        ->method('exists')
+        ->willReturn(true);
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('deleteById');
@@ -204,8 +204,8 @@ it('should present a NoContentResponse on success (with non-admin user)', functi
         ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
-        ->method('findByIdAndAccessGroups')
-        ->willReturn($this->hostCategory);
+        ->method('existsByAccessGroups')
+        ->willReturn(true);
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('deleteById');

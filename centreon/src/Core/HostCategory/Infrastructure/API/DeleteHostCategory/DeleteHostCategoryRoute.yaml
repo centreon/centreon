@@ -5,5 +5,3 @@ deleteHostCategory:
     hostCategoryId: '\d+'
   controller: 'Core\HostCategory\Infrastructure\API\DeleteHostCategory\DeleteHostCategoryController'
   condition: "request.attributes.get('version') >= 22.10"
-
-# TODO : change version to 23.04 ?
