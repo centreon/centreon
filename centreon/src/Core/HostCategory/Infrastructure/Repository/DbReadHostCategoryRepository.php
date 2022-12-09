@@ -225,43 +225,33 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findById(int $hostCategoryId): ?HostCategory
+    public function exists(int $hostCategoryId): bool
     {
-        $this->info('Getting host category with id #' . $hostCategoryId);
+        $this->info('Check existance of host category with id #' . $hostCategoryId);
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+            'SELECT hc.hc_id FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
         $statement->execute();
 
-        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            return null;
-        }
-
-        $hostCategory = new HostCategory(
-            $result['hc_id'],
-            $result['hc_name'],
-            $result['hc_alias']
-        );
-
-        return $hostCategory;
+        return (bool) $statement->fetchColumn();
     }
 
     /**
      * @inheritDoc
      */
-    public function findByIdAndAccessGroups(int $hostCategoryId, array $accessGroups): ?HostCategory
+    public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool
     {
         $this->info(
-            'Getting a host category by access group',
+            'Check existance of host category by access groups',
             ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
         );
 
         if (empty($accessGroups)) {
-            $this->debug('No host category ids, return null');
-            return null;
+            $this->debug('Access groups array empty');
+            return false;
         }
 
         $concat = new SqlConcatenator();
@@ -272,7 +262,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         );
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias
+            'SELECT hc.hc_id
             FROM `:db`.hostcategories hc
             INNER JOIN `:db`.acl_resources_hc_relations arhr
                 ON hc.hc_id = arhr.hc_id
@@ -296,16 +286,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $statement->execute();
 
-        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            return null;
-        }
-
-        $hostCategory = new HostCategory(
-            $result['hc_id'],
-            $result['hc_name'],
-            $result['hc_alias']
-        );
-
-        return $hostCategory;
+        return (bool) $statement->fetchColumn();
     }
 }

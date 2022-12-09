@@ -34,9 +34,8 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class DeleteHostCategory
+final class DeleteHostCategory
 {
     use LoggerTrait;
 
@@ -52,32 +51,24 @@ class DeleteHostCategory
     {
         try {
             if ($this->user->isAdmin()) {
-                if (! $this->doesHostCategoryExist($hostCategoryId)) {
+                if ($this->readHostCategoryRepository->exists($hostCategoryId)) {
+                    $this->writeHostCategoryRepository->deleteById($hostCategoryId);
+                    $presenter->setResponseStatus(new NoContentResponse());
+                } else {
                     $this->error('Host category not found', [
                         'hostcategory_id' => $hostCategoryId,
                     ]);
                     $presenter->setResponseStatus(
                         new NotFoundResponse('Host category')
                     );
-
-                    return;
                 }
-                $this->writeHostCategoryRepository->deleteById($hostCategoryId);
-            } else {
-                if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
-                    $this->error('User doesn\'t have sufficient right to see host category', [
-                        'user_id' => $this->user->getId(),
-                    ]);
-                    $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to delete host categories')
-                    );
-
-                    return;
-                }
-
+            } elseif ($this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
 
-                if (! $this->doesHostCategoryExist($hostCategoryId, $accessGroups)) {
+                if ($this->readHostCategoryRepository->existsByAccessGroups($hostCategoryId, $accessGroups)) {
+                    $this->writeHostCategoryRepository->deleteById($hostCategoryId);
+                    $presenter->setResponseStatus(new NoContentResponse());
+                } else {
                     $this->error('Host category not found', [
                         'hostcategory_id' => $hostCategoryId,
                         'accessgroups' => $accessGroups
@@ -85,32 +76,17 @@ class DeleteHostCategory
                     $presenter->setResponseStatus(
                         new NotFoundResponse('Host category')
                     );
-
-                    return;
                 }
-
-                $this->writeHostCategoryRepository->deleteById($hostCategoryId);
             }
-
-            $presenter->setResponseStatus(new NoContentResponse());
-        } catch (\Throwable $th) {
+            $this->error('User doesn\'t have sufficient rights to see host category', [
+                'user_id' => $this->user->getId(),
+            ]);
+            $presenter->setResponseStatus(
+                new ForbiddenResponse('You are not allowed to delete host categories')
+            );
+        } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category'));
-            // TODO : translate error messages
-            $this->error($th->getMessage());
+            $this->error($ex->getMessage());
         }
-    }
-
-    /**
-     * @param int $hostCategoryId
-     * @param AccessGroup[]|null $accessGroups
-     * @return bool
-     */
-    private function doesHostCategoryExist(int $hostCategoryId, ?array $accessGroups = null): bool
-    {
-        $hostCategory = $accessGroups === null
-        ? $this->readHostCategoryRepository->findById($hostCategoryId)
-        : $this->readHostCategoryRepository->findByIdAndAccessGroups($hostCategoryId, $accessGroups);
-
-        return (bool) ($hostCategory ?? false);
     }
 }

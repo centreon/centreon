@@ -21,10 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\Api\DeleteHostCategory;
+namespace Core\HostCategory\Infrastructure\API\DeleteHostCategory;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Centreon\Application\Controller\AbstractController;
+use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategory;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class DeleteHostCategoryPresenter extends AbstractPresenter
+final class DeleteHostCategoryController extends AbstractController
 {
+    public function __invoke(
+        int $hostCategoryId,
+        DeleteHostCategory $useCase,
+        DefaultPresenter $presenter
+    ): object {
+        $this->denyAccessUnlessGrantedForApiConfiguration();
+
+        $useCase($hostCategoryId, $presenter);
+
+        return $presenter->show();
+    }
 }
