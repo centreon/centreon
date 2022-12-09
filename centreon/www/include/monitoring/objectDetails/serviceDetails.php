@@ -304,12 +304,13 @@ if (!is_null($host_id)) {
             if ($data["service_description"] == $svc_description) {
                 $service_status = $data;
             }
-            if (in_array($data["current_state"], array_keys($tab_status_service))) {
-                if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
-                    $tab_status[$tab_status_service[$data["current_state"]]] = 0;
-                }
-                $tab_status[$tab_status_service[$data["current_state"]]]++;
+            if (!in_array($data["current_state"], array_keys($tab_status_service))) {
+                $data["current_state"] = 4; // default to PENDING
             }
+            if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
+                $tab_status[$tab_status_service[$data["current_state"]]] = 0;
+            }
+            $tab_status[$tab_status_service[$data["current_state"]]]++;
         }
         $DBRESULT->closeCursor();
 
