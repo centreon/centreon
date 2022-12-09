@@ -54,11 +54,8 @@ class DisableFieldsOnBlockedObjectsContext extends CentreonContext
     {
         $this->iOpenTheForm();
         $macro = $this->getSession()->getPage()->find('css', '#macro li.clone_template span input[type="text"]');
-        if ($macro->getAttribute('disabled') != 'disabled' && $macro->getAttribute('readonly') != 'readonly') {
-            throw new \Exception(
-                'the macros are not disabled (disabled : ' . $macro->getAttribute('disabled')
-                . ' , readonly : '. $macro->getAttribute('readonly') . ')'
-            );
+        if (!$macro->getAttribute('disabled')) {
+            throw new \Exception('the macros are not disabled');
         }
     }
 }
