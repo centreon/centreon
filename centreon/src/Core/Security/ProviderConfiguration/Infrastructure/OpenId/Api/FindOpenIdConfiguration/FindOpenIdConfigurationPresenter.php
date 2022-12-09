@@ -33,9 +33,9 @@ class FindOpenIdConfigurationPresenter extends AbstractPresenter implements Find
 {
     /**
      * {@inheritDoc}
-     * @param FindOpenIdConfigurationResponse $response
+     * @param FindOpenIdConfigurationResponse $data
      */
-    public function present(mixed $response): void
+    public function present(mixed $data): void
     {
         $presenterResponse = [
             'is_active' => $response->isActive,
@@ -62,6 +62,6 @@ class FindOpenIdConfigurationPresenter extends AbstractPresenter implements Find
             'groups_mapping' => $response->groupsMapping
         ];
 
-        $this->presenterFormatter->present($presenterResponse);
+        parent::present($presenterResponse);
     }
 }
