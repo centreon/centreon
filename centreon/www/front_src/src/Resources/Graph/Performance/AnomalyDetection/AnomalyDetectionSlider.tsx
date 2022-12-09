@@ -19,7 +19,8 @@ import {
   labelMenageEnvelopeSubTitle,
   labelPointsOutsideOfEnvelopeCount,
   labelResetToDefaultValue,
-  labelSave
+  labelSave,
+  labelSlider
 } from '../../../translatedLabels';
 
 import { countedRedCirclesAtom } from './anomalyDetectionAtom';
@@ -277,7 +278,7 @@ const AnomalyDetectionSlider = ({
           <Slider
             aria-label="Small"
             className={classes.slider}
-            data-testid="slider"
+            data-testid={labelSlider}
             marks={marks}
             max={sensitivity.maximum_value}
             min={sensitivity.minimum_value}
@@ -310,7 +311,7 @@ const AnomalyDetectionSlider = ({
 
       <div className={classes.footer}>
         <Button
-          data-testid="cancel"
+          data-testid={labelCancel}
           size="small"
           variant="outlined"
           onClick={cancelResizingEnvelope}
@@ -319,7 +320,7 @@ const AnomalyDetectionSlider = ({
         </Button>
         <Button
           className={classes.confirmButton}
-          data-testid="save"
+          data-testid={labelSave}
           disabled={!isResizingConfirmed}
           size="small"
           variant="contained"

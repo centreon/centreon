@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
 
-import { labelClose } from '../../../translatedLabels';
+import { labelClose, labelCloseEditModal } from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
 import AnomalyDetectionExclusionPeriod from './AnomalyDetectionExclusionPeriod';
@@ -140,7 +140,7 @@ const EditAnomalyDetectionDataDialog = ({
           setOpen={setIsModalConfirmationOpened}
         />
         <div className={classes.close}>
-          <Button data-testid="closeEditModal" onClick={handleClose}>
+          <Button data-testid={labelCloseEditModal} onClick={handleClose}>
             {t(labelClose)}
           </Button>
         </div>

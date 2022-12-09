@@ -16,6 +16,7 @@ import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import {
   labelCancel,
   labelClose,
+  labelCloseEditModal,
   labelDisplayEvents,
   labelEditAnomalyDetectionConfirmation,
   labelGraph,
@@ -25,7 +26,10 @@ import {
   labelMenageEnvelope,
   labelMenageEnvelopeSubTitle,
   labelPerformanceGraphAD,
-  labelResetToDefaultValue
+  labelResetToDefaultValue,
+  labelSave,
+  labelSearchBar,
+  labelSlider
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
 
@@ -110,7 +114,7 @@ describe('Anomaly detection - Filter', () => {
       return null;
     });
 
-    cy.get('[data-testid="searchBar"]')
+    cy.get(`[data-testid="${labelSearchBar}"]`)
       .find('input')
       .should('have.value', `type:${searchWords.type} `);
   });
@@ -198,7 +202,7 @@ describe('Anomaly detection - Graph', () => {
     cy.contains(labelMenageEnvelopeSubTitle).should('be.visible');
     cy.contains(labelResetToDefaultValue).should('be.visible');
     cy.contains(labelCancel).should('be.visible');
-    cy.get('[data-testid="save"]').should('be.disabled');
+    cy.get(`[data-testid="${labelSave}"]`).should('be.disabled');
 
     cy.fixture('resources/anomalyDetectionDetails.json').then((data) => {
       cy.get('[data-testid="add"]')
@@ -208,7 +212,7 @@ describe('Anomaly detection - Graph', () => {
         .contains(data.sensitivity.minimum_value)
         .should('be.visible');
 
-      cy.get('[data-testid="slider"]')
+      cy.get(`[data-testid="${labelSlider}"]`)
         .contains(data.sensitivity.default_value)
         .should('be.visible');
       cy.contains('Default').should('be.visible');
@@ -227,7 +231,7 @@ describe('Anomaly detection - Graph', () => {
     cy.get('[data-testid="add"]').click();
     cy.matchImageSnapshot();
 
-    cy.get('[data-testid="cancel"]').click();
+    cy.get(`[data-testid="${labelCancel}"]`).click();
     cy.matchImageSnapshot();
 
     cy.get('[data-testid="remove"]').click();
@@ -245,7 +249,7 @@ describe('Anomaly detection - Graph', () => {
         .should('be.visible');
     });
 
-    cy.get('[data-testid="cancel"]').click();
+    cy.get(`[data-testid="${labelCancel}"]`).click();
 
     cy.get('[data-testid="remove"]').click();
     cy.fixture('resources/anomalyDetectionDetails.json').then((data) => {
@@ -271,7 +275,7 @@ describe('Anomaly detection - Graph', () => {
   it('displays the modal of confirmation when clicking on save button of slider', () => {
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
     cy.get('[data-testid="add"]').click();
-    cy.get('[data-testid="save"]').click();
+    cy.get(`[data-testid="${labelSave}"]`).click();
     cy.get('[data-testid=modalConfirmation]').should('be.visible');
     cy.contains(labelEditAnomalyDetectionConfirmation).should('be.visible');
     cy.matchImageSnapshot();
@@ -332,8 +336,10 @@ describe('Anomaly detection - Global', () => {
   it('displays the wrench icon on graph actions when one row of a resource of anomaly-detection is clicked', () => {
     cy.contains('ad').click();
     cy.get('[data-testid="3"]').contains(labelGraph).click();
-    cy.wait('@getGraphDataAnomalyDetection');
-    cy.matchImageSnapshot();
+    cy.wait('@getGraphDataAnomalyDetection').then(() =>
+      cy.matchImageSnapshot()
+    );
+
     cy.get(`[aria-label="Close"]`).click();
   });
 
@@ -344,7 +350,7 @@ describe('Anomaly detection - Global', () => {
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
     cy.wait('@getGraphDataAnomalyDetection');
     cy.matchImageSnapshot();
-    cy.get('[data-testid="closeEditModal"]').click();
+    cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
     cy.get(`[aria-label="Close"]`).click();
   });
 
@@ -361,7 +367,7 @@ describe('Anomaly detection - Global', () => {
     cy.get('[data-testid="add"]').click();
     cy.get('[data-testid="add"]').click();
     cy.get('[data-testid="add"]').click();
-    cy.get('[data-testid="save"]').click();
+    cy.get(`[data-testid="${labelSave}"]`).click();
     cy.get('[data-testid=modalConfirmation]').should('be.visible');
     cy.contains(labelEditAnomalyDetectionConfirmation).should('be.visible');
     cy.get(`[aria-label="Save"]`).click();
@@ -372,10 +378,10 @@ describe('Anomaly detection - Global', () => {
       'status',
       200
     );
-    cy.get('[data-testid="closeEditModal"]').click();
+    cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
     cy.get('.MuiSlider-valueLabelLabel').contains(3.3).should('be.visible');
-    cy.get('[data-testid="closeEditModal"]').click();
+    cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
     cy.get(`[aria-label="Close"]`).click();
   });
 
