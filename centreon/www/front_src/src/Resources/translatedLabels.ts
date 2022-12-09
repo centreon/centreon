@@ -274,4 +274,3 @@ export const labelResetToDefaultValue = 'Reset to default value';
 export const labelPointsOutsideOfEnvelopeCount =
   'points outside of the envelope';
 export const labelClose = 'Close';
-export const labelUseDefaultValue = 'Use default value';
