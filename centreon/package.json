@@ -95,7 +95,6 @@
     "@mui/styles": "^5.10.10",
     "@mui/system": "^5.10.13",
     "@mui/x-date-pickers": "^5.0.8",
-    "@swc/plugin-emotion": "^2.5.21",
     "@tanstack/react-query": "^4.14.6",
     "@tanstack/react-query-devtools": "^4.14.6",
     "@visx/curve": "^2.1.0",
