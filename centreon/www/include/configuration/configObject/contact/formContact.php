@@ -609,7 +609,7 @@ if (! empty($aclUser)) {
             // select parent from level 2 if level 3 is missing
             $pageId = $parentLvl3 ?: $parentLvl2;
 
-            if (!$isThirdLevelMenu && $translatedPages[$pageId]['show']) {
+            if (! $isThirdLevelMenu && $translatedPages[$pageId]['show']) {
                 /**
                  * We show only first and second level
                  */
