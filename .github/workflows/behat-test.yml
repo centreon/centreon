@@ -22,9 +22,6 @@ on:
         required: true
       nexus_password:
         required: true
-      token:
-        required: true
-        default: ${{ github.token }}
 
 jobs:
   behat-test-list:
