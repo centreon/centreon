@@ -377,7 +377,7 @@ testData.forEach((item) =>
       });
     });
 
-    it(`checks that the last day must match with the end of the week when the ${item.button} button is clicked`, () => {
+    it(`displays the last day as the end of the week when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
 
       item.data.forEach((element) => {
