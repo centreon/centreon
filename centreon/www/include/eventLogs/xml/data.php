@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 /*
  * Copyright 2005-2021 Centreon
@@ -233,8 +236,8 @@ if (isset($sid) && $sid) {
 }
 
 // binding limit value
-$limit = $inputs['limit'];
-$num = $inputs['num'];
+$num = filter_var($inputs['num'], FILTER_VALIDATE_INT, ['options' => ['default' => 0, 'min_range' => 0]]);
+$limit = filter_var($inputs['limit'], FILTER_VALIDATE_INT, ['options' => ['default' => 30]]);
 
 $StartDate = isset($inputs["StartDate"]) ? htmlentities($inputs["StartDate"]) : "";
 $EndDate = isset($inputs["EndDate"]) ? $EndDate = htmlentities($inputs["EndDate"]) : "";
@@ -591,7 +594,7 @@ foreach ($tab_id as $openid) {
 }
 
 // Build final request
-$req = "SELECT SQL_CALC_FOUND_ROWS " . (!$is_admin ? "DISTINCT" : "") . "
+$req = "SELECT " . (!$is_admin ? "DISTINCT" : "") . "
         logs.ctime,
         logs.host_id,
         logs.host_name,
@@ -697,6 +700,7 @@ if (count($tab_host_ids) == 0 && count($tab_svc) == 0) {
  * calculate size before limit for pagination
  */
 if (isset($req) && $req) {
+    require_once '../Paginator.php';
     /*
      * Add Suffix for order
      */
@@ -709,9 +713,10 @@ if (isset($req) && $req) {
     if ($export !== "1") {
         $offset = $num * $limit;
         $queryValues['offset'] = [\PDO::PARAM_INT => $offset];
-        $queryValues['limit'] = [\PDO::PARAM_INT => $limit];
+        $queryValues['limit'] = [\PDO::PARAM_INT => ($limit * Paginator::PAGER_SPAN)];
         $limitReq = " LIMIT :offset, :limit";
     }
+
     $stmt = $pearDBO->prepare($req . $limitReq);
     foreach ($queryValues as $bindId => $bindData) {
         foreach ($bindData as $bindType => $bindValue) {
@@ -730,8 +735,7 @@ if (isset($req) && $req) {
 
     $logs = $stmt->fetchAll();
     $stmt->closeCursor();
-
-    $rows = $pearDBO->query("SELECT FOUND_ROWS()")->fetchColumn();
+    $rows = $stmt->rowCount();
 
     $buffer->startElement("selectLimit");
     for ($i = 10; $i <= 100; $i = $i + 10) {
@@ -740,100 +744,20 @@ if (isset($req) && $req) {
     $buffer->writeElement("limit", $limit);
     $buffer->endElement();
 
-    require_once _CENTREON_PATH_ . "www/include/common/checkPagination.php";
-    /*
-     * pagination
-     */
 
-    $pageArr = array();
-    $iStart = 0;
+    require_once './PaginationRenderer.php';
 
-    for ($i = 5, $iStart = $num; $iStart > 0 && $i > 0; $i--) {
-        $iStart--;
-    }
+    $paginator = new Paginator($num, $rows, $limit);
+    $pages = $paginator->generatePages();
 
-    for ($i2 = 0, $iEnd = $num; ($iEnd < ($rows / $limit - 1)) && ($i2 < (5 + $i)); $i2++) {
-        $iEnd++;
-    }
-
-    for ($i = $iStart; $i <= $iEnd; $i++) {
-        $pageArr[$i] = array("url_page" => "&num=" . $i . "&limit=" . $limit, "label_page" => ($i + 1), "num" => $i);
-    }
-
-    if ($i > 1) {
-        foreach ($pageArr as $key => $tab) {
-            $buffer->startElement("page");
-            if ($tab["num"] == $num) {
-                $buffer->writeElement("selected", "1");
-            } else {
-                $buffer->writeElement("selected", "0");
-            }
-            $buffer->writeElement("num", $tab["num"]);
-
-            $buffer->writeElement("url_page", $tab["url_page"]);
-            $buffer->writeElement("label_page", $tab["label_page"]);
-            $buffer->endElement();
-        }
-    }
-
-    $prev = $num - 1;
-    $next = $num + 1;
-
-    if ($num > 0) {
-        $buffer->startElement("first");
-        $buffer->writeAttribute("show", "true");
-        $buffer->text("0");
-        $buffer->endElement();
-    } else {
-        $buffer->startElement("first");
-        $buffer->writeAttribute("show", "false");
-        $buffer->text("none");
-        $buffer->endElement();
-    }
-
-    if ($num > 1) {
-        $buffer->startElement("prev");
-        $buffer->writeAttribute("show", "true");
-        $buffer->text($prev);
-        $buffer->endElement();
-    } else {
-        $buffer->startElement("prev");
-        $buffer->writeAttribute("show", "false");
-        $buffer->text("none");
-        $buffer->endElement();
-    }
-
-    if ($num < $page_max - 1) {
-        $buffer->startElement("next");
-        $buffer->writeAttribute("show", "true");
-        $buffer->text($next);
-        $buffer->endElement();
-    } else {
-        $buffer->startElement("next");
-        $buffer->writeAttribute("show", "false");
-        $buffer->text("none");
-        $buffer->endElement();
-    }
-
-    $last = $page_max - 1;
-
-    if ($num < $page_max - 1) {
-        $buffer->startElement("last");
-        $buffer->writeAttribute("show", "true");
-        $buffer->text($last);
-        $buffer->endElement();
-    } else {
-        $buffer->startElement("last");
-        $buffer->writeAttribute("show", "false");
-        $buffer->text("none");
-        $buffer->endElement();
-    }
+    $paginationRenderer = new PaginationRenderer($buffer);
+    $paginationRenderer->render($pages);
 
     /*
      * Full Request
      */
     $cpts = 0;
-    foreach ($logs as $log) {
+    foreach (array_slice($logs, 0, $limit) as $log) {
         $buffer->startElement("line");
         $buffer->writeElement("msg_type", $log["msg_type"]);
 
