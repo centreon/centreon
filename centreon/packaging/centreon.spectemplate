@@ -76,6 +76,7 @@ Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
 Requires:   bc
+Requires:   cronie
 Requires:   initscripts
 %if 0%{?el7}
 Requires:   httpd24
@@ -99,6 +100,8 @@ Requires:   php-curl
 Requires:   php-zip
 Requires:   php-pear
 Requires:   php-json
+Requires:   php-pecl-protobuf
+Requires:   php-pecl-grpc
 Requires:   openssl
 Requires:   perl-DBD-MySQL
 Requires:   perl-DBI
@@ -248,8 +251,8 @@ managed by Centreon. This includes the default central poller.
 %setup -q %{SOURCE0}
 %{__mkdir} additional
 %{__cp} %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} %{SOURCE9} %{SOURCE10} %{SOURCE11} %{SOURCE12} additional/
-%{__sed} -i -e "s|@@LIB_ARCH@@|%{_lib}|g" additional/centreon-macroreplacement.txt
-echo "s:@@LIB_ARCH@@:%{_lib}:g" >> additional/centreon-macroreplacement.txt
+%{__sed} -i -e "s|@LIB_ARCH@|%{_lib}|g" additional/centreon-macroreplacement.txt
+echo "s:@LIB_ARCH@:%{_lib}:g" >> additional/centreon-macroreplacement.txt
 
 %build
 
@@ -628,6 +631,13 @@ systemctl try-restart httpd24-httpd || :
 systemctl try-restart httpd || :
 %endif
 systemctl try-restart php-fpm || :
+
+%posttrans web
+
+# rebuild symfony cache on upgrade
+if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
+  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear --no-warmup"
+fi
 
 #%preun web
 #setsebool -P httpd_unified off 2>/dev/null || :
