@@ -192,7 +192,7 @@ describe('Anomaly detection - Graph', () => {
     cy.fixture('resources/anomalyDetectionPerformanceGraph.json').then(
       (data) => {
         cy.contains(data.global.title).should('be.visible');
-        data.metrics.map(({ legend }) =>
+        data.metrics.forEach(({ legend }) =>
           cy.contains(legend).should('be.visible')
         );
       }
