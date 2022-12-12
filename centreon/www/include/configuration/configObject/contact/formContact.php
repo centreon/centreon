@@ -502,7 +502,7 @@ if (! empty($aclUser)) {
         foreach (array_keys($topologies) as $page) {
             if (strlen($page) == 1) {
                 // MENU level 1
-                if (!array_key_exists($page, $parentsLvl)) {
+                if (! array_key_exists($page, $parentsLvl)) {
                     $parentsLvl[$page] = [];
                 }
             } elseif (strlen($page) == 3) {
