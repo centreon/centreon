@@ -508,7 +508,7 @@ if (! empty($aclUser)) {
             } elseif (strlen($page) == 3) {
                 // MENU level 2
                 $parentLvl1 = substr($page, 0, 1);
-                if (!array_key_exists($parentLvl1, $parentsLvl)) {
+                if (! array_key_exists($parentLvl1, $parentsLvl)) {
                     $parentsLvl[$parentLvl1] = [];
                 }
                 if (!array_key_exists($page, $parentsLvl[$parentLvl1])) {
