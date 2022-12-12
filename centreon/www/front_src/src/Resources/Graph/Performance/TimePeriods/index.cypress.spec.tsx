@@ -280,7 +280,7 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
 };
 
 testData.forEach((item) =>
-  describe(`calendar`, () => {
+  describe(`DateTimePicker`, () => {
     before(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
 
