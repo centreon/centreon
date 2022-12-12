@@ -433,7 +433,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                         $contactTemplate['default_page'],
                         (bool)$topology['is_react']
                     );
-                    if (!empty($topology['topology_url_opt'])) {
+                    if (! empty($topology['topology_url_opt'])) {
                         $page->setUrlOptions($data['topology_url_opt']);
                     }
                 }
