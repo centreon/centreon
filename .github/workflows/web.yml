@@ -67,7 +67,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -240,7 +240,7 @@ jobs:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
-          github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   package:
     needs: [
