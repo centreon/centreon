@@ -22,6 +22,8 @@ on:
         required: true
       nexus_password:
         required: true
+      token:
+        required: true
 
 jobs:
   behat-test-list:
