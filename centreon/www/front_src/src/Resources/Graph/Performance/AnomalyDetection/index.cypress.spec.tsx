@@ -404,7 +404,7 @@ describe('Anomaly detection - Global', () => {
       'getResourceListByType'
     );
     cy.displayFilterMenu();
-    filtersToBeDisplayedInTypeMenu.map((item) => cy.contains(item).click());
+    filtersToBeDisplayedInTypeMenu.forEach((item) => cy.contains(item).click());
     cy.get('[data-testid="Search"]').click();
     cy.matchImageSnapshot();
   });
