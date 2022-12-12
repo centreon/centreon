@@ -92,7 +92,8 @@ final class FindHostCategories
                 'id' => $hostCategory->getId(),
                 'name' => $hostCategory->getName(),
                 'alias' => $hostCategory->getAlias(),
-                'is_activated' => $hostCategory->isActivated()
+                'is_activated' => $hostCategory->isActivated(),
+                'comment' => $hostCategory->getComment(),
             ];
         }
 

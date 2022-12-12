@@ -86,10 +86,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $concat = new SqlConcatenator();
 
         if ($accessGroupIds === null) {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
                 FROM `:db`.hostcategories hc';
         } else {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate
+            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
                 FROM `:db`.hostcategories hc
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
                     ON hc.hc_id = arhr.hc_id
@@ -108,8 +108,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',
-            'alias' => 'hc.hc_alias',
             'name' => 'hc.hc_name',
+            'alias' => 'hc.hc_alias',
             'is_activated' => 'hc.hc_activate'
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
@@ -133,6 +133,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
                 $result['hc_alias']
             );
             $hostCategory->setActivated($result['hc_activate']);
+            $hostCategory->setComment($result['hc_comment']);
             $hostCategories[] = $hostCategory;
         }
 

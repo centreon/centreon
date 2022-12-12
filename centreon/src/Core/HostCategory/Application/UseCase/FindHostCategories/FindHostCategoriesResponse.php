@@ -26,7 +26,7 @@ namespace Core\HostCategory\Application\UseCase\FindHostCategories;
 final class FindHostCategoriesResponse
 {
     /**
-     * @var array<array{id:int,name:string,alias:string,is_activated:string}>
+     * @var array<array{id:int,name:string,alias:string,is_activated:string,comment:string|null}>
      */
     public array $hostCategories = [];
 }

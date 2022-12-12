@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
+use PhpParser\Node\Expr\Cast\String_;
 
 class NewHostCategory
 {
@@ -33,6 +34,7 @@ class NewHostCategory
                 IS_INACTIVE = '0';
 
     protected string $isActivated = self::IS_ACTIVE;
+    protected ?string $comment = null;
 
     public function __construct(
         protected string $name,
@@ -63,5 +65,15 @@ class NewHostCategory
     {
         Assertion::inArray($isActivated, [self::IS_ACTIVE, self::IS_INACTIVE], 'HostCategory::isActivated');
         $this->isActivated = $isActivated;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): void
+    {
+        $this->comment = $comment;
     }
 }

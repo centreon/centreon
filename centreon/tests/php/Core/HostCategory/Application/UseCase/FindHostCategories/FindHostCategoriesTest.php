@@ -49,12 +49,15 @@ beforeEach(function () {
     $this->presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
     $this->hostCategoryName = 'hc-name';
     $this->hostCategoryAlias = 'hc-alias';
+    $this->hostCategoryComment = 'blablabla';
     $this->hostCategory = new HostCategory(1, $this->hostCategoryName, $this->hostCategoryAlias);
+    $this->hostCategory->setComment($this->hostCategoryComment);
     $this->responseArray = [
         'id' => 1,
         'name' => $this->hostCategoryName,
         'alias' => $this->hostCategoryAlias,
-        'is_activated' => '1'
+        'is_activated' => '1',
+        'comment' => $this->hostCategoryComment,
     ];
 });
 
