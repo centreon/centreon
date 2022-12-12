@@ -393,7 +393,6 @@ jobs:
     secrets:
       username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-      token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
