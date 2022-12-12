@@ -253,7 +253,7 @@ if (!empty($aclUser)) {
                 if (!array_key_exists($parentLvl1, $parentsLvl)) {
                     $parentsLvl[$parentLvl1] = [];
                 }
-                if (!array_key_exists($page, $parentsLvl[$parentLvl1])) {
+                if (! array_key_exists($page, $parentsLvl[$parentLvl1])) {
                     $parentsLvl[$parentLvl1][$page] = [];
                 }
             } elseif (strlen($page) == 5) {
