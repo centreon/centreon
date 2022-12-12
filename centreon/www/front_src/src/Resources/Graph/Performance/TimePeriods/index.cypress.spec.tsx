@@ -354,7 +354,7 @@ testData.forEach((item) =>
       });
     });
 
-    it(`checks that the first day must match with the start of the week when the ${item.button} button is clicked`, () => {
+    it(`displays the first day as the start of the week when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
 
       item.data.forEach((element) => {
