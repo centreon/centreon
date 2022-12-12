@@ -14,7 +14,9 @@ import { IconButton, putData, useRequest } from '@centreon/ui';
 
 import { ResourceDetails, Sensitivity } from '../../../Details/models';
 import {
+  labelAdd,
   labelCancel,
+  labelDelete,
   labelMenageEnvelope,
   labelMenageEnvelopeSubTitle,
   labelPointsOutsideOfEnvelopeCount,
@@ -266,7 +268,11 @@ const AnomalyDetectionSlider = ({
 
       <div className={classes.body}>
         <div className={classes.bodyContainer}>
-          <IconButton data-testid="remove" size="small" onClick={handleRemove}>
+          <IconButton
+            data-testid={labelDelete}
+            size="small"
+            onClick={handleRemove}
+          >
             <div className={classes.icon}>
               <RemoveIcon fontSize="small" />
               <Typography variant="subtitle2">
@@ -288,7 +294,7 @@ const AnomalyDetectionSlider = ({
             valueLabelDisplay="on"
             onChange={handleChangeSlider}
           />
-          <IconButton data-testid="add" size="small" onClick={handleAdd}>
+          <IconButton data-testid={labelAdd} size="small" onClick={handleAdd}>
             <div className={classes.icon}>
               <AddIcon fontSize="small" />
               <Typography variant="subtitle2">

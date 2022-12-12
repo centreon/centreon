@@ -277,3 +277,5 @@ export const labelClose = 'Close';
 export const labelSearchBar = 'Search bar';
 export const labelSlider = 'Slider';
 export const labelCloseEditModal = 'Close edit modal';
+export const labelModalEditAnomalyDetection = 'Edit modal';
+export const labelModalConfirmation = 'Modal confirmation';

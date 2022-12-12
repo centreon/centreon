@@ -7,7 +7,12 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
 
-import { labelClose, labelCloseEditModal } from '../../../translatedLabels';
+import {
+  labelClose,
+  labelCloseEditModal,
+  labelModalConfirmation,
+  labelModalEditAnomalyDetection
+} from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
 import AnomalyDetectionExclusionPeriod from './AnomalyDetectionExclusionPeriod';
@@ -113,7 +118,7 @@ const EditAnomalyDetectionDataDialog = ({
   return (
     <Dialog
       className={classes.container}
-      data-testid="modalEditAnomalyDetection"
+      data-testid={labelModalEditAnomalyDetection}
       open={showModalAnomalyDetection}
     >
       <div>
@@ -133,7 +138,7 @@ const EditAnomalyDetectionDataDialog = ({
           </Paper>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation
-          dataTestid="modalConfirmation"
+          dataTestid={labelModalConfirmation}
           open={isModalConfirmationOpened}
           sendCancel={cancelResizeEnvelope}
           sendConfirm={resizeEnvelope}
