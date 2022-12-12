@@ -121,7 +121,7 @@ describe('Anomaly detection - Filter', () => {
 
   it('displays the Anomaly detection criteria value on search proposition when user types type: in the search bar', () => {
     cy.get('input[placeholder=Search]').type('type:');
-    filtersToBeDisplayedInSearchBar.map((item) =>
+    filtersToBeDisplayedInSearchBar.forEach((item) =>
       cy.contains(item).should('be.visible')
     );
   });
