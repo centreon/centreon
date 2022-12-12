@@ -228,8 +228,6 @@ function moveImg($img_id, $dir_alias)
         $dir_alias = $image_info_dir_alias;
     }
     if ($dir_alias != $img_info["dir_alias"]) {
-
-
         $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
         $newpath = $mediadir . $dir_alias . "/" . $image_info_path;
 
