@@ -242,6 +242,8 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
           check_run_annotations: none
+          ignore_runs: true
+          compare_to_earlier_commit: false
           github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   package:
