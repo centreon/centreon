@@ -107,11 +107,9 @@ describe('Anomaly detection - Filter', () => {
   it('displays the Anomaly detection criteria value in the search bar when the corresponding type criteria is selected', () => {
     cy.displayFilterMenu();
 
-    filtersToBeDisplayedInTypeMenu.map((item) => {
+    filtersToBeDisplayedInTypeMenu.forEach((item) => {
       cy.contains(item).should('be.visible').click();
       cy.get('input[type="checkbox"]').should('be.checked');
-
-      return null;
     });
 
     cy.get(`[data-testid="${labelSearchBar}"]`)
