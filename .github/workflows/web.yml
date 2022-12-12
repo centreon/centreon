@@ -379,6 +379,7 @@ jobs:
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   e2e-test:
     needs: [get-version, dockerize]
