@@ -67,7 +67,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-          token: ${{ secrets.KDU_TOKEN }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -157,7 +157,7 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
-          token: ${{ secrets.KDU_TOKEN }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -185,6 +185,7 @@ jobs:
         with:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
+          check_run_annotations: none
           junit_files: "centreon/junit.xml"
           github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
@@ -240,7 +241,8 @@ jobs:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
-          github_token: ${{ secrets.KDU_TOKEN }}
+          check_run_annotations: none
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   package:
     needs: [
