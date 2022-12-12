@@ -52,7 +52,7 @@ class FindHostCategoriesPresenter extends AbstractPresenter
                 'name' => $hostCategory['name'],
                 'alias' => $hostCategory['alias'],
                 'is_activated' => $hostCategory['is_activated'] === HostCategory::IS_ACTIVE ? true : false,
-                'comment' => $hostCategory['comment'],
+                'comments' => $hostCategory['comment'],
             ];
         }
 
