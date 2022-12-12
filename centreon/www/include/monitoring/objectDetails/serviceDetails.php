@@ -301,11 +301,11 @@ if (!is_null($host_id)) {
             if (isset($data['performance_data'])) {
                 $data['performance_data'] = $data['performance_data'];
             }
-            if ($data["service_description"] == $svc_description) {
-                $service_status = $data;
-            }
             if ($data["current_state"] === null || !in_array($data["current_state"], array_keys($tab_status_service))) {
                 $data["current_state"] = 4; // default to PENDING
+            }
+            if ($data["service_description"] == $svc_description) {
+                $service_status = $data;
             }
             if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
                 $tab_status[$tab_status_service[$data["current_state"]]] = 0;
