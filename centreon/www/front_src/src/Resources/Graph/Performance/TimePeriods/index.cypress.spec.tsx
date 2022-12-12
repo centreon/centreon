@@ -403,7 +403,7 @@ testData.forEach((item) =>
       });
     });
 
-    it(`display the month and the year in the calendar's header ,when the ${item.button} button is clicked`, () => {
+    it(`displays the month and the year in the calendar's header when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
