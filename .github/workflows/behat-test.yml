@@ -22,8 +22,9 @@ on:
         required: true
       nexus_password:
         required: true
-      composer_token:
+      token:
         required: true
+        default: ${{ github.token }}
 
 jobs:
   behat-test-list:
@@ -74,7 +75,7 @@ jobs:
           php-version: 8.1
           coverage: none
         env:
-          COMPOSER_TOKEN: ${{ secrets.composer_token }}
+          COMPOSER_TOKEN: ${{ secrets.token }}
           runner: ubuntu-22.04
 
       - name: Setup docker compose
@@ -145,3 +146,4 @@ jobs:
           check_name: ${{ inputs.name }}-tests-report
           comment_mode: failures
           junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          github_token: ${{ secrets.token }}

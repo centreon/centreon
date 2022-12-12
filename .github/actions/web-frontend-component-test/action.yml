@@ -4,6 +4,10 @@ inputs:
   working_directory:
     description: The frontend directory
     required: true
+  token:
+    description: 'GitHub API Access Token'
+    default: ${{ github.token }}
+    required: false
 
 runs:
   using: "composite"
@@ -34,3 +38,4 @@ runs:
         check_name: web-frontend-component-tests-report
         comment_mode: failures
         junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml
+        github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}

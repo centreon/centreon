@@ -156,6 +156,7 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
+          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -184,6 +185,7 @@ jobs:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon/junit.xml"
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   frontend-component-test:
     runs-on: ubuntu-22.04
@@ -197,6 +199,7 @@ jobs:
       - uses: ./.github/actions/web-frontend-component-test
         with:
           working_directory: centreon
+          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -231,6 +234,7 @@ jobs:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   package:
     needs: [
@@ -361,21 +365,20 @@ jobs:
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   legacy-e2e-test:
     needs: [dockerize, changes]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
-      name: e2e
+      name: legacy-e2e
       module_name: centreon
       image_name: centreon-web
       features_path: features
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
     needs: [get-version, dockerize]
@@ -389,6 +392,7 @@ jobs:
     secrets:
       username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
