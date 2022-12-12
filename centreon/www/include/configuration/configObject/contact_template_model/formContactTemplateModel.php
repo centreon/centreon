@@ -266,7 +266,7 @@ if (!empty($aclUser)) {
                 if (! array_key_exists($parentLvl2, $parentsLvl[$parentLvl1])) {
                     $parentsLvl[$parentLvl1][$parentLvl2] = [];
                 }
-                if (!in_array($page, $parentsLvl[$parentLvl1][$parentLvl2])) {
+                if (! in_array($page, $parentsLvl[$parentLvl1][$parentLvl2])) {
                     $parentsLvl[$parentLvl1][$parentLvl2][] = $page;
                 }
             }
