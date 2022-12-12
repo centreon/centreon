@@ -13,10 +13,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
-
-import DateTimePickerInput from './DateTimePickerInput';
+import { CustomTimePeriodProperty } from './Details/tabs/Graph/models';
+import useDateTimePickerAdapter from './useDateTimePickerAdapter';
+import DateTimePickerInput from './Graph/Performance/TimePeriods/DateTimePickerInput';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -256,20 +255,26 @@ interface GetPreviousNextMonth {
   labelButton: string;
 }
 
-const getPreviousNextMonth = ({
+const getNextMonth = ({
   currentMonth,
   labelButton
-}: GetPreviousNextMonth): void => {
-  if (equals(labelButton, ButtonCalendar.PMONTH)) {
-    if (!equals(currentMonth, 'January')) {
-      cy.get(`[aria-label="${labelButton}"]`).click();
-    }
+}: GetPreviousNextMonth): Cypress.Chainable | null => {
+  if (equals(currentMonth, 'December')) {
+    return null;
   }
-  if (equals(labelButton, ButtonCalendar.NMONTH)) {
-    if (!equals(currentMonth, 'December')) {
-      cy.get(`[aria-label="${labelButton}"]`).click();
-    }
+
+  return cy.get(`[aria-label="${labelButton}"]`).click();
+};
+
+const getPreviousMonth = ({
+  currentMonth,
+  labelButton
+}: GetPreviousNextMonth): Cypress.Chainable | null => {
+  if (equals(currentMonth, 'January')) {
+    return null;
   }
+
+  return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
 const changeDate = (): void => undefined;
@@ -328,7 +333,12 @@ testData.forEach((item) =>
         cy.get('@days').should('have.length', lastDay.value);
 
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -350,7 +360,11 @@ testData.forEach((item) =>
         });
 
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -373,7 +387,11 @@ testData.forEach((item) =>
         cy.get('@firstDayInWeek').contains(firstDay.value);
 
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -399,7 +417,11 @@ testData.forEach((item) =>
           .as('lastDayInWeek');
         cy.get('@lastDayInWeek').contains(lastDay.value);
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -417,7 +439,11 @@ testData.forEach((item) =>
         });
         cy.contains(monthAndYear);
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -441,7 +467,11 @@ testData.forEach((item) =>
         );
         daysArray.forEach((day) => cy.contains(day.toUpperCase()));
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
 
@@ -456,7 +486,11 @@ testData.forEach((item) =>
         );
 
         const currentMonth = Object.keys(element)[0];
-        getPreviousNextMonth({ currentMonth, labelButton: item.button });
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
       });
     });
   })
