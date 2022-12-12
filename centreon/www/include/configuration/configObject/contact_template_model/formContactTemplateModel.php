@@ -224,7 +224,7 @@ $form->addElement('select', 'contact_template_id', _("Contact template used"), $
 /* ------------------------ Topoogy ---------------------------- */
 $pages = [];
 $aclUser = $centreon->user->lcaTStr;
-if (!empty($aclUser)) {
+if (! empty($aclUser)) {
     $acls = array_flip(explode(',', $aclUser));
     /**
      * Transform [1, 2, 101, 202, 10101, 20201] to :
