@@ -98,7 +98,7 @@ describe('Anomaly detection - Filter', () => {
 
   it('displays the Anomaly detection criteria value when the type criteria chip is clicked and centreon-anomaly-detection is installed', () => {
     cy.displayFilterMenu();
-    filtersToBeDisplayedInTypeMenu.map((item) =>
+    filtersToBeDisplayedInTypeMenu.forEach((item) =>
       cy.contains(item).should('be.visible')
     );
     cy.clickOutside();
