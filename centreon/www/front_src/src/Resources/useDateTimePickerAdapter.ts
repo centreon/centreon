@@ -288,12 +288,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         [currentStart]
       );
 
-      const arrayWeeks = this.getChunkFromArray({
+      const weeksArray = this.getChunkFromArray({
         array: daysOfMonthWithTimezone,
         size: 7
       });
 
-      return arrayWeeks as Array<Array<dayjs.Dayjs>>;
+      return weeksArray as Array<Array<dayjs.Dayjs>>;
     };
 
     public mergeDateAndTime = (
