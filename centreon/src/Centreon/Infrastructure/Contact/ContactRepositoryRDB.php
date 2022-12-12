@@ -405,7 +405,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         } else {
             if ($contact['contact_template_id'] !== null) {
                 $request = $this->translateDbName(
-                    "SELECT contact.* FROM `:db`.contact WHERE contact_id = :contact_template_id"
+                    "SELECT default_page FROM `:db`.contact WHERE contact_id = :contact_template_id"
                 );
                 $statement = $this->db->prepare($request);
                 $statement->bindValue(
