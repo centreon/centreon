@@ -279,7 +279,7 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
 };
 
-dataTest.forEach((item) =>
+testData.forEach((item) =>
   describe(`calendar`, () => {
     before(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
