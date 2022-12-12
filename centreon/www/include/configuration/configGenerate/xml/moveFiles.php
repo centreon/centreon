@@ -252,17 +252,17 @@ try {
             "FROM `view_img`, `view_img_dir`, `view_img_dir_relation` " .
             "WHERE dir_dir_parent_id = dir_id AND img_img_id = img_id"
         );
-        $NagiosPathImg = basename($centreon->optGen["nagios_path_img"]);
+        $nagiosPathImg = basename($centreon->optGen["nagios_path_img"]);
         while ($images = $DBRESULT_imgs->fetchrow()) {
             $dirAlias = basename($images["dir_alias"]);
             $imgName = basename($images["img_path"]);
-            if (!is_dir($NagiosPathImg . "/" . $dirAlias)) {
-                $mkdirResult = @mkdir($NagiosPathImg . "/" . $dirAlias);
+            if (!is_dir($nagiosPathImg . "/" . $dirAlias)) {
+                $mkdirResult = @mkdir($nagiosPathImg . "/" . $dirAlias);
             }
             if (file_exists(_CENTREON_PATH_ . "www/img/media/" . $dirAlias . "/" . $imgName)) {
                 $copyResult = @copy(
                     _CENTREON_PATH_ . "www/img/media/" . $dirAlias . "/" . $imgName,
-                    $NagiosPathImg . "/" . $dirAlias . "/" . $imgName
+                    $nagiosPathImg . "/" . $dirAlias . "/" . $imgName
                 );
             }
         }
