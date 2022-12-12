@@ -133,7 +133,7 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: pnpm/action-setup@v2
@@ -161,7 +161,7 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -190,7 +190,7 @@ jobs:
   frontend-component-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - name: Checkout sources
@@ -204,7 +204,7 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -354,7 +354,7 @@ jobs:
 
   api-integration-test:
     needs: [dockerize, changes]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    #if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -369,7 +369,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [dockerize, changes]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    #if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
