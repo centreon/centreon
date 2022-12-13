@@ -41,6 +41,6 @@ runs:
           version: ${{ env.BASE_VERSION }}
           compare-to: ${{ env.NEW_VERSION }}
 
-      - name: Result
-        run: '[[ "<" == "${{ steps.check-versions.outputs.comparison-result }}" ]]'
+      - name: Result comparison
+        run: '[[ "<" == "${{ steps.check-versions.outputs.comparison-result }}" || "=" == "${{ steps.check-versions.outputs.comparison-result }}" ]] && echo "The version is valid" || (echo "The version is invalid. Please upgrade your package.json to ${{ env.BASE_VERSION }}" && exit 1)'
         shell: bash
