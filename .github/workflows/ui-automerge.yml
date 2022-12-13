@@ -1,4 +1,4 @@
-name: ui-context-automerge
+name: ui-automerge
 on:
   pull_request:
     types:
