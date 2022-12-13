@@ -29,7 +29,8 @@ use PhpParser\Node\Expr\Cast\String_;
 class NewHostCategory
 {
     public const MAX_NAME_LENGTH = 200,
-                MAX_ALIAS_LENGTH = 200;
+                MAX_ALIAS_LENGTH = 200,
+                MAX_COMMENT_LENGTH = 65535;
     public const IS_ACTIVE = '1',
                 IS_INACTIVE = '0';
 
@@ -74,6 +75,9 @@ class NewHostCategory
 
     public function setComment(?string $comment): void
     {
+        if ($comment !== null) {
+            Assertion::maxLength($comment, self::MAX_COMMENT_LENGTH, 'HostCategory::comment');
+        }
         $this->comment = $comment;
     }
 }

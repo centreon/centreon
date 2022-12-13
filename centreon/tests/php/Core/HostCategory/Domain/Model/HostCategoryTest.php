@@ -80,6 +80,19 @@ it('should throw an exception when host category alias is too long', function ()
     )->getMessage()
 );
 
+it('should throw an exception when host category comment is too long', function () {
+    $hostCategory = new HostCategory(1, $this->categoryName, $this->categoryAlias);
+    $hostCategory->setComment(str_repeat('a', HostCategory::MAX_COMMENT_LENGTH + 1));
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', HostCategory::MAX_COMMENT_LENGTH + 1),
+        HostCategory::MAX_COMMENT_LENGTH + 1,
+        HostCategory::MAX_COMMENT_LENGTH,
+        'HostCategory::comment'
+    )->getMessage()
+);
+
 it('should throw an exception when host category activation status is not valid', function () {
     $hostCategory = new HostCategory(1, $this->categoryName, $this->categoryAlias);
     $hostCategory->setActivated('test');
