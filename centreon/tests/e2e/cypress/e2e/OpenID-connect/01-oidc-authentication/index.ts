@@ -30,6 +30,7 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged on the platform', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@getNavigationList')
     .navigateTo({
@@ -123,6 +124,7 @@ Then(
 );
 
 Given('an administrator is relogged on the platform', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@getNavigationList')
     .navigateTo({
@@ -171,14 +173,16 @@ When(
 Then(
   'any user can authenticate using the authentication provider that is configured',
   () => {
-    cy.get('a')
-      .click()
-      .loginKeycloack('user-non-admin-for-OIDC-authentication')
-      .wait('@getNavigationList')
-      .url()
-      .should('include', '/monitoring/resources')
-      .logout()
-      .reload();
+    cy.session('AUTH_SESSION_ID_LEGACY', () => {
+      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.get('a')
+        .loginKeycloack('user-non-admin-for-OIDC-authentication')
+        .wait('@getNavigationList')
+        .url()
+        .should('include', '/monitoring/resources')
+        .logout()
+        .reload();
+    });
   }
 );
 

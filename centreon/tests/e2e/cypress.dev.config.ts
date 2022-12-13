@@ -12,6 +12,7 @@ export default defineConfig({
     baseUrl: 'http://0.0.0.0:4000',
 
     excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+    experimentalSessionAndOrigin: true,
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents,
