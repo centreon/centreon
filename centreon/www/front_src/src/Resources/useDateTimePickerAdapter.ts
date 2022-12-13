@@ -85,8 +85,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     [timezone],
   );
 
+  interface Chunk {
+    array: Array<unknown>;
+    size: number;
+  }
   class Adapter extends DayjsAdapter {
-    public formatByString = (value, formatKey: string): string => {
+    public format = (value, formatKey: string): string => {
       return format({
         date: value.tz(timezone),
         formatString: formatKey,
@@ -101,13 +105,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return equals(
         format({ date: value, formatString: 'LT' }),
         format({ date: comparing, formatString: 'LT' }),
-      );
-    };
-
-    public format = (date: dayjs.Dayjs, formatKey: string): string => {
-      return this.formatByString(
-        date.tz(timezone, true),
-        this.formats[formatKey],
       );
     };
 
