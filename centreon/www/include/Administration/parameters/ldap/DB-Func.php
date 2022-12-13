@@ -62,7 +62,7 @@ function checkLdapFilterSyntax(string $filterValue): bool
         return false;
     }
 
-    if (!preg_match('/^(\s*\((?:[&|](?1)+|(?:!(?1))|[a-zA-Z][a-zA-Z0-9-]*[<>~]?=[^()]*)\s*\)\s*)$/', $filterValue)) {
+    if (! preg_match('/^(\s*\((?:[&|](?1)+|(?:!(?1))|[a-zA-Z][a-zA-Z0-9-]*[<>~]?=[^()]*)\s*\)\s*)$/', $filterValue)) {
         return false;
     }
 
