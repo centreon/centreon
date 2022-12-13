@@ -79,6 +79,7 @@ runs:
       if: ${{ inputs.is_release == false }}
       run: |
         echo "No it is not a release"
+      shell: bash
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
