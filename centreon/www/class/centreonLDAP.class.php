@@ -97,7 +97,7 @@ class CentreonLDAP
 
         $connectionTimeout = null;
         $dbConnectionTimeout = $this->getLdapHostParameters($arId, 'ldap_connection_timeout');
-        if (!empty($dbConnectionTimeout['ari_value'])) {
+        if (! empty($dbConnectionTimeout['ari_value'])) {
             $connectionTimeout = $dbConnectionTimeout['ari_value'];
         }
 
