@@ -28,6 +28,12 @@ class PaginationRenderer
     {
     }
 
+    /**
+     * Renders navigation pages as xml nodes
+     *
+     * @param <string|int, <string|int|bool>> $pages
+     * @return void
+     */
     public function render(array $pages): void
     {
         if (count($pages) <= 1) {
@@ -35,19 +41,26 @@ class PaginationRenderer
         }
 
         $previousBtnText = array_key_exists('previous', $pages) ? $pages['previous']['num'] : null;
-        $this->renderNavigation('prev', (string) $previousBtnText);
+        $this->addNavigation('prev', (string) $previousBtnText);
 
         foreach ($pages as $key => $page) {
             if (is_numeric($key)) {
-                $this->renderPage($page);
+                $this->addPage($page);
             }
         }
 
         $nextBtnText = array_key_exists('next', $pages) ? $pages['next']['num'] : null;
-        $this->renderNavigation('next', (string) $nextBtnText);
+        $this->addNavigation('next', (string) $nextBtnText);
     }
 
-    private function renderNavigation(string $elName, ?string $text): void
+    /**
+     * Ads next or previous page into the xml as a new node
+     *
+     * @param string $elName
+     * @param string|null $text
+     * @return void
+     */
+    private function addNavigation(string $elName, ?string $text): void
     {
         $this->buffer->startElement($elName);
         if (is_string($text)) {
@@ -60,7 +73,13 @@ class PaginationRenderer
         $this->buffer->endElement();
     }
 
-    private function renderPage(array $page)
+    /**
+     * Ads navigation page into the xml as a new node
+     *
+     * @param array $page
+     * @return void
+     */
+    private function addPage(array $page)
     {
         $this->buffer->startElement('page');
         $this->buffer->writeElement('selected', $page['active'] ? '1' : '0');
