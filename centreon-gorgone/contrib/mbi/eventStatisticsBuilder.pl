@@ -55,8 +55,10 @@ sub new {
         'host-only'         => \$self->{moptions}->{host_only},
         'service-only'      => \$self->{moptions}->{service_only},
         'availability-only' => \$self->{moptions}->{availability_only},
-        'events-only'       => \$self->{moptions}->{events_only}
+        'events-only'       => \$self->{moptions}->{events_only},
+        'no-purge'          => \$self->{moptions}->{nopurge}
     );
+
     return $self;
 }
 
