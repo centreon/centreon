@@ -31,7 +31,7 @@ use Core\Application\Common\UseCase\{
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\{ExtraTimePeriod, Template, TimePeriod, TimeRange};
+use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 
 class UpdateTimePeriod
 {
@@ -92,6 +92,12 @@ class UpdateTimePeriod
     {
         $timePeriod->setName($request->name);
         $timePeriod->setAlias($request->alias);
+        $timePeriod->setDays(array_map(function (array $day): Day {
+                return new Day(
+                    $day['day'],
+                    new TimeRange($day['time_range']),
+                );
+            }, $request->days));
         $timePeriod->setTemplates(
             array_map(function (int $templateId): Template {
                 return new Template($templateId, 'name_not_used');

@@ -72,9 +72,13 @@ Feature:
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": {},
+            "search": {
+                "$and": {
+                    "name": "test_name"
+                }
+            },
             "sort_by": {},
-            "total": 7
+            "total": 1
         }
     }
     """
@@ -113,6 +117,84 @@ Feature:
     }
     """
 
+    When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
+    """
+    {
+        "name": "test_name2",
+        "alias": "test_alias2",
+        "days": [
+            {
+                "day": 1,
+                "time_range": "06:30-07:01"
+            },
+            {
+                "day": 7,
+                "time_range": "06:30-07:00,09:00-10:31"
+            }
+        ],
+        "templates": [
+            2
+        ],
+        "exceptions": [
+            {
+                "day_range": "monday 2",
+                "time_range": "06:00-07:01"
+            }
+        ]
+    }
+    """
+    Then the response code should be 204
+
+    When I send a GET request to '/api/latest/configuration/timeperiods?search={"name": "test_name2"}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "result": [
+            {
+                "id": 5,
+                "name": "test_name2",
+                "alias": "test_alias2",
+                "days": [
+                    {
+                        "day": 1,
+                        "time_range": "06:30-07:01"
+                    },
+                    {
+                        "day": 7,
+                        "time_range": "06:30-07:00,09:00-10:31"
+                    }
+                ],
+                "templates": [
+                    {
+                        "id": 2,
+                        "alias": "Never"
+                    }
+                ],
+                "exceptions": [
+                    {
+                        "id": 2,
+                        "day_range": "monday 2",
+                        "time_range": "06:00-07:01"
+                    }
+                ]
+            }
+        ],
+        "meta": {
+            "page": 1,
+            "limit": 10,
+            "search": {
+                "$and": {
+                    "name": "test_name2"
+                }
+            },
+            "sort_by": {},
+            "total": 1
+        }
+    }
+    """
+
+
     When I send a DELETE request to '/api/latest/configuration/timeperiods/5'
     Then the response code should be 204
 
@@ -125,7 +207,11 @@ Feature:
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": {},
+            "search": {
+                "$and": {
+                    "name": "test_name"
+                }
+            },
             "sort_by": {},
             "total": 0
         }
