@@ -105,12 +105,7 @@ Cypress.Commands.add(
         cy.get('#password').clear().type(credential.password);
       })
       .get('#kc-login')
-      .click()
-      .then(() => {
-        Cypress.Cookies.defaults({
-          preserve: ['KC_RESTART', 'AUTH_SESSION_ID_LEGACY', 'PHPSESSID']
-        });
-      });
+      .click();
   }
 );
 
