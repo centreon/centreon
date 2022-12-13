@@ -69,18 +69,6 @@ runs:
         tag: ${{ env.TAG }}
         token: ${{ inputs.npm_token }}
 
-    - name: Test release condition
-      if: ${{ inputs.release_type == 'stable' }}
-      run: |
-        echo "Yes it is a release"
-      shell: bash
-    
-    - name: Test release condition
-      if: ${{ inputs.release_type == 'beta' }}
-      run: |
-        echo "No it is not a release"
-      shell: bash
-
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       if: ${{ inputs.release_type == 'stable' }}
