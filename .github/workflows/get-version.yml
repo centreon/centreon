@@ -99,5 +99,6 @@ jobs:
               STABILITY="canary"
               ;;
           esac
-          echo "stability=$STABILITY" >> $GITHUB_OUTPUT
+          #echo "stability=$STABILITY" >> $GITHUB_OUTPUT
+          echo "stability=unstable" >> $GITHUB_OUTPUT
         shell: bash
