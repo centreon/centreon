@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/lab';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -76,7 +76,6 @@ const DateTimePickerInput = ({
       PopperProps={{
         open: isOpen,
       }}
-      dayOfWeekFormatter={(day): string => day.substring(0, 2).toUpperCase()}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
