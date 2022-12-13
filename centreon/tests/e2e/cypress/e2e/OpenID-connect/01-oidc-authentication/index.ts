@@ -175,7 +175,8 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit(`${Cypress.config().baseUrl}`);
-      cy.get('a')
+      cy.contains('Login with openid')
+        .click()
         .loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
@@ -227,17 +228,20 @@ When(
 Then(
   'only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate',
   () => {
-    cy.clearCookies()
-      .loginKeycloack('admin')
-      .get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.')
-      .loginKeycloack('user-non-admin-for-OIDC-authentication')
-      .wait('@getNavigationList')
-      .url()
-      .should('include', '/monitoring/resources')
-      .logout()
-      .reload();
+    Cypress.session.clearAllSavedSessions();
+    cy.session('AUTH_SESSION_ID_LEGACY_2', () => {
+      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.loginKeycloack('admin')
+        .get('#input-error')
+        .should('be.visible')
+        .and('include.text', 'Invalid username or password.')
+        .loginKeycloack('user-non-admin-for-OIDC-authentication')
+        .wait('@getNavigationList')
+        .url()
+        .should('include', '/monitoring/resources')
+        .logout()
+        .reload();
+    });
   }
 );
 
