@@ -50,8 +50,8 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          nexus_username: ${{ secrets.artifactory_username }}
-          nexus_password: ${{ secrets.artifactory_password }}
+          nexus_username: ${{ secrets.nexus_username}}
+          nexus_password: ${{ secrets.nexus_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
