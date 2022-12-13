@@ -27,11 +27,12 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategory;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
+use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryResponse;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 beforeEach(function () {
@@ -42,29 +43,30 @@ beforeEach(function () {
     $this->request = new CreateHostCategoryRequest();
     $this->request->name = 'hc-name';
     $this->request->alias = 'hc-alias';
+    $this->request->comment = null;
+    $this->presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
+    $this->useCase = new CreateHostCategory(
+        $this->writeHostCategoryRepository,
+        $this->readHostCategoryRepository,
+        $this->user
+    );
 });
 
 it('should present an ForbiddenResponse when a user has unsufficient rights', function (): void {
-    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
-    $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    $useCase($this->request, $presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe('You are not allowed to create host categories');
 });
 
 it('should present a InvalidArgumentResponse when name is already used', function () {
-    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
-    $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -74,18 +76,15 @@ it('should present a InvalidArgumentResponse when name is already used', functio
         ->method('existsByName')
         ->willReturn(true);
 
-    $useCase($this->request, $presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe('Host category name already exists');
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
-    $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -99,18 +98,15 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('create')
         ->willThrowException(new \Exception());
 
-    $useCase($this->request, $presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe('Error while creating host category');
 });
 
-it('should present a NoContentResponse on success', function () {
-    $useCase = new CreateHostCategory($this->writeHostCategoryRepository,$this->readHostCategoryRepository, $this->user);
-    $presenter = new CreateHostCategoryPresenterStub($this->presenterFormatter);
-
+it('should return created object on success', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -121,10 +117,20 @@ it('should present a NoContentResponse on success', function () {
         ->willReturn(false);
     $this->writeHostCategoryRepository
         ->expects($this->once())
-        ->method('create');
+        ->method('create')
+        ->willReturn(1);
 
-    $useCase($this->request, $presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->response)
+        ->toBeInstanceOf(CreateHostCategoryResponse::class)
+        ->and($this->presenter->response->hostCategory)
+        ->toBe([
+            'id' => 1,
+            'name' => $this->request->name,
+            'alias' => $this->request->alias,
+            'is_activated' => HostCategory::IS_ACTIVE,
+            'comment' => null,
+        ]);
 });
 

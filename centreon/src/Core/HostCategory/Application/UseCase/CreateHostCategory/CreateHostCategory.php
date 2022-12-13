@@ -29,7 +29,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -57,29 +56,36 @@ final class CreateHostCategory
                 $presenter->setResponseStatus(
                     new ForbiddenResponse('You are not allowed to create host categories')
                 );
-
-                return;
-            }
-
-            $hostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
-
-            if ($this->readHostCategoryRepository->existsByName($hostCategory->getName())) {
+            } elseif ($this->readHostCategoryRepository->existsByName(trim($request->name))) {
                 $this->error('Host category name already exists', [
                     'hostcategory_name' => trim($request->name),
                 ]);
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse('Host category name already exists')
                 );
+            } else {
+                $hostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
+                $hostCategory->setComment($request->comment ? trim($request->comment) : null);
+                $hostCategoryId = $this->writeHostCategoryRepository->create($hostCategory);
 
-                return;
+                $presenter->present($this->createResponse($hostCategoryId, $hostCategory));
             }
-
-            $this->writeHostCategoryRepository->create($hostCategory);
-
-            $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while creating host category'));
             $this->error($ex->getMessage());
         }
+    }
+
+    private function createResponse(int $hostCategoryId, NewHostCategory $hostCategory): CreateHostCategoryResponse
+    {
+        $response = new CreateHostCategoryResponse();
+        $response->hostCategory = [
+                'id' => $hostCategoryId,
+                'name' => $hostCategory->getName(),
+                'alias' => $hostCategory->getAlias(),
+                'is_activated' => $hostCategory->isActivated(),
+                'comment' => $hostCategory->getComment(),
+            ];
+        return $response;
     }
 }

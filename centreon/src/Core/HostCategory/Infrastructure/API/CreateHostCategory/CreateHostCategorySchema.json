@@ -13,6 +13,9 @@
         },
         "alias": {
             "type": "string"
+        },
+        "comments": {
+            "type": ["string","null"]
         }
     }
 }

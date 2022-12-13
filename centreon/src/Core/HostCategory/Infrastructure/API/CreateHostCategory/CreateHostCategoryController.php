@@ -26,7 +26,7 @@ namespace Core\HostCategory\Infrastructure\API\CreateHostCategory;
 use Centreon\Application\Controller\AbstractController;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategory;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\HostCategory\Infrastructure\API\CreateHostCategory\CreateHostCategoryPresenter;
 use Symfony\Component\HttpFoundation\Request;
 
 final class CreateHostCategoryController extends AbstractController
@@ -34,11 +34,11 @@ final class CreateHostCategoryController extends AbstractController
     public function __invoke(
         Request $request,
         CreateHostCategory $useCase,
-        DefaultPresenter $presenter
+        CreateHostCategoryPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        /** @var array{name:string,alias:string} $data */
+        /** @var array{name:string,alias:string,comments:string|null} $data */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/CreateHostCategorySchema.json');
 
         $hostCategoryRequest = $this->createRequestDto($data);
@@ -49,7 +49,7 @@ final class CreateHostCategoryController extends AbstractController
     }
 
     /**
-     * @param array{name:string,alias:string} $data
+     * @param array{name:string,alias:string,comments:string|null} $data
      * @return CreateHostCategoryRequest
      */
     private function createRequestDto(array $data): CreateHostCategoryRequest
@@ -57,6 +57,7 @@ final class CreateHostCategoryController extends AbstractController
         $hostCategoryRequest = new CreateHostCategoryRequest();
         $hostCategoryRequest->name = $data['name'];
         $hostCategoryRequest->alias = $data['alias'];
+        $hostCategoryRequest->comment = $data['comments'] ?? null;
 
         return $hostCategoryRequest;
     }

@@ -59,18 +59,21 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         $statement->execute();
     }
 
-    public function create(NewHostCategory $hostCategory): void
+    public function create(NewHostCategory $hostCategory): int
     {
         $request = $this->translateDbName(
             "INSERT INTO `:db`.hostcategories
-            (hc_name, hc_alias) VALUES
-            (:name, :alias)"
+            (hc_name, hc_alias, hc_comment) VALUES
+            (:name, :alias, :comment)"
         );
         $statement = $this->db->prepare($request);
 
         $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':comment', $hostCategory->getComment(), \PDO::PARAM_STR);
 
         $statement->execute();
+
+        return (int) $this->db->lastInsertId();
     }
 }

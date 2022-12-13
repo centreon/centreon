@@ -7,7 +7,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* http://www.apache.org/licenses/LICENSE-2.0
+* https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,26 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\Repository;
+namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
 
-use Core\HostCategory\Domain\Model\NewHostCategory;
-
-interface WriteHostCategoryRepositoryInterface
+final class CreateHostCategoryResponse
 {
     /**
-     * Delete host category by id.
-     *
-     * @param int $hostCategoryId
+     * @var array{id:int,name:string,alias:string,is_activated:string,comment:string|null}>
      */
-    public function deleteById(int $hostCategoryId): void;
-
-    /**
-     * Create a host category
-     * Return the id of the host category
-     *
-     * @param NewHostCategory $hostCategory
-     * @return int
-     * @throws \Throwable
-     */
-    public function create(NewHostCategory $hostCategory): int;
+    public array $hostCategory;
 }

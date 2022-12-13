@@ -25,13 +25,9 @@ namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
 
 final class CreateHostCategoryRequest
 {
-    /**
-     * @var string
-     */
     public string $name;
 
-    /**
-     * @var string
-     */
     public string $alias;
+
+    public ?string $comment;
 }
