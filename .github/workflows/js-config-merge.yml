@@ -26,7 +26,7 @@ jobs:
           package: js-config
           npm_token: ${{ secrets.NPM_TOKEN }}
 
-  deliver-npm:
+  deliver-npm-beta:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
 

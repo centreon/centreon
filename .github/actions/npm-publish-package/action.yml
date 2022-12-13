@@ -69,6 +69,17 @@ runs:
         tag: ${{ env.TAG }}
         token: ${{ inputs.npm_token }}
 
+    - name: Test release condition
+      if: ${{ inputs.is_release == true }}
+      run: |
+        echo "Yes it is a release"
+      shell: bash
+    
+    - name: Test release condition
+      if: ${{ inputs.is_release == false }}
+      run: |
+        echo "No it is not a release"
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
       if: ${{ inputs.is_release == true }}
