@@ -297,8 +297,7 @@ testData.forEach((item) =>
       const { result } = renderHook(() => useDateTimePickerAdapter());
 
       const { Adapter } = result.current;
-      cy.mount({
-        Component: (
+      cy.mount(
           <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
             <DateTimePickerInput
               changeDate={changeDate}
@@ -307,8 +306,7 @@ testData.forEach((item) =>
               setDate={setStart}
             />
           </LocalizationProvider>
-        ),
-      });
+      );
     });
 
     it('checks input calendar value contains correct date', () => {
