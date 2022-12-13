@@ -22,12 +22,25 @@ declare(strict_types=1);
 
 class Paginator
 {
+    /**
+     * Maximum number of pages displayed after / before the current page
+     */
     const PAGER_SPAN = 5;
 
+    /**
+     * @param int $currentPageNb
+     * @param int $totalRecordsCount
+     * @param int $nbResultsPerPage
+     */
     public function __construct(private int $currentPageNb, private int $totalRecordsCount, private int $nbResultsPerPage)
     {
     }
 
+    /**
+     * Generates an array with available pages
+     *
+     * @return <string|int, <string|int|bool>>
+     */
     public function generatePages(): array
     {
         $pages = [];
@@ -57,6 +70,12 @@ class Paginator
         return $pages;
     }
 
+    /**
+     * Genearetes an array with data for given page
+     *
+     * @param int $pageNb
+     * @return <string,string|int|bool>
+     */
     private function generatePage(int $pageNb): array
     {
         return [

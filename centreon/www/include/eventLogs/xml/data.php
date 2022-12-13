@@ -713,6 +713,7 @@ if (isset($req) && $req) {
     if ($export !== "1") {
         $offset = $num * $limit;
         $queryValues['offset'] = [\PDO::PARAM_INT => $offset];
+        // The query retrieves more than $limit results (in order to display next n-th pages)
         $queryValues['limit'] = [\PDO::PARAM_INT => ($limit * Paginator::PAGER_SPAN)];
         $limitReq = " LIMIT :offset, :limit";
     }
@@ -746,10 +747,11 @@ if (isset($req) && $req) {
 
 
     require_once './PaginationRenderer.php';
-
+    // generate pages for navigation
     $paginator = new Paginator($num, $rows, $limit);
     $pages = $paginator->generatePages();
 
+    // add generated pages into xml
     $paginationRenderer = new PaginationRenderer($buffer);
     $paginationRenderer->render($pages);
 
@@ -757,6 +759,7 @@ if (isset($req) && $req) {
      * Full Request
      */
     $cpts = 0;
+    // The query retrieves more than $limit results, but only the first $limit elements should be displayed
     foreach (array_slice($logs, 0, $limit) as $log) {
         $buffer->startElement("line");
         $buffer->writeElement("msg_type", $log["msg_type"]);
