@@ -51,8 +51,7 @@ class AddTimePeriod
     public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
     {
         try {
-            $this->info('Add a new time period');
-            $this->debug('Time period', ['request' => $request]);
+            $this->info('Add a new time period', ['request' => $request]);
 
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
                 $this->error('Time period name already exists');

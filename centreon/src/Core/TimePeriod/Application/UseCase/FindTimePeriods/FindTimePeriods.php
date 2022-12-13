@@ -54,8 +54,7 @@ class FindTimePeriods
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            $this->info('Find the time periods');
-            $this->debug('Request', ['parameters' => $this->requestParameters->getSearch()]);
+            $this->info('Find the time periods', ['parameters' => $this->requestParameters->getSearch()]);
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
         } catch (\Throwable $ex) {

@@ -51,8 +51,7 @@ class UpdateTimePeriod
      */
     public function __invoke(UpdateTimePeriodRequest $request, PresenterInterface $presenter): void
     {
-        $this->info('Update of the time period');
-        $this->debug('Time period', ['request' => $request]);
+        $this->info('Update of the time period', ['request' => $request]);
         try {
             if (($timePeriod = $this->readTimePeriodRepository->findById($request->id)) === null) {
                 $this->error('Time period not found', ['id' => $request->id]);
@@ -92,12 +91,14 @@ class UpdateTimePeriod
     {
         $timePeriod->setName($request->name);
         $timePeriod->setAlias($request->alias);
-        $timePeriod->setDays(array_map(function (array $day): Day {
+        $timePeriod->setDays(
+            array_map(function (array $day): Day {
                 return new Day(
                     $day['day'],
                     new TimeRange($day['time_range']),
                 );
-            }, $request->days));
+            }, $request->days)
+        );
         $timePeriod->setTemplates(
             array_map(function (int $templateId): Template {
                 return new Template($templateId, 'name_not_used');
