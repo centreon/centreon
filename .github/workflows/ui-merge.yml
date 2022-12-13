@@ -41,4 +41,4 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
-          is_release: true
+          release_type: "stable"

@@ -85,7 +85,7 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}
-          is_release: false
+          release_type: "beta"
 
   check-package-version:
     runs-on: ubuntu-22.04
