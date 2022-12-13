@@ -53,7 +53,7 @@ runs:
       shell: bash
 
     - name: Commit and push changes
-      if: ${{ !inputs.is_release && startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+      if: ${{ inputs.is_release == false && startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
       run: |
         git pull origin ${{ github.head_ref }}
         git add .
@@ -71,7 +71,7 @@ runs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
-      if: ${{ inputs.is_release }}
+      if: ${{ inputs.is_release == true }}
       with:
         token: ${{ inputs.pat }}
         committer: Technique CI <technique-ci@centreon.com>
