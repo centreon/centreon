@@ -40,6 +40,15 @@ try {
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
 
+    $errorMessage = "Impossible to insert vault provider";
+    if (! vaultProviderExists($pearDB)) {
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `vault` (`name`) VALUES (`hashicorp`)
+                SQL
+        );
+    }
+
     // Transactional queries
     $pearDB->beginTransaction();
 
@@ -108,4 +117,21 @@ function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
         $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
         $statement->execute();
     }
+}
+
+/**
+ * Checks if vault provider information already exists in database.
+ *
+ * @param CentreonDB $pearDB
+ * @return bool
+ */
+function vaultProviderExists(CentreonDB $pearDB): bool
+{
+    $vaultProvider = $pearDB->query(
+        <<<'SQL'
+            SELECT 1 FROM `vault` WHERE id = 1
+            SQL
+    );
+
+    return ! empty($vaultProvider->fetch(\PDO::FETCH_ASSOC));
 }

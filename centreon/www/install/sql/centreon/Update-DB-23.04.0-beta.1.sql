@@ -6,9 +6,7 @@ CREATE TABLE IF NOT EXISTS `vault` (
   UNIQUE KEY `unique_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `vault` (`name`) VALUES ('hashicorp');
-
-CREATE TABLE `vault_configuration` (
+CREATE TABLE IF NOT EXISTS `vault_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `vault_id` INT UNSIGNED NOT NULL,
