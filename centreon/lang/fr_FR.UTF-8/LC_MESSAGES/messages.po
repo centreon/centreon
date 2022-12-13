@@ -17211,3 +17211,6 @@ msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
 
 msgid "Vault provider does not exist"
 msgstr "Le fournisseur de coffre-fort n'existe pas"
+
+msgid "Event queues maximum total size"
+msgstr "Taille maximale de l’ensemble des queues d'évènements"
