@@ -40,20 +40,54 @@ try {
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
 
-    $errorMessage = "Impossible to insert vault provider";
-    if (! vaultProviderExists($pearDB)) {
-        $pearDB->query(
-            <<<'SQL'
-                INSERT INTO `vault` (`name`) VALUES (`hashicorp`)
-                SQL
-        );
-    }
+    $errorMessage = "Impossible to create table 'vault'";
+    $pearDB->query(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `vault` (
+            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `name` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `unique_name` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            SQL
+    );
+
+    $errorMessage = "Impossible to create table 'vault_configuration'";
+    $pearDB->query(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `vault_configuration` (
+            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `name` VARCHAR(255) NOT NULL,
+            `vault_id` INT UNSIGNED NOT NULL,
+            `url` VARCHAR(1024) NOT NULL,
+            `port` SMALLINT UNSIGNED NOT NULL,
+            `storage` VARCHAR(255) NOT NULL,
+            `role_id` VARCHAR(255) NOT NULL,
+            `secret_id` VARCHAR(255) NOT NULL,
+            `salt` CHAR(128) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `unique_vault_configuration` (`url`, `port`, `storage`),
+            CONSTRAINT `vault_configuration_vault_id`
+                FOREIGN KEY (`vault_id`)
+                REFERENCES `vault` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            SQL
+    );
 
     // Transactional queries
     $pearDB->beginTransaction();
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     decodeIllegalCharactersNagios($pearDB);
+
+    $errorMessage = "Impossible to insert vault provider";
+    if (tableExists($pearDB, 'vault') && ! vaultProviderExists($pearDB)) {
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `vault` (`name`) VALUES (`hashicorp`)
+                SQL
+        );
+    }
 
     $pearDB->commit();
 } catch (\Exception $e) {
@@ -120,9 +154,31 @@ function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
 }
 
 /**
+ * Checks if table exists.
+ *
+ * @param CentreonDB $pearDB
+ * @param string $tableName
+ *
+ * @return bool
+ */
+function tableExists(CentreonDB $pearDB, string $tableName): bool
+{
+    $table = $pearDB->prepare(
+        <<<'SQL'
+            SELECT 1 FROM `information_schema`.`tables`
+            WHERE `TABLE_NAME` = :table_name
+            SQL
+    );
+    $table->bindValue(':table_name', $tableName, \PDO::PARAM_STR);
+
+    return ! empty($table->fetch(\PDO::FETCH_ASSOC));
+}
+
+/**
  * Checks if vault provider information already exists in database.
  *
  * @param CentreonDB $pearDB
+ *
  * @return bool
  */
 function vaultProviderExists(CentreonDB $pearDB): bool
