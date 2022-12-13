@@ -206,7 +206,7 @@ class CentreonLDAP
             $this->debug('LDAP Connect : trying url : ' . $url);
             $this->setErrorHandler();
             $this->ds = ldap_connect($url);
-            if (!empty($ldap['connection_timeout'])) {
+            if (! empty($ldap['connection_timeout'])) {
                 ldap_set_option($this->ds, LDAP_OPT_NETWORK_TIMEOUT, $ldap['connection_timeout']);
             }
             ldap_set_option($this->ds, LDAP_OPT_REFERRALS, 0);
