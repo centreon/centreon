@@ -53,7 +53,8 @@ sub new {
         'e:s'          => \$self->{moptions}->{end},
         'month-only'   => \$self->{moptions}->{month_only},
         'centile-only' => \$self->{moptions}->{centile_only},
-        'no-centile'   => \$self->{moptions}->{no_centile}
+        'no-centile'   => \$self->{moptions}->{no_centile},
+        'no-purge'     => \$self->{moptions}->{nopurge}
     );
     return $self;
 }
