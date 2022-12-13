@@ -298,14 +298,14 @@ testData.forEach((item) =>
 
       const { Adapter } = result.current;
       cy.mount(
-          <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-            <DateTimePickerInput
-              changeDate={changeDate}
-              date={new Date(item.initialDate)}
-              property={CustomTimePeriodProperty.start}
-              setDate={setStart}
-            />
-          </LocalizationProvider>
+        <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
+          <DateTimePickerInput
+            changeDate={changeDate}
+            date={new Date(item.initialDate)}
+            property={CustomTimePeriodProperty.start}
+            setDate={setStart}
+          />
+        </LocalizationProvider>,
       );
     });
 
