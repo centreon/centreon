@@ -1,8 +1,0 @@
-UpdateVaultConfiguration:
-  methods: PUT
-  path: /administration/vaults/{vaultId}/configurations/{vaultConfigurationId}
-  requirements:
-    vaultId: '\d+'
-    vaultConfigurationId: '\d+'
-  controller: 'Core\Security\Vault\Infrastructure\API\UpdateVaultConfiguration\UpdateVaultConfigurationController'
-  condition: "request.attributes.get('version') >= 22.10"
