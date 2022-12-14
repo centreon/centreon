@@ -10,9 +10,11 @@ jobs:
   merge-gatekeeper:
     runs-on: ubuntu-22.04
     steps:
+      - run: sleep 300
+
       - name: Run Merge Gatekeeper
         uses: upsidr/merge-gatekeeper@v1
         with:
-          interval: 180
+          interval: 300
           timeout: 3600
           token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
