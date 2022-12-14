@@ -67,7 +67,6 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
