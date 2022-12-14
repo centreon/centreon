@@ -1,19 +1,10 @@
 name: merge-gatekeeper
 
 on:
-  workflow_run:
-    workflows:
-      - widget-engine-status
-      - widget-global-health
-    types:
-      - completed
-    branches:
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
-      - hotfix-*
-      - release-*
+  workflow_call:
+    secrets:
+      composer_token:
+        token: true
 
 jobs:
   merge-gatekeeper:

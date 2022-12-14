@@ -52,3 +52,9 @@ jobs:
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
       yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
       yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+
+  gatekeeper:
+    needs: [delivery]
+    uses: ./.github/workflows/merge-gatekeeper.yml
+    secrets:
+      token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
