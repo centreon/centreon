@@ -28,4 +28,40 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-export { removeContact, initializeOIDCUserAndGetLoginPage, oidcConfigValues };
+const configureOpenIDConnect = (): Cypress.Chainable => {
+  cy.getByLabel({ label: 'Identity provider' }).click();
+  cy.getByLabel({ label: 'Base URL', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.baseUrl);
+  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.authEndpoint);
+  cy.getByLabel({ label: 'Token endpoint', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.tokenEndpoint);
+  cy.getByLabel({ label: 'Client ID', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.clientID);
+  cy.getByLabel({ label: 'Client secret', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.clientSecret);
+  cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.loginAttrPath);
+  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
+    .clear()
+    .type(oidcConfigValues.introspectionTokenEndpoint);
+  cy.getByLabel({
+    label: 'Use basic authentication for token endpoint authentication',
+    tag: 'input'
+  }).uncheck();
+  cy.getByLabel({ label: 'Disable verify peer', tag: 'input' }).check();
+
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+};
+
+export {
+  removeContact,
+  initializeOIDCUserAndGetLoginPage,
+  configureOpenIDConnect
+};

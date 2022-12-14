@@ -17,8 +17,3 @@ Scenario: Enable OpenID Connect authentication
     Given an administrator is relogged on the platform
     When the administrator activates OpenID Connect authentication on the platform
     Then any user can authenticate using the authentication provider that is configured
-
-Scenario: OpenID Connect Authentication mode
-    Given an administrator is relogged on the platform
-    When the administrator sets authentication mode to OpenID Connect only
-    Then only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate
