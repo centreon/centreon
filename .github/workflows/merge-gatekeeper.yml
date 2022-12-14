@@ -11,4 +11,6 @@ jobs:
       - name: Run Merge Gatekeeper
         uses: upsidr/merge-gatekeeper@v1
         with:
+          interval: 60
+          timeout: 3600
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
