@@ -43,6 +43,14 @@ class TimePeriodException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function errorWhenAddingTimePeriod(): self
+    {
+        return new self(_('Error when adding the time period'));
+    }
+
+    /**
      * @param string $timePeriodName
      * @return self
      */

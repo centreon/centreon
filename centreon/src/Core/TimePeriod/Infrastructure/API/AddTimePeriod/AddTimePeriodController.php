@@ -37,7 +37,7 @@ class AddTimePeriodController extends AbstractController
     /**
      * @param Request $request
      * @param AddTimePeriod $useCase
-     * @param DefaultPresenter $presenter
+     * @param AddTimePeriodsPresenter $presenter
      *
      * @return object
      *
@@ -46,7 +46,7 @@ class AddTimePeriodController extends AbstractController
     public function __invoke(
         Request $request,
         AddTimePeriod $useCase,
-        DefaultPresenter $presenter,
+        AddTimePeriodsPresenter $presenter,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         try {

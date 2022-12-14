@@ -57,7 +57,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      *
      * @throws \PDOException
      */
-    public function add(NewTimePeriod $newTimePeriod): void
+    public function add(NewTimePeriod $newTimePeriod): int
     {
         $this->info('Add a new time period');
         $alreadyInTransaction = $this->db->inTransaction();
@@ -87,6 +87,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
+            return $newTimePeriodId;
         } catch (\Throwable $ex) {
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();

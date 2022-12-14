@@ -27,6 +27,10 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Model\Day;
+use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
+use Core\TimePeriod\Domain\Model\Template;
+use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
 
 class AddTimePeriod
@@ -61,14 +65,54 @@ class AddTimePeriod
                 return;
             }
             $newTimePeriod = NewTimePeriodFactory::create($request);
-            $this->writeTimePeriodRepository->add($newTimePeriod);
-            $presenter->setResponseStatus(new CreatedResponse());
+            $newTimePeriodId = $this->writeTimePeriodRepository->add($newTimePeriod);
+            $timePeriod = $this->readTimePeriodRepository->findById($newTimePeriodId);
+            if ($timePeriod === null) {
+                throw new \Exception('Impossible to retrieve the time period when it has just been created');
+            }
+            $presenter->present(
+                new CreatedResponse($newTimePeriodId, $this->createResponse($timePeriod))
+            );
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when adding the time period',
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
-            $presenter->setResponseStatus(new ErrorResponse('Error'));
+            $presenter->setResponseStatus(
+                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod()->getMessage())
+            );
         }
+    }
+
+    /**
+     * @param TimePeriod $timePeriod
+     * @return AddTimePeriodResponse
+     */
+    private function createResponse(TimePeriod $timePeriod): AddTimePeriodResponse
+    {
+        $response = new AddTimePeriodResponse();
+        $response->id = $timePeriod->getId();
+        $response->name = $timePeriod->getName();
+        $response->alias = $timePeriod->getAlias();
+        $response->days = array_map(function (Day $day) {
+            return [
+                'day' => $day->getDay(),
+                'time_range' => (string)$day->getTimeRange()
+            ];
+        }, $timePeriod->getDays());
+        $response->templates = array_map(function (Template $template) {
+            return [
+                'id' => $template->getId(),
+                'alias' => $template->getAlias(),
+            ];
+        }, $timePeriod->getTemplates());
+        $response->exceptions = array_map(function (ExtraTimePeriod $exception) {
+            return [
+                'id' => $exception->getId(),
+                'day_range' => $exception->getDayRange(),
+                'time_range' => (string)$exception->getTimeRange(),
+            ];
+        }, $timePeriod->getExtraTimePeriods());
+        return $response;
     }
 }

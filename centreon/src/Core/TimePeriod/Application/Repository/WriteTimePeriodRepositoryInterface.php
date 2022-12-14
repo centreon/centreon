@@ -30,11 +30,11 @@ interface WriteTimePeriodRepositoryInterface
 {
     /**
      * @param NewTimePeriod $newTimePeriod
-     * @return void
+     * @return int Return the new TimePeriod id
      *
      * @throws \Throwable
      */
-    public function add(NewTimePeriod $newTimePeriod): void;
+    public function add(NewTimePeriod $newTimePeriod): int;
 
     /**
      * @param int $timePeriodId

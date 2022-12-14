@@ -21,38 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\Common\UseCase;
+namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-class CreatedResponse implements ResponseStatusInterface
+class AddTimePeriodResponse
 {
+    public int $id = 0;
+    public string $name = '';
+    public string $alias = '';
     /**
-     * @param int $resourceId
-     * @param mixed $payload
+     * @var array<array{day: int, time_range: string}>
      */
-    public function __construct(
-        readonly private int $resourceId,
-        readonly private mixed $payload
-    ) {
-    }
-
+    public array $days = [];
     /**
-     * @return int
+     * @var array<array{id: int, alias: string}>
      */
-    public function getResourceId(): int
-    {
-        return $this->resourceId;
-    }
-
+    public array $templates = [];
     /**
-     * @return mixed
+     * @var array<array{id: int, day_range: string, time_range: string}>
      */
-    public function getPayload(): mixed
-    {
-        return $this->payload;
-    }
-
-    public function getMessage(): string
-    {
-        return 'Created';
-    }
+    public array $exceptions = [];
 }

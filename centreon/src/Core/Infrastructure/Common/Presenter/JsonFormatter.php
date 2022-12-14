@@ -24,60 +24,63 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Common\Presenter;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\BodyResponseInterface;
-use Core\Application\Common\UseCase\CreatedResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
-use Core\Application\Common\UseCase\PaymentRequiredResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\{
+    BodyResponseInterface, CreatedResponse, ErrorResponse, InvalidArgumentResponse, ResponseStatusInterface,
+    UnauthorizedResponse, PaymentRequiredResponse, ForbiddenResponse, NoContentResponse, NotFoundResponse
+};
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class JsonFormatter extends AbstractFormatter implements PresenterFormatterInterface
 {
     use LoggerTrait;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
      */
     public function format(mixed $data): JsonResponse
     {
         switch (true) {
-            case is_a($data, NotFoundResponse::class, false):
+            case is_a($data, NotFoundResponse::class):
                 $this->debug('Data not found. Generating a not found response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_NOT_FOUND);
-            case is_a($data, ErrorResponse::class, false):
+                return $this->generateJsonErrorResponse($data, Response::HTTP_NOT_FOUND);
+            case is_a($data, ErrorResponse::class):
                 $this->debug('Data error. Generating an error response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
-            case is_a($data, InvalidArgumentResponse::class, false):
+                return $this->generateJsonErrorResponse($data, Response::HTTP_INTERNAL_SERVER_ERROR);
+            case is_a($data, InvalidArgumentResponse::class):
                 $this->debug('Invalid argument. Generating an error response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_BAD_REQUEST);
-            case is_a($data, UnauthorizedResponse::class, false):
+                return $this->generateJsonErrorResponse($data, Response::HTTP_BAD_REQUEST);
+            case is_a($data, UnauthorizedResponse::class):
                 $this->debug('Unauthorized. Generating an error response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_UNAUTHORIZED);
-            case is_a($data, PaymentRequiredResponse::class, false):
+                return $this->generateJsonErrorResponse($data, Response::HTTP_UNAUTHORIZED);
+            case is_a($data, PaymentRequiredResponse::class):
                 $this->debug('Payment required. Generating an error response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_PAYMENT_REQUIRED);
-            case is_a($data, ForbiddenResponse::class, false):
+                return $this->generateJsonErrorResponse($data, Response::HTTP_PAYMENT_REQUIRED);
+            case is_a($data, ForbiddenResponse::class):
                 $this->debug('Forbidden. Generating an error response');
-                return $this->generateJsonErrorResponse($data, JsonResponse::HTTP_FORBIDDEN);
-            case is_a($data, CreatedResponse::class, false):
-                return $this->generateJsonResponse(null, JsonResponse::HTTP_CREATED);
-            case is_a($data, NoContentResponse::class, false):
-                return $this->generateJsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+                return $this->generateJsonErrorResponse($data, Response::HTTP_FORBIDDEN);
+            case is_a($data, CreatedResponse::class):
+                return $this->generateJsonResponse($data, Response::HTTP_CREATED);
+            case is_a($data, NoContentResponse::class):
+                return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT);
             default:
-                return $this->generateJsonResponse($data, JsonResponse::HTTP_OK);
+                return $this->generateJsonResponse($data, Response::HTTP_OK);
         }
     }
 
     /**
      * Generates json response with error message and http code
+     *
      * @param mixed $data
      * @param int $code
+     *
      * @return JsonResponse
+     *
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
      */
     private function generateJsonErrorResponse(mixed $data, int $code): JsonResponse
     {
@@ -89,12 +92,21 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
     /**
      * @param mixed $data
      * @param int $code
+     *
      * @return JsonResponse
+     *
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
      */
     private function generateJsonResponse(mixed $data, int $code): JsonResponse
     {
         if (is_a($data, \Generator::class)) {
             $data = iterator_to_array($data);
+        } elseif (is_a($data, CreatedResponse::class)) {
+            /**
+             * @var CreatedResponse $data
+             */
+            $data = $data->getPayload();
         }
         return new JsonResponse($data, $code, $this->responseHeaders);
     }
@@ -104,7 +116,7 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
      *
      * @param mixed $data
      * @param integer $code
-     * @return mixed[]|null
+     * @return list<mixed>|null
      */
     protected function formatErrorContent(mixed $data, int $code): ?array
     {
@@ -119,7 +131,6 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
                 $content = array_merge($content, $data->getBody());
             }
         }
-
         return $content;
     }
 }
