@@ -56,9 +56,10 @@ function displaySvg(string $svgPath, string $color, float $height, float $width)
         if ($svg === false) {
             echo 'Unable to get content of file: ' . $path;
         } else {
-            $cleanSvg = $sanitizer->sanitize($svg);
+            $cleanSvg = str_replace('"', "'", $sanitizer->sanitize($svg));
+            $cleanSvg = str_replace("\n", '', $cleanSvg);
             $cleanSvg = str_replace('<svg ', "<svg height='$height' width='$width' ", $cleanSvg);
-            echo "<span style='fill:$color; vertical-align: middle'>" . $cleanSvg . '</span>';
+            echo "<span style='fill:$color; vertical-align: middle'>" . $cleanSvg . "</span>";
         }
     } else {
         echo 'SVG file not found: ' . $svgPath;
