@@ -102,7 +102,7 @@ it('does not find host notification policy when host is not found by admin user'
     $this->findNotificationPolicyPresenter
         ->expects($this->once())
         ->method('setResponseStatus')
-        ->with(new NotFoundResponse('Host'));
+        ->with(new NotFoundResponse('Host11'));
 
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
