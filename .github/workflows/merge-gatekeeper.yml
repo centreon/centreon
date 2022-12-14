@@ -3,7 +3,6 @@ name: merge-gatekeeper
 on:
   workflow_run:
     workflows:
-      - web
       - widget-engine-status
       - widget-global-health
     types:
