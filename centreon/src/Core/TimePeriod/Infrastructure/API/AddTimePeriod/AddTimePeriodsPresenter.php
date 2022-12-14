@@ -23,15 +23,21 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodResponse;
 
 class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInterface
 {
-    public function __construct(PresenterFormatterInterface $presenterFormatter)
+    use LoggerTrait;
+
+    private const ROUTE_NAME = 'DeleteTimePeriod';
+
+    public function __construct(PresenterFormatterInterface $presenterFormatter, private Router $router)
     {
         $this->presenterFormatter = $presenterFormatter;
         parent::__construct($presenterFormatter);
@@ -45,24 +51,29 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
         $response = $data;
         if (is_object($data) && is_a($data, CreatedResponse::class) && $data->getPayload() !== []) {
             /**
-             * @var array{
-             *     id: int,
-             *     name: string,
-             *     alias: string,
-             *     days: array<array{day: int, time_range: string}>,
-             *     templates: array<array{id: int, alias: string}>,
-             *     exceptions: array<array{id: int, day_range: string, time_range: string}>
-             * } $payload
+             * @var AddTimePeriodResponse $payload
              */
             $payload = $data->getPayload();
             $response = [
-                'id' => $payload['id'],
-                'name' => $payload['name'],
-                'alias' => $payload['alias'],
-                'days' => $payload['days'],
-                'templates' => $payload['templates'],
-                'exceptions' => $payload['exceptions'],
+                'id' => $payload->id,
+                'name' => $payload->name,
+                'alias' => $payload->alias,
+                'days' => $payload->days,
+                'templates' => $payload->templates,
+                'exceptions' => $payload->exceptions,
             ];
+            try {
+                $this->setResponseHeaders([
+                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id])
+                ]);
+            } catch (\Exception $ex) {
+                $this->error('Impossible to generate the location header', [
+                    'message' => $ex->getMessage(),
+                    'trace' => $ex->getTraceAsString(),
+                    'route' => self::ROUTE_NAME,
+                    'payload' => $payload
+                ]);
+            }
         }
         parent::present($response);
     }

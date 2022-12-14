@@ -67,7 +67,7 @@ class DeleteTimePeriod
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when deleting the time period',
-                ['id' => $timePeriodId, 'trace' => $ex->getTraceAsString()]
+                ['id' => $timePeriodId, 'message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
                 new ErrorResponse(TimePeriodException::errorOnDelete($timePeriodId)->getMessage())

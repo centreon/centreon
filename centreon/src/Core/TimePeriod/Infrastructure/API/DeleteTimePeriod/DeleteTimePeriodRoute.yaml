@@ -4,4 +4,4 @@ DeleteTimePeriod:
   requirements:
     id: '\d+'
   controller: 'Core\TimePeriod\Infrastructure\API\DeleteTimePeriod\DeleteTimePeriodController'
-  condition: "request.attributes.get('version') >= 22.10"
+  condition: "request.attributes.get('version') >= 23.04"

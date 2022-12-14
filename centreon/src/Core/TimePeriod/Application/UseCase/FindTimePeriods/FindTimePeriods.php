@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
@@ -58,9 +59,11 @@ class FindTimePeriods
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse('Error while searching for the time periods'));
+            $presenter->setResponseStatus(
+                new ErrorResponse(TimePeriodException::errorWhenSearchingForAllTimePeriods()->getMessage())
+            );
             $this->error(
-                'Error while searching for the time periods',
+                'Error while searching for time periods',
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
         }

@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
     AddTimePeriod, AddTimePeriodRequest
 };
+use Core\Infrastructure\Common\Api\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -47,6 +50,7 @@ class AddTimePeriodController extends AbstractController
         Request $request,
         AddTimePeriod $useCase,
         AddTimePeriodsPresenter $presenter,
+        Router $router
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         try {

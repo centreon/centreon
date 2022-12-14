@@ -21,77 +21,63 @@
 
 declare(strict_types=1);
 
-namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
+namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\{
+    ErrorResponse, NotFoundResponse, PresenterInterface
+};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
-use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
+use Core\TimePeriod\Domain\Model\{
+    Day, ExtraTimePeriod, Template, TimePeriod
+};
 
-class AddTimePeriod
+class FindTimePeriod
 {
     use LoggerTrait;
 
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
-     * @param WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
      */
-    public function __construct(
-        readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
-    ) {
+    public function __construct(readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository)
+    {
     }
 
     /**
-     * @param AddTimePeriodRequest $request
+     * @param int $timePeriodId
      * @param PresenterInterface $presenter
      * @return void
      */
-    public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
+    public function __invoke(int $timePeriodId, PresenterInterface $presenter): void
     {
         try {
-            $this->info('Add a new time period', ['request' => $request]);
-
-            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
-                $this->error('Time period name already exists');
-                $presenter->setResponseStatus(
-                    new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
-                );
+            $this->info('Find a time period', ['id' => $timePeriodId]);
+            $timePeriod = $this->readTimePeriodRepository->findById($timePeriodId);
+            if ($timePeriod === null) {
+                $this->error('Time period not found', ['id' => $timePeriodId]);
+                $presenter->setResponseStatus(new NotFoundResponse('Time period'));
                 return;
             }
-            $newTimePeriod = NewTimePeriodFactory::create($request);
-            $newTimePeriodId = $this->writeTimePeriodRepository->add($newTimePeriod);
-            $timePeriod = $this->readTimePeriodRepository->findById($newTimePeriodId);
-            if ($timePeriod === null) {
-                throw new \Exception('Impossible to retrieve the time period when it has just been created');
-            }
-            $presenter->present(
-                new CreatedResponse($newTimePeriodId, $this->createResponse($timePeriod))
-            );
+            $presenter->present($this->createResponse($timePeriod));
         } catch (\Throwable $ex) {
             $this->error(
-                'Error when adding the time period',
-                ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+                'Error when searching for the time period',
+                ['id' => $timePeriodId, 'message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod()->getMessage()
-                . $ex->getMessage())
+                new ErrorResponse(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage())
             );
         }
     }
 
     /**
      * @param TimePeriod $timePeriod
-     * @return AddTimePeriodResponse
+     * @return FindTimePeriodResponse
      */
-    private function createResponse(TimePeriod $timePeriod): AddTimePeriodResponse
+    private function createResponse(TimePeriod $timePeriod): FindTimePeriodResponse
     {
-        $response = new AddTimePeriodResponse();
+        $response = new FindTimePeriodResponse();
         $response->id = $timePeriod->getId();
         $response->name = $timePeriod->getName();
         $response->alias = $timePeriod->getAlias();

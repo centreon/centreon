@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\FindTimePeriods;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 
 class FindTimePeriodsController extends AbstractController
 {
-    public function __invoke(FindTimePeriods $useCase, FindTimePeriodsPresenter $presenter): object
-    {
+    public function __invoke(
+        FindTimePeriods $useCase,
+        FindTimePeriodsPresenter $presenter
+    ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $useCase($presenter);
         return $presenter->show();

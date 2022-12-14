@@ -73,7 +73,7 @@ class UpdateTimePeriod
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorOnUpdate()->getMessage())
+                new ErrorResponse(TimePeriodException::errorOnUpdate($request->id)->getMessage())
             );
         }
     }

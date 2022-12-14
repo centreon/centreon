@@ -31,11 +31,15 @@ abstract class AbstractPresenter implements PresenterInterface
      * @var ResponseStatusInterface|null
      */
     private ?ResponseStatusInterface $responseStatus = null;
+    /**
+     * @var array<string, mixed>
+     */
+    private array $responseHeaders = [];
 
     /**
      * @var mixed
      */
-    private mixed $presentedData;
+    private mixed $presentedData = null;
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -66,8 +70,8 @@ abstract class AbstractPresenter implements PresenterInterface
     public function show(): Response
     {
         return ($this->responseStatus !== null)
-            ? $this->presenterFormatter->format($this->responseStatus)
-            : $this->presenterFormatter->format($this->presentedData);
+            ? $this->presenterFormatter->format($this->responseStatus, $this->responseHeaders)
+            : $this->presenterFormatter->format($this->presentedData, $this->responseHeaders);
     }
 
     /**
@@ -91,7 +95,7 @@ abstract class AbstractPresenter implements PresenterInterface
      */
     public function setResponseHeaders(array $responseHeaders): void
     {
-        $this->presenterFormatter->setResponseHeaders($responseHeaders);
+        $this->responseHeaders = $responseHeaders;
     }
 
     /**
@@ -99,6 +103,6 @@ abstract class AbstractPresenter implements PresenterInterface
      */
     public function getResponseHeaders(): array
     {
-        return $this->presenterFormatter->getResponseHeaders();
+        return $this->responseHeaders;
     }
 }

@@ -25,18 +25,11 @@ namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Infrastructure\Common\Presenter\JsonFormatter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\TimePeriod\Application\Exception\TimePeriodException;
+use Core\Infrastructure\Common\Presenter\{JsonFormatter, PresenterFormatterInterface};
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
-use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\TimeRange;
-
-use function PHPUnit\Framework\assertCount;
+use Core\TimePeriod\Application\UseCase\FindTimePeriods\{FindTimePeriods, FindTimePeriodsResponse};
+use Core\TimePeriod\Domain\Model\{Template, ExtraTimePeriod, TimePeriod, Day, TimeRange};
 
 beforeEach(function () {
     $this->repository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
@@ -59,7 +52,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
-        ->toBe('Error while searching for the time periods');
+        ->toBe(TimePeriodException::errorWhenSearchingForAllTimePeriods()->getMessage());
 });
 
 it('should present a FindTimePeriodsResponse', function () {
@@ -91,7 +84,7 @@ it('should present a FindTimePeriodsResponse', function () {
     $presenter = new FindTimePeriodsPresenterStub($this->presenterFormatter);
     $useCase($presenter);
 
-    assertCount(1, $presenter->response->timePeriods);
+    expect($presenter->response->timePeriods)->toBeArray()->toHaveCount(1);
     /**
      * @var TimePeriod $timePeriodToBeExpected
      */

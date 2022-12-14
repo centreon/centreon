@@ -29,9 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\{
-    Day, ExtraTimePeriod, NewExtraTimePeriod, NewTimePeriod, Template, TimePeriod
-};
+use Core\TimePeriod\Domain\Model\{ExtraTimePeriod, NewExtraTimePeriod, NewTimePeriod, Template, TimePeriod};
 
 class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements WriteTimePeriodRepositoryInterface
 {
@@ -53,9 +51,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function add(NewTimePeriod $newTimePeriod): int
     {
@@ -97,9 +93,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function delete(int $timePeriodId): void
     {
@@ -112,9 +106,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function update(TimePeriod $timePeriod): void
     {
@@ -240,7 +232,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 
     /**
      * @param \PDOStatement $statement
-     * @param \Core\TimePeriod\Domain\Model\TimePeriod|\Core\TimePeriod\Domain\Model\NewTimePeriod $timePeriod
+     * @param TimePeriod|NewTimePeriod $timePeriod
      *
      * @return void
      */
@@ -259,6 +251,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 
     /**
      * @param int $timePeriodId
+     *
      * @return void
      *
      * @throws \PDOException
@@ -274,6 +267,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 
     /**
      * @param int $timePeriodId
+     *
      * @return void
      *
      * @throws \PDOException
@@ -290,6 +284,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     /**
      * @param TimePeriod|NewTimePeriod $timePeriod
      * @param int $id
+     *
      * @return string|null
      */
     private function extractTimeRange(TimePeriod|NewTimePeriod $timePeriod, int $id): ?string

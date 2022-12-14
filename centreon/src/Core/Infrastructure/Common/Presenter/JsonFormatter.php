@@ -31,7 +31,7 @@ use Core\Application\Common\UseCase\{
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class JsonFormatter extends AbstractFormatter implements PresenterFormatterInterface
+class JsonFormatter implements PresenterFormatterInterface
 {
     use LoggerTrait;
 
@@ -41,34 +41,43 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
      * @throws \InvalidArgumentException
      * @throws \TypeError
      */
-    public function format(mixed $data): JsonResponse
+    public function format(mixed $data, array $headers): JsonResponse
     {
-        switch (true) {
-            case is_a($data, NotFoundResponse::class):
-                $this->debug('Data not found. Generating a not found response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_NOT_FOUND);
-            case is_a($data, ErrorResponse::class):
-                $this->debug('Data error. Generating an error response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_INTERNAL_SERVER_ERROR);
-            case is_a($data, InvalidArgumentResponse::class):
-                $this->debug('Invalid argument. Generating an error response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_BAD_REQUEST);
-            case is_a($data, UnauthorizedResponse::class):
-                $this->debug('Unauthorized. Generating an error response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_UNAUTHORIZED);
-            case is_a($data, PaymentRequiredResponse::class):
-                $this->debug('Payment required. Generating an error response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_PAYMENT_REQUIRED);
-            case is_a($data, ForbiddenResponse::class):
-                $this->debug('Forbidden. Generating an error response');
-                return $this->generateJsonErrorResponse($data, Response::HTTP_FORBIDDEN);
-            case is_a($data, CreatedResponse::class):
-                return $this->generateJsonResponse($data, Response::HTTP_CREATED);
-            case is_a($data, NoContentResponse::class):
-                return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT);
-            default:
-                return $this->generateJsonResponse($data, Response::HTTP_OK);
+        if (is_object($data)) {
+            switch (true) {
+                case is_a($data, NotFoundResponse::class):
+                    $this->debug('Data not found. Generating a not found response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_NOT_FOUND, $headers);
+                case is_a($data, ErrorResponse::class):
+                    $this->debug('Data error. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_INTERNAL_SERVER_ERROR, $headers);
+                case is_a($data, InvalidArgumentResponse::class):
+                    $this->debug('Invalid argument. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_BAD_REQUEST, $headers);
+                case is_a($data, UnauthorizedResponse::class):
+                    $this->debug('Unauthorized. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_UNAUTHORIZED, $headers);
+                case is_a($data, PaymentRequiredResponse::class):
+                    $this->debug('Payment required. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_PAYMENT_REQUIRED, $headers);
+                case is_a($data, ForbiddenResponse::class):
+                    $this->debug('Forbidden. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_FORBIDDEN, $headers);
+                case is_a($data, CreatedResponse::class):
+                    return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
+                case is_a($data, NoContentResponse::class):
+                    return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT, $headers);
+                default:
+                    return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
+            }
         }
+        return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
     }
 
     /**
@@ -76,39 +85,43 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
      *
      * @param mixed $data
      * @param int $code
+     * @param array<string, mixed> $headers
      *
      * @return JsonResponse
      *
      * @throws \InvalidArgumentException
      * @throws \TypeError
      */
-    private function generateJsonErrorResponse(mixed $data, int $code): JsonResponse
+    private function generateJsonErrorResponse(mixed $data, int $code, array $headers): JsonResponse
     {
         $errorData = $this->formatErrorContent($data, $code);
 
-        return $this->generateJsonResponse($errorData, $code);
+        return $this->generateJsonResponse($errorData, $code, $headers);
     }
 
     /**
      * @param mixed $data
      * @param int $code
+     * @param array<string, mixed> $headers
      *
      * @return JsonResponse
      *
      * @throws \InvalidArgumentException
      * @throws \TypeError
      */
-    private function generateJsonResponse(mixed $data, int $code): JsonResponse
+    private function generateJsonResponse(mixed $data, int $code, array $headers): JsonResponse
     {
-        if (is_a($data, \Generator::class)) {
-            $data = iterator_to_array($data);
-        } elseif (is_a($data, CreatedResponse::class)) {
-            /**
-             * @var CreatedResponse $data
-             */
-            $data = $data->getPayload();
+        if (is_object($data)) {
+            if (is_a($data, \Generator::class)) {
+                $data = iterator_to_array($data);
+            } elseif (is_a($data, CreatedResponse::class)) {
+                /**
+                 * @var CreatedResponse $data
+                 */
+                $data = $data->getPayload();
+            }
         }
-        return new JsonResponse($data, $code, $this->responseHeaders);
+        return new JsonResponse($data, $code, $headers);
     }
 
     /**
@@ -116,18 +129,17 @@ class JsonFormatter extends AbstractFormatter implements PresenterFormatterInter
      *
      * @param mixed $data
      * @param integer $code
-     * @return list<mixed>|null
+     * @return mixed[]|null
      */
     protected function formatErrorContent(mixed $data, int $code): ?array
     {
         $content = null;
-
-        if (is_a($data, ResponseStatusInterface::class)) {
+        if (is_object($data) && is_a($data, ResponseStatusInterface::class)) {
             $content = [
                 'code' => $code,
                 'message' => $data->getMessage(),
             ];
-            if (is_a($data, BodyResponseInterface::class)) {
+            if (is_a($data, BodyResponseInterface::class) && is_array($data->getBody())) {
                 $content = array_merge($content, $data->getBody());
             }
         }

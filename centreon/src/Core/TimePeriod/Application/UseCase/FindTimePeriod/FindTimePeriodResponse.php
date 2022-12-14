@@ -21,28 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
-abstract class AbstractFormatter
+class FindTimePeriodResponse
 {
+    public int $id = 0;
+    public string $name = '';
+    public string $alias = '';
     /**
-     * @var array<string, string>
+     * @var array<array{day: int, time_range: string}>
      */
-    protected array $responseHeaders = [];
-
+    public array $days = [];
     /**
-     * @param array<string, string> $responseHeaders
+     * @var array<array{id: int, alias: string}>
      */
-    public function setResponseHeaders(array $responseHeaders): void
-    {
-        $this->responseHeaders = $responseHeaders;
-    }
-
+    public array $templates = [];
     /**
-     * @return array<string, string>
+     * @var array<array{id: int, day_range: string, time_range: string}>
      */
-    public function getResponseHeaders(): array
-    {
-        return $this->responseHeaders;
-    }
+    public array $exceptions = [];
 }

@@ -35,11 +35,12 @@ class TimePeriodException extends \Exception
     }
 
     /**
+     * @param int $timePeriodId
      * @return self
      */
-    public static function errorOnUpdate(): self
+    public static function errorOnUpdate(int $timePeriodId): self
     {
-        return new self(_('Error when updating the time period'));
+        return new self(sprintf(_('Error when updating the time period %d'), $timePeriodId));
     }
 
     /**
@@ -48,6 +49,23 @@ class TimePeriodException extends \Exception
     public static function errorWhenAddingTimePeriod(): self
     {
         return new self(_('Error when adding the time period'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhenSearchingForAllTimePeriods(): self
+    {
+        return new self(_('Error when searching for time periods'));
+    }
+
+    /**
+     * @param int $timePeriodId
+     * @return self
+     */
+    public static function errorWhenSearchingForTimePeriod(int $timePeriodId): self
+    {
+        return new self(sprintf(_('Error when searching for the time period %d'), $timePeriodId));
     }
 
     /**

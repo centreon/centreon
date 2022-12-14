@@ -21,33 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
+namespace Core\TimePeriod\Infrastructure\API\FindTimePeriod;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Centreon\Application\Controller\AbstractController;
+use Core\TimePeriod\Application\UseCase\FindTimePeriod\FindTimePeriod;
 
-class FindTimePeriodsPresenterStub extends AbstractPresenter implements PresenterInterface
+class FindTimePeriodController extends AbstractController
 {
     /**
-     * @var FindTimePeriodsResponse
+     * @param FindTimePeriod $useCase
+     * @param FindTimePeriodPresenter $presenter
+     * @param int $id
+     *
+     * @return object
      */
-    public $response;
-
-    /**
-     * @param FindTimePeriodsResponse $response
-     */
-    public function present(mixed $response): void
+    public function __invoke(FindTimePeriod $useCase, FindTimePeriodPresenter $presenter, int $id): object
     {
-        $this->response = $response;
-    }
-
-    /**
-     * @return Response
-     */
-    public function show(): Response
-    {
-        return new Response();
+        $useCase($id, $presenter);
+        return $presenter->show();
     }
 }

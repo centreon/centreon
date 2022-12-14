@@ -2,4 +2,4 @@ AddTimePeriod:
   methods: POST
   path: /configuration/timeperiods
   controller: 'Core\TimePeriod\Infrastructure\API\AddTimePeriod\AddTimePeriodController'
-  condition: "request.attributes.get('version') >= 22.10"
+  condition: "request.attributes.get('version') >= 23.04"

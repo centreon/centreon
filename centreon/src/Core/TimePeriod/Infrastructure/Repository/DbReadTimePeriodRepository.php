@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
@@ -30,6 +31,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\{Day, Template, ExtraTimePeriod, TimePeriod, TimeRange};
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
@@ -52,9 +54,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function exists(int $timePeriodId): bool
     {
@@ -68,10 +68,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function findById(int $timePeriodId): ?TimePeriod
     {
@@ -97,16 +94,17 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
              *     template_id: int
              * } $result
              */
-            return $this->createTimePeriod($result);
+            $newTimePeriod = $this->createTimePeriod($result);
+            $timePeriod[$newTimePeriod->getId()] = $newTimePeriod;
+            $this->addTemplates($timePeriod);
+            $this->addExtraTimePeriods($timePeriod);
+            return $timePeriod[$newTimePeriod->getId()];
         }
         return null;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
@@ -176,9 +174,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \PDOException
+     * @inheritDoc
      */
     public function nameAlreadyExists(string $timePeriodName, int $timePeriodId = null): bool
     {
@@ -207,8 +203,8 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      *
      * @return void
      *
-     * @throws \Assert\AssertionFailedException
-     * @throws \Core\TimePeriod\Domain\Exception\TimeRangeException
+     * @throws AssertionFailedException
+     * @throws TimeRangeException
      * @throws \PDOException
      */
     private function addExtraTimePeriods(array $timePeriods): void
@@ -294,10 +290,11 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      *     tp_sunday: string,
      *     template_id: int
      * } $data
+     *
      * @return TimePeriod
      *
-     * @throws \Assert\AssertionFailedException
-     * @throws \Core\TimePeriod\Domain\Exception\TimeRangeException
+     * @throws AssertionFailedException
+     * @throws TimeRangeException
      */
     private function createTimePeriod(array $data): TimePeriod
     {
