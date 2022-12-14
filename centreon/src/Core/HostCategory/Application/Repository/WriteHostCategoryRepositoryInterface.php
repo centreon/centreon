@@ -35,12 +35,12 @@ interface WriteHostCategoryRepositoryInterface
     public function deleteById(int $hostCategoryId): void;
 
     /**
-     * Create a host category
+     * Add a host category
      * Return the id of the host category
      *
      * @param NewHostCategory $hostCategory
      * @return int
      * @throws \Throwable
      */
-    public function create(NewHostCategory $hostCategory): int;
+    public function add(NewHostCategory $hostCategory): int;
 }

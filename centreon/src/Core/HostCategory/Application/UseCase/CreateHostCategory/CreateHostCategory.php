@@ -68,7 +68,7 @@ final class CreateHostCategory
                 $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
                 $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
 
-                $hostCategoryId = $this->writeHostCategoryRepository->create($newHostCategory);
+                $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
 
                 $presenter->present(

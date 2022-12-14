@@ -59,8 +59,13 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         $statement->execute();
     }
 
-    public function create(NewHostCategory $hostCategory): int
+    /**
+     * @inheritDoc
+     */
+    public function add(NewHostCategory $hostCategory): int
     {
+        $this->debug('Add host category', ['hostCategory' => $hostCategory]);
+
         $request = $this->translateDbName(
             "INSERT INTO `:db`.hostcategories
             (hc_name, hc_alias, hc_comment) VALUES

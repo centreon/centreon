@@ -50,6 +50,7 @@ beforeEach(function () {
         $this->readHostCategoryRepository,
         $this->user
     );
+    $this->hostCategory = new HostCategory(1, $this->request->name, $this->request->alias);
 });
 
 it('should present an ForbiddenResponse when a user has unsufficient rights', function (): void {
@@ -95,7 +96,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willReturn(false);
     $this->writeHostCategoryRepository
         ->expects($this->once())
-        ->method('create')
+        ->method('add')
         ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter);
@@ -117,8 +118,13 @@ it('should return created object on success', function () {
         ->willReturn(false);
     $this->writeHostCategoryRepository
         ->expects($this->once())
-        ->method('create')
+        ->method('add')
         ->willReturn(1);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostCategory);
+
 
     ($this->useCase)($this->request, $this->presenter);
 
