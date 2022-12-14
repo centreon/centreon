@@ -66,6 +66,7 @@ const SortableHeaderCellContent = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
   const cellClasses = useCellStyles();
+  const [cellHovered, setCellHovered] = React.useState(false);
 
   const columnLabel = column.shortLabel || column.label;
 
@@ -98,9 +99,11 @@ const SortableHeaderCellContent = ({
       className={cx([cellClasses.cell, classes.item])}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
+      onMouseOut={(): void => setCellHovered(false)}
+      onMouseOver={(): void => setCellHovered(true)}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        {columnConfiguration?.sortable && (
+        {columnConfiguration?.sortable && cellHovered && (
           <div
             className={classes.dragHandle}
             {...props}
@@ -111,15 +114,15 @@ const SortableHeaderCellContent = ({
         )}
 
         {column.sortable ? (
-          <TableSortLabel
-            active={sortField === columnSortField}
-            aria-label={`Column ${column.label}`}
-            direction={sortOrder || 'desc'}
-            onClick={sort}
-          >
-            {headerContent}
-          </TableSortLabel>
+          // <TableSortLabel
+          //   active={sortField === columnSortField}
+          //   aria-label={`Column ${column.label}`}
+          //   direction={sortOrder || 'desc'}
+          //   onClick={sort}
+          // >
+          <div>{headerContent}</div>
         ) : (
+          // </TableSortLabel>
           headerContent
         )}
       </div>
