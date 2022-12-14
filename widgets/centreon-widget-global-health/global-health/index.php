@@ -47,6 +47,7 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
+
 try {
     if ($widgetId === false) {
         throw new InvalidArgumentException('Widget ID must be an integer');

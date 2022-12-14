@@ -4,6 +4,8 @@ on:
   workflow_run:
     workflows:
       - web
+      - widget-engine-status
+      - widget-global-health
     types:
       - completed
     branches:
