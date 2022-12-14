@@ -113,7 +113,7 @@ class AuthenticationControllerTest extends TestCase
         $view = $authenticationController->login($this->request, $this->authenticateApi, $response);
         $this->assertEquals(
             View::create(ApiAuthenticationFactory::createFromResponse($response)),
-            $view
+            'toto'
         );
     }
 
