@@ -57,4 +57,4 @@ jobs:
     needs: [package]
     uses: ./.github/workflows/merge-gatekeeper.yml
     secrets:
-      token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+      token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

@@ -16,4 +16,4 @@ jobs:
         with:
           interval: 60
           timeout: 3600
-          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          token: ${{ secrets.token }}
