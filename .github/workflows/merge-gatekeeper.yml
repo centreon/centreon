@@ -3,8 +3,8 @@ name: merge-gatekeeper
 on:
   workflow_call:
     secrets:
-      composer_token:
-        token: true
+      token:
+        required: true
 
 jobs:
   merge-gatekeeper:
