@@ -283,4 +283,36 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         return (bool) $statement->fetchColumn();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $hostCategoryId): ?HostCategory
+    {
+        $this->info('Get a host category with id #' . $hostCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            FROM `:db`.hostcategories hc
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        $hostCategory = new HostCategory(
+            $result['hc_id'],
+            $result['hc_name'],
+            $result['hc_alias']
+        );
+        $hostCategory->setActivated($result['hc_activate']);
+        $hostCategory->setComment($result['hc_comment']);
+
+        return $hostCategory;
+    }
 }

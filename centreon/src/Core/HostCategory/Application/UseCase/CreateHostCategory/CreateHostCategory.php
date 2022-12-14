@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 
 final class CreateHostCategory
@@ -64,11 +65,16 @@ final class CreateHostCategory
                     new InvalidArgumentResponse('Host category name already exists')
                 );
             } else {
-                $hostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
-                $hostCategory->setComment($request->comment ? trim($request->comment) : null);
-                $hostCategoryId = $this->writeHostCategoryRepository->create($hostCategory);
+                $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
+                $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
 
-                $presenter->present($this->createResponse($hostCategoryId, $hostCategory));
+                $hostCategoryId = $this->writeHostCategoryRepository->create($newHostCategory);
+                $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
+
+                $presenter->present(
+                    // new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
+                    $this->createResponse($hostCategory)
+                );
             }
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse('Error while creating host category'));
@@ -76,11 +82,11 @@ final class CreateHostCategory
         }
     }
 
-    private function createResponse(int $hostCategoryId, NewHostCategory $hostCategory): CreateHostCategoryResponse
+    private function createResponse(HostCategory $hostCategory): CreateHostCategoryResponse
     {
         $response = new CreateHostCategoryResponse();
         $response->hostCategory = [
-                'id' => $hostCategoryId,
+                'id' => $hostCategory->getId(),
                 'name' => $hostCategory->getName(),
                 'alias' => $hostCategory->getAlias(),
                 'is_activated' => $hostCategory->isActivated(),

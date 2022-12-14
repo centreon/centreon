@@ -81,4 +81,12 @@ interface ReadHostCategoryRepositoryInterface
      * @return bool
      */
     public function existsByName(string $hostCategoryName): bool;
+
+    /**
+     * Find one host category
+     *
+     * @param int $hostCategoryId
+     * @return HostCategory|null
+     */
+    public function findById(int $hostCategoryId): ?HostCategory;
 }
