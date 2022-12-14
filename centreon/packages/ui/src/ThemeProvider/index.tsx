@@ -43,21 +43,36 @@ const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
       minHeight: '36px'
     };
   }
-
-  return {
-    minHeight: '48px'
-  };
-};
-
-const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
   if (equals(size, 'medium')) {
     return {
-      height: '36px'
+      minHeight: '40px'
     };
   }
   if (equals(size, 'large')) {
     return {
+      minHeight: '48px'
+    };
+  }
+
+  return {
+    minHeight: '40px'
+  };
+};
+
+const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
+  if (equals(size, 'small')) {
+    return {
+      height: '36px'
+    };
+  }
+  if (equals(size, 'medium')) {
+    return {
       height: '40px'
+    };
+  }
+  if (equals(size, 'large')) {
+    return {
+      height: '48px'
     };
   }
 
