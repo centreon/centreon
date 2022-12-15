@@ -74,6 +74,6 @@ class TimePeriodException extends \Exception
      */
     public static function nameAlreadyExists(string $timePeriodName): self
     {
-        return new self(sprintf(_('The time period name \'%s\' already exists'), $timePeriodName));
+        return new self(sprintf(_("The time period name '%s' already exists"), $timePeriodName));
     }
 }
