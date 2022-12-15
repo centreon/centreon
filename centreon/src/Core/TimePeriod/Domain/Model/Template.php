@@ -28,7 +28,6 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Template
 {
-
     /**
      * @throws AssertionFailedException
      */
