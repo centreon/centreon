@@ -325,7 +325,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
       item.data.forEach((element) => {
         const { lastDay } = Object.values(element)[0];
 
@@ -344,7 +344,7 @@ testData.forEach((item) =>
     });
 
     it(`does not duplicate days in any of the month in the year when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
       item.data.forEach((element) => {
         const daysInCurrentMonth: Array<string> = [];
         cy.get('[role="rowgroup"]').first().children().as('listWeeks');
@@ -370,7 +370,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the first day as the start of the week when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
 
       item.data.forEach((element) => {
         const { firstDay, numberWeeks } = Object.values(element)[0];
@@ -397,7 +397,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the last day as the end of the week when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
 
       item.data.forEach((element) => {
         const { lastDay, numberWeeks } = Object.values(element)[0];
@@ -427,7 +427,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the month and the year in the calendar's header when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
       item.data.forEach((element) => {
@@ -449,7 +449,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the correct day name on calendar's header when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
       item.data.forEach((element) => {
@@ -477,7 +477,7 @@ testData.forEach((item) =>
     });
 
     it(`displays the calendar for the timezone ${item.timezone} when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
+      cy.get('input').click();
 
       item.data.forEach((element) => {
         cy.matchImageSnapshot(
