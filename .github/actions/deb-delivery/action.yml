@@ -50,7 +50,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          #curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/apt/${{ inputs.repository_name }}/$VERSION/${{ inputs.stability }}/pool/$FILE;deb.distribution=$DISTRIB;deb.component=main;deb.architecture=$ARCH" -T "./$FILE"
           curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/23.04-${{ inputs.stability }}/
 
 
