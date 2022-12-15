@@ -134,7 +134,7 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: pnpm/action-setup@v2
@@ -157,7 +157,6 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
