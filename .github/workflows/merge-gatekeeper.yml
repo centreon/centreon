@@ -1,6 +1,7 @@
 name: merge-gatekeeper
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - develop
