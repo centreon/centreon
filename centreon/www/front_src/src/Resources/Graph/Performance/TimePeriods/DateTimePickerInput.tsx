@@ -76,10 +76,12 @@ const DateTimePickerInput = ({
       PopperProps={{
         open: isOpen,
       }}
+      dayOfWeekFormatter={(day): string => day.substring(0, 2).toUpperCase()}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
+      showToolbar={false}
       value={date}
       onChange={changeTime}
       onClose={(): void => setIsOpen(false)}
