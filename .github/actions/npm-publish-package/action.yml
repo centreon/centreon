@@ -62,7 +62,7 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
-        gh workflow run https://api.github.com/repos/centreon/centreon/workflows/gate-mergekeeper.yml
+        (cd ../../ && gh workflow run ./workflows/gate-mergekeeper.yml)
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
