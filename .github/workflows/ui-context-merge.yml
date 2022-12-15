@@ -42,3 +42,4 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           release_type: "stable"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

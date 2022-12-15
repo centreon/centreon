@@ -23,6 +23,9 @@ inputs:
   release_type:
     description: Is this a stable release?
     default: "stable"
+  GITHUB_TOKEN:
+    description: The Github token
+    required: true
 
 runs:
   using: "composite"
@@ -59,7 +62,10 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
+        gh workflow run gate-mergekeeper.yml
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Publish package to NPM (${{ env.TAG }})
       uses: JS-DevTools/npm-publish@v1

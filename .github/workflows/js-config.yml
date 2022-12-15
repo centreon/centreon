@@ -33,6 +33,7 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           release_type: "beta"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   check-package-version:
     runs-on: ubuntu-22.04
