@@ -3,7 +3,6 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    + Added vault configuration endpoints
     # Information
     All dates are in **ISO 8601** format
     # Authentication
