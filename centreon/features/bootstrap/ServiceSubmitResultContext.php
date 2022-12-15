@@ -52,7 +52,7 @@ class ServiceSubmitResultContext extends CentreonContext
         $serviceConfig->save();
 
         // Ensure service is monitored.
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
     }
 
     /**
