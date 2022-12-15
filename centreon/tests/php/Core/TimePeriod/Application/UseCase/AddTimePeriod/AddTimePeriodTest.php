@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
@@ -30,7 +31,13 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriod;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodRequest;
-use Tests\Core\TimePeriod\Application\UseCase\TimePeriodsPresenterStub;
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodResponse;
+use Core\TimePeriod\Domain\Model\Day;
+use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
+use Core\TimePeriod\Domain\Model\Template;
+use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Domain\Model\TimeRange;
+use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
 beforeEach(function () {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
@@ -45,7 +52,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willThrowException(new \Exception());
 
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new TimePeriodsPresenterStub($this->formatter);
+    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase(new AddTimePeriodRequest(), $presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
@@ -64,10 +71,85 @@ it('should present an ErrorResponse when the name already exists', function () {
     $request = new AddTimePeriodRequest();
     $request->name = $nameToFind;
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new TimePeriodsPresenterStub($this->formatter);
+    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase($request, $presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
+});
+
+it('should present an ErrorResponse when the new time period can not be found after creation', function () {
+    $nameToFind = 'fake_name';
+    $this->readRepository
+        ->expects($this->once())
+        ->method('nameAlreadyExists')
+        ->with($nameToFind, null)
+        ->willReturn(false);
+
+    $this->writeRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn(1);
+
+    $this->readRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with(1)
+        ->willReturn(null);
+
+    $request = new AddTimePeriodRequest();
+    $request->name = $nameToFind;
+    $request->alias = 'fake_alias';
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
+    $useCase($request, $presenter);
+
+    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
+        ->and($presenter->getResponseStatus()?->getMessage())
+        ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
+});
+
+it('should present a correct CreatedResponse object after creation', function () {
+    $fakeName = 'fake_name';
+    $this->readRepository
+        ->expects($this->once())
+        ->method('nameAlreadyExists')
+        ->with($fakeName, null)
+        ->willReturn(false);
+
+    $this->writeRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn(1);
+
+    $newTimePeriod = new TimePeriod(1, $fakeName, $fakeAlias = 'fake_alias');
+    $newTimePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
+    $template = new Template(1, 'fake_template');
+    $newTimePeriod->addTemplate($template);
+    $extraPeriod = new ExtraTimePeriod(1, 'monday 1', new TimeRange('00:00-01:00'));
+    $newTimePeriod->addExtraTimePeriod($extraPeriod);
+
+    $this->readRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with(1)
+        ->willReturn($newTimePeriod);
+
+    $request = new AddTimePeriodRequest();
+    $request->name = $fakeName;
+    $request->alias = 'fake_alias';
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
+    $useCase($request, $presenter);
+
+    expect($presenter->response)->toBeInstanceOf(CreatedResponse::class);
+    expect($presenter->response->getResourceId())->toBe($newTimePeriod->getId());
+
+    $payload = $presenter->response->getPayload();
+    expect($payload->name)->toBe($newTimePeriod->getName());
+    expect($payload->alias)->toBe($newTimePeriod->getAlias());
+    expect($payload->days)->toBe(ExtractResponse::daysToArray($newTimePeriod));
+    expect($payload->templates)->toBe(ExtractResponse::templatesToArray($newTimePeriod));
+    expect($payload->exceptions)->toBe(ExtractResponse::exceptionsToArray($newTimePeriod));
 });

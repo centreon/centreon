@@ -79,8 +79,7 @@ class AddTimePeriod
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod()->getMessage()
-                . $ex->getMessage())
+                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod()->getMessage())
             );
         }
     }
