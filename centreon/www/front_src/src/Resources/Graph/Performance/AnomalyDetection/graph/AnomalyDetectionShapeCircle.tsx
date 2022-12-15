@@ -1,11 +1,12 @@
+import { useEffect } from 'react';
+
 import { Shape } from '@visx/visx';
 import { NumberValue, ScaleLinear } from 'd3-scale';
 import { useUpdateAtom } from 'jotai/utils';
 import { isNil, prop } from 'ramda';
 
-import { TimeValue } from '../models';
-
-import { countedRedCirclesAtom } from './anomalyDetectionAtom';
+import { TimeValue } from '../../models';
+import { countedRedCirclesAtom } from '../anomalyDetectionAtom';
 
 interface AnomalyDetectionShapeCircleProps {
   originMetric: string;
@@ -97,7 +98,9 @@ const AnomalyDetectionShapeCircle = ({
 
   const circlesShown = circles.filter((item) => item.isCircleShown);
 
-  setCountedRedCircles(circlesShown.length);
+  useEffect(() => {
+    setCountedRedCircles(circlesShown.length);
+  }, [circlesShown]);
 
   return (
     <>

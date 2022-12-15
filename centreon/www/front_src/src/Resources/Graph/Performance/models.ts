@@ -1,3 +1,8 @@
+import { ReactNode } from 'react';
+
+import { ResourceDetails } from '../../Details/models';
+import { Resource } from '../../models';
+
 interface DsData {
   ds_color_area: string;
   ds_color_line: string;
@@ -58,4 +63,23 @@ export interface AdjustTimePeriodProps {
 export enum GraphOptionId {
   displayEvents = 'displayEvents',
   displayTooltips = 'displayTooltips'
+}
+
+export interface AdditionalDataProps<T> {
+  additionalData?: T | null;
+}
+
+export interface GetDisplayAdditionalLinesConditionProps {
+  condition: (resource: Resource | ResourceDetails) => boolean;
+  displayAdditionalLines: (args) => ReactNode;
+}
+
+export interface Xscale {
+  dataTime: Array<TimeValue>;
+  valueWidth: number;
+}
+export interface AxeScale {
+  dataLines: Array<Line>;
+  dataTimeSeries: Array<TimeValue>;
+  valueGraphHeight: number;
 }
