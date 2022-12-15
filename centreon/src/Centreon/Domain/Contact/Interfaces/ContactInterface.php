@@ -131,6 +131,23 @@ interface ContactInterface
     public function getRoles(): array;
 
     /**
+     * @param array $roles
+     * @return self
+     */
+    public function setRoles(array $roles): self;
+
+    /**
+     * @return string[]
+     */
+    public function getTopologyRules(): array;
+
+    /**
+     * @param string[] $topologyRoles
+     * @return self
+     */
+    public function setTopologyRules(array $topologyRoles): self;
+
+    /**
      * Indicates if this user has a role.
      *
      * @param string $role Role name to find
