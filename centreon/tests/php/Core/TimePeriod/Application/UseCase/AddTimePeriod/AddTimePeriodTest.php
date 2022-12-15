@@ -23,20 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-use Core\Application\Common\UseCase\CreatedResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriod;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodRequest;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodResponse;
-use Core\TimePeriod\Domain\Model\Day;
-use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
-use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\TimePeriod\Domain\Model\TimeRange;
+use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodRequest};
+use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
 beforeEach(function () {
@@ -55,7 +47,8 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase(new AddTimePeriodRequest(), $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
@@ -74,7 +67,8 @@ it('should present an ErrorResponse when the name already exists', function () {
     $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase($request, $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
 });
@@ -105,7 +99,8 @@ it('should present an ErrorResponse when the new time period can not be found af
     $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase($request, $presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class)
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
@@ -147,9 +142,14 @@ it('should present a correct CreatedResponse object after creation', function ()
     expect($presenter->response->getResourceId())->toBe($newTimePeriod->getId());
 
     $payload = $presenter->response->getPayload();
-    expect($payload->name)->toBe($newTimePeriod->getName());
-    expect($payload->alias)->toBe($newTimePeriod->getAlias());
-    expect($payload->days)->toBe(ExtractResponse::daysToArray($newTimePeriod));
-    expect($payload->templates)->toBe(ExtractResponse::templatesToArray($newTimePeriod));
-    expect($payload->exceptions)->toBe(ExtractResponse::exceptionsToArray($newTimePeriod));
+    expect($payload->name)
+        ->toBe($newTimePeriod->getName())
+        ->and($payload->alias)
+        ->toBe($newTimePeriod->getAlias())
+        ->and($payload->days)
+        ->toBe(ExtractResponse::daysToArray($newTimePeriod))
+        ->and($payload->templates)
+        ->toBe(ExtractResponse::templatesToArray($newTimePeriod))
+        ->and($payload->exceptions)
+        ->toBe(ExtractResponse::exceptionsToArray($newTimePeriod));
 });
