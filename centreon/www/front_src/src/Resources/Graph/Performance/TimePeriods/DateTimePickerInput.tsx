@@ -80,6 +80,7 @@ const DateTimePickerInput = ({
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
+      showToolbar={false}
       value={date}
       onChange={changeTime}
       onClose={(): void => setIsOpen(false)}
