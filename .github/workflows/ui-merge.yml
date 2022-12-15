@@ -9,6 +9,11 @@ on:
       - "centreon/packages/ui/**"
       - ".github/workflows/ui-merge.yml"
 
+env:
+  directory: "centreon/packages/ui"
+  package: "ui"
+  base_branch: develop
+
 jobs:
   clean-up-npm-beta:
     runs-on: ubuntu-22.04
@@ -21,3 +26,19 @@ jobs:
         with:
           package: ui
           npm_token: ${{ secrets.NPM_TOKEN }}
+
+  deliver-npm-beta:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/npm-publish-package
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          release_branch: ${{ env.base_branch }}
+          package: ${{ env.package }}
+          release_type: "stable"

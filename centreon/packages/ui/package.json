@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.7-MON-publish-npm-packages-as-beta.8",
+  "version": "23.4.8-MON-fix-stable-npm-publish.14",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {

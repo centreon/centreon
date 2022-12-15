@@ -2,11 +2,6 @@ name: centreon-ui
 
 on:
   pull_request:
-    types:
-      - closed
-      - opened
-      - edited
-      - synchronize
     paths:
       - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
@@ -16,7 +11,7 @@ on:
 env:
   directory: "centreon/packages/ui"
   centreon_directory: "centreon"
-  package: 'ui'
+  package: "ui"
   base_branch: develop
 
 jobs:
@@ -75,7 +70,7 @@ jobs:
 
   deliver-npm:
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test]
+    needs: [lint, unit-test, check-package-version]
     if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
@@ -90,3 +85,17 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}
+          release_type: "beta"
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

@@ -20,6 +20,9 @@ inputs:
   release_branch:
     description: The release branch
     required: true
+  release_type:
+    description: Is this a stable release?
+    default: "stable"
 
 runs:
   using: "composite"
@@ -28,18 +31,15 @@ runs:
       with:
         node-version: 17
 
-    - name: Is this a release?
+    - name: Configure tag
       run: |
-        IS_RELEASE=${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
-        echo "IS_RELEASE=$IS_RELEASE" >> $GITHUB_ENV
-        [[ $IS_RELEASE = true ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
+        [[ ${{ inputs.release_type }} = "stable" ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Update JS config version
       run: |
-        echo ${{ env.IS_RELEASE }}
         echo ${{ env.TAG }}
-        [[[ ${{ env.IS_RELEASE }} = true ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        [[ ${{ inputs.release_type }} = "stable" ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -53,7 +53,7 @@ runs:
       shell: bash
 
     - name: Commit and push changes
-      if: ${{ startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+      if: ${{ inputs.release_type == 'beta' && startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
       run: |
         git pull origin ${{ github.head_ref }}
         git add .
@@ -71,7 +71,7 @@ runs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
-      if: ${{ env.IS_RELEASE == 'true' }}
+      if: ${{ inputs.release_type == 'stable' }}
       with:
         token: ${{ inputs.pat }}
         committer: Technique CI <technique-ci@centreon.com>
