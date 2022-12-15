@@ -62,7 +62,8 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
-        (cd ../../ && gh workflow run ./workflows/gate-mergekeeper.yml)
+        echo "pushed"
+        (cd ../.. && ls && gh workflow run ./workflows/gate-mergekeeper.yml)
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
