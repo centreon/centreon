@@ -17,3 +17,4 @@ jobs:
           interval: 300
           timeout: 3600
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref_name }}
