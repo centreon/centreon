@@ -67,6 +67,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -156,6 +157,7 @@ jobs:
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
