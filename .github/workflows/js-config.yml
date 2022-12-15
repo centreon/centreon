@@ -38,7 +38,7 @@ jobs:
       - name: "Trigger merge gatekeeper manually"
         run: gh workflow run merge-gatekeeper.yml --ref ${{ github.head_ref }} --repo ${{ github.repository }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         shell: bash
 
   check-package-version:
