@@ -35,7 +35,7 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
 {
     use LoggerTrait;
 
-    private const ROUTE_NAME = 'DeleteTimePeriod';
+    private const ROUTE_NAME = 'FindTimePeriod';
 
     public function __construct(PresenterFormatterInterface $presenterFormatter, private Router $router)
     {
