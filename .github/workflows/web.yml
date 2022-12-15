@@ -134,7 +134,7 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: pnpm/action-setup@v2
