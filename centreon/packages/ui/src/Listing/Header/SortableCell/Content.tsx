@@ -19,15 +19,19 @@ const useStyles = makeStyles<StylesProps>()(
     content: {
       alignItems: 'center',
       display: 'flex',
-      minHeight: theme.spacing(3),
-      padding: theme.spacing(0, 1.5)
+      minHeight: theme.spacing(3)
+      // padding: theme.spacing(0, 1.5)
     },
     dragHandle: {
-      alignSelf: 'flex-start',
+      alignSelf: 'center',
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
-      marginLeft: -theme.spacing(1),
+      // marginLeft: -theme.spacing(1),
       outline: 'none'
+    },
+    dragIcon: {
+      display: 'flex',
+      minWidth: theme.spacing(20 / 8)
     },
     item: {
       background: isInDragOverlay
@@ -37,6 +41,13 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: isInDragOverlay
         ? 'none'
         : `1px solid ${theme.palette.text.primary}`
+      // paddingLeft: theme.spacing(0.5)
+    },
+    label: {
+      paddingLeft: theme.spacing(1)
+    },
+    labelHovered: {
+      padding: 0
     }
   })
 );
@@ -62,6 +73,7 @@ const SortableHeaderCellContent = ({
   isDragging,
   itemRef,
   style,
+  getCellHeaderHovered,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
@@ -86,9 +98,16 @@ const SortableHeaderCellContent = ({
     });
   };
 
+  getCellHeaderHovered(cellHovered);
+
   const headerContent = (
     <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
-      <div>
+      <div
+      // className={cx({
+      //   [classes.label]: !cellHovered,
+      //   [classes.labelHovered]: cellHovered
+      // })}
+      >
         <HeaderLabel>{columnLabel}</HeaderLabel>
       </div>
     </Tooltip>
@@ -103,26 +122,28 @@ const SortableHeaderCellContent = ({
       onMouseOver={(): void => setCellHovered(true)}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        {columnConfiguration?.sortable && cellHovered && (
-          <div
-            className={classes.dragHandle}
-            {...props}
-            aria-label={columnLabel}
-          >
-            <DragIndicatorIcon fontSize="small" />
-          </div>
-        )}
+        <div className={classes.dragIcon}>
+          {columnConfiguration?.sortable && (
+            <div
+              className={classes.dragHandle}
+              {...props}
+              aria-label={columnLabel}
+            >
+              <DragIndicatorIcon fontSize="small" />
+            </div>
+          )}
+        </div>
 
         {column.sortable ? (
-          // <TableSortLabel
-          //   active={sortField === columnSortField}
-          //   aria-label={`Column ${column.label}`}
-          //   direction={sortOrder || 'desc'}
-          //   onClick={sort}
-          // >
-          <div>{headerContent}</div>
+          <TableSortLabel
+            active={sortField === columnSortField}
+            aria-label={`Column ${column.label}`}
+            direction={sortOrder || 'desc'}
+            onClick={sort}
+          >
+            {headerContent}
+          </TableSortLabel>
         ) : (
-          // </TableSortLabel>
           headerContent
         )}
       </div>

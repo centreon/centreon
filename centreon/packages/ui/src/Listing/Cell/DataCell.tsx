@@ -28,11 +28,19 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     alignSelf: 'stretch',
     display: 'flex',
+    // minWidth: 60,
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
+  cellComponent: {
+    minWidth: 60,
+    padding: theme.spacing(0, 0, 0, 1)
+  },
   rowNotHovered: {
     color: theme.palette.text.secondary
+  },
+  test: {
+    background: 'red'
   },
   text: {
     overflow: 'hidden',
@@ -83,7 +91,11 @@ const DataCell = ({
       );
 
       return (
-        <Cell style={{ gridColumn }} {...commonCellProps}>
+        <Cell
+          style={{ gridColumn }}
+          {...commonCellProps}
+          className={classes.test}
+        >
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
@@ -113,6 +125,8 @@ const DataCell = ({
             e.stopPropagation();
           }}
           {...commonCellProps}
+          // sx={{ background: 'red', p: 1 }}
+          // className={classes.cellComponent}
         >
           <Component
             isHovered={isRowHovered}

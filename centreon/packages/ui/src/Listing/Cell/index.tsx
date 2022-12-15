@@ -60,6 +60,7 @@ const useStyles = makeStyles<Props>()(
         theme
       }),
       borderBottom: `1px solid ${theme.palette.divider}`,
+      // minWidth: 130,
       padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5)
     }
   })

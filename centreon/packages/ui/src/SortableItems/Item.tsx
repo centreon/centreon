@@ -7,7 +7,15 @@ interface Props extends Record<string, unknown> {
 
 const Item = React.forwardRef(
   ({ Content, ...props }: Props, ref: React.ForwardedRef<HTMLDivElement>) => {
-    return <Content {...props} itemRef={ref} />;
+    const getCellHeaderHovered = (e) => console.log(e);
+
+    return (
+      <Content
+        {...props}
+        getCellHeaderHovered={getCellHeaderHovered}
+        itemRef={ref}
+      />
+    );
   }
 );
 

@@ -45,12 +45,12 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
   resourceDetailsCell: {
     alignItems: 'center',
     display: 'flex',
-    flexWrap: 'nowrap',
-    padding: theme.spacing(0, 0.5)
+    flexWrap: 'nowrap'
+    // padding: theme.spacing(0, 0.5)
   },
   resourceNameItem: {
     lineHeight: 1,
-    marginLeft: theme.spacing(1),
+    // marginLeft: theme.spacing(1),
     whiteSpace: 'nowrap'
   },
   resourceNameText: {
@@ -214,7 +214,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['parent'],
     sortField: 'parent_alias',
     sortable: true,
-    type: ColumnType.component
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
