@@ -17,4 +17,4 @@ jobs:
           interval: 300
           timeout: 3600
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.ref }}
