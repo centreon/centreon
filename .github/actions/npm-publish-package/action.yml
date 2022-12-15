@@ -23,9 +23,6 @@ inputs:
   release_type:
     description: Is this a stable release?
     default: "stable"
-  GITHUB_TOKEN:
-    description: The Github token
-    required: true
 
 runs:
   using: "composite"

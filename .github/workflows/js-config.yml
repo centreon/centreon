@@ -33,13 +33,6 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           release_type: "beta"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: "Trigger merge gatekeeper manually"
-        run: gh workflow run merge-gatekeeper.yml --ref ${{ github.head_ref }} --repo ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        shell: bash
 
   check-package-version:
     runs-on: ubuntu-22.04
