@@ -2446,7 +2446,7 @@ CREATE TABLE `security_provider_contact_group_relation` (
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `vault` (
+CREATE TABLE IF NOT EXISTS `vault` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
@@ -2455,7 +2455,7 @@ CREATE TABLE `vault` (
 
 INSERT INTO `vault` (`name`) VALUES ('hashicorp');
 
-CREATE TABLE `vault_configuration` (
+CREATE TABLE IF NOT EXISTS `vault_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `vault_id` INT UNSIGNED NOT NULL,
