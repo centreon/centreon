@@ -55,7 +55,7 @@ class DowntimeStartAndStopContext extends CentreonContext
         ));
         $page->save();
 
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
         $this->submitServiceResult($this->host, $this->service, 0, __FUNCTION__);
     }
 
