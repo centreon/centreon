@@ -62,10 +62,7 @@ runs:
         git add .
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
-        (cd .. && ls -a && gh workflow run ./workflows/gate-mergekeeper.yml --ref ${{ github.head_ref }})
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Publish package to NPM (${{ env.TAG }})
       uses: JS-DevTools/npm-publish@v1
