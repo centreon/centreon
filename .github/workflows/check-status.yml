@@ -15,29 +15,29 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - run: |
-          # defer check
           sleep 10s
 
           ITERATIONS=1
-          until [ ${ITERATIONS} -le 10 ]; do
-            CHECKS="$(gh pr checks | grep -E -i '\s+(fail|pending)\s+'))"
-            if [ $($CHECKS | grep -E -i '\s+fail\s+' | wc -l) -gt 0 ]; then
-              echo "some jobs are failed"
-              exit 1
-            fi
+          while [[ $ITERATIONS -le 10 ]]; do
 
-            # only remaining pending job should be check-status itself
-            if [ $($CHECKS | grep -E -i '\s+pending\s+' | wc -l) -eq 1 ]; then
-              echo "all jobs are passed"
-              exit 0
-            fi
+              CHECKS="$(gh pr checks | grep -E -i '\s+(fail|pending)\s+'))"
+              if [ $(echo $CHECKS | grep -E -i '\s+fail\s+' | wc -l) -gt 0 ]; then
+                  echo "some jobs are failed"
+                  exit 1
+              fi
 
-            if [ ${ITERATIONS} -lt 10 ]; then
-              echo "some jobs are still in progress, next try in 60 seconds... (tries: ${ITERATIONS}/10)"
-              sleep 60s
-            fi
+              # only remaining pending job should be check-status itself
+              if [ $(echo $CHECKS | grep -E -i '\s+pending\s+' | wc -l) -eq 1 ]; then
+                  echo "all jobs are passed"
+                  exit 0
+              fi
 
-            ITERATIONS=$((ITERATIONS+1))
+              if [ $ITERATIONS -lt 10 ]; then
+                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/10)"
+                  sleep 60s
+              fi
+
+              ITERATIONS=$((ITERATIONS+1))
           done
 
           exit 1
