@@ -32,6 +32,7 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -46,7 +47,7 @@ beforeEach(function () {
         $this->requestParameters,
         $this->user
     );
-    $this->presenter = new FindHostCategoriesPresenterStub($this->presenterFormatter);
+    $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->hostCategoryName = 'hc-name';
     $this->hostCategoryAlias = 'hc-alias';
     $this->hostCategoryComment = 'blablabla';
@@ -56,7 +57,7 @@ beforeEach(function () {
         'id' => 1,
         'name' => $this->hostCategoryName,
         'alias' => $this->hostCategoryAlias,
-        'is_activated' => '1',
+        'is_activated' => true,
         'comment' => $this->hostCategoryComment,
     ];
 });
@@ -123,9 +124,9 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
 
     ($this->usecase)($this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getPresentedData())
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($this->presenter->response->hostCategories[0])
+        ->and($this->presenter->getPresentedData()->hostCategories[0])
         ->toBe($this->responseArray);
 });
 
@@ -150,9 +151,9 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
 
     ($this->usecase)($this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getPresentedData())
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($this->presenter->response->hostCategories[0])
+        ->and($this->presenter->getPresentedData()->hostCategories[0])
         ->toBe($this->responseArray);
 });
 
@@ -169,8 +170,8 @@ it('should present a FindHostCategoriesResponse with admin user', function () {
 
     ($this->usecase)($this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getPresentedData())
         ->toBeInstanceOf(FindHostCategoriesResponse::class)
-        ->and($this->presenter->response->hostCategories[0])
+        ->and($this->presenter->getPresentedData()->hostCategories[0])
         ->toBe($this->responseArray);
 });

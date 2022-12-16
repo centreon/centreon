@@ -38,6 +38,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     // TODO : update abstract with AbstractRepositoryRDB (cf. PR Laurent)
     use LoggerTrait;
 
+    public const HC_IS_ACTIVE = '1',
+                HC_IS_INACTIVE = '0';
+
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
@@ -50,7 +53,13 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     {
         $this->info('Getting all host categories');
 
-        return $this->findAllRequest(null, $requestParameters);
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            FROM `:db`.hostcategories hc'
+        );
+
+        return $this->retrieveHostCategories($concatenator, $requestParameters);
     }
 
     /**
@@ -71,40 +80,44 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        $accessGroupIds = $this->hasRestrictedAccessToHostCategories($accessGroupIds) ? $accessGroupIds : null;
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+            $this->info('Host categories access not filtered');
 
-        return $this->findAllRequest($accessGroupIds, $requestParameters);
+            return $this->findAll($requestParameters);
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        return $this->retrieveHostCategories($concatenator, $requestParameters);
     }
 
     /**
-     * @param int[]|null $accessGroupIds
+     * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      * @return HostCategory[]
      */
-    private function findAllRequest(?array $accessGroupIds, ?RequestParametersInterface $requestParameters): array
-    {
-        $concat = new SqlConcatenator();
+    private function retrieveHostCategories(
+        SqlConcatenator $concatenator,
+        ?RequestParametersInterface $requestParameters
+    ): array {
+        // Exclude severities from the results
+        $concatenator->appendWhere('hc.level IS NULL');
 
-        if ($accessGroupIds === null) {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
-                FROM `:db`.hostcategories hc';
-        } else {
-            $query = 'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
-                FROM `:db`.hostcategories hc
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON hc.hc_id = arhr.hc_id
-                INNER JOIN `:db`.acl_resources res
-                    ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON argr.acl_group_id = ag.acl_group_id';
-
-            $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-                ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-        }
-        $concat->appendWhere('hc.level IS NULL');
-
+        // Settup for search, pagination, order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
             'id' => 'hc.hc_id',
@@ -113,12 +126,12 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             'is_activated' => 'hc.hc_activate'
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
-        $sqlTranslator?->translateForConcatenator($concat);
+        $sqlTranslator?->translateForConcatenator($concatenator);
 
-        $statement = $this->db->prepare($this->translateDbName($query . ' ' . $concat));
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
         $sqlTranslator?->bindSearchValues($statement);
-        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+        foreach ($concatenator->retrieveBindValues() as $param => [$value, $type]) {
             $statement->bindValue($param, $value, $type);
         }
         $statement->execute();
@@ -127,17 +140,28 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $hostCategories = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $hostCategory = new HostCategory(
-                $result['hc_id'],
-                $result['hc_name'],
-                $result['hc_alias']
-            );
-            $hostCategory->setActivated($result['hc_activate']);
-            $hostCategory->setComment($result['hc_comment']);
-            $hostCategories[] = $hostCategory;
+            /** @var array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result */
+            $hostCategories[] = $this->createHostCategoryFromArray($result);
         }
 
         return $hostCategories;
+    }
+
+    /**
+     * @param array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result
+     * @return HostCategory
+     */
+    private function createHostCategoryFromArray(array $result): HostCategory
+    {
+        $hostCategory = new HostCategory(
+            $result['hc_id'],
+            $result['hc_name'],
+            $result['hc_alias']
+        );
+        $hostCategory->setActivated($result['hc_activate'] === self::HC_IS_ACTIVE ? true : false);
+        $hostCategory->setComment($result['hc_comment']);
+
+        return $hostCategory;
     }
 
     /**
@@ -146,32 +170,34 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      * false: accessible host categories are not filtered
      *
      * @param int[] $accessGroupIds
+     * @phpstan-param non-empty-array<int> $accessGroupIds
      * @return bool
      */
     private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
     {
-        $concat = new SqlConcatenator();
+        $concatenator = new SqlConcatenator();
 
-        $query = 'SELECT COUNT(arhr.hc_id)
+        $concatenator->defineSelect(
+            'SELECT 1
             FROM `:db`.acl_resources_hc_relations arhr
             INNER JOIN `:db`.acl_resources res
                 ON arhr.acl_res_id = res.acl_res_id
             INNER JOIN `:db`.acl_res_group_relations argr
                 ON res.acl_res_id = argr.acl_res_id
             INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id';
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
 
-        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
             ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
 
-        $statement = $this->db->prepare($this->translateDbName($query . ' ' . $concat));
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
-        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+        foreach ($concatenator->retrieveBindValues() as $param => [$value, $type]) {
             $statement->bindValue($param, $value, $type);
         }
         $statement->execute();
-        $result = $statement->fetchColumn();
 
-        return ($result === false || $result >= 1);
+        return (bool) ($statement->fetchColumn());
     }
 }

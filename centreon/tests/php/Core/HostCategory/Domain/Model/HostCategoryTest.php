@@ -36,8 +36,7 @@ it('should return properly set host category instance', function () {
 
     expect($hostCategory->getId())->toBe(1)
         ->and($hostCategory->getName())->toBe($this->categoryName)
-        ->and($hostCategory->getAlias())->toBe($this->categoryAlias)
-        ->and($hostCategory->isActivated())->toBe(HostCategory::IS_ACTIVE);
+        ->and($hostCategory->getAlias())->toBe($this->categoryAlias);
 });
 
 it('should throw an exception when host category name is empty', function () {
@@ -90,17 +89,5 @@ it('should throw an exception when host category comment is too long', function 
         HostCategory::MAX_COMMENT_LENGTH + 1,
         HostCategory::MAX_COMMENT_LENGTH,
         'HostCategory::comment'
-    )->getMessage()
-);
-
-it('should throw an exception when host category activation status is not valid', function () {
-    $hostCategory = new HostCategory(1, $this->categoryName, $this->categoryAlias);
-    $hostCategory->setActivated('test');
-})->throws(
-    \Assert\InvalidArgumentException::class,
-    AssertionException::inArray(
-        'test',
-        [HostCategory::IS_ACTIVE, HostCategory::IS_INACTIVE],
-        'HostCategory::isActivated'
     )->getMessage()
 );
