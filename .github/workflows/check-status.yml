@@ -27,7 +27,7 @@ jobs:
 
               CHECKS=$(gh pr checks ${{ github.event.number }})
               echo $CHECKS
-              if [ $(echo $CHECKS | grep -E -i '\s+fail\s+' | wc -l) -gt 0 ]; then
+              if [ $(echo $CHECKS | grep -E -i '\\s+fail\\s+' | wc -l) -gt 0 ]; then
                   echo "some jobs are failed"
                   exit 1
               fi
