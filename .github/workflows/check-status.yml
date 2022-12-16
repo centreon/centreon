@@ -24,12 +24,8 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 10 ]]; do
-              set -e
-              CHECKS="$(gh pr checks ${{ github.event.number }})"
-              set +e
-              echo "toto"
+              CHECKS=$(gh pr checks ${{ github.event.number }}) || true
               echo "$CHECKS"
-              echo "titi"
               echo "$CHECKS" | grep -E -i '\\s+fail\\s+' | wc -l
               echo "tata"
               exit 2
