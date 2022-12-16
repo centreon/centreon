@@ -18,7 +18,7 @@ jobs:
 
       - run: |
           set -x
-          sleep 10s
+          #sleep 10s
 
           echo "Starting check"
 
@@ -26,8 +26,11 @@ jobs:
           while [[ $ITERATIONS -le 10 ]]; do
 
               CHECKS=$(gh pr checks ${{ github.event.number }})
+              echo "toto"
               echo "$CHECKS"
+              echo "titi"
               echo "$CHECKS" | grep -E -i '\\s+fail\\s+' | wc -l
+              echo "tata"
               exit 2
               if [ $(echo $CHECKS | grep -E -i '\\s+fail\\s+' | wc -l) -gt 0 ]; then
                   echo "some jobs are failed"
