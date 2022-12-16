@@ -25,9 +25,9 @@ jobs:
           ITERATIONS=1
           while [[ $ITERATIONS -le 10 ]]; do
 
-              TOTO=$(gh pr checks ${{ github.event.number }})
-              echo $TOTO
-              echo $($TOTO | grep -E -i '\\s+fail\\s+' | wc -l)
+              CHECKS=$(gh pr checks ${{ github.event.number }})
+              echo "$CHECKS"
+              echo "$CHECKS" | grep -E -i '\\s+fail\\s+' | wc -l
               exit 2
               if [ $(echo $CHECKS | grep -E -i '\\s+fail\\s+' | wc -l) -gt 0 ]; then
                   echo "some jobs are failed"
