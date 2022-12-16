@@ -19,6 +19,8 @@ jobs:
       - run: |
           sleep 10s
 
+          echo "Starting check" >> $GITHUB_OUTPUT
+
           ITERATIONS=1
           while [[ $ITERATIONS -le 10 ]]; do
 
@@ -42,7 +44,7 @@ jobs:
               ITERATIONS=$((ITERATIONS+1))
           done
 
-          echo "Timeout : some jobs are still in progress"
+          echo "Timeout : some jobs are still in progress" >> $GITHUB_OUTPUT
           exit 1
         shell: bash
         env:
