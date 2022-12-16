@@ -371,6 +371,16 @@ if ($o !== HOST_MASSIVE_CHANGE) {
 }
 $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
 $form->addElement('select', 'host_snmp_version', _("Version"), array(null => null, 1 => "1", "2c" => "2c", 3 => "3"));
+$form->addElement(
+    'checkbox',
+    'host_snmp_is_password',
+    _('Password'),
+    null,
+    array(
+        'id' => 'host_snmp_is_password',
+        'onClick' => 'javascript:change_snmp_community_input_type(this)'
+    )
+);
 
 /*
  * Include GMT Class

@@ -1372,6 +1372,7 @@ CREATE TABLE `host` (
   `host_locked` BOOLEAN DEFAULT 0,
   `host_register` enum('0','1','2','3') DEFAULT NULL,
   `host_activate` enum('0','1','2') DEFAULT '1',
+  `host_snmp_is_password` enum('0', '1') DEFAULT '0' NOT NULL
   PRIMARY KEY (`host_id`),
   KEY `htm_index` (`host_template_model_htm_id`),
   KEY `cmd1_index` (`command_command_id`),

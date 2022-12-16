@@ -34,6 +34,9 @@
  *
  */
 
+use Symfony\Component\HttpFoundation\Response;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -1096,6 +1099,43 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
             false,
             $ret["command_command_id"]
         );
+    }
+
+    $passwordTypeData = [];
+    if ((bool) $ret['host_snmp_is_password'] === true) {
+        $passwordTypeData = [
+            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+        ];
+    }
+
+    //@TODO: Check if Macro value are passwords
+
+    //Check if a vault configuration exists
+    if (! empty($passwordTypeData)) {
+        $kernel = \App\Kernel::createForWeb();
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository::class
+        );
+
+        /**
+         * @var VaultConfiguration
+         */
+        $vaultConfigurations = $readVaultConfigurationRepository->findVaultConfigurations();
+
+        //If there is a vault configuration write into vault
+        if (! empty($vaultConfigurations)) {
+            /**
+             * @var VaultConfiguration
+             */
+            $vaultConfiguration = $vaultConfigurations[0];
+            try {
+                $clientToken = authenticateToVault($vaultConfiguration);
+                writeDataInVault($vaultConfiguration, $host_id['MAX(host_id)'], $clientToken, $passwordTypeData);
+                updateHostTablesWithVaultPath($vaultConfiguration, $host_id['MAX(host_id)'], $pearDB);
+            } catch (\Exception $ex) {
+                error_log($ex);
+            }
+        }
     }
 
     if (isset($ret['criticality_id'])) {
@@ -2739,7 +2779,93 @@ function sanitizeFormHostParameters(array $ret): array
                         : null
                 ];
                 break;
+            case 'host_snmp_is_password':
+                $bindParams[':' . $inputName] = [
+                    \PDO::PARAM_STR => in_array($inputValue, ['0', '1'])
+                        ? $inputValue[$inputName]
+                        : null
+                ];
+                break;
         }
     }
     return $bindParams;
+}
+
+/**
+ * Get Client Token for Vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @return string
+ * @throws \Exception
+ */
+function authenticateToVault(VaultConfiguration $vaultConfiguration): string
+{
+    $curl = curl_init();
+    curl_setopt(
+        $curl,
+        CURLOPT_URL,
+        $vaultConfiguration->getAddress()
+            . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login'
+    );
+    $body = json_encode([
+        "role_id" => $vaultConfiguration->getRoleId(),
+        "secret_id" => $vaultConfiguration->getSecretId(),
+    ]);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+    $content = curl_exec($curl);
+    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+    $loginResponse = json_decode($content, true);
+
+    if ((int) $httpcode !== Response::HTTP_OK) {
+        throw new \Exception('Unable to authenticate to Vault');
+    }
+
+    return $loginResponse['auth']['client_token'];
+}
+
+
+function writeDataInVault(
+    VaultConfiguration $vaultConfiguration,
+    int $hostId,
+    string $clientToken,
+    array $passwordTypeData
+): void {
+    $curl = curl_init();
+    curl_setopt(
+        $curl,
+        CURLOPT_URL,
+        $vaultConfiguration->getAddress()
+            . ':' . $vaultConfiguration->getPort() . '/v1/' . $vaultConfiguration->getStorage()
+            . '/centreon/hosts/' . $hostId
+    );
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', "X-Vault-Token: " . $clientToken]);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($passwordTypeData));
+    curl_exec($curl);
+    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    if ($httpcode !== Response::HTTP_NO_CONTENT) {
+        throw new \Exception('Unable to add value to Vault');
+    }
+}
+
+function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $host_id, \CentreonDB $pearDB): void
+{
+    $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+                    . "/hosts/" . $host_id;
+
+    $statementUpdateHost = $pearDB->prepare(
+        <<<SQL
+            UPDATE `host` SET host_snmp_community = :path WHERE host_id = :hostId
+        SQL
+    );
+    $statementUpdateHost->bindValue(':path', $path, \PDO::PARAM_STR);
+    $statementUpdateHost->bindValue(':hostId', (int) $host_id);
+    $statementUpdateHost->execute();
 }
