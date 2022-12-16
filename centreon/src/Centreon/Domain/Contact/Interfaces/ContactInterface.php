@@ -131,7 +131,7 @@ interface ContactInterface
     public function getRoles(): array;
 
     /**
-     * @param array $roles
+     * @param string[] $roles
      * @return self
      */
     public function setRoles(array $roles): self;
