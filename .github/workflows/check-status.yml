@@ -19,3 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: jitterbit/await-check-suites@v1
+        with:
+          intervalSeconds: 60
+          timeoutSeconds: 1800
+          appSlugFilter: 'github-actions'
