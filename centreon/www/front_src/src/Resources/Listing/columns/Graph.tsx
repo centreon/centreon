@@ -88,7 +88,7 @@ const renderChip =
     (
       <IconButton
         ariaLabel={label}
-        size="large"
+        size="small"
         title={label}
         onClick={onClick}
       >

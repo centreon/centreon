@@ -57,7 +57,8 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
     color: isHovered
       ? theme.palette.text.primary
       : theme.palette.text.secondary,
-    lineHeight: 1
+    lineHeight: 1,
+    paddingLeft: theme.spacing(1)
   }
 }));
 

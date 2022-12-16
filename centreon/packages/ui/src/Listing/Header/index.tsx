@@ -69,7 +69,6 @@ type Props = Pick<
   | 'columnConfiguration'
   | 'totalRows'
 > & {
-  getHeaderCellHovered: any;
   memoProps: Array<unknown>;
   onSelectAllClick: (event) => void;
   onSelectRowsWithCondition: (condition) => void;
@@ -80,7 +79,6 @@ type Props = Pick<
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
   attributes;
-  getCellHeaderHovered: any;
   id: string;
   isDragging: boolean;
   isInDragOverlay?: boolean;
@@ -102,8 +100,7 @@ const ListingHeader = ({
   checkable,
   predefinedRowsSelection,
   onSelectRowsWithCondition,
-  memoProps,
-  getHeaderCellHovered
+  memoProps
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -124,17 +121,12 @@ const ListingHeader = ({
       style,
       isDragging,
       itemRef,
-      id,
-      getCellHeaderHovered
-    }: // getCellHeaderHovered
-    ContentProps): JSX.Element => {
-      // const getCellHeaderHovered = (e) => console.log(e);
-
+      id
+    }: ContentProps): JSX.Element => {
       return (
         <SortableHeaderCellContent
           column={getColumnById(id)}
           columnConfiguration={columnConfiguration}
-          getCellHeaderHovered={getCellHeaderHovered}
           isDragging={isDragging}
           isInDragOverlay={isInDragOverlay}
           itemRef={itemRef}

@@ -1,16 +1,18 @@
 import * as React from 'react';
 
+import { useUpdateAtom } from 'jotai/utils';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { TableCellBaseProps, TableSortLabel, Tooltip } from '@mui/material';
-import DragIndicatorIcon from '@mui/icons-material/MoreVert';
+import SvgIcon from '@mui/material/SvgIcon';
 
-import { Props as ListingProps } from '../..';
-import { Column } from '../../models';
-import HeaderLabel from '../Label';
 import { HeaderCell } from '..';
+import { Props as ListingProps } from '../..';
 import { useStyles as useCellStyles } from '../../Cell/DataCell';
+import { Column } from '../../models';
+import { hoveredHeaderAtom } from '../headerAtom';
+import HeaderLabel from '../Label';
 
 type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
@@ -19,7 +21,8 @@ const useStyles = makeStyles<StylesProps>()(
     content: {
       alignItems: 'center',
       display: 'flex',
-      minHeight: theme.spacing(3)
+      minHeight: theme.spacing(3),
+      minWidth: theme.spacing(5)
       // padding: theme.spacing(0, 1.5)
     },
     dragHandle: {
@@ -73,12 +76,13 @@ const SortableHeaderCellContent = ({
   isDragging,
   itemRef,
   style,
-  getCellHeaderHovered,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
   const cellClasses = useCellStyles();
   const [cellHovered, setCellHovered] = React.useState(false);
+
+  const setHoveredHeader = useUpdateAtom(hoveredHeaderAtom);
 
   const columnLabel = column.shortLabel || column.label;
 
@@ -98,18 +102,20 @@ const SortableHeaderCellContent = ({
     });
   };
 
-  getCellHeaderHovered(cellHovered);
+  const mouseOver = (): void => {
+    setCellHovered(true);
+
+    setHoveredHeader({ column, isHeaderHovered: true });
+  };
+
+  const mouseOut = (): void => {
+    setCellHovered(false);
+    setHoveredHeader({ column, isHeaderHovered: false });
+  };
 
   const headerContent = (
     <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
-      <div
-      // className={cx({
-      //   [classes.label]: !cellHovered,
-      //   [classes.labelHovered]: cellHovered
-      // })}
-      >
-        <HeaderLabel>{columnLabel}</HeaderLabel>
-      </div>
+      <HeaderLabel>{columnLabel}</HeaderLabel>
     </Tooltip>
   );
 
@@ -118,19 +124,20 @@ const SortableHeaderCellContent = ({
       className={cx([cellClasses.cell, classes.item])}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
-      onMouseOut={(): void => setCellHovered(false)}
-      onMouseOver={(): void => setCellHovered(true)}
+      onMouseOut={mouseOut}
+      onMouseOver={mouseOver}
     >
       <div className={classes.content} ref={itemRef} style={style}>
         <div className={classes.dragIcon}>
-          {columnConfiguration?.sortable && (
-            <div
-              className={classes.dragHandle}
+          {columnConfiguration?.sortable && cellHovered && (
+            <SvgIcon
+              fontSize="small"
               {...props}
               aria-label={columnLabel}
+              className={classes.dragHandle}
             >
-              <DragIndicatorIcon fontSize="small" />
-            </div>
+              <path d="M 12 8 c 1.1 0 2 -0.9 2 -2 s -0.9 -2 -2 -2 s -2 0.9 -2 2 s 0.9 2 2 2 Z m 0 2 c -1.1 0 -2 0.9 -2 2 s 0.9 2 2 2 s 2 -0.9 2 -2 s -0.9 -2 -2 -2 Z m 0 6 c -1.1 0 -2 0.9 -2 2 s 0.9 2 2 2 s 2 -0.9 2 -2 s -0.9 -2 -2 -2 Z" />
+            </SvgIcon>
           )}
         </div>
 

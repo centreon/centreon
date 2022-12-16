@@ -73,9 +73,9 @@ const HoverChip = ({
         onClose={closeTooltip}
         onOpen={openTooltip}
       >
-        <span>
-          <Chip />
-        </span>
+        {/* <span> */}
+        <Chip />
+        {/* </span> */}
       </Tooltip>
     ),
     memoProps: [isHovered, isChipHovered, label]

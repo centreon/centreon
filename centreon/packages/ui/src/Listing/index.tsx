@@ -442,8 +442,6 @@ const Listing = <TRow extends { id: RowId }>({
     columns
   });
 
-  const getHeaderCellHovered = (e) => console.log('loool', e);
-
   React.useEffect(() => {
     if (not(isShiftKeyDown)) {
       setShiftKeyDownRowPivot(null);
@@ -507,7 +505,6 @@ const Listing = <TRow extends { id: RowId }>({
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
-              getHeaderCellHovered={getHeaderCellHovered}
               memoProps={headerMemoProps}
               predefinedRowsSelection={predefinedRowsSelection}
               rowCount={limit - emptyRows}

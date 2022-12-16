@@ -1,10 +1,12 @@
 import { memo } from 'react';
 
+import { useAtomValue } from 'jotai/utils';
 import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, Typography } from '@mui/material';
 
+import { hoveredHeaderAtom } from '../Header/headerAtom';
 import {
   Column,
   ColumnType,
@@ -30,17 +32,31 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     // minWidth: 60,
     overflow: 'hidden',
+    // padding: theme.spacing(0, 0, 0, 2.5),
     whiteSpace: 'nowrap'
   },
   cellComponent: {
     minWidth: 60,
     padding: theme.spacing(0, 0, 0, 1)
   },
+  componentColumn: {
+    padding: theme.spacing(0, 0, 0, 2.25)
+  },
+  headerCell: {
+    padding: theme.spacing(0, 0, 0, 1)
+  },
+
+  hoveredComponentColumn: {
+    padding: theme.spacing(0, 1.25, 0, 1)
+  },
+  hoveredStringColumn: {
+    padding: theme.spacing(0, 1.5, 0, 1)
+  },
   rowNotHovered: {
     color: theme.palette.text.secondary
   },
-  test: {
-    background: 'red'
+  stringColumn: {
+    padding: theme.spacing(0, 0, 0, 2.5)
   },
   text: {
     overflow: 'hidden',
@@ -57,11 +73,35 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition
 }: Props): JSX.Element | null => {
+  const { getColSpan, id, type } = column;
+
   const { classes, cx } = useStyles();
+
+  const hoveredHeader = useAtomValue(hoveredHeaderAtom);
+
+  const isHeaderOfCellHovered =
+    equals(id, hoveredHeader?.column?.id) && hoveredHeader?.isHeaderHovered;
+
+  const stringColumn =
+    !isHeaderOfCellHovered && equals(type, ColumnType.string);
+
+  const componentColumn =
+    !isHeaderOfCellHovered && equals(type, ColumnType.component);
+
+  const hoveredStringColumn =
+    isHeaderOfCellHovered && equals(type, ColumnType.string);
+
+  const hoveredComponentColumn =
+    isHeaderOfCellHovered && equals(type, ColumnType.component);
 
   const commonCellProps = {
     align: 'left' as const,
-    className: classes.cell,
+    className: cx(classes.cell, {
+      [classes.hoveredComponentColumn]: hoveredComponentColumn,
+      [classes.hoveredStringColumn]: hoveredStringColumn,
+      [classes.stringColumn]: stringColumn,
+      [classes.componentColumn]: componentColumn
+    }),
     compact: column.compact,
     disableRowCondition,
     isRowHovered,
@@ -71,7 +111,7 @@ const DataCell = ({
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
-      const { getFormattedString, isTruncated, getColSpan } = column;
+      const { getFormattedString, isTruncated } = column;
 
       const colSpan = getColSpan?.(isRowSelected);
 
@@ -91,11 +131,7 @@ const DataCell = ({
       );
 
       return (
-        <Cell
-          style={{ gridColumn }}
-          {...commonCellProps}
-          className={classes.test}
-        >
+        <Cell style={{ gridColumn }} {...commonCellProps}>
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
@@ -125,8 +161,6 @@ const DataCell = ({
             e.stopPropagation();
           }}
           {...commonCellProps}
-          // sx={{ background: 'red', p: 1 }}
-          // className={classes.cellComponent}
         >
           <Component
             isHovered={isRowHovered}
