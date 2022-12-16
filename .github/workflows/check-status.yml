@@ -1,0 +1,31 @@
+name: check-status
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+
+jobs:
+  check-status:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: |
+          #gh pr checks
+          #gh pr view --json checks
+          ITERATIONS=1
+          until [ $(gh pr checks | grep -E -i '\s+(fail|pending)\s+') | wc -l) -eq 1 ]; do
+            if [ ${ITERATIONS} -eq 10 ]; then
+              exit 1
+            fi
+
+            echo "could not invalidate cache, AWS quota might have been reached, retrying in 30 seconds... (tries: ${ITERATIONS}/10)"
+            sleep 30s
+
+            ITERATIONS=$((ITERATIONS+1))
+          done
+        shell: bash
