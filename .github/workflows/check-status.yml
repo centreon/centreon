@@ -13,8 +13,6 @@ on:
 jobs:
   check-status:
     runs-on: ubuntu-22.04
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,3 +46,5 @@ jobs:
 
           exit 1
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
