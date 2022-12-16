@@ -25,7 +25,7 @@ jobs:
           ITERATIONS=1
           while [[ $ITERATIONS -le 10 ]]; do
 
-              CHECKS=$(gh pr checks ${{ github.event.number }})
+              CHECKS="$(gh pr checks ${{ github.event.number }})"
               echo "toto"
               echo "$CHECKS"
               echo "titi"
