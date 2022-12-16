@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\HostCategory\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-use PhpParser\Node\Expr\Cast\String_;
 
 class NewHostCategory
 {

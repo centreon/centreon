@@ -172,6 +172,23 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
+     * @param array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result
+     * @return HostCategory
+     */
+    private function createHostCategoryFromArray(array $result): HostCategory
+    {
+        $hostCategory = new HostCategory(
+            $result['hc_id'],
+            $result['hc_name'],
+            $result['hc_alias']
+        );
+        $hostCategory->setActivated($result['hc_activate'] === self::HC_IS_ACTIVE ? true : false);
+        $hostCategory->setComment($result['hc_comment']);
+
+        return $hostCategory;
+    }
+
+    /**
      * Determine if host cateogries are filtered for given access group ids
      * true: accessible host categories are filtered
      * false: accessible host categories are not filtered

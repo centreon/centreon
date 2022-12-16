@@ -36,8 +36,7 @@ it('should return properly set host category instance', function () {
 
     expect($hostCategory->getId())->toBe(1)
         ->and($hostCategory->getName())->toBe($this->categoryName)
-        ->and($hostCategory->getAlias())->toBe($this->categoryAlias)
-        ->and($hostCategory->isActivated())->toBe(HostCategory::IS_ACTIVE);
+        ->and($hostCategory->getAlias())->toBe($this->categoryAlias);
 });
 
 it('should throw an exception when host category name is empty', function () {
