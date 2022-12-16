@@ -1,7 +1,7 @@
 name: check-status
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.run_id }}
   cancel-in-progress: true
 
 on:
@@ -18,9 +18,38 @@ jobs:
   check-status:
     runs-on: ubuntu-22.04
     steps:
-      - uses: jitterbit/await-check-suites@v1
-        with:
-          intervalSeconds: 60
-          timeoutSeconds: 1800
-          appSlugFilter: 'github-actions'
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - uses: actions/checkout@v3
+
+      - run: |
+          sleep 10s
+
+          ITERATIONS=1
+          while [[ $ITERATIONS -le 30 ]]; do
+              CHECKS="$(gh pr checks ${{ github.event.number }})" || true
+              echo $CHECKS
+              echo $CHECKS | grep -E -i -c '\s+pending\s+'
+
+              if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
+                  echo "some jobs are failed"
+                  exit 1
+              fi
+
+              # only remaining pending job should be check-status itself
+              if [ $(echo $CHECKS | grep -E -i -c '\s+pending\s+') -eq 1 ]; then
+                  echo "all jobs are passed"
+                  exit 0
+              fi
+
+              if [ $ITERATIONS -lt 30 ]; then
+                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/30)"
+                  sleep 60s
+              fi
+
+              ITERATIONS=$((ITERATIONS+1))
+          done
+
+          echo "Timeout : some jobs are still in progress"
+          exit 1
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
