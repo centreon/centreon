@@ -15,7 +15,7 @@ on:
       - release-*
 
 jobs:
-  check-status:
+  acheck-status:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
