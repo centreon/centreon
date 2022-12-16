@@ -22,7 +22,7 @@ on:
       - "!centreon/packages/**"
 
     tags:
-      - centreon-*t
+      - centreon-*ta
 
 env:
   base_directory: centreon
