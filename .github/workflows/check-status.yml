@@ -24,7 +24,7 @@ jobs:
           ITERATIONS=1
           while [[ $ITERATIONS -le 10 ]]; do
 
-              CHECKS="$(gh pr checks ${{ github.event.number }} | grep -E -i '\s+(fail|pending)\s+'))"
+              CHECKS="$(gh pr checks ${{ github.event.number }})"
               if [ $(echo $CHECKS | grep -E -i '\s+fail\s+' | wc -l) -gt 0 ]; then
                   echo "some jobs are failed"
                   exit 1
