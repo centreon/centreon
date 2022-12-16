@@ -5,7 +5,6 @@ import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { TableCellBaseProps, TableSortLabel, Tooltip } from '@mui/material';
-import SvgIcon from '@mui/material/SvgIcon';
 
 import { HeaderCell } from '..';
 import { Props as ListingProps } from '../..';
@@ -14,6 +13,8 @@ import { Column } from '../../models';
 import { hoveredHeaderAtom } from '../headerAtom';
 import HeaderLabel from '../Label';
 
+import InvisibleIcon from './InvisibleIcon';
+
 type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
 const useStyles = makeStyles<StylesProps>()(
@@ -21,21 +22,15 @@ const useStyles = makeStyles<StylesProps>()(
     content: {
       alignItems: 'center',
       display: 'flex',
-      minHeight: theme.spacing(3),
-      minWidth: theme.spacing(5)
-      // padding: theme.spacing(0, 1.5)
+      minHeight: theme.spacing(3)
     },
     dragHandle: {
       alignSelf: 'center',
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
-      // marginLeft: -theme.spacing(1),
       outline: 'none'
     },
-    dragIcon: {
-      display: 'flex',
-      minWidth: theme.spacing(20 / 8)
-    },
+
     item: {
       background: isInDragOverlay
         ? 'transparent'
@@ -44,7 +39,6 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: isInDragOverlay
         ? 'none'
         : `1px solid ${theme.palette.text.primary}`
-      // paddingLeft: theme.spacing(0.5)
     },
     label: {
       paddingLeft: theme.spacing(1)
@@ -128,18 +122,15 @@ const SortableHeaderCellContent = ({
       onMouseOver={mouseOver}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        <div className={classes.dragIcon}>
-          {columnConfiguration?.sortable && cellHovered && (
-            <SvgIcon
-              fontSize="small"
-              {...props}
-              aria-label={columnLabel}
-              className={classes.dragHandle}
-            >
-              <path d="M 12 8 c 1.1 0 2 -0.9 2 -2 s -0.9 -2 -2 -2 s -2 0.9 -2 2 s 0.9 2 2 2 Z m 0 2 c -1.1 0 -2 0.9 -2 2 s 0.9 2 2 2 s 2 -0.9 2 -2 s -0.9 -2 -2 -2 Z m 0 6 c -1.1 0 -2 0.9 -2 2 s 0.9 2 2 2 s 2 -0.9 2 -2 s -0.9 -2 -2 -2 Z" />
-            </SvgIcon>
-          )}
-        </div>
+        {!cellHovered && <InvisibleIcon />}
+        {columnConfiguration?.sortable && cellHovered && (
+          <InvisibleIcon
+            visible
+            {...props}
+            aria-label={columnLabel}
+            className={classes.dragHandle}
+          />
+        )}
 
         {column.sortable ? (
           <TableSortLabel
@@ -151,7 +142,10 @@ const SortableHeaderCellContent = ({
             {headerContent}
           </TableSortLabel>
         ) : (
-          headerContent
+          <>
+            {headerContent}
+            <InvisibleIcon />
+          </>
         )}
       </div>
     </HeaderCell>

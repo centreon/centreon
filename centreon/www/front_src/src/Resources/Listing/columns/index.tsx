@@ -176,7 +176,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     id: 'last_check',
     label: t(labelLastCheck),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(130px, max-content)'
   },
   {
     getFormattedString: pipe(
@@ -215,14 +216,16 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['parent'],
     sortField: 'parent_alias',
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(150px, max-content)'
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
     id: 'fqdn',
     label: t(labelFqdn),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(150px, max-content)'
   },
   {
     getFormattedString: ({ monitoring_server_name }): string =>
@@ -230,7 +233,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     id: 'monitoring_server_name',
     label: t(labelMonitoringServer),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(150px, max-content)'
   },
   {
     Component: NotificationColumn,
