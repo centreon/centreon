@@ -25,6 +25,7 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 30 ]]; do
+              IFS=$(echo -en "\n\b")
               CHECKS=$(gh pr checks ${{ github.event.number }}) || true
               echo $CHECKS
               echo $CHECKS | grep -E -i '\s+pending\s+' | wc -l
