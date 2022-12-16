@@ -39,10 +39,10 @@ jobs:
                   sleep 60s
               fi
 
-              echo "Timeout : some jobs are still in progress"
               ITERATIONS=$((ITERATIONS+1))
           done
 
+          echo "Timeout : some jobs are still in progress"
           exit 1
         shell: bash
         env:
