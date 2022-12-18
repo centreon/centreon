@@ -61,12 +61,10 @@ Then(
 );
 
 Given('a saved custom filter', () => {
-  cy.visit(`${Cypress.config().baseUrl}`)
-    .loginByTypeOfUser({
-      jsonName: 'admin',
-      preserveToken: true
-    })
-    .wait('@getLoginResponse');
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   cy.get(stateFilterContainer).click();
   cy.contains('OK services').should('exist');
 });
