@@ -83,6 +83,7 @@ Given(
   () => {
     cy.logout()
       .reload()
+      .visit(`${Cypress.config().baseUrl}`)
       .loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
@@ -121,6 +122,10 @@ Then('the key is properly generated and displayed', () => {
 });
 
 Given('a user with an autologin key generated', () => {
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   cy.isInProfileMenu('Copy autologin link').should('be.exist');
 });
 
@@ -151,6 +156,10 @@ Then('the autologin link is copied in the clipboard', () => {
 Given(
   'a platform with autologin enabled and a user with both autologin key and link generated',
   () => {
+    cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+      jsonName: 'admin',
+      preserveToken: true
+    });
     cy.isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
       .invoke('text')

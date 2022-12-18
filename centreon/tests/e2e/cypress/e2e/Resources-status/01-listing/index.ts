@@ -31,6 +31,10 @@ Then('only non-ok resources are displayed', () => {
 });
 
 When('I put in some criterias', () => {
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   const searchValue = `type:service s.description:(ok|dt)$`;
 
   cy.get(searchInput).clear().type(searchValue).type('{enter}');
@@ -46,6 +50,10 @@ Then(
 );
 
 Given('a saved custom filter', () => {
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   cy.get(stateFilterContainer).click();
   cy.contains('OK services').should('exist');
 });

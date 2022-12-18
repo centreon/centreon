@@ -24,6 +24,10 @@ beforeEach(() => {
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   cy.contains(serviceInAcknowledgementName)
     .parent()
     .parent()
@@ -54,6 +58,10 @@ Then('the problematic Resource is displayed as acknowledged', () => {
 });
 
 When('I select the downtime action on a problematic Resource', () => {
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
   cy.contains(serviceInDowntimeName)
     .parent()
     .parent()
