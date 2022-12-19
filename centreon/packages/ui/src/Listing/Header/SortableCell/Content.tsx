@@ -13,7 +13,7 @@ import { Column } from '../../models';
 import { hoveredHeaderAtom } from '../headerAtom';
 import HeaderLabel from '../Label';
 
-import InvisibleIcon from './InvisibleIcon';
+import DragInvisibleIcon from './DragInvisibleIcon';
 
 type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
@@ -39,12 +39,6 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: isInDragOverlay
         ? 'none'
         : `1px solid ${theme.palette.text.primary}`
-    },
-    label: {
-      paddingLeft: theme.spacing(1)
-    },
-    labelHovered: {
-      padding: 0
     }
   })
 );
@@ -122,9 +116,9 @@ const SortableHeaderCellContent = ({
       onMouseOver={mouseOver}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        {!cellHovered && <InvisibleIcon />}
+        {!cellHovered && <DragInvisibleIcon />}
         {columnConfiguration?.sortable && cellHovered && (
-          <InvisibleIcon
+          <DragInvisibleIcon
             visible
             {...props}
             aria-label={columnLabel}
@@ -144,7 +138,7 @@ const SortableHeaderCellContent = ({
         ) : (
           <>
             {headerContent}
-            <InvisibleIcon />
+            <DragInvisibleIcon />
           </>
         )}
       </div>

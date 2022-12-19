@@ -33,10 +33,6 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
-  cellComponent: {
-    minWidth: 60,
-    padding: theme.spacing(0, 0, 0, 1)
-  },
   componentColumn: {
     padding: theme.spacing(0, 0, 0, 2.25)
   },
