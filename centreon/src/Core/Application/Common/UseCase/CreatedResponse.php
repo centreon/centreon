@@ -31,7 +31,7 @@ class CreatedResponse implements ResponseStatusInterface
      */
     public function __construct(
         readonly private int $resourceId,
-        readonly private mixed $payload
+        private mixed $payload
     ) {
     }
 
@@ -49,6 +49,14 @@ class CreatedResponse implements ResponseStatusInterface
     public function getPayload(): mixed
     {
         return $this->payload;
+    }
+
+    /**
+     * @param mixed $payload
+     */
+    public function setPayload(mixed $payload): void
+    {
+        $this->payload = $payload;
     }
 
     public function getMessage(): string
