@@ -7,7 +7,7 @@ import {
   submitResultsViaClapi,
   versionApi,
   logout,
-  insertFixture,
+  insertFixture
 } from '../../commons';
 
 interface Criteria {
@@ -43,7 +43,7 @@ const initializeResourceData = (): Cypress.Chainable => {
     'resources/clapi/service3/01-add.json',
     'resources/clapi/service3/02-set-max-check.json',
     'resources/clapi/service3/03-disable-active-check.json',
-    'resources/clapi/service3/04-enable-passive-check.json',
+    'resources/clapi/service3/04-enable-passive-check.json'
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
@@ -59,7 +59,8 @@ const insertResourceFixtures = (): Cypress.Chainable => {
     .then(submitResultsViaClapi)
     .then(checkThatFixtureServicesExistInDatabase)
     .then(() => cy.visit(`${Cypress.config().baseUrl}`))
-    .then(() => cy.fixture('users/admin.json'));
+    .then(() => cy.fixture('users/admin.json'))
+    .then(() => logout());
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -67,7 +68,7 @@ const setUserFilter = (body: Filter): Cypress.Chainable => {
     .request({
       body,
       method: 'POST',
-      url: apiFilterResources,
+      url: apiFilterResources
     })
     .then((response) => {
       expect(response.status).to.eq(200);
@@ -83,7 +84,7 @@ const deleteUserFilter = (): Cypress.Chainable => {
   return cy
     .request({
       method: 'DELETE',
-      url: `${apiFilterResources}/${customFilterId}`,
+      url: `${apiFilterResources}/${customFilterId}`
     })
     .then((response) => {
       expect(response.status).to.eq(204);
@@ -101,11 +102,11 @@ const tearDownResource = (): Cypress.Chainable => {
 
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
-  inDowntime: 'rgb(240, 233, 248)',
+  inDowntime: 'rgb(240, 233, 248)'
 };
 const actions = {
   acknowledge: 'Acknowledge',
-  setDowntime: 'Set downtime',
+  setDowntime: 'Set downtime'
 };
 
 let customFilterId = null;
@@ -120,5 +121,5 @@ export {
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
-  tearDownResource,
+  tearDownResource
 };

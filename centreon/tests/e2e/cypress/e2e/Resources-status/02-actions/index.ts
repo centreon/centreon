@@ -75,6 +75,9 @@ When('I select the downtime action on a problematic Resource', () => {
 });
 
 Then('the problematic Resource is displayed as in downtime', () => {
+  cy.get(stateFilterContainer).click();
+  cy.get('li[data-value="all"]').click({ force: true });
+
   cy.waitUntil(() => {
     return cy
       .refreshListing()
