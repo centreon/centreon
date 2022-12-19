@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { useUpdateAtom } from 'jotai/utils';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -10,7 +9,6 @@ import { HeaderCell } from '..';
 import { Props as ListingProps } from '../..';
 import { useStyles as useCellStyles } from '../../Cell/DataCell';
 import { Column } from '../../models';
-import { hoveredHeaderAtom } from '../headerAtom';
 import HeaderLabel from '../Label';
 
 import DragInvisibleIcon from './DragInvisibleIcon';
@@ -70,8 +68,6 @@ const SortableHeaderCellContent = ({
   const cellClasses = useCellStyles();
   const [cellHovered, setCellHovered] = React.useState(false);
 
-  const setHoveredHeader = useUpdateAtom(hoveredHeaderAtom);
-
   const columnLabel = column.shortLabel || column.label;
 
   const columnSortField = column.sortField || column.id;
@@ -92,13 +88,10 @@ const SortableHeaderCellContent = ({
 
   const mouseOver = (): void => {
     setCellHovered(true);
-
-    setHoveredHeader({ column, isHeaderHovered: true });
   };
 
   const mouseOut = (): void => {
     setCellHovered(false);
-    setHoveredHeader({ column, isHeaderHovered: false });
   };
 
   const headerContent = (
