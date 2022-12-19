@@ -36,7 +36,7 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    name: ""
+    name: ${{ matrix.feature }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-22.04
     strategy:
