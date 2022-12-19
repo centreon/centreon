@@ -55,7 +55,7 @@ export type Props = {
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'medium' | 'small' | 'compact';
+  size?: 'large' | 'medium' | 'small' | 'compact';
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
