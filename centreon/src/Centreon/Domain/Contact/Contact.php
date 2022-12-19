@@ -434,7 +434,39 @@ class Contact implements UserInterface, ContactInterface
      */
     public function getRoles(): array
     {
-        return array_merge($this->roles, $this->topologyRulesNames);
+        return $this->roles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = [];
+        foreach ($roles as $role) {
+            $this->addRole($role);
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTopologyRules(): array
+    {
+        return $this->topologyRulesNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTopologyRules(array $topologyRoles): self
+    {
+        $this->topologyRulesNames = [];
+        foreach ($topologyRoles as $topologyRole) {
+            $this->addTopologyRule($topologyRole);
+        }
+        return $this;
     }
 
     /**
@@ -564,7 +596,9 @@ class Contact implements UserInterface, ContactInterface
      */
     private function removeRole(string $roleName): void
     {
-        unset($this->roles[$roleName]);
+        if (($index = array_search($roleName, $this->roles)) !== false) {
+            unset($this->roles[$index]);
+        }
     }
 
     /**

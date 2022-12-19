@@ -426,6 +426,12 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setOneClickExportEnabled($contact['enable_one_click_export'] === '1')
             ->setTheme($contact['contact_theme']);
 
+        if ($contact->isAdmin()) {
+            $contact
+                ->setAccessToApiConfiguration(true)
+                ->setAccessToApiRealTime(true);
+        }
+
         $this->addActionRules($contact);
         $this->addTopologyRules($contact);
 
