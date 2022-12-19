@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,22 +55,20 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      */
     public function add(NewTimePeriod $newTimePeriod): int
     {
-        $this->info('Add a new time period');
         $alreadyInTransaction = $this->db->inTransaction();
         if (! $alreadyInTransaction) {
             $this->db->beginTransaction();
         }
-        $this->info('Add new time period');
         try {
             $statement = $this->db->prepare(
                 $this->translateDbName(
-                    <<<SQL
-                    INSERT INTO `:db`.timeperiod
-                    (tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday,
-                    tp_thursday, tp_friday, tp_saturday)
-                    VALUES (:name, :alias, :sunday, :monday, :tuesday, :wednesday,
-                            :thursday, :friday, :saturday)
-                    SQL
+                    <<<'SQL'
+                        INSERT INTO `:db`.timeperiod
+                        (tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday,
+                        tp_thursday, tp_friday, tp_saturday)
+                        VALUES
+                        (:name, :alias, :sunday, :monday, :tuesday, :wednesday, :thursday, :friday, :saturday)
+                        SQL
                 )
             );
             $this->bindValueOfTimePeriod($statement, $newTimePeriod);
@@ -83,11 +81,13 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
+
             return $newTimePeriodId;
         } catch (\Throwable $ex) {
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }
@@ -97,7 +97,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      */
     public function delete(int $timePeriodId): void
     {
-        $this->info('Delete time period');
         $statement = $this->db->prepare(
             $this->translateDbName('DELETE FROM `:db`.timeperiod WHERE tp_id = :id')
         );
@@ -110,7 +109,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      */
     public function update(TimePeriod $timePeriod): void
     {
-        $this->info('Update the time period');
         $alreadyInTransaction = $this->db->inTransaction();
         if (! $alreadyInTransaction) {
             $this->db->beginTransaction();
@@ -118,19 +116,19 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
         try {
             $statement = $this->db->prepare(
                 $this->translateDbName(
-                    <<<SQL
-                    UPDATE `:db`.timeperiod
-                    SET tp_name = :name,
-                        tp_alias = :alias,
-                        tp_monday = :monday,
-                        tp_tuesday = :tuesday,
-                        tp_wednesday = :wednesday,
-                        tp_thursday = :thursday,
-                        tp_friday = :friday,
-                        tp_saturday = :saturday,
-                        tp_sunday = :sunday
-                    WHERE tp_id = :id
-                    SQL
+                    <<<'SQL'
+                        UPDATE `:db`.timeperiod
+                        SET tp_name = :name,
+                            tp_alias = :alias,
+                            tp_monday = :monday,
+                            tp_tuesday = :tuesday,
+                            tp_wednesday = :wednesday,
+                            tp_thursday = :thursday,
+                            tp_friday = :friday,
+                            tp_saturday = :saturday,
+                            tp_sunday = :sunday
+                        WHERE tp_id = :id
+                        SQL
                 )
             );
             $this->bindValueOfTimePeriod($statement, $timePeriod);
@@ -140,9 +138,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
             $this->deleteExtraTimePeriods($timePeriod->getId());
             $this->deleteTimePeriodTemplates($timePeriod->getId());
 
-            $templateIds = array_map(function (Template $template): int {
-                return $template->getId();
-            }, $timePeriod->getTemplates());
+            $templateIds = array_map(fn (Template $template): int => $template->getId(), $timePeriod->getTemplates());
             $this->addTimePeriodTemplates($timePeriod->getId(), $templateIds);
             $this->addExtraTimePeriods($timePeriod->getId(), $timePeriod->getExtraTimePeriods());
 
@@ -153,6 +149,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }
@@ -160,8 +157,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     /**
      * @param int $timePeriodId
      * @param list<ExtraTimePeriod|NewExtraTimePeriod> $extraTimePeriods
-     *
-     * @return void
      *
      * @throws \PDOException
      */
@@ -173,17 +168,17 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
         $subRequest = [];
         $bindValues = [];
         foreach ($extraTimePeriods as $index => $extraTimePeriod) {
-            $subRequest[$index] = "(:timeperiod_id_$index, :days_$index, :timerange_$index)";
+            $subRequest[$index] = "(:timeperiod_id_{$index}, :days_{$index}, :timerange_{$index})";
             $bindValues[$index]['day'] = $extraTimePeriod->getDayRange();
             $bindValues[$index]['timerange'] = $extraTimePeriod->getTimeRange();
         }
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
-                INSERT INTO `:db`.timeperiod_exceptions
-                (timeperiod_id, days, timerange)
-                VALUES 
-                SQL . implode(', ', $subRequest)
+                <<<'SQL'
+                    INSERT INTO `:db`.timeperiod_exceptions
+                    (timeperiod_id, days, timerange)
+                    VALUES
+                    SQL . implode(', ', $subRequest)
             )
         );
         foreach ($bindValues as $index => $extraTimePeriod) {
@@ -198,8 +193,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
      * @param int $timePeriodId
      * @param list<int> $templateIds
      *
-     * @return void
-     *
      * @throws \PDOException
      */
     private function addTimePeriodTemplates(int $timePeriodId, array $templateIds): void
@@ -210,17 +203,17 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
         $subRequest = [];
         $bindValues = [];
         foreach ($templateIds as $index => $templateId) {
-            $subRequest[$index] = "(:timeperiod_id_$index, :template_id_$index)";
+            $subRequest[$index] = "(:timeperiod_id_{$index}, :template_id_{$index})";
             $bindValues[$index] = $templateId;
         }
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
-                INSERT INTO `:db`.timeperiod_include_relations
-                (timeperiod_id, timeperiod_include_id)
-                VALUES 
-                SQL . implode(', ', $subRequest)
+                <<<'SQL'
+                    INSERT INTO `:db`.timeperiod_include_relations
+                    (timeperiod_id, timeperiod_include_id)
+                    VALUES
+                    SQL . implode(', ', $subRequest)
             )
         );
         foreach ($bindValues as $index => $templateId) {
@@ -233,8 +226,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     /**
      * @param \PDOStatement $statement
      * @param TimePeriod|NewTimePeriod $timePeriod
-     *
-     * @return void
      */
     private function bindValueOfTimePeriod(\PDOStatement $statement, TimePeriod|NewTimePeriod $timePeriod): void
     {
@@ -252,8 +243,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
     /**
      * @param int $timePeriodId
      *
-     * @return void
-     *
      * @throws \PDOException
      */
     private function deleteExtraTimePeriods(int $timePeriodId): void
@@ -267,8 +256,6 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 
     /**
      * @param int $timePeriodId
-     *
-     * @return void
      *
      * @throws \PDOException
      */
@@ -294,6 +281,7 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
                 return (string) $day->getTimeRange();
             }
         }
+
         return null;
     }
 }

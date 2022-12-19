@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,18 +32,16 @@ class TimePeriod
     public const MAX_NAME_LENGTH = 200;
 
     private string $name;
+
     private string $alias;
-    /**
-     * @var list<Template>
-     */
+
+    /** @var list<Template> */
     private array $templates = [];
-    /**
-     * @var list<ExtraTimePeriod>
-     */
+
+    /** @var list<ExtraTimePeriod> */
     private array $extraTimePeriods = [];
-    /**
-     * @var list<Day>
-     */
+
+    /** @var list<Day> */
     private array $days;
 
     /**
@@ -80,7 +78,7 @@ class TimePeriod
 
     /**
      * @param string $alias
-     * @return void
+     *
      * @throws AssertionFailedException
      */
     public function setAlias(string $alias): void
@@ -101,7 +99,7 @@ class TimePeriod
 
     /**
      * @param string $name
-     * @return void
+     *
      * @throws AssertionFailedException
      */
     public function setName(string $name): void
@@ -125,7 +123,6 @@ class TimePeriod
 
     /**
      * @param ExtraTimePeriod $extraTimePeriod
-     * @return void
      */
     public function addExtraTimePeriod(ExtraTimePeriod $extraTimePeriod): void
     {
@@ -161,7 +158,6 @@ class TimePeriod
 
     /**
      * @param Template $template
-     * @return void
      */
     public function addTemplate(Template $template): void
     {
@@ -170,8 +166,6 @@ class TimePeriod
 
     /**
      * @param Day $day
-     *
-     * @return void
      */
     public function addDay(Day $day): void
     {

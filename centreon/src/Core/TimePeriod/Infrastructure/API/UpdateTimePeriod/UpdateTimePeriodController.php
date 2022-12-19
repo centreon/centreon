@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,9 +38,9 @@ class UpdateTimePeriodController extends AbstractController
      * @param DefaultPresenter $presenter
      * @param int $id
      *
-     * @return object
-     *
      * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException
+     *
+     * @return object
      */
     public function __invoke(
         Request $request,
@@ -73,6 +73,7 @@ class UpdateTimePeriodController extends AbstractController
                 new ErrorResponse($ex->getMessage())
             );
         }
+
         return $presenter->show();
     }
 
@@ -103,7 +104,7 @@ class UpdateTimePeriodController extends AbstractController
         $dto->days = array_map(function (array $day): array {
             return [
                 'day' => $day['day'],
-                'time_range' => $day['time_range']
+                'time_range' => $day['time_range'],
             ];
         }, $dataSent['days']);
         $dto->templates = $dataSent['templates'];
@@ -113,6 +114,7 @@ class UpdateTimePeriodController extends AbstractController
                 'time_range' => $exception['time_range'],
             ];
         }, $dataSent['exceptions']);
+
         return $dto;
     }
 }

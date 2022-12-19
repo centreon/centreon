@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,8 +46,6 @@ class UpdateTimePeriod
     /**
      * @param UpdateTimePeriodRequest $request
      * @param PresenterInterface $presenter
-     *
-     * @return void
      */
     public function __invoke(UpdateTimePeriodRequest $request, PresenterInterface $presenter): void
     {
@@ -56,6 +54,7 @@ class UpdateTimePeriod
             if (($timePeriod = $this->readTimePeriodRepository->findById($request->id)) === null) {
                 $this->error('Time period not found', ['id' => $request->id]);
                 $presenter->setResponseStatus(new NotFoundResponse('Time period'));
+
                 return;
             }
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name, $request->id)) {
@@ -63,6 +62,7 @@ class UpdateTimePeriod
                 $presenter->setResponseStatus(
                     new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
                 );
+
                 return;
             }
             $this->updateTimePeriodAndSave($timePeriod, $request);
@@ -82,8 +82,6 @@ class UpdateTimePeriod
      * @param TimePeriod $timePeriod
      * @param UpdateTimePeriodRequest $request
      *
-     * @return void
-     *
      * @throws AssertionFailedException
      * @throws \Throwable
      */
@@ -100,14 +98,10 @@ class UpdateTimePeriod
             }, $request->days)
         );
         $timePeriod->setTemplates(
-            array_map(function (int $templateId): Template {
-                return new Template($templateId, 'name_not_used');
-            }, $request->templates)
+            array_map(fn (int $templateId): Template => new Template($templateId, 'name_not_used'), $request->templates)
         );
         $timePeriod->setExtraTimePeriods(
-            array_map(function (array $exception): ExtraTimePeriod {
-                return new ExtraTimePeriod(1, $exception['day_range'], new TimeRange($exception['time_range']));
-            }, $request->exceptions)
+            array_map(fn (array $exception): ExtraTimePeriod => new ExtraTimePeriod(1, $exception['day_range'], new TimeRange($exception['time_range'])), $request->exceptions)
         );
         $this->writeTimePeriodRepository->update($timePeriod);
     }

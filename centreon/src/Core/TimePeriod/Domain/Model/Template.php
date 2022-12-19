@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,9 +29,12 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class Template
 {
     /**
+     * @param int $id
+     * @param string $alias
+     *
      * @throws AssertionFailedException
      */
-    public function __construct(private int $id, private string $alias)
+    public function __construct(readonly private int $id, private string $alias)
     {
         Assertion::min($id, 1, 'Template::id');
         $this->alias = trim($alias);

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,10 +29,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\Template;
-use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
-use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Model\Day;
+use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
+use Core\TimePeriod\Domain\Model\Template;
+use Core\TimePeriod\Domain\Model\TimePeriod;
 
 class FindTimePeriods
 {
@@ -50,7 +50,6 @@ class FindTimePeriods
 
     /**
      * @param PresenterInterface $presenter
-     * @return void
      */
     public function __invoke(PresenterInterface $presenter): void
     {
@@ -71,6 +70,7 @@ class FindTimePeriods
 
     /**
      * @param TimePeriod[] $timePeriods
+     *
      * @return FindTimePeriodsResponse
      */
     private function createResponse(array $timePeriods): FindTimePeriodsResponse
@@ -84,7 +84,7 @@ class FindTimePeriods
                 'days' => array_map(function (Day $day) {
                     return [
                         'day' => $day->getDay(),
-                        'time_range' => (string) $day->getTimeRange()
+                        'time_range' => (string) $day->getTimeRange(),
                     ];
                 }, $timePeriod->getDays()),
                 'templates' => array_map(function (Template $template) {
@@ -99,9 +99,10 @@ class FindTimePeriods
                         'day_range' => $exception->getDayRange(),
                         'time_range' => (string) $exception->getTimeRange(),
                     ];
-                }, $timePeriod->getExtraTimePeriods())
+                }, $timePeriod->getExtraTimePeriods()),
             ];
         }
+
         return $response;
     }
 }

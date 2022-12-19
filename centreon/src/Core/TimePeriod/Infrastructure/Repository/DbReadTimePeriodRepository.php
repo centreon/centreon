@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
-use Core\TimePeriod\Domain\Model\{Day, Template, ExtraTimePeriod, TimePeriod, TimeRange};
+use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
@@ -64,6 +64,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         );
         $statement->bindValue(':id', $timePeriodId, \PDO::PARAM_INT);
         $statement->execute();
+
         return ! empty($statement->fetch());
     }
 
@@ -91,15 +92,17 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
              *     tp_friday: string,
              *     tp_saturday: string,
              *     tp_sunday: string,
-             *     template_id: int
+             *     template_id: int,
              * } $result
              */
             $newTimePeriod = $this->createTimePeriod($result);
             $timePeriod[$newTimePeriod->getId()] = $newTimePeriod;
             $this->addTemplates($timePeriod);
             $this->addExtraTimePeriods($timePeriod);
+
             return $timePeriod[$newTimePeriod->getId()];
         }
+
         return null;
     }
 
@@ -122,7 +125,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 
         // Sort
         $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY tp_id ASC';
 
@@ -160,11 +163,11 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
              *     tp_friday: string,
              *     tp_saturday: string,
              *     tp_sunday: string,
-             *     template_id: int
+             *     template_id: int,
              * } $result
              */
             $timePeriod = $this->createTimePeriod($result);
-            $timePeriods[$result["tp_id"]] = $timePeriod;
+            $timePeriods[$result['tp_id']] = $timePeriod;
         }
 
         $this->addTemplates($timePeriods);
@@ -176,9 +179,8 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     /**
      * @inheritDoc
      */
-    public function nameAlreadyExists(string $timePeriodName, int $timePeriodId = null): bool
+    public function nameAlreadyExists(string $timePeriodName, ?int $timePeriodId = null): bool
     {
-
         $statement = $this->db->prepare(
             $this->translateDbName('SELECT tp_id FROM `:db`.timeperiod WHERE tp_name = :name')
         );
@@ -190,18 +192,17 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
         if ($timePeriodId !== null) {
             if ($result !== false) {
-                return $result['tp_id'] != $timePeriodId;
+                return $result['tp_id'] !== $timePeriodId;
             }
+
             return false;
-        } else {
-            return ! (empty($result));
         }
+
+        return ! (empty($result));
     }
 
     /**
      * @param list<TimePeriod> $timePeriods
-     *
-     * @return void
      *
      * @throws AssertionFailedException
      * @throws TimeRangeException
@@ -216,24 +217,29 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
         $requestTemplates = $this->translateDbName(
             <<<SQL
-            SELECT *
-            FROM `:db`.timeperiod_exceptions
-            WHERE timeperiod_id IN ($timePeriodIncludeRequest)
-            ORDER BY timeperiod_id ASC, exception_id ASC
-            SQL
+                SELECT *
+                FROM `:db`.timeperiod_exceptions
+                WHERE timeperiod_id IN ({$timePeriodIncludeRequest})
+                ORDER BY timeperiod_id ASC, exception_id ASC
+                SQL
         );
         $statement = $this->db->prepare($requestTemplates);
         $statement->execute($timePeriodIds);
 
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /**
-             * @var array{exception_id: int, timeperiod_id: int, days: string, timerange: string} $result
+             * @var array{
+             *     exception_id: int,
+             *     timeperiod_id: int,
+             *     days: string,
+             *     timerange: string,
+             * } $result
              */
-            $timePeriods[$result["timeperiod_id"]]->addExtraTimePeriod(
+            $timePeriods[$result['timeperiod_id']]->addExtraTimePeriod(
                 new ExtraTimePeriod(
                     $result['exception_id'],
-                    $result["days"],
-                    new TimeRange($result["timerange"])
+                    $result['days'],
+                    new TimeRange($result['timerange'])
                 )
             );
         }
@@ -241,8 +247,6 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 
     /**
      * @param list<TimePeriod> $timePeriods
-     *
-     * @return void
      *
      * @throws \PDOException
      */
@@ -255,23 +259,27 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $timePeriodIncludeRequest = str_repeat('?, ', count($timePeriodIds) - 1) . '?';
         $requestTemplates = $this->translateDbName(
             <<<SQL
-            SELECT rel.timeperiod_id, tp.tp_id, tp.tp_alias
-            FROM `:db`.timeperiod tp
-            INNER JOIN `:db`.timeperiod_include_relations rel
-              ON rel.timeperiod_include_id = tp.tp_id
-            WHERE rel.timeperiod_id IN ($timePeriodIncludeRequest)
-            ORDER BY rel.timeperiod_id ASC, rel.include_id ASC
-            SQL
+                SELECT rel.timeperiod_id, tp.tp_id, tp.tp_alias
+                FROM `:db`.timeperiod tp
+                INNER JOIN `:db`.timeperiod_include_relations rel
+                  ON rel.timeperiod_include_id = tp.tp_id
+                WHERE rel.timeperiod_id IN ({$timePeriodIncludeRequest})
+                ORDER BY rel.timeperiod_id ASC, rel.include_id ASC
+                SQL
         );
         $statement = $this->db->prepare($requestTemplates);
         $statement->execute($timePeriodIds);
 
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /**
-             * @var array{tp_id: int, tp_alias: string, timeperiod_id: int} $result
+             * @var array{
+             *     tp_id: int,
+             *     tp_alias: string,
+             *     timeperiod_id: int,
+             * } $result
              */
-            $timePeriods[$result["timeperiod_id"]]->addTemplate(
-                new Template($result["tp_id"], $result["tp_alias"])
+            $timePeriods[$result['timeperiod_id']]->addTemplate(
+                new Template($result['tp_id'], $result['tp_alias'])
             );
         }
     }
@@ -291,26 +299,27 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
      *     template_id: int
      * } $data
      *
-     * @return TimePeriod
-     *
      * @throws AssertionFailedException
      * @throws TimeRangeException
+     *
+     * @return TimePeriod
      */
     private function createTimePeriod(array $data): TimePeriod
     {
         $timePeriod = new TimePeriod(
-            $data["tp_id"],
-            $data["tp_name"],
-            $data["tp_alias"]
+            $data['tp_id'],
+            $data['tp_name'],
+            $data['tp_alias'],
         );
         $days = [];
-        $weekdays = [1 => 'monday','tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        $weekdays = [1 => 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         foreach ($weekdays as $id => $name) {
-            if (!empty($data['tp_' . $name]) && ($timeRange = $data['tp_' . $name]) !== '') {
+            if (! empty($data['tp_' . $name]) && ($timeRange = $data['tp_' . $name]) !== '') {
                 $days[] = new Day($id, new TimeRange($timeRange));
             }
         }
         $timePeriod->setDays($days);
+
         return $timePeriod;
     }
 }

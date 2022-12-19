@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
@@ -31,7 +32,6 @@ use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
 
 class AddTimePeriod
 {
@@ -50,7 +50,6 @@ class AddTimePeriod
     /**
      * @param AddTimePeriodRequest $request
      * @param PresenterInterface $presenter
-     * @return void
      */
     public function __invoke(AddTimePeriodRequest $request, PresenterInterface $presenter): void
     {
@@ -62,6 +61,7 @@ class AddTimePeriod
                 $presenter->setResponseStatus(
                     new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
                 );
+
                 return;
             }
             $newTimePeriod = NewTimePeriodFactory::create($request);
@@ -86,6 +86,7 @@ class AddTimePeriod
 
     /**
      * @param TimePeriod $timePeriod
+     *
      * @return AddTimePeriodResponse
      */
     private function createResponse(TimePeriod $timePeriod): AddTimePeriodResponse
@@ -97,7 +98,7 @@ class AddTimePeriod
         $response->days = array_map(function (Day $day) {
             return [
                 'day' => $day->getDay(),
-                'time_range' => (string)$day->getTimeRange()
+                'time_range' => (string) $day->getTimeRange(),
             ];
         }, $timePeriod->getDays());
         $response->templates = array_map(function (Template $template) {
@@ -110,9 +111,10 @@ class AddTimePeriod
             return [
                 'id' => $exception->getId(),
                 'day_range' => $exception->getDayRange(),
-                'time_range' => (string)$exception->getTimeRange(),
+                'time_range' => (string) $exception->getTimeRange(),
             ];
         }, $timePeriod->getExtraTimePeriods());
+
         return $response;
     }
 }

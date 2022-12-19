@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,13 +27,11 @@ use Centreon\Domain\Common\Assertion\Assertion;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
 
 /**
- * Value object
+ * Value object.
  */
 class TimeRange implements \Stringable
 {
-    /**
-     * @var string Comma-delimited time range (00:00-12:00) for a particular day of the week
-     */
+    /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
 
     /**
@@ -56,10 +54,19 @@ class TimeRange implements \Stringable
     }
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->timeRange;
+    }
+
+    /**
      * Check the format of the time range(s).
      * 00:00-12:00,13:00-14:00,...
      *
      * @param string $timeRange
+     *
      * @return bool Return false if the time range(s) is wrong formatted
      */
     private function isValidTimeRangeFormat(string $timeRange): bool
@@ -73,16 +80,17 @@ class TimeRange implements \Stringable
     /**
      * We check whether the time intervals are consistent in the defined order.
      *  - The end time of a time range cannot be greater than or equal to the start time of a time range.
-     *  - The start of a new time range cannot be less than or equal to the end of the previous time range
+     *  - The start of a new time range cannot be less than or equal to the end of the previous time range.
      *
      * @param string $timeRanges Time ranges (00:00-12:00,13:00-14:00,...)
+     *
      * @return bool
      */
     private function areTimeRangesConsistent(string $timeRanges): bool
     {
         $previousEndTime = null;
         foreach (explode(',', $timeRanges) as $timeRange) {
-            list($start, $end) = explode('-', $timeRange);
+            [$start, $end] = explode('-', $timeRange);
             // The start of a new time range cannot be less than or equal to the end of the previous time range
             if ($previousEndTime !== null && strtotime($previousEndTime) >= strtotime($start)) {
                 return false;
@@ -93,11 +101,7 @@ class TimeRange implements \Stringable
             }
             $previousEndTime = $end;
         }
-        return true;
-    }
 
-    public function __toString(): string
-    {
-        return $this->timeRange;
+        return true;
     }
 }

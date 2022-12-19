@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\DeleteTimePeriod;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\Application\Common\UseCase\ {
     ErrorResponse, NoContentResponse, NotFoundResponse, PresenterInterface
 };
+use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{
     ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface
 };
@@ -49,8 +49,6 @@ class DeleteTimePeriod
     /**
      * @param int $timePeriodId
      * @param PresenterInterface $presenter
-     *
-     * @return void
      */
     public function __invoke(int $timePeriodId, PresenterInterface $presenter): void
     {
@@ -59,6 +57,7 @@ class DeleteTimePeriod
             if (! $this->readTimePeriodRepository->exists($timePeriodId)) {
                 $this->error('Time period not found', ['id' => $timePeriodId]);
                 $presenter->setResponseStatus(new NotFoundResponse('Time period'));
+
                 return;
             }
 

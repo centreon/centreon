@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,16 +24,22 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
 use Core\TimePeriod\Domain\Model\{
-    Day, NewTimePeriod, NewExtraTimePeriod, Template, TimeRange
+    Day,
+    NewExtraTimePeriod,
+    NewTimePeriod,
+    Template,
+    TimeRange
 };
 
 final class NewTimePeriodFactory
 {
     /**
      * @param AddTimePeriodRequest $dto
-     * @return NewTimePeriod
+     *
      * @throws \Assert\AssertionFailedException
      * @throws \Throwable
+     *
+     * @return NewTimePeriod
      */
     public static function create(AddTimePeriodRequest $dto): NewTimePeriod
     {
@@ -55,6 +61,7 @@ final class NewTimePeriodFactory
                 );
             }, $dto->exceptions)
         );
+
         return $newTimePeriod;
     }
 }

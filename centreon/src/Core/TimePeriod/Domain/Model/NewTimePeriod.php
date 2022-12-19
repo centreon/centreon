@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,21 +28,16 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class NewTimePeriod
 {
     private string $name;
+
     private string $alias;
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private array $templates = [];
 
-    /**
-     * @var Day[]
-     */
+    /** @var Day[] */
     private array $days = [];
 
-    /**
-     * @var NewExtraTimePeriod[]
-     */
+    /** @var NewExtraTimePeriod[] */
     private array $extraTimePeriods = [];
 
     /**
@@ -67,7 +62,6 @@ class NewTimePeriod
 
     /**
      * @param NewExtraTimePeriod $exception
-     * @return void
      */
     public function addException(NewExtraTimePeriod $exception): void
     {
@@ -76,7 +70,6 @@ class NewTimePeriod
 
     /**
      * @param int $template
-     * @return void
      */
     public function addTemplate(int $template): void
     {
@@ -125,7 +118,6 @@ class NewTimePeriod
 
     /**
      * @param Day $day
-     * @return void
      */
     public function addDay(Day $day): void
     {

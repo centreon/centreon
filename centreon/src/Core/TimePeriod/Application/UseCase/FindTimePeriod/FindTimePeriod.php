@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,6 @@ class FindTimePeriod
     /**
      * @param int $timePeriodId
      * @param PresenterInterface $presenter
-     * @return void
      */
     public function __invoke(int $timePeriodId, PresenterInterface $presenter): void
     {
@@ -57,6 +56,7 @@ class FindTimePeriod
             if ($timePeriod === null) {
                 $this->error('Time period not found', ['id' => $timePeriodId]);
                 $presenter->setResponseStatus(new NotFoundResponse('Time period'));
+
                 return;
             }
             $presenter->present($this->createResponse($timePeriod));
@@ -73,6 +73,7 @@ class FindTimePeriod
 
     /**
      * @param TimePeriod $timePeriod
+     *
      * @return FindTimePeriodResponse
      */
     private function createResponse(TimePeriod $timePeriod): FindTimePeriodResponse
@@ -84,7 +85,7 @@ class FindTimePeriod
         $response->days = array_map(function (Day $day) {
             return [
                 'day' => $day->getDay(),
-                'time_range' => (string)$day->getTimeRange()
+                'time_range' => (string) $day->getTimeRange(),
             ];
         }, $timePeriod->getDays());
         $response->templates = array_map(function (Template $template) {
@@ -97,9 +98,10 @@ class FindTimePeriod
             return [
                 'id' => $exception->getId(),
                 'day_range' => $exception->getDayRange(),
-                'time_range' => (string)$exception->getTimeRange(),
+                'time_range' => (string) $exception->getTimeRange(),
             ];
         }, $timePeriod->getExtraTimePeriods());
+
         return $response;
     }
 }

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,14 +24,11 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Api\Router;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
     AddTimePeriod, AddTimePeriodRequest
 };
-use Core\Infrastructure\Common\Api\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -41,10 +38,11 @@ class AddTimePeriodController extends AbstractController
      * @param Request $request
      * @param AddTimePeriod $useCase
      * @param AddTimePeriodsPresenter $presenter
-     *
-     * @return object
+     * @param Router $router
      *
      * @throws AccessDeniedException
+     *
+     * @return object
      */
     public function __invoke(
         Request $request,
@@ -77,6 +75,7 @@ class AddTimePeriodController extends AbstractController
                 new ErrorResponse($ex->getMessage())
             );
         }
+
         return $presenter->show();
     }
 
@@ -94,6 +93,7 @@ class AddTimePeriodController extends AbstractController
      *         time_range: string
      *     }>
      * } $dataSent
+     *
      * @return AddTimePeriodRequest
      */
     private function createDtoRequest(array $dataSent): AddTimePeriodRequest
@@ -104,7 +104,7 @@ class AddTimePeriodController extends AbstractController
         $dto->days = array_map(function (array $day): array {
             return [
                 'day' => $day['day'],
-                'time_range' => $day['time_range']
+                'time_range' => $day['time_range'],
             ];
         }, $dataSent['days']);
         $dto->templates = $dataSent['templates'];
@@ -114,6 +114,7 @@ class AddTimePeriodController extends AbstractController
                 'time_range' => $exception['time_range'],
             ];
         }, $dataSent['exceptions']);
+
         return $dto;
     }
 }
