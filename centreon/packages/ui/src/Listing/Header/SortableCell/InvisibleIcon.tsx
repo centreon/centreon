@@ -8,7 +8,7 @@ interface Icon {
   visible?: boolean;
 }
 
-const InvisibleIcon = ({
+const DraggableIcon = ({
   visible = false,
   columnLabel,
   className,
