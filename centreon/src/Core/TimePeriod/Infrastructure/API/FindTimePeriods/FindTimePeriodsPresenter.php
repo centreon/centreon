@@ -36,7 +36,7 @@ class FindTimePeriodsPresenter extends AbstractPresenter implements PresenterInt
      * @param PresenterFormatterInterface $presenterFormatter
      */
     public function __construct(
-        private RequestParametersInterface $requestParameters,
+        readonly private RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);

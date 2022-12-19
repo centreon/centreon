@@ -29,6 +29,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriod;
 use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriodRequest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UpdateTimePeriodController extends AbstractController
 {
@@ -38,7 +39,7 @@ class UpdateTimePeriodController extends AbstractController
      * @param DefaultPresenter $presenter
      * @param int $id
      *
-     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException
+     * @throws AccessDeniedException
      *
      * @return object
      */
@@ -101,19 +102,21 @@ class UpdateTimePeriodController extends AbstractController
         $dto->id = $id;
         $dto->name = $dataSent['name'];
         $dto->alias = $dataSent['alias'];
-        $dto->days = array_map(function (array $day): array {
-            return [
+        $dto->days = array_map(
+            fn (array $day): array => [
                 'day' => $day['day'],
                 'time_range' => $day['time_range'],
-            ];
-        }, $dataSent['days']);
+            ],
+            $dataSent['days']
+        );
         $dto->templates = $dataSent['templates'];
-        $dto->exceptions = array_map(function (array $exception): array {
-            return [
+        $dto->exceptions = array_map(
+            fn (array $exception): array => [
                 'day_range' => $exception['day_range'],
                 'time_range' => $exception['time_range'],
-            ];
-        }, $dataSent['exceptions']);
+            ],
+            $dataSent['exceptions']
+        );
 
         return $dto;
     }

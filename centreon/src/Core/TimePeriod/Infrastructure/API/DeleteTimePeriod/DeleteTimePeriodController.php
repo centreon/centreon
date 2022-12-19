@@ -26,6 +26,7 @@ namespace Core\TimePeriod\Infrastructure\API\DeleteTimePeriod;
 use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\UseCase\DeleteTimePeriod\DeleteTimePeriod;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class DeleteTimePeriodController extends AbstractController
 {
@@ -34,10 +35,13 @@ class DeleteTimePeriodController extends AbstractController
      * @param DefaultPresenter $presenter
      * @param int $id
      *
+     * @throws AccessDeniedException
+     *
      * @return object
      */
     public function __invoke(DeleteTimePeriod $useCase, DefaultPresenter $presenter, int $id): object
     {
+        $this->denyAccessUnlessGrantedForApiConfiguration();
         $useCase($id, $presenter);
 
         return $presenter->show();

@@ -90,18 +90,32 @@ class UpdateTimePeriod
         $timePeriod->setName($request->name);
         $timePeriod->setAlias($request->alias);
         $timePeriod->setDays(
-            array_map(function (array $day): Day {
-                return new Day(
+            array_map(
+                fn (array $day): Day => new Day(
                     $day['day'],
                     new TimeRange($day['time_range']),
-                );
-            }, $request->days)
+                ),
+                $request->days
+            )
         );
         $timePeriod->setTemplates(
-            array_map(fn (int $templateId): Template => new Template($templateId, 'name_not_used'), $request->templates)
+            array_map(
+                fn (int $templateId): Template => new Template(
+                    $templateId,
+                    'name_not_used'
+                ),
+                $request->templates
+            )
         );
         $timePeriod->setExtraTimePeriods(
-            array_map(fn (array $exception): ExtraTimePeriod => new ExtraTimePeriod(1, $exception['day_range'], new TimeRange($exception['time_range'])), $request->exceptions)
+            array_map(
+                fn (array $exception): ExtraTimePeriod => new ExtraTimePeriod(
+                    1,
+                    $exception['day_range'],
+                    new TimeRange($exception['time_range'])
+                ),
+                $request->exceptions
+            )
         );
         $this->writeTimePeriodRepository->update($timePeriod);
     }

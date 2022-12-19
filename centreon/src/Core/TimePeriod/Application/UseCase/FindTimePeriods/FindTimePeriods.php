@@ -43,8 +43,8 @@ class FindTimePeriods
      * @param RequestParametersInterface $requestParameters
      */
     public function __construct(
-        private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        private RequestParametersInterface $requestParameters,
+        readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+        readonly private RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -81,25 +81,28 @@ class FindTimePeriods
                 'id' => $timePeriod->getId(),
                 'name' => $timePeriod->getName(),
                 'alias' => $timePeriod->getAlias(),
-                'days' => array_map(function (Day $day) {
-                    return [
+                'days' => array_map(
+                    fn (Day $day): array => [
                         'day' => $day->getDay(),
                         'time_range' => (string) $day->getTimeRange(),
-                    ];
-                }, $timePeriod->getDays()),
-                'templates' => array_map(function (Template $template) {
-                    return [
+                    ],
+                    $timePeriod->getDays()
+                ),
+                'templates' => array_map(
+                    fn (Template $template): array => [
                         'id' => $template->getId(),
                         'alias' => $template->getAlias(),
-                    ];
-                }, $timePeriod->getTemplates()),
-                'exceptions' => array_map(function (ExtraTimePeriod $exception) {
-                    return [
+                    ],
+                    $timePeriod->getTemplates()
+                ),
+                'exceptions' => array_map(
+                    fn (ExtraTimePeriod $exception): array => [
                         'id' => $exception->getId(),
                         'day_range' => $exception->getDayRange(),
                         'time_range' => (string) $exception->getTimeRange(),
-                    ];
-                }, $timePeriod->getExtraTimePeriods()),
+                    ],
+                    $timePeriod->getExtraTimePeriods()
+                ),
             ];
         }
 

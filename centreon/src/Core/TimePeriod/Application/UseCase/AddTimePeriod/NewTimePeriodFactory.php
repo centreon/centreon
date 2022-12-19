@@ -27,7 +27,6 @@ use Core\TimePeriod\Domain\Model\{
     Day,
     NewExtraTimePeriod,
     NewTimePeriod,
-    Template,
     TimeRange
 };
 
@@ -45,21 +44,23 @@ final class NewTimePeriodFactory
     {
         $newTimePeriod = new NewTimePeriod($dto->name, $dto->alias);
         $newTimePeriod->setDays(
-            array_map(function (array $day): Day {
-                return new Day(
+            array_map(
+                fn (array $day): Day => new Day(
                     $day['day'],
                     new TimeRange($day['time_range']),
-                );
-            }, $dto->days)
+                ),
+                $dto->days
+            )
         );
         $newTimePeriod->setTemplates($dto->templates);
         $newTimePeriod->setExtraTimePeriods(
-            array_map(function (array $exception): NewExtraTimePeriod {
-                return new NewExtraTimePeriod(
+            array_map(
+                fn (array $exception): NewExtraTimePeriod => new NewExtraTimePeriod(
                     $exception['day_range'],
                     new TimeRange($exception['time_range'])
-                );
-            }, $dto->exceptions)
+                ),
+                $dto->exceptions
+            )
         );
 
         return $newTimePeriod;

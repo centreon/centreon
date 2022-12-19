@@ -25,9 +25,18 @@ namespace Core\TimePeriod\Infrastructure\API\FindTimePeriods;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class FindTimePeriodsController extends AbstractController
 {
+    /**
+     * @param FindTimePeriods $useCase
+     * @param FindTimePeriodsPresenter $presenter
+     *
+     * @throws AccessDeniedException
+     *
+     * @return object
+     */
     public function __invoke(
         FindTimePeriods $useCase,
         FindTimePeriodsPresenter $presenter

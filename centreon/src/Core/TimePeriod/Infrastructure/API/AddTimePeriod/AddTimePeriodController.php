@@ -101,19 +101,18 @@ class AddTimePeriodController extends AbstractController
         $dto = new AddTimePeriodRequest();
         $dto->name = $dataSent['name'];
         $dto->alias = $dataSent['alias'];
-        $dto->days = array_map(function (array $day): array {
-            return [
-                'day' => $day['day'],
-                'time_range' => $day['time_range'],
-            ];
-        }, $dataSent['days']);
+        $dto->days = array_map(
+            fn (array $day): array => ['day' => $day['day'], 'time_range' => $day['time_range']],
+            $dataSent['days']
+        );
         $dto->templates = $dataSent['templates'];
-        $dto->exceptions = array_map(function (array $exception): array {
-            return [
+        $dto->exceptions = array_map(
+            fn (array $exception): array => [
                 'day_range' => $exception['day_range'],
                 'time_range' => $exception['time_range'],
-            ];
-        }, $dataSent['exceptions']);
+            ],
+            $dataSent['exceptions']
+        );
 
         return $dto;
     }
