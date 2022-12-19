@@ -59,7 +59,8 @@ const insertResourceFixtures = (): Cypress.Chainable => {
     .then(submitResultsViaClapi)
     .then(checkThatFixtureServicesExistInDatabase)
     .then(() => cy.visit(`${Cypress.config().baseUrl}`))
-    .then(() => cy.fixture('users/admin.json'));
+    .then(() => cy.fixture('users/admin.json'))
+    .then(() => logout());
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
