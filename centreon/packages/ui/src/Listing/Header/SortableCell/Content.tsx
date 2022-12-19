@@ -1,16 +1,19 @@
 import * as React from 'react';
 
+import { useUpdateAtom } from 'jotai/utils';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { TableCellBaseProps, TableSortLabel, Tooltip } from '@mui/material';
-import DragIndicatorIcon from '@mui/icons-material/MoreVert';
 
-import { Props as ListingProps } from '../..';
-import { Column } from '../../models';
-import HeaderLabel from '../Label';
 import { HeaderCell } from '..';
+import { Props as ListingProps } from '../..';
 import { useStyles as useCellStyles } from '../../Cell/DataCell';
+import { Column } from '../../models';
+import { hoveredHeaderAtom } from '../headerAtom';
+import HeaderLabel from '../Label';
+
+import InvisibleIcon from './InvisibleIcon';
 
 type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
@@ -19,16 +22,15 @@ const useStyles = makeStyles<StylesProps>()(
     content: {
       alignItems: 'center',
       display: 'flex',
-      minHeight: theme.spacing(3),
-      padding: theme.spacing(0, 1.5)
+      minHeight: theme.spacing(3)
     },
     dragHandle: {
-      alignSelf: 'flex-start',
+      alignSelf: 'center',
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
-      marginLeft: -theme.spacing(1),
       outline: 'none'
     },
+
     item: {
       background: isInDragOverlay
         ? 'transparent'
@@ -37,6 +39,12 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: isInDragOverlay
         ? 'none'
         : `1px solid ${theme.palette.text.primary}`
+    },
+    label: {
+      paddingLeft: theme.spacing(1)
+    },
+    labelHovered: {
+      padding: 0
     }
   })
 );
@@ -66,6 +74,9 @@ const SortableHeaderCellContent = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
   const cellClasses = useCellStyles();
+  const [cellHovered, setCellHovered] = React.useState(false);
+
+  const setHoveredHeader = useUpdateAtom(hoveredHeaderAtom);
 
   const columnLabel = column.shortLabel || column.label;
 
@@ -85,11 +96,20 @@ const SortableHeaderCellContent = ({
     });
   };
 
+  const mouseOver = (): void => {
+    setCellHovered(true);
+
+    setHoveredHeader({ column, isHeaderHovered: true });
+  };
+
+  const mouseOut = (): void => {
+    setCellHovered(false);
+    setHoveredHeader({ column, isHeaderHovered: false });
+  };
+
   const headerContent = (
     <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
-      <div>
-        <HeaderLabel>{columnLabel}</HeaderLabel>
-      </div>
+      <HeaderLabel>{columnLabel}</HeaderLabel>
     </Tooltip>
   );
 
@@ -98,16 +118,18 @@ const SortableHeaderCellContent = ({
       className={cx([cellClasses.cell, classes.item])}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
+      onMouseOut={mouseOut}
+      onMouseOver={mouseOver}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        {columnConfiguration?.sortable && (
-          <div
-            className={classes.dragHandle}
+        {!cellHovered && <InvisibleIcon />}
+        {columnConfiguration?.sortable && cellHovered && (
+          <InvisibleIcon
+            visible
             {...props}
             aria-label={columnLabel}
-          >
-            <DragIndicatorIcon fontSize="small" />
-          </div>
+            className={classes.dragHandle}
+          />
         )}
 
         {column.sortable ? (
@@ -120,7 +142,10 @@ const SortableHeaderCellContent = ({
             {headerContent}
           </TableSortLabel>
         ) : (
-          headerContent
+          <>
+            {headerContent}
+            <InvisibleIcon />
+          </>
         )}
       </div>
     </HeaderCell>

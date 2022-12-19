@@ -9,7 +9,7 @@ interface Props {
 const useStyles = makeStyles()(() => ({
   column: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     width: '100%'
   }
 }));

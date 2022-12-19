@@ -51,3 +51,8 @@ export interface PredefinedRowSelection {
   label: string;
   rowCondition: (row) => boolean;
 }
+
+export interface CellHeader {
+  column: Column;
+  isHeaderHovered: boolean;
+}

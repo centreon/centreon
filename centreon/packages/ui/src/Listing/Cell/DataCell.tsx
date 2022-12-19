@@ -1,10 +1,12 @@
 import { memo } from 'react';
 
+import { useAtomValue } from 'jotai/utils';
 import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, Typography } from '@mui/material';
 
+import { hoveredHeaderAtom } from '../Header/headerAtom';
 import {
   Column,
   ColumnType,
@@ -31,8 +33,28 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
+  cellComponent: {
+    minWidth: 60,
+    padding: theme.spacing(0, 0, 0, 1)
+  },
+  componentColumn: {
+    padding: theme.spacing(0, 0, 0, 2.25)
+  },
+  headerCell: {
+    padding: theme.spacing(0, 0, 0, 1)
+  },
+
+  hoveredComponentColumn: {
+    padding: theme.spacing(0, 1.25, 0, 1)
+  },
+  hoveredStringColumn: {
+    padding: theme.spacing(0, 1.5, 0, 1)
+  },
   rowNotHovered: {
     color: theme.palette.text.secondary
+  },
+  stringColumn: {
+    padding: theme.spacing(0, 0, 0, 2.5)
   },
   text: {
     overflow: 'hidden',
@@ -49,11 +71,35 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition
 }: Props): JSX.Element | null => {
+  const { id, type } = column;
+
   const { classes, cx } = useStyles();
+
+  const hoveredHeader = useAtomValue(hoveredHeaderAtom);
+
+  const isHeaderOfCellHovered =
+    equals(id, hoveredHeader?.column?.id) && hoveredHeader?.isHeaderHovered;
+
+  const stringColumn =
+    !isHeaderOfCellHovered && equals(type, ColumnType.string);
+
+  const componentColumn =
+    !isHeaderOfCellHovered && equals(type, ColumnType.component);
+
+  const hoveredStringColumn =
+    isHeaderOfCellHovered && equals(type, ColumnType.string);
+
+  const hoveredComponentColumn =
+    isHeaderOfCellHovered && equals(type, ColumnType.component);
 
   const commonCellProps = {
     align: 'left' as const,
-    className: classes.cell,
+    className: cx(classes.cell, {
+      [classes.hoveredComponentColumn]: hoveredComponentColumn,
+      [classes.hoveredStringColumn]: hoveredStringColumn,
+      [classes.stringColumn]: stringColumn,
+      [classes.componentColumn]: componentColumn
+    }),
     compact: column.compact,
     disableRowCondition,
     isRowHovered,
