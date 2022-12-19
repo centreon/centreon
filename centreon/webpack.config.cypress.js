@@ -40,29 +40,6 @@ const output =
       }
     : {};
 
-const getStaticDirectoryPath = (moduleName) =>
-  `${__dirname}/www/modules/${moduleName}/static`;
-
-const modules = [
-  {
-    getDirectoryPath: getStaticDirectoryPath,
-    name: 'centreon-license-manager'
-  },
-  {
-    getDirectoryPath: getStaticDirectoryPath,
-    name: 'centreon-autodiscovery-server'
-  },
-  { getDirectoryPath: getStaticDirectoryPath, name: 'centreon-bam-server' },
-  {
-    getDirectoryPath: getStaticDirectoryPath,
-    name: 'centreon-augmented-services'
-  },
-  {
-    getDirectoryPath: () => `${__dirname}/www/modules/centreon-map4-web-client`,
-    name: 'centreon-map4-web-client'
-  }
-];
-
 module.exports = merge(
   getBaseConfiguration(
     isServeMode

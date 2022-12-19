@@ -1,4 +1,3 @@
-import 'cypress-msw-interceptor';
 import './commands';
 
 import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';

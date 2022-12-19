@@ -179,7 +179,7 @@ describe('Listing renderer', () => {
       where({ information: includes('\n') }),
       retrievedListing.result
     );
-    cy.waitRequestBeforeListingTest();
+    cy.waitFiltersAndListingRequests();
 
     resourcesWithMultipleLines.forEach(({ information }) =>
       cy
@@ -208,7 +208,7 @@ describe('column sorting', () => {
     .filter(({ id }) => includes(id, defaultSelectedColumnIds))
     .forEach(({ id, label, sortField }) => {
       it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-        cy.waitRequestBeforeListingTest();
+        cy.waitFiltersAndListingRequests();
 
         const sortBy = (sortField || id) as string;
 
@@ -251,10 +251,10 @@ describe('Listing request', () => {
   });
 
   it('executes a listing request with an updated page param when a change page action is clicked', () => {
-    cy.waitRequestBeforeListingTest();
+    cy.waitFiltersAndListingRequests();
 
     cy.findByLabelText(`Next page`)
-      .should(($label: string) => {
+      .should(($label) => {
         expect($label).to.be.enabled;
       })
       .click();
@@ -266,7 +266,7 @@ describe('Listing request', () => {
     });
 
     cy.findByLabelText(`Previous page`)
-      .should(($label: string) => {
+      .should(($label) => {
         expect($label).to.be.enabled;
       })
       .click();
@@ -278,7 +278,7 @@ describe('Listing request', () => {
     });
 
     cy.findByLabelText(`Last page`)
-      .should(($label: string) => {
+      .should(($label) => {
         expect($label).to.be.enabled;
       })
       .click();
@@ -290,7 +290,7 @@ describe('Listing request', () => {
     });
 
     cy.findByLabelText(`First page`)
-      .should(($label: string) => {
+      .should(($label) => {
         expect($label).to.be.enabled;
       })
       .click();
@@ -304,7 +304,7 @@ describe('Listing request', () => {
   });
 
   it('executes a listing request with a limit param when the rows per page value is changed', () => {
-    cy.waitRequestBeforeListingTest();
+    cy.waitFiltersAndListingRequests();
 
     cy.get('#Rows\\ per\\ page').click();
     cy.contains(/^30$/).click({ force: true });
@@ -358,7 +358,7 @@ describe('Displays details', () => {
   });
 
   it('displays downtime details when the downtime state chip is hovered', () => {
-    cy.waitRequestBeforeListingTest();
+    cy.waitFiltersAndListingRequests();
 
     const entityInDowntime = entities.find(({ in_downtime }) => in_downtime);
     cy.log('endtime', entityInDowntime);
@@ -388,7 +388,7 @@ describe('Displays details', () => {
   });
 
   it('displays acknowledgement details when an acknowledged state chip is hovered', () => {
-    cy.waitRequestBeforeListingTest();
+    cy.waitFiltersAndListingRequests();
 
     const acknowledgedEntity = entities.find(
       ({ acknowledged }) => acknowledged
@@ -428,7 +428,7 @@ describe('Displays details', () => {
 
   additionalIds.forEach((columnId) => {
     it(`displays additional columns when selected from the corresponding ${columnId} menu`, () => {
-      cy.waitRequestBeforeListingTest();
+      cy.waitFiltersAndListingRequests();
 
       cy.findByLabelText('Add columns').click();
 

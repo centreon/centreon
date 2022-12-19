@@ -57,7 +57,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('waitRequestBeforeListingTest', () => {
+Cypress.Commands.add('waitFiltersAndListingRequests', () => {
   cy.waitForRequest('@filterRequest');
   cy.waitForRequest('@dataToListingTable');
 });
@@ -70,8 +70,8 @@ declare global {
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
+      waitFiltersAndListingRequests: () => Cypress.Chainable;
       waitForRequest: (alias) => Cypress.Chainable;
-      waitRequestBeforeListingTest: () => Cypress.Chainable;
     }
   }
 }
