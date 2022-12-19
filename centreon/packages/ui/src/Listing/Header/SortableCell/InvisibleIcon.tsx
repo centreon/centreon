@@ -8,7 +8,7 @@ interface Icon {
   visible?: boolean;
 }
 
-const DragInvisibleIcon = ({
+const InvisibleIcon = ({
   visible = false,
   columnLabel,
   className,
@@ -28,4 +28,4 @@ const DragInvisibleIcon = ({
   );
 };
 
-export default DragInvisibleIcon;
+export default InvisibleIcon;

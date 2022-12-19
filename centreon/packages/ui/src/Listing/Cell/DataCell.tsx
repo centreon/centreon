@@ -11,6 +11,7 @@ import {
   ComponentColumnProps,
   RowColorCondition
 } from '../models';
+import InvisibleIcon from '../Header/SortableCell/InvisibleIcon';
 
 import Cell from '.';
 
@@ -29,19 +30,17 @@ const useStyles = makeStyles()((theme) => ({
     alignSelf: 'stretch',
     display: 'flex',
     overflow: 'hidden',
+    padding: 0,
     whiteSpace: 'nowrap'
   },
   componentColumn: {
-    padding: theme.spacing(0, 0, 0, 2.25)
+    width: theme.spacing(2.25)
   },
   headerCell: {
     padding: theme.spacing(0, 0, 0, 1)
   },
   rowNotHovered: {
     color: theme.palette.text.secondary
-  },
-  stringColumn: {
-    padding: theme.spacing(0, 0, 0, 2.5)
   },
   text: {
     overflow: 'hidden',
@@ -58,20 +57,11 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition
 }: Props): JSX.Element | null => {
-  const { type } = column;
-
   const { classes, cx } = useStyles();
-
-  const stringColumn = equals(type, ColumnType.string);
-
-  const componentColumn = equals(type, ColumnType.component);
 
   const commonCellProps = {
     align: 'left' as const,
-    className: cx(classes.cell, {
-      [classes.stringColumn]: stringColumn && !componentColumn,
-      [classes.componentColumn]: componentColumn && !stringColumn
-    }),
+    className: cx(classes.cell),
     compact: column.compact,
     disableRowCondition,
     isRowHovered,
@@ -105,7 +95,10 @@ const DataCell = ({
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
-          {!isTruncated && typography}
+          <>
+            <InvisibleIcon />
+            {!isTruncated && typography}
+          </>
         </Cell>
       );
     },
@@ -132,11 +125,15 @@ const DataCell = ({
           }}
           {...commonCellProps}
         >
-          <Component
-            isHovered={isRowHovered}
-            isSelected={isRowSelected}
-            row={row}
-          />
+          <>
+            <InvisibleIcon className={classes.componentColumn} />
+
+            <Component
+              isHovered={isRowHovered}
+              isSelected={isRowSelected}
+              row={row}
+            />
+          </>
         </Cell>
       );
     }
