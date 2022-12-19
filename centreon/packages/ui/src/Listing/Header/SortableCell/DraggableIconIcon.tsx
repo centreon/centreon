@@ -28,4 +28,4 @@ const DraggableIcon = ({
   );
 };
 
-export default InvisibleIcon;
+export default DraggableIcon;

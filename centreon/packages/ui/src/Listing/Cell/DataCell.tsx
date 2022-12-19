@@ -11,7 +11,7 @@ import {
   ComponentColumnProps,
   RowColorCondition
 } from '../models';
-import InvisibleIcon from '../Header/SortableCell/InvisibleIcon';
+import DraggableIcon from '../Header/SortableCell/DraggableIconIcon';
 
 import Cell from '.';
 
@@ -96,7 +96,7 @@ const DataCell = ({
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
           <>
-            <InvisibleIcon />
+            <DraggableIcon />
             {!isTruncated && typography}
           </>
         </Cell>
@@ -126,7 +126,7 @@ const DataCell = ({
           {...commonCellProps}
         >
           <>
-            <InvisibleIcon className={classes.componentColumn} />
+            <DraggableIcon className={classes.componentColumn} />
 
             <Component
               isHovered={isRowHovered}

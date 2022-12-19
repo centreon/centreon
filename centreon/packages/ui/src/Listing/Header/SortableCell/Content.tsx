@@ -11,7 +11,7 @@ import { useStyles as useCellStyles } from '../../Cell/DataCell';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
 
-import InvisibleIcon from './InvisibleIcon';
+import DraggableIcon from './DraggableIconIcon';
 
 type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
@@ -109,9 +109,9 @@ const SortableHeaderCellContent = ({
       onMouseOver={mouseOver}
     >
       <div className={classes.content} ref={itemRef} style={style}>
-        {!cellHovered && <InvisibleIcon />}
+        {!cellHovered && <DraggableIcon />}
         {columnConfiguration?.sortable && cellHovered && (
-          <InvisibleIcon
+          <DraggableIcon
             visible
             {...props}
             aria-label={columnLabel}
@@ -131,7 +131,7 @@ const SortableHeaderCellContent = ({
         ) : (
           <>
             {headerContent}
-            <InvisibleIcon />
+            <DraggableIcon />
           </>
         )}
       </div>
