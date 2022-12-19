@@ -449,6 +449,7 @@ testData.forEach((item) =>
 
     it(`displays the correct day name on calendar's header when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
+
       const { result } = renderHook(() => useLocaleDateTimeFormat());
 
       item.data.forEach((element) => {
