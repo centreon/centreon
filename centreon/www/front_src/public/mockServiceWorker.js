@@ -174,7 +174,8 @@ async function handleRequest(event, requestId) {
 async function resolveMainClient(event) {
   const client = await self.clients.get(event.clientId)
 
-  if (client.frameType === 'top-level') {
+  const clientType = client.frameType
+  if (clientType === 'top-level') {
     return client
   }
 
