@@ -65,6 +65,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
+          name: cypress-e2e
           image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
