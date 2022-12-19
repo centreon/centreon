@@ -180,6 +180,7 @@ export const basicFormInputs: Array<InputProps> = [
     additionalLabel: 'This a very special label',
     fieldName: 'password',
     group: 'First group',
+    hideInput: (values) => values.active,
     label: 'Password',
     type: InputType.Password
   },

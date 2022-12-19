@@ -58,26 +58,17 @@ class DbVaultConfigurationFactory
      */
     public function createFromRecord(array $recordData): VaultConfiguration
     {
-        /** @var string $roleId */
-        $roleId = $this->encryption
-            ->setSecondKey((string) $recordData['salt'])
-            ->decrypt((string) $recordData['role_id']);
-
-        /** @var string $secretId */
-        $secretId = $this->encryption
-            ->setSecondKey((string) $recordData['salt'])
-            ->decrypt((string) $recordData['secret_id']);
-
         return new VaultConfiguration(
+            $this->encryption,
             (int) $recordData['id'],
             (string) $recordData['name'],
             new Vault($recordData['vault_id'], $recordData['vault_name']),
             (string) $recordData['url'],
             (int) $recordData['port'],
             (string) $recordData['storage'],
-            $roleId,
-            $secretId,
-            (string) $recordData['salt']
+            (string) $recordData['salt'],
+            (string) $recordData['role_id'],
+            (string) $recordData['secret_id']
         );
     }
 }

@@ -35,7 +35,7 @@ const ExportToCsv = ({
         data-testid={labelExportToCSV}
         size="small"
         startIcon={<SaveIcon />}
-        variant="text"
+        variant="contained"
         onClick={exportToCsv}
       >
         {t(labelExportToCSV)}

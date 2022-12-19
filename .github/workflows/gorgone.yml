@@ -1,5 +1,9 @@
 name: gorgone
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
@@ -60,6 +64,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -72,15 +77,22 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: centreon-gorgone
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.REPOS_USERNAME }}
           nexus_password: ${{ secrets.REPOS_PASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version,package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
         distrib: [bullseye]
@@ -95,6 +107,7 @@ jobs:
           module_name: centreon-gorgone
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.REPOS_USERNAME }}
-          nexus_password: ${{ secrets.REPOS_PASSWORD }}
+          nexus_username: ${{ secrets.NEXUS_USER }}
+          nexus_password: ${{ secrets.NEXUS_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}

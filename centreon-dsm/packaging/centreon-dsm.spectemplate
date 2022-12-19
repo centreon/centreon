@@ -9,7 +9,7 @@
 
 Name:           centreon-dsm
 Version:        %{version}
-Release:        %{release}%{?dist}
+Release:        %{release}
 Summary:        Centreon-dsm add-on for Centreon
 %define thismajor 23.04.0
 %define nextmajor 23.05.0
@@ -22,7 +22,7 @@ Source1:        centreon-macroreplacement.txt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 Requires:       centreon
-Requires:	centreon-dsm-client = %{version}-%{release}
+Requires:	    centreon-dsm-client = %{version}-%{release}
 Requires:       centreon-dsm-server = %{version}-%{release}
 
 %description
@@ -51,7 +51,7 @@ Centreon-dsm client package
 # Prepare the build
 ######################################################
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}
 
 # Change macro
 find . -type f | xargs sed -i -f %{SOURCE1}

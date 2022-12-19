@@ -58,7 +58,8 @@ import {
   labelSearch,
   labelNewFilter,
   labelMyFilters,
-  labelClearFilter
+  labelClearFilter,
+  labelSearchBar
 } from '../translatedLabels';
 
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
@@ -566,7 +567,7 @@ const Filter = (): JSX.Element => {
             <Criterias />
           </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
-            <div data-testid={labelClearFilter}>
+            <div data-testid={labelSearchBar}>
               <SearchField
                 fullWidth
                 EndAdornment={renderClearFilter(clearFilter)}

@@ -8,7 +8,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -24,7 +24,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user for vault provider that not exists
     Given I am logged in
-    And the endpoints are described in Centreon Web API documentation (version: 23.04)
+    And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/2/configurations' with body:
     """
       {
@@ -281,4 +281,170 @@ Feature: Vault Configuration API
     """
 
     When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/2'
+    Then the response code should be "404"
+
+  Scenario: List vault configurations by vault provider as an admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+      {
+        "result": [
+          {
+            "id": 1,
+            "name": "myVaultConfiguration",
+            "vault_id": 1,
+            "url": "127.0.0.1",
+            "port": 8200,
+            "storage": "myStorageFolder"
+          }
+        ],
+        "meta": {
+          "page": 1,
+          "limit": 10,
+          "search": {},
+          "sort_by": {},
+          "total": 0
+        }
+      }
+    """
+
+  Scenario: List vault configurations by vault provider as a non-admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    And the following CLAPI import data:
+    """
+      CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;kev;reach_api;1
+    """
+    And I am logged in with "kev"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
+    Then the response code should be "403"
+
+  Scenario: List vault configurations by vault provider as an admin user while vault provider id does not exist
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a GET request to '/api/latest/administration/vaults/2/configurations'
+    Then the response code should be "404"
+
+  Scenario: List vault configurations by id as an admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+      {
+        "vaultConfiguration" :{
+          "id": 1,
+          "name": "myVaultConfiguration",
+          "vault_id": 1,
+          "url": "127.0.0.1",
+          "port": 8200,
+          "storage": "myStorageFolder"
+        }
+      }
+    """
+
+  Scenario: List vault configurations by id as a non-admin user
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    And the following CLAPI import data:
+    """
+      CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;kev;reach_api;1
+    """
+    And I am logged in with "kev"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations/1'
+    Then the response code should be "403"
+
+  Scenario: List vault configurations by id as an admin user while vault provider id does not exist
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a GET request to '/api/latest/administration/vaults/2/configurations/1'
+    Then the response code should be "404"
+
+  Scenario: List vault configurations by id as an admin user while vault configuration id does not exist
+    Given I am logged in
+    And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "storage": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations/2'
     Then the response code should be "404"

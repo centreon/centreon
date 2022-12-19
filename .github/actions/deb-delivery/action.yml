@@ -4,6 +4,9 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -19,6 +22,9 @@ inputs:
   cache_key:
     description: "The cached package key"
     required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
 
 runs:
   using: "composite"
@@ -31,33 +37,7 @@ runs:
 
     - name: Publish DEBS to Nexus
       run: |
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          BRANCHNAME="$GITHUB_REF_NAME"
-        else
-          BRANCHNAME="$GITHUB_HEAD_REF"
-        fi
-
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
-
-        case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
-            REPO="unstable"
-            ;;
-          release* | hotfix*)
-            REPO="testing"
-            ;;
-          master | [2-9][0-9].[0-9][0-9].x)
-            REPO="stable"
-            ;;
-          *)
-            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            exit 0
-            ;;
-        esac
-
         FILES="*.deb";
-        echo "[DEBUG] - Repo: $REPO"
         echo "[DEBUG] - Deb FILES: $FILES"
 
         for FILE in $FILES
@@ -65,10 +45,13 @@ runs:
           echo "[DEBUG] - File: $FILE"
 
           VERSION=${{ inputs.version }}
+          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
+          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
 
           echo "[DEBUG] - Version: $VERSION"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION-$REPO/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "./$FILE"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/23.04-${{ inputs.stability }}/
+
 
         done
       shell: bash

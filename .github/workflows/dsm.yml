@@ -1,5 +1,9 @@
 name: dsm
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
@@ -21,12 +25,12 @@ env:
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
-    with: 
+    with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
   package:
     needs: [get-version]
-    
+
     strategy:
       fail-fast: true
       matrix:
@@ -53,11 +57,12 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.ARTI_USER }}
-      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   delivery-rpm:
     needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -74,14 +79,21 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ${{ matrix.module_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
     needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -98,7 +110,7 @@ jobs:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_USER }}
+          nexus_password: ${{ secrets.NEXUS_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-
+          stability: ${{ needs.get-version.outputs.stability }}

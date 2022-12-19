@@ -69,9 +69,10 @@ on:
 
 jobs:
   package:
+    name: Package ${{ inputs.package_extension }}
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/${{ inputs.image_name }}:${{ inputs.major_version }}
+      image: docker.centreon.com/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
         username: ${{ secrets.artifactory_username }}
         password: ${{ secrets.artifactory_password }}
@@ -96,14 +97,20 @@ jobs:
           major_version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
-          cache_key: ${{ inputs.cache_key }}
+          cache_key: unsigned-${{ inputs.cache_key }}
+
+      - if: ${{ inputs.package_extension == 'deb' }}
+        uses: actions/cache@v3
+        with:
+          path: ./*.${{ inputs.package_extension }}
+          key: ${{ inputs.cache_key }}
 
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/rpm-signing:ubuntu
+      image: docker.centreon.com/rpm-signing:ubuntu
       options: -t
       credentials:
         username: ${{ secrets.artifactory_username }}
@@ -118,7 +125,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ inputs.package_extension }}
-          key: ${{ inputs.cache_key }}
+          key: unsigned-${{ inputs.cache_key }}
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
         shell: bash

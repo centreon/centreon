@@ -1,8 +1,6 @@
-FROM registry-docker.centreon.com/docker-global/centos:7 AS web_fresh
+FROM docker-proxy.centreon.com/centos:7 AS web_fresh
 
 RUN <<EOF
-
-yum clean all --enablerepo=*
 
 yum install -y centos-release-scl
 
@@ -38,7 +36,7 @@ module_hotfixes=1
 
 [centreon-stable]
 name=Centreon open source software repository.
-baseurl=https://yum.centreon.com/standard/23.04/el7/stable/$basearch/
+baseurl=https://yum.centreon.com/standard/23.04/el7/stable/\$basearch/
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
@@ -47,15 +45,15 @@ module_hotfixes=1
 [centreon-testing-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://yum.centreon.com/standard/23.04/el7/testing/noarch/
-enabled=0
+enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
 [centreon-testing]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el7/testing/$basearch/
-enabled=0
+baseurl=https://yum.centreon.com/standard/23.04/el7/testing/\$basearch/
+enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -63,22 +61,19 @@ module_hotfixes=1
 [centreon-unstable-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/noarch/
-enabled=0
+enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
 [centreon-unstable]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/$basearch/
-enabled=0
+baseurl=https://yum.centreon.com/standard/23.04/el7/unstable/\$basearch/
+enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 " > /etc/yum.repos.d/centreon.repo
-
-yum-config-manager --enable 'centreon-testing*'
-yum-config-manager --enable 'centreon-unstable*'
 
 yum clean all
 
@@ -90,7 +85,7 @@ COPY *.rpm /tmp/rpms-centreon/
 RUN <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
-yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+yum install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 

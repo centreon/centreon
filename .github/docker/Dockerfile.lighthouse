@@ -1,4 +1,4 @@
-FROM registry-docker.centreon.com/docker-global/node:lts-bullseye
+FROM docker-proxy.centreon.com/node:lts-bullseye
 RUN apt-get update -y && apt-get install -y \
   ca-certificates \
   curl \

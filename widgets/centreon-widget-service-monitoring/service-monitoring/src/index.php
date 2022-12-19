@@ -113,7 +113,8 @@ $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
-$query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
+$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+    h.host_id,
     h.name as hostname,
     h.alias as hostalias,
     s.latency,
@@ -370,7 +371,7 @@ if (!$centreon->user->admin) {
         AND acl.service_id = s.service_id
         AND acl.group_id IN (" . $groupList . ") ";
 }
-$orderBy = 'hostname ASC , description ASC';
+$orderBy = 'hostname ASC ';
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     $aOrder = explode(' ', $preferences['order_by']);
@@ -390,8 +391,6 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
         $orderBy .= ', ' . $aOrder[0] . ' ' . $aOrder[1];
     }
 }
-
-$query .= 'GROUP BY hostname, description ';
 
 if (trim($orderBy)) {
     $query .= "ORDER BY " . $orderBy;

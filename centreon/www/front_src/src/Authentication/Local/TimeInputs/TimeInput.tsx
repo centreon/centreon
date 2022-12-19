@@ -157,6 +157,7 @@ const TimeInput = ({
     Component: (
       <div className={classes.timeInput}>
         <SelectField
+          dataTestId={`${inputLabel} ${name}`}
           inputProps={{
             'aria-label': `${t(inputLabel)} ${t(label)}`,
             'data-testid': dataTestId

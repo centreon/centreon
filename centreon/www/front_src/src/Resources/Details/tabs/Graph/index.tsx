@@ -9,6 +9,8 @@ import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import memoizeComponent from '../../../memoizedComponent';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
+import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/graph/AnomalyDetectionGraphActions';
+import { getDisplayAdditionalLinesCondition } from '../../../Graph/Performance/AnomalyDetection/graph';
 
 import HostGraph from './HostGraph';
 
@@ -41,7 +43,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const type = details?.type as ResourceType;
   const equalsService = equals(ResourceType.service);
   const equalsMetaService = equals(ResourceType.metaservice);
-  const equalsAnomalyDetection = equals(ResourceType.anomalydetection);
+  const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
 
   const { loadDetails } = useLoadDetails();
 
@@ -63,10 +65,18 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
         <>
           <TimePeriodButtonGroup />
           <ExportablePerformanceGraphWithTimeline
+            interactWithGraph
+            getDisplayAdditionalLinesCondition={
+              getDisplayAdditionalLinesCondition
+            }
             graphHeight={280}
-            isEditAnomalyDetectionDataDialogOpen={false}
+            renderAdditionalGraphAction={
+              <AnomalyDetectionGraphActions
+                details={details}
+                sendReloadGraphPerformance={reload}
+              />
+            }
             resource={details}
-            onReload={reload}
           />
         </>
       ) : (

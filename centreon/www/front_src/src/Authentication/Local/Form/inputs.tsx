@@ -22,7 +22,7 @@ const inputs: Array<InputProps> = [
       alignItems: 'center',
       columns: [
         {
-          dataTestId: 'local_passwordMinLength',
+          dataTestId: labelMinimumPasswordLength,
           fieldName: 'passwordMinLength',
           label: labelMinimumPasswordLength,
           text: {
@@ -82,7 +82,7 @@ const inputs: Array<InputProps> = [
     type: InputType.Custom
   },
   {
-    dataTestId: 'local_canReusePasswords',
+    dataTestId: labelLast3PasswordsCanBeReused,
     fieldName: 'canReusePasswords',
     group: labelPasswordExpirationPolicy,
     label: labelLast3PasswordsCanBeReused,

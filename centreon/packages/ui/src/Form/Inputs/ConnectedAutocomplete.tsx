@@ -20,7 +20,6 @@ const ConnectedAutocomplete = ({
   getDisabled,
   required,
   getRequired,
-  hideInput,
   fieldName,
   label,
   connectedAutocomplete,
@@ -93,7 +92,6 @@ const ConnectedAutocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   const AutocompleteField = useMemo(
     () =>
@@ -104,9 +102,7 @@ const ConnectedAutocomplete = ({
   );
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <AutocompleteField
         dataTestId={dataTestId}
         disableClearable={false}
@@ -130,8 +126,7 @@ const ConnectedAutocomplete = ({
       disabled,
       isRequired,
       additionalMemoProps,
-      connectedAutocomplete,
-      hidden
+      connectedAutocomplete
     ]
   });
 };

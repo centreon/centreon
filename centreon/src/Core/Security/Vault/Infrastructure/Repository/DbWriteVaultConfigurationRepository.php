@@ -65,8 +65,8 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);
         $statement->bindValue(':port', $vaultConfiguration->getPort(), \PDO::PARAM_INT);
         $statement->bindValue(':storage', $vaultConfiguration->getStorage(), \PDO::PARAM_STR);
-        $statement->bindValue(':role_id', $vaultConfiguration->getRoleId(), \PDO::PARAM_STR);
-        $statement->bindValue(':secret_id', $vaultConfiguration->getSecretId(), \PDO::PARAM_STR);
+        $statement->bindValue(':role_id', $vaultConfiguration->getEncryptedRoleId(), \PDO::PARAM_STR);
+        $statement->bindValue(':secret_id', $vaultConfiguration->getEncryptedSecretId(), \PDO::PARAM_STR);
         $statement->bindValue(':salt', $vaultConfiguration->getSalt(), \PDO::PARAM_STR);
 
         $statement->execute();
@@ -89,8 +89,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
                         `port`=:port,
                         `storage`=:storage,
                         `role_id`=:role_id,
-                        `secret_id`=:secret_id,
-                        `salt`=:salt
+                        `secret_id`=:secret_id
                     WHERE `id`=:id
                     SQL
             )
@@ -102,9 +101,8 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);
         $statement->bindValue(':port', $vaultConfiguration->getPort(), \PDO::PARAM_INT);
         $statement->bindValue(':storage', $vaultConfiguration->getStorage(), \PDO::PARAM_STR);
-        $statement->bindValue(':role_id', $vaultConfiguration->getRoleId(), \PDO::PARAM_STR);
-        $statement->bindValue(':secret_id', $vaultConfiguration->getSecretId(), \PDO::PARAM_STR);
-        $statement->bindValue(':salt', $vaultConfiguration->getSalt(), \PDO::PARAM_STR);
+        $statement->bindValue(':role_id', $vaultConfiguration->getEncryptedRoleId(), \PDO::PARAM_STR);
+        $statement->bindValue(':secret_id', $vaultConfiguration->getEncryptedSecretId(), \PDO::PARAM_STR);
 
         $statement->execute();
     }
