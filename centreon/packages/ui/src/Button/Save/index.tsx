@@ -43,7 +43,7 @@ const SaveButton = ({
   labelSucceeded = '',
   labelLoading = '',
   labelSave = '',
-  size = 'medium',
+  size = 'small',
   className,
   ...rest
 }: Props): JSX.Element => {

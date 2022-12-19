@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.8",
+  "version": "23.4.9-MON-15038-fix-text-field-height-in-the-mui-theme-23-04.0",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
