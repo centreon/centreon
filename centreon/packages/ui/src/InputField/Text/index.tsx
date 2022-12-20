@@ -11,6 +11,8 @@ import {
   Tooltip
 } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small'
@@ -51,11 +53,11 @@ export type Props = {
   StartAdornment?: React.FC;
   ariaLabel?: string;
   className?: string;
-  dataTestId?: string;
+  dataTestId: string;
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'medium' | 'small' | 'compact';
+  size?: 'large' | 'medium' | 'small' | 'compact';
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
@@ -103,8 +105,10 @@ const TextField = forwardRef(
               </OptionalLabelInputAdornment>
             )
           }}
+          data-testid={dataTestId}
           error={!isNil(error)}
           helperText={displayErrorInTooltip ? undefined : error}
+          id={getNormalizedId(dataTestId || '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,

@@ -30,6 +30,4 @@ process.argv.reduce((cmd, arg) => {
 
 process.env.TEST_CONFIGURATION = JSON.stringify(config);
 
-process.argv = argv;
-
 require('jest/bin/jest');

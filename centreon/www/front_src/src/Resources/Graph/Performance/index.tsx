@@ -23,8 +23,7 @@ import {
   prop,
   propEq,
   propOr,
-  reject,
-  sortBy
+  reject
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -38,18 +37,18 @@ import {
   useRequest
 } from '@centreon/ui';
 
-import { labelNoDataForThisPeriod } from '../../translatedLabels';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { Resource, ResourceType } from '../../models';
 import { CommentParameters } from '../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import {
   CustomTimePeriod,
   CustomTimePeriodProperty
 } from '../../Details/tabs/Graph/models';
-import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
+import { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import { Resource } from '../../models';
+import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
-import { CustomFactorsData } from './AnomalyDetection/models';
+import { getNewLinesAnomalyDetection } from './AnomalyDetection/graph/helpers';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -59,7 +58,9 @@ import { TimeShiftDirection } from './Graph/TimeShiftZones';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
+  AdditionalDataProps,
   AdjustTimePeriodProps,
+  GetDisplayAdditionalLinesConditionProps,
   GraphData,
   Line as LineModel,
   TimeValue
@@ -73,17 +74,16 @@ interface Props {
   displayEventAnnotations?: boolean;
   displayTitle?: boolean;
   endpoint?: string;
+  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   getPerformanceGraphRef?: (
     value: MutableRefObject<HTMLDivElement | null>
   ) => void;
   graphActions?: ReactNode;
   graphHeight: number;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
+  interactWithGraph: boolean;
   isInViewport?: boolean;
   limitLegendRows?: boolean;
-  modal?: ReactNode;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  resizeEnvelopeData?: CustomFactorsData;
   resource: Resource | ResourceDetails;
   resourceDetailsUpdated?: boolean;
   timeline?: Array<TimelineEvent>;
@@ -145,7 +145,8 @@ const useStyles = makeStyles<MakeStylesProps>()(
 
 const shiftRatio = 2;
 
-const PerformanceGraph = ({
+const PerformanceGraph = <T,>({
+  additionalData,
   endpoint,
   graphHeight,
   xAxisTickFormat = timeFormat,
@@ -161,12 +162,11 @@ const PerformanceGraph = ({
   limitLegendRows,
   isInViewport = true,
   displayCompleteGraph,
-  isEditAnomalyDetectionDataDialogOpen,
-  modal,
+  interactWithGraph,
   graphActions,
   getPerformanceGraphRef,
-  resizeEnvelopeData
-}: Props): JSX.Element => {
+  getDisplayAdditionalLinesCondition
+}: Props & AdditionalDataProps<T>): JSX.Element => {
   const { classes } = useStyles({
     canAdjustTimePeriod: not(isNil(adjustTimePeriod)),
     displayTitle,
@@ -277,29 +277,11 @@ const PerformanceGraph = ({
     );
   }
 
-  const sortedLines = sortBy(prop('name'), lineData);
-
-  const originMetric = sortedLines.map(({ metric }) =>
-    metric.includes('_upper_thresholds')
-      ? metric.replace('_upper_thresholds', '')
-      : null
-  );
-
-  const lineOriginMetric = sortedLines.filter((item) => {
-    const name = originMetric.filter((element) => element);
-
-    return equals(item.metric, name[0]);
-  });
-
-  const linesThreshold = sortedLines.filter(({ metric }) =>
-    metric.includes('thresholds')
-  );
-
-  const newSortedLines = equals(resource.type, ResourceType.anomalydetection)
-    ? [...linesThreshold, ...lineOriginMetric]
-    : sortedLines;
-
-  const displayedLines = reject(propEq('display', false), newSortedLines);
+  const { newLines: displayedLines, newSortedLines } =
+    getNewLinesAnomalyDetection({
+      lines: lineData,
+      resource
+    });
 
   const getLineByMetric = (metric): LineModel => {
     return find(propEq('metric', metric), lineData) as LineModel;
@@ -421,39 +403,36 @@ const PerformanceGraph = ({
             {title}
           </Typography>
           {graphActions}
-          {modal}
         </div>
       )}
 
       <div>
-        {displayTimeValues &&
-          timeTick &&
-          containsMetrics &&
-          !isEditAnomalyDetectionDataDialogOpen && (
-            <Typography align="center" variant="body1">
-              {toDateTime(timeTick)}
-            </Typography>
-          )}
+        {displayTimeValues && timeTick && containsMetrics && (
+          <Typography align="center" variant="body1">
+            {toDateTime(timeTick)}
+          </Typography>
+        )}
       </div>
       <div>
         <Responsive.ParentSize>
           {({ width, height }): JSX.Element => (
-            <Graph
+            <Graph<T>
+              additionalData={additionalData}
               applyZoom={adjustTimePeriod}
               base={base as number}
               canAdjustTimePeriod={not(isNil(adjustTimePeriod))}
               containsMetrics={containsMetrics}
               displayEventAnnotations={displayEventAnnotations}
               displayTimeValues={displayTimeValues}
-              height={height}
-              isEditAnomalyDetectionDataDialogOpen={
-                isEditAnomalyDetectionDataDialogOpen
+              getDisplayAdditionalLinesCondition={
+                getDisplayAdditionalLinesCondition
               }
+              height={height}
+              interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={
                 not(resourceDetailsUpdated) && sendingGetGraphDataRequest
               }
-              resizeEnvelopeData={resizeEnvelopeData}
               resource={resource}
               shiftTime={shiftTime}
               timeSeries={timeSeries}
@@ -469,9 +448,6 @@ const PerformanceGraph = ({
         base={base as number}
         displayCompleteGraph={displayCompleteGraph}
         displayTimeValues={displayTimeValues}
-        isEditAnomalyDetectionDataDialogOpen={
-          isEditAnomalyDetectionDataDialogOpen
-        }
         limitLegendRows={limitLegendRows}
         lines={newSortedLines}
         timeSeries={timeSeries}

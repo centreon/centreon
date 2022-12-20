@@ -1,10 +1,15 @@
 name: web
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -12,6 +17,7 @@ on:
       - develop
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
 
@@ -29,7 +35,7 @@ jobs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
       - uses: actions/checkout@v3
-      
+
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -45,7 +51,12 @@ jobs:
             has_backend_changes:
               - '**/*.php'
               - '**/phpstan*.neon'
-              - '**/*.xml|**/bin/**'
+              - 'centreon/codingstyle.xml'
+              - 'centreon/config/**/*.xml'
+              - 'centreon/phpunit.xml'
+              - 'centreon/ruleset.xml'
+              - 'centreon/www/**/*.xml'
+              - '**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
               - '/centreon/src/**'
@@ -56,6 +67,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -91,7 +103,7 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/translation:${{ needs.get-version.outputs.major_version }}
+      image: docker.centreon.com/translation:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.REPOS_USERNAME }}
         password: ${{ secrets.REPOS_PASSWORD }}
@@ -121,7 +133,7 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -148,7 +160,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -176,7 +188,7 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -189,7 +201,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -222,7 +234,6 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
-    if: ${{ always() }}
     needs: [
       get-version,
       translation-build,
@@ -233,9 +244,9 @@ jobs:
       frontend-unit-test,
       frontend-component-test
     ]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el7, el8, bullseye]
         include:
@@ -269,13 +280,13 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: package
-    if: ${{ always() }}
+    needs: [package]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -289,12 +300,19 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - name: Login to proxy registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker-proxy.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: Use cache RPM files
         uses: actions/cache@v3
@@ -311,7 +329,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: docker.centreon.com/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -320,7 +338,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: docker.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -329,11 +347,11 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -342,13 +360,13 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
@@ -356,53 +374,50 @@ jobs:
       image_name: centreon-web
       features_path: features
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
-
-      - name: Cypress e2e testing
-        uses: ./.github/actions/cypress-e2e-testing
-        with:
-          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          module: centreon
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/e2e/cypress/e2e
+    secrets:
+      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
       - uses: actions/checkout@v3
 
+      - name: Login to proxy registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker-proxy.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: Run lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon"
-          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
+          image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
@@ -416,7 +431,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -434,11 +449,16 @@ jobs:
           nexus_username: ${{ secrets.ARTI_USER }}
           nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
+    if: ${{ always() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [bullseye]
@@ -453,6 +473,7 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_USER }}
+          nexus_password: ${{ secrets.NEXUS_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}

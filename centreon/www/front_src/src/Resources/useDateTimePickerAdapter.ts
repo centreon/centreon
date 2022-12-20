@@ -3,8 +3,8 @@ import { useCallback } from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
-import { equals, isNil, not, pipe } from 'ramda';
 import { useAtomValue } from 'jotai/utils';
+import { equals, isNil, not, pipe } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -101,9 +101,16 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     return newValue;
   };
 
+  interface Chunk {
+    array: Array<unknown>;
+    size: number;
+  }
   class Adapter extends DayjsAdapter {
     public formatByString = (value, formatKey: string): string => {
-      return format({ date: value.tz(timezone), formatString: formatKey });
+      return format({
+        date: value.tz(timezone),
+        formatString: formatKey
+      });
     };
 
     public isEqual = (value, comparing): boolean => {
@@ -115,6 +122,21 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         format({ date: value, formatString: 'LT' }),
         format({ date: comparing, formatString: 'LT' })
       );
+    };
+
+    public format = (date: dayjs.Dayjs, formatKey: string): string => {
+      return this.formatByString(
+        date.tz(timezone, true),
+        this.formats[formatKey]
+      );
+    };
+
+    public startOfWeek = (date: dayjs.Dayjs): dayjs.Dayjs => {
+      if (date.tz(timezone).isUTC()) {
+        return date.tz(timezone).startOf('week').utc();
+      }
+
+      return date.tz(timezone).startOf('week');
     };
 
     public getHours = (date): number => {
@@ -166,11 +188,15 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public startOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.tz(timezone).endOf('month') as dayjs.Dayjs;
+      if (date.tz(timezone).isUTC()) {
+        return date.tz(timezone).utc();
+      }
+
+      return date.tz(timezone);
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.tz(timezone).endOf('month') as dayjs.Dayjs;
+      return date.endOf('month') as dayjs.Dayjs;
     };
 
     public isSameMonth = (
@@ -181,7 +207,15 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getMonth = (date: dayjs.Dayjs): number => {
-      return date.tz(timezone).month();
+      return date.month();
+    };
+
+    public isAfter = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
+      return date.isAfter(value.endOf('month'));
+    };
+
+    public isBefore = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
+      return date.isBefore(value.startOf('month'));
     };
 
     public getDaysInMonth = (date: dayjs.Dayjs): number => {
@@ -194,6 +228,72 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
         this.formatByString(start.add(diff, 'day'), 'dd')
       );
+    };
+
+    public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
+      if (!array.length) {
+        return [];
+      }
+      const head = array.slice(0, size);
+      const tail = array.slice(size);
+
+      return [head, ...this.getChunkFromArray({ array: tail, size })];
+    };
+
+    public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
+      const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
+
+      const startOfWeek = date.startOf('month').startOf('week');
+      const endOfWeek = date.endOf('month').endOf('week');
+
+      const start = startOfWeek.endOf('day');
+
+      const end = endOfWeek.endOf('day');
+      const customStart = isMorning
+        ? startOfWeek.startOf('day')
+        : startOfWeek.endOf('day');
+
+      const customEnd = isMorning
+        ? endOfWeek.startOf('day')
+        : endOfWeek.endOf('day');
+
+      const currentStart = start.isUTC()
+        ? start.tz(timezone, true)
+        : customStart;
+      const currentEnd = end.isUTC() ? end.tz(timezone, true) : customEnd;
+
+      const numberOfDaysInCurrentMonth = currentEnd.diff(
+        currentStart,
+        'd',
+        true
+      );
+
+      const daysOfMonthWithTimezone = [
+        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
+      ].reduce(
+        (acc, _, currentIndex) => {
+          if (acc[currentIndex].isUTC()) {
+            const newCurrent = acc[currentIndex]
+              .utc()
+              .add(1, 'day')
+              .tz(timezone, true);
+
+            return [...acc, newCurrent];
+          }
+
+          const newCurrent = acc[currentIndex].add(1, 'day');
+
+          return [...acc, newCurrent];
+        },
+        [currentStart]
+      );
+
+      const weeksArray = this.getChunkFromArray({
+        array: daysOfMonthWithTimezone,
+        size: 7
+      });
+
+      return weeksArray as Array<Array<dayjs.Dayjs>>;
     };
 
     public mergeDateAndTime = (

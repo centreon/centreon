@@ -4,6 +4,9 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -19,6 +22,24 @@ inputs:
   cache_key:
     description: "The cached package key"
     required: true
+  yum_repo_url:
+    description: "The legacy yum repo url"
+    required: true
+  update_repo_path:
+    description: "The update repo script path"
+    required: true
+  cloudfront_id:
+    description: "The cloudfront ID for repo url"
+    required: true
+  yum_repo_address:
+    description: "The legacy yum repo address"
+    required: true
+  yum_repo_key:
+    description: "The repo key"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
 
 runs:
   using: "composite"
@@ -29,36 +50,20 @@ runs:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
 
+    - name: Setup awscli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        sudo unzip -q awscliv2.zip
+        sudo ./aws/install
+      shell: bash
+
     - name: Publish RPMS to Nexus
       run: |
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          BRANCHNAME="$GITHUB_REF_NAME"
-        else
-          BRANCHNAME="$GITHUB_HEAD_REF"
-        fi
-
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
-
-        case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
-            REPO="unstable"
-            ;;
-          release* | hotfix*)
-            REPO="testing"
-            ;;
-          master | [2-9][0-9].[0-9][0-9].x)
-            REPO="stable"
-            ;;
-          *)
-            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            exit 0
-            ;;
-        esac
-
         FILES="*.rpm";
-        echo "[DEBUG] - Repo: $REPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
+
+        eval `ssh-agent`
+        ssh-add - <<< "${{ inputs.yum_repo_key }}"
 
         for FILE in $FILES
         do
@@ -72,6 +77,39 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION-$REPO/$DISTRIB/$REPO/$ARCH/$FILE" -T "./$FILE"
+          MAJOR=$VERSION
+          DISTRIB=$DISTRIB
+          REPOTYPE=${{ inputs.stability }}
+          ARCH=$ARCH
+          PROJECT=${{ inputs.module_name }}
+          FOLDER=$(basename $FILE .rpm)
+          PROJECT_PATH="standard"
+          TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
+          PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+
+          echo "[DEBUG] - Folder: $FOLDER"
+          echo "[DEBUG] - Project : $PROJECT"
+          echo "[DEBUG] - Target : $TARGET"
+          echo "[DEBUG] - PROJECT_LOCATION : $PROJECT_LOCATION"
+
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
+          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
+        done
+
+        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
+        #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
+        ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
+
+        ID="${{ inputs.cloudfront_id }}"
+        PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        ITERATIONS=1
+
+        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
+          if [ ${ITERATIONS} -eq 10 ]; then
+            return 0
+          fi
+          echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+          sleep 30s
+          ITERATIONS=$((ITERATIONS+1))
         done
       shell: bash

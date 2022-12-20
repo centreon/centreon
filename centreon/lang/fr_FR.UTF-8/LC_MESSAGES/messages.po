@@ -17200,5 +17200,17 @@ msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
 msgid "Impossible to create vault configuration"
 msgstr "Impossible de créer la configuration du coffre-fort"
 
+msgid "Impossible to delete vault configuration"
+msgstr "Impossible de supprimer la configuration du coffre-fort"
+
+msgid "Impossible to update vault configuration"
+msgstr "Impossible de mettre à jour la configuration du coffre-fort"
+
+msgid "Impossible to find vault configuration(s)"
+msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
+
 msgid "Vault provider does not exist"
 msgstr "Le fournisseur de coffre-fort n'existe pas"
+
+msgid "Event queues maximum total size"
+msgstr "Taille maximale de l’ensemble des queues d'évènements"

@@ -111,13 +111,28 @@ runs:
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
+        ls -lath .
+
         if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
+
+        # This makes shure that widget pkgs end up in the same dir as non widgets
+        if [[ $MODULE_BASENAME = "centreon-widget"* ]]; then
+          find / -name "*centreon-widget*.deb" -exec mv {} ../../ \;
+        fi
+        ls -lath ..
       shell: bash
+
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packages-${{ inputs.package_extension }}
+        path: ./*.${{ inputs.package_extension }}
+        retention-days: 7
 
     - name: Cache packaged files
       uses: actions/cache@v3

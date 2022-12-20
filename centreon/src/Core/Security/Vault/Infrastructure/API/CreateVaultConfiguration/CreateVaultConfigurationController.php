@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\Vault\Application\UseCase\CreateVaultConfiguration\{
     CreateVaultConfiguration,
-    CreateVaultConfigurationPresenterInterface,
     CreateVaultConfigurationRequest
 };
 use Symfony\Component\HttpFoundation\Request;
@@ -34,18 +34,18 @@ use Symfony\Component\HttpFoundation\Request;
 final class CreateVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
+     * @param integer $vaultId
      * @param CreateVaultConfiguration $useCase
+     * @param DefaultPresenter $presenter
      * @param Request $request
-     * @param CreateVaultConfigurationPresenterInterface $presenter
      *
      * @return object
      */
     public function __invoke(
         int $vaultId,
         CreateVaultConfiguration $useCase,
-        Request $request,
-        CreateVaultConfigurationPresenterInterface $presenter
+        DefaultPresenter $presenter,
+        Request $request
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

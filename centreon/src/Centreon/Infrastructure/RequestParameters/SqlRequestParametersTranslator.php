@@ -24,7 +24,9 @@ namespace Centreon\Infrastructure\RequestParameters;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
+use Utility\SqlConcatenator;
 
 /**
  * @package Centreon\Infrastructure\RequestParameters
@@ -191,6 +193,28 @@ class SqlRequestParametersTranslator
     }
 
     /**
+     * Facade to populate a SqlStringBuilder from a SqlRequestParametersTranslator.
+     *
+     * @param SqlConcatenator $concatenator
+     */
+    public function translateForConcatenator(SqlConcatenator $concatenator): void
+    {
+        $concatenator->withCalcFoundRows(true);
+
+        if ($search = $this->translateSearchParameterToSql()) {
+            $concatenator->appendWhere($search);
+        }
+
+        if ($sort = $this->translateSortParameterToSql()) {
+            $concatenator->defineOrderBy($sort);
+        }
+
+        if ($pagination = $this->translatePaginationToSql()) {
+            $concatenator->defineLimit($pagination);
+        }
+    }
+
+    /**
      *
      * @param string $key Key representing the entity to search
      * @param mixed $valueOrArray Mixed value or array representing the value to search.
@@ -201,7 +225,7 @@ class SqlRequestParametersTranslator
     {
         if (
             $this->requestParameters->getConcordanceStrictMode() === RequestParameters::CONCORDANCE_MODE_STRICT
-            && !key_exists($key, $this->concordanceArray)
+            && ! array_key_exists($key, $this->concordanceArray)
         ) {
             if (
                 $this->requestParameters
@@ -211,6 +235,7 @@ class SqlRequestParametersTranslator
                     sprintf(_('The parameter %s is not allowed'), $key)
                 );
             }
+
             return '';
         }
         if (is_array($valueOrArray)) {
@@ -246,14 +271,8 @@ class SqlRequestParametersTranslator
                 $bindKey = '(';
                 foreach ($mixedValue as $index => $newValue) {
                     $newValue = $this->normalizeValue($key, $newValue);
-                    $type = \PDO::PARAM_STR;
-                    if (is_int($newValue)) {
-                        $type = \PDO::PARAM_INT;
-                    } elseif (is_bool($newValue)) {
-                        $type = \PDO::PARAM_BOOL;
-                    }
                     $currentBindKey = ':value_' . (count($this->searchValues) + 1);
-                    $this->searchValues[$currentBindKey] = [$type => $newValue];
+                    $this->searchValues[$currentBindKey] = [$this->toPdoType($newValue) => $newValue];
                     if ($index > 0) {
                         $bindKey .= ',';
                     }
@@ -262,14 +281,8 @@ class SqlRequestParametersTranslator
                 $bindKey .= ')';
             } else {
                 $mixedValue = $this->normalizeValue($key, $mixedValue);
-                $type = \PDO::PARAM_STR;
-                if (is_int($mixedValue)) {
-                    $type = \PDO::PARAM_INT;
-                } elseif (is_bool($mixedValue)) {
-                    $type = \PDO::PARAM_BOOL;
-                }
                 $bindKey = ':value_' . (count($this->searchValues) + 1);
-                $this->searchValues[$bindKey] = [$type => $mixedValue];
+                $this->searchValues[$bindKey] = [$this->toPdoType($mixedValue) => $mixedValue];
                 $bindKey = '(' . $bindKey . ')';
             }
         } elseif (
@@ -289,19 +302,12 @@ class SqlRequestParametersTranslator
                     throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
                 }
             }
-            $type = \PDO::PARAM_STR;
             $bindKey = ':value_' . (count($this->searchValues) + 1);
-            $this->searchValues[$bindKey] = [$type => $mixedValue];
+            $this->searchValues[$bindKey] = [\PDO::PARAM_STR => $mixedValue];
         } else {
             $mixedValue = $this->normalizeValue($key, $mixedValue);
-            $type = \PDO::PARAM_STR;
-            if (is_int($mixedValue)) {
-                $type = \PDO::PARAM_INT;
-            } elseif (is_bool($mixedValue)) {
-                $type = \PDO::PARAM_BOOL;
-            }
             $bindKey = ':value_' . (count($this->searchValues) + 1);
-            $this->searchValues[$bindKey] = [$type => $mixedValue];
+            $this->searchValues[$bindKey] = [$this->toPdoType($mixedValue) => $mixedValue];
         }
 
         return sprintf(
@@ -312,6 +318,22 @@ class SqlRequestParametersTranslator
             ($mixedValue !== null) ? $this->translateSearchOperator($searchOperator) : 'IS',
             $bindKey
         );
+    }
+
+    /**
+     * Detect the correct PDO type from a php type.
+     *
+     * @param mixed $value
+     *
+     * @return int
+     */
+    private function toPdoType(mixed $value): int
+    {
+        return match (true) {
+            is_int($value) => \PDO::PARAM_INT,
+            is_bool($value) => \PDO::PARAM_BOOL,
+            default => \PDO::PARAM_STR,
+        };
     }
 
     /**
@@ -332,12 +354,11 @@ class SqlRequestParametersTranslator
      */
     private function translateAggregateOperator(string $aggregateOperator): string
     {
-        if ($aggregateOperator === RequestParameters::AGGREGATE_OPERATOR_AND) {
-            return 'AND';
-        } elseif ($aggregateOperator === RequestParameters::AGGREGATE_OPERATOR_OR) {
-            return 'OR';
-        }
-        throw new RequestParametersTranslatorException(_('Bad search operator'));
+        return match ($aggregateOperator) {
+            RequestParameters::AGGREGATE_OPERATOR_AND => 'AND',
+            RequestParameters::AGGREGATE_OPERATOR_OR => 'OR',
+            default => throw new RequestParametersTranslatorException(_('Bad search operator'))
+        };
     }
 
     /**
@@ -349,31 +370,19 @@ class SqlRequestParametersTranslator
      */
     private function translateSearchOperator(string $operator): string
     {
-        switch ($operator) {
-            case RequestParameters::OPERATOR_LIKE:
-                return 'LIKE';
-            case RequestParameters::OPERATOR_NOT_LIKE:
-                return 'NOT LIKE';
-            case RequestParameters::OPERATOR_REGEXP:
-                return 'REGEXP';
-            case RequestParameters::OPERATOR_LESS_THAN:
-                return '<';
-            case RequestParameters::OPERATOR_LESS_THAN_OR_EQUAL:
-                return '<=';
-            case RequestParameters::OPERATOR_GREATER_THAN:
-                return '>';
-            case RequestParameters::OPERATOR_GREATER_THAN_OR_EQUAL:
-                return '>=';
-            case RequestParameters::OPERATOR_NOT_EQUAL:
-                return '!=';
-            case RequestParameters::OPERATOR_IN:
-                return 'IN';
-            case RequestParameters::OPERATOR_NOT_IN:
-                return 'NOT IN';
-            case RequestParameters::OPERATOR_EQUAL:
-            default:
-                return '=';
-        }
+        return match ($operator) {
+            RequestParameters::OPERATOR_LIKE => 'LIKE',
+            RequestParameters::OPERATOR_NOT_LIKE => 'NOT LIKE',
+            RequestParameters::OPERATOR_REGEXP => 'REGEXP',
+            RequestParameters::OPERATOR_LESS_THAN => '<',
+            RequestParameters::OPERATOR_LESS_THAN_OR_EQUAL => '<=',
+            RequestParameters::OPERATOR_GREATER_THAN => '>',
+            RequestParameters::OPERATOR_GREATER_THAN_OR_EQUAL => '>=',
+            RequestParameters::OPERATOR_NOT_EQUAL => '!=',
+            RequestParameters::OPERATOR_IN => 'IN',
+            RequestParameters::OPERATOR_NOT_IN => 'NOT IN',
+            default => '=',
+        };
     }
 
     /**
@@ -417,6 +426,39 @@ class SqlRequestParametersTranslator
     public function setSearchValues(array $searchValues): void
     {
         $this->searchValues = $searchValues;
+    }
+
+    /**
+     * Automatically bind values to a \PDOStatement.
+     *
+     * @param \PDOStatement $statement
+     */
+    public function bindSearchValues(\PDOStatement $statement): void
+    {
+        foreach ($this->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+    }
+
+    /**
+     * @param DatabaseConnection $db
+     *
+     * @return int|null
+     */
+    public function calculateNumberOfRows(DatabaseConnection $db): ?int
+    {
+        if (
+            false === ($result = $db->query('SELECT FOUND_ROWS()'))
+            || false === ($value = $result->fetchColumn())
+        ) {
+            return null;
+        }
+
+        $this->getRequestParameters()->setTotal($nbRows = (int) $value);
+
+        return $nbRows;
     }
 
     /**

@@ -329,21 +329,6 @@ if (!is_null($host_id)) {
             $service_status["current_state"] = $tab_status_service[$service_status["current_state"]];
         }
 
-        /*
-         * start ndo host detail
-         */
-        $tab_host_status[0] = "UP";
-        $tab_host_status[1] = "DOWN";
-        $tab_host_status[2] = "UNREACHABLE";
-
-        $rq2 = "SELECT state AS current_state FROM hosts WHERE name LIKE '" . $pearDBO->escape($host_name) . "'";
-        $DBRESULT = $pearDBO->query($rq2);
-
-        $ndo2 = $DBRESULT->fetchRow();
-        if ($ndo2 !== false && $ndo2["current_state"] <= 2) {
-            $host_status[$host_name] = $tab_host_status[$ndo2["current_state"]];
-        }
-
         // Get Host informations
         $DBRESULT = $pearDB->query("SELECT * FROM host WHERE host_id = " . $pearDB->escape($host_id));
         $host = $DBRESULT->fetchrow();
@@ -747,9 +732,6 @@ if (!is_null($host_id)) {
         $centreonGraph = new CentreonGraph($centreon->user->user_id, null, 0, null);
         if (isset($host_id) && isset($service_id)) {
             $tpl->assign("flag_graph", $centreonGraph->statusGraphExists($host_id, $service_id));
-        }
-        if (isset($host_status) && isset($host_status[$host_name])) {
-            $tpl->assign("host_data", $host_status[$host_name]);
         }
         $tpl->assign("service_data", $service_status);
         $tpl->assign("host_display_name", CentreonUtils::escapeSecure($hostNameDisplay));

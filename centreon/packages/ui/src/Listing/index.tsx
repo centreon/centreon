@@ -127,6 +127,7 @@ export interface Props<TRow> {
   innerScrollDisabled?: boolean;
   limit?: number;
   loading?: boolean;
+  moveTablePagination?: boolean;
   onLimitChange?: (limit) => void;
   onPaginate?: (page) => void;
   onResetColumns?: () => void;
@@ -142,6 +143,7 @@ export interface Props<TRow> {
   sortField?: string;
   sortOrder?: SortOrder;
   totalRows?: number;
+  widthToMoveTablePagination?: number;
 }
 
 const defaultColumnConfiguration = {
@@ -178,7 +180,9 @@ const Listing = <TRow extends { id: RowId }>({
   getId = ({ id }): RowId => id,
   headerMemoProps = [],
   predefinedRowsSelection = [],
-  actionsBarMemoProps = []
+  actionsBarMemoProps = [],
+  moveTablePagination,
+  widthToMoveTablePagination
 }: Props<TRow>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -470,8 +474,10 @@ const Listing = <TRow extends { id: RowId }>({
             columns={columns}
             currentPage={currentPage}
             limit={limit}
+            moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}
             onResetColumns={onResetColumns}
@@ -639,6 +645,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   sortField = undefined,
   innerScrollDisabled = false,
   columnConfiguration,
+  moveTablePagination,
+  widthToMoveTablePagination,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -651,6 +659,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         innerScrollDisabled={innerScrollDisabled}
         limit={limit}
         loading={loading}
+        moveTablePagination={moveTablePagination}
         paginated={paginated}
         rowColorConditions={rowColorConditions}
         rows={rows}
@@ -658,6 +667,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortField={sortField}
         sortOrder={sortOrder}
         totalRows={totalRows}
+        widthToMoveTablePagination={widthToMoveTablePagination}
         {...props}
       />
     ),
@@ -669,6 +679,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       ),
       columnConfiguration,
       limit,
+      widthToMoveTablePagination,
       rows,
       currentPage,
       totalRows,

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,26 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 interface ReadVaultConfigurationRepositoryInterface
 {
     /**
+     * @param int $id
+     *
+     * @return bool
+     *
+     * @throws \Throwable
+     */
+    public function exists(int $id): bool;
+
+    /**
+     * @param string $address
+     * @param integer $port
+     * @param string $storage
+     *
+     * @throws \Throwable
+     *
+     * @return boolean
+     */
+    public function existsSameConfiguration(string $address, int $port, string $storage): bool;
+
+    /**
      * @param string $address
      * @param int $port
      * @param string $storage
@@ -45,7 +65,18 @@ interface ReadVaultConfigurationRepositoryInterface
     /**
      * @param int $id
      *
+     * @throws \Throwable
+     *
      * @return VaultConfiguration|null
      */
     public function findById(int $id): ?VaultConfiguration;
+
+    /**
+     * @param int $vaultId
+     *
+     * @throws \Throwable
+     *
+     * @return VaultConfiguration[]
+     */
+    public function findVaultConfigurationsByVault(int $vaultId): array;
 }

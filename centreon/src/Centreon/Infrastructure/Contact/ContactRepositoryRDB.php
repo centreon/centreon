@@ -425,6 +425,12 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
             ->setTheme($contact['contact_theme']);
 
+        if ($contact->isAdmin()) {
+            $contact
+                ->setAccessToApiConfiguration(true)
+                ->setAccessToApiRealTime(true);
+        }
+
         $this->addActionRules($contact);
         $this->addTopologyRules($contact);
 

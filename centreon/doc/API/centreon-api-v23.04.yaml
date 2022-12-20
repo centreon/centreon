@@ -3,11 +3,7 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    + Added real-time monitoring for hosts and services
-    + Added acknowledgement for hosts and services
-    + Added downtimes for hosts and services
-    + Added the list of monitoring server configurations
-    + Added the proxy configuration
+    + Added vault configuration endpoints
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -4070,12 +4066,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Administration.Vault'
+              $ref: '#/components/schemas/Administration.Vault.Configuration.Write'
       responses:
         '201':
           description: "OK"
         '400':
           $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+        - Administration
+      summary: "List vault configurations by provider"
+      parameters:
+      - $ref: '#/components/parameters/VaultId'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Administration.Vault.Configuration.Read'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -4095,7 +4117,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Administration.Vault'
+              $ref: '#/components/schemas/Administration.Vault.Configuration.Write'
       responses:
         '204':
           description: "OK"
@@ -4117,6 +4139,26 @@ paths:
       responses:
         '204':
           description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+        - Administration
+      summary: "List one vault configuration by its id"
+      parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/VaultConfigurationId'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Administration.Vault.Configuration.Read'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -7408,7 +7450,7 @@ components:
           type: string
           description: "Fix version"
           example: "0"
-    Administration.Vault:
+    Administration.Vault.Configuration.Write:
       type: object
       required: [name, address, port, storage, role_id, secret_id]
       description: "Vault configuration"
@@ -7435,3 +7477,34 @@ components:
         secret_id:
           type: string
           description: "Vault secret id"
+    Administration.Vault.Configuration.Read:
+      type: object
+      description: "Vault configuration"
+      properties:
+        id:
+          type: integer
+          description: "Vault configuration id"
+          example: 1
+        name:
+          type: string
+          description: "Vault configuration name"
+          example: "centreon_vault"
+        vault_id:
+          type: integer
+          description: "Vault provider id"
+          example: 1
+        address:
+          type: string
+          description: "Vault URL or IP"
+          example: "127.0.0.1"
+        port:
+          type: integer
+          description: "Vault Port"
+          example: 8200
+        storage:
+          type: string
+          description: "Vault storage name"
+          example: "centreon"
+        role_id:
+          type: string
+          description: "Vault role id"

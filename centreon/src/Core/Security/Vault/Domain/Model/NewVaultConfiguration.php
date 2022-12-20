@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ namespace Core\Security\Vault\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Security\Interfaces\EncryptionInterface;
 
 /**
  * This class represents vault configuration being created.
@@ -37,27 +38,34 @@ class NewVaultConfiguration
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
 
+    protected string $encryptedSecretId;
+
+    protected string $encryptedRoleId;
+
+    protected string $salt;
+
     /**
+     * @param EncryptionInterface $encryption
      * @param string $name
      * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $storage
-     * @param string $roleId
-     * @param string $secretId
-     * @param string $salt
+     * @param string $unencryptedRoleId
+     * @param string $unencryptedSecretId
      *
      * @throws AssertionFailedException
+     * @throws \Exception
      */
     public function __construct(
+        protected EncryptionInterface $encryption,
         protected string $name,
         protected Vault $vault,
         protected string $address,
         protected int $port,
         protected string $storage,
-        protected string $roleId,
-        protected string $secretId,
-        protected string $salt
+        string $unencryptedRoleId,
+        string $unencryptedSecretId
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
         Assertion::maxLength($name, self::MAX_LENGTH, 'NewVaultConfiguration::name');
@@ -67,10 +75,13 @@ class NewVaultConfiguration
         Assertion::min($port, self::MIN_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::minLength($storage, self::MIN_LENGTH, 'NewVaultConfiguration::storage');
         Assertion::maxLength($storage, self::MAX_LENGTH, 'NewVaultConfiguration::storage');
-        Assertion::minLength($roleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
-        Assertion::maxLength($roleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
-        Assertion::minLength($secretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
-        Assertion::maxLength($secretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
+        Assertion::minLength($unencryptedRoleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
+        Assertion::maxLength($unencryptedRoleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
+        Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
+        Assertion::maxLength($unencryptedSecretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
+        $this->salt = $this->encryption->generateRandomString(NewVaultConfiguration::SALT_LENGTH);
+        $this->encryptedSecretId = $this->encrypt($unencryptedSecretId, $this->salt);
+        $this->encryptedRoleId = $this->encrypt($unencryptedRoleId, $this->salt);
     }
 
     /**
@@ -116,17 +127,17 @@ class NewVaultConfiguration
     /**
      * @return string
      */
-    public function getRoleId(): string
+    public function getEncryptedRoleId(): string
     {
-        return $this->roleId;
+        return $this->encryptedRoleId;
     }
 
     /**
      * @return string
      */
-    public function getSecretId(): string
+    public function getEncryptedSecretId(): string
     {
-        return $this->secretId;
+        return $this->encryptedSecretId;
     }
 
     /**
@@ -135,5 +146,20 @@ class NewVaultConfiguration
     public function getSalt(): string
     {
         return $this->salt;
+    }
+
+    /**
+     * @param string $unencrypted
+     * @param string $salt
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    private function encrypt(string $unencrypted, string $salt): string
+    {
+        return $this->encryption
+            ->setSecondKey($salt)
+            ->crypt($unencrypted);
     }
 }
