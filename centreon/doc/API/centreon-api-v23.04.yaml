@@ -409,6 +409,28 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/groups/{hostgroup_id}:
+    delete:
+      tags:
+        - Host group
+      summary: "Delete a host group"
+      description: |
+        `internal`
+
+        `Since Centreon web 23.04`
+
+        Delete host group.
+      parameters:
+        - $ref: '#/components/parameters/HostGroupId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
     get:
       tags:
@@ -4618,6 +4640,15 @@ components:
         type: integer
         format: int64
         example: 12
+    HostGroupId:
+      in: path
+      name: hostgroup_id
+      description: "ID of the host group"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
     ServiceId:
       in: path
       name: service_id

@@ -1,0 +1,7 @@
+DeleteHostGroup:
+  methods: DELETE
+  path: /configuration/hosts/groups/{hostGroupId}
+  requirements:
+    hostGroupId: '\d+'
+  controller: 'Core\HostGroup\Infrastructure\API\DeleteHostGroup\DeleteHostGroupController'
+  condition: "request.attributes.get('version') >= 23.04"

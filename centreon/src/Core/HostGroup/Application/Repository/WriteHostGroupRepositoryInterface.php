@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\Exceptions;
+namespace Core\HostGroup\Application\Repository;
 
-class HostGroupException extends \Exception
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\HostGroup\Domain\Model\HostGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+
+interface WriteHostGroupRepositoryInterface
 {
     /**
-     * @return self
+     * Delete a host group.
+     *
+     * @param int $hostGroupId
      */
-    public static function accessNotAllowed(): self
-    {
-        return new self(_('You are not allowed to access host groups'));
-    }
-
-    /**
-     * @return self
-     */
-    public static function errorWhileSearching(): self
-    {
-        return new self(_('Error while searching for host groups'));
-    }
-
-    /**
-     * @return self
-     */
-    public static function errorWhileDeleting(): self
-    {
-        return new self(_('Error while deleting a host group'));
-    }
+    public function deleteHostGroup(int $hostGroupId): void;
 }

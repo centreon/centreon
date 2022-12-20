@@ -222,3 +222,77 @@ Feature:
         }
     }
     """
+
+  Scenario: Host group deletion with an Administrator
+    Given I am logged in
+    And the following CLAPI import data:
+    """
+    HG;ADD;host-group1;host-group1-alias
+    """
+
+    When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": "host-group1"}'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/groups/62'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": "host-group1"}'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
+
+
+  Scenario: Host group deletion with a READ user forbidden
+    Given the following CLAPI import data:
+    """
+    HG;ADD;host-group1;host-group1-alias
+    CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;abu;reach_api;1
+    ACLMENU;add;ACL Menu test;my alias
+    ACLMENU;grantro;ACL Menu test;0;Configuration;Hosts;
+    ACLMENU;grantro;ACL Menu test;0;Configuration;Hosts;Host Groups;
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;host-group1
+    ACLGROUP;add;ACL Group test;ACL Group test alias
+    ACLGROUP;addmenu;ACL Group test;ACL Menu test
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;setcontact;ACL Group test;abu;
+    """
+    And I am logged in with "abu"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": "host-group1"}'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/groups/62'
+    Then the response code should be "403"
+
+
+  Scenario: Host group deletion with a READ_WRITE user allowed
+    Given the following CLAPI import data:
+    """
+    HG;ADD;host-group1;host-group1-alias
+    CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;abu;reach_api;1
+    ACLMENU;add;ACL Menu test;my alias
+    ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;
+    ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;Host Groups;
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;host-group1
+    ACLGROUP;add;ACL Group test;ACL Group test alias
+    ACLGROUP;addmenu;ACL Group test;ACL Menu test
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;setcontact;ACL Group test;abu;
+    """
+    And I am logged in with "abu"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": "host-group1"}'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/groups/62'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": "host-group1"}'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
