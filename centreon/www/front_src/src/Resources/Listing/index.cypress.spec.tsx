@@ -381,8 +381,8 @@ describe('Displays details', () => {
 
     cy.findByText('admin').should('exist');
     cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 9:16 AM').should('exist');
-    cy.findByText('02/28/2020 9:18 AM').should('exist');
+    cy.findByText('02/28/2020 8:16 AM').should('exist');
+    cy.findByText('02/28/2020 8:18 AM').should('exist');
     cy.findByText('Set by admin').should('exist');
 
     cy.matchImageSnapshot();
@@ -413,7 +413,7 @@ describe('Displays details', () => {
 
     cy.findByText('admin').should('exist');
     cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 9:16 AM').should('exist');
+    cy.findByText('02/28/2020 8:16 AM').should('exist');
     cy.findByText('No').should('exist');
     cy.findByText('Set by admin').should('exist');
 
