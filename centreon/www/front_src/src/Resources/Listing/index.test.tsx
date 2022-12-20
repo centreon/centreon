@@ -426,8 +426,8 @@ describe(Listing, () => {
 
     await waitFor(() => expect(getByText('admin')).toBeInTheDocument());
     expect(getByText('Yes')).toBeInTheDocument();
-    expect(getByText('02/28/2020 9:16 AM')).toBeInTheDocument();
-    expect(getByText('02/28/2020 9:18 AM')).toBeInTheDocument();
+    expect(getByText('02/28/2020 8:16 AM')).toBeInTheDocument();
+    expect(getByText('02/28/2020 8:18 AM')).toBeInTheDocument();
     expect(getByText('Set by admin')).toBeInTheDocument();
   });
 
@@ -470,7 +470,7 @@ describe(Listing, () => {
     );
 
     await waitFor(() => expect(getByText('admin')).toBeInTheDocument());
-    expect(getByText('02/28/2020 9:16 AM')).toBeInTheDocument();
+    expect(getByText('02/28/2020 8:16 AM')).toBeInTheDocument();
     expect(getByText('Yes')).toBeInTheDocument();
     expect(getByText('No')).toBeInTheDocument();
     expect(getByText('Set by admin')).toBeInTheDocument();
