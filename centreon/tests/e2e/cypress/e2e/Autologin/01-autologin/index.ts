@@ -81,10 +81,11 @@ Then(
 Given(
   'an authenticated user and the autologin configuration menu can be accessed',
   () => {
-    cy.logout()
-      .reload()
-      .visit(`${Cypress.config().baseUrl}`)
-      .loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
+    cy.visit(`${Cypress.config().baseUrl}`)
+      .loginByTypeOfUser({
+        jsonName: 'user',
+        preserveToken: true
+      })
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')
