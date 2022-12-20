@@ -169,7 +169,7 @@ const interceptRequestsAndMountBeforeEach = (): void => {
   cy.viewport(1200, 1000);
 };
 
-describe('Listing renderer', () => {
+describe('Resource Listing', () => {
   beforeEach(() => {
     interceptRequestsAndMountBeforeEach();
   });
@@ -320,7 +320,7 @@ describe('Listing request', () => {
   });
 });
 
-describe('Displays details', () => {
+describe('Details display', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'downtimeRequest',
@@ -382,8 +382,8 @@ describe('Displays details', () => {
 
     cy.findByText('admin').should('exist');
     cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 8:16 AM').should('exist');
-    cy.findByText('02/28/2020 8:18 AM').should('exist');
+    cy.findByText('02/28/2020 9:16 AM').should('exist');
+    cy.findByText('02/28/2020 9:18 AM').should('exist');
     cy.findByText('Set by admin').should('exist');
 
     cy.matchImageSnapshot();
@@ -414,7 +414,7 @@ describe('Displays details', () => {
 
     cy.findByText('admin').should('exist');
     cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 8:16 AM').should('exist');
+    cy.findByText('02/28/2020 9:16 AM').should('exist');
     cy.findByText('No').should('exist');
     cy.findByText('Set by admin').should('exist');
 
