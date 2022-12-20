@@ -70,3 +70,11 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
+
+      - name: Publish tests report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: ${{ always() }}
+        with:
+          check_name: ${{ inputs.name }}-tests-report
+          comment_mode: failures
+          junit_files: ${{ inputs.name }}-xunit-reports/**/cypress-fe.xml

@@ -59,11 +59,3 @@ runs:
       with:
         name: ${{ inputs.name }}-test-reports
         path: ${{ inputs.name }}-xunit-reports
-
-    - name: Publish tests report
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() }}
-      with:
-        check_name: ${{ inputs.name }}-tests-report
-        comment_mode: failures
-        junit_files: ${{ inputs.name }}-xunit-reports/**/cypress-fe.xml
