@@ -21,6 +21,8 @@ import {
 } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+import { cyan } from '@mui/material/colors';
+
 import { Column, Method, TestQueryProvider } from '@centreon/ui';
 
 import { Resource, ResourceType } from '../models';
@@ -240,11 +242,15 @@ describe('column sorting', () => {
         }
       });
       cy.log('requestDesc', requestUrlDesc);
+      let resultDesc;
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        expect(includes(request.url.search, requestUrlDesc)).to.be.true;
+        resultDesc = request.url.search;
       });
+      cyan.log('resultDesc', resultDesc);
+      expect(includes(resultDesc, requestUrlDesc)).to.be.true;
+
       const requestUrlAsc = getListingEndpoint({
         sort: {
           [sortBy]: 'asc',
@@ -252,12 +258,14 @@ describe('column sorting', () => {
         }
       });
       cy.log('requestAsc', requestUrlAsc);
+
+      let resultAsc;
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        expect(includes(request.url.search, requestUrlAsc)).to.be.true;
+        resultAsc = request.url.search;
       });
-
+      expect(includes(resultAsc, requestUrlAsc)).to.be.true;
       // cy.matchImageSnapshot();
     });
   });
