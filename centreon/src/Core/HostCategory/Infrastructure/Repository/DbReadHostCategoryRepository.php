@@ -181,7 +181,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $result['hc_name'],
             $result['hc_alias']
         );
-        $hostCategory->setActivated($result['hc_activate'] === self::HC_IS_ACTIVE ? true : false);
+        $hostCategory->setActivated((bool) $result['hc_activate']);
         $hostCategory->setComment($result['hc_comment']);
 
         return $hostCategory;
