@@ -93,7 +93,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     public formatByString = (value, formatKey: string): string => {
       return format({
         date: value.tz(timezone),
-        formatString: formatKey
+        formatString: formatKey,
       });
     };
 
@@ -104,14 +104,14 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       return equals(
         format({ date: value, formatString: 'LT' }),
-        format({ date: comparing, formatString: 'LT' })
+        format({ date: comparing, formatString: 'LT' }),
       );
     };
 
     public format = (date: dayjs.Dayjs, formatKey: string): string => {
       return this.formatByString(
         date.tz(timezone, true),
-        this.formats[formatKey]
+        this.formats[formatKey],
       );
     };
 
@@ -185,7 +185,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public isSameMonth = (
       date: dayjs.Dayjs,
-      comparing: dayjs.Dayjs
+      comparing: dayjs.Dayjs,
     ): boolean => {
       return date.tz(timezone).isSame(comparing.tz(timezone), 'month');
     };
@@ -210,7 +210,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(start.add(diff, 'day'), 'dd')
+        this.formatByString(start.add(diff, 'day'), 'dd'),
       );
     };
 
@@ -249,11 +249,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const numberOfDaysInCurrentMonth = currentEnd.diff(
         currentStart,
         'd',
-        true
+        true,
       );
 
       const daysOfMonthWithTimezone = [
-        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
+        ...Array(Math.round(numberOfDaysInCurrentMonth)).keys(),
       ].reduce(
         (acc, _, currentIndex) => {
           if (acc[currentIndex].isUTC()) {
@@ -269,12 +269,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
           return [...acc, newCurrent];
         },
-        [currentStart]
+        [currentStart],
       );
 
       const weeksArray = this.getChunkFromArray({
         array: daysOfMonthWithTimezone,
-        size: 7
+        size: 7,
       });
 
       return weeksArray as Array<Array<dayjs.Dayjs>>;
