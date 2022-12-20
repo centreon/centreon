@@ -209,7 +209,8 @@ describe('column sorting', () => {
 
   columnToClick.forEach(({ id, label, sortField }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-      cy.waitFiltersAndListingRequests();
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@dataToListingTable');
 
       const sortBy = (sortField || id) as string;
 
