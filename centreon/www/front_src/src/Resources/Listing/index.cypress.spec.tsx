@@ -94,7 +94,7 @@ const fillEntities = (): Array<Resource> => {
 const entities = fillEntities();
 const retrievedListing = {
   meta: {
-    limit: 30,
+    limit: 10,
     page: 1,
     search: {},
     sort_by: {},
@@ -194,7 +194,6 @@ describe('Resource Listing', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
-
     interceptRequestsAndMountBeforeEach();
   });
 
@@ -214,7 +213,6 @@ describe('column sorting', () => {
         not(equals(sortField, 'last_status_change')) &&
         defaultSecondSortCriteria;
 
-
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
         const requestUrlDesc = getListingEndpoint({
           sort: {
@@ -222,12 +220,11 @@ describe('column sorting', () => {
             ...secondSortCriteria
           }
         });
-      cy.log('requestDesc', requestUrlDesc);
+        cy.log('requestDesc', requestUrlDesc);
         expect(includes(request.url.search, requestUrlDesc)).to.be.true;
       });
 
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
-
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
         const requestUrlAsc = getListingEndpoint({
@@ -237,7 +234,7 @@ describe('column sorting', () => {
           }
         });
         cy.log('requestAsc', requestUrlAsc);
-     
+
         expect(includes(request.url.search, requestUrlAsc)).to.be.true;
       });
 
@@ -260,7 +257,9 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({request}) => {
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      cy.log('request', request.url.search);
+      // const requestUrlPageTwo = getListingEndpoint({ page: 2 });
       expect(includes('page=2&limit=30', request.url.search)).to.be.true;
     });
 
@@ -270,9 +269,9 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({request}) => {
-      //const requestUrlPageOne = getListingEndpoint({ page: 1 });
-
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      // const requestUrlPageOne = getListingEndpoint({ page: 1 });
+      cy.log('request', request.url.search);
       expect(includes('page=1&limit=30', request.url.search)).to.be.true;
     });
 
@@ -282,9 +281,9 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({request}) => {
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       // const requestUrlPageOne = getListingEndpoint({ page: 4 });
-
+      cy.log('request', request.url.search);
       expect(includes('page=4&limit=30', request.url.search)).to.be.true;
     });
 
@@ -294,9 +293,9 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({request}) => {
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       // const requestUrlPageOne = getListingEndpoint({ page: 1 });
-
+      cy.log('request', request.url.search);
       expect(includes('page=1&limit=30', request.url.search)).to.be.true;
     });
     // cy.matchImageSnapshot();
@@ -308,9 +307,9 @@ describe('Listing request', () => {
     cy.get('#Rows\\ per\\ page').click();
     cy.contains(/^30$/).click({ force: true });
 
-    cy.waitForRequest('@dataToListingTable').then(({request}) => {
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       // const requestUrlLimit = getListingEndpoint({ limit: 30 });
-
+      cy.log('request', request.url.search);
       expect(includes('&limit=30', request.url.search)).to.be.true;
     });
     // cy.matchImageSnapshot();
@@ -399,7 +398,6 @@ describe('Details display', () => {
     }).trigger('mouseover');
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
-      cy.log('acknow', request.url);
       expect(
         includes(
           request.url.pathname,
