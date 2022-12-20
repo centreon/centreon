@@ -229,35 +229,32 @@ describe('column sorting', () => {
       cy.waitFiltersAndListingRequests();
 
       const sortBy = (sortField || id) as string;
-
-      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
-
       const secondSortCriteria =
         not(equals(sortField, 'last_status_change')) &&
         defaultSecondSortCriteria;
 
-      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        const requestUrlDesc = getListingEndpoint({
-          sort: {
-            [sortBy]: 'desc',
-            ...secondSortCriteria
-          }
-        });
-        cy.log('requestDesc', requestUrlDesc);
-        expect(includes(request.url.search, requestUrlDesc)).to.be.true;
+      const requestUrlDesc = getListingEndpoint({
+        sort: {
+          [sortBy]: 'desc',
+          ...secondSortCriteria
+        }
       });
-
+      cy.log('requestDesc', requestUrlDesc);
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        const requestUrlAsc = getListingEndpoint({
-          sort: {
-            [sortBy]: 'asc',
-            ...secondSortCriteria
-          }
-        });
-        cy.log('requestAsc', requestUrlAsc);
+        expect(includes(request.url.search, requestUrlDesc)).to.be.true;
+      });
+      const requestUrlAsc = getListingEndpoint({
+        sort: {
+          [sortBy]: 'asc',
+          ...secondSortCriteria
+        }
+      });
+      cy.log('requestAsc', requestUrlAsc);
+      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
+      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
         expect(includes(request.url.search, requestUrlAsc)).to.be.true;
       });
 
