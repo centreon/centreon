@@ -266,14 +266,16 @@ export const labelEditAnomalyDetectionData = 'Edit anomaly detection data';
 export const labelAnomalyDetection = 'Anomaly detection';
 export const labelPerformanceGraphAD = 'Edit anomaly detection data';
 export const labelEditAnomalyDetectionConfirmation =
-  'Are you sure you want to change the size of the envelope? Please note that the new envelope size will only be applied from now on. The old envelope will stay the same.';
+  'Are you sure you want to change the size of the envelope? The new envelope size will be applied immediately.';
 export const labelMenageEnvelope = 'Manage envelope size';
 export const labelMenageEnvelopeSubTitle =
-  'Changes to the envelope size will be applied only from now on.';
+  'Changes to the envelope size will be applied immediately';
 export const labelResetToDefaultValue = 'Reset to default value';
 export const labelPointsOutsideOfEnvelopeCount =
   'points outside of the envelope';
 export const labelClose = 'Close';
-export const labelEditAnomalyDetectionClosing =
-  'You have unsaved changes, do you want to proceed?';
-export const labelConfirm = 'Confirm';
+export const labelSearchBar = 'Search bar';
+export const labelSlider = 'Slider';
+export const labelCloseEditModal = 'Close edit modal';
+export const labelModalEditAnomalyDetection = 'Edit modal';
+export const labelModalConfirmation = 'Modal confirmation';
