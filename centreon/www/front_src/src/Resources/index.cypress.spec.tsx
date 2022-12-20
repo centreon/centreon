@@ -344,6 +344,7 @@ testData.forEach((item) =>
 
     it(`does not duplicate days in any of the month in the year when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
+
       item.data.forEach((element) => {
         const daysInCurrentMonth: Array<string> = [];
         cy.get('[role="rowgroup"]').first().children().as('listWeeks');
