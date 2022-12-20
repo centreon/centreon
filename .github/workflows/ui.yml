@@ -2,11 +2,6 @@ name: centreon-ui
 
 on:
   pull_request:
-    types:
-      - closed
-      - opened
-      - edited
-      - synchronize
     paths:
       - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
@@ -16,7 +11,7 @@ on:
 env:
   directory: "centreon/packages/ui"
   centreon_directory: "centreon"
-  package: 'ui'
+  package: "ui"
   base_branch: develop
 
 jobs:
@@ -73,26 +68,34 @@ jobs:
         run: pnpm test:ci
         working-directory: ${{ env.directory }}
 
-      - name: Publish unit tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: centreon-frontend-unit-tests-report
-          comment_mode: failures
-          junit_files: ${{ env.directory }}/junit.xml
-
   deliver-npm:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+    needs: [lint, unit-test, check-package-version]
+    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ env.base_branch }}
+          ref: ${{ github.head_ref }}
 
-      - uses: ./.github/actions/npm-publish
+      - uses: ./.github/actions/npm-publish-package
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
+          release_type: "beta"
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

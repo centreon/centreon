@@ -290,7 +290,7 @@ class CentreonDowntime
                         INNER JOIN host h
                             ON dhr.host_host_id = h.host_id
                         WHERE
-                            dt_id = :downtimeId';
+                            dt_id = :downtimeId;
                         SQL;
                     break;
                 case 'hostgroups':
@@ -302,18 +302,18 @@ class CentreonDowntime
                         INNER JOIN hostgroup hg
                             ON dhgr.hg_hg_id = hg.hg_id
                         WHERE
-                            dt_id = :downtimeId';
+                            dt_id = :downtimeId;
                         SQL;
                     break;
                 case 'services':
                     $query = <<<'SQL'
-                        SELECT CONCAT(dsr.host_host_id, CONCAT(\'-\', dsr.service_service_id)) AS resource_id,
+                        SELECT CONCAT(dsr.host_host_id, CONCAT('-', dsr.service_service_id)) AS resource_id,
                             s.service_activate AS activated
                         FROM downtime_service_relation dsr
                         INNER JOIN service s
                             ON dsr.service_service_id = s.service_id
                         WHERE
-                            dt_id = :downtimeId';
+                            dt_id = :downtimeId;
                         SQL;
                     break;
                 case 'servicegroups':
@@ -325,7 +325,7 @@ class CentreonDowntime
                         INNER JOIN servicegroup sg
                             ON dsgr.sg_sg_id = sg.sg_id
                         WHERE
-                            dt_id = :downtimeId';
+                            dt_id = :downtimeId;
                     SQL;
                     break;
             }
