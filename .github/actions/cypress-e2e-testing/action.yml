@@ -51,13 +51,5 @@ runs:
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
+        name: ${{ inputs.name }}-videos
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-
-    - name: Publish tests report
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() }}
-      with:
-        check_name: ${{ inputs.name }}-tests-reports
-        comment_mode: failures
-        junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml

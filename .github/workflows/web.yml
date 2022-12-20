@@ -383,7 +383,7 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
-      name: e2e
+      name: cypress-e2e
       module_name: centreon
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
