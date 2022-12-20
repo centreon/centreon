@@ -194,7 +194,18 @@ describe('Resource Listing', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
-    interceptRequestsAndMountBeforeEach();
+    // interceptRequestsAndMountBeforeEach();
+    cy.mount({
+      Component: (
+        <Router>
+          <div style={{ backgroundColor: '#fff' }}>
+            <ListingTestWithJotai />
+          </div>
+        </Router>
+      )
+    });
+
+    cy.viewport(1200, 1000);
   });
 
   const columnToClick = columns
@@ -203,6 +214,18 @@ describe('column sorting', () => {
 
   columnToClick.forEach(({ id, label, sortField }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
+      cy.interceptAPIRequest({
+        alias: 'filterRequest',
+        method: Method.GET,
+        path: '**/events-view*',
+        response: fakeData
+      });
+      cy.interceptAPIRequest({
+        alias: 'dataToListingTable',
+        method: Method.GET,
+        path: '**/resources?*',
+        response: retrievedListing
+      });
       cy.waitFiltersAndListingRequests();
 
       const sortBy = (sortField || id) as string;
