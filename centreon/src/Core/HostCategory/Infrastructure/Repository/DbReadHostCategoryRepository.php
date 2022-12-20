@@ -57,8 +57,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $this->info('Getting all host categories');
 
         $concatenator = new SqlConcatenator();
+        $concatenator->withCalcFoundRows(true);
         $concatenator->defineSelect(
-            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
             FROM `:db`.hostcategories hc'
         );
 
@@ -90,8 +91,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         }
 
         $concatenator = new SqlConcatenator();
+        $concatenator->withCalcFoundRows(true);
         $concatenator->defineSelect(
-            'SELECT SQL_CALC_FOUND_ROWS hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
             FROM `:db`.hostcategories hc
             INNER JOIN `:db`.acl_resources_hc_relations arhr
                 ON hc.hc_id = arhr.hc_id
@@ -134,9 +136,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
         $sqlTranslator?->bindSearchValues($statement);
-        foreach ($concatenator->retrieveBindValues() as $param => [$value, $type]) {
-            $statement->bindValue($param, $value, $type);
-        }
+        $concatenator->bindValuesToStatement($statement);
         $statement->execute();
 
         $sqlTranslator?->calculateNumberOfRows($this->db);
@@ -196,11 +196,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
-        foreach ($concatenator->retrieveBindValues() as $param => [$value, $type]) {
-            $statement->bindValue($param, $value, $type);
-        }
+        $concatenator->bindValuesToStatement($statement);
         $statement->execute();
 
-        return (bool) ($statement->fetchColumn());
+        return (bool) $statement->fetchColumn();
     }
 }
