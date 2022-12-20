@@ -203,47 +203,47 @@ describe('column sorting', () => {
     interceptRequestsAndMountBeforeEach();
   });
 
-  columns
+  const columnToClick = columns
     .filter(({ sortable }) => sortable !== false)
-    .filter(({ id }) => includes(id, defaultSelectedColumnIds))
-    .forEach(({ id, label, sortField }) => {
-      it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-        cy.waitForRequest('@filterRequest');
-        cy.waitForRequest('@dataToListingTable');
+    .filter(({ id }) => includes(id, defaultSelectedColumnIds));
 
-        const sortBy = (sortField || id) as string;
+  columnToClick.forEach(({ id, label, sortField }) => {
+    it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
+      interceptRequestsAndMountBeforeEach();
 
-        cy.findByLabelText(`Column ${label}`).should('be.visible').click();
+      const sortBy = (sortField || id) as string;
 
-        const secondSortCriteria =
-          not(equals(sortField, 'last_status_change')) &&
-          defaultSecondSortCriteria;
+      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
-        cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-          const requestUrl = getListingEndpoint({
-            sort: {
-              [sortBy]: 'desc',
-              ...secondSortCriteria
-            }
-          });
-          expect(includes(request.url.search, requestUrl)).to.be.true;
+      const secondSortCriteria =
+        not(equals(sortField, 'last_status_change')) &&
+        defaultSecondSortCriteria;
+
+      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+        const requestUrl = getListingEndpoint({
+          sort: {
+            [sortBy]: 'desc',
+            ...secondSortCriteria
+          }
         });
-
-        cy.findByLabelText(`Column ${label}`).should('be.visible').click();
-
-        cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-          const requestUrl = getListingEndpoint({
-            sort: {
-              [sortBy]: 'asc',
-              ...secondSortCriteria
-            }
-          });
-          expect(includes(request.url.search, requestUrl)).to.be.true;
-        });
-
-        cy.matchImageSnapshot();
+        expect(includes(request.url.search, requestUrl)).to.be.true;
       });
+
+      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
+
+      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+        const requestUrl = getListingEndpoint({
+          sort: {
+            [sortBy]: 'asc',
+            ...secondSortCriteria
+          }
+        });
+        expect(includes(request.url.search, requestUrl)).to.be.true;
+      });
+
+      cy.matchImageSnapshot();
     });
+  });
 });
 
 describe('Listing request', () => {
