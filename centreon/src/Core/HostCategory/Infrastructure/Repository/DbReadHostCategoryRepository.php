@@ -38,9 +38,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     // TODO : update abstract with AbstractRepositoryRDB (cf. PR Laurent)
     use LoggerTrait;
 
-    public const HC_IS_ACTIVE = '1',
-                HC_IS_INACTIVE = '0';
-
     /**
      * @param DatabaseConnection $db
      */
@@ -161,7 +158,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $result['hc_name'],
             $result['hc_alias']
         );
-        $hostCategory->setActivated($result['hc_activate'] === self::HC_IS_ACTIVE ? true : false);
+        $hostCategory->setActivated((bool) $result['hc_activate']);
         $hostCategory->setComment($result['hc_comment']);
 
         return $hostCategory;

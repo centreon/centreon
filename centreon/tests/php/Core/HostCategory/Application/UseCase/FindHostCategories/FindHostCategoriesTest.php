@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
@@ -35,6 +36,7 @@ use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Exception;
 
 beforeEach(function () {
     $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -77,7 +79,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe('Error while searching for host categories');
+        ->toBe(HostCategoryException::findHostCategories(new Exception())->getMessage());
 });
 
 it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
@@ -100,7 +102,7 @@ it('should present an ForbiddenResponse when a non-admin user has unsufficient r
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe('You are not allowed to access host categories');
+        ->toBe(HostCategoryException::accessNotAllowed()->getMessage());
 });
 
 it('should present a FindHostGroupsResponse when a non-admin user has read only rights', function (): void {
