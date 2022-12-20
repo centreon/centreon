@@ -21,25 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\API\FindHostCategories;
+namespace Core\HostCategory\Application\Exception;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategories;
-use Core\HostCategory\Infrastructure\API\FindHostCategories\FindHostCategoriesPresenter;
-
-final class FindHostCategoriesController extends AbstractController
+class HostCategoryException extends \Exception
 {
     /**
-     * @param FindHostCategories $useCase
-     * @param FindHostCategoriesPresenter $presenter
-     * @return object
+     * @return self
      */
-    public function __invoke(FindHostCategories $useCase, FindHostCategoriesPresenter $presenter): object
+    public static function accessNotAllowed(): self
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        return new self(_('You are not allowed to access host categories'));
+    }
 
-        $useCase($presenter);
-
-        return $presenter->show();
+    /**
+     * @param \Throwable $ex
+     * @return self
+     */
+    public static function findHostCategories(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for host categories'), 0, $ex);
     }
 }

@@ -46,6 +46,7 @@ class FindHostCategoriesPresenter extends AbstractPresenter
      */
     public function present(mixed $data): void
     {
+        $result = [];
         foreach ($data->hostCategories as $hostCategory) {
             $result[] = [
                 'id' => $hostCategory['id'],
@@ -57,7 +58,7 @@ class FindHostCategoriesPresenter extends AbstractPresenter
         }
 
         parent::present([
-            'result' => $result ?? [],
+            'result' => $result,
             'meta' => $this->requestParameters->toArray()
         ]);
     }

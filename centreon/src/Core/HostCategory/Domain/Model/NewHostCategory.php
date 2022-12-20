@@ -35,45 +35,71 @@ class NewHostCategory
     protected bool $isActivated = true;
     protected ?string $comment = null;
 
+    /**
+     * @param string $name
+     * @param string $alias
+     */
     public function __construct(
         protected string $name,
         protected string $alias
     ) {
-        Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'HostCategory::name');
-        Assertion::notEmpty($name, 'HostCategory::name');
-        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'HostCategory::alias');
-        Assertion::notEmpty($alias, 'HostCategory::alias');
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, (new \ReflectionClass($this))->getShortName() . '::name');
+        Assertion::notEmpty($name, (new \ReflectionClass($this))->getShortName() . '::name');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, (new \ReflectionClass($this))->getShortName() . '::alias');
+        Assertion::notEmpty($alias, (new \ReflectionClass($this))->getShortName() . '::alias');
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function getAlias(): string
     {
         return $this->alias;
     }
 
+    /**
+     * @return bool
+     */
     public function isActivated(): bool
     {
         return $this->isActivated;
     }
 
+    /**
+     * @param bool $isActivated
+     */
     public function setActivated(bool $isActivated): void
     {
         $this->isActivated = $isActivated;
     }
 
+    /**
+     * @return string|null
+     */
     public function getComment(): ?string
     {
         return $this->comment;
     }
 
+    /**
+     * @param string|null $comment
+     */
     public function setComment(?string $comment): void
     {
         if ($comment !== null) {
-            Assertion::maxLength($comment, self::MAX_COMMENT_LENGTH, 'HostCategory::comment');
+            Assertion::maxLength(
+                $comment,
+                self::MAX_COMMENT_LENGTH,
+                (new \ReflectionClass($this))->getShortName() . '::comment'
+            );
         }
         $this->comment = $comment;
     }

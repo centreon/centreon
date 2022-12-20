@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -39,6 +40,12 @@ final class FindHostCategories
 {
     use LoggerTrait;
 
+    /**
+     * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface
+     * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $user
+     */
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
@@ -47,6 +54,9 @@ final class FindHostCategories
     ) {
     }
 
+    /**
+     * @param PresenterInterface $presenter
+     */
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
@@ -69,11 +79,13 @@ final class FindHostCategories
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('You are not allowed to access host categories')
+                    new ForbiddenResponse(HostCategoryException::accessNotAllowed()->getMessage())
                 );
             }
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse('Error while searching for host categories'));
+            $presenter->setResponseStatus(
+                new ErrorResponse(HostCategoryException::findHostCategories($ex)->getMessage())
+            );
             $this->error($ex->getMessage());
         }
     }

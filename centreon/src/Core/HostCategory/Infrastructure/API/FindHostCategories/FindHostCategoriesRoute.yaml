@@ -1,4 +1,4 @@
-findHostCategories:
+FindHostCategories:
   methods: GET
   path: /configuration/hosts/categories
   controller: 'Core\HostCategory\Infrastructure\API\FindHostCategories\FindHostCategoriesController'

@@ -25,6 +25,11 @@ namespace Core\HostCategory\Domain\Model;
 
 class HostCategory extends NewHostCategory
 {
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $alias
+     */
     public function __construct(
         private int $id,
         string $name,
@@ -34,6 +39,9 @@ class HostCategory extends NewHostCategory
         parent::__construct($name, $alias);
     }
 
+    /**
+     * @return int
+     */
     public function getId(): int
     {
         return $this->id;

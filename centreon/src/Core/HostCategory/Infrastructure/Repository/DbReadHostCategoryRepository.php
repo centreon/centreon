@@ -41,6 +41,9 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     public const HC_IS_ACTIVE = '1',
                 HC_IS_INACTIVE = '0';
 
+    /**
+     * @param DatabaseConnection $db
+     */
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
