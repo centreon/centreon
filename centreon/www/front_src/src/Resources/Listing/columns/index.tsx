@@ -175,7 +175,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelLastCheck),
     sortable: true,
     type: ColumnType.string,
-    width: 'minmax(130px, max-content)'
+    width: 'minmax(110px, max-content)'
   },
   {
     getFormattedString: pipe(
@@ -188,7 +188,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelInformation),
     sortable: false,
     type: ColumnType.string,
-    width: 'minmax(50px, 1fr)'
+    width: 'minmax(100px, 1fr)'
   },
   {
     Component: StateColumn,
@@ -208,14 +208,14 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
   },
   {
     Component: ParentAliasColumn,
-    getRenderComponentOnRowUpdateCondition: T,
+    getFormattedString: ({ parent }): string => parent?.alias,
     id: 'parent_alias',
     label: t(labelParentAlias),
     rowMemoProps: ['parent'],
     sortField: 'parent_alias',
     sortable: true,
     type: ColumnType.string,
-    width: 'minmax(150px, max-content)'
+    width: 'minmax(120px, max-content)'
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,

@@ -1,6 +1,15 @@
+interface EllipsisTypography {
+  className?: string;
+  formattedString: string;
+}
+
 export interface ComponentColumnProps {
   isHovered: boolean;
   isSelected: boolean;
+  renderEllipsisTypography?: ({
+    className,
+    formattedString
+  }: EllipsisTypography) => JSX.Element;
   row;
 }
 

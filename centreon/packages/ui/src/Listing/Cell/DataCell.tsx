@@ -3,15 +3,17 @@ import { memo } from 'react';
 import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip, Typography } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
+import DraggableIcon from '../Header/SortableCell/DraggableIconIcon';
 import {
   Column,
   ColumnType,
   ComponentColumnProps,
   RowColorCondition
 } from '../models';
-import DraggableIcon from '../Header/SortableCell/DraggableIconIcon';
+
+import EllipsisTypography from './EllipsisTypography';
 
 import Cell from '.';
 
@@ -80,14 +82,11 @@ const DataCell = ({
       const gridColumn = colSpan ? `auto / span ${colSpan}` : 'auto / auto';
 
       const typography = (
-        <Typography
-          className={cx(classes.text, {
-            [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row)
-          })}
-          variant="body2"
-        >
-          {formattedString}
-        </Typography>
+        <EllipsisTypography
+          disableRowCondition={disableRowCondition(row)}
+          formattedString={formattedString}
+          isRowHovered={isRowHovered}
+        />
       );
 
       return (
@@ -131,6 +130,19 @@ const DataCell = ({
             <Component
               isHovered={isRowHovered}
               isSelected={isRowSelected}
+              renderEllipsisTypography={({
+                className,
+                formattedString
+              }): JSX.Element => {
+                return (
+                  <EllipsisTypography
+                    className={className}
+                    disableRowCondition={disableRowCondition(row)}
+                    formattedString={formattedString}
+                    isRowHovered={isRowHovered}
+                  />
+                );
+              }}
               row={row}
             />
           </>
