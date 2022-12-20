@@ -17253,3 +17253,9 @@ msgstr "Le format de l'intervalle de temps est incorrect (%s)"
 
 msgid "The order of the time intervals is not consistent"
 msgstr "L'ordre des intervalles de temps n'est pas cohérent"
+
+msgid "Error while searching for host groups"
+msgstr "Erreur durant la recherche de groupes d'hôtes"
+
+msgid "You are not allowed to access host groups"
+msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
