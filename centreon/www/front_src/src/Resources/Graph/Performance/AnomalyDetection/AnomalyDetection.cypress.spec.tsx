@@ -238,16 +238,19 @@ describe('Anomaly detection - Graph', () => {
     cy.waitForRequest('@getGraphDataAnomalyDetection');
 
     cy.get(`[data-testid="${labelAdd}"]`).click();
+    cy.get('input[type="range"]').should('have.value', '3.1');
     cy.matchImageSnapshot(
       'displays the threshold in the modal - add button clicked'
     );
 
     cy.get(`[data-testid="${labelCancel}"]`).click();
+    cy.get('input[type="range"]').should('have.value', '3');
     cy.matchImageSnapshot(
       'displays the threshold in the modal - cancel button clicked'
     );
 
     cy.get(`[data-testid="${labelDelete}"]`).click();
+    cy.get('input[type="range"]').should('have.value', '2.9');
     cy.matchImageSnapshot(
       'displays the threshold in the modal - delete button clicked'
     );
