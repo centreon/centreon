@@ -21,8 +21,6 @@ import {
 } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import { cyan } from '@mui/material/colors';
-
 import { Column, Method, TestQueryProvider } from '@centreon/ui';
 
 import { Resource, ResourceType } from '../models';
@@ -196,18 +194,7 @@ describe('Resource Listing', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
-    // interceptRequestsAndMountBeforeEach();
-    cy.mount({
-      Component: (
-        <Router>
-          <div style={{ backgroundColor: '#fff' }}>
-            <ListingTestWithJotai />
-          </div>
-        </Router>
-      )
-    });
-
-    cy.viewport(1200, 1000);
+    interceptRequestsAndMountBeforeEach();
   });
 
   const columnToClick = columns
@@ -216,18 +203,6 @@ describe('column sorting', () => {
 
   columnToClick.forEach(({ id, label, sortField }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-      cy.interceptAPIRequest({
-        alias: 'filterRequest',
-        method: Method.GET,
-        path: '**/events-view*',
-        response: fakeData
-      });
-      cy.interceptAPIRequest({
-        alias: 'dataToListingTable',
-        method: Method.GET,
-        path: '**/resources?*',
-        response: retrievedListing
-      });
       cy.waitFiltersAndListingRequests();
 
       const sortBy = (sortField || id) as string;
@@ -242,14 +217,12 @@ describe('column sorting', () => {
         }
       });
       cy.log('requestDesc', requestUrlDesc);
-      let resultDesc;
+
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        resultDesc = request.url.search;
+        expect(includes(request.url.search, requestUrlDesc)).to.be.true;
       });
-      cyan.log('resultDesc', resultDesc);
-      expect(includes(resultDesc, requestUrlDesc)).to.be.true;
 
       const requestUrlAsc = getListingEndpoint({
         sort: {
@@ -259,13 +232,12 @@ describe('column sorting', () => {
       });
       cy.log('requestAsc', requestUrlAsc);
 
-      let resultAsc;
       cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        resultAsc = request.url.search;
+        expect(includes(request.url.search, requestUrlAsc)).to.be.true;
       });
-      expect(includes(resultAsc, requestUrlAsc)).to.be.true;
+
       // cy.matchImageSnapshot();
     });
   });
