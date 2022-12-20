@@ -70,23 +70,3 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
-      
-  cypress-e2e-report:
-    needs: [cypress-e2e-test-run]
-    if: always()
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.name }}-videos
-          path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
-        with:
-          check_name: ${{ inputs.name }}-videos
-          comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
