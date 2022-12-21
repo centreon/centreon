@@ -24,10 +24,6 @@ beforeEach(() => {
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {
-  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
-    jsonName: 'admin',
-    preserveToken: true
-  });
   cy.contains(serviceInAcknowledgementName)
     .parent()
     .parent()

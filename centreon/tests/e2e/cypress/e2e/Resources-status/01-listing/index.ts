@@ -6,7 +6,7 @@ import {
   stateFilterContainer,
   setUserFilter,
   deleteUserFilter,
-  tearDownResource,
+  tearDownResource
 } from '../common';
 import { submitResultsViaClapi } from '../../../commons';
 
@@ -14,7 +14,7 @@ before(() => {
   insertResourceFixtures().then(() =>
     cy
       .fixture('resources/filters.json')
-      .then((filters) => setUserFilter(filters)),
+      .then((filters) => setUserFilter(filters))
   ).then(submitResultsViaClapi);
 });
 
@@ -53,7 +53,7 @@ Then(
     cy.contains('1-2 of 2');
     cy.contains('service_test_dt');
     cy.contains('service_test_ok');
-  },
+  }
 );
 
 Given('a saved custom filter', () => {
@@ -76,7 +76,7 @@ Then(
   () => {
     cy.contains('1-1 of 1');
     cy.contains('service_test_ok');
-  },
+  }
 );
 
 after(() => {
