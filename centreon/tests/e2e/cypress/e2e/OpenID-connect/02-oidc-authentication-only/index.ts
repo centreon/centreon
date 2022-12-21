@@ -49,19 +49,15 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
-      .get('div[role="tablist"] button:nth-child(2)')
+    cy.wait('@getOIDCResponse', { timeout: 4000 });
+    cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
-      .contains('OpenID Connect Configuration')
-      .click()
-      .wait('@getOIDCResponse')
-      .getByLabel({
-        label: 'Enable OpenID Connect authentication',
-        tag: 'input'
-      })
+      .contains('Identity provider')
+      .click();
+    cy.getByLabel({
+      label: 'Enable OpenID Connect authentication',
+      tag: 'input'
+    })
       .check()
       .getByLabel({
         label: 'OpenID Connect only',

@@ -46,7 +46,11 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
-    cy.wait('@getOIDCResponse');
+    cy.wait('@getOIDCResponse', { timeout: 4000 });
+    cy.getByLabel({ label: 'Identity provider' })
+      .eq(0)
+      .contains('Identity provider')
+      .click();
     configureOpenIDConnect();
   }
 );
