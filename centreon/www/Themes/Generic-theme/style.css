@@ -686,7 +686,7 @@ p.description a, p.description a:visited {
     padding: 4px 10px ;
     border: none !important;
     outline: none !important;
-    color: var(--btc-color) ;
+    color: var(--btc-color) !important;
     cursor: pointer;
 }
 
