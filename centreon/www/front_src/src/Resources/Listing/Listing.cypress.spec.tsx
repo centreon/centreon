@@ -1,25 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import * as React from 'react';
 
-import {
-  partition,
-  where,
-  includes,
-  head,
-  split,
-  pipe,
-  identity,
-  prop,
-  reject,
-  map,
-  __,
-  propEq,
-  find,
-  isNil,
-  equals,
-  not,
-  replace
-} from 'ramda';
+import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
@@ -43,7 +26,7 @@ const columns = getColumns({
   actions: {
     resourcesToAcknowledgeAtom
   },
-  t: identity
+  t: Ramda.identity
 }) as Array<Column>;
 
 const fillEntities = (): Array<Resource> => {
@@ -162,15 +145,21 @@ describe('Resource Listing', () => {
   });
 
   it('displays first part of information when multiple (split by \n) are available', () => {
-    const [resourcesWithMultipleLines, resourcesWithSingleLines] = partition(
-      where({ information: includes('\n') }),
-      retrievedListing.result
-    );
+    const [resourcesWithMultipleLines, resourcesWithSingleLines] =
+      Ramda.partition(
+        Ramda.where({ information: Ramda.includes('\n') }),
+        retrievedListing.result
+      );
     cy.waitFiltersAndListingRequests();
 
     resourcesWithMultipleLines.forEach(({ information }) =>
       cy
-        .contains(pipe(split('\n'), head)(information as string) as string)
+        .contains(
+          Ramda.pipe(
+            Ramda.split('\n'),
+            Ramda.head
+          )(information as string) as string
+        )
         .should('exist')
     );
     resourcesWithSingleLines.forEach(({ information }) => {
@@ -184,7 +173,7 @@ describe('Resource Listing', () => {
 describe('column sorting', () => {
   const columnToSort = columns
     .filter(({ sortable }) => sortable !== false)
-    .filter(({ id }) => includes(id, defaultSelectedColumnIds));
+    .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -209,7 +198,7 @@ describe('column sorting', () => {
     columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
-        not(equals(sortField, 'last_status_change')) &&
+        Ramda.not(Ramda.equals(sortField, 'last_status_change')) &&
         defaultSecondSortCriteria;
 
       const requestUrlDesc = getListingEndpoint({
@@ -222,7 +211,7 @@ describe('column sorting', () => {
       cy.interceptAPIRequest({
         alias: `dataToListingTableDesc${label}`,
         method: Method.GET,
-        path: replace('./api/latest/monitoring', '**', requestUrlDesc),
+        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlDesc),
         response: retrievedListing
       });
 
@@ -235,7 +224,7 @@ describe('column sorting', () => {
       cy.interceptAPIRequest({
         alias: `dataToListingTableAsc${label}`,
         method: Method.GET,
-        path: replace('./api/latest/monitoring', '**', requestUrlAsc),
+        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlAsc),
         response: retrievedListing
       });
     });
@@ -267,43 +256,43 @@ describe('Listing request', () => {
     cy.waitFiltersAndListingRequests();
 
     cy.findByLabelText(`Next page`)
-      .should(($label) => {
-        expect($label).to.be.enabled;
+      .should((label) => {
+        expect(label).to.be.enabled;
       })
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('page=2&limit=30', request.url.search)).to.be.true;
+      expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
     });
 
     cy.findByLabelText(`Previous page`)
-      .should(($label) => {
-        expect($label).to.be.enabled;
+      .should((label) => {
+        expect(label).to.be.enabled;
       })
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('page=1&limit=30', request.url.search)).to.be.true;
+      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
     });
 
     cy.findByLabelText(`Last page`)
-      .should(($label) => {
-        expect($label).to.be.enabled;
+      .should((label) => {
+        expect(label).to.be.enabled;
       })
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('page=4&limit=30', request.url.search)).to.be.true;
+      expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
     });
 
     cy.findByLabelText(`First page`)
-      .should(($label) => {
-        expect($label).to.be.enabled;
+      .should((label) => {
+        expect(label).to.be.enabled;
       })
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('page=1&limit=30', request.url.search)).to.be.true;
+      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
     });
 
     cy.matchImageSnapshot();
@@ -316,14 +305,14 @@ describe('Listing request', () => {
     cy.contains(/^30$/).click({ force: true });
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('&limit=30', request.url.search)).to.be.true;
+      expect(Ramda.includes('&limit=30', request.url.search)).to.be.true;
     });
 
     cy.matchImageSnapshot();
   });
 });
 
-describe('Display additionnal columns', () => {
+describe('Display additional columns', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'downtimeRequest',
@@ -375,18 +364,18 @@ describe('Display additionnal columns', () => {
 
     cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
-        includes(
+        Ramda.includes(
           request.url.pathname,
           entityInDowntime?.links?.endpoints.downtime as string
         )
       ).to.be.true;
     });
 
-    cy.findByText('admin').should('exist');
-    cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 9:16 AM').should('exist');
-    cy.findByText('02/28/2020 9:18 AM').should('exist');
-    cy.findByText('Set by admin').should('exist');
+    cy.findByText('admin').should('be.visible');
+    cy.findByText('Yes').should('be.visible');
+    cy.findByText('02/28/2020 9:16 AM').should('be.visible');
+    cy.findByText('02/28/2020 9:18 AM').should('be.visible');
+    cy.findByText('Set by admin').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -406,26 +395,26 @@ describe('Display additionnal columns', () => {
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
-        includes(
+        Ramda.includes(
           request.url.pathname,
           acknowledgedEntity?.links?.endpoints.acknowledgement as string
         )
       ).to.be.true;
     });
 
-    cy.findByText('admin').should('exist');
-    cy.findByText('Yes').should('exist');
-    cy.findByText('02/28/2020 9:16 AM').should('exist');
-    cy.findByText('No').should('exist');
-    cy.findByText('Set by admin').should('exist');
+    cy.findByText('admin').should('be.visible');
+    cy.findByText('Yes').should('be.visible');
+    cy.findByText('02/28/2020 9:16 AM').should('be.visible');
+    cy.findByText('No').should('be.visible');
+    cy.findByText('Set by admin').should('be.visible');
 
     cy.matchImageSnapshot();
   });
 
-  const columnIds = map(prop('id'), columns);
+  const columnIds = Ramda.map(Ramda.prop('id'), columns);
 
-  const additionalIds = reject(
-    includes(__, defaultSelectedColumnIds),
+  const additionalIds = Ramda.reject(
+    Ramda.includes(Ramda.__, defaultSelectedColumnIds),
     columnIds
   );
 
@@ -435,12 +424,12 @@ describe('Display additionnal columns', () => {
 
       cy.findByLabelText('Add columns').click();
 
-      const column = find(propEq('id', columnId), columns);
+      const column = Ramda.find(Ramda.propEq('id', columnId), columns);
       const columnLabel = column?.label as string;
 
       const columnShortLabel = column?.shortLabel as string;
 
-      const hasShortLabel = !isNil(columnShortLabel);
+      const hasShortLabel = !Ramda.isNil(columnShortLabel);
 
       const columnDisplayLabel = hasShortLabel
         ? `${columnLabel} (${columnShortLabel})`
@@ -456,7 +445,7 @@ describe('Display additionnal columns', () => {
       );
 
       if (hasShortLabel) {
-        cy.findByText(columnDisplayLabel).should('exist');
+        cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
       cy.matchImageSnapshot();
