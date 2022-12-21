@@ -17,7 +17,8 @@ import {
   find,
   isNil,
   equals,
-  not
+  not,
+  replace
 } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 
@@ -188,22 +189,35 @@ describe('Resource Listing', () => {
       cy.contains(information as string).should('exist');
     });
 
-    // cy.matchImageSnapshot();
+    cy.matchImageSnapshot();
   });
 });
 
 describe('column sorting', () => {
-  beforeEach(() => {
-    interceptRequestsAndMountBeforeEach();
-  });
-
-  const columnToClick = columns
+  const columnToSort = columns
     .filter(({ sortable }) => sortable !== false)
     .filter(({ id }) => includes(id, defaultSelectedColumnIds));
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: fakeData
+    });
 
-  it(`executes a listing request with sort_by param and stores the order parameter in the URL when column is clicked`, () => {
-    cy.waitFiltersAndListingRequests();
-    columnToClick.forEach(({ id, label, sortField }) => {
+    cy.mount({
+      Component: (
+        <Router>
+          <div style={{ backgroundColor: '#fff' }}>
+            <ListingTestWithJotai />
+          </div>
+        </Router>
+      )
+    });
+
+    cy.viewport(1200, 1000);
+
+    columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
         not(equals(sortField, 'last_status_change')) &&
@@ -215,12 +229,12 @@ describe('column sorting', () => {
           ...secondSortCriteria
         }
       });
-      cy.log('requestDesc', requestUrlDesc);
 
-      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
-
-      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        expect(includes(request.url.search, requestUrlDesc)).to.be.true;
+      cy.interceptAPIRequest({
+        alias: `dataToListingTableDesc${label}`,
+        method: Method.GET,
+        path: replace('./api/latest/monitoring', '**', requestUrlDesc),
+        response: retrievedListing
       });
 
       const requestUrlAsc = getListingEndpoint({
@@ -229,15 +243,28 @@ describe('column sorting', () => {
           ...secondSortCriteria
         }
       });
-      cy.log('requestAsc', requestUrlAsc);
-
-      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
-
-      cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-        expect(includes(request.url.search, requestUrlAsc)).to.be.true;
+      cy.interceptAPIRequest({
+        alias: `dataToListingTableAsc${label}`,
+        method: Method.GET,
+        path: replace('./api/latest/monitoring', '**', requestUrlAsc),
+        response: retrievedListing
       });
+    });
+  });
 
-      // cy.matchImageSnapshot();
+  columnToSort.forEach(({ label }) => {
+    it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
+      cy.waitForRequest('@filterRequest');
+
+      cy.findByLabelText(`Column ${label}`).click();
+
+      cy.waitForRequest(`@dataToListingTableDesc${label}`);
+
+      cy.findByLabelText(`Column ${label}`).click();
+
+      cy.waitForRequest(`@dataToListingTableAsc${label}`);
+
+      cy.matchImageSnapshot();
     });
   });
 });
@@ -297,7 +324,7 @@ describe('Listing request', () => {
       cy.log('request', request.url.search);
       expect(includes('page=1&limit=30', request.url.search)).to.be.true;
     });
-    // cy.matchImageSnapshot();
+    cy.matchImageSnapshot();
   });
 
   it('executes a listing request with a limit param when the rows per page value is changed', () => {
@@ -311,7 +338,7 @@ describe('Listing request', () => {
       cy.log('request', request.url.search);
       expect(includes('&limit=30', request.url.search)).to.be.true;
     });
-    // cy.matchImageSnapshot();
+    cy.matchImageSnapshot();
   });
 });
 
@@ -411,7 +438,7 @@ describe('Details display', () => {
     cy.findByText('No').should('exist');
     cy.findByText('Set by admin').should('exist');
 
-    // cy.matchImageSnapshot();
+    cy.matchImageSnapshot();
   });
 
   const columnIds = map(prop('id'), columns);
@@ -451,7 +478,7 @@ describe('Details display', () => {
         cy.findByText(columnDisplayLabel).should('exist');
       }
 
-      // cy.matchImageSnapshot();
+      cy.matchImageSnapshot();
     });
   });
 });
