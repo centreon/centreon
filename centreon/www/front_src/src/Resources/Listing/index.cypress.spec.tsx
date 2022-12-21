@@ -21,8 +21,11 @@ import {
   replace
 } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { renderHook } from '@testing-library/react-hooks/dom';
+import { useAtomValue } from 'jotai';
 
 import { Column, Method, TestQueryProvider } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';
 import Context, { ResourceContext } from '../testUtils/Context';
@@ -140,6 +143,10 @@ const fakeData = {
 
 before(() => {
   document.getElementsByTagName('body')[0].style = 'margin:0px';
+  const userData = renderHook(() => useAtomValue(userAtom));
+
+  userData.result.current.timezone = 'Europe/Paris';
+  userData.result.current.locale = 'en_US';
 });
 
 const interceptRequestsAndMountBeforeEach = (): void => {
