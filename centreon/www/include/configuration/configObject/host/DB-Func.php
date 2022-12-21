@@ -1102,7 +1102,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     }
 
     $passwordTypeData = [];
-    if ((bool) $ret['host_snmp_is_password'] === true) {
+    if (array_key_exists('host_snmp_is_password', $ret) && (bool) $ret['host_snmp_is_password'] === true) {
         $passwordTypeData = [
             '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
         ];
@@ -1442,7 +1442,15 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
+    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        unset($ret['host_snmp_community']);
+    }
     $bindParams = sanitizeFormHostParameters($ret);
+
+    //If the checkbox is not checked that mean the value is not a password and should be updated as well
+    if (! array_key_exists('host_snmp_is_password', $ret)) {
+        $bindParams[':host_snmp_is_password'] = [\PDO::PARAM_STR => '0'];
+    }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -1563,6 +1571,10 @@ function updateHost_MC($host_id = null)
 
     $ret = array();
     $ret = $form->getSubmitValues();
+    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        unset($ret['host_snmp_community']);
+    }
+
     if (isset($ret["command_command_id_arg1"]) && $ret["command_command_id_arg1"] != null) {
         $ret["command_command_id_arg1"] = str_replace("\n", "#BR#", $ret["command_command_id_arg1"]);
         $ret["command_command_id_arg1"] = str_replace("\t", "#T#", $ret["command_command_id_arg1"]);
@@ -1590,6 +1602,10 @@ function updateHost_MC($host_id = null)
     }
 
     $bindParams = sanitizeFormHostParameters($ret);
+    //If the checkbox is not checked that mean the value is not a password and should be updated as well
+    if (! array_key_exists('host_snmp_is_password', $ret)) {
+        $bindParams[':host_snmp_is_password'] = [\PDO::PARAM_STR => '0'];
+    }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -2782,7 +2798,7 @@ function sanitizeFormHostParameters(array $ret): array
             case 'host_snmp_is_password':
                 $bindParams[':' . $inputName] = [
                     \PDO::PARAM_STR => in_array($inputValue, ['0', '1'])
-                        ? $inputValue[$inputName]
+                        ? $inputValue
                         : null
                 ];
                 break;
