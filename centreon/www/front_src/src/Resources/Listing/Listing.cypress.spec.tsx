@@ -28,17 +28,14 @@ import { Column, Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';
-import Context, { ResourceContext } from '../testUtils/Context';
-import useActions from '../testUtils/useActions';
-import useFilter from '../testUtils/useFilter';
 import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
 import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
-import useLoadDetails from '../testUtils/useLoadDetails';
 import useDetails from '../Details/useDetails';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
+import useFilter from '../Filter/useFilter';
 
-import useListing from './useListing';
 import { getColumns, defaultSelectedColumnIds } from './columns';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
 
@@ -107,28 +104,12 @@ const retrievedListing = {
   result: entities
 };
 
-let context: ResourceContext;
-
 const ListingTest = (): JSX.Element => {
-  const listingState = useListing();
-  const actionsState = useActions();
-  const detailsState = useLoadDetails();
-  const filterState = useFilter();
-
+  useLoadDetails();
+  useFilter();
   useDetails();
 
-  context = {
-    ...listingState,
-    ...actionsState,
-    ...detailsState,
-    ...filterState
-  };
-
-  return (
-    <Context.Provider value={context}>
-      <Listing />
-    </Context.Provider>
-  );
+  return <Listing />;
 };
 
 const ListingTestWithJotai = (): JSX.Element => (
@@ -342,7 +323,7 @@ describe('Listing request', () => {
   });
 });
 
-describe('Details display', () => {
+describe('Display additionnal columns', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'downtimeRequest',
