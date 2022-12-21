@@ -1,7 +1,5 @@
 const path = require('path');
-const os = require('os');
 
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const { merge } = require('webpack-merge');
 
 const {
@@ -10,28 +8,13 @@ const {
   devRefreshJscTransformConfiguration
 } = require('./packages/js-config/webpack/patch/dev');
 const getBaseConfiguration = require('./webpack.config');
-
-const devServerPort = 9090;
-
-const interfaces = os.networkInterfaces();
-const externalInterface = Object.keys(interfaces).find(
-  (interfaceName) =>
-    !interfaceName.includes('docker') &&
-    interfaces[interfaceName][0].family === 'IPv4' &&
-    interfaces[interfaceName][0].internal === false &&
-    !process.env.IS_STATIC_PORT_FORWARDED
-);
-
-const devServerAddress = externalInterface
-  ? interfaces[externalInterface][0].address
-  : 'localhost';
-
-const publicPath = `http://${devServerAddress}:${devServerPort}/static/`;
-
-const isServeMode = process.env.WEBPACK_ENV === 'serve';
-const isDevelopmentMode = process.env.WEBPACK_ENV === 'development';
-
-const plugins = isServeMode ? [new ReactRefreshWebpackPlugin()] : [];
+const {
+  devServer,
+  devServerPlugins,
+  isServeMode,
+  isDevelopmentMode,
+  publicPath
+} = require('./packages/js-config/webpack/patch/devServer');
 
 const output =
   isServeMode || isDevelopmentMode
@@ -49,9 +32,7 @@ module.exports = merge(
   getDevConfiguration(),
   {
     devServer: {
-      compress: true,
-      hot: true,
-      port: devServerPort,
+      ...devServer,
       static: [
         {
           directory: `${__dirname}/www/front_src/public`,
@@ -60,7 +41,7 @@ module.exports = merge(
       ]
     },
     output,
-    plugins,
+    plugins: devServerPlugins,
     resolve: {
       alias: {
         '@mui/material': path.resolve('./node_modules/@mui/material'),
