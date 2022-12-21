@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -78,11 +79,13 @@ final class DeleteHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('You are not allowed to delete host categories')
+                    new ForbiddenResponse(HostCategoryException::deleteNotAllowed()->getMessage())
                 );
             }
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse('Error while deleting host category'));
+            $presenter->setResponseStatus(
+                new ErrorResponse(HostCategoryException::deleteHostCategory($ex)->getMessage())
+            );
             $this->error($ex->getMessage());
         }
     }

@@ -28,10 +28,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\UseCase\DeleteHostCategory\DeleteHostCategory;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -40,6 +42,7 @@ beforeEach(function () {
     $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->user = $this->createMock(ContactInterface::class);
     $this->hostCategory = $this->createMock(HostCategory::class);
     $this->hostCategoryId = 1;
@@ -66,13 +69,12 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('deleteById')
         ->willThrowException(new \Exception());
 
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
-    $useCase($this->hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('Error while deleting host category');
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostCategoryException::deleteHostCategory(new \Exception())->getMessage());
 });
 
 it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
@@ -82,7 +84,6 @@ it('should present an ForbiddenResponse when a non-admin user has unsufficient r
         $this->accessGroupRepository,
         $this->user
     );
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $this->user
         ->expects($this->once())
@@ -93,12 +94,12 @@ it('should present an ForbiddenResponse when a non-admin user has unsufficient r
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    $useCase($this->hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
-        ->toBe('You are not allowed to delete host categories');
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostCategoryException::deleteNotAllowed()->getMessage());
 });
 
 it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
@@ -108,7 +109,6 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         $this->accessGroupRepository,
         $this->user
     );
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $this->user
         ->expects($this->once())
@@ -119,11 +119,11 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->method('exists')
         ->willReturn(false);
 
-    $useCase($this->hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe('Host category not found');
 });
 
@@ -134,7 +134,6 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         $this->accessGroupRepository,
         $this->user
     );
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $this->user
         ->expects($this->once())
@@ -149,11 +148,11 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->method('existsByAccessGroups')
         ->willReturn(false);
 
-    $useCase($this->hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $this->presenter);
 
-    expect($presenter->getResponseStatus())
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe('Host category not found');
 });
 
@@ -178,11 +177,9 @@ it('should present a NoContentResponse on success (with admin user)', function (
         ->expects($this->once())
         ->method('deleteById');
 
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
+    $useCase($hostCategoryId, $this->presenter);
 
-    $useCase($hostCategoryId, $presenter);
-
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
 it('should present a NoContentResponse on success (with non-admin user)', function () {
@@ -192,7 +189,6 @@ it('should present a NoContentResponse on success (with non-admin user)', functi
         $this->accessGroupRepository,
         $this->user
     );
-    $presenter = new DeleteHostCategoryPresenterStub($this->presenterFormatter);
 
     $this->user
         ->expects($this->once())
@@ -210,7 +206,7 @@ it('should present a NoContentResponse on success (with non-admin user)', functi
         ->expects($this->once())
         ->method('deleteById');
 
-    $useCase($this->hostCategoryId, $presenter);
+    $useCase($this->hostCategoryId, $this->presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });

@@ -34,11 +34,28 @@ class HostCategoryException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete host categories'));
+    }
+
+    /**
      * @param \Throwable $ex
      * @return self
      */
     public static function findHostCategories(\Throwable $ex): self
     {
         return new self(_('Error while searching for host categories'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     * @return self
+     */
+    public static function deleteHostCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting host category'), 0, $ex);
     }
 }
