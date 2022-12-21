@@ -83,6 +83,10 @@ const searchWords = filtersToBeDisplayedInSearchBar.reduce(
 
 document.getElementById('cy-root').style = 'min-height:750px;display:flex';
 
+const customImageSnapshotProperty = {
+  failureThreshold: 0.06
+};
+
 describe('Anomaly detection - Filter', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
@@ -235,13 +239,25 @@ describe('Anomaly detection - Graph', () => {
     cy.wait('@getGraphDataAnomalyDetection');
 
     cy.get(`[data-testid="${labelAdd}"]`).click();
-    cy.matchImageSnapshot();
+    cy.get('input[type="range"]').should('have.value', '3.1');
+    cy.matchImageSnapshot(
+      'displays the threshold in the modal - add button clicked',
+      customImageSnapshotProperty
+    );
 
     cy.get(`[data-testid="${labelCancel}"]`).click();
-    cy.matchImageSnapshot();
+    cy.get('input[type="range"]').should('have.value', '3');
+    cy.matchImageSnapshot(
+      'displays the threshold in the modal - cancel button clicked',
+      customImageSnapshotProperty
+    );
 
     cy.get(`[data-testid="${labelDelete}"]`).click();
-    cy.matchImageSnapshot();
+    cy.get('input[type="range"]').should('have.value', '2.9');
+    cy.matchImageSnapshot(
+      'displays the threshold in the modal - delete button clicked',
+      customImageSnapshotProperty
+    );
   });
 
   it('displays the new values of slider when add or minus buttons of slider are clicked', () => {
