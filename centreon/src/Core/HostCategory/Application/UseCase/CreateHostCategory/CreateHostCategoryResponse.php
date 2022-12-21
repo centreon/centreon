@@ -26,7 +26,7 @@ namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
 final class CreateHostCategoryResponse
 {
     /**
-     * @var array{id:int,name:string,alias:string,is_activated:string,comment:string|null}>
+     * @var array{id:int,name:string,alias:string,is_activated:bool,comment:string|null}>
      */
     public array $hostCategory;
 }

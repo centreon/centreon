@@ -47,7 +47,7 @@ class CreateHostCategoryPresenter extends AbstractPresenter
             'id' => $data->hostCategory['id'],
             'name' => $data->hostCategory['name'],
             'alias' => $data->hostCategory['alias'],
-            'is_activated' => $data->hostCategory['is_activated'] === HostCategory::IS_ACTIVE ? true : false,
+            'is_activated' => $data->hostCategory['is_activated'],
             'comments' => $data->hostCategory['comment'],
         ]);
     }

@@ -305,13 +305,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             return null;
         }
 
-        $hostCategory = new HostCategory(
-            $result['hc_id'],
-            $result['hc_name'],
-            $result['hc_alias']
-        );
-        $hostCategory->setActivated($result['hc_activate']);
-        $hostCategory->setComment($result['hc_comment']);
+        /** @var array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result */
+        $hostCategory = $this->createHostCategoryFromArray($result);
 
         return $hostCategory;
     }
