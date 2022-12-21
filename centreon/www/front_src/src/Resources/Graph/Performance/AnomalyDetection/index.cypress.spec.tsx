@@ -394,7 +394,6 @@ describe('Anomaly detection - Global', () => {
     cy.contains(labelEditAnomalyDetectionConfirmation).should('be.visible');
     cy.get(`[aria-label="Save"]`).click();
 
-    cy.get('@putSensitivity').should('have.property', 'status', 200);
     cy.wait('@getNewDetailsAnomalyDetection').should(
       'have.property',
       'status',
@@ -404,7 +403,6 @@ describe('Anomaly detection - Global', () => {
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
     cy.get('.MuiSlider-valueLabelLabel').contains(3.3).should('be.visible');
     cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
-    cy.get(`[aria-label="Close"]`).click();
   });
 
   it('displays the Anomaly detection criteria value when the type criteria chip is clicked and centreon-anomaly-detection is installed', () => {
