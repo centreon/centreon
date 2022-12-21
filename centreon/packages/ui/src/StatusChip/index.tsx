@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
 
@@ -62,7 +64,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 
 export type Props = {
   clickable?: boolean;
-  label?: string;
+  label?: string | ReactNode;
   severityCode: SeverityCode;
 } & ChipProps;
 

@@ -42,6 +42,11 @@ interface StyleProps {
 }
 
 const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
+  extraSmallChip: {
+    height: theme.spacing(1.25),
+    lineHeight: theme.spacing(1.25),
+    minWidth: theme.spacing(1.25)
+  },
   resourceDetailsCell: {
     alignItems: 'center',
     display: 'flex',

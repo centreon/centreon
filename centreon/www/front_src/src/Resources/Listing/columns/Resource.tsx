@@ -1,5 +1,3 @@
-import { Typography } from '@mui/material';
-
 import { ComponentColumnProps } from '@centreon/ui';
 
 import ShortTypeChip from '../../ShortTypeChip';
