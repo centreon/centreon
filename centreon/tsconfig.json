@@ -9,7 +9,8 @@
     "module": "esnext"
   },
   "include": [
-    "./www/front_src/src"
+    "./www/front_src/src",
+    "./cypress"
   ],
-  "exclude":["./www/front_src/src/**/*.spec.tsx", "./www/front_src/public/mockServiceWorker.js"]
+  "exclude":["./www/front_src/public/mockServiceWorker.js"]
 }

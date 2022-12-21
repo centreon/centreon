@@ -13,6 +13,7 @@
     "build:watch": "cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
     "test:coverage": "jest --coverage",
     "cypress:cli": "cypress run --component --browser=chrome",
+    "cypress:cli:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome"
   },
   "devDependencies": {
