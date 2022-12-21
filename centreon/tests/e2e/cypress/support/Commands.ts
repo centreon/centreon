@@ -157,7 +157,7 @@ Cypress.Commands.add(
   ({ database, query }: requestOnDatabaseProps): void => {
     const command = `docker exec -i ${Cypress.env(
       'dockerName'
-    )} mysql -ucentreon -pcentreon ${database} <<< "${query}"`;
+    )} mysql -ucentreon -pcentreon ${database} -e "${query}"`;
 
     cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
       ({ code, stdout, stderr }) => {
