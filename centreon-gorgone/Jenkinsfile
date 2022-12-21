@@ -53,7 +53,7 @@ def checkoutCentreonBuild(buildBranch) {
 /*
 ** Pipeline code.
 */
-stage('Deliver sources // Sonar analysis') {
+stage('Deliver sources') {
   node {
     checkoutCentreonBuild(buildBranch)
     dir('centreon-gorgone') {
@@ -63,15 +63,6 @@ stage('Deliver sources // Sonar analysis') {
     source = readProperties file: 'source.properties'
     env.VERSION = "${source.VERSION}"
     env.RELEASE = "${source.RELEASE}"
-    withSonarQubeEnv('SonarQubeDev') {
-      sh "./centreon-build/jobs/gorgone/${serie}/gorgone-analysis.sh"
-    }
-    timeout(time: 10, unit: 'MINUTES') {
-      def qualityGate = waitForQualityGate()
-      if (qualityGate.status != 'OK') {
-        currentBuild.result = 'FAIL'
-      }
-    }
   }
 }  
 
