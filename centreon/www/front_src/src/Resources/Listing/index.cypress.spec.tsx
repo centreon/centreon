@@ -201,10 +201,9 @@ describe('column sorting', () => {
     .filter(({ sortable }) => sortable !== false)
     .filter(({ id }) => includes(id, defaultSelectedColumnIds));
 
-  columnToClick.forEach(({ id, label, sortField }) => {
-    it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-      cy.waitFiltersAndListingRequests();
-
+  it(`executes a listing request with sort_by param and stores the order parameter in the URL when column is clicked`, () => {
+    cy.waitFiltersAndListingRequests();
+    columnToClick.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
         not(equals(sortField, 'last_status_change')) &&
