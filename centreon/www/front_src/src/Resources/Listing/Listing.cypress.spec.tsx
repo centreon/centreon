@@ -204,6 +204,7 @@ describe('column sorting', () => {
   const columnToSort = columns
     .filter(({ sortable }) => sortable !== false)
     .filter(({ id }) => includes(id, defaultSelectedColumnIds));
+
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'filterRequest',
@@ -291,8 +292,6 @@ describe('Listing request', () => {
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      cy.log('request', request.url.search);
-      // const requestUrlPageTwo = getListingEndpoint({ page: 2 });
       expect(includes('page=2&limit=30', request.url.search)).to.be.true;
     });
 
@@ -303,8 +302,6 @@ describe('Listing request', () => {
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      // const requestUrlPageOne = getListingEndpoint({ page: 1 });
-      cy.log('request', request.url.search);
       expect(includes('page=1&limit=30', request.url.search)).to.be.true;
     });
 
@@ -315,8 +312,6 @@ describe('Listing request', () => {
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      // const requestUrlPageOne = getListingEndpoint({ page: 4 });
-      cy.log('request', request.url.search);
       expect(includes('page=4&limit=30', request.url.search)).to.be.true;
     });
 
@@ -327,10 +322,9 @@ describe('Listing request', () => {
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      // const requestUrlPageOne = getListingEndpoint({ page: 1 });
-      cy.log('request', request.url.search);
       expect(includes('page=1&limit=30', request.url.search)).to.be.true;
     });
+
     cy.matchImageSnapshot();
   });
 
@@ -341,10 +335,9 @@ describe('Listing request', () => {
     cy.contains(/^30$/).click({ force: true });
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      // const requestUrlLimit = getListingEndpoint({ limit: 30 });
-      cy.log('request', request.url.search);
       expect(includes('&limit=30', request.url.search)).to.be.true;
     });
+
     cy.matchImageSnapshot();
   });
 });
@@ -414,7 +407,7 @@ describe('Details display', () => {
     cy.findByText('02/28/2020 9:18 AM').should('exist');
     cy.findByText('Set by admin').should('exist');
 
-    // cy.matchImageSnapshot();
+    cy.matchImageSnapshot();
   });
 
   it('displays acknowledgement details when an acknowledged state chip is hovered', () => {
