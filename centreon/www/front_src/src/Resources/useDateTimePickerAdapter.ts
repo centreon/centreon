@@ -90,9 +90,15 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     size: number;
   }
   class Adapter extends DayjsAdapter {
-    public formatByString = (value, formatKey: string): string => {
+    public format= (value, formatKey: string): string => {
+      if(equals(formatKey,'dd') || equals(formatKey,)){
+        return format({
+          date: value.tz(timezone,true),
+          formatString: formatKey,
+        });
+      }
       return format({
-        date: value.tz(timezone),
+        date: value.tz(timezone,true),
         formatString: formatKey,
       });
     };
@@ -108,12 +114,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       );
     };
 
-    public format = (date: dayjs.Dayjs, formatKey: string): string => {
-      return this.formatByString(
-        date.tz(timezone, true),
-        this.formats[formatKey],
-      );
-    };
+    // public format = (date: dayjs.Dayjs, formatKey: string): string => {
+    //   return this.formatByString(
+    //     date.tz(timezone, true),
+    //     this.formats[formatKey],
+    //   );
+    // };
 
     public startOfWeek = (date: dayjs.Dayjs): dayjs.Dayjs => {
       if (date.tz(timezone).isUTC()) {
@@ -210,7 +216,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(start.add(diff, 'day'), 'dd'),
+        this.format(start.add(diff, 'day'), 'dd'),
       );
     };
 
