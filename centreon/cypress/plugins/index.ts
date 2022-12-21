@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const {
-  addMatchImageSnapshotPlugin,
+  addMatchImageSnapshotPlugin
 } = require('cypress-image-snapshot/plugin');
 
 module.exports = (on, config) => {
@@ -14,7 +14,7 @@ module.exports = (on, config) => {
     const webpackConfig = require('../../webpack.config.dev');
 
     on('dev-server:start', (options) =>
-      startDevServer({ options, webpackConfig }),
+      startDevServer({ options, webpackConfig })
     );
   }
 };

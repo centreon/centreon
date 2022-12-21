@@ -6,6 +6,6 @@ addMatchImageSnapshotCommand({
   capture: 'viewport',
   customDiffConfig: { threshold: 0.1 },
   customSnapshotsDir: './cypress/visual-testing-snapshots',
-  failureThreshold: 0.03,
+  failureThreshold: 0.06,
   failureThresholdType: 'percent'
 });
