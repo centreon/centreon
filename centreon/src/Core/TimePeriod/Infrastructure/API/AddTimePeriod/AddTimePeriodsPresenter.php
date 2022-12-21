@@ -51,10 +51,10 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
      */
     public function present(mixed $data): void
     {
-        if (is_object($data) && is_a($data, CreatedResponse::class) && $data->getPayload() !== []) {
-            /**
-             * @var AddTimePeriodResponse $payload
-             */
+        if (
+            $data instanceof CreatedResponse
+            && $data->getPayload() instanceof AddTimePeriodResponse
+        ) {
             $payload = $data->getPayload();
             $data->setPayload([
                 'id' => $payload->id,

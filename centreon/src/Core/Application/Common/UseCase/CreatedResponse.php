@@ -23,11 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
+/**
+ * @template T
+ */
 class CreatedResponse implements ResponseStatusInterface
 {
     /**
      * @param int $resourceId
-     * @param mixed $payload
+     * @param T $payload
      */
     public function __construct(
         readonly private int $resourceId,
@@ -44,7 +47,7 @@ class CreatedResponse implements ResponseStatusInterface
     }
 
     /**
-     * @return mixed
+     * @return T
      */
     public function getPayload(): mixed
     {
@@ -52,13 +55,16 @@ class CreatedResponse implements ResponseStatusInterface
     }
 
     /**
-     * @param mixed $payload
+     * @param T $payload
      */
     public function setPayload(mixed $payload): void
     {
         $this->payload = $payload;
     }
 
+    /**
+     * @return string
+     */
     public function getMessage(): string
     {
         return 'Created';

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,11 +25,11 @@ namespace Core\Infrastructure\Common\Presenter;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
-    BodyResponseInterface, CreatedResponse, ErrorResponse, InvalidArgumentResponse, ResponseStatusInterface,
-    UnauthorizedResponse, PaymentRequiredResponse, ForbiddenResponse, NoContentResponse, NotFoundResponse
+    BodyResponseInterface, CreatedResponse, ErrorResponse, ForbiddenResponse,
+    InvalidArgumentResponse, NoContentResponse, NotFoundResponse, PaymentRequiredResponse,
+    ResponseStatusInterface, UnauthorizedResponse
 };
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 
 class JsonFormatter implements PresenterFormatterInterface
 {
@@ -77,58 +77,16 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }
         }
+
         return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
     }
 
     /**
-     * Generates json response with error message and http code
+     * Format content on error.
      *
      * @param mixed $data
      * @param int $code
-     * @param array<string, mixed> $headers
      *
-     * @return JsonResponse
-     *
-     * @throws \InvalidArgumentException
-     * @throws \TypeError
-     */
-    private function generateJsonErrorResponse(mixed $data, int $code, array $headers): JsonResponse
-    {
-        $errorData = $this->formatErrorContent($data, $code);
-
-        return $this->generateJsonResponse($errorData, $code, $headers);
-    }
-
-    /**
-     * @param mixed $data
-     * @param int $code
-     * @param array<string, mixed> $headers
-     *
-     * @return JsonResponse
-     *
-     * @throws \InvalidArgumentException
-     * @throws \TypeError
-     */
-    private function generateJsonResponse(mixed $data, int $code, array $headers): JsonResponse
-    {
-        if (is_object($data)) {
-            if (is_a($data, \Generator::class)) {
-                $data = iterator_to_array($data);
-            } elseif (is_a($data, CreatedResponse::class)) {
-                /**
-                 * @var CreatedResponse $data
-                 */
-                $data = $data->getPayload();
-            }
-        }
-        return new JsonResponse($data, $code, $headers);
-    }
-
-    /**
-     * Format content on error
-     *
-     * @param mixed $data
-     * @param integer $code
      * @return mixed[]|null
      */
     protected function formatErrorContent(mixed $data, int $code): ?array
@@ -143,6 +101,49 @@ class JsonFormatter implements PresenterFormatterInterface
                 $content = array_merge($content, $data->getBody());
             }
         }
+
         return $content;
+    }
+
+    /**
+     * Generates json response with error message and http code.
+     *
+     * @param mixed $data
+     * @param int $code
+     * @param array<string, mixed> $headers
+     *
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
+     *
+     * @return JsonResponse
+     */
+    private function generateJsonErrorResponse(mixed $data, int $code, array $headers): JsonResponse
+    {
+        $errorData = $this->formatErrorContent($data, $code);
+
+        return $this->generateJsonResponse($errorData, $code, $headers);
+    }
+
+    /**
+     * @param mixed $data
+     * @param int $code
+     * @param array<string, mixed> $headers
+     *
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
+     *
+     * @return JsonResponse
+     */
+    private function generateJsonResponse(mixed $data, int $code, array $headers): JsonResponse
+    {
+        if (is_object($data)) {
+            if ($data instanceof \Generator) {
+                $data = iterator_to_array($data);
+            } elseif ($data instanceof CreatedResponse) {
+                $data = $data->getPayload();
+            }
+        }
+
+        return new JsonResponse($data, $code, $headers);
     }
 }
