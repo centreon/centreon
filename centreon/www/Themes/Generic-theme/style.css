@@ -3005,7 +3005,7 @@ ul.module_list {
     place-items: center;
     display: grid;
     grid-template-rows: 2fr 3fr 2fr;
-    height: 99%;
+    height: calc(100vh - 39px);
     position: relative;
     width: 100%;
 
@@ -3062,6 +3062,6 @@ ul.module_list {
 .backgroundImage {
     height: 100%;
     position: absolute;
-    width: 102.1%;
+    width: 100%;
 }
 
