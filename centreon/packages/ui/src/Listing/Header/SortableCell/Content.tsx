@@ -3,29 +3,36 @@ import * as React from 'react';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { TableCellBaseProps, TableSortLabel, Tooltip } from '@mui/material';
+import {
+  TableCell,
+  TableCellBaseProps,
+  TableSortLabel,
+  Tooltip
+} from '@mui/material';
 
-import { HeaderCell } from '..';
 import { Props as ListingProps } from '../..';
-import { useStyles as useCellStyles } from '../../Cell/DataCell';
-import { Column } from '../../models';
+import { Column, HeaderTable } from '../../models';
+import useStyleTable from '../../useStyleTable';
 import HeaderLabel from '../Label';
 
 import DraggableIcon from './DraggableIconIcon';
 
-type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
+type StylesProps = Pick<Props, 'isDragging'> & { headerData: HeaderTable };
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, isInDragOverlay }) => ({
+  (theme, { isDragging, headerData }) => ({
     active: {
       '&.Mui-active': {
         '& .MuiTableSortLabel-icon': {
-          color: 'white'
+          color: headerData.color
         },
-        '&:hover': {
-          color: 'white'
+        color: headerData.color
+      },
+      '&:hover': {
+        '& .MuiTableSortLabel-icon': {
+          opacity: 1
         },
-        color: 'white'
+        color: headerData.color
       }
     },
     content: {
@@ -38,14 +45,6 @@ const useStyles = makeStyles<StylesProps>()(
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
       outline: 'none'
-    },
-
-    item: {
-      // background: isInDragOverlay ? 'red' : theme.palette.background.paper,
-      border: isInDragOverlay ? 'none' : undefined
-      // borderBottom: isInDragOverlay
-      //   ? 'none'
-      //   : `1px solid ${theme.palette.text.primary}`
     }
   })
 );
@@ -54,6 +53,7 @@ type Props = Pick<
   ListingProps<unknown>,
   'columnConfiguration' | 'sortField' | 'sortOrder' | 'onSort'
 > & {
+  className: string;
   column: Column;
   isDragging?: boolean;
   isInDragOverlay?: boolean;
@@ -62,7 +62,6 @@ type Props = Pick<
 };
 
 const SortableHeaderCellContent = ({
-  isInDragOverlay,
   column,
   columnConfiguration,
   sortField,
@@ -73,8 +72,11 @@ const SortableHeaderCellContent = ({
   style,
   ...props
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
-  const cellClasses = useCellStyles();
+  const { headerData } = useStyleTable({});
+  const { classes } = useStyles({
+    headerData,
+    isDragging
+  });
   const [cellHovered, setCellHovered] = React.useState(false);
 
   const columnLabel = column.shortLabel || column.label;
@@ -110,8 +112,7 @@ const SortableHeaderCellContent = ({
   );
 
   return (
-    <HeaderCell
-      className={cx([cellClasses.cell, classes.item])}
+    <TableCell
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       padding={column.compact ? 'none' : 'normal'}
       onMouseOut={mouseOut}
@@ -145,7 +146,7 @@ const SortableHeaderCellContent = ({
           </>
         )}
       </div>
-    </HeaderCell>
+    </TableCell>
   );
 };
 

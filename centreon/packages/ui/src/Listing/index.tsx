@@ -90,6 +90,9 @@ const useStyles = makeStyles<StylesProps>()(
       alignItems: 'center',
       display: 'flex'
     },
+    checkbox: {
+      justifyContent: 'center'
+    },
     container: {
       background: 'none',
       display: 'flex',
@@ -116,9 +119,10 @@ const useStyles = makeStyles<StylesProps>()(
       },30px)`,
       position: 'relative',
       'thead div:nth-child(n)': {
-        backgroundColor: '#666666',
-        color: 'white',
-        height: '100%'
+        backgroundColor: headerData.backgroundColor,
+        color: headerData.color,
+        height: headerData.height,
+        padding: 0
       }
     },
     tableBody: {
@@ -556,8 +560,9 @@ const Listing = <TRow extends { id: RowId }>({
                   >
                     {checkable && (
                       <Cell
-                        compact
+                        // compact
                         align="left"
+                        className={classes.checkbox}
                         disableRowCondition={disableRowCondition}
                         isRowHovered={isRowHovered}
                         row={row}

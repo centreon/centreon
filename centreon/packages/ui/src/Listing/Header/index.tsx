@@ -1,63 +1,56 @@
 import * as React from 'react';
 
-import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { withStyles, makeStyles } from 'tss-react/mui';
+import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
+import { makeStyles, withStyles } from 'tss-react/mui';
 
-import {
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCellBaseProps
-} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { TableCell, TableHead, TableRow } from '@mui/material';
 
-import Checkbox from '../Checkbox';
 import { getVisibleColumns, Props as ListingProps } from '..';
-import { Column, PredefinedRowSelection } from '../models';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
+import Checkbox from '../Checkbox';
+import { Column, HeaderTable, PredefinedRowSelection } from '../models';
 import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
+import useStyleTable from '../useStyleTable';
 
-import SortableHeaderCellContent from './SortableCell/Content';
 import PredefinedSelectionList from './PredefinedSelectionList';
+import SortableHeaderCellContent from './SortableCell/Content';
 
 const height = 28;
 
 const HeaderCell = withStyles(TableCell, (theme) => ({
   root: {
-    // height,
     padding: theme.spacing(0)
   }
 }));
 
-const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
-  root: {
-    // backgroundColor: theme.palette.background.paper,
-    // borderBottom: `1px solid ${theme.palette.text.primary}`,
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, min-content)',
-    // height,
-    padding: theme.spacing(0, 0, 0, 0.5)
-  }
-}));
+interface StylesProps {
+  headerData: HeaderTable;
+}
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { headerData }) => ({
+  CheckboxHeaderCell: {
+    alignItems: 'center',
+    borderBottom: 'none',
+    display: 'flex',
+    justifyContent: 'end',
+    minWidth: theme.spacing(51 / 8)
+  },
+  checkBox: {
+    color: headerData.color
+  },
   compactCell: {
     paddingLeft: theme.spacing(0.5)
   },
-  container: {
-    display: 'contents'
-    // 'div:nth-child(1)': {
-    //   border: 'solid 0.5px',
-    //   height: 38
-    // }
-  },
+
   headerLabelDragging: {
     cursor: 'grabbing'
   },
   predefinedRowsMenu: {
+    color: headerData.color,
     width: theme.spacing(2)
   },
   row: {
@@ -109,7 +102,8 @@ const ListingHeader = ({
   onSelectRowsWithCondition,
   memoProps
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { headerData } = useStyleTable({});
+  const { classes, cx } = useStyles({ headerData });
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -150,22 +144,19 @@ const ListingHeader = ({
   );
 
   return (
-    <TableHead className={classes.container}>
+    <TableHead className={classes.row}>
       <TableRow className={classes.row} component="div">
         {checkable && (
-          <CheckboxHeaderCell
-            component={
-              'div' as unknown as React.ElementType<TableCellBaseProps>
-            }
-          >
+          <TableCell className={cx(classes.CheckboxHeaderCell)} component="div">
             <Checkbox
               checked={selectedRowCount === rowCount}
-              className={classes.compactCell}
+              className={classes.checkBox}
               indeterminate={
                 selectedRowCount > 0 && selectedRowCount < rowCount
               }
               inputProps={{ 'aria-label': 'Select all' }}
               onChange={onSelectAllClick}
+              // className={classes.compactCell}
             />
             {not(isEmpty(predefinedRowsSelection)) && (
               <PopoverMenu
@@ -182,7 +173,7 @@ const ListingHeader = ({
                 )}
               </PopoverMenu>
             )}
-          </CheckboxHeaderCell>
+          </TableCell>
         )}
         <SortableItems
           updateSortableItemsOnItemsChange

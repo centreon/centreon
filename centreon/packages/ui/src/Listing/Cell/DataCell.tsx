@@ -29,10 +29,11 @@ interface Props {
 const useStyles = makeStyles()((theme) => ({
   cell: {
     alignItems: 'center',
-    alignSelf: 'stretch',
+    backgroundColor: 'transparent',
     display: 'flex',
+    height: '100%',
     overflow: 'hidden',
-    padding: 0,
+    // padding: 0,
     whiteSpace: 'nowrap'
   },
   componentColumn: {
@@ -59,11 +60,10 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const commonCellProps = {
     align: 'left' as const,
-    className: cx(classes.cell),
     compact: column.compact,
     disableRowCondition,
     isRowHovered,
