@@ -2,7 +2,7 @@ import { FC } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Image } from '..';
+import { Image, ImageVariant } from '..';
 import LoadingSkeleton from '../LoadingSkeleton';
 import { useThemeMode } from '../utils/useThemeMode';
 import CentreonLogoLight from '../../assets/centreon-logo-light.svg';
@@ -21,6 +21,7 @@ export const CentreonLogo: FC = () => {
       alt={t(labelCentreonLogo)}
       fallback={<LoadingSkeleton />}
       imagePath={logo}
+      variant={ImageVariant.Contain}
     />
   );
 };
