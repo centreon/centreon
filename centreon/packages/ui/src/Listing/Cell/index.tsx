@@ -59,8 +59,8 @@ const useStyles = makeStyles<Props>()(
         rowColorConditions,
         theme
       }),
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5)
+      borderBottom: `1px solid ${theme.palette.divider}`
+      // padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5)
     }
   })
 );
@@ -82,7 +82,7 @@ const Cell = (props: Props): JSX.Element => {
   return (
     <TableCell
       classes={{ root: classes.root }}
-      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
+      // component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',

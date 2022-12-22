@@ -29,35 +29,37 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  Table,
-  TableBody,
   Box,
   LinearProgress,
+  Table,
+  TableBody,
   TableRow,
   useTheme
 } from '@mui/material';
 
-import useMemoComponent from '../utils/useMemoComponent';
 import useKeyObserver from '../utils/useKeyObserver';
+import useMemoComponent from '../utils/useMemoComponent';
 
-import ListingHeader, { headerHeight } from './Header/index';
-import ListingRow from './Row';
-import ListingLoadingSkeleton from './Skeleton';
-import useResizeObserver from './useResizeObserver';
-import getCumulativeOffset from './getCumulativeOffset';
-import DataCell from './Cell/DataCell';
+import ListingActionBar from './ActionBar';
 import Cell from './Cell';
+import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
-import { labelNoResultFound } from './translatedLabels';
+import getCumulativeOffset from './getCumulativeOffset';
+import ListingHeader, { headerHeight } from './Header/index';
 import {
   Column,
   ColumnConfiguration,
   PredefinedRowSelection,
   RowColorCondition,
   RowId,
-  SortOrder
+  SortOrder,
+  HeaderTable
 } from './models';
-import ListingActionBar from './ActionBar';
+import ListingRow from './Row';
+import ListingLoadingSkeleton from './Skeleton';
+import { labelNoResultFound } from './translatedLabels';
+import useResizeObserver from './useResizeObserver';
+import useStyleTable from './useStyleTable';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -76,42 +78,59 @@ const getVisibleColumns = ({
 
 const loadingIndicatorHeight = 3;
 
-const useStyles = makeStyles()((theme) => ({
-  actionBar: {
-    alignItems: 'center',
-    display: 'flex'
-  },
-  container: {
-    background: 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    width: '100%'
-  },
-  emptyDataCell: {
-    paddingLeft: theme.spacing(2)
-  },
-  emptyDataRow: {
-    display: 'contents'
-  },
-  loadingIndicator: {
-    height: loadingIndicatorHeight,
-    width: '100%'
-  },
-  table: {
-    alignItems: 'center',
-    display: 'grid',
-    position: 'relative'
-  },
-  tableBody: {
-    display: 'contents',
-    position: 'relative'
-  },
-  tableWrapper: {
-    borderBottom: 'none',
-    overflow: 'auto'
-  }
-}));
+interface StylesProps {
+  getGridTemplateColumn: string;
+  headerData: HeaderTable;
+  rows: Array<unknown>;
+}
+
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { headerData, getGridTemplateColumn, rows }) => ({
+    actionBar: {
+      alignItems: 'center',
+      display: 'flex'
+    },
+    container: {
+      background: 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      width: '100%'
+    },
+    emptyDataCell: {
+      paddingLeft: theme.spacing(2)
+    },
+    emptyDataRow: {
+      display: 'contents'
+    },
+    loadingIndicator: {
+      height: loadingIndicatorHeight,
+      width: '100%'
+    },
+    table: {
+      alignItems: 'center',
+      display: 'grid',
+      gridTemplateColumns: getGridTemplateColumn,
+      gridTemplateRows: `${theme.spacing(headerData.height / 8)} repeat(${
+        rows?.length
+      },30px)`,
+      position: 'relative',
+      'thead div:nth-child(n)': {
+        backgroundColor: '#666666',
+        color: 'white',
+        height: '100%'
+      }
+    },
+    tableBody: {
+      display: 'contents',
+      position: 'relative'
+    },
+    tableWrapper: {
+      borderBottom: 'none',
+      overflow: 'auto'
+    }
+  })
+);
 
 export interface Props<TRow> {
   actions?: JSX.Element;
@@ -184,7 +203,15 @@ const Listing = <TRow extends { id: RowId }>({
   moveTablePagination,
   widthToMoveTablePagination
 }: Props<TRow>): JSX.Element => {
-  const { classes } = useStyles();
+  const currentVisibleColumns = getVisibleColumns({
+    columnConfiguration,
+    columns
+  });
+  const { headerData, getGridTemplateColumn } = useStyleTable({
+    checkable,
+    currentVisibleColumns
+  });
+  const { classes } = useStyles({ getGridTemplateColumn, headerData, rows });
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
@@ -195,7 +222,6 @@ const Listing = <TRow extends { id: RowId }>({
   const [lastSelectionIndex, setLastSelectionIndex] = React.useState<
     number | null
   >(null);
-
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
 
@@ -411,28 +437,6 @@ const Listing = <TRow extends { id: RowId }>({
     )})`;
   };
 
-  const getGridTemplateColumn = (): string => {
-    const checkbox = checkable ? 'min-content ' : '';
-
-    const columnTemplate = getVisibleColumns({
-      columnConfiguration,
-      columns
-    })
-      .map(({ width, shortLabel }) => {
-        if (!isNil(shortLabel)) {
-          return 'min-content';
-        }
-        if (isNil(width)) {
-          return 'auto';
-        }
-
-        return typeof width === 'number' ? `${width}px` : width;
-      })
-      .join(' ');
-
-    return `${checkbox}${columnTemplate}`;
-  };
-
   const changeLimit = (updatedLimit: string): void => {
     onLimitChange?.(Number(updatedLimit));
   };
@@ -497,9 +501,6 @@ const Listing = <TRow extends { id: RowId }>({
             component="div"
             role={undefined}
             size="small"
-            style={{
-              gridTemplateColumns: getGridTemplateColumn()
-            }}
           >
             <ListingHeader
               checkable={checkable}
@@ -519,8 +520,6 @@ const Listing = <TRow extends { id: RowId }>({
 
             <TableBody
               className={classes.tableBody}
-              component="div"
-              role={undefined}
               onMouseLeave={clearHoveredRow}
             >
               {rows.map((row, index) => {

@@ -61,7 +61,8 @@ export interface PredefinedRowSelection {
   rowCondition: (row) => boolean;
 }
 
-export interface CellHeader {
-  column: Column;
-  isHeaderHovered: boolean;
+export interface HeaderTable {
+  backgroundColor: string;
+  color: string;
+  height: number;
 }

@@ -17,6 +17,17 @@ type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
 const useStyles = makeStyles<StylesProps>()(
   (theme, { isDragging, isInDragOverlay }) => ({
+    active: {
+      '&.Mui-active': {
+        '& .MuiTableSortLabel-icon': {
+          color: 'white'
+        },
+        '&:hover': {
+          color: 'white'
+        },
+        color: 'white'
+      }
+    },
     content: {
       alignItems: 'center',
       display: 'flex',
@@ -30,13 +41,11 @@ const useStyles = makeStyles<StylesProps>()(
     },
 
     item: {
-      background: isInDragOverlay
-        ? 'transparent'
-        : theme.palette.background.paper,
-      border: isInDragOverlay ? 'none' : undefined,
-      borderBottom: isInDragOverlay
-        ? 'none'
-        : `1px solid ${theme.palette.text.primary}`
+      // background: isInDragOverlay ? 'red' : theme.palette.background.paper,
+      border: isInDragOverlay ? 'none' : undefined
+      // borderBottom: isInDragOverlay
+      //   ? 'none'
+      //   : `1px solid ${theme.palette.text.primary}`
     }
   })
 );
@@ -123,6 +132,7 @@ const SortableHeaderCellContent = ({
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
+            className={classes.active}
             direction={sortOrder || 'desc'}
             onClick={sort}
           >

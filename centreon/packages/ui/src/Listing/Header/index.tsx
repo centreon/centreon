@@ -27,18 +27,18 @@ const height = 28;
 
 const HeaderCell = withStyles(TableCell, (theme) => ({
   root: {
-    height,
+    // height,
     padding: theme.spacing(0)
   }
 }));
 
 const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
   root: {
-    backgroundColor: theme.palette.background.paper,
-    borderBottom: `1px solid ${theme.palette.text.primary}`,
+    // backgroundColor: theme.palette.background.paper,
+    // borderBottom: `1px solid ${theme.palette.text.primary}`,
     display: 'grid',
     gridTemplateColumns: 'repeat(2, min-content)',
-    height,
+    // height,
     padding: theme.spacing(0, 0, 0, 0.5)
   }
 }));
@@ -46,6 +46,13 @@ const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
 const useStyles = makeStyles()((theme) => ({
   compactCell: {
     paddingLeft: theme.spacing(0.5)
+  },
+  container: {
+    display: 'contents'
+    // 'div:nth-child(1)': {
+    //   border: 'solid 0.5px',
+    //   height: 38
+    // }
   },
   headerLabelDragging: {
     cursor: 'grabbing'
@@ -143,8 +150,8 @@ const ListingHeader = ({
   );
 
   return (
-    <TableHead className={classes.row} component="div" role={undefined}>
-      <TableRow className={classes.row} component="div" role={undefined}>
+    <TableHead className={classes.container}>
+      <TableRow className={classes.row} component="div">
         {checkable && (
           <CheckboxHeaderCell
             component={
