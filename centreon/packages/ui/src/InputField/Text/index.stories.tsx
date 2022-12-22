@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
@@ -57,3 +59,29 @@ const CustomTextField = (): JSX.Element => {
 };
 
 export const customTextField = (): JSX.Element => <CustomTextField />;
+
+export const autoSize = (): JSX.Element => (
+  <TextField autoSize autoSizeDefaultWidth={120} placeholder="Auto size" />
+);
+
+const ControlledTextFieldWithAutoSize = (): JSX.Element => {
+  const [value, setValue] = React.useState('');
+
+  const change = (event): void => {
+    setValue(event.target.value);
+  };
+
+  return (
+    <TextField
+      autoSize
+      autoSizeDefaultWidth={100}
+      placeholder="Auto size"
+      value={value}
+      onChange={change}
+    />
+  );
+};
+
+export const AutoSizeController = (): JSX.Element => (
+  <ControlledTextFieldWithAutoSize />
+);

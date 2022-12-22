@@ -9,7 +9,8 @@ import {
   InputAdornment,
   Autocomplete,
   AutocompleteProps,
-  useTheme
+  useTheme,
+  Typography
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
@@ -21,9 +22,12 @@ import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
 import getNormalizedId from '../../../utils/getNormalizedId';
+import useAutoSize from '../../Text/useAutoSize';
 
 export type Props = {
   autoFocus?: boolean;
+  autoSize?: boolean;
+  autoSizeDefaultWidth?: number;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
@@ -46,6 +50,9 @@ const textfieldHeight = (hideInput?: boolean): number | undefined =>
   hideInput ? 0 : undefined;
 
 const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
+  hiddenText: {
+    transform: 'scale(0)'
+  },
   input: {
     '&:after': {
       borderBottom: 0
@@ -59,7 +66,6 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
     },
     height: textfieldHeight(hideInput)
   },
-
   inputLabel: {
     '&&': {
       fontSize: theme.typography.body1.fontSize,
@@ -148,11 +154,14 @@ const AutocompleteField = ({
   displayPopupIcon = true,
   autoFocus = false,
   hideInput = false,
+  autoSize = false,
+  autoSizeDefaultWidth = 0,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
   const { t } = useTranslation();
   const theme = useTheme();
+
   const areSelectEntriesEqual = (option, value): boolean => {
     const identifyingProps = ['id', 'name'];
 
@@ -186,10 +195,13 @@ const AutocompleteField = ({
         }
       }}
       autoFocus={autoFocus}
+      autoSize={autoSize}
+      autoSizeDefaultWidth={autoSizeDefaultWidth}
       classes={{
         root: classes.textfield
       }}
       error={error}
+      externalValueForAutoSize={props?.value?.name}
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
@@ -199,7 +211,7 @@ const AutocompleteField = ({
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
       required={required}
-      value={inputValue || ''}
+      value={inputValue || undefined}
       onChange={onTextChange}
     />
   );
