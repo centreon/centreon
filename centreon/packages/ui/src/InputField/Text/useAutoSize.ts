@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material';
 
 interface UseAutoSizeProps {
   autoSize: boolean;
+  autoSizeCustomPadding?: number;
   autoSizeDefaultWidth: number;
   value?: string;
 }
@@ -17,10 +18,13 @@ interface UseAutoSizeState {
   width: string;
 }
 
+const defaultPaddingTotal = 4;
+
 const useAutoSize = ({
   autoSize,
   autoSizeDefaultWidth,
-  value
+  value,
+  autoSizeCustomPadding
 }: UseAutoSizeProps): UseAutoSizeState => {
   const [innerValue, setInnerValue] = useState(value || '');
   const [width, setWidth] = useState(autoSizeDefaultWidth);
@@ -30,10 +34,6 @@ const useAutoSize = ({
   const changeInputValue = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void => {
-    if (!autoSize) {
-      return;
-    }
-
     setInnerValue(event.target.value);
   };
 
@@ -51,7 +51,9 @@ const useAutoSize = ({
     changeInputValue,
     innerValue,
     inputRef,
-    width: `calc(${width}px + ${theme.spacing(13)})`
+    width: `calc(${width}px + ${theme.spacing(
+      autoSizeCustomPadding || defaultPaddingTotal
+    )})`
   };
 };
 

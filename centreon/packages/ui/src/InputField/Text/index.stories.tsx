@@ -61,7 +61,16 @@ const CustomTextField = (): JSX.Element => {
 export const customTextField = (): JSX.Element => <CustomTextField />;
 
 export const autoSize = (): JSX.Element => (
-  <TextField autoSize autoSizeDefaultWidth={120} placeholder="Auto size" />
+  <TextField autoSize autoSizeDefaultWidth={60} placeholder="Auto size" />
+);
+
+export const autoSizeCustomPadding = (): JSX.Element => (
+  <TextField
+    autoSize
+    autoSizeCustomPadding={10}
+    autoSizeDefaultWidth={60}
+    placeholder="Auto size"
+  />
 );
 
 const ControlledTextFieldWithAutoSize = (): JSX.Element => {
@@ -74,7 +83,7 @@ const ControlledTextFieldWithAutoSize = (): JSX.Element => {
   return (
     <TextField
       autoSize
-      autoSizeDefaultWidth={100}
+      autoSizeDefaultWidth={60}
       placeholder="Auto size"
       value={value}
       onChange={change}
@@ -82,6 +91,6 @@ const ControlledTextFieldWithAutoSize = (): JSX.Element => {
   );
 };
 
-export const AutoSizeController = (): JSX.Element => (
+export const AutoSizeControlled = (): JSX.Element => (
   <ControlledTextFieldWithAutoSize />
 );

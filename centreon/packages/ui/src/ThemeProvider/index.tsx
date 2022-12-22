@@ -34,6 +34,33 @@ declare module '@mui/material/TextField' {
 const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   if (equals(size, 'compact')) {
     return {
+      padding: '8px 8px',
+      paddingRight: '0px'
+    };
+  }
+  if (equals(size, 'small')) {
+    return {
+      padding: '8.5px 14px',
+      paddingRight: '0px'
+    };
+  }
+  if (equals(size, 'large')) {
+    return {
+      padding: '14px 18px',
+      paddingRight: '0px'
+    };
+  }
+
+  return {
+    padding: '10px 15.5px',
+    paddingRight: '0px',
+    width: 'auto'
+  };
+};
+
+const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
+  if (equals(size, 'compact')) {
+    return {
       fontSize: 'x-small',
       minHeight: '32px'
     };
@@ -147,7 +174,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiInputBase: {
       styleOverrides: {
-        root: ({ ownerState }) => getInputBaseRootStyle(ownerState)
+        root: ({ ownerState }) => getInputBaseInputStyle(ownerState)
       }
     },
     MuiList: {
@@ -174,6 +201,11 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
             },
           fontSize: theme.typography.body2.fontSize
         })
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        input: ({ ownerState }) => getInputBaseRootStyle(ownerState)
       }
     },
     MuiPaper: {

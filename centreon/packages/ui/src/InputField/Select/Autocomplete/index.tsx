@@ -22,11 +22,11 @@ import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
 import getNormalizedId from '../../../utils/getNormalizedId';
-import useAutoSize from '../../Text/useAutoSize';
 
 export type Props = {
   autoFocus?: boolean;
   autoSize?: boolean;
+  autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
@@ -156,6 +156,7 @@ const AutocompleteField = ({
   hideInput = false,
   autoSize = false,
   autoSizeDefaultWidth = 0,
+  autoSizeCustomPadding,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
@@ -196,6 +197,7 @@ const AutocompleteField = ({
       }}
       autoFocus={autoFocus}
       autoSize={autoSize}
+      autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
       autoSizeDefaultWidth={autoSizeDefaultWidth}
       classes={{
         root: classes.textfield

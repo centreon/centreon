@@ -76,7 +76,15 @@ const autoSizeOptions = [
   { id: 2, name: 'Another third entity option' }
 ];
 
-const AutoSizeAutocompleteField = (): JSX.Element => {
+interface AutoSizeAutocompleteFieldProps {
+  customPadding?: number;
+  endAdornment?: JSX.Element;
+}
+
+const AutoSizeAutocompleteField = ({
+  endAdornment,
+  customPadding
+}: AutoSizeAutocompleteFieldProps): JSX.Element => {
   const [value, setValue] = React.useState(autoSizeOptions[1]);
 
   const change = (_, newValue): void => {
@@ -86,7 +94,8 @@ const AutoSizeAutocompleteField = (): JSX.Element => {
   return (
     <AutocompleteField
       autoSize
-      endAdornment={<EndAdornment />}
+      autoSizeCustomPadding={customPadding}
+      endAdornment={endAdornment}
       label="Autocomplete"
       options={autoSizeOptions}
       placeholder="Type here..."
@@ -98,4 +107,13 @@ const AutoSizeAutocompleteField = (): JSX.Element => {
 
 export const autoSize = (): JSX.Element => {
   return <AutoSizeAutocompleteField />;
+};
+
+export const autoSizeWithCustomPadding = (): JSX.Element => {
+  return (
+    <AutoSizeAutocompleteField
+      customPadding={5}
+      endAdornment={<EndAdornment />}
+    />
+  );
 };
