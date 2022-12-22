@@ -9,7 +9,7 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
-    "test:storyshot": "node testRunner.js storyshots.test.js",
+    "test:storyshot": "pnpm test storyshots.test.js",
     "test:ci": "node testRunner.js --silent --reporter=jest-junit"
   },
   "sideEffects": false,
