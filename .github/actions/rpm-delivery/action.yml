@@ -89,10 +89,11 @@ runs:
           #FOLDER=$(basename $FILE .rpm)
           PROJECT_PATH="standard"
 
+          # Delivery with proper repository structure according to stability
           if [ "${{ inputs.stability }}" == stable ]; then
-            FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
           else
+            FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
             PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
           fi
@@ -107,12 +108,15 @@ runs:
         done
 
         # Cleanup is done on unstable repository only
-        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
-        #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
+        if [ "${{ inputs.stability }}" == unstable ]; then
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
+        fi
 
         # Update repository metadata
+        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
         ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
 
+        # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
         PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         ITERATIONS=1
