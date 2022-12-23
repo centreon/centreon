@@ -152,9 +152,8 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit(`${Cypress.config().baseUrl}`);
-      cy.contains('Login with openid')
-        .click()
-        .loginKeycloack('user-non-admin-for-OIDC-authentication')
+      cy.contains('Login with openid').click();
+      cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
         .should('include', '/monitoring/resources')
