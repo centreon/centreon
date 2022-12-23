@@ -13,6 +13,8 @@ export default defineConfig({
 
     excludeSpecPattern: ['*.js', '*.ts', '*.md'],
     experimentalSessionAndOrigin: true,
+    // We've imported your old cypress plugins here.
+    // You may want to clean this up later by importing these.
     setupNodeEvents,
     specPattern: 'cypress/e2e/**/*.feature'
   },
