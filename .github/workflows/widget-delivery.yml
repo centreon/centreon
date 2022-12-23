@@ -7,6 +7,9 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
       release:
         description: The release number
         required: true
