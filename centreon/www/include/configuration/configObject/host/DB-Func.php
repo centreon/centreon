@@ -438,6 +438,35 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                 $dbResult = $pearDB->query("SELECT MAX(host_id) FROM host");
                 $maxId = $dbResult->fetch();
                 if (isset($maxId["MAX(host_id)"])) {
+                    if (
+                        (bool) $row['host_snmp_is_password'] === true
+                        && ! empty($row['host_snmp_community'])
+                        && preg_match('/^secret::\\d+::/', $row['host_snmp_community'])
+                    ) {
+                        $vaultConfigurations = getVaultConfigurations();
+                        if (! empty($vaultConfigurations)) {
+                            try {
+                                $centreonLog = new CentreonUserLog(-1, $pearDB);
+                                /**
+                                 * @var VaultConfiguration
+                                 */
+                                $vaultConfiguration = $vaultConfigurations[0];
+                                $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
+                                $hostSecrets = getHostSecretsFromVault(
+                                    $vaultConfiguration,
+                                    $key,
+                                    $clientToken
+                                );
+
+                                if (! empty($hostSecrets)) {
+                                    writeSecretsInVault($vaultConfiguration, (int) $maxId["MAX(host_id)"], $clientToken, $hostSecrets, $centreonLog);
+                                    updateHostTablesWithVaultPath($vaultConfiguration, (int) $maxId["MAX(host_id)"], $pearDB);
+                                }
+                            } catch (\Exception $ex) {
+                                error_log((string) $ex);
+                            }
+                        }
+                    }
                     $hostAcl[$maxId['MAX(host_id)']] = $key;
 
                     $dbResult = $pearDB->query("SELECT DISTINCT host_parent_hp_id
@@ -1112,15 +1141,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
 
     //Check if a vault configuration exists
     if (! empty($passwordTypeData)) {
-        $kernel = \App\Kernel::createForWeb();
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository::class
-        );
-
-        /**
-         * @var VaultConfiguration
-         */
-        $vaultConfigurations = $readVaultConfigurationRepository->findVaultConfigurations();
+        $vaultConfigurations = getVaultConfigurations();
 
         //If there is a vault configuration write into vault
         if (! empty($vaultConfigurations)) {
@@ -1129,11 +1150,18 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
              */
             $vaultConfiguration = $vaultConfigurations[0];
             try {
-                $clientToken = authenticateToVault($vaultConfiguration);
-                writeDataInVault($vaultConfiguration, $host_id['MAX(host_id)'], $clientToken, $passwordTypeData);
+                $centreonLog = new CentreonUserLog(-1, $pearDB);
+                $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
+                writeSecretsInVault(
+                    $vaultConfiguration,
+                    $host_id['MAX(host_id)'],
+                    $clientToken,
+                    $passwordTypeData,
+                    $centreonLog
+                );
                 updateHostTablesWithVaultPath($vaultConfiguration, $host_id['MAX(host_id)'], $pearDB);
             } catch (\Exception $ex) {
-                error_log($ex);
+                $centreonLog->insertLog(5, (string) $ex);
             }
         }
     }
@@ -1442,7 +1470,10 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
-    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+    if (
+        $ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE
+        || preg_match('/^secret::\\d+::/', $ret['host_snmp_community'])
+    ) {
         unset($ret['host_snmp_community']);
     }
     $bindParams = sanitizeFormHostParameters($ret);
@@ -1551,6 +1582,49 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         setHostCriticality($host_id, $ret['criticality_id']);
     }
 
+    $passwordTypeData = [];
+    if (
+        array_key_exists('host_snmp_is_password', $ret)
+        && (bool) $ret['host_snmp_is_password'] === true
+        && array_key_exists(':host_snmp_community', $bindParams)
+    ) {
+        $passwordTypeData = [
+            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+        ];
+    }
+
+    //@TODO: Check if Macro value are passwords
+
+    $vaultConfigurations = getVaultConfigurations();
+
+    //If there is a vault configuration write into vault
+    if (! empty($vaultConfigurations)) {
+        try {
+            $centreonLog = new CentreonUserLog(-1, $pearDB);
+            /**
+             * @var VaultConfiguration
+             */
+            $vaultConfiguration = $vaultConfigurations[0];
+            $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
+            $hostSecrets = getHostSecretsFromVault($vaultConfiguration, (int) $host_id, $clientToken);
+
+            if (! empty($passwordTypeData)) {
+                //Replace olds vault values by the new ones
+                foreach($passwordTypeData as $keyName => $value) {
+                    $hostSecrets[$keyName] = $value;
+                }
+                writeSecretsInVault($vaultConfiguration, $host_id, $clientToken, $passwordTypeData, $centreonLog);
+                updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
+            }
+            if (! array_key_exists('host_snmp_is_password', $ret) && ! empty($hostSecrets)) {
+                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken);
+            }
+        } catch (\Throwable $ex) {
+            error_log($ex);
+        }
+    }
+
     /*
      *  Logs
      */
@@ -1600,7 +1674,13 @@ function updateHost_MC($host_id = null)
             unset($ret[$name]);
         }
     }
-
+    if (
+        array_key_exists('host_snmp_community', $ret)
+        && ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE
+        || preg_match('/^secret::\\d+::/', $ret['host_snmp_community']))
+    ) {
+        unset($ret['host_snmp_community']);
+    }
     $bindParams = sanitizeFormHostParameters($ret);
     //If the checkbox is not checked that mean the value is not a password and should be updated as well
     if (! array_key_exists('host_snmp_is_password', $ret)) {
@@ -1662,6 +1742,49 @@ function updateHost_MC($host_id = null)
 
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setHostCriticality($host_id, $ret['criticality_id']);
+    }
+
+    $passwordTypeData = [];
+    if (
+        array_key_exists('host_snmp_is_password', $ret)
+        && (bool) $ret['host_snmp_is_password'] === true
+        && array_key_exists(':host_snmp_community', $bindParams)
+    ) {
+        $passwordTypeData = [
+            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+        ];
+    }
+
+    //@TODO: Check if Macro value are passwords
+
+    $vaultConfigurations = getVaultConfigurations();
+
+    //If there is a vault configuration write into vault
+    if (! empty($vaultConfigurations)) {
+        try {
+            $centreonLog = new CentreonUserLog(-1, $pearDB);
+            /**
+             * @var VaultConfiguration
+             */
+            $vaultConfiguration = $vaultConfigurations[0];
+            $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
+            $hostSecrets = getHostSecretsFromVault($vaultConfiguration, (int) $host_id, $clientToken);
+
+            if (! empty($passwordTypeData)) {
+                //Replace olds vault values by the new ones
+                foreach($passwordTypeData as $keyName => $value) {
+                    $hostSecrets[$keyName] = $value;
+                }
+                writeSecretsInVault($vaultConfiguration, $host_id, $clientToken, $passwordTypeData, $centreonLog);
+                updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
+            }
+            if (! array_key_exists('host_snmp_is_password', $ret) && ! empty($hostSecrets)) {
+                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken);
+            }
+        } catch (\Throwable $ex) {
+            error_log($ex);
+        }
     }
 
     $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $host_id . "' LIMIT 1");
@@ -2808,20 +2931,35 @@ function sanitizeFormHostParameters(array $ret): array
 }
 
 /**
+ * Get vault configurations
+ *
+ * @return VaultConfiguration[]
+ */
+function getVaultConfigurations(): array
+{
+    $kernel = \App\Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository::class
+    );
+
+    return $readVaultConfigurationRepository->findVaultConfigurations();
+}
+
+/**
  * Get Client Token for Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
  * @return string
  * @throws \Exception
  */
-function authenticateToVault(VaultConfiguration $vaultConfiguration): string
+function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonUserLog $centreonLog): string
 {
     $curl = curl_init();
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
     curl_setopt(
         $curl,
         CURLOPT_URL,
-        $vaultConfiguration->getAddress()
-            . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login'
+        $url
     );
     $body = json_encode([
         "role_id" => $vaultConfiguration->getRoleId(),
@@ -2831,50 +2969,85 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration): string
     curl_setopt($curl, CURLOPT_POST, true);
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
     curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+    $centreonLog->insertLog(5, 'Authenticating to Vault: ' . $url);
     $content = curl_exec($curl);
     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
     $loginResponse = json_decode($content, true);
 
     if ((int) $httpcode !== Response::HTTP_OK) {
+        $centreonLog->insertLog(5, $url . "didn't respond with a 200 status");
         throw new \Exception('Unable to authenticate to Vault');
     }
 
     return $loginResponse['auth']['client_token'];
 }
 
-
-function writeDataInVault(
+/**
+ * Write Host secrets data in vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param integer $hostId
+ * @param string $clientToken
+ * @param array $passwordTypeData
+ * @throws \Exception
+ */
+function writeSecretsInVault(
     VaultConfiguration $vaultConfiguration,
     int $hostId,
     string $clientToken,
-    array $passwordTypeData
+    array $passwordTypeData,
+    CentreonUserLog $centreonLog
 ): void {
     $curl = curl_init();
+    $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+        . '/v1/' . $vaultConfiguration->getStorage()
+        . '/centreon/hosts/' . $hostId;
     curl_setopt(
         $curl,
         CURLOPT_URL,
-        $vaultConfiguration->getAddress()
-            . ':' . $vaultConfiguration->getPort() . '/v1/' . $vaultConfiguration->getStorage()
-            . '/centreon/hosts/' . $hostId
+        $url
     );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_POST, true);
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', "X-Vault-Token: " . $clientToken]);
     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($passwordTypeData));
+    $centreonLog->insertLog(5, "Writing Host Secrets at : " . $url);
     curl_exec($curl);
     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
-
     if ($httpcode !== Response::HTTP_NO_CONTENT) {
+        $centreonLog->insertLog(
+            5,
+            sprintf(
+                "Unable to write host secrets into vault, Response code is %d, should be %d",
+                [$httpcode, Response::HTTP_NO_CONTENT]
+            )
+        );
+
         throw new \Exception('Unable to add value to Vault');
     }
+    $centreonLog->insertLog(
+        5,
+        sprintf(
+            "Write successfully secrets in vault: %s",
+            implode(', ', array_keys($passwordTypeData))
+        )
+    );
 }
 
-function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $host_id, \CentreonDB $pearDB): void
+/**
+ * Update host table with secrets path on vault.
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param integer $hostId
+ * @param \CentreonDB $pearDB
+ * @throws \Throwable
+ */
+function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
 {
     $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-                    . "/hosts/" . $host_id;
+                    . "/hosts/" . $hostId;
 
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
@@ -2882,6 +3055,78 @@ function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, i
         SQL
     );
     $statementUpdateHost->bindValue(':path', $path, \PDO::PARAM_STR);
-    $statementUpdateHost->bindValue(':hostId', (int) $host_id);
+    $statementUpdateHost->bindValue(':hostId', (int) $hostId);
     $statementUpdateHost->execute();
+}
+
+/**
+ * Get host secrets data from vault
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param integer $hostId
+ * @param string $clientToken
+ * @return array<string, mixed>
+ * @throws \Throwable
+ */
+function getHostSecretsFromVault(VaultConfiguration $vaultConfiguration, int $hostId, string $clientToken): array
+{
+    $hostSecrets = [];
+
+    $curl = curl_init();
+    curl_setopt(
+        $curl,
+        CURLOPT_URL,
+        $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId
+    );
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', 'X-Vault-Token: ' . $clientToken]);
+    $content = curl_exec($curl);
+    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+    $loginResponse = json_decode($content, true);
+
+    switch($httpcode) {
+        case Response::HTTP_NOT_FOUND:
+            // error_log(sprintf('Host not found in vault: %d', $hostId));
+            break;
+        case Response::HTTP_OK:
+            if (array_key_exists('data', $loginResponse)) {
+                $hostSecrets = $loginResponse['data'];
+            }
+            break;
+        default:
+            throw new \Exception(sprintf('Unable to get secrets for host : %d', $hostId));
+            break;
+    }
+
+    return $hostSecrets;
+}
+
+/**
+ * Get host secrets data from vault
+ *
+ * @param VaultConfiguration $vaultConfiguration
+ * @param integer $hostId
+ * @param string $clientToken
+ * @throws \Throwable
+ */
+function deleteHostFromVault(VaultConfiguration $vaultConfiguration, int $hostId, string $clientToken): void
+{
+    $curl = curl_init();
+    curl_setopt(
+        $curl,
+        CURLOPT_URL,
+        $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId
+    );
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', 'X-Vault-Token: ' . $clientToken]);
+    curl_exec($curl);
+    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+    if ($httpcode !== Response::HTTP_NO_CONTENT) {
+        throw new \Exception(sprintf('Unable to delete secrets for host : %d', $hostId));
+    }
 }
