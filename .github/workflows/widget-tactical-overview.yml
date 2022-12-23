@@ -43,6 +43,7 @@ jobs:
     with:
       widget_name: tactical-overview
       major_version: ${{ needs.get-version.outputs.major_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USER }}
