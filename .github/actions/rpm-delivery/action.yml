@@ -19,6 +19,9 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
+  release:
+    description: The release number
+    required: true
   cache_key:
     description: "The cached package key"
     required: true
@@ -78,11 +81,13 @@ runs:
           echo "[DEBUG] - Arch: $ARCH"
 
           MAJOR=$VERSION
+          RELEASE=${{ inputs.release }}
           DISTRIB=$DISTRIB
           REPOTYPE=${{ inputs.stability }}
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
-          FOLDER=$(basename $FILE .rpm)
+          #FOLDER=$(basename $FILE .rpm)
+          FOLDER="$(basename $FILE .rpm)-$MAJOR-$RELEASE"
           PROJECT_PATH="standard"
           TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
           PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
