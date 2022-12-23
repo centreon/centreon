@@ -13,22 +13,20 @@ export default defineConfig({
 
     excludeSpecPattern: ['*.js', '*.ts', '*.md'],
     experimentalSessionAndOrigin: true,
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
     setupNodeEvents,
-    specPattern: 'cypress/e2e/**/*.feature',
+    specPattern: 'cypress/e2e/**/*.feature'
   },
   env: {
-    dockerName: 'centreon-dev',
+    dockerName: 'centreon-dev'
   },
   execTimeout: 60000,
   reporter: 'junit',
   reporterOptions: {
-    mochaFile: 'cypress/results/dev/reports/junit-report.xml',
+    mochaFile: 'cypress/results/dev/reports/junit-report.xml'
   },
   requestTimeout: 10000,
   retries: 0,
   screenshotsFolder: 'cypress/results/dev/screenshots',
   video: true,
-  videosFolder: 'cypress/results/dev/videos',
+  videosFolder: 'cypress/results/dev/videos'
 });
