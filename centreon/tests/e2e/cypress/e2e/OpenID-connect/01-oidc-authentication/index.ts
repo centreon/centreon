@@ -38,8 +38,6 @@ Given('an administrator is logged on the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .eq(0)
-    .contains('OpenID Connect Configuration')
     .click();
 });
 
@@ -47,10 +45,7 @@ When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
     cy.wait('@getOIDCResponse');
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click();
+    cy.getByLabel({ label: 'Identity provider' }).click();
     configureOpenIDConnect();
   }
 );
@@ -71,8 +66,6 @@ When('the administrator configures the authentication mode', () => {
     rootItemNumber: 4
   })
     .get('div[role="tablist"] button:nth-child(2)')
-    .eq(0)
-    .contains('OpenID Connect Configuration')
     .click();
 });
 
@@ -109,27 +102,17 @@ Given('an administrator is relogged on the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .eq(0)
-    .contains('OpenID Connect Configuration')
-    .click();
+    .click()
+    .wait('@getOIDCResponse');
 });
 
 When(
   'the administrator activates OpenID Connect authentication on the platform',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
+    cy.getByLabel({
+      label: 'Enable OpenID Connect authentication',
+      tag: 'input'
     })
-      .get('div[role="tablist"] button:nth-child(2)')
-      .eq(0)
-      .contains('OpenID Connect Configuration')
-      .click()
-      .wait('@getOIDCResponse')
-      .getByLabel({
-        label: 'Enable OpenID Connect authentication',
-        tag: 'input'
-      })
       .check()
       .getByLabel({ label: 'save button', tag: 'button' })
       .click()
@@ -152,7 +135,7 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit(`${Cypress.config().baseUrl}`);
-      cy.contains('Login with openid').click();
+      cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
