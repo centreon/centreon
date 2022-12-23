@@ -61,8 +61,14 @@ export interface PredefinedRowSelection {
   rowCondition: (row) => boolean;
 }
 
-export interface HeaderTable {
-  backgroundColor: string;
-  color: string;
-  height: number;
+export interface TableStyle {
+  header: {
+    backgroundColor: string;
+    color: string;
+    height: number;
+  };
+  statusColumnChip: {
+    height: number;
+    width: number;
+  };
 }

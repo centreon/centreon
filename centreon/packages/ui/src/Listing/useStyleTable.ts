@@ -1,24 +1,24 @@
 import { useAtomValue } from 'jotai/utils';
 import { isNil } from 'ramda';
 
-import { headerAtom } from './Header/headerAtom';
-import { Column, HeaderTable } from './models';
+import { Column, TableStyle as Style } from './models';
+import { tableStyleAtom } from './TableAtom';
 
-interface StyleTable {
+interface TableStyle {
   checkable?: boolean;
   currentVisibleColumns?: Array<Column>;
 }
 
 interface Table {
+  dataStyle: Style;
   getGridTemplateColumn: string;
-  headerData: HeaderTable;
 }
 
 const useStyleTable = ({
   checkable,
   currentVisibleColumns
-}: StyleTable): Table => {
-  const headerData = useAtomValue(headerAtom);
+}: TableStyle): Table => {
+  const dataStyle = useAtomValue(tableStyleAtom);
 
   const getGridTemplateColumn = (): string => {
     const checkbox = checkable ? 'min-content ' : '';
@@ -39,7 +39,7 @@ const useStyleTable = ({
     return `${checkbox}${columnTemplate}`;
   };
 
-  return { getGridTemplateColumn: getGridTemplateColumn(), headerData };
+  return { dataStyle, getGridTemplateColumn: getGridTemplateColumn() };
 };
 
 export default useStyleTable;

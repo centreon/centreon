@@ -72,9 +72,9 @@ const SortableHeaderCellContent = ({
   style,
   ...props
 }: Props): JSX.Element => {
-  const { headerData } = useStyleTable({});
+  const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({
-    headerData,
+    headerData: dataStyle.header,
     isDragging
   });
   const [cellHovered, setCellHovered] = React.useState(false);

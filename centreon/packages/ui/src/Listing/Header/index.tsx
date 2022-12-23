@@ -102,8 +102,8 @@ const ListingHeader = ({
   onSelectRowsWithCondition,
   memoProps
 }: Props): JSX.Element => {
-  const { headerData } = useStyleTable({});
-  const { classes, cx } = useStyles({ headerData });
+  const { dataStyle } = useStyleTable({});
+  const { classes, cx } = useStyles({ headerData: dataStyle.header });
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,

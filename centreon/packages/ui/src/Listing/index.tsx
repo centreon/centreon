@@ -53,7 +53,7 @@ import {
   RowColorCondition,
   RowId,
   SortOrder,
-  HeaderTable
+  TableStyle
 } from './models';
 import ListingRow from './Row';
 import ListingLoadingSkeleton from './Skeleton';
@@ -80,7 +80,7 @@ const loadingIndicatorHeight = 3;
 
 interface StylesProps {
   getGridTemplateColumn: string;
-  headerData: HeaderTable;
+  headerData: TableStyle['header'];
   rows: Array<unknown>;
 }
 
@@ -211,11 +211,15 @@ const Listing = <TRow extends { id: RowId }>({
     columnConfiguration,
     columns
   });
-  const { headerData, getGridTemplateColumn } = useStyleTable({
+  const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
     currentVisibleColumns
   });
-  const { classes } = useStyles({ getGridTemplateColumn, headerData, rows });
+  const { classes } = useStyles({
+    getGridTemplateColumn,
+    headerData: dataStyle.header,
+    rows
+  });
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
