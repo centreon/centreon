@@ -87,7 +87,7 @@ runs:
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
           #FOLDER=$(basename $FILE .rpm)
-          FOLDER="$PROJECT-$MAJOR-$RELEASE"
+          FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
           PROJECT_PATH="standard"
           TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
           PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
