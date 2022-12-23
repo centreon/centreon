@@ -19,6 +19,9 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
+  minor_version:
+    description: "Centreon packaged version"
+    required: true
   release:
     description: The release number
     required: true
@@ -81,6 +84,7 @@ runs:
           echo "[DEBUG] - Arch: $ARCH"
 
           MAJOR=$VERSION
+          MINOR=${{ inputs.minor_version }}
           RELEASE=${{ inputs.release }}
           DISTRIB=$DISTRIB
           REPOTYPE=${{ inputs.stability }}
@@ -93,7 +97,7 @@ runs:
           if [ "${{ inputs.stability }}" == stable ]; then
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
           else
-            FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
+            FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
             PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
           fi
