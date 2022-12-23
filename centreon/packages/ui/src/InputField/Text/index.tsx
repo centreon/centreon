@@ -16,20 +16,22 @@ import getNormalizedId from '../../utils/getNormalizedId';
 
 import useAutoSize from './useAutoSize';
 
-const useStyles = makeStyles<{ autoSize: boolean }>()(
-  (theme: Theme, { autoSize }) => ({
+const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
+  (theme: Theme, { displayAsBlock }) => ({
     compact: {
       fontSize: 'x-small'
     },
     hiddenText: {
       display: 'table',
+      lineHeight: 0,
       transform: 'scaleY(0)'
     },
     input: {
       fontSize: theme.typography.body1.fontSize
     },
     inputBase: {
-      display: autoSize ? 'block' : 'inline-flex',
+      display: displayAsBlock ? 'block' : 'inline-flex',
+      justifyItems: 'start',
       paddingRight: theme.spacing(1)
     },
     noLabelInput: {
@@ -57,7 +59,7 @@ const OptionalLabelInputAdornment = ({
   position,
   children
 }: OptionalLabelInputAdornmentProps): JSX.Element => {
-  const { classes } = useStyles({ autoSize: false });
+  const { classes } = useStyles({ displayAsBlock: false });
   const noMarginWhenNoLabel = !label && { style: { marginTop: 0 } };
 
   return (
@@ -110,7 +112,9 @@ const TextField = forwardRef(
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
-    const { classes, cx } = useStyles({ autoSize });
+    const { classes, cx } = useStyles({
+      displayAsBlock: autoSize && isNil(StartAdornment) && isNil(EndAdornment)
+    });
 
     const { inputRef, width, changeInputValue, innerValue } = useAutoSize({
       autoSize,
@@ -172,9 +176,11 @@ const TextField = forwardRef(
             }}
           />
         </Tooltip>
-        <Typography className={classes.hiddenText} ref={inputRef}>
-          {rest.value || externalValueForAutoSize || innerValue}
-        </Typography>
+        {autoSize && (
+          <Typography className={classes.hiddenText} ref={inputRef}>
+            {rest.value || externalValueForAutoSize || innerValue}
+          </Typography>
+        )}
       </>
     );
   }

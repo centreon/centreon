@@ -18,7 +18,7 @@ interface UseAutoSizeState {
   width: string;
 }
 
-const defaultPaddingTotal = 4;
+const defaultPaddingTotal = 4.5;
 
 const useAutoSize = ({
   autoSize,
