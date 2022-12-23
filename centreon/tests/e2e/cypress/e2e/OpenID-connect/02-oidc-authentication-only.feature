@@ -1,4 +1,4 @@
-@defaultCommandTimeout(10000)
+@defaultCommandTimeout(20000)
 Feature: OpenID Connect authentication
     As an admin of Centreon Platform
     I want to be able to make use of an external authentication provider
