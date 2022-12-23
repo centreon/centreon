@@ -2,6 +2,7 @@ import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useAtom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, gt, isNil, not, __ } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -31,7 +32,7 @@ import {
   useSnackbar,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
-import { ThemeMode } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import SwitchMode from '../SwitchThemeMode/index';
 import Clock from '../Clock';
@@ -199,6 +200,8 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const { showSuccessMessage } = useSnackbar();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
 
+  const [user, setUser] = useAtom(userAtom);
+
   const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
   const setPasswordResetInformationsAtom = useUpdateAtom(
     passwordResetInformationsAtom
@@ -230,6 +233,10 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
       setHoveredNavigationItems(null);
       navigate(reactRoutes.login);
       showSuccessMessage(t(labelYouHaveBeenLoggedOut));
+      setUser({
+        ...user,
+        themeMode: ThemeMode.light
+      });
     });
   };
 
