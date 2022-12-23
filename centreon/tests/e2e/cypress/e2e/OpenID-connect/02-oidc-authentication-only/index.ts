@@ -49,7 +49,7 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.wait('@getOIDCResponse', { timeout: 4000 });
+    cy.wait('@getOIDCResponse');
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
@@ -64,6 +64,10 @@ When(
         tag: 'input'
       })
       .check();
+    cy.getByLabel({ label: 'Identity provider' })
+      .eq(0)
+      .contains('Identity provider')
+      .click();
     configureOpenIDConnect();
     cy.wait('@updateOIDCResponse')
       .its('response.statusCode')
