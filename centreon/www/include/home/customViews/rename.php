@@ -40,7 +40,6 @@ require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
-require_once _CENTREON_PATH_ . "www/class/HtmlAnalyzer.php";
 
 session_start();
 session_write_close();
