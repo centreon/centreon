@@ -30,25 +30,25 @@ const removeContact = (): Cypress.Chainable => {
 
 const configureOpenIDConnect = (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Base URL', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.baseUrl);
   cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.authEndpoint);
   cy.getByLabel({ label: 'Token endpoint', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.tokenEndpoint);
   cy.getByLabel({ label: 'Client ID', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.clientID);
   cy.getByLabel({ label: 'Client secret', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.clientSecret);
   cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.loginAttrPath);
   cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
-    .clear()
+    .clear({ force: true })
     .type(oidcConfigValues.introspectionTokenEndpoint);
   cy.getByLabel({
     label: 'Use basic authentication for token endpoint authentication',
