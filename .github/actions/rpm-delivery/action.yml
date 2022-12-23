@@ -87,10 +87,15 @@ runs:
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
           #FOLDER=$(basename $FILE .rpm)
-          FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
           PROJECT_PATH="standard"
-          TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
-          PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+
+          if [ "${{ inputs.stability }}" == stable ]; then
+            FOLDER="centreon-$PROJECT-$MAJOR-$RELEASE"
+            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
+          else
+            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
+            PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+          fi
 
           echo "[DEBUG] - Folder: $FOLDER"
           echo "[DEBUG] - Project : $PROJECT"
@@ -101,8 +106,11 @@ runs:
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
         done
 
+        # Cleanup is done on unstable repository only
         METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
         #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
+
+        # Update repository metadata
         ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
 
         ID="${{ inputs.cloudfront_id }}"

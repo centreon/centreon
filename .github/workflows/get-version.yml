@@ -89,10 +89,10 @@ jobs:
             develop | dev-[2-9][0-9].[0-9][0-9].x)
               STABILITY="unstable"
               ;;
-            release* | hotfix* | add-rpm-repository-cleanup)
+            release* | hotfix*)
               STABILITY="testing"
               ;;
-            master | [2-9][0-9].[0-9][0-9].x)
+            master | [2-9][0-9].[0-9][0-9].x  | add-rpm-repository-cleanup)
               STABILITY="stable"
               ;;
             *)
