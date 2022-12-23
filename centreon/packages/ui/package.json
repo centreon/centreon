@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.10-MON-add-autosize-autocomplete.0",
+  "version": "23.4.10-MON-add-autosize-autocomplete.1",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
