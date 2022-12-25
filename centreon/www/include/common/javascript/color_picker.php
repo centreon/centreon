@@ -34,7 +34,6 @@
  * SVN : $URL$
  * SVN : $Id$
  */
-require_once __DIR__ . '/../../../class/HtmlAnalyzer.php';
 
 $n = "";
 $name = "";
@@ -49,25 +48,12 @@ function filter_get($str)
     return null;
 }
 
-if (function_exists("filter_var")) {
-    $n = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["n"]);
-    $name = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["name"]);
-    $title = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["title"]);
-    if (isset($_GET["hcolor"])) {
-        $hcolor = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["hcolor"]);
-    }
-} else {
-    $n = filter_get($_GET["n"]);
-    $name = filter_get($_GET["name"]);
-    $title = filter_get($_GET["title"]);
-    if (isset($_GET["hcolor"])) {
-        $hcolor = filter_get($_GET["hcolor"]);
-    }
+$n = htmlspecialchars(filter_get($_GET["n"]), ENT_QUOTES, 'UTF-8');
+$name = htmlspecialchars(filter_get($_GET["name"]), ENT_QUOTES, 'UTF-8');
+$title = htmlspecialchars(filter_get($_GET["title"]), ENT_QUOTES, 'UTF-8');
+if (isset($_GET["hcolor"])) {
+    $hcolor = htmlspecialchars(filter_get($_GET["hcolor"]), ENT_QUOTES, 'UTF-8');
 }
-$n = htmlspecialchars($n, ENT_QUOTES, 'UTF-8');
-$name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-$title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-$hcolor = htmlspecialchars($hcolor, ENT_QUOTES, 'UTF-8');
 $name1 = $n . "";
 $name2 = $n . "_color";
 
