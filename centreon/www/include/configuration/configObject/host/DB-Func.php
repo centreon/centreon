@@ -459,7 +459,8 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 $hostSecrets = getHostSecretsFromVault(
                                     $vaultConfiguration,
                                     $key,
-                                    $clientToken
+                                    $clientToken,
+                                    $centreonLog
                                 );
 
                                 if (! empty($hostSecrets)) {
@@ -3090,7 +3091,7 @@ function getHostSecretsFromVault(
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', 'X-Vault-Token: ' . $clientToken]);
-    $centreonLog->insertLog(5, sprintf("Search Host %d secrets at : %s", [$hostId, $url]));
+    $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $content = curl_exec($curl);
     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
