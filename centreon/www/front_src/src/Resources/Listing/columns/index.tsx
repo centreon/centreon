@@ -60,7 +60,6 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
     color: isHovered
       ? theme.palette.text.primary
       : theme.palette.text.secondary,
-    lineHeight: 1,
     paddingLeft: theme.spacing(0.5)
   }
 }));
@@ -108,7 +107,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'status_severity_code',
     sortable: true,
     type: ColumnType.component,
-    width: 'minmax(100px, max-content)'
+    width: 'minmax(110px, max-content)'
   },
   {
     Component: ResourceColumn,
@@ -118,7 +117,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['icon', 'short_type', 'name'],
     sortField: 'name',
     sortable: true,
-    type: ColumnType.component
+    type: ColumnType.component,
+    width: 'minmax(100px, max-content)'
   },
   {
     Component: ParentResourceColumn,
@@ -128,7 +128,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['parent'],
     sortField: 'parent_name',
     sortable: true,
-    type: ColumnType.component
+    type: ColumnType.component,
+    width: 'minmax(100px, max-content)'
   },
   {
     Component: NotesUrlColumn,
@@ -165,14 +166,16 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelDuration),
     sortField: 'last_status_change',
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(100px, max-content)'
   },
   {
     getFormattedString: ({ tries }): string => tries,
     id: 'tries',
     label: t(labelTries),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(100px, max-content)'
   },
   {
     getFormattedString: ({ last_check }): string => last_check,
@@ -180,7 +183,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelLastCheck),
     sortable: true,
     type: ColumnType.string,
-    width: 'minmax(110px, max-content)'
+    width: 'minmax(190px, max-content)'
   },
   {
     getFormattedString: pipe(
@@ -193,7 +196,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelInformation),
     sortable: false,
     type: ColumnType.string,
-    width: 'minmax(100px, 1fr)'
+    width: 'minmax(100px, max-content)'
   },
   {
     Component: StateColumn,
@@ -202,14 +205,16 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelState),
     rowMemoProps: ['in_downtime', 'acknowledged', 'name', 'links'],
     sortable: false,
-    type: ColumnType.component
+    type: ColumnType.component,
+    width: 'minmax(100px, max-content)'
   },
   {
     getFormattedString: ({ alias }): string => alias,
     id: 'alias',
     label: t(labelAlias),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'minmax(100px, max-content)'
   },
   {
     Component: ParentAliasColumn,
@@ -220,7 +225,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'parent_alias',
     sortable: true,
     type: ColumnType.string,
-    width: 'minmax(120px, max-content)'
+    width: 'minmax(150px, max-content)'
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
@@ -237,7 +242,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelMonitoringServer),
     sortable: true,
     type: ColumnType.string,
-    width: 'minmax(150px, max-content)'
+    width: 'minmax(190px, max-content)'
   },
   {
     Component: NotificationColumn,

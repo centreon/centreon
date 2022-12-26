@@ -12,7 +12,11 @@ import { getVisibleColumns, Props as ListingProps } from '..';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
 import Checkbox from '../Checkbox';
-import { Column, HeaderTable, PredefinedRowSelection } from '../models';
+import {
+  Column,
+  TableStyleAtom as TableStyle,
+  PredefinedRowSelection
+} from '../models';
 import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
 import useStyleTable from '../useStyleTable';
 
@@ -28,10 +32,10 @@ const HeaderCell = withStyles(TableCell, (theme) => ({
 }));
 
 interface StylesProps {
-  headerData: HeaderTable;
+  headerStyle: TableStyle['header'];
 }
 
-const useStyles = makeStyles<StylesProps>()((theme, { headerData }) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { headerStyle }) => ({
   CheckboxHeaderCell: {
     alignItems: 'center',
     borderBottom: 'none',
@@ -40,17 +44,14 @@ const useStyles = makeStyles<StylesProps>()((theme, { headerData }) => ({
     minWidth: theme.spacing(51 / 8)
   },
   checkBox: {
-    color: headerData.color
-  },
-  compactCell: {
-    paddingLeft: theme.spacing(0.5)
+    color: headerStyle.color
   },
 
   headerLabelDragging: {
     cursor: 'grabbing'
   },
   predefinedRowsMenu: {
-    color: headerData.color,
+    color: headerStyle.color,
     width: theme.spacing(2)
   },
   row: {
@@ -103,7 +104,7 @@ const ListingHeader = ({
   memoProps
 }: Props): JSX.Element => {
   const { dataStyle } = useStyleTable({});
-  const { classes, cx } = useStyles({ headerData: dataStyle.header });
+  const { classes, cx } = useStyles({ headerStyle: dataStyle.header });
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -156,7 +157,6 @@ const ListingHeader = ({
               }
               inputProps={{ 'aria-label': 'Select all' }}
               onChange={onSelectAllClick}
-              // className={classes.compactCell}
             />
             {not(isEmpty(predefinedRowsSelection)) && (
               <PopoverMenu

@@ -11,6 +11,8 @@ import {
   Theme
 } from '@mui/material';
 
+import useStyleTable from '../useStyleTable';
+
 import { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Props {
@@ -46,12 +48,9 @@ const getBackgroundColor = ({
 const useStyles = makeStyles<Props>()(
   (
     theme,
-    { isRowHovered, row, rowColorConditions, disableRowCondition, compact }
+    { isRowHovered, row, rowColorConditions, disableRowCondition, color }
   ) => ({
     root: {
-      '&:last-child': {
-        // paddingRight: theme.spacing(compact ? 0 : 2)
-      },
       alignItems: 'center',
       backgroundColor: getBackgroundColor({
         disableRowCondition,
@@ -62,8 +61,15 @@ const useStyles = makeStyles<Props>()(
       }),
       borderBottom: `1px solid ${theme.palette.divider}`,
       display: 'flex',
+      'div:nth-child(n)': {
+        alignItems: 'center',
+        display: 'flex'
+      },
       height: '100%',
       overflow: 'hidden',
+      p: {
+        color
+      },
       padding: 0,
       whiteSpace: 'nowrap'
     }
@@ -75,27 +81,26 @@ interface Props
       DataCellProps,
       'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
     >,
-    TableCellProps {
-  compact?: boolean;
-}
+    TableCellProps {}
 
 const Cell = (props: Props): JSX.Element => {
-  const { classes } = useStyles(props);
+  const { row } = props;
+  const { colorBodyCell } = useStyleTable({
+    severityCode: row?.status?.severity_code
+  });
+
+  const { classes, cx } = useStyles({ ...props, color: colorBodyCell });
 
   const { children } = props;
 
   return (
     <TableCell
-      classes={{ root: classes.root }}
+      classes={{
+        root: cx(classes.root)
+      }}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       {...omit(
-        [
-          'isRowHovered',
-          'row',
-          'rowColorConditions',
-          'compact',
-          'disableRowCondition'
-        ],
+        ['isRowHovered', 'row', 'rowColorConditions', 'disableRowCondition'],
         props
       )}
     >

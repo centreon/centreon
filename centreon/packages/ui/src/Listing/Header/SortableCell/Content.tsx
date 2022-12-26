@@ -11,28 +11,30 @@ import {
 } from '@mui/material';
 
 import { Props as ListingProps } from '../..';
-import { Column, HeaderTable } from '../../models';
+import { Column, TableStyleAtom as TableStyle } from '../../models';
 import useStyleTable from '../../useStyleTable';
 import HeaderLabel from '../Label';
 
 import DraggableIcon from './DraggableIconIcon';
 
-type StylesProps = Pick<Props, 'isDragging'> & { headerData: HeaderTable };
+type StylesProps = Pick<Props, 'isDragging'> & {
+  headerStyle: TableStyle['header'];
+};
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, headerData }) => ({
+  (theme, { isDragging, headerStyle }) => ({
     active: {
       '&.Mui-active': {
         '& .MuiTableSortLabel-icon': {
-          color: headerData.color
+          color: headerStyle.color
         },
-        color: headerData.color
+        color: headerStyle.color
       },
       '&:hover': {
         '& .MuiTableSortLabel-icon': {
           opacity: 1
         },
-        color: headerData.color
+        color: headerStyle.color
       }
     },
     content: {
@@ -74,7 +76,7 @@ const SortableHeaderCellContent = ({
 }: Props): JSX.Element => {
   const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({
-    headerData: dataStyle.header,
+    headerStyle: dataStyle.header,
     isDragging
   });
   const [cellHovered, setCellHovered] = React.useState(false);
@@ -114,7 +116,6 @@ const SortableHeaderCellContent = ({
   return (
     <TableCell
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
-      padding={column.compact ? 'none' : 'normal'}
       onMouseOut={mouseOut}
       onMouseOver={mouseOver}
     >

@@ -1,6 +1,7 @@
 import React from 'react';
 
 export interface User {
+  ResourceStatusViewMode: ResourceStatusViewMode;
   alias: string;
   default_page?: string | null;
   isExportButtonEnabled: boolean;
@@ -14,6 +15,11 @@ export interface User {
 export enum ThemeMode {
   dark = 'dark',
   light = 'light'
+}
+
+export enum ResourceStatusViewMode {
+  compact = 'compact',
+  extended = 'extended'
 }
 
 export interface CloudServices {

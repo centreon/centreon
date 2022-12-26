@@ -5,6 +5,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
 
+import { ResourceStatusViewMode as ViewMode } from '@centreon/ui-context';
+
 import DraggableIcon from '../Header/SortableCell/DraggableIconIcon';
 import {
   Column,
@@ -12,6 +14,7 @@ import {
   ComponentColumnProps,
   RowColorCondition
 } from '../models';
+import useStyleTable from '../useStyleTable';
 
 import EllipsisTypography from './EllipsisTypography';
 
@@ -24,6 +27,7 @@ interface Props {
   isRowSelected: boolean;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
+  viewMode?: ViewMode;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -33,11 +37,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     height: '100%',
     overflow: 'hidden',
-    // padding: 0,
     whiteSpace: 'nowrap'
   },
   componentColumn: {
-    width: theme.spacing(2.25)
+    width: theme.spacing(2.75)
   },
   headerCell: {
     padding: theme.spacing(0, 0, 0, 1)
@@ -58,13 +61,14 @@ const DataCell = ({
   isRowSelected,
   isRowHovered,
   rowColorConditions,
-  disableRowCondition
+  disableRowCondition,
+  viewMode
 }: Props): JSX.Element | null => {
+  const { dataStyle } = useStyleTable({ viewMode });
   const { classes } = useStyles();
 
   const commonCellProps = {
     align: 'left' as const,
-    compact: column.compact,
     disableRowCondition,
     isRowHovered,
     row,
@@ -83,6 +87,7 @@ const DataCell = ({
 
       const typography = (
         <EllipsisTypography
+          dataStyle={dataStyle}
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
           isRowHovered={isRowHovered}
@@ -137,6 +142,7 @@ const DataCell = ({
                 return (
                   <EllipsisTypography
                     className={className}
+                    dataStyle={dataStyle}
                     disableRowCondition={disableRowCondition(row)}
                     formattedString={formattedString}
                     isRowHovered={isRowHovered}

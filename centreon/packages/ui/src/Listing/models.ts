@@ -61,7 +61,11 @@ export interface PredefinedRowSelection {
   rowCondition: (row) => boolean;
 }
 
-export interface TableStyle {
+export interface TableStyleAtom {
+  body: {
+    fontSize: string;
+    height: number;
+  };
   header: {
     backgroundColor: string;
     color: string;

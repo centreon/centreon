@@ -37,6 +37,8 @@ import {
   useTheme
 } from '@mui/material';
 
+import { ResourceStatusViewMode as ViewMode } from '@centreon/ui-context';
+
 import useKeyObserver from '../utils/useKeyObserver';
 import useMemoComponent from '../utils/useMemoComponent';
 
@@ -53,7 +55,7 @@ import {
   RowColorCondition,
   RowId,
   SortOrder,
-  TableStyle
+  TableStyleAtom as TableStyle
 } from './models';
 import ListingRow from './Row';
 import ListingLoadingSkeleton from './Skeleton';
@@ -79,13 +81,14 @@ const getVisibleColumns = ({
 const loadingIndicatorHeight = 3;
 
 interface StylesProps {
+  dataStyle: TableStyle;
   getGridTemplateColumn: string;
-  headerData: TableStyle['header'];
   rows: Array<unknown>;
+  viewMode: ViewMode;
 }
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { headerData, getGridTemplateColumn, rows }) => ({
+  (theme, { dataStyle, getGridTemplateColumn, rows }) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
@@ -114,14 +117,14 @@ const useStyles = makeStyles<StylesProps>()(
       alignItems: 'center',
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
-      gridTemplateRows: `${theme.spacing(headerData.height / 8)} repeat(${
+      gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
         rows?.length
-      },30px)`,
+      }, ${dataStyle.body.height}px)`,
       position: 'relative',
       'thead div:nth-child(n)': {
-        backgroundColor: headerData.backgroundColor,
-        color: headerData.color,
-        height: headerData.height,
+        backgroundColor: dataStyle.header.backgroundColor,
+        color: dataStyle.header.color,
+        height: dataStyle.header.height,
         padding: 0
       }
     },
@@ -166,6 +169,7 @@ export interface Props<TRow> {
   sortField?: string;
   sortOrder?: SortOrder;
   totalRows?: number;
+  viewMode: ViewMode;
   widthToMoveTablePagination?: number;
 }
 
@@ -205,6 +209,7 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
   moveTablePagination,
+  viewMode,
   widthToMoveTablePagination
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
@@ -213,12 +218,15 @@ const Listing = <TRow extends { id: RowId }>({
   });
   const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
-    currentVisibleColumns
+    currentVisibleColumns,
+    viewMode
   });
+
   const { classes } = useStyles({
+    dataStyle,
     getGridTemplateColumn,
-    headerData: dataStyle.header,
-    rows
+    rows,
+    viewMode
   });
   const { t } = useTranslation();
 
@@ -595,6 +603,7 @@ const Listing = <TRow extends { id: RowId }>({
                         key={`${getId(row)}-${column.id}`}
                         row={row}
                         rowColorConditions={rowColorConditions}
+                        viewMode={viewMode}
                       />
                     ))}
                   </ListingRow>
@@ -655,6 +664,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   columnConfiguration,
   moveTablePagination,
   widthToMoveTablePagination,
+  viewMode,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -675,6 +685,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortField={sortField}
         sortOrder={sortOrder}
         totalRows={totalRows}
+        viewMode={viewMode}
         widthToMoveTablePagination={widthToMoveTablePagination}
         {...props}
       />
@@ -697,7 +708,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       selectedRows,
       sortOrder,
       sortField,
-      innerScrollDisabled
+      innerScrollDisabled,
+      viewMode
     ]
   });
 

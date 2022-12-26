@@ -4,11 +4,18 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+import { TableStyleAtom as TableStyle } from '../models';
+
+interface StylesProps {
+  body: TableStyle['body'];
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { body }) => ({
   rowNotHovered: {
     color: theme.palette.text.secondary
   },
   text: {
+    fontSize: body.fontSize,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
@@ -17,6 +24,7 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Ellipsis {
   className?: string;
+  dataStyle: TableStyle;
   disableRowCondition: boolean;
   formattedString: string;
   isRowHovered: boolean;
@@ -25,16 +33,16 @@ const EllipsisTypography = ({
   formattedString,
   isRowHovered,
   disableRowCondition,
-  className
+  className,
+  dataStyle
 }: Ellipsis): JSX.Element => {
-  const { cx, classes } = useStyles();
+  const { cx, classes } = useStyles({ body: dataStyle.body });
 
   return (
     <Typography
       className={cx(className, classes.text, {
         [classes.rowNotHovered]: !isRowHovered || disableRowCondition
       })}
-      variant="body2"
     >
       {formattedString}
     </Typography>

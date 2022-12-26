@@ -1,6 +1,7 @@
-import { User, ThemeMode } from './types';
+import { User, ThemeMode, ResourceStatusViewMode } from './types';
 
 const defaultUser: User = {
+  ResourceStatusViewMode: ResourceStatusViewMode.compact,
   alias: '',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: false,

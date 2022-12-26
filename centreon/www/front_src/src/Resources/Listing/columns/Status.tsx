@@ -29,7 +29,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexWrap: 'nowrap',
-    gridGap: theme.spacing(0.5),
+    gridGap: theme.spacing(0.25),
     justifyContent: 'center'
   },
   statusColumn: {

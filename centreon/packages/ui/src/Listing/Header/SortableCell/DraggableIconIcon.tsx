@@ -17,7 +17,7 @@ const DraggableIcon = ({
   return (
     <SvgIcon
       aria-label={columnLabel}
-      fontSize="small"
+      fontSize="medium"
       {...rest}
       className={className}
     >

@@ -55,7 +55,7 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
     },
     [SeverityCode.Ok]: {
       backgroundColor:
-        lightGreen[equals(ThemeMode.dark, theme.palette.mode) ? 900 : 600],
+        lightGreen[equals(ThemeMode.dark, theme.palette.mode) ? 800 : 600],
       color: palette.text.primary
     },
     [SeverityCode.None]: {
@@ -87,13 +87,15 @@ const useStyles = makeStyles<StylesProps>()(
       '& .MuiChip-label': {
         alignItems: 'center',
         display: 'flex',
-        height: '100%'
+        height: '100%',
+        padding: 0
       }
     },
     statusColumnContainer: {
       fontWeight: 'bold',
       height: data.height,
-      width: data.width
+      marginLeft: 1,
+      minWidth: theme.spacing((data.width - 1) / 8)
     }
   })
 );

@@ -5,6 +5,7 @@ import { useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
 
+import { userAtom } from '@centreon/ui-context';
 import { MemoizedListing as Listing, useSnackbar } from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
@@ -67,6 +68,7 @@ const ResourceListing = (): JSX.Element => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
+  const { ResourceStatusViewMode } = useAtomValue(userAtom);
 
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -212,6 +214,7 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
+      viewMode={ResourceStatusViewMode}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}

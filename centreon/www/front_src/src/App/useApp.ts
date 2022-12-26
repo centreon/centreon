@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 
+import { useAtom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +12,8 @@ import {
   aclAtom,
   Actions,
   downtimeAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import useNavigation from '../Navigation/useNavigation';
@@ -57,6 +59,7 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
+  const [user, setUser] = useAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
@@ -110,6 +113,10 @@ const useApp = (): UseAppState => {
           sticky: retrievedParameters.monitoring_default_acknowledgement_sticky,
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
+        });
+        setUser({
+          ...user,
+          ResourceStatusViewMode: retrievedParameters.resource_status_view_mode
         });
       })
       .catch((error) => {
