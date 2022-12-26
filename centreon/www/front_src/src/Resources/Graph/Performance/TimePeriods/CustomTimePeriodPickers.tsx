@@ -240,8 +240,8 @@ const CustomTimePeriodPickers = ({
         onClose={closePopover}
       >
         <LocalizationProvider
+          adapterLocale={locale.substring(0, 2)}
           dateAdapter={Adapter}
-          locale={locale.substring(0, 2)}
         >
           <div className={classes.popover}>
             <div>

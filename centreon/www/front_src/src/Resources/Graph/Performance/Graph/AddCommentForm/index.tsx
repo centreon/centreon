@@ -36,7 +36,7 @@ const AddCommentForm = ({
   onSuccess,
   resource,
   date
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { toIsoString, toDateTime } = useLocaleDateTimeFormat();
   const { showSuccessMessage } = useSnackbar();
