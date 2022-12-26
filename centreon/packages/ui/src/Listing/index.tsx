@@ -81,6 +81,8 @@ const getVisibleColumns = ({
 const loadingIndicatorHeight = 3;
 
 interface StylesProps {
+  checkable: boolean;
+  currentVisibleColumns: Array<Column>;
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
   rows: Array<unknown>;
@@ -88,7 +90,10 @@ interface StylesProps {
 }
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { dataStyle, getGridTemplateColumn, rows }) => ({
+  (
+    theme,
+    { dataStyle, getGridTemplateColumn, rows, checkable, currentVisibleColumns }
+  ) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
@@ -104,7 +109,13 @@ const useStyles = makeStyles<StylesProps>()(
       width: '100%'
     },
     emptyDataCell: {
-      paddingLeft: theme.spacing(2)
+      flexDirection: 'column',
+      gridColumn: `auto / span ${
+        checkable
+          ? currentVisibleColumns.length + 1
+          : currentVisibleColumns.length
+      }`,
+      justifyContent: 'center'
     },
     emptyDataRow: {
       display: 'contents'
@@ -223,6 +234,8 @@ const Listing = <TRow extends { id: RowId }>({
   });
 
   const { classes } = useStyles({
+    checkable,
+    currentVisibleColumns,
     dataStyle,
     getGridTemplateColumn,
     rows,
@@ -572,7 +585,6 @@ const Listing = <TRow extends { id: RowId }>({
                   >
                     {checkable && (
                       <Cell
-                        // compact
                         align="left"
                         className={classes.checkbox}
                         disableRowCondition={disableRowCondition}
@@ -620,11 +632,6 @@ const Listing = <TRow extends { id: RowId }>({
                     className={classes.emptyDataCell}
                     disableRowCondition={(): boolean => false}
                     isRowHovered={false}
-                    style={{
-                      gridColumn: `auto / span ${
-                        checkable ? columns.length + 1 : columns.length
-                      }`
-                    }}
                   >
                     {loading ? (
                       <ListingLoadingSkeleton />

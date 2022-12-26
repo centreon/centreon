@@ -53,7 +53,7 @@ const useStyleTable = ({
   };
 
   const getGridTemplateColumn = (): string => {
-    const checkbox = checkable ? 'min-content ' : '';
+    const checkbox = checkable ? '50px ' : '';
 
     const columnTemplate = currentVisibleColumns
       ?.map(({ width, shortLabel }) => {
