@@ -36,8 +36,8 @@ jobs:
 
               #echo $CHECKS | grep -E -i -c '\s+success\s+'
 
-              gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
-              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
+              gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
+              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
               echo $CHECKS
 
               if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
