@@ -24,7 +24,7 @@ jobs:
           sleep 10s
 
           ITERATIONS=1
-          while [[ $ITERATIONS -le 30 ]]; do
+          while [[ $ITERATIONS -le 60 ]]; do
               #CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r .conclusion // "pending")
               #echo before
               #echo $CHECKS
@@ -39,6 +39,11 @@ jobs:
 
               CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"')
               echo $CHECK_SUITES
+
+              if [ $(echo $CHECK_SUITES | wc -w) -eq 1 ]; then
+                  echo "this job is the only triggered one"
+                  exit 0
+              fi
 
               if [ $(echo $CHECK_SUITES | grep -o -i 'failure' | wc -l) -gt 0 ]; then
                   echo "some jobs are failed"
@@ -65,7 +70,7 @@ jobs:
               #    fi
               #fi
 
-              if [ $ITERATIONS -lt 30 ]; then
+              if [ $ITERATIONS -lt 60 ]; then
                   echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/30)"
                   sleep 60s
               fi
