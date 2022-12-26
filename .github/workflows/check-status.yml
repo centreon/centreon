@@ -26,15 +26,18 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 30 ]]; do
-              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
-              echo before
-              echo $CHECKS
-              echo after
-              echo $(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites)
-              CHECKS="$(gh pr checks ${{ github.event.number }})" || true
-              echo $CHECKS
+              #CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
+              #echo before
+              #echo $CHECKS
+              #echo after
+              #echo $(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites)
+              #CHECKS="$(gh pr checks ${{ github.event.number }})" || true
+              #echo $CHECKS
 
-              echo $CHECKS | grep -E -i -c '\s+success\s+'
+              #echo $CHECKS | grep -E -i -c '\s+success\s+'
+
+              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-runs | jq '.check_runs[].status')
+              echo $CHECKS
 
               if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
                   echo "some jobs are failed"
