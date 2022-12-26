@@ -55,6 +55,6 @@ runs:
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: ${{ always() }}
       with:
-        check_name: web-e2e-tests-report
+        check_name: e2e-tests-report-${{ steps.formatFeatureFilePath.outputs.value }}
         comment_mode: failures
         junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml
