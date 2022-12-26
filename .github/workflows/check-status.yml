@@ -21,11 +21,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          echo ${{ github.workflow }}
           sleep 10s
 
           ITERATIONS=1
-          while [[ $ITERATIONS -le 30 ]]; do
+          while [[ $ITERATIONS -le 2 ]]; do
               #CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
               #echo before
               #echo $CHECKS
@@ -36,6 +35,7 @@ jobs:
 
               #echo $CHECKS | grep -E -i -c '\s+success\s+'
 
+              gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
               CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
               echo $CHECKS
 
@@ -50,7 +50,7 @@ jobs:
                   exit 0
               fi
 
-              if [ $ITERATIONS -lt 30 ]; then
+              if [ $ITERATIONS -lt 2 ]; then
                   echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/30)"
                   sleep 60s
               fi
