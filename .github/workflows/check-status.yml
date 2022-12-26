@@ -26,7 +26,7 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 2 ]]; do
-              #CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
+              #CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r .conclusion // "pending")
               #echo before
               #echo $CHECKS
               #echo after
@@ -38,6 +38,7 @@ jobs:
 
               gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
               CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
+              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"')
               echo $CHECKS
 
               if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
