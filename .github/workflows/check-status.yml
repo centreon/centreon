@@ -1,7 +1,7 @@
 name: check-status
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.number || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
@@ -25,9 +25,11 @@ jobs:
 
           ITERATIONS=1
           while [[ $ITERATIONS -le 30 ]]; do
-              #CHECKS="$(gh pr checks ${{ github.event.number }})" || true
-              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/31fd34b42439de3470697a1a48497b9927157edb/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
+              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/$(git rev-parse HEAD)/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq .conclusion)
               echo $CHECKS
+              CHECKS="$(gh pr checks ${{ github.event.number }})" || true
+              echo $CHECKS
+
               echo $CHECKS | grep -E -i -c '\s+success\s+'
 
               if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
@@ -53,4 +55,4 @@ jobs:
           exit 1
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
