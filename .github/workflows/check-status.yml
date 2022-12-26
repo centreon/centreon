@@ -36,21 +36,35 @@ jobs:
 
               #echo $CHECKS | grep -E -i -c '\s+success\s+'
 
-              gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
-              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
-              CHECKS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"')
-              echo $CHECKS
+              #gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"'
 
-              if [ $(echo $CHECKS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
+              CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"')
+              echo $CHECK_SUITES
+
+              if [ $(echo $CHECK_SUITES | grep -E -i -c '(^|\s+)failure($|\s+)') -gt 0 ]; then
                   echo "some jobs are failed"
                   exit 1
               fi
 
               # only remaining pending job should be check-status itself
-              if [ $(echo $CHECKS | grep -E -i -c '\s+pending\s+') -eq 1 ]; then
+              if [ $(echo $CHECK_SUITES | grep -E -i -c '(^|\s+)pending($|\s+)') -eq 1 ]; then
                   echo "all jobs are passed"
                   exit 0
               fi
+
+              #if [ $(echo $CHECK_SUITES | grep -E -i -c '(^|\s+)pending\s+') -eq 1 ]; then
+              #    CHECK_RUNS=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-runs | jq -r '.check_runs[] | .conclusion // "pending"')
+              #    if [ $(echo $CHECK_RUNS | grep -E -i -c '\s+fail\s+') -gt 0 ]; then
+              #        echo "some jobs are failed"
+              #        exit 1
+              #    fi
+
+                  # only remaining pending job should be check-status itself
+              #    if [ $(echo $CHECKS | grep -E -i -c '\s+pending\s+') -eq 1 ]; then
+              #        echo "all jobs are passed"
+              #        exit 0
+              #    fi
+              #fi
 
               if [ $ITERATIONS -lt 2 ]; then
                   echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/30)"
