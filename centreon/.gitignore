@@ -71,3 +71,5 @@ docker-compose.yml
 # Php-CS-Fixer output file
 checkstyle.core.xml
 .swc
+junit.xml
+

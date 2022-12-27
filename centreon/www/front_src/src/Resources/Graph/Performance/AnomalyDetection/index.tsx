@@ -2,24 +2,26 @@ import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useUpdateAtom } from 'jotai/utils';
+import { useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, Dialog, Paper, Typography } from '@mui/material';
+import { Button, Dialog, Paper } from '@mui/material';
 
 import {
   labelClose,
-  labelEditAnomalyDetectionConfirmation,
-  labelEditAnomalyDetectionClosing,
-  labelSave,
-  labelConfirm
+  labelCloseEditModal,
+  labelModalConfirmation,
+  labelModalEditAnomalyDetection
 } from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
 import AnomalyDetectionExclusionPeriod from './AnomalyDetectionExclusionPeriod';
 import AnomalyDetectionModalConfirmation from './AnomalyDetectionModalConfirmation';
-import AnomalyDetectionSlider from './AnomalyDetectionSlider';
 import { CustomFactorsData } from './models';
-import { countedRedCirclesAtom } from './anomalyDetectionAtom';
+import {
+  countedRedCirclesAtom,
+  showModalAnomalyDetectionAtom
+} from './anomalyDetectionAtom';
 
 const useStyles = makeStyles()((theme) => ({
   close: {
@@ -53,25 +55,25 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-interface PropsChildren {
+interface GraphProps {
   factorsData?: CustomFactorsData | null;
-  getFactors?: (data: CustomFactorsData) => void;
-  isEnvelopeResizingCanceled?: boolean;
-  isResizeEnvelope?: boolean;
-  openModalConfirmation?: (value: boolean) => void;
-  setIsResizeEnvelope?: Dispatch<SetStateAction<boolean>>;
+}
+interface SliderProps {
+  getFactors: (data: CustomFactorsData) => void;
+  isEnvelopeResizingCanceled: boolean;
+  isResizingEnvelope: boolean;
+  openModalConfirmation: (value: boolean) => void;
+  setIsResizingEnvelope: Dispatch<SetStateAction<boolean>>;
 }
 
 interface Props {
-  children: (args: PropsChildren) => ReactNode;
-  isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  renderGraph: (args: GraphProps) => ReactNode;
+  renderSlider: (args: SliderProps) => ReactNode;
 }
 
 const EditAnomalyDetectionDataDialog = ({
-  isOpen,
-  setIsOpen,
-  children
+  renderGraph,
+  renderSlider
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -85,21 +87,15 @@ const EditAnomalyDetectionDataDialog = ({
   const [isEnvelopeResizingCanceled, setIsEnvelopeResizingCanceled] =
     useState(false);
 
-  const [isResizeEnvelope, setIsResizeEnvelope] = useState(false);
-  const [
-    isModalEditAnomalyDetectionConfirmationOpened,
-    setIsModalEditAnomalyDetectionConfirmationOpened
-  ] = useState(false);
+  const [isResizingEnvelope, setIsResizingEnvelope] = useState(false);
+  const [showModalAnomalyDetection, setShowModalAnomalyDetection] = useAtom(
+    showModalAnomalyDetectionAtom
+  );
   const setCountedRedCircles = useUpdateAtom(countedRedCirclesAtom);
 
   const handleClose = (): void => {
-    if (!factorsData?.isResizing) {
-      setIsOpen(false);
-      setCountedRedCircles(null);
-
-      return;
-    }
-    setIsModalEditAnomalyDetectionConfirmationOpened(true);
+    setShowModalAnomalyDetection(false);
+    setCountedRedCircles(null);
   };
 
   const getFactors = (data: CustomFactorsData): void => {
@@ -115,67 +111,52 @@ const EditAnomalyDetectionDataDialog = ({
   };
 
   const resizeEnvelope = (value: boolean): void => {
-    setIsResizeEnvelope(value);
+    setIsResizingEnvelope(value);
     setIsModalConfirmationOpened(false);
   };
 
-  const closeModal = (): void => {
-    setIsOpen(false);
-    setCountedRedCircles(null);
-  };
-
   return (
-    <Dialog className={classes.container} open={isOpen} onClose={handleClose}>
+    <Dialog
+      className={classes.container}
+      data-testid={labelModalEditAnomalyDetection}
+      open={showModalAnomalyDetection}
+    >
       <div>
         <div className={classes.spacing}>
           <TimePeriodButtonGroup />
         </div>
-        <div className={classes.spacing}>{children?.({ factorsData })}</div>
+        <div className={classes.spacing}>{renderGraph({ factorsData })}</div>
         <div className={classes.editEnvelopeSize}>
           <Paper className={classes.envelopeSize}>
-            {children?.({
+            {renderSlider({
               getFactors,
               isEnvelopeResizingCanceled,
-              isResizeEnvelope,
+              isResizingEnvelope,
               openModalConfirmation,
-              setIsResizeEnvelope
+              setIsResizingEnvelope
             })}
           </Paper>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation
-          labelConfirm={labelSave}
+          dataTestid={labelModalConfirmation}
           open={isModalConfirmationOpened}
           sendCancel={cancelResizeEnvelope}
           sendConfirm={resizeEnvelope}
           setOpen={setIsModalConfirmationOpened}
-        >
-          <Typography> {t(labelEditAnomalyDetectionConfirmation)} </Typography>
-        </EditAnomalyDetectionDataDialog.ModalConfirmation>
-
-        <EditAnomalyDetectionDataDialog.ModalClosing
-          labelConfirm={labelConfirm}
-          open={isModalEditAnomalyDetectionConfirmationOpened}
-          sendCancel={(): void =>
-            setIsModalEditAnomalyDetectionConfirmationOpened(true)
-          }
-          sendConfirm={closeModal}
-          setOpen={setIsModalEditAnomalyDetectionConfirmationOpened}
-        >
-          {t(labelEditAnomalyDetectionClosing)}
-        </EditAnomalyDetectionDataDialog.ModalClosing>
+        />
         <div className={classes.close}>
-          <Button onClick={handleClose}>{t(labelClose)}</Button>
+          <Button data-testid={labelCloseEditModal} onClick={handleClose}>
+            {t(labelClose)}
+          </Button>
         </div>
       </div>
     </Dialog>
   );
 };
 
-EditAnomalyDetectionDataDialog.Slider = AnomalyDetectionSlider;
 EditAnomalyDetectionDataDialog.ExclusionPeriod =
   AnomalyDetectionExclusionPeriod;
 EditAnomalyDetectionDataDialog.ModalConfirmation =
   AnomalyDetectionModalConfirmation;
-EditAnomalyDetectionDataDialog.ModalClosing = AnomalyDetectionModalConfirmation;
 
 export default EditAnomalyDetectionDataDialog;

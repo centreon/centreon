@@ -45,8 +45,8 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      nexus_username: ${{ secrets.NEXUS_USER }}
+      nexus_password: ${{ secrets.NEXUS_PASSWD }}
       cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
       update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
