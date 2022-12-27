@@ -447,14 +447,10 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         && ! empty($row['host_snmp_community'])
                         && preg_match('/^secret::\\d+::/', $row['host_snmp_community'])
                     ) {
-                        $vaultConfigurations = getVaultConfigurations();
-                        if (! empty($vaultConfigurations)) {
+                        $vaultConfiguration = getVaultConfiguration();
+                        if ($vaultConfiguration !== null) {
                             try {
                                 $centreonLog = new CentreonUserLog(-1, $pearDB);
-                                /**
-                                 * @var VaultConfiguration
-                                 */
-                                $vaultConfiguration = $vaultConfigurations[0];
                                 $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
                                 $hostSecrets = getHostSecretsFromVault(
                                     $vaultConfiguration,
@@ -1156,14 +1152,10 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
 
     //Check if a vault configuration exists
     if (! empty($passwordTypeData)) {
-        $vaultConfigurations = getVaultConfigurations();
+        $vaultConfiguration = getVaultConfiguration();
 
         //If there is a vault configuration write into vault
-        if (! empty($vaultConfigurations)) {
-            /**
-             * @var VaultConfiguration
-             */
-            $vaultConfiguration = $vaultConfigurations[0];
+        if ($vaultConfiguration !== null) {
             try {
                 $centreonLog = new CentreonUserLog(-1, $pearDB);
                 $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
@@ -1610,16 +1602,12 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
 
     //@TODO: Check if Macro value are passwords
 
-    $vaultConfigurations = getVaultConfigurations();
+    $vaultConfiguration = getVaultConfiguration();
 
     //If there is a vault configuration write into vault
-    if (! empty($vaultConfigurations)) {
+    if ($vaultConfiguration !== null) {
         try {
             $centreonLog = new CentreonUserLog(-1, $pearDB);
-            /**
-             * @var VaultConfiguration
-             */
-            $vaultConfiguration = $vaultConfigurations[0];
             $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
             $hostSecrets = getHostSecretsFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog);
 
@@ -1772,16 +1760,12 @@ function updateHost_MC($host_id = null)
 
     //@TODO: Check if Macro value are passwords
 
-    $vaultConfigurations = getVaultConfigurations();
+    $vaultConfiguration = getVaultConfiguration();
 
     //If there is a vault configuration write into vault
-    if (! empty($vaultConfigurations)) {
+    if ($vaultConfiguration !== null) {
         try {
             $centreonLog = new CentreonUserLog(-1, $pearDB);
-            /**
-             * @var VaultConfiguration
-             */
-            $vaultConfiguration = $vaultConfigurations[0];
             $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
             $hostSecrets = getHostSecretsFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog);
 
@@ -2948,16 +2932,16 @@ function sanitizeFormHostParameters(array $ret): array
 /**
  * Get vault configurations
  *
- * @return VaultConfiguration[]
+ * @return VaultConfiguration|null
  */
-function getVaultConfigurations(): array
+function getVaultConfiguration(): ?VaultConfiguration
 {
     $kernel = \App\Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
 
-    return $readVaultConfigurationRepository->findVaultConfigurations();
+    return $readVaultConfigurationRepository->findDefaultVaultConfiguration();
 }
 
 /**

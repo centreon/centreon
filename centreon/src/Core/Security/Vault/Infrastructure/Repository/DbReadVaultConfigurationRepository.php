@@ -231,7 +231,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @inheritDoc
      */
-    public function findVaultConfigurations(): array
+    public function findDefaultVaultConfiguration(): ?VaultConfiguration
     {
         $vaultConfigurations = [];
         $statement = $this->db->query(
@@ -241,28 +241,29 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     FROM `:db`.`vault_configuration` conf
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
+                    LIMIT 1
                 SQL
             )
         );
 
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array{
-             *  id: int,
-             *  name: string,
-             *  vault_id: int,
-             *  vault_name: string,
-             *  url: string,
-             *  port: int,
-             *  storage: string,
-             *  role_id: string,
-             *  secret_id: string,
-             *  salt: string
-             * } $record
-             */
-            $vaultConfigurations[] = $this->factory->createFromRecord($record);
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            return null;
         }
 
-        return $vaultConfigurations;
+        /**
+         * @var array{
+         *  id: int,
+         *  name: string,
+         *  vault_id: int,
+         *  vault_name: string,
+         *  url: string,
+         *  port: int,
+         *  storage: string,
+         *  role_id: string,
+         *  secret_id: string,
+         *  salt: string
+         * } $record
+         */
+        return $this->factory->createFromRecord($record);
     }
 }
