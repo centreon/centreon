@@ -42,6 +42,10 @@ export const medium = (): JSX.Element => (
   <TextField placeholder="Medium" size="medium" />
 );
 
+export const large = (): JSX.Element => (
+  <TextField placeholder="Large" size="large" />
+);
+
 export const transparent = (): JSX.Element => (
   <TextField transparent placeholder="Transparent" />
 );

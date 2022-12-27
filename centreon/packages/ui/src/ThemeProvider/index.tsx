@@ -43,9 +43,14 @@ const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
       minHeight: '36px'
     };
   }
+  if (equals(size, 'large')) {
+    return {
+      minHeight: '48px'
+    };
+  }
 
   return {
-    minHeight: '48px'
+    minHeight: '40px'
   };
 };
 
@@ -69,6 +74,7 @@ const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
 export const getTheme = (mode: ThemeMode): ThemeOptions => ({
   components: {
     MuiButton: {
+      defaultProps: { size: 'small' },
       styleOverrides: {
         root: ({ ownerState }) => getButtonRootStyle(ownerState)
       }
