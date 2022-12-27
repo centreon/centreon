@@ -139,6 +139,7 @@ const useStyles = makeStyles<StylesProps>()(
         backgroundColor: dataStyle.header.backgroundColor,
         color: dataStyle.header.color,
         height: dataStyle.header.height,
+        outline: `solid ${dataStyle.header.backgroundColor}`,
         padding: 0
       }
     },
