@@ -443,7 +443,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                      * The regex /^secret::\\d+::/ define that the value is store in vault.
                      */
                     if (
-                        (bool) $row['host_snmp_is_password'] === true
+                        (bool) $row['host_snmp_community_is_password'] === true
                         && ! empty($row['host_snmp_community'])
                         && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
                     ) {
@@ -1142,7 +1142,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     }
 
     $passwordTypeData = [];
-    if (array_key_exists('host_snmp_is_password', $ret) && (bool) $ret['host_snmp_is_password'] === true) {
+    if (array_key_exists('host_snmp_community_is_password', $ret) && (bool) $ret['host_snmp_community_is_password'] === true) {
         $passwordTypeData = [
             '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
         ];
@@ -1486,8 +1486,8 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
     $bindParams = sanitizeFormHostParameters($ret);
 
     //If the checkbox is not checked that mean the value is not a password and should be updated as well
-    if (! array_key_exists('host_snmp_is_password', $ret)) {
-        $bindParams[':host_snmp_is_password'] = [\PDO::PARAM_STR => '0'];
+    if (! array_key_exists('host_snmp_community_is_password', $ret)) {
+        $bindParams[':host_snmp_community_is_password'] = [\PDO::PARAM_STR => '0'];
     }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
@@ -1591,8 +1591,8 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
 
     $passwordTypeData = [];
     if (
-        array_key_exists('host_snmp_is_password', $ret)
-        && (bool) $ret['host_snmp_is_password'] === true
+        array_key_exists('host_snmp_community_is_password', $ret)
+        && (bool) $ret['host_snmp_community_is_password'] === true
         && array_key_exists(':host_snmp_community', $bindParams)
     ) {
         $passwordTypeData = [
@@ -1619,7 +1619,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                 writeSecretsInVault($vaultConfiguration, $host_id, $clientToken, $passwordTypeData, $centreonLog);
                 updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
             }
-            if (! array_key_exists('host_snmp_is_password', $ret) && ! empty($hostSecrets)) {
+            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
                 // If no more fields are password types, we delete the host from the vault has it will not be readen.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog);
             }
@@ -1686,8 +1686,8 @@ function updateHost_MC($host_id = null)
     }
     $bindParams = sanitizeFormHostParameters($ret);
     //If the checkbox is not checked that mean the value is not a password and should be updated as well
-    if (! array_key_exists('host_snmp_is_password', $ret)) {
-        $bindParams[':host_snmp_is_password'] = [\PDO::PARAM_STR => '0'];
+    if (! array_key_exists('host_snmp_community_is_password', $ret)) {
+        $bindParams[':host_snmp_community_is_password'] = [\PDO::PARAM_STR => '0'];
     }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
@@ -1749,8 +1749,8 @@ function updateHost_MC($host_id = null)
 
     $passwordTypeData = [];
     if (
-        array_key_exists('host_snmp_is_password', $ret)
-        && (bool) $ret['host_snmp_is_password'] === true
+        array_key_exists('host_snmp_community_is_password', $ret)
+        && (bool) $ret['host_snmp_community_is_password'] === true
         && array_key_exists(':host_snmp_community', $bindParams)
     ) {
         $passwordTypeData = [
@@ -1777,7 +1777,7 @@ function updateHost_MC($host_id = null)
                 writeSecretsInVault($vaultConfiguration, $host_id, $clientToken, $passwordTypeData, $centreonLog);
                 updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
             }
-            if (! array_key_exists('host_snmp_is_password', $ret) && ! empty($hostSecrets)) {
+            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
                 // If no more fields are password types, we delete the host from the vault has it will not be readen.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog);
             }
@@ -2917,7 +2917,7 @@ function sanitizeFormHostParameters(array $ret): array
                         : null
                 ];
                 break;
-            case 'host_snmp_is_password':
+            case 'host_snmp_community_is_password':
                 $bindParams[':' . $inputName] = [
                     \PDO::PARAM_STR => in_array($inputValue, ['0', '1'])
                         ? $inputValue
