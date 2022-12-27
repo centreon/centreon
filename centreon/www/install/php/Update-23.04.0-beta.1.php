@@ -125,6 +125,12 @@ function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
 function addSNMPCommunityIsPasswordColumn(CentreonDB $pearDB): void
 {
     if ($pearDB->isColumnExist('host', 'host_snmp_is_password') === 0) {
-        $pearDB->query("ALTER TABLE `host` ADD COLUMN host_snmp_is_password enum('0','1') DEFAULT '0' NOT NULL");
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `host`
+                ADD COLUMN host_snmp_is_password enum('0','1') DEFAULT '0' NOT NULL
+                AFTER `host_snmp_community`
+            SQL
+        );
     }
 }

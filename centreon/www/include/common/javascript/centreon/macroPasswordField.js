@@ -59,10 +59,6 @@ function change_macro_input_type(box, must_disable) {
 function change_snmp_community_input_type(box) {
     let snmpCommunityInput = jQuery('input[name="host_snmp_community"]');
     if (typeof snmpCommunityInput[0] != 'undefined') {
-        if (box.checked) {
-            snmpCommunityInput[0].type = 'password';
-        } else {
-            snmpCommunityInput[0].type = 'text';
-        }
+        snmpCommunityInput[0].type = box.checked ? 'password' : 'text';
     }
 }

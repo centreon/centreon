@@ -445,7 +445,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     if (
                         (bool) $row['host_snmp_is_password'] === true
                         && ! empty($row['host_snmp_community'])
-                        && preg_match('/^secret::\\d+::/', $row['host_snmp_community'])
+                        && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
                     ) {
                         $vaultConfiguration = getVaultConfiguration();
                         if ($vaultConfiguration !== null) {

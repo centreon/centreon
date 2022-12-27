@@ -233,7 +233,6 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
      */
     public function findDefaultVaultConfiguration(): ?VaultConfiguration
     {
-        $vaultConfigurations = [];
         $statement = $this->db->query(
             $this->translateDbName(
                 <<<'SQL'

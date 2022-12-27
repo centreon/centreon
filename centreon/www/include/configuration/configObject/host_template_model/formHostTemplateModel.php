@@ -283,10 +283,10 @@ $form->addElement(
     'host_snmp_is_password',
     _('Password'),
     null,
-    array(
+    [
         'id' => 'host_snmp_is_password',
         'onClick' => 'javascript:change_snmp_community_input_type(this)'
-    )
+    ]
 );
 
 $timeAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list';
