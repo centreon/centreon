@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui-context",
-  "version": "23.4.6-MON-16294-some-enhancements-in-Rs-table.0",
+  "version": "23.4.6-MON-16294-some-enhancements-in-Rs-table.1",
   "description": "Centreon UI shared context",
   "main": "src",
   "keywords": [],
