@@ -1,12 +1,14 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { React, useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { prop } from 'ramda';
+import { equals, prop } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button } from '@mui/material';
 import { grey } from '@mui/material/colors';
+
+import { ResourceStatusViewMode } from '@centreon/ui-context/src';
 
 import { ListingProps } from '..';
 
@@ -161,6 +163,27 @@ const Story = ({
 };
 
 export const normal = (): JSX.Element => <Story />;
+
+export const WithViewModeExtended = (): JSX.Element => {
+  const [viewMode, setViewMode] = useState(ResourceStatusViewMode.extended);
+  const newViewMode = equals(viewMode, ResourceStatusViewMode.compact)
+    ? ResourceStatusViewMode.extended
+    : ResourceStatusViewMode.compact;
+
+  return (
+    <>
+      <Button
+        color="primary"
+        size="small"
+        variant="contained"
+        onClick={(): void => setViewMode(newViewMode)}
+      >
+        Change view mode
+      </Button>
+      <Story viewMode={viewMode} />
+    </>
+  );
+};
 
 export const loadingWithNoData = (): JSX.Element => {
   return <Story loading rows={[]} totalRows={0} />;

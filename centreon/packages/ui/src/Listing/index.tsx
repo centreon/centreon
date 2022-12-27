@@ -37,7 +37,10 @@ import {
   useTheme
 } from '@mui/material';
 
-import { ResourceStatusViewMode as ViewMode } from '@centreon/ui-context';
+import {
+  ResourceStatusViewMode,
+  ResourceStatusViewMode as ViewMode
+} from '@centreon/ui-context';
 
 import useKeyObserver from '../utils/useKeyObserver';
 import useMemoComponent from '../utils/useMemoComponent';
@@ -184,7 +187,7 @@ export interface Props<TRow> {
   sortField?: string;
   sortOrder?: SortOrder;
   totalRows?: number;
-  viewMode: ViewMode;
+  viewMode?: ViewMode;
   widthToMoveTablePagination?: number;
 }
 
@@ -224,7 +227,7 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
   moveTablePagination,
-  viewMode,
+  viewMode = ResourceStatusViewMode.compact,
   widthToMoveTablePagination
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
