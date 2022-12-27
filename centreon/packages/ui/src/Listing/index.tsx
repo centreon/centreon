@@ -132,6 +132,9 @@ const useStyles = makeStyles<StylesProps>()(
         rows?.length
       }, ${dataStyle.body.height}px)`,
       position: 'relative',
+      'tbody :first-child': {
+        gridColumnStart: 1
+      },
       'thead div:nth-child(n)': {
         backgroundColor: dataStyle.header.backgroundColor,
         color: dataStyle.header.color,
