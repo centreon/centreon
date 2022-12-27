@@ -135,7 +135,7 @@ const useStyles = makeStyles<StylesProps>()(
       'tbody :first-child': {
         gridColumnStart: 1
       },
-      'thead div:nth-child(n)': {
+      'thead div div:nth-child(n)': {
         backgroundColor: dataStyle.header.backgroundColor,
         color: dataStyle.header.color,
         height: dataStyle.header.height,
