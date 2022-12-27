@@ -458,7 +458,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 $clientToken = authenticateToVault($vaultConfiguration, $centreonLog);
                                 $hostSecrets = getHostSecretsFromVault(
                                     $vaultConfiguration,
-                                    $key,
+                                    $key, // The duplicated host id
                                     $clientToken,
                                     $centreonLog
                                 );
@@ -2954,7 +2954,7 @@ function getVaultConfigurations(): array
 {
     $kernel = \App\Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository::class
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
 
     return $readVaultConfigurationRepository->findVaultConfigurations();
@@ -2986,15 +2986,19 @@ function authenticateToVault(VaultConfiguration $vaultConfiguration, CentreonUse
     curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
     $centreonLog->insertLog(5, 'Authenticating to Vault: ' . $url);
     $content = curl_exec($curl);
-    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    $httpStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
     $loginResponse = json_decode($content, true);
 
-    if ((int) $httpcode !== Response::HTTP_OK) {
-        $centreonLog->insertLog(5, $url . "didn't respond with a 200 status");
+    if ((int) $httpStatusCode !== Response::HTTP_OK) {
+        $centreonLog->insertLog(5, $url . " did not respond with a 200 status");
         throw new \Exception('Unable to authenticate to Vault');
     }
 
+    if (! isset($loginResponse['auth']['client_token'])) {
+        $centreonLog->insertLog(5, $url . " Unable to retrieve client token from Vault");
+        throw new \Exception('Unable to authenticate to Vault');
+    }
     return $loginResponse['auth']['client_token'];
 }
 
@@ -3025,14 +3029,14 @@ function writeSecretsInVault(
     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($passwordTypeData));
     $centreonLog->insertLog(5, "Writing Host Secrets at : " . $url);
     curl_exec($curl);
-    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    $httpStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
-    if ($httpcode !== Response::HTTP_NO_CONTENT) {
+    if ($httpStatusCode !== Response::HTTP_NO_CONTENT) {
         $centreonLog->insertLog(
             5,
             sprintf(
                 "Unable to write host secrets into vault, Response code is %d, should be %d",
-                [$httpcode, Response::HTTP_NO_CONTENT]
+                [$httpStatusCode, Response::HTTP_NO_CONTENT]
             )
         );
 
@@ -3093,12 +3097,12 @@ function getHostSecretsFromVault(
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', 'X-Vault-Token: ' . $clientToken]);
     $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $content = curl_exec($curl);
-    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    $httpStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
     $loginResponse = json_decode($content, true);
 
     $hostSecrets = [];
-    switch($httpcode) {
+    switch($httpStatusCode) {
         case Response::HTTP_NOT_FOUND:
             $centreonLog->insertLog(5, sprintf("Host %d not found in vault", $hostId));
             break;
@@ -3139,11 +3143,11 @@ function deleteHostFromVault(
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json', 'X-Vault-Token: ' . $clientToken]);
-    $centreonLog(5, sprintf("Deleting Host: %d", $hostId));
+    $centreonLog->insertLog(5, sprintf("Deleting Host: %d", $hostId));
     curl_exec($curl);
-    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    $httpStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
-    if ($httpcode !== Response::HTTP_NO_CONTENT) {
+    if ($httpStatusCode !== Response::HTTP_NO_CONTENT) {
         throw new \Exception(sprintf('Unable to delete secrets for host : %d', $hostId));
     }
 }
