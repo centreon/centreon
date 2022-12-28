@@ -14,12 +14,12 @@ const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;
 
 interface StylesProps {
-  firstPanelWidth: number;
   hasSecondaryPanel?: boolean;
+  mainPanelWidth: number;
 }
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { hasSecondaryPanel, firstPanelWidth }) => ({
+  (theme, { hasSecondaryPanel, mainPanelWidth }) => ({
     closeIcon: {
       margin: 'auto',
       width: 15
@@ -47,7 +47,7 @@ const useStyles = makeStyles<StylesProps>()(
       position: hasSecondaryPanel ? 'unset' : 'absolute',
       right: 0,
       top: 0,
-      width: firstPanelWidth
+      width: mainPanelWidth
     }
   })
 );
@@ -61,9 +61,9 @@ interface Section {
 
 interface SectionPanelProps {
   currentWidth?: (width: number) => void;
-  firstPanelWidth?: number;
   header: JSX.Element;
   loading?: boolean;
+  mainPanelWidth?: number;
   onClose: () => void;
   onResize?: (width: number) => void;
   onSecondaryPanelClose?: () => void;
@@ -79,26 +79,26 @@ const SectionPanel = ({
   onClose = (): undefined => undefined,
   onResize,
   loading = false,
-  firstPanelWidth = panelWidth,
+  mainPanelWidth = panelWidth,
   currentWidth
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
   const { classes } = useStyles({
-    firstPanelWidth,
-    hasSecondaryPanel
+    hasSecondaryPanel,
+    mainPanelWidth
   });
 
   const getWidth = (): number => {
     if (hasSecondaryPanel) {
-      const newWidth = firstPanelWidth * 2 + closeSecondaryPanelBarWidth;
+      const newWidth = panelWidth * 2 + closeSecondaryPanelBarWidth;
       currentWidth?.(newWidth);
 
       return newWidth;
     }
-    currentWidth?.(firstPanelWidth);
+    currentWidth?.(panelWidth);
 
-    return firstPanelWidth;
+    return panelWidth;
   };
 
   return (
