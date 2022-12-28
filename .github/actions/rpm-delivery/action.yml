@@ -90,7 +90,6 @@ runs:
           REPOTYPE=${{ inputs.stability }}
           ARCH=$ARCH
           PROJECT=${{ inputs.module_name }}
-          #FOLDER=$(basename $FILE .rpm)
           PROJECT_PATH="standard"
 
           # Delivery with proper repository structure according to stability
