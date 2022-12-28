@@ -764,6 +764,10 @@ class CentreonHost extends CentreonObject
                     $params[1] = 'host_location';
                     $params[2] = $iIdTimezone;
                     break;
+                case 'snmp_community':
+                    $params[1] = 'host_snmp_community';
+                    $params[3] === '1' ? $params[3] = '1' : $params[3] = '0';
+                    break;
                 default:
                     if (!preg_match("/^host_/", $params[1])) {
                         $params[1] = "host_" . $params[1];
@@ -773,6 +777,9 @@ class CentreonHost extends CentreonObject
 
             if ($extended == false) {
                 $updateParams = array($params[1] => $params[2]);
+                if ($params[1] === 'host_snmp_community') {
+                    $updateParams['host_snmp_community_is_password'] = $params[3];
+                }
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             } else {
