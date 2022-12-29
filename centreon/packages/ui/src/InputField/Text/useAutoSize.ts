@@ -37,6 +37,8 @@ const useAutoSize = ({
     setInnerValue(event.target.value);
   };
 
+  const textFieldValue = autoSize && (value || innerValue)
+
   useEffect(() => {
     if (!autoSize) {
       return;
@@ -45,7 +47,7 @@ const useAutoSize = ({
     const newWidth = inputRef.current?.getBoundingClientRect().width || 0;
 
     setWidth(newWidth < autoSizeDefaultWidth ? autoSizeDefaultWidth : newWidth);
-  }, [autoSize && (value || innerValue)]);
+  }, [textFieldValue]);
 
   return {
     changeInputValue,
