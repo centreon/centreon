@@ -2,7 +2,6 @@
   "name": "@centreon/ui-context",
   "version": "23.4.6-MON-build-npm-packages.5",
   "description": "Centreon UI shared context",
-  "main": "src",
   "keywords": [],
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",

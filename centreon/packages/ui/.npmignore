@@ -2,3 +2,6 @@
 .storybook
 src
 fonts
+jest.config.js
+setupTests.js
+testRunner.js
