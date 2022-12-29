@@ -117,6 +117,7 @@ export interface Props<TRow> {
   actions?: JSX.Element;
   actionsBarMemoProps?: Array<unknown>;
   checkable?: boolean;
+  classNameCustomPagination?: string;
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
   currentPage?: number;
@@ -156,6 +157,7 @@ const Listing = <TRow extends { id: RowId }>({
   limit = 10,
   columns,
   columnConfiguration = defaultColumnConfiguration,
+  classNameCustomPagination,
   onResetColumns,
   onSelectColumns,
   rows = [],
@@ -470,6 +472,7 @@ const Listing = <TRow extends { id: RowId }>({
           <ListingActionBar
             actions={actions}
             actionsBarMemoProps={actionsBarMemoProps}
+            classNameCustomPagination={classNameCustomPagination}
             columnConfiguration={columnConfiguration}
             columns={columns}
             currentPage={currentPage}

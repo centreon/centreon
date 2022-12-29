@@ -61,6 +61,7 @@ type Props = Pick<
   | 'actionsBarMemoProps'
   | 'moveTablePagination'
   | 'widthToMoveTablePagination'
+  | 'classNameCustomPagination'
 >;
 
 const MemoListingActionBar = ({
@@ -71,6 +72,7 @@ const MemoListingActionBar = ({
   limit,
   columns,
   columnConfiguration,
+  classNameCustomPagination,
   onResetColumns,
   onSelectColumns,
   onPaginate,
@@ -122,7 +124,7 @@ const MemoListingActionBar = ({
                 },
                 id: labelRowsPerPage
               }}
-              className={cx(classes.pagination, {
+              className={cx(classes.pagination, classNameCustomPagination, {
                 [classes.moving]: moveTablePagination
               })}
               colSpan={3}
@@ -151,6 +153,7 @@ const MemoListingActionBar = ({
         columns
       ),
       columnConfiguration,
+      classNameCustomPagination,
       ...actionsBarMemoProps
     ]
   });
@@ -170,7 +173,8 @@ const ListingActionBar = ({
   onSelectColumns,
   actionsBarMemoProps,
   moveTablePagination,
-  widthToMoveTablePagination
+  widthToMoveTablePagination,
+  classNameCustomPagination
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -184,6 +188,7 @@ const ListingActionBar = ({
     <MemoListingActionBar
       actions={actions}
       actionsBarMemoProps={actionsBarMemoProps}
+      classNameCustomPagination={classNameCustomPagination}
       columnConfiguration={columnConfiguration}
       columns={columns}
       currentPage={currentPage}
