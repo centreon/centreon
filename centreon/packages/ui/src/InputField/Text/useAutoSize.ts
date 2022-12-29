@@ -37,7 +37,7 @@ const useAutoSize = ({
     setInnerValue(event.target.value);
   };
 
-  const textFieldValue = autoSize && (value || innerValue)
+  const textFieldValue = autoSize && (value || innerValue);
 
   useEffect(() => {
     if (!autoSize) {
