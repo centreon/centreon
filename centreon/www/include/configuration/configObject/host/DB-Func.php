@@ -3003,7 +3003,7 @@ function authenticateToVault(
         $centreonLog->insertLog(5, 'Authenticating to Vault: ' . $url);
         $loginResponse = $httpClient->call($url, "POST", $body);
     } catch (\Exception $ex) {
-        $centreonLog->insertLog(5, $url . " did not respond with a 200 status");
+        $centreonLog->insertLog(5, $url . " did not respond with a 2XX status");
         throw $ex;
     }
 
