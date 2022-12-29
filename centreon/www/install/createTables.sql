@@ -1365,6 +1365,7 @@ CREATE TABLE `host` (
   `host_acknowledgement_timeout` int(11) DEFAULT NULL,
   `host_stalking_options` varchar(200) DEFAULT NULL,
   `host_snmp_community` varchar(255) DEFAULT NULL,
+  `host_snmp_community_is_password` enum('0', '1') DEFAULT '0' NOT NULL,
   `host_snmp_version` varchar(255) DEFAULT NULL,
   `host_location` int(11) DEFAULT '0',
   `host_comment` text,
