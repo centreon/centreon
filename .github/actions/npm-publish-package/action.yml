@@ -69,10 +69,10 @@ runs:
 
     - name: Publish package to NPM (${{ env.TAG }})
       run: npm publish --access public --tag ${{ env.TAG }}
-      working-directory: ${{ env.directory }}/packages/${{ inputs.package }}
+      working-directory: ${{ env.directory }}
       shell: bash
       env:
-        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+        NPM_TOKEN: ${{ inputs.npm_token }}
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
