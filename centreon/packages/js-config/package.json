@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "23.4.11-MON-build-npm-packages.5",
+  "version": "23.4.11-MON-build-npm-packages.6",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
