@@ -48,20 +48,15 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-enum EntrySize {
-  medium = 'medium',
-  small = 'small'
-}
-
 interface EntryProps {
-  entrySize?: EntrySize;
   gridWidth?: 'auto' | number;
   label: string;
+  size?: 'small' | 'medium';
 }
 
 const Entry = ({
   label,
-  entrySize = EntrySize.small,
+  size = 'small',
   gridWidth = 6
 }: EntryProps): JSX.Element => {
   const { classes } = useStyles();
@@ -71,7 +66,7 @@ const Entry = ({
       <Chip
         className={classes.chip}
         label={<div className={classes.labelChip}>{label}</div>}
-        size={entrySize}
+        size={size}
       />
     </Grid>
   );
@@ -104,12 +99,12 @@ interface Value {
 
 interface Props {
   emptyLabel: string;
-  entrySize?: EntrySize;
   error?;
   gridWidth?: 'auto' | number;
   highlight?: boolean;
   label: string;
   onClick: () => void;
+  size?: 'small' | 'medium';
   values?: Array<Value>;
 }
 
@@ -120,7 +115,7 @@ const MultiSelectEntries = ({
   values = [],
   highlight = false,
   error = undefined,
-  entrySize,
+  size,
   gridWidth
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -159,12 +154,7 @@ const MultiSelectEntries = ({
       </Box>
       <Grid container justifyContent="flex-start">
         {values.slice(0, maxChips).map(({ id, name }) => (
-          <Entry
-            entrySize={entrySize}
-            gridWidth={gridWidth}
-            key={id}
-            label={name}
-          />
+          <Entry gridWidth={gridWidth} key={id} label={name} size={size} />
         ))}
         {count > maxChips && <Entry label="..." />}
       </Grid>
