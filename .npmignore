@@ -1,0 +1,5 @@
+centreon/packages/ui/.out
+centreon/packages/ui/.storybook
+centreon/packages/ui/src
+centreon/packages/ui/fonts
+centreon/packages/ui-context/src
