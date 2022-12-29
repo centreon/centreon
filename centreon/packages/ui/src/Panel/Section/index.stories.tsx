@@ -15,6 +15,7 @@ export default {
 
 interface Props {
   loading?;
+  mainPanelWidth?: number;
   secondaryPanel?;
   sections;
 }
@@ -22,7 +23,8 @@ interface Props {
 const PanelWithHeader = ({
   sections,
   secondaryPanel = undefined,
-  loading = false
+  loading = false,
+  mainPanelWidth = 550
 }: Props): JSX.Element => (
   <div
     style={{ display: 'flex', flexDirection: 'row-reverse', height: '100vh' }}
@@ -30,6 +32,7 @@ const PanelWithHeader = ({
     <SectionPanel
       header={<Typography>Header</Typography>}
       loading={loading}
+      mainPanelWidth={mainPanelWidth}
       secondaryPanel={secondaryPanel}
       sections={sections}
       onClose={(): undefined => undefined}
@@ -121,6 +124,14 @@ export const withLoading = (): JSX.Element => (
 
 export const withSecondaryPanel = (): JSX.Element => (
   <PanelWithHeader
+    secondaryPanel={<Typography variant="h6">Secondary Panel</Typography>}
+    sections={sections}
+  />
+);
+
+export const withCustomSecondaryPanel = (): JSX.Element => (
+  <PanelWithHeader
+    mainPanelWidth={275}
     secondaryPanel={<Typography variant="h6">Secondary Panel</Typography>}
     sections={sections}
   />

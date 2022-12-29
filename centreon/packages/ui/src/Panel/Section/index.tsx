@@ -31,13 +31,12 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: 'none',
       borderTop: 'none',
       cursor: 'pointer',
-      display: 'flex'
+      display: 'flex',
+      width: closeSecondaryPanelBarWidth
     },
     container: {
-      display: hasSecondaryPanel ? 'grid' : 'block',
-      gridTemplateColumns: hasSecondaryPanel
-        ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
-        : '100%',
+      display: hasSecondaryPanel ? 'flex' : 'block',
+      gridTemplateColumns: '100%',
       height: '100%'
     },
     mainPanel: {
