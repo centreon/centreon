@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "22.10.8",
+  "version": "22.10.9-MON-publish-npm-packages-on-dev-22.10.x.0",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
