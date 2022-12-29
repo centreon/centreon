@@ -4,8 +4,8 @@ import { Ref } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Box, Chip, Grid, FormHelperText, Typography } from '@mui/material';
 import IconCreate from '@mui/icons-material/Create';
+import { Box, Chip, FormHelperText, Grid, Typography } from '@mui/material';
 
 import useHover from './useHover';
 
@@ -48,15 +48,30 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Entry = ({ label }): JSX.Element => {
+enum EntrySize {
+  medium = 'medium',
+  small = 'small'
+}
+
+interface EntryProps {
+  entrySize?: EntrySize;
+  gridWidth?: 'auto' | number;
+  label: string;
+}
+
+const Entry = ({
+  label,
+  entrySize = EntrySize.small,
+  gridWidth = 6
+}: EntryProps): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <Grid item xs={6}>
+    <Grid item xs={gridWidth}>
       <Chip
         className={classes.chip}
         label={<div className={classes.labelChip}>{label}</div>}
-        size="small"
+        size={entrySize}
       />
     </Grid>
   );
@@ -89,7 +104,9 @@ interface Value {
 
 interface Props {
   emptyLabel: string;
+  entrySize?: EntrySize;
   error?;
+  gridWidth?: 'auto' | number;
   highlight?: boolean;
   label: string;
   onClick: () => void;
@@ -102,7 +119,9 @@ const MultiSelectEntries = ({
   onClick,
   values = [],
   highlight = false,
-  error = undefined
+  error = undefined,
+  entrySize,
+  gridWidth
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
@@ -140,7 +159,12 @@ const MultiSelectEntries = ({
       </Box>
       <Grid container justifyContent="flex-start">
         {values.slice(0, maxChips).map(({ id, name }) => (
-          <Entry key={id} label={name} />
+          <Entry
+            entrySize={entrySize}
+            gridWidth={gridWidth}
+            key={id}
+            label={name}
+          />
         ))}
         {count > maxChips && <Entry label="..." />}
       </Grid>
