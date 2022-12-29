@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.10-MON-11878-display-ba-entire-name.5",
+  "version": "23.4.10-MON-11878-display-ba-entire-name.6",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
