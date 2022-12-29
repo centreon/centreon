@@ -69,7 +69,7 @@ runs:
 
     - name: Publish package to NPM (${{ env.TAG }})
       run: npm publish --access public --tag ${{ env.TAG }}
-      working-directory: ${{ env.directory }}
+      working-directory: ${{ env.directory }}/packages/${{ inputs.package }}
       shell: bash
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
