@@ -61,6 +61,11 @@ runs:
         git push origin ${{ github.head_ref }}
       shell: bash
 
+    - name: Build package
+      uses: ./.github/actions/build-npm-package
+      with:
+        package: ${{ inputs.package }}
+
     - name: Publish package to NPM (${{ env.TAG }})
       uses: JS-DevTools/npm-publish@v1
       with:

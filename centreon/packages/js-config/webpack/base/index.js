@@ -6,10 +6,13 @@ const { ModuleFederationPlugin } = require('webpack').container;
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
 
+const excludeAllNodeModules = /node_modules/;
+
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  jscTransformConfiguration
+  jscTransformConfiguration,
+  filesExcludedFromSWCLoader = excludeNodeModulesExceptCentreonUi,
 }) => ({
   cache: false,
   module: {
@@ -19,7 +22,7 @@ const getBaseConfiguration = ({
         test: /\.[cm]?(j|t)sx?$/
       },
       {
-        exclude: excludeNodeModulesExceptCentreonUi,
+        exclude: filesExcludedFromSWCLoader,
         test: /\.[jt]sx?$/,
         use: {
           loader: 'swc-loader',
@@ -126,4 +129,8 @@ const getBaseConfiguration = ({
   }
 });
 
-module.exports = getBaseConfiguration;
+module.exports = {
+  getBaseConfiguration,
+  excludeNodeModulesExceptCentreonUi,
+  excludeAllNodeModules,
+};

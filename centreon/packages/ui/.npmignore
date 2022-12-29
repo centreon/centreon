@@ -1,2 +1,4 @@
-*.test.js
-src/__image_snapshots__
+.out
+.storybook
+src
+fonts

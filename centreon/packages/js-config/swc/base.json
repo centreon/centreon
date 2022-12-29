@@ -1,0 +1,22 @@
+{
+  "jsc": {
+    "target": "es2016",
+    "parser": {
+      "type": "es6",
+      "syntax": "typescript",
+      "tsx": true,
+      "strict": false,
+      "strictMode": false,
+      "lazy": true,
+      "noInterop": true,
+      "ignoreDynamic": false
+    },
+    "minify": {
+      "compress": {
+        "unused": true
+      },
+      "mangle": true
+    }
+  },
+  "minify": true
+}

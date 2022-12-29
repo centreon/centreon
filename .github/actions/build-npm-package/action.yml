@@ -1,0 +1,24 @@
+name: Build NPM package
+description: This action builds the NPM package
+
+inputs:
+  package:
+    description: The package name
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Install dependencies
+      run: pnpm install
+      working-directory: centreon/packages/${{ inputs.package }}
+      shell: bash
+
+    - name: Build package
+      run: pnpm build:lib
+      working-directory: centreon/packages/${{ inputs.package }}
+      shell: bash
