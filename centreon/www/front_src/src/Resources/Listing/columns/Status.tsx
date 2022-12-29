@@ -5,12 +5,8 @@ import { makeStyles } from 'tss-react/mui';
 import IconAcknowledge from '@mui/icons-material/Person';
 import IconCheck from '@mui/icons-material/Sync';
 
-import {
-  ComponentColumnProps,
-  SeverityCode,
-  StatusChip,
-  IconButton
-} from '@centreon/ui';
+import { SeverityCode, StatusChip, IconButton } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import useAclQuery from '../../Actions/Resource/aclQuery';
 import IconDowntime from '../../icons/Downtime';

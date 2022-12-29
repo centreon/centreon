@@ -18,6 +18,7 @@ runs:
         browser: chrome
         component: true
         install-command: pnpm install
+        command: pnpm cypress:cli
         working-directory: ${{ inputs.working_directory }}
 
     - name: Archive videos

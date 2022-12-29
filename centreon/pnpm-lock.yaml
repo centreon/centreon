@@ -83,7 +83,7 @@ importers:
       jest-environment-jsdom: ^28.1.3
       jest-fetch-mock: ^3.0.3
       jest-junit: ^14.0.1
-      jotai: ^1.9.2
+      jotai: 1.9.2
       jotai-suspense: ^0.1.0
       jsdom: ^20.0.2
       mockdate: ^3.0.5
@@ -155,8 +155,8 @@ importers:
       formik: 2.2.9_react@18.2.0
       html-react-parser: 3.0.6_react@18.2.0
       i18next: 22.4.6
-      jotai: 1.12.0_react@18.2.0
-      jotai-suspense: 0.1.0_jotai@1.12.0+react@18.2.0
+      jotai: 1.9.2_react@18.2.0
+      jotai-suspense: 0.1.0_jotai@1.9.2+react@18.2.0
       notistack: 2.0.8_je6wcyxzzodpuivmp54wfrprbm
       numeral: 2.0.6
       pluralize: 8.0.0
@@ -15423,51 +15423,45 @@ packages:
       - ts-node
     dev: true
 
-  /jotai-suspense/0.1.0_jotai@1.12.0+react@18.2.0:
+  /jotai-suspense/0.1.0_jotai@1.9.2+react@18.2.0:
     resolution: {integrity: sha512-jZuXsQRInxiAGqJ8P0N1oVg6l+ACTbj4oOXx0y7Rc5CWkyYR8fisxTc+AatYtMvGmWH018E13q9leP7/SwadcA==}
     peerDependencies:
       jotai: '*'
       react: '>=17.0.0'
     dependencies:
-      jotai: 1.12.0_react@18.2.0
+      jotai: 1.9.2_react@18.2.0
       react: 18.2.0
     dev: false
 
-  /jotai/1.12.0_react@18.2.0:
-    resolution: {integrity: sha512-IhyBmjxU1sE2Ni/MUK7gQAb8QvCM6yd1/K5jtQzgQBmmjCjgfXZkkk1rYlQAIRp2KoQk0Y+yzhm1f5cZ7kegnw==}
-    engines: {node: '>=12.20.0'}
+  /jotai/1.9.2_react@18.2.0:
+    resolution: {integrity: sha512-/893WrniZwoVc0+3JR056r0FTC/tGbgyHco9dfgde6K8TU6XNxrOSw4jCRdDicncw67A37v2GNGzXSpHKbHPmw==}
+    engines: {node: '>=12.7.0'}
     peerDependencies:
       '@babel/core': '*'
       '@babel/template': '*'
-      jotai-immer: '*'
-      jotai-optics: '*'
-      jotai-redux: '*'
+      immer: '*'
       jotai-tanstack-query: '*'
       jotai-urql: '*'
-      jotai-valtio: '*'
-      jotai-xstate: '*'
-      jotai-zustand: '*'
+      optics-ts: '*'
       react: '>=16.8'
+      valtio: '*'
+      xstate: '*'
     peerDependenciesMeta:
       '@babel/core':
         optional: true
       '@babel/template':
         optional: true
-      jotai-immer:
-        optional: true
-      jotai-optics:
-        optional: true
-      jotai-redux:
+      immer:
         optional: true
       jotai-tanstack-query:
         optional: true
       jotai-urql:
         optional: true
-      jotai-valtio:
+      optics-ts:
         optional: true
-      jotai-xstate:
+      valtio:
         optional: true
-      jotai-zustand:
+      xstate:
         optional: true
     dependencies:
       react: 18.2.0

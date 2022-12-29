@@ -7,7 +7,8 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
 
-import { Column, Method, TestQueryProvider } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import type { Column } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';

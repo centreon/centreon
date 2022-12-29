@@ -4,7 +4,7 @@ import { path } from 'ramda';
 
 import { Grid } from '@mui/material';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelInDowntime, labelAcknowledged } from '../../../translatedLabels';
 import { Resource } from '../../../models';

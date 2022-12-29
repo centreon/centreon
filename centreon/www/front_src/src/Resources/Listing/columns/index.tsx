@@ -1,7 +1,8 @@
 import { pipe, split, head, propOr, T } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { ColumnType, Column } from '@centreon/ui';
+import { ColumnType } from '@centreon/ui';
+import type { Column } from '@centreon/ui';
 
 import {
   labelResource,

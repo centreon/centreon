@@ -9,10 +9,10 @@ import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
-  Actions,
   downtimeAtom,
   refreshIntervalAtom
 } from '@centreon/ui-context';
+import type { Actions } from '@centreon/ui';
 
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';

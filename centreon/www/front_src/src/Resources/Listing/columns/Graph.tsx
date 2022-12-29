@@ -7,11 +7,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Paper } from '@mui/material';
 import IconGraph from '@mui/icons-material/BarChart';
 
-import {
-  IconButton,
-  ComponentColumnProps,
-  LoadingSkeleton
-} from '@centreon/ui';
+import { IconButton, LoadingSkeleton } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 import { ResourceDetails } from '../../Details/models';

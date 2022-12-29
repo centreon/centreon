@@ -6,7 +6,8 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 import ServiceIcon from '@mui/icons-material/Grain';
 
-import { SubmenuHeader, SeverityCode, SelectEntry } from '@centreon/ui';
+import { SubmenuHeader, SeverityCode } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';

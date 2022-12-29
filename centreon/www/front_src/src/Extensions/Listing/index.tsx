@@ -14,10 +14,10 @@ import {
   useRequest,
   getData,
   postData,
-  SelectEntry,
   useSnackbar,
   Responsive
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import FederatedComponents from '../../components/FederatedComponents';
 import useNavigation from '../../Navigation/useNavigation';

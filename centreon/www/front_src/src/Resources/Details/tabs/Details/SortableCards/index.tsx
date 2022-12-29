@@ -24,9 +24,9 @@ import { Box, Grid } from '@mui/material';
 import {
   SortableItems,
   useLocaleDateTimeFormat,
-  RootComponentProps,
   useMemoComponent
 } from '@centreon/ui';
+import type { RootComponentProps } from '@centreon/ui';
 
 import getDetailCardLines, { DetailCardLine } from '../DetailsCard/cards';
 import { ResourceDetails } from '../../../models';

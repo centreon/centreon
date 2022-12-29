@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { Form, Group, useRequest, useSnackbar } from '@centreon/ui';
+import { Form, useRequest, useSnackbar } from '@centreon/ui';
+import type { Group } from '@centreon/ui';
 
 import { PasswordSecurityPolicy } from '../models';
 import useValidationSchema from '../useValidationSchema';

@@ -6,7 +6,8 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 import HostIcon from '@mui/icons-material/Dns';
 
-import { SubmenuHeader, SeverityCode, SelectEntry } from '@centreon/ui';
+import { SubmenuHeader, SeverityCode } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { Criteria } from '../../../Resources/Filter/Criterias/models';

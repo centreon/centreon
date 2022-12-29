@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
 
-import { ComponentColumnProps, StatusChip } from '@centreon/ui';
+import { StatusChip } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { useColumnStyles } from '.';
 
