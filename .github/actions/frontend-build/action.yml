@@ -29,8 +29,18 @@ runs:
         version: 7
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm i
       working-directory: ${{ env.base_directory }}
+      shell: bash
+
+    - name: install ui-context
+      run: pnpm i
+      working-directory: ${{ env.base_directory }}/packages/ui-context
+      shell: bash
+
+    - name: install ui
+      run: pnpm i
+      working-directory: ${{ env.base_directory }}/packages/ui
       shell: bash
 
     - name: Build ui-context
