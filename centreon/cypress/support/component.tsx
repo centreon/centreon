@@ -3,13 +3,13 @@ import './commands';
 import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
 
 const enableVisualTesting = (): void => {
-  if (Cypress.config('isInteractive')) {
-    Cypress.Commands.add('matchImageSnapshot', () => {
-      cy.log('Skipping snapshot');
-    });
+  // if (Cypress.config('isInteractive')) {
+  //   Cypress.Commands.add('matchImageSnapshot', () => {
+  //     cy.log('Skipping snapshot');
+  //   });
 
-    return;
-  }
+  //   return;
+  // }
 
   addMatchImageSnapshotCommand({
     capture: 'viewport',

@@ -67,7 +67,7 @@ const fillEntities = (): Array<Resource> => {
     short_type: index % 4 === 0 ? 's' : 'h',
     status: {
       name: index % 2 === 0 ? 'OK' : 'PENDING',
-      severity_code: index % 2 === 0 ? 2 : 5
+      severity_code: index % 2 === 0 ? 5 : 4
     },
     tries: '1',
     type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
@@ -260,6 +260,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
@@ -270,6 +271,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -280,6 +282,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
@@ -290,6 +293,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
