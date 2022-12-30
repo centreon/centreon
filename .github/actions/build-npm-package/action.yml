@@ -18,6 +18,12 @@ runs:
       working-directory: centreon
       shell: bash
 
+    - name: Build ui-context package
+      if: ${{ inputs.package == 'ui' }}
+      run: (cd packages/ui-context && pnpm build:lib)
+      working-directory: centreon
+      shell: bash
+
     - name: Build package
       run: (cd packages/${{ inputs.package }} && pnpm build:lib)
       working-directory: centreon
