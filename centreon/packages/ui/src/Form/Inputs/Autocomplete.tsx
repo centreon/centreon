@@ -39,7 +39,6 @@ const normalizeNewValues = ({
 };
 
 const Autocomplete = ({
-  dataTestId,
   fieldName,
   label,
   required,
@@ -154,7 +153,6 @@ const Autocomplete = ({
     Component: (
       <div>
         <AutocompleteField
-          dataTestId={dataTestId}
           disabled={disabled}
           freeSolo={isCreatable}
           inputValue={inputText}

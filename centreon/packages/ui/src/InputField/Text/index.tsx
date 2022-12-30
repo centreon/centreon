@@ -120,8 +120,6 @@ const TextField = forwardRef(
               </OptionalLabelInputAdornment>
             )
           }}
-          data-testid={dataTestId}
-          id={getNormalizedId(dataTestId || '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,

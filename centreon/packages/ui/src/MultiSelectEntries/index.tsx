@@ -3,6 +3,7 @@
 import { Ref } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { CxArg } from 'tss-react';
 
 import { Box, Chip, Grid, FormHelperText, Typography } from '@mui/material';
 import IconCreate from '@mui/icons-material/Create';
@@ -115,9 +116,9 @@ const MultiSelectEntries = ({
   return (
     <div
       className={cx({
-        [classes.hovered]: isHovered || highlight,
+        [classes.hovered]: (isHovered as boolean) || highlight,
         [classes.container]: true
-      })}
+      } as CxArg)}
       ref={hoverRef as Ref<HTMLDivElement>}
       role="button"
       tabIndex={0}
