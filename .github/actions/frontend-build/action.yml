@@ -33,16 +33,6 @@ runs:
       working-directory: ${{ env.base_directory }}
       shell: bash
 
-    - name: Install ui-context dependencies
-      run: pnpm install
-      working-directory: ${{ env.base_directory }}/packages/ui-context
-      shell: bash
-    
-    - name: Install centreon-ui dependencies
-      run: pnpm install
-      working-directory: ${{ env.base_directory }}/packages/ui
-      shell: bash
-
     - name: Build frontend
       run: pnpm build
       working-directory: ${{ inputs.base_directory }}
