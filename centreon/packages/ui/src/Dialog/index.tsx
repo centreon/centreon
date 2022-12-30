@@ -37,7 +37,7 @@ export type Props = {
   labelTitle?: string | null;
   onCancel?: () => void;
   onClose?: () => void;
-  onConfirm: (event) => void;
+  onConfirm: (event, value?) => void;
   open: boolean;
   submitting?: boolean;
 } & DialogProps;
