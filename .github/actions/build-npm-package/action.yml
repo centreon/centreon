@@ -14,11 +14,11 @@ runs:
         version: 7
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm i
       working-directory: centreon
       shell: bash
 
     - name: Build package
-      run: pnpm build:lib
-      working-directory: centreon/packages/${{ inputs.package }}
+      run: (cd packages/${{ inputs.package }} && pnpm build:lib)
+      working-directory: centreon
       shell: bash
