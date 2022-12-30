@@ -12,8 +12,9 @@
     "test": "pnpm prebuild && node testRunner.js",
     "test:storyshot": "pnpm prebuild && node testRunner.js storyshots.test.js",
     "test:ci": "pnpm prebuild && node testRunner.js --silent --reporter=jest-junit",
-    "build:lib": "pnpm prebuild && tsc",
-    "build:lib:watch": "pnpm run build:lib --watch"
+    "build:swc:only": "swc src --out-dir dist --sync --config-file ../js-config/swc/base.json",
+    "build:lib": "pnpm build:swc:only & tsc",
+    "build:lib:watch": "pnpm build:swc:only -w & tsc -w"
   },
   "sideEffects": false,
   "repository": {
