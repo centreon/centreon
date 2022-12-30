@@ -15,7 +15,7 @@ runs:
 
     - name: Install dependencies
       run: pnpm install
-      working-directory: centreon/packages/${{ inputs.package }}
+      working-directory: centreon
       shell: bash
 
     - name: Build package
