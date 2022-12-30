@@ -89,7 +89,7 @@ interface SectionPanelProps {
   onSecondaryPanelClose?: () => void;
   secondaryPanel?: JSX.Element;
   sections: Array<Section>;
-  width?: (width: number) => void;
+  setWidth?: (width: number) => void;
 }
 
 const SectionPanel = ({
@@ -101,7 +101,7 @@ const SectionPanel = ({
   onResize,
   loading = false,
   mainPanelWidth = panelWidth,
-  width
+  setWidth
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
@@ -113,11 +113,11 @@ const SectionPanel = ({
   const getWidth = (): number => {
     if (hasSecondaryPanel) {
       const newWidth = panelWidth * 2 + closeSecondaryPanelBarWidth;
-      width?.(newWidth);
+      setWidth?.(newWidth);
 
       return newWidth;
     }
-    width?.(panelWidth);
+    setWidth?.(panelWidth);
 
     return panelWidth;
   };

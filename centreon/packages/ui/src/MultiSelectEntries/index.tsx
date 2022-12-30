@@ -54,7 +54,7 @@ interface EntryProps {
   size?: 'small' | 'medium';
 }
 
-const Entry = ({
+const EntryChip = ({
   label,
   size = 'small',
   gridWidth = 6
@@ -154,9 +154,9 @@ const MultiSelectEntries = ({
       </Box>
       <Grid container justifyContent="flex-start">
         {values.slice(0, maxChips).map(({ id, name }) => (
-          <Entry gridWidth={gridWidth} key={id} label={name} size={size} />
+          <EntryChip gridWidth={gridWidth} key={id} label={name} size={size} />
         ))}
-        {count > maxChips && <Entry label="..." />}
+        {count > maxChips && <EntryChip label="..." />}
       </Grid>
       {count === 0 && <EmptyEntry label={emptyLabel} />}
       {error && <FormHelperText error>{error}</FormHelperText>}
