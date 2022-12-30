@@ -32,9 +32,9 @@ export type Props = {
   dialogContentClassName?: string;
   dialogPaperClassName?: string;
   dialogTitleClassName?: string;
-  labelCancel?: string;
-  labelConfirm?: string;
-  labelTitle?: string;
+  labelCancel?: string | null;
+  labelConfirm?: string | null;
+  labelTitle?: string | null;
   onCancel?: () => void;
   onClose?: () => void;
   onConfirm: (event) => void;
@@ -90,7 +90,7 @@ const Dialog = ({
           </Button>
         )}
         <Button
-          aria-label={labelConfirm}
+          aria-label={labelConfirm || ''}
           color="primary"
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}

@@ -22,7 +22,7 @@ const Duplicate = ({
   };
 
   const handleConfirm = (event): void => {
-    onConfirm(event, value);
+    onConfirm(event);
   };
 
   return (

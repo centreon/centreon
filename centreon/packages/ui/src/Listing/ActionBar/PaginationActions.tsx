@@ -55,7 +55,7 @@ const PaginationActions = ({
   return (
     <div className={classes.root}>
       <IconButton
-        aria-label={t(labelFirstPage)}
+        aria-label={t(labelFirstPage) || ''}
         disabled={isFirstPage}
         size="large"
         onClick={changeToFirstPage}
@@ -63,7 +63,7 @@ const PaginationActions = ({
         <FirstPageIcon />
       </IconButton>
       <IconButton
-        aria-label={t(labelPreviousPage)}
+        aria-label={t(labelPreviousPage) || ''}
         disabled={isFirstPage}
         size="large"
         onClick={changeToPreviousPage}
@@ -71,7 +71,7 @@ const PaginationActions = ({
         <KeyboardArrowLeft />
       </IconButton>
       <IconButton
-        aria-label={t(labelNextPage)}
+        aria-label={t(labelNextPage) || ''}
         disabled={isLastPage}
         size="large"
         onClick={changeToNextPage}
@@ -79,7 +79,7 @@ const PaginationActions = ({
         <KeyboardArrowRight />
       </IconButton>
       <IconButton
-        aria-label={t(labelLastPage)}
+        aria-label={t(labelLastPage) || ''}
         disabled={isLastPage}
         size="large"
         onClick={changeToLastPage}

@@ -65,7 +65,7 @@ const SortableHeaderCellContent = ({
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
-  const cellClasses = useCellStyles();
+  const { classes: cellClasses } = useCellStyles();
 
   const columnLabel = column.shortLabel || column.label;
 

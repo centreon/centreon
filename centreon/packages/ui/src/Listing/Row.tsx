@@ -105,7 +105,7 @@ const Row = memo<RowProps>(
       </TableRow>
     );
   },
-  (prevProps, nextProps) => {
+  (prevProps: RowProps, nextProps: RowProps) => {
     const {
       row: previousRow,
       rowColorConditions: previousRowColorConditions,
