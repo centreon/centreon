@@ -46,6 +46,12 @@ runs:
       working-directory: ${{ env.directory }}
       shell: bash
 
+    - name: Build package
+      if: ${{ inputs.package != 'js-config' }}
+      uses: ./.github/actions/build-npm-package
+      with:
+        package: ${{ inputs.package }}
+
     - name: Configure git
       run: |
         git config user.email "technique-ci@centreon.com"
@@ -60,12 +66,6 @@ runs:
         git commit -m "chore: pre-release ${VERSION}"
         git push origin ${{ github.head_ref }}
       shell: bash
-
-    - name: Build package
-      if: ${{ inputs.package != 'js-config' }}
-      uses: ./.github/actions/build-npm-package
-      with:
-        package: ${{ inputs.package }}
 
     - name: Publish package to NPM (${{ env.TAG }})
       run: |
