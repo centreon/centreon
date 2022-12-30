@@ -13,6 +13,25 @@ import ExpandableSection from './ExpandableSection';
 const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;
 
+interface GridTemplateColumns {
+  hasSecondaryPanel?: boolean;
+  mainPanelWidth: number;
+}
+
+const getGridTemplateColumns = ({
+  mainPanelWidth,
+  hasSecondaryPanel
+}: GridTemplateColumns): string => {
+  if (!hasSecondaryPanel) {
+    return '100%';
+  }
+  if (!mainPanelWidth) {
+    return `1fr ${closeSecondaryPanelBarWidth}px 1fr`;
+  }
+
+  return `${mainPanelWidth}px ${closeSecondaryPanelBarWidth}px 1fr`;
+};
+
 interface StylesProps {
   hasSecondaryPanel?: boolean;
   mainPanelWidth: number;
@@ -35,8 +54,11 @@ const useStyles = makeStyles<StylesProps>()(
       width: closeSecondaryPanelBarWidth
     },
     container: {
-      display: hasSecondaryPanel ? 'flex' : 'block',
-      gridTemplateColumns: '100%',
+      display: hasSecondaryPanel ? 'grid' : 'block',
+      gridTemplateColumns: getGridTemplateColumns({
+        hasSecondaryPanel,
+        mainPanelWidth
+      }),
       height: '100%'
     },
     mainPanel: {
