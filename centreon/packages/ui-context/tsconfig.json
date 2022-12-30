@@ -6,7 +6,8 @@
     "skipLibCheck": true,
     "pretty": true,
     "emitDeclarationOnly": true,
-    "types": []
+    "types": [],
+    "esModuleInterop": true
   },
   "include": [
     "./src"
