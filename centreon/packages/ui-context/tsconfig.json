@@ -1,12 +1,12 @@
 {
-  "extends": "../jsconfig/base.json",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
     "declaration": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "pretty": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "types": []
   },
   "include": [
     "./src"
