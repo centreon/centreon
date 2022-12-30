@@ -12,7 +12,7 @@
     "test": "pnpm prebuild && node testRunner.js",
     "test:storyshot": "pnpm prebuild && node testRunner.js storyshots.test.js",
     "test:ci": "pnpm prebuild && node testRunner.js --silent --reporter=jest-junit",
-    "build:lib": "tsc",
+    "build:lib": "pnpm prebuild && tsc",
     "build:lib:watch": "pnpm run build:lib --watch"
   },
   "sideEffects": false,
