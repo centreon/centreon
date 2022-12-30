@@ -122,11 +122,12 @@ const Autocomplete = ({
   const getValues = useCallback(():
     | SelectEntry
     | Array<SelectEntry>
-    | Array<{ id: SelectEntry; name: SelectEntry }>
     | undefined => {
     if (isMultiple && isCreatable) {
       return equals(type(selectedValues), 'Array')
-        ? (selectedValues as Array<SelectEntry> | undefined)?.map((value) => ({
+        ? (
+            selectedValues as Array<SelectEntry> | Array<string> | undefined
+          )?.map((value) => ({
             id: value,
             name: value
           }))

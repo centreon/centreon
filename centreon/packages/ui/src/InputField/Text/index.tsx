@@ -121,14 +121,13 @@ const TextField = forwardRef(
             )
           }}
           data-testid={dataTestId}
-          error={!isNil(error)}
-          helperText={displayErrorInTooltip ? undefined : error}
           id={getNormalizedId(dataTestId || '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            'data-testid': dataTestId
+            'data-testid': dataTestId || ''
           }}
+          variant="outlined"
           {...baseProps}
           {...rest}
         />
