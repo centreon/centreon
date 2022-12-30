@@ -1,4 +1,5 @@
 {
+  "extends": "../jsconfig/base.json",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
