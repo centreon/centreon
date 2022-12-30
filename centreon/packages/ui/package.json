@@ -12,8 +12,8 @@
     "test": "pnpm prebuild && node testRunner.js",
     "test:storyshot": "pnpm prebuild && node testRunner.js storyshots.test.js",
     "test:ci": "pnpm prebuild && node testRunner.js --silent --reporter=jest-junit",
-    "remove:build:files": "find dist -name \"*.stories.js\" -type f -delete && find dist -name \"*.test.js\" -type f -delete && rm -rf dist/__mocks__",
-    "build:lib": "rm -rf dist && swc ./src -d ./dist --config-file ../js-config/swc/base.json && pnpm remove:build:files"
+    "build:lib": "tsc",
+    "build:lib:watch": "pnpm run build:lib --watch"
   },
   "sideEffects": false,
   "repository": {
@@ -56,6 +56,7 @@
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.27.3",
     "notistack": "^2.0.8",
+    "react-transition-group": "^4.4.5",
     "ulog": "^2.0.0-beta.19"
   },
   "jest-junit": {

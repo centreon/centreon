@@ -9,7 +9,8 @@
   "scripts": {
     "eslint": "eslint ./src --ext .ts",
     "eslint:fix": "pnpm run eslint --fix",
-    "build:lib": "rm -rf dist && swc ./src -d ./dist --config-file ../js-config/swc/base.json"
+    "build:lib": "tsc",
+    "build:lib:watch": "pnpm run build:lib --watch"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.59",

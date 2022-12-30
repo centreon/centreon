@@ -4,10 +4,11 @@
   "description": "centreon web package",
   "scripts": {
     "prebuild": "(cd packages/ui-context && pnpm build:lib) && (cd packages/ui && pnpm build:lib)",
+    "prebuild:watch": "pnpm prebuild && pm2 start packages-ecosystem.config.js",
     "build": "pnpm prebuild && webpack --mode production --config ./webpack.config.prod.js",
     "build:analyze": "pnpm prebuild && webpack --mode production --config ./webpack.config.analyze.js",
-    "build:dev": "pnpm prebuild && cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
-    "build:watch": "pnpm prebuild && cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
+    "build:dev": "pnpm prebuild:watch && cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
+    "build:watch": "pnpm prebuild:watch && cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
     "eslint": "pnpm prebuild && eslint ./www/front_src --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "pnpm eslint --fix",
     "test": "pnpm prebuild && jest",
