@@ -10,7 +10,7 @@
     "eslint": "eslint ./src --ext .ts",
     "eslint:fix": "pnpm run eslint --fix",
     "build:swc:only": "swc src --out-dir dist --sync --config-file ../js-config/swc/base.json",
-    "build:lib": "pnpm build:swc:only",
+    "build:lib": "pnpm build:swc:only && tsc",
     "build:lib:watch": "pnpm build:swc:only -w & tsc -w"
   },
   "devDependencies": {

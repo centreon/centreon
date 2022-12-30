@@ -33,6 +33,16 @@ runs:
       working-directory: ${{ env.base_directory }}
       shell: bash
 
+    - name: Build ui-context
+      run: pnpm build:lib
+      working-directory: ${{ env.base_directory }}/packages/ui-context
+      shell: bash
+
+    - name: Build ui
+      run: pnpm build:lib
+      working-directory: ${{ env.base_directory }}/packages/ui
+      shell: bash
+
     - name: Build frontend
       run: pnpm build
       working-directory: ${{ inputs.base_directory }}
