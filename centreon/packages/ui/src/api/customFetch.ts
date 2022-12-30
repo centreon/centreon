@@ -53,7 +53,10 @@ export const customFetch = <T>({
       return response.json().then((data) => {
         if (!response.ok) {
           const defaultError = { code: -1, message: defaultFailureMessage };
-          catchError({ data: data || defaultError, statusCode: response.status });
+          catchError({
+            data: data || defaultError,
+            statusCode: response.status
+          });
 
           return {
             isError: true,
@@ -67,7 +70,7 @@ export const customFetch = <T>({
         }
 
         return data;
-      })
+      });
     })
     .catch(() => {
       const defaultError = { code: -1, message: defaultFailureMessage };
