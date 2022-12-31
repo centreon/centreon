@@ -5,6 +5,9 @@ const { ModuleFederationPlugin } = require('webpack').container;
 
 const excludeAllNodeModules = /node_modules/;
 
+const excludeNodeModulesExceptCentreonUi =
+  /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
+
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
@@ -38,7 +41,7 @@ const getBaseConfiguration = ({
         use: ['@svgr/webpack']
       },
       {
-        exclude: excludeAllNodeModules,
+        exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
         use: [
           {
@@ -66,57 +69,58 @@ const getBaseConfiguration = ({
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new ModuleFederationPlugin({
-      filename: 'remoteEntry.[chunkhash:8].js',
-      library: { name: moduleName, type: 'var' },
-      name: moduleName,
-      shared: [
-        {
-          '@centreon/ui-context': {
-            requiredVersion: '22.10.0',
-            singleton: true
+    moduleName &&
+      new ModuleFederationPlugin({
+        filename: 'remoteEntry.[chunkhash:8].js',
+        library: { name: moduleName, type: 'var' },
+        name: moduleName,
+        shared: [
+          {
+            '@centreon/ui-context': {
+              requiredVersion: '22.10.0',
+              singleton: true
+            }
+          },
+          {
+            jotai: {
+              requiredVersion: '1.x',
+              singleton: true
+            }
+          },
+          {
+            'jotai-suspense': {
+              requiredVersion: '0.1.x',
+              singleton: true
+            }
+          },
+          {
+            react: {
+              requiredVersion: '18.x',
+              singleton: true
+            }
+          },
+          {
+            'react-dom': {
+              requiredVersion: '18.x',
+              singleton: true
+            }
+          },
+          {
+            'react-i18next': {
+              requiredVersion: '11.x',
+              singleton: true
+            }
+          },
+          {
+            'react-router-dom': {
+              requiredVersion: '6.x',
+              singleton: true
+            }
           }
-        },
-        {
-          jotai: {
-            requiredVersion: '1.x',
-            singleton: true
-          }
-        },
-        {
-          'jotai-suspense': {
-            requiredVersion: '0.1.x',
-            singleton: true
-          }
-        },
-        {
-          react: {
-            requiredVersion: '18.x',
-            singleton: true
-          }
-        },
-        {
-          'react-dom': {
-            requiredVersion: '18.x',
-            singleton: true
-          }
-        },
-        {
-          'react-i18next': {
-            requiredVersion: '11.x',
-            singleton: true
-          }
-        },
-        {
-          'react-router-dom': {
-            requiredVersion: '6.x',
-            singleton: true
-          }
-        }
-      ],
-      ...moduleFederationConfig
-    })
-  ],
+        ],
+        ...moduleFederationConfig
+      })
+  ].filter(Boolean),
   resolve: {
     alias: {
       react: path.resolve('./node_modules/react')
