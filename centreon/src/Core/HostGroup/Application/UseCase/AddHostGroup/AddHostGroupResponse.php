@@ -21,25 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\Repository;
+namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
-use Core\HostGroup\Domain\Model\NewHostGroup;
-
-interface WriteHostGroupRepositoryInterface
+final class AddHostGroupResponse
 {
-    /**
-     * Delete a host group.
-     *
-     * @param int $hostGroupId
-     */
-    public function deleteHostGroup(int $hostGroupId): void;
+    public int $id = 0;
 
-    /**
-     * @param NewHostGroup $newHostGroup
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewHostGroup $newHostGroup): int;
+    public string $name = '';
+
+    public string $alias = '';
+
+    public string $notes = '';
+
+    public string $notesUrl = '';
+
+    public string $actionUrl = '';
+
+    public ?int $iconId = null;
+
+    public ?int $iconMapId = null;
+
+    public ?int $rrdRetention = null;
+
+    public ?string $geoCoords = null;
+
+    public string $comment = '';
+
+    public bool $isActivated = true;
 }

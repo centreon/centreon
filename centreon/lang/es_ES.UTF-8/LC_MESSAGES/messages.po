@@ -15385,3 +15385,24 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Error while deleting host category"
 #  msgstr ""
+
+#  msgid "Error while searching for host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host groups"
+#  msgstr ""
+
+#  msgid "Host group not found"
+#  msgstr ""
+
+#  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "The host group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving just created host group"
+#  msgstr ""
+
+#  msgid "The host group icon '%s' with id '%d' does not exist"
+#  msgstr ""

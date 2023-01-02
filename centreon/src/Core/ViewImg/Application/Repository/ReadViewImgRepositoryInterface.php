@@ -21,25 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\Repository;
+namespace Core\ViewImg\Application\Repository;
 
-use Core\HostGroup\Domain\Model\NewHostGroup;
-
-interface WriteHostGroupRepositoryInterface
+interface ReadViewImgRepositoryInterface
 {
     /**
-     * Delete a host group.
+     * Tells whether the image exists.
      *
-     * @param int $hostGroupId
-     */
-    public function deleteHostGroup(int $hostGroupId): void;
-
-    /**
-     * @param NewHostGroup $newHostGroup
+     * @param int $imageId
      *
      * @throws \Throwable
      *
-     * @return int
+     * @return bool
      */
-    public function add(NewHostGroup $newHostGroup): int;
+    public function existsOne(int $imageId): bool;
 }

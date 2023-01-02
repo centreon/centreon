@@ -409,6 +409,35 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Host group
+      summary: "Add a host group"
+      description: |
+        Add a new host group configuration.
+
+        Mandatory body properties are:
+
+        * name
+        
+        `Since Centreon web 23.04`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Host.Group.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Group'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups/{hostgroup_id}:
     delete:
       tags:
@@ -5771,12 +5800,16 @@ components:
           items:
             type: integer
     Configuration.Host.Group:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Host.Group.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Host group id"
+              example: 1
+    Configuration.Host.Group.Add:
       type: object
       properties:
-        id:
-          type: integer
-          description: "Host group id"
-          example: 1
         name:
           type: string
           maxLength: 200

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\Repository;
+namespace Core\Common\Infrastructure\Repository;
 
-use Core\HostGroup\Domain\Model\NewHostGroup;
-
-interface WriteHostGroupRepositoryInterface
+/**
+ * This trait is here only to expose utility methods **only** to avoid duplicate code.
+ * The methods SHOULD be "Pure" functions.
+ */
+trait RepositoryTrait
 {
     /**
-     * Delete a host group.
+     * Transform an empty string `''` in `null` value, otherwise keep the same string.
      *
-     * @param int $hostGroupId
+     * @phpstan-pure
+     *
+     * @param string $string
+     *
+     * @return string|null
      */
-    public function deleteHostGroup(int $hostGroupId): void;
-
-    /**
-     * @param NewHostGroup $newHostGroup
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewHostGroup $newHostGroup): int;
+    public function emptyStringAsNull(string $string): ?string
+    {
+        return '' === $string ? null : $string;
+    }
 }

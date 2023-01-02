@@ -97,4 +97,16 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function existsOneByAccessGroups(int $hostGroupId, array $accessGroups): bool;
+
+    /**
+     * Tells whether the host group name already exists.
+     * This method does not need an acl version of it.
+     *
+     * @param string $hostGroupName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function nameAlreadyExists(string $hostGroupName): bool;
 }
