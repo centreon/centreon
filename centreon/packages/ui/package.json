@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.10-MOn-update-centreon-logo.2",
+  "version": "23.4.10-MOn-update-centreon-logo.3",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
