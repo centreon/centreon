@@ -57,6 +57,7 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}          
           release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username}}
           nexus_password: ${{ secrets.nexus_password }}
