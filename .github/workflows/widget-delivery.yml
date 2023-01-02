@@ -7,6 +7,13 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
+      release:
+        description: The release number
+        required: true
+        type: string
       stability:
         required: true
         type: string
@@ -46,10 +53,12 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ inputs.widget_name }}
+          module_name: widget-${{ inputs.widget_name }}
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
+          minor_version: ${{ inputs.minor_version }}          
+          release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username}}
           nexus_password: ${{ secrets.nexus_password }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
