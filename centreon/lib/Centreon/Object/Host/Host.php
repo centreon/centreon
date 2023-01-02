@@ -57,7 +57,6 @@ class Centreon_Object_Host extends Centreon_Object
     public function update($hostId, $params = [])
     {
         parent::update($hostId, $params);
-        var_dump($params);
         $vaultConfiguration = $this->getVaultConfiguration();
         if ($vaultConfiguration !== null) {
             try {
@@ -77,9 +76,7 @@ class Centreon_Object_Host extends Centreon_Object
                     && $params['host_snmp_community_is_password'] === '1'
                 ) {
                     //Replace olds vault values by the new ones
-                    foreach($params as $keyName => $value) {
-                        $hostSecrets[$keyName] = $value;
-                    }
+                    $hostSecrets['_HOSTSNMPCOMMUNITY'] = $params['host_snmp_community'];
                     $this->writeSecretsInVault(
                         $vaultConfiguration,
                         $hostId,
@@ -89,6 +86,17 @@ class Centreon_Object_Host extends Centreon_Object
                         $httpClient
                     );
                     $this->updateHostTablesWithVaultPath($vaultConfiguration, $hostId, $this->db);
+                } elseif (
+                    array_key_exists('host_snmp_community', $params)
+                    && $params['host_snmp_community_is_password'] === '0'
+                    && array_key_exists('_HOSTSNMPCOMMUNITY', $hostSecrets)
+                    && count($hostSecrets) === 1
+                 ) {
+                    /**
+                     * If SNMP Community is not a password, and the vault configuration only have the SNMP Community,
+                     * We can delete the host from vault
+                     */
+                    $this->deleteHostFromVault($vaultConfiguration, $hostId, $clientToken, $centreonLog, $httpClient);
                 }
             } catch (\Throwable $ex) {
                 error_log((string) $ex);
