@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-engine-status",
   "description": "Widget to display operational metrics of a monitoring engine",
-  "version": "22.10.0",
+  "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {

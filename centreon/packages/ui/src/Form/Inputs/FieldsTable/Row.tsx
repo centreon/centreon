@@ -21,20 +21,20 @@ const useStyles = makeStyles<StylesProps>()(
     actions: {
       alignItems: 'center',
       display: 'flex',
-      flexGrow: 1,
+      flexGrow: 1
     },
     icon: {
-      marginTop: theme.spacing(0.5),
+      marginTop: theme.spacing(0.5)
     },
     inputsRow: {
       columnGap: theme.spacing(2),
       display: 'grid',
       gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(
-        actionsCount ? 4 * actionsCount : 6,
+        actionsCount ? 4 * actionsCount : 6
       )}`,
-      gridTemplateRows: 'min-content',
-    },
-  }),
+      gridTemplateRows: 'min-content'
+    }
+  })
 );
 
 interface Props {
@@ -62,13 +62,13 @@ const Row = ({
   deleteLabel,
   onDeleteRow,
   hasSingleValue,
-  additionalActions,
+  additionalActions
 }: Props): JSX.Element => {
   const { classes } = useStyles({
     actionsCount: additionalActions
       ? inc(Children.count(additionalActions))
       : 1,
-    columns: columns?.length,
+    columns: columns?.length
   });
   const { t } = useTranslation();
 
@@ -98,8 +98,8 @@ const Row = ({
         ? value
         : {
             ...currentRowValue,
-            [property]: value,
-          },
+            [property]: value
+          }
     );
   };
 
@@ -119,7 +119,7 @@ const Row = ({
             change={({ value }): void =>
               changeRow({
                 property: field.fieldName,
-                value,
+                value
               })
             }
             fieldName={inputFieldName}

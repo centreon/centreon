@@ -7,7 +7,7 @@ export default { title: 'InputField/Select/IconPopover' };
 const options = [
   { id: 0, name: 'First Entity' },
   { id: 1, name: 'Second Entity' },
-  { id: 2, name: 'Third Entity' },
+  { id: 2, name: 'Third Entity' }
 ];
 
 export const withThreeOptions = (): JSX.Element => {

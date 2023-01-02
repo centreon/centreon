@@ -113,7 +113,8 @@ $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
-$query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
+$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+    h.host_id,
     h.name as hostname,
     h.alias as hostalias,
     s.latency,
@@ -158,7 +159,13 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.service_id = cv2.service_id
         AND s.host_id = cv2.host_id
         AND cv2.name = \'CRITICALITY_ID\'
-    ) ';
+    )';
+
+if (isset($preferences['acknowledgement_filter']) &&  $preferences['acknowledgement_filter'] == 'ackByMe') {
+    $query .= ' JOIN acknowledgements ack ON (
+        s.service_id = ack.service_id
+    )';
+}
 
 if (!$centreon->user->admin) {
     $query .= ' , centreon_acl acl ';
@@ -231,10 +238,12 @@ if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachab
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, ' s.state IN (' . implode(',', $stateTab) . ')');
 }
-
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == 'ack') {
         $query = CentreonUtils::conditionBuilder($query, ' s.acknowledged = 1');
+    } elseif ($preferences['acknowledgement_filter'] == 'ackByMe') {
+        $query = CentreonUtils::conditionBuilder($query, ' s.acknowledged = 1 AND ack.author = "'
+            . $centreon->user->alias . '"');
     } elseif ($preferences['acknowledgement_filter'] == 'nack') {
         $query = CentreonUtils::conditionBuilder(
             $query,
@@ -362,7 +371,7 @@ if (!$centreon->user->admin) {
         AND acl.service_id = s.service_id
         AND acl.group_id IN (" . $groupList . ") ";
 }
-$orderBy = 'hostname ASC , description ASC';
+$orderBy = 'hostname ASC ';
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     $aOrder = explode(' ', $preferences['order_by']);
@@ -382,8 +391,6 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
         $orderBy .= ', ' . $aOrder[0] . ' ' . $aOrder[1];
     }
 }
-
-$query .= 'GROUP BY hostname, description ';
 
 if (trim($orderBy)) {
     $query .= "ORDER BY " . $orderBy;

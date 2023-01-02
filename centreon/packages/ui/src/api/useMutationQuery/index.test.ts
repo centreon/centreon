@@ -6,7 +6,7 @@ import TestQueryProvider from '../TestQueryProvider';
 import useMutationQuery, {
   Method,
   UseMutationQueryProps,
-  UseMutationQueryState,
+  UseMutationQueryState
 } from '.';
 
 const mockedShowErrorMessage = jest.fn();
@@ -18,21 +18,21 @@ interface User {
 
 const user: User = {
   email: 'john@doe.com',
-  name: 'John Doe',
+  name: 'John Doe'
 };
 
 jest.mock('../../Snackbar/useSnackbar', () => ({
   __esModule: true,
   default: jest
     .fn()
-    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage })),
+    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage }))
 }));
 
 const renderMutationQuery = <T extends object>(
-  params: UseMutationQueryProps<T>,
+  params: UseMutationQueryProps<T>
 ): RenderHookResult<UseMutationQueryState<T>, unknown> =>
   renderHook(() => useMutationQuery<T>(params), {
-    wrapper: TestQueryProvider,
+    wrapper: TestQueryProvider
   }) as RenderHookResult<UseMutationQueryState<T>, unknown>;
 
 describe('useFetchQuery', () => {
@@ -45,7 +45,7 @@ describe('useFetchQuery', () => {
     fetchMock.once(JSON.stringify({}));
     const { result } = renderMutationQuery<User>({
       getEndpoint: () => '/endpoint',
-      method: Method.POST,
+      method: Method.POST
     });
 
     result.current.mutate(user);
@@ -57,11 +57,11 @@ describe('useFetchQuery', () => {
 
   it("shows an error from the API via the Snackbar and inside the browser's console when posting data to an endpoint", async () => {
     fetchMock.once(JSON.stringify({ code: 2, message: 'custom message' }), {
-      status: 400,
+      status: 400
     });
     const { result } = renderMutationQuery<User>({
       getEndpoint: () => '/endpoint',
-      method: Method.POST,
+      method: Method.POST
     });
 
     result.current.mutate(user);
@@ -77,12 +77,12 @@ describe('useFetchQuery', () => {
 
   it('shows a default failure message via the Snackbar as fallback when posting data to an API', async () => {
     fetchMock.once(JSON.stringify({}), {
-      status: 400,
+      status: 400
     });
 
     const { result } = renderMutationQuery<User>({
       getEndpoint: () => '/endpoint',
-      method: Method.POST,
+      method: Method.POST
     });
 
     result.current.mutate(user);
@@ -93,20 +93,20 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).toHaveBeenCalledWith(
-        'Something went wrong',
+        'Something went wrong'
       );
     });
   });
 
   it('does not show any message via the Snackbar when the httpCodesBypassErrorSnackbar is passed when posting data to an API', async () => {
     fetchMock.once(JSON.stringify({}), {
-      status: 400,
+      status: 400
     });
 
     const { result } = renderMutationQuery<User>({
       getEndpoint: () => '/endpoint',
       httpCodesBypassErrorSnackbar: [400],
-      method: Method.POST,
+      method: Method.POST
     });
 
     result.current.mutate(user);

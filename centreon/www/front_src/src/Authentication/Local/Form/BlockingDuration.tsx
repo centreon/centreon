@@ -4,9 +4,9 @@ import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isNil, lte, not } from 'ramda';
 import dayjs from 'dayjs';
+import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, FormLabel, useTheme } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -16,14 +16,14 @@ import {
   labelGood,
   labelStrong,
   labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
-  labelWeak,
+  labelWeak
 } from '../translatedLabels';
 import StrengthProgress from '../StrengthProgress';
 import {
   goodBlockingDuration,
   sevenDays,
   strongBlockingDuration,
-  weakBlockingDuration,
+  weakBlockingDuration
 } from '../timestamps';
 import { TimeInputConfiguration } from '../models';
 
@@ -32,14 +32,14 @@ import { attemptsFieldName } from './Attempts';
 
 const blockingDurationFieldName = 'blockingDuration';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   passwordBlockingDuration: {
-    maxWidth: 'fit-content',
-  },
+    maxWidth: 'fit-content'
+  }
 });
 
 const BlockingDuration = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -51,17 +51,17 @@ const BlockingDuration = (): JSX.Element => {
 
   const blockingDurationValue = getField<number>({
     field: blockingDurationFieldName,
-    object: values,
+    object: values
   });
 
   const blockingDurationError = getField<string>({
     field: blockingDurationFieldName,
-    object: errors,
+    object: errors
   });
 
   const attemptsValue = getField<number>({
     field: attemptsFieldName,
-    object: values,
+    object: values
   });
 
   const thresholds = useMemo(
@@ -69,20 +69,20 @@ const BlockingDuration = (): JSX.Element => {
       {
         color: theme.palette.error.main,
         label: labelWeak,
-        value: weakBlockingDuration,
+        value: weakBlockingDuration
       },
       {
         color: theme.palette.warning.main,
         label: labelGood,
-        value: goodBlockingDuration,
+        value: goodBlockingDuration
       },
       {
         color: theme.palette.success.main,
         label: labelStrong,
-        value: strongBlockingDuration,
-      },
+        value: strongBlockingDuration
+      }
     ],
-    [],
+    []
   );
 
   const areAttemptsEmpty = isNil(attemptsValue);
@@ -92,7 +92,7 @@ const BlockingDuration = (): JSX.Element => {
       isNil(blockingDurationError) &&
       not(isNil(blockingDurationValue)) &&
       not(areAttemptsEmpty),
-    [blockingDurationError, blockingDurationValue, areAttemptsEmpty],
+    [blockingDurationError, blockingDurationValue, areAttemptsEmpty]
   );
 
   const maxHoursAndMinutesOption = useMemo(
@@ -100,7 +100,7 @@ const BlockingDuration = (): JSX.Element => {
       lte(dayjs.duration({ days: 7 }).asMilliseconds(), blockingDurationValue)
         ? 0
         : undefined,
-    [blockingDurationValue],
+    [blockingDurationValue]
   );
 
   const timeInputConfigurations: Array<TimeInputConfiguration> = [
@@ -108,13 +108,13 @@ const BlockingDuration = (): JSX.Element => {
     {
       dataTestId: 'local_blockingDurationHours',
       maxOption: maxHoursAndMinutesOption,
-      unit: 'hours',
+      unit: 'hours'
     },
     {
       dataTestId: 'local_blockingDurationMinutes',
       maxOption: maxHoursAndMinutesOption,
-      unit: 'minutes',
-    },
+      unit: 'minutes'
+    }
   ];
 
   return useMemoComponent({
@@ -146,7 +146,7 @@ const BlockingDuration = (): JSX.Element => {
         )}
       </div>
     ),
-    memoProps: [blockingDurationValue, blockingDurationError, attemptsValue],
+    memoProps: [blockingDurationValue, blockingDurationError, attemptsValue]
   });
 };
 

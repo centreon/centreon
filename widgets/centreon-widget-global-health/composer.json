@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-global-health",
   "description": "Pie chart widget to display the resource distribution by status",
-  "version": "22.10.0",
+  "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {

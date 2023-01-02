@@ -15,7 +15,7 @@ import {
   getSortedStackedLines,
   getTimeSeriesForLines,
   getUnits,
-  getYScale,
+  getYScale
 } from '../timeSeries';
 
 import RegularAnchorPoint from './AnchorPoint/RegularAnchorPoint';
@@ -23,13 +23,11 @@ import RegularLine from './RegularLine';
 import StackedLines from './StackedLines';
 
 interface Props {
-  anomalyDetectionEnvelope?: ReactNode;
-  anomalyDetectionResizeEnvelope: ReactNode;
   displayTimeValues: boolean;
   graphHeight: number;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
   leftScale: ScaleLinear<number, number>;
   lines: Array<Line>;
+  renderAdditionalLines?: ReactNode;
   rightScale: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   timeTick: Date | null;
@@ -43,15 +41,15 @@ interface YScales {
 
 const getStackedYScale = ({
   leftScale,
-  rightScale,
+  rightScale
 }: YScales): ScaleLinear<number, number> => {
   const minDomain = min(
     getMin(leftScale.domain()),
-    getMin(rightScale.domain()),
+    getMin(rightScale.domain())
   );
   const maxDomain = max(
     getMax(leftScale.domain()),
-    getMax(rightScale.domain()),
+    getMax(rightScale.domain())
   );
 
   const minRange = min(getMin(leftScale.range()), getMin(rightScale.range()));
@@ -60,7 +58,7 @@ const getStackedYScale = ({
   return Scale.scaleLinear<number>({
     domain: [minDomain, maxDomain],
     nice: true,
-    range: [maxRange, minRange],
+    range: [maxRange, minRange]
   });
 };
 
@@ -71,7 +69,7 @@ interface FillColor {
 
 export const getFillColor = ({
   transparency,
-  areaColor,
+  areaColor
 }: FillColor): string | undefined =>
   transparency ? alpha(areaColor, 1 - transparency * 0.01) : undefined;
 
@@ -84,9 +82,7 @@ const Lines = ({
   graphHeight,
   timeTick,
   displayTimeValues,
-  isEditAnomalyDetectionDataDialogOpen,
-  anomalyDetectionEnvelope,
-  anomalyDetectionResizeEnvelope,
+  renderAdditionalLines
 }: Props): JSX.Element => {
   const [, secondUnit, thirdUnit] = getUnits(lines);
 
@@ -95,13 +91,13 @@ const Lines = ({
   const regularStackedLines = getNotInvertedStackedLines(lines);
   const regularStackedTimeSeries = getTimeSeriesForLines({
     lines: regularStackedLines,
-    timeSeries,
+    timeSeries
   });
 
   const invertedStackedLines = getInvertedStackedLines(lines);
   const invertedStackedTimeSeries = getTimeSeriesForLines({
     lines: invertedStackedLines,
-    timeSeries,
+    timeSeries
   });
 
   const stackedYScale = getStackedYScale({ leftScale, rightScale });
@@ -127,8 +123,8 @@ const Lines = ({
         yScale={stackedYScale}
       />
       <g>
-        {anomalyDetectionEnvelope}
-        {anomalyDetectionResizeEnvelope}
+        {renderAdditionalLines}
+
         {regularLines.map(
           ({
             metric,
@@ -138,7 +134,7 @@ const Lines = ({
             filled,
             unit,
             highlight,
-            invert,
+            invert
           }) => {
             const yScale = getYScale({
               hasMoreThanTwoUnits: !isNil(thirdUnit),
@@ -146,24 +142,22 @@ const Lines = ({
               leftScale,
               rightScale,
               secondUnit,
-              unit,
+              unit
             });
 
             return (
               <g key={metric}>
-                {!isEditAnomalyDetectionDataDialogOpen && (
-                  <RegularAnchorPoint
-                    areaColor={areaColor}
-                    displayTimeValues={displayTimeValues}
-                    lineColor={lineColor}
-                    metric={metric}
-                    timeSeries={timeSeries}
-                    timeTick={timeTick}
-                    transparency={transparency}
-                    xScale={xScale}
-                    yScale={yScale}
-                  />
-                )}
+                <RegularAnchorPoint
+                  areaColor={areaColor}
+                  displayTimeValues={displayTimeValues}
+                  lineColor={lineColor}
+                  metric={metric}
+                  timeSeries={timeSeries}
+                  timeTick={timeTick}
+                  transparency={transparency}
+                  xScale={xScale}
+                  yScale={yScale}
+                />
                 <RegularLine
                   areaColor={areaColor}
                   filled={filled}
@@ -180,7 +174,7 @@ const Lines = ({
                 />
               </g>
             );
-          },
+          }
         )}
       </g>
     </g>

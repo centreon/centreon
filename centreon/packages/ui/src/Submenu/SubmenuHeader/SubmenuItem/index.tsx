@@ -13,28 +13,28 @@ export interface StyleProps {
 
 const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
   count: {
-    marginLeft: 'auto',
+    marginLeft: 'auto'
   },
   link: {
     alignItems: 'center',
     color: 'inherit',
     display: 'flex',
     padding: theme.spacing(1),
-    textDecoration: 'none',
+    textDecoration: 'none'
   },
   status: {
     alignItems: 'center',
-    display: 'flex',
+    display: 'flex'
   },
   statusCounter: {
     background: getStatusColors({
       severityCode,
-      theme,
+      theme
     })?.backgroundColor,
     borderRadius: '50%',
     height: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: theme.spacing(1),
+    width: theme.spacing(1)
   },
   submenuItem: {
     '&:hover': {
@@ -43,12 +43,12 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
         : theme.palette.primary.light,
       color: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.common.white
-        : theme.palette.primary.main,
+        : theme.palette.primary.main
     },
     '&:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-    },
-  },
+      borderBottom: `1px solid ${theme.palette.divider}`
+    }
+  }
 }));
 
 interface Props {
@@ -68,7 +68,7 @@ const SubmenuItem = ({
   submenuCount,
   titleTestId,
   countTestId,
-  to,
+  to
 }: Props): JSX.Element => {
   const { classes } = useStyles({ severityCode });
 

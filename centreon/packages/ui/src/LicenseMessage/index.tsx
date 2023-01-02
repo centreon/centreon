@@ -9,14 +9,14 @@ const useStyles = makeStyles()((theme) => ({
   divWrapper: {
     alignItems: 'center',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   paper: {
     backgroundColor: alpha(theme.palette.error.main, 0.15),
     marginTop: theme.spacing(8),
     textAlign: 'center',
-    width: theme.spacing(50),
-  },
+    width: theme.spacing(50)
+  }
 }));
 
 interface Props {

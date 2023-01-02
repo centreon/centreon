@@ -10,8 +10,9 @@ import {
   StyledEngineProvider,
   createTheme,
   InputBaseProps,
-  ButtonProps,
+  ButtonProps
 } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
 
@@ -34,43 +35,49 @@ const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   if (equals(size, 'compact')) {
     return {
       fontSize: 'x-small',
-      minHeight: '32px',
+      minHeight: '32px'
     };
   }
   if (equals(size, 'small')) {
     return {
-      minHeight: '36px',
-    };
-  }
-
-  return {
-    minHeight: '48px',
-  };
-};
-
-const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
-  if (equals(size, 'small')) {
-    return {
-      height: '36px',
+      minHeight: '36px'
     };
   }
   if (equals(size, 'large')) {
     return {
-      height: '48px',
+      minHeight: '48px'
     };
   }
 
   return {
-    height: '40px',
+    minHeight: '40px'
+  };
+};
+
+const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
+  if (equals(size, 'medium')) {
+    return {
+      height: '40px'
+    };
+  }
+  if (equals(size, 'large')) {
+    return {
+      height: '48px'
+    };
+  }
+
+  return {
+    height: '36px'
   };
 };
 
 export const getTheme = (mode: ThemeMode): ThemeOptions => ({
   components: {
     MuiButton: {
+      defaultProps: { size: 'small' },
       styleOverrides: {
-        root: ({ ownerState }) => getButtonRootStyle(ownerState),
-      },
+        root: ({ ownerState }) => getButtonRootStyle(ownerState)
+      }
     },
     MuiChip: {
       styleOverrides: {
@@ -80,38 +87,78 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
             fontSize: theme.typography.body2.fontSize,
             height: theme.spacing(2.5),
             lineHeight: theme.spacing(2.5),
-            minWidth: theme.spacing(2.5),
+            minWidth: theme.spacing(2.5)
           }),
           ...(equals(ownerState.size, 'small') && {
             borderRadius: theme.spacing(0.75),
             fontSize: theme.typography.caption.fontSize,
             height: theme.spacing(1.5),
             lineHeight: theme.spacing(1.5),
-            minWidth: theme.spacing(1.5),
+            minWidth: theme.spacing(1.5)
           }),
           '& .MuiChip-label': {
             '&:empty': {
-              display: 'none',
+              display: 'none'
             },
-            lineHeight: 1,
-          },
-        }),
-      },
+            lineHeight: 1
+          }
+        })
+      }
+    },
+    MuiCssBaseline: {
+      styleOverrides: (theme) => `
+        ::-webkit-scrollbar {
+          height: ${theme.spacing(1)};
+          width: ${theme.spacing(1)};
+          background-color: ${theme.palette.background.default};
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          };
+          border-radius: ${theme.spacing(0.5)};
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: ${theme.palette.primary.main};
+        }
+        * {
+          scrollbar-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          } ${theme.palette.background.default};
+          scrollbar-width: thin;
+        }
+        html {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
+          height: 100%;
+          padding: 0;
+          width: 100%;
+        }
+      `
     },
     MuiInputBase: {
       styleOverrides: {
-        root: ({ ownerState }) => getInputBaseRootStyle(ownerState),
-      },
+        root: ({ ownerState }) => getInputBaseRootStyle(ownerState)
+      }
     },
     MuiList: {
       styleOverrides: {
         root: () => ({
           '&.MuiMenu-list': {
             paddingBottom: 0,
-            paddingTop: 0,
-          },
-        }),
-      },
+            paddingTop: 0
+          }
+        })
+      }
     },
     MuiMenuItem: {
       styleOverrides: {
@@ -123,15 +170,15 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
                 : theme.palette.primary.light,
               color: equals(theme.palette.mode, ThemeMode.dark)
                 ? theme.palette.common.white
-                : theme.palette.primary.main,
+                : theme.palette.primary.main
             },
-          fontSize: theme.typography.body2.fontSize,
-        }),
-      },
+          fontSize: theme.typography.body2.fontSize
+        })
+      }
     },
     MuiPaper: {
       defaultProps: {
-        variant: 'outlined',
+        variant: 'outlined'
       },
       styleOverrides: {
         root: ({ theme }) => ({
@@ -140,32 +187,32 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
               backgroundColor: theme.palette.background.default,
               border: 'none',
               borderRadius: 0,
-              boxShadow: theme.shadows[3],
-            },
-        }),
-      },
+              boxShadow: theme.shadows[3]
+            }
+        })
+      }
     },
     MuiTextField: {
       defaultProps: {
-        variant: 'outlined',
-      },
-    },
+        variant: 'outlined'
+      }
+    }
   },
   palette: getPalette(mode),
   typography: {
     body1: {
-      fontSize: '0.875rem',
+      fontSize: '0.875rem'
     },
     body2: {
-      fontSize: '0.75rem',
+      fontSize: '0.75rem'
     },
     button: {
-      textTransform: 'none',
+      textTransform: 'none'
     },
     caption: {
-      fontSize: '0.625rem',
-    },
-  },
+      fontSize: '0.625rem'
+    }
+  }
 });
 
 interface Props {
@@ -177,12 +224,15 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
 
   const theme = React.useMemo(
     () => createTheme(getTheme(themeMode || ThemeMode.light)),
-    [themeMode],
+    [themeMode]
   );
 
   return (
     <StyledEngineProvider injectFirst>
-      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
     </StyledEngineProvider>
   );
 };

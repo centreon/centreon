@@ -6,14 +6,14 @@ jest.unmock('axios');
 const getMatchOptions = () => {
   return {
     failureThreshold: 0.2,
-    failureThresholdType: 'percent',
+    failureThresholdType: 'percent'
   };
 };
 
 const beforeScreenshot = async (page) => {
   await page.setViewport({
     height: 1000,
-    width: 1000,
+    width: 1000
   });
   await page.waitForTimeout(600);
 };
@@ -33,6 +33,6 @@ initStoryshots({
   test: imageSnapshot({
     beforeScreenshot,
     getMatchOptions,
-    storybookUrl: `file://${__dirname}/../.out`,
-  }),
+    storybookUrl: `file://${__dirname}/../.out`
+  })
 });

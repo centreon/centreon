@@ -30,7 +30,7 @@ interface ReadPlatformRepositoryInterface
      *
      * @return bool
      */
-    public function isCentreonWebUpgradeAvailable(): bool;
+    public function isCentreonWebInstallableOrUpgradable(): bool;
 
     /**
      * Check if centreon is installed.

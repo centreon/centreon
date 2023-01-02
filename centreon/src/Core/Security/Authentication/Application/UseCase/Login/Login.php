@@ -118,10 +118,6 @@ final class Login
                 }
             }
 
-            $presenter->setResponseStatus(
-                new LoginResponse($this->getRedirectionUri($user, $loginRequest->refererQueryParameters))
-            );
-
             $presenter->present(
                 new LoginResponse($this->getRedirectionUri($user, $loginRequest->refererQueryParameters))
             );

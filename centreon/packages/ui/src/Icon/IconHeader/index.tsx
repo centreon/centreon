@@ -9,8 +9,8 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
     [theme.breakpoints.down(768)]: {
       height: theme.spacing(5),
-      minWidth: theme.spacing(4.5),
-    },
+      minWidth: theme.spacing(4.5)
+    }
   },
   iconName: {
     color: theme.palette.common.white,
@@ -19,15 +19,15 @@ const useStyles = makeStyles()((theme) => ({
     lineHeight: '1',
     whiteSpace: 'nowrap',
     [theme.breakpoints.down(768)]: {
-      display: 'none',
-    },
+      display: 'none'
+    }
   },
   iconWrap: {
     alignItems: 'center',
     cursor: 'pointer',
     display: 'flex',
-    flexDirection: 'column',
-  },
+    flexDirection: 'column'
+  }
 }));
 
 interface Props {
@@ -41,7 +41,7 @@ const IconHeader = ({
   Icon,
   iconName,
   onClick,
-  pending,
+  pending
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 

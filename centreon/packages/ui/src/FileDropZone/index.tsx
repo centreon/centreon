@@ -7,7 +7,7 @@ import {
   includes,
   isNil,
   split,
-  T,
+  T
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
@@ -38,7 +38,7 @@ const useStyles = makeStyles<StylesProps>()(
               theme.palette.primary.main
             }`,
             boxShadow: theme.shadows[3],
-            cursor: 'pointer',
+            cursor: 'pointer'
           },
       border: `${theme.spacing(0.3)} dashed ${
         hasCustomDropZoneContent && !isDraggingOver
@@ -47,7 +47,7 @@ const useStyles = makeStyles<StylesProps>()(
       }`,
       boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
       padding: hasCustomDropZoneContent ? undefined : theme.spacing(1),
-      width: hasCustomDropZoneContent ? '100%' : theme.spacing(50),
+      width: hasCustomDropZoneContent ? '100%' : theme.spacing(50)
     },
     dropzoneInfo: {
       display: 'grid',
@@ -55,12 +55,12 @@ const useStyles = makeStyles<StylesProps>()(
         ? undefined
         : 'repeat(2, min-content)',
       justifyItems: 'center',
-      rowGap: theme.spacing(1),
+      rowGap: theme.spacing(1)
     },
     input: {
-      display: 'none',
-    },
-  }),
+      display: 'none'
+    }
+  })
 );
 
 export type CustomDropZoneContentProps = Pick<
@@ -70,7 +70,7 @@ export type CustomDropZoneContentProps = Pick<
 
 interface Props {
   CustomDropZoneContent?: ({
-    openFileExplorer,
+    openFileExplorer
   }: CustomDropZoneContentProps) => JSX.Element;
   accept: string;
   changeFiles: (files: FileList | null) => void;
@@ -91,11 +91,11 @@ const getExtensions = cond([
       }
 
       return split(',', allowedFilesExtensions).map(
-        (extension) => `.${extension}`,
+        (extension) => `.${extension}`
       );
-    },
+    }
   ],
-  [T, identity],
+  [T, identity]
 ]) as (accept: string) => Array<string>;
 
 export const transformFileListToArray = (files: FileList | null): Array<File> =>
@@ -113,7 +113,7 @@ const Dropzone = ({
   accept,
   CustomDropZoneContent,
   maxFileSize,
-  className,
+  className
 }: Props): JSX.Element => {
   const hasCustomDropZoneContent = !isNil(CustomDropZoneContent);
   const {
@@ -123,17 +123,17 @@ const Dropzone = ({
     error,
     fileInputRef,
     isDraggingOver,
-    openFileExplorer,
+    openFileExplorer
   } = useDropzone({
     allowedFilesExtensions: flatten(split(',', accept).map(getExtensions)),
     changeFiles,
     maxFileSize,
-    resetFilesStatusAndUploadData,
+    resetFilesStatusAndUploadData
   });
 
   const { classes, cx } = useStyles({
     hasCustomDropZoneContent,
-    isDraggingOver,
+    isDraggingOver
   });
   const { t } = useTranslation();
   const { themeMode } = useAtomValue(userAtom);
@@ -173,7 +173,7 @@ const Dropzone = ({
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>
     ),
-    memoProps: [files, isDraggingOver, error, themeMode],
+    memoProps: [files, isDraggingOver, error, themeMode]
   });
 };
 

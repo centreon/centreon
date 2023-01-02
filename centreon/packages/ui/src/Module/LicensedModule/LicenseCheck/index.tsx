@@ -12,7 +12,7 @@ import { License } from './models';
 import {
   labelContactYourAdministrator,
   labelInvalidLicense,
-  labelOops,
+  labelOops
 } from './translatedLabels';
 
 export interface LicenseCheckProps {
@@ -41,12 +41,12 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
 
 const LicenseCheck = ({
   children,
-  moduleName,
+  moduleName
 }: LicenseCheckProps): JSX.Element | null => {
   const { isError, data } = useFetchQuery<License>({
     decoder: licenseDecoder,
     getEndpoint: () => getModuleLicenseCheckEndpoint(moduleName),
-    getQueryKey: () => ['license', moduleName],
+    getQueryKey: () => ['license', moduleName]
   });
 
   if (isError) {

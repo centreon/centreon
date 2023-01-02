@@ -2236,7 +2236,7 @@ check_gorgone_group() {
 ## @Globals	TMP_DIR
 #----
 copyInTempFile() {
-    local srclistcp="bin cron config logrotate GPL_LIB lang lib snmptrapd src vendor www api libinstall .env .env.local.php bootstrap.php container.php composer.json package.json package-lock.json"
+    local srclistcp="bin cron config logrotate GPL_LIB lang lib snmptrapd src vendor www api libinstall .env .env.local.php bootstrap.php container.php composer.json package.json pnpm-lock.yaml pnpm-workspace.yaml"
     # Prepare centreon Plugins
     echo "$(gettext "Preparing Centreon temporary files")"
     if [ -d $TMP_DIR ] ; then

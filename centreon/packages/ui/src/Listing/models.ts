@@ -29,7 +29,7 @@ export interface Column {
 
 export enum ColumnType {
   string = 0,
-  component = 1,
+  component = 1
 }
 
 export interface RowColorCondition {

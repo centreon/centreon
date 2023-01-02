@@ -9,17 +9,17 @@ describe(SectionPanel, () => {
       {
         expandable: false,
         id: 'non-expandable',
-        section: <>Non Expandable Section</>,
+        section: <>Non Expandable Section</>
       },
       {
         expandable: true,
         id: 'expandable',
         section: <>Expandable Section</>,
-        title: 'Expand me',
-      },
+        title: 'Expand me'
+      }
     ];
     const { getByText } = render(
-      <SectionPanel header={header} sections={sections} onClose={jest.fn()} />,
+      <SectionPanel header={header} sections={sections} onClose={jest.fn()} />
     );
 
     expect(getByText('Header')).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe(SectionPanel, () => {
         secondaryPanel={secondaryPanel}
         sections={[]}
         onClose={jest.fn()}
-      />,
+      />
     );
 
     expect(queryByText('Secondary Panel')).toBeNull();

@@ -51,7 +51,7 @@ const Main = (): JSX.Element => {
 
   const [areUserParametersLoaded] = useAtom(areUserParametersLoadedAtom);
   const platformInstallationStatus = useAtomValue(
-    platformInstallationStatusAtom,
+    platformInstallationStatusAtom
   );
 
   const navigateTo = (path: string): void => {
@@ -72,7 +72,7 @@ const Main = (): JSX.Element => {
 
     const canUpgrade = and(
       platformInstallationStatus.hasUpgradeAvailable,
-      not(areUserParametersLoaded),
+      not(areUserParametersLoaded)
     );
 
     if (canUpgrade) {

@@ -21,8 +21,8 @@ export const oneStep = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'First step',
-      },
+        stepName: 'First step'
+      }
     ]}
   />
 );
@@ -39,8 +39,8 @@ export const oneStepWithoutActionsBar = (): JSX.Element => (
         ),
         hasActionsBar: false,
         skipFormChangeCheck: true,
-        stepName: 'First step',
-      },
+        stepName: 'First step'
+      }
     ]}
   />
 );
@@ -56,7 +56,7 @@ export const threeStepsWithMediumSize = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'First step',
+        stepName: 'First step'
       },
       {
         Component: (): JSX.Element => (
@@ -65,7 +65,7 @@ export const threeStepsWithMediumSize = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Second step',
+        stepName: 'Second step'
       },
       {
         Component: (): JSX.Element => (
@@ -74,8 +74,8 @@ export const threeStepsWithMediumSize = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Third step',
-      },
+        stepName: 'Third step'
+      }
     ]}
     width="md"
   />
@@ -87,7 +87,7 @@ export const threeStepsWithCustomActionsBarLabels = (): JSX.Element => (
     actionsBarLabels={{
       labelFinish: 'Finish wizard',
       labelNext: 'Next step',
-      labelPrevious: 'Previous step',
+      labelPrevious: 'Previous step'
     }}
     steps={[
       {
@@ -97,7 +97,7 @@ export const threeStepsWithCustomActionsBarLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'First step',
+        stepName: 'First step'
       },
       {
         Component: (): JSX.Element => (
@@ -106,7 +106,7 @@ export const threeStepsWithCustomActionsBarLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Second step',
+        stepName: 'Second step'
       },
       {
         Component: (): JSX.Element => (
@@ -115,8 +115,8 @@ export const threeStepsWithCustomActionsBarLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Third step',
-      },
+        stepName: 'Third step'
+      }
     ]}
     width="md"
   />
@@ -134,7 +134,7 @@ export const threeStepsWithFullHeight = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'First step',
+        stepName: 'First step'
       },
       {
         Component: (): JSX.Element => (
@@ -143,7 +143,7 @@ export const threeStepsWithFullHeight = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Second step',
+        stepName: 'Second step'
       },
       {
         Component: (): JSX.Element => (
@@ -152,8 +152,8 @@ export const threeStepsWithFullHeight = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Third step',
-      },
+        stepName: 'Third step'
+      }
     ]}
     width="md"
   />
@@ -166,7 +166,7 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
       labelCancel: 'Cancel',
       labelConfirm: 'Exit',
       labelMessage: "Wizard's progress will not be saved",
-      labelTitle: 'Exit wizard ?',
+      labelTitle: 'Exit wizard ?'
     }}
     steps={[
       {
@@ -176,7 +176,7 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'First step',
+        stepName: 'First step'
       },
       {
         Component: (): JSX.Element => (
@@ -185,7 +185,7 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Second step',
+        stepName: 'Second step'
       },
       {
         Component: (): JSX.Element => (
@@ -194,15 +194,15 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Third step',
-      },
+        stepName: 'Third step'
+      }
     ]}
     width="md"
   />
 );
 
 const FirstStep = ({
-  disableNextOnSendingRequests,
+  disableNextOnSendingRequests
 }: StepComponentProps): JSX.Element => {
   useEffect(() => {
     disableNextOnSendingRequests([true, false, true]);
@@ -225,7 +225,7 @@ export const twoStepsWithSendingRequest = (): JSX.Element => (
       {
         Component: FirstStep,
         skipFormChangeCheck: true,
-        stepName: 'First step',
+        stepName: 'First step'
       },
       {
         Component: (): JSX.Element => (
@@ -234,8 +234,8 @@ export const twoStepsWithSendingRequest = (): JSX.Element => (
           </Typography>
         ),
         skipFormChangeCheck: true,
-        stepName: 'Second step',
-      },
+        stepName: 'Second step'
+      }
     ]}
   />
 );
@@ -264,7 +264,7 @@ const FirstStepWithTextField = (): JSX.Element => {
 };
 
 const SecondStep = ({
-  disableNextOnSendingRequests,
+  disableNextOnSendingRequests
 }: StepComponentProps): JSX.Element => {
   const { setFieldValue, values, errors, touched, handleChange, handleBlur } =
     useFormikContext<Values>();
@@ -314,7 +314,7 @@ const Form = (): JSX.Element => {
       open
       initialValues={{
         email: '',
-        password: '',
+        password: ''
       }}
       steps={[
         {
@@ -327,7 +327,7 @@ const Form = (): JSX.Element => {
             }
 
             return errors;
-          },
+          }
         },
         {
           Component: SecondStep,
@@ -342,12 +342,12 @@ const Form = (): JSX.Element => {
             }
 
             return errors;
-          },
+          }
         },
         {
           Component: ThirdStep(submitted),
-          stepName: 'Third Step',
-        },
+          stepName: 'Third Step'
+        }
       ]}
       onSubmit={(_, { setSubmitting }): void => {
         setTimeout(() => {

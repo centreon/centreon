@@ -32,7 +32,7 @@ const TestComponent = (): JSX.Element => {
       name: 'admin',
       themeMode: ThemeMode.light,
       timezone: 'Europe/Paris',
-      use_deprecated_pages: false,
+      use_deprecated_pages: false
     });
   }, []);
 
@@ -45,7 +45,7 @@ const renderLocaleDateTimeFormat = (): RenderResult => {
   return render(
     <Provider>
       <TestComponent />
-    </Provider>,
+    </Provider>
   );
 };
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otrs_config version="1.0" init="Application">
+    <ConfigItem Name="GenericInterface::Operation::Module###CustomerUser::CustomerUserGet" Required="0" Valid="1">
+            <Description Translatable="1">GenericInterface module registration for the operation layer.</Description>
+            <Group>RestDynamicField</Group>
+            <SubGroup>GenericInterface::Operation::ModuleRegistration</SubGroup>
+            <Setting>
+                <Hash>
+                        <Item Key="Name">DynamicFieldGet</Item>
+                        <Item Key="Controller">DynamicField</Item>
+                        <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+                </Hash>
+            </Setting>
+    </ConfigItem>
+</otrs_config>

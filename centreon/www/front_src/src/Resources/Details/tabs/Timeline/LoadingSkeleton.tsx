@@ -1,17 +1,18 @@
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
+
 import { Skeleton } from '@mui/material';
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles()((theme) => {
   return {
     skeleton: {
       display: 'grid',
-      gridGap: theme.spacing(1),
-    },
+      gridGap: theme.spacing(1)
+    }
   };
 });
 
 const LoadingSkeleton = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.skeleton}>

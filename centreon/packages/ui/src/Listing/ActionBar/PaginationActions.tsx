@@ -12,21 +12,21 @@ import {
   labelFirstPage,
   labelLastPage,
   labelNextPage,
-  labelPreviousPage,
+  labelPreviousPage
 } from '../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
     color: theme.palette.text.secondary,
-    flexShrink: 0,
-  },
+    flexShrink: 0
+  }
 }));
 
 const PaginationActions = ({
   onPageChange,
   page,
   rowsPerPage,
-  count,
+  count
 }: TablePaginationActionsProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();

@@ -13,7 +13,7 @@ export interface User {
 
 export enum ThemeMode {
   dark = 'dark',
-  light = 'light',
+  light = 'light'
 }
 
 export interface CloudServices {

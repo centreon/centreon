@@ -17,7 +17,7 @@ const RegexpHelpTooltipContent = ({
   description,
   labelExamples,
   examples,
-  tips,
+  tips
 }: ContentProps): JSX.Element => (
   <Box padding={1}>
     {description}
@@ -46,7 +46,7 @@ const RegexpHelpTooltip = ({
   labelTips,
   labelGetHelp,
   urlTip,
-  labelUrlTip,
+  labelUrlTip
 }: TooltipProps): JSX.Element => {
   const displayElement = (element): ((prop) => ReactElement | null) =>
     ifElse(isNil, always(null), always(element));
@@ -55,7 +55,7 @@ const RegexpHelpTooltip = ({
     <RegexpHelpTooltipContent
       description={displayElement(<div>{description}</div>)(description)}
       examples={displayElement(<ul>{examples?.map((example) => example)}</ul>)(
-        examples,
+        examples
       )}
       labelExamples={displayElement(<p>{labelExamples}</p>)(labelExamples)}
       tips={displayElement(
@@ -65,7 +65,7 @@ const RegexpHelpTooltip = ({
           <Link href={urlTip} rel="noopener noreferrer" target="_blank">
             {labelUrlTip}
           </Link>
-        </i>,
+        </i>
       )(labelTips && labelGetHelp && urlTip && labelUrlTip)}
     />
   );

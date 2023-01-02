@@ -1,18 +1,23 @@
 import axios from 'axios';
 import { Provider } from 'jotai';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen
+} from '@centreon/ui/src/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,
-  userEndpoint,
+  userEndpoint
 } from '../api/endpoint';
 import { labelConnect } from '../Login/translatedLabels';
 import {
   aclEndpoint,
   parametersEndpoint,
   externalTranslationEndpoint,
-  internalTranslationEndpoint,
+  internalTranslationEndpoint
 } from '../App/endpoint';
 import { retrievedNavigation } from '../Navigation/mocks';
 import { retrievedFederatedModule } from '../federatedModules/mocks';
@@ -36,39 +41,39 @@ const retrievedUser = {
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
-  use_deprecated_pages: false,
+  use_deprecated_pages: false
 };
 
 const retrievedParameters = {
   monitoring_default_acknowledgement_persistent: true,
   monitoring_default_acknowledgement_sticky: true,
   monitoring_default_downtime_duration: 3600,
-  monitoring_default_refresh_interval: 15,
+  monitoring_default_refresh_interval: 15
 };
 
 const retrievedActionsAcl = {
   host: {
     acknowledgement: true,
     check: true,
-    downtime: true,
+    downtime: true
   },
   service: {
     acknowledgement: true,
     check: true,
-    downtime: true,
-  },
+    downtime: true
+  }
 };
 
 const retrievedTranslations = {
   en: {
-    hello: 'Hello',
-  },
+    hello: 'Hello'
+  }
 };
 
 const retrievedWeb = {
   web: {
-    version: '21.10.1',
-  },
+    version: '21.10.1'
+  }
 };
 
 const retrievedProvidersConfiguration = [
@@ -77,8 +82,8 @@ const retrievedProvidersConfiguration = [
       '/centreon/authentication/providers/configurations/local',
     id: 1,
     is_active: true,
-    name: 'local',
-  },
+    name: 'local'
+  }
 ];
 
 jest.mock('../Header', () => {
@@ -88,7 +93,7 @@ jest.mock('../Header', () => {
 
   return {
     __esModule: true,
-    default: Header,
+    default: Header
   };
 });
 
@@ -99,7 +104,7 @@ jest.mock('../components/mainRouter', () => {
 
   return {
     __esModule: true,
-    default: MainRouter,
+    default: MainRouter
   };
 });
 
@@ -107,7 +112,7 @@ const renderMain = (): RenderResult =>
   render(
     <Provider>
       <Main />
-    </Provider>,
+    </Provider>
   );
 
 const mockDefaultGetRequests = (): void => {
@@ -115,32 +120,32 @@ const mockDefaultGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
-        is_installed: true,
-      },
+        is_installed: true
+      }
     })
     .mockResolvedValueOnce({
-      data: retrievedUser,
+      data: retrievedUser
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     })
     .mockResolvedValueOnce({
-      data: retrievedTranslations,
+      data: retrievedTranslations
     })
     .mockResolvedValueOnce({
-      data: retrievedNavigation,
+      data: retrievedNavigation
     })
     .mockResolvedValueOnce({
-      data: retrievedFederatedModule,
+      data: retrievedFederatedModule
     })
     .mockResolvedValueOnce({
-      data: retrievedParameters,
+      data: retrievedParameters
     })
     .mockResolvedValueOnce({
-      data: retrievedActionsAcl,
+      data: retrievedActionsAcl
     })
     .mockResolvedValueOnce({
-      data: null,
+      data: null
     });
 };
 
@@ -149,35 +154,35 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
-        is_installed: true,
-      },
+        is_installed: true
+      }
     })
     .mockResolvedValueOnce({
-      data: retrievedUser,
+      data: retrievedUser
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     })
     .mockResolvedValueOnce({
-      data: retrievedTranslations,
+      data: retrievedTranslations
     })
     .mockResolvedValueOnce({
-      data: retrievedProvidersConfiguration,
+      data: retrievedProvidersConfiguration
     })
     .mockResolvedValueOnce({
-      data: retrievedTranslations,
+      data: retrievedTranslations
     })
     .mockResolvedValueOnce({
-      data: retrievedNavigation,
+      data: retrievedNavigation
     })
     .mockResolvedValueOnce({
-      data: retrievedParameters,
+      data: retrievedParameters
     })
     .mockResolvedValueOnce({
-      data: retrievedActionsAcl,
+      data: retrievedActionsAcl
     })
     .mockResolvedValue({
-      data: null,
+      data: null
     });
 };
 
@@ -186,20 +191,20 @@ const mockNotConnectedGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
-        is_installed: true,
-      },
+        is_installed: true
+      }
     })
     .mockRejectedValueOnce({
-      response: { status: 403 },
+      response: { status: 403 }
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     })
     .mockResolvedValueOnce({
-      data: retrievedTranslations,
+      data: retrievedTranslations
     })
     .mockResolvedValueOnce({
-      data: retrievedProvidersConfiguration,
+      data: retrievedProvidersConfiguration
     });
 };
 
@@ -208,14 +213,14 @@ const mockInstallGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
-        is_installed: false,
-      },
+        is_installed: false
+      }
     })
     .mockRejectedValueOnce({
-      response: { status: 403 },
+      response: { status: 403 }
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     });
 };
 
@@ -224,14 +229,14 @@ const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: true,
-        is_installed: true,
-      },
+        is_installed: true
+      }
     })
     .mockRejectedValueOnce({
-      response: { status: 403 },
+      response: { status: 403 }
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     });
 };
 
@@ -240,29 +245,29 @@ const mockUpgradeAndUserConnectedGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: true,
-        is_installed: true,
-      },
+        is_installed: true
+      }
     })
     .mockResolvedValueOnce({
-      data: retrievedUser,
+      data: retrievedUser
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
+      data: retrievedWeb
     })
     .mockResolvedValueOnce({
-      data: retrievedTranslations,
+      data: retrievedTranslations
     })
     .mockResolvedValueOnce({
-      data: retrievedNavigation,
+      data: retrievedNavigation
     })
     .mockResolvedValueOnce({
-      data: retrievedParameters,
+      data: retrievedParameters
     })
     .mockResolvedValueOnce({
-      data: retrievedActionsAcl,
+      data: retrievedActionsAcl
     })
     .mockResolvedValueOnce({
-      data: null,
+      data: null
     });
 };
 
@@ -283,21 +288,21 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         externalTranslationEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         userEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -331,20 +336,20 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         userEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
-        'http://localhost/install/install.php',
+        'http://localhost/install/install.php'
       );
     });
   });
@@ -360,20 +365,20 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         userEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
-        'http://localhost/install/upgrade.php',
+        'http://localhost/install/upgrade.php'
       );
     });
   });
@@ -389,20 +394,20 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         userEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
-        'http://localhost/monitoring/resources',
+        'http://localhost/monitoring/resources'
       );
     });
   });
@@ -418,37 +423,37 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         userEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         navigationEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
       parametersEndpoint,
-      cancelTokenRequestParam,
+      cancelTokenRequestParam
     );
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
       aclEndpoint,
-      cancelTokenRequestParam,
+      cancelTokenRequestParam
     );
 
     expect(mockedAxios.get).toHaveBeenCalledWith(
       internalTranslationEndpoint,
-      cancelTokenRequestParam,
+      cancelTokenRequestParam
     );
   });
 
@@ -463,20 +468,20 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         aclEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
     await waitFor(() => {
       expect(window.location.href).toBe(
-        'http://localhost/monitoring/resources',
+        'http://localhost/monitoring/resources'
       );
     });
   });
@@ -485,7 +490,7 @@ describe('Main', () => {
     window.history.pushState(
       {},
       '',
-      '/?authenticationError=Authentication%20failed',
+      '/?authenticationError=Authentication%20failed'
     );
     mockDefaultGetRequests();
 

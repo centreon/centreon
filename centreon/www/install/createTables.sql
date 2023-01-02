@@ -447,6 +447,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `config_activate` enum('0','1') DEFAULT '0',
   `ns_nagios_server` int(11) NOT NULL,
   `event_queue_max_size` int(11) DEFAULT '100000',
+  `event_queues_total_size` int(11) DEFAULT NULL,
   `command_file` varchar(255),
   `cache_directory` varchar(255),
   `stats_activate` enum('0','1') DEFAULT '1',
@@ -1364,6 +1365,7 @@ CREATE TABLE `host` (
   `host_acknowledgement_timeout` int(11) DEFAULT NULL,
   `host_stalking_options` varchar(200) DEFAULT NULL,
   `host_snmp_community` varchar(255) DEFAULT NULL,
+  `host_snmp_community_is_password` enum('0', '1') DEFAULT '0' NOT NULL,
   `host_snmp_version` varchar(255) DEFAULT NULL,
   `host_location` int(11) DEFAULT '0',
   `host_comment` text,
@@ -2443,6 +2445,32 @@ CREATE TABLE `security_provider_contact_group_relation` (
   CONSTRAINT `security_provider_configuration_provider_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `vault` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `vault` (`name`) VALUES ('hashicorp');
+
+CREATE TABLE IF NOT EXISTS `vault_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `vault_id` INT UNSIGNED NOT NULL,
+  `url` VARCHAR(1024) NOT NULL,
+  `port` SMALLINT UNSIGNED NOT NULL,
+  `storage` VARCHAR(255) NOT NULL,
+  `role_id` VARCHAR(255) NOT NULL,
+  `secret_id` VARCHAR(255) NOT NULL,
+  `salt` CHAR(128) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_vault_configuration` (`url`, `port`, `storage`),
+  CONSTRAINT `vault_configuration_vault_id`
+    FOREIGN KEY (`vault_id`)
+    REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

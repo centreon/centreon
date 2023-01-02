@@ -2,16 +2,15 @@ import { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
   ButtonProps,
   Stack,
   Typography,
-  useTheme,
+  useTheme
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -28,7 +27,7 @@ import {
   labelSpecialCharacters,
   labelStrong,
   labelUpperCase,
-  labelWeak,
+  labelWeak
 } from '../../translatedLabels';
 import StrengthProgress from '../../StrengthProgress';
 import { getFields } from '../utils';
@@ -36,30 +35,30 @@ import { getFields } from '../utils';
 import LabelWithTooltip from './LabelWithTooltip';
 
 const activeButtonProps = {
-  variant: 'contained',
+  variant: 'contained'
 } as ButtonProps;
 const hasLowerCaseName = 'hasLowerCase';
 const hasUpperCaseName = 'hasUpperCase';
 const hasNumberName = 'hasNumber';
 const hasSpecialCharacterName = 'hasSpecialCharacter';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   button: {
-    minWidth: theme.spacing(4),
+    minWidth: theme.spacing(4)
   },
   caseButtonsContainer: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(0.5),
-    width: 'fit-content',
+    width: 'fit-content'
   },
   lowerCaseButton: {
-    textTransform: 'none',
-  },
+    textTransform: 'none'
+  }
 }));
 
 const CaseButtons = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -75,25 +74,25 @@ const CaseButtons = (): JSX.Element => {
         hasLowerCaseName,
         hasUpperCaseName,
         hasNumberName,
-        hasSpecialCharacterName,
+        hasSpecialCharacterName
       ],
-      object: values,
+      object: values
     });
 
   const thresholds = useMemo(
     () => [
       { color: theme.palette.error.main, label: labelWeak, value: 2 },
       { color: theme.palette.warning.main, label: labelGood, value: 3 },
-      { color: theme.palette.success.main, label: labelStrong, value: 4 },
+      { color: theme.palette.success.main, label: labelStrong, value: 4 }
     ],
-    [],
+    []
   );
 
   const thresholdValue = [
     hasLowerCase,
     hasUpperCase,
     hasNumber,
-    hasSpecialCharacter,
+    hasSpecialCharacter
   ].filter(Boolean).length;
 
   return useMemoComponent({
@@ -107,9 +106,10 @@ const CaseButtons = (): JSX.Element => {
         >
           <Button
             aria-label={t(labelPasswordMustContainLowerCase)}
-            className={clsx(classes.lowerCaseButton, classes.button)}
+            className={cx(classes.lowerCaseButton, classes.button)}
             color="primary"
-            data-testid="local_lowerCaseButton"
+            data-testid={labelPasswordMustContainLowerCase}
+            id={labelPasswordMustContainLowerCase?.replace(/ /g, '')}
             size="small"
             variant="outlined"
             onClick={selectCase(hasLowerCaseName)}
@@ -124,7 +124,8 @@ const CaseButtons = (): JSX.Element => {
             aria-label={t(labelPasswordMustContainUpperCase)}
             className={classes.button}
             color="primary"
-            data-testid="local_upperCaseButton"
+            data-testid={labelPasswordMustContainUpperCase}
+            id={labelPasswordMustContainUpperCase?.replace(/ /g, '')}
             size="small"
             variant="outlined"
             onClick={selectCase(hasUpperCaseName)}
@@ -139,7 +140,8 @@ const CaseButtons = (): JSX.Element => {
             aria-label={t(labelPasswordMustContainNumbers)}
             className={classes.button}
             color="primary"
-            data-testid="local_numbersButton"
+            data-testid={labelPasswordMustContainNumbers}
+            id={labelPasswordMustContainNumbers?.replace(/ /g, '')}
             size="small"
             variant="outlined"
             onClick={selectCase(hasNumberName)}
@@ -154,7 +156,8 @@ const CaseButtons = (): JSX.Element => {
             aria-label={t(labelPasswordMustContainSpecialCharacters)}
             className={classes.button}
             color="primary"
-            data-testid="local_specialCharactersButton"
+            data-testid={labelPasswordMustContainSpecialCharacters}
+            id={labelPasswordMustContainSpecialCharacters.replace(/ /g, '')}
             size="small"
             variant="outlined"
             onClick={selectCase(hasSpecialCharacterName)}
@@ -173,7 +176,7 @@ const CaseButtons = (): JSX.Element => {
         />
       </div>
     ),
-    memoProps: [hasLowerCase, hasUpperCase, hasNumber, hasSpecialCharacter],
+    memoProps: [hasLowerCase, hasUpperCase, hasNumber, hasSpecialCharacter]
   });
 };
 

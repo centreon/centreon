@@ -23,7 +23,7 @@ import {
   reject,
   slice,
   subtract,
-  uniqBy,
+  uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -34,7 +34,7 @@ import {
   Box,
   LinearProgress,
   TableRow,
-  useTheme,
+  useTheme
 } from '@mui/material';
 
 import useMemoComponent from '../utils/useMemoComponent';
@@ -55,13 +55,13 @@ import {
   PredefinedRowSelection,
   RowColorCondition,
   RowId,
-  SortOrder,
+  SortOrder
 } from './models';
 import ListingActionBar from './ActionBar';
 
 const getVisibleColumns = ({
   columnConfiguration,
-  columns,
+  columns
 }: Pick<Props<unknown>, 'columnConfiguration' | 'columns'>): Array<Column> => {
   const selectedColumnIds = columnConfiguration?.selectedColumnIds;
 
@@ -70,7 +70,7 @@ const getVisibleColumns = ({
   }
 
   return selectedColumnIds.map((id) =>
-    columns.find(propEq('id', id)),
+    columns.find(propEq('id', id))
   ) as Array<Column>;
 };
 
@@ -79,38 +79,38 @@ const loadingIndicatorHeight = 3;
 const useStyles = makeStyles()((theme) => ({
   actionBar: {
     alignItems: 'center',
-    display: 'flex',
+    display: 'flex'
   },
   container: {
     background: 'none',
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    width: '100%',
+    width: '100%'
   },
   emptyDataCell: {
-    paddingLeft: theme.spacing(2),
+    paddingLeft: theme.spacing(2)
   },
   emptyDataRow: {
-    display: 'contents',
+    display: 'contents'
   },
   loadingIndicator: {
     height: loadingIndicatorHeight,
-    width: '100%',
+    width: '100%'
   },
   table: {
     alignItems: 'center',
     display: 'grid',
-    position: 'relative',
+    position: 'relative'
   },
   tableBody: {
     display: 'contents',
-    position: 'relative',
+    position: 'relative'
   },
   tableWrapper: {
     borderBottom: 'none',
-    overflow: 'auto',
-  },
+    overflow: 'auto'
+  }
 }));
 
 export interface Props<TRow> {
@@ -127,6 +127,7 @@ export interface Props<TRow> {
   innerScrollDisabled?: boolean;
   limit?: number;
   loading?: boolean;
+  moveTablePagination?: boolean;
   onLimitChange?: (limit) => void;
   onPaginate?: (page) => void;
   onResetColumns?: () => void;
@@ -142,10 +143,11 @@ export interface Props<TRow> {
   sortField?: string;
   sortOrder?: SortOrder;
   totalRows?: number;
+  widthToMoveTablePagination?: number;
 }
 
 const defaultColumnConfiguration = {
-  sortable: false,
+  sortable: false
 };
 
 export const performanceRowsLimit = 60;
@@ -179,6 +181,8 @@ const Listing = <TRow extends { id: RowId }>({
   headerMemoProps = [],
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
+  moveTablePagination,
+  widthToMoveTablePagination
 }: Props<TRow>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -201,7 +205,7 @@ const Listing = <TRow extends { id: RowId }>({
     onResize: () => {
       setTableTopOffset(getCumulativeOffset(containerRef.current));
     },
-    ref: containerRef,
+    ref: containerRef
   });
 
   const { isShiftKeyDown } = useKeyObserver();
@@ -211,7 +215,7 @@ const Listing = <TRow extends { id: RowId }>({
 
   const selectedRowsInclude = (row): boolean => {
     return !!selectedRows.find((includedRow) =>
-      equals(getId(includedRow), getId(row)),
+      equals(getId(includedRow), getId(row))
     );
   };
 
@@ -250,7 +254,7 @@ const Listing = <TRow extends { id: RowId }>({
     selectedRowIndex,
     compareFunction,
     comparisonSliceStartIndex,
-    comparisonSliceEndIndex,
+    comparisonSliceEndIndex
   }: GetSelectedRowsWithShiftKeyProps): Array<TRow> => {
     if (includes(selectedRowIndex, selectedRowsIndex)) {
       return differenceWith(haveSameId, selectedRows, newSelection);
@@ -261,29 +265,29 @@ const Listing = <TRow extends { id: RowId }>({
       const normalizedNewSelection = slice(
         comparisonSliceStartIndex,
         comparisonSliceEndIndex,
-        newSelection,
+        newSelection
       );
 
       const newSelectionWithCurrentSelection = concat(
         selectedRows,
-        normalizedNewSelection,
+        normalizedNewSelection
       );
 
       const newSelectedRowsWithUniqElements = uniqBy(
         getId,
-        newSelectionWithCurrentSelection,
+        newSelectionWithCurrentSelection
       );
 
       return newSelectedRowsWithUniqElements;
     }
     const newSelectedRowsWithCurrentSelection = concat(
       selectedRows,
-      newSelection,
+      newSelection
     );
 
     const newSelectedRowsWithUniqElements = uniqBy(
       getId,
-      newSelectedRowsWithCurrentSelection,
+      newSelectedRowsWithCurrentSelection
     );
 
     return newSelectedRowsWithUniqElements;
@@ -302,14 +306,14 @@ const Listing = <TRow extends { id: RowId }>({
     const selectedRowsIndex = map(
       (row) =>
         findIndex((listingRow) => equals(getId(row), getId(listingRow)), rows),
-      selectedRows,
+      selectedRows
     ).sort(subtract);
 
     if (selectedRowIndex < lastSelectedIndex) {
       const newSelection = slice(
         selectedRowIndex,
         (lastSelectionIndex as number) + 1,
-        rows,
+        rows
       );
       onSelectRows(
         reject(
@@ -320,9 +324,9 @@ const Listing = <TRow extends { id: RowId }>({
             comparisonSliceStartIndex: 0,
             newSelection,
             selectedRowIndex,
-            selectedRowsIndex,
-          }),
-        ),
+            selectedRowsIndex
+          })
+        )
       );
 
       return;
@@ -338,9 +342,9 @@ const Listing = <TRow extends { id: RowId }>({
           comparisonSliceStartIndex: 1,
           newSelection,
           selectedRowIndex,
-          selectedRowsIndex,
-        }),
-      ),
+          selectedRowsIndex
+        })
+      )
     );
   };
 
@@ -352,7 +356,7 @@ const Listing = <TRow extends { id: RowId }>({
 
     const selectedRowIndex = findIndex(
       (listingRow) => equals(getId(row), getId(listingRow)),
-      rows,
+      rows
     );
 
     if (isShiftKeyDown) {
@@ -370,7 +374,7 @@ const Listing = <TRow extends { id: RowId }>({
 
     if (selectedRowsInclude(row)) {
       onSelectRows(
-        selectedRows.filter((entity) => !equals(getId(entity), getId(row))),
+        selectedRows.filter((entity) => !equals(getId(entity), getId(row)))
       );
 
       return;
@@ -403,7 +407,7 @@ const Listing = <TRow extends { id: RowId }>({
     return `calc(100vh - ${tableTopOffset}px - ${
       actionBarRef.current?.offsetHeight
     }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
-      1,
+      1
     )})`;
   };
 
@@ -412,7 +416,7 @@ const Listing = <TRow extends { id: RowId }>({
 
     const columnTemplate = getVisibleColumns({
       columnConfiguration,
-      columns,
+      columns
     })
       .map(({ width, shortLabel }) => {
         if (!isNil(shortLabel)) {
@@ -435,7 +439,7 @@ const Listing = <TRow extends { id: RowId }>({
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns,
+    columns
   });
 
   React.useEffect(() => {
@@ -470,8 +474,10 @@ const Listing = <TRow extends { id: RowId }>({
             columns={columns}
             currentPage={currentPage}
             limit={limit}
+            moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}
             onResetColumns={onResetColumns}
@@ -482,7 +488,7 @@ const Listing = <TRow extends { id: RowId }>({
           className={classes.tableWrapper}
           component="div"
           style={{
-            maxHeight: tableMaxHeight(),
+            maxHeight: tableMaxHeight()
           }}
         >
           <Table
@@ -492,7 +498,7 @@ const Listing = <TRow extends { id: RowId }>({
             role={undefined}
             size="small"
             style={{
-              gridTemplateColumns: getGridTemplateColumn(),
+              gridTemplateColumns: getGridTemplateColumn()
             }}
           >
             <ListingHeader
@@ -566,7 +572,7 @@ const Listing = <TRow extends { id: RowId }>({
                             disableRowCondition(row)
                           }
                           inputProps={{
-                            'aria-label': `Select row ${getId(row)}`,
+                            'aria-label': `Select row ${getId(row)}`
                           }}
                         />
                       </Cell>
@@ -600,7 +606,7 @@ const Listing = <TRow extends { id: RowId }>({
                     style={{
                       gridColumn: `auto / span ${
                         checkable ? columns.length + 1 : columns.length
-                      }`,
+                      }`
                     }}
                   >
                     {loading ? (
@@ -639,6 +645,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   sortField = undefined,
   innerScrollDisabled = false,
   columnConfiguration,
+  moveTablePagination,
+  widthToMoveTablePagination,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -651,6 +659,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         innerScrollDisabled={innerScrollDisabled}
         limit={limit}
         loading={loading}
+        moveTablePagination={moveTablePagination}
         paginated={paginated}
         rowColorConditions={rowColorConditions}
         rows={rows}
@@ -658,6 +667,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortField={sortField}
         sortOrder={sortOrder}
         totalRows={totalRows}
+        widthToMoveTablePagination={widthToMoveTablePagination}
         {...props}
       />
     ),
@@ -665,10 +675,11 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       ...memoProps,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns,
+        columns
       ),
       columnConfiguration,
       limit,
+      widthToMoveTablePagination,
       rows,
       currentPage,
       totalRows,
@@ -678,8 +689,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       selectedRows,
       sortOrder,
       sortField,
-      innerScrollDisabled,
-    ],
+      innerScrollDisabled
+    ]
   });
 
 export default Listing;

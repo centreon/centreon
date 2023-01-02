@@ -16,10 +16,10 @@ export interface ModuleProps {
 const Module = ({
   children,
   seedName,
-  maxSnackbars,
+  maxSnackbars
 }: ModuleProps): JSX.Element => {
   const generateClassName = createGenerateClassName({
-    seed: seedName,
+    seed: seedName
   });
 
   return (

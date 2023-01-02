@@ -8,7 +8,7 @@ import {
   TableCell,
   TableCellBaseProps,
   TableCellProps,
-  Theme,
+  Theme
 } from '@mui/material';
 
 import { Props as DataCellProps } from './DataCell';
@@ -22,7 +22,7 @@ const getBackgroundColor = ({
   row,
   rowColorConditions,
   disableRowCondition,
-  theme,
+  theme
 }: GetBackgroundColorProps): string => {
   if (disableRowCondition(row)) {
     return alpha(theme.palette.common.black, theme.palette.action.focusOpacity);
@@ -33,7 +33,7 @@ const getBackgroundColor = ({
   }
 
   const foundCondition = rowColorConditions?.find(({ condition }) =>
-    condition(row),
+    condition(row)
   );
 
   if (!isNil(foundCondition)) {
@@ -46,23 +46,23 @@ const getBackgroundColor = ({
 const useStyles = makeStyles<Props>()(
   (
     theme,
-    { isRowHovered, row, rowColorConditions, disableRowCondition, compact },
+    { isRowHovered, row, rowColorConditions, disableRowCondition, compact }
   ) => ({
     root: {
       '&:last-child': {
-        paddingRight: theme.spacing(compact ? 0 : 2),
+        paddingRight: theme.spacing(compact ? 0 : 2)
       },
       backgroundColor: getBackgroundColor({
         disableRowCondition,
         isRowHovered,
         row,
         rowColorConditions,
-        theme,
+        theme
       }),
       borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
-    },
-  }),
+      padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5)
+    }
+  })
 );
 
 interface Props
@@ -89,9 +89,9 @@ const Cell = (props: Props): JSX.Element => {
           'row',
           'rowColorConditions',
           'compact',
-          'disableRowCondition',
+          'disableRowCondition'
         ],
-        props,
+        props
       )}
     >
       {children}

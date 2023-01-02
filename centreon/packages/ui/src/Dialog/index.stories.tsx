@@ -10,20 +10,20 @@ export default { title: 'Dialog' };
 
 const useStyles = makeStyles()((theme: Theme) => ({
   actions: {
-    borderTop: `.2px solid ${theme.palette.common.white}`,
+    borderTop: `.2px solid ${theme.palette.common.white}`
   },
   content: {
-    color: theme.palette.common.white,
+    color: theme.palette.common.white
   },
   paper: {
-    background: theme.palette.pending.main,
+    background: theme.palette.pending.main
   },
   root: {
-    background: theme.palette.primary.dark,
+    background: theme.palette.primary.dark
   },
   title: {
-    color: theme.palette.common.white,
-  },
+    color: theme.palette.common.white
+  }
 }));
 
 interface Props {

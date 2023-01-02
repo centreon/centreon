@@ -4,7 +4,7 @@ import ConnectedAutocompleteField from '.';
 
 const SingleConnectedAutocompleteField = ConnectedAutocompleteField(
   AutocompleteField,
-  false,
+  false
 );
 
 export default SingleConnectedAutocompleteField;

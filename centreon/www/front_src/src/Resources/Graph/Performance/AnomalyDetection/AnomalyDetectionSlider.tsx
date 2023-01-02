@@ -3,104 +3,107 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { equals, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ResetIcon from '@mui/icons-material/SettingsBackupRestore';
 import { Button, Divider, Slider, Tooltip, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { IconButton, putData, useRequest } from '@centreon/ui';
 
 import { ResourceDetails, Sensitivity } from '../../../Details/models';
 import {
+  labelAdd,
   labelCancel,
+  labelDelete,
   labelMenageEnvelope,
   labelMenageEnvelopeSubTitle,
   labelPointsOutsideOfEnvelopeCount,
-  labelSave,
   labelResetToDefaultValue,
+  labelSave,
+  labelSlider
 } from '../../../translatedLabels';
 
 import { countedRedCirclesAtom } from './anomalyDetectionAtom';
 import { CustomFactorsData } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   body: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   bodyContainer: {
     alignItems: 'center',
     display: 'flex',
     marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(5)
   },
   confirmButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(2)
   },
   container: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   },
   defaultButton: {
     justifyContent: 'flex-start',
-    textTransform: 'none',
+    textTransform: 'none'
   },
   divider: {
-    margin: theme.spacing(0.5, 0, 2, 0),
+    margin: theme.spacing(0.5, 0, 2, 0)
   },
   footer: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   icon: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   slider: {
     '& .MuiSlider-mark': {
       borderLeft: '1px solid',
       height: theme.spacing(2),
-      width: 0,
+      width: 0
     },
     '& .MuiSlider-thumb': {
       height: theme.spacing(3),
-      width: 1,
+      width: 1
     },
     '& .MuiSlider-valueLabel': {
       backgroundColor: theme.palette.primary.main,
       borderRadius: '50%',
       height: theme.spacing(2.25),
-      width: theme.spacing(1.25),
+      width: theme.spacing(1.25)
     },
     '& .MuiSlider-valueLabel:before': {
-      width: 0,
+      width: 0
     },
     '& .MuiSlider-valueLabelOpen': {
-      transform: 'translateY(-60%) scale(1)',
+      transform: 'translateY(-60%) scale(1)'
     },
     display: 'flex',
     justifyContent: 'space-evenly',
-    width: theme.spacing(35),
-  },
+    width: theme.spacing(35)
+  }
 }));
 
 interface Props {
   details: ResourceDetails;
   isEnvelopeResizingCanceled?: boolean;
-  isResizeEnvelope?: boolean;
+  isResizingEnvelope?: boolean;
   openModalConfirmation?: (value: boolean) => void;
   sendFactors: (data: CustomFactorsData) => void;
   sendReloadGraphPerformance: (value: boolean) => void;
   sensitivity: Sensitivity;
-  setIsResizeEnvelope?: Dispatch<SetStateAction<boolean>>;
+  setIsResizingEnvelope?: Dispatch<SetStateAction<boolean>>;
 }
 
 const AnomalyDetectionSlider = ({
@@ -109,11 +112,11 @@ const AnomalyDetectionSlider = ({
   details,
   openModalConfirmation,
   isEnvelopeResizingCanceled,
-  isResizeEnvelope,
+  isResizingEnvelope,
   sendReloadGraphPerformance,
-  setIsResizeEnvelope,
+  setIsResizingEnvelope
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [currentValue, setCurrentValue] = useState(sensitivity.current_value);
@@ -121,27 +124,27 @@ const AnomalyDetectionSlider = ({
   const [isResizingConfirmed, setIsResizingConfirmed] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
   const { sendRequest } = useRequest({
-    request: putData,
+    request: putData
   });
   const [countedRedCircles, setCountedRedCircles] = useAtom(
-    countedRedCirclesAtom,
+    countedRedCirclesAtom
   );
 
   const tooltipMessage = `${countedRedCircles} ${t(
-    labelPointsOutsideOfEnvelopeCount,
+    labelPointsOutsideOfEnvelopeCount
   )}`;
 
   const step = 0.1;
   const sensitivityEndPoint = path<string>(
     ['links', 'endpoints', 'sensitivity'],
-    details,
+    details
   );
 
   const marks = [
     {
       label: 'Default',
-      value: sensitivity.default_value,
-    },
+      value: sensitivity.default_value
+    }
   ];
 
   const isEnvelopeUpdateSliderEnabled = (): void => {
@@ -189,7 +192,7 @@ const AnomalyDetectionSlider = ({
   const resizeEnvelope = (): void => {
     sendRequest({
       data: { sensitivity: currentValue },
-      endpoint: sensitivityEndPoint,
+      endpoint: sensitivityEndPoint
     });
 
     sendReloadGraphPerformance(true);
@@ -224,15 +227,15 @@ const AnomalyDetectionSlider = ({
     ) {
       setIsDefaultValue(true);
     }
-    if (isResizeEnvelope && setIsResizeEnvelope) {
-      setIsResizeEnvelope(false);
+    if (isResizingEnvelope && setIsResizingEnvelope) {
+      setIsResizingEnvelope(false);
       sendReloadGraphPerformance(false);
     }
 
     sendFactors({
       currentFactor: sensitivity.current_value,
       isResizing: isResizingConfirmed,
-      simulatedFactor: currentValue,
+      simulatedFactor: currentValue
     });
   }, [currentValue, isResizingConfirmed]);
 
@@ -243,10 +246,10 @@ const AnomalyDetectionSlider = ({
   }, [isEnvelopeResizingCanceled]);
 
   useEffect(() => {
-    if (isResizeEnvelope) {
+    if (isResizingEnvelope) {
       resizeEnvelope();
     }
-  }, [isResizeEnvelope]);
+  }, [isResizingEnvelope]);
 
   return (
     <div className={classes.container}>
@@ -265,7 +268,11 @@ const AnomalyDetectionSlider = ({
 
       <div className={classes.body}>
         <div className={classes.bodyContainer}>
-          <IconButton data-testid="remove" size="small" onClick={handleRemove}>
+          <IconButton
+            data-testid={labelDelete}
+            size="small"
+            onClick={handleRemove}
+          >
             <div className={classes.icon}>
               <RemoveIcon fontSize="small" />
               <Typography variant="subtitle2">
@@ -277,6 +284,7 @@ const AnomalyDetectionSlider = ({
           <Slider
             aria-label="Small"
             className={classes.slider}
+            data-testid={labelSlider}
             marks={marks}
             max={sensitivity.maximum_value}
             min={sensitivity.minimum_value}
@@ -286,7 +294,7 @@ const AnomalyDetectionSlider = ({
             valueLabelDisplay="on"
             onChange={handleChangeSlider}
           />
-          <IconButton data-testid="add" size="small" onClick={handleAdd}>
+          <IconButton data-testid={labelAdd} size="small" onClick={handleAdd}>
             <div className={classes.icon}>
               <AddIcon fontSize="small" />
               <Typography variant="subtitle2">
@@ -309,6 +317,7 @@ const AnomalyDetectionSlider = ({
 
       <div className={classes.footer}>
         <Button
+          data-testid={labelCancel}
           size="small"
           variant="outlined"
           onClick={cancelResizingEnvelope}
@@ -317,6 +326,7 @@ const AnomalyDetectionSlider = ({
         </Button>
         <Button
           className={classes.confirmButton}
+          data-testid={labelSave}
           disabled={!isResizingConfirmed}
           size="small"
           variant="contained"

@@ -9,12 +9,13 @@ import { Button } from '@mui/material';
 
 import SaveButton from '../Button/Save';
 import useMemoComponent from '../utils/useMemoComponent';
+import getNormalizedId from '../utils/getNormalizedId';
 
 import {
   labelReset,
   labelSave,
   labelSaved,
-  labelSaving,
+  labelSaving
 } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
@@ -24,8 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(2),
-  },
+    marginTop: theme.spacing(2)
+  }
 }));
 
 const FormButtons = (): JSX.Element => {
@@ -58,13 +59,16 @@ const FormButtons = (): JSX.Element => {
       <div className={classes.buttons}>
         <Button
           aria-label={t(labelReset)}
+          data-testid={labelReset}
           disabled={not(canReset)}
+          id={getNormalizedId(labelReset)}
           size="small"
           onClick={reset}
         >
           {t(labelReset)}
         </Button>
         <SaveButton
+          dataTestId={labelSave}
           disabled={not(canSubmit)}
           labelLoading={labelSaving}
           labelSave={labelSave}
@@ -76,7 +80,7 @@ const FormButtons = (): JSX.Element => {
         />
       </div>
     ),
-    memoProps: [canSubmit, canReset, isSubmitting, submitted, classes],
+    memoProps: [canSubmit, canReset, isSubmitting, submitted, classes]
   });
 };
 

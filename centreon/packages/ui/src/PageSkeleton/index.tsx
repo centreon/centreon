@@ -13,24 +13,24 @@ const footerHeight = 3.8;
 const useStyles = makeStyles()((theme) => ({
   breadcrumbSkeleton: {
     margin: theme.spacing(0.5, 2),
-    width: theme.spacing(30),
+    width: theme.spacing(30)
   },
   headerContentFooterContainer: {
     alignContent: 'space-between',
     display: 'grid',
     gridTemplateRows: `auto ${theme.spacing(footerHeight)}`,
     height: '100%',
-    rowGap: theme.spacing(1),
+    rowGap: theme.spacing(1)
   },
   menuContentContainer: {
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(5.5)} 1fr`,
-    height: '100%',
+    height: '100%'
   },
   skeletonContainer: {
     height: '100%',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 export interface PageSkeletonProps {
@@ -40,7 +40,7 @@ export interface PageSkeletonProps {
 
 const PageSkeleton = ({
   displayHeaderAndNavigation = false,
-  animate = true,
+  animate = true
 }: PageSkeletonProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const skeletonClasses = useSkeletonStyles();
@@ -50,7 +50,7 @@ const PageSkeleton = ({
     <div className={classes.skeletonContainer}>
       <div
         className={cx({
-          [classes.menuContentContainer]: displayHeaderAndNavigation,
+          [classes.menuContentContainer]: displayHeaderAndNavigation
         })}
       >
         <BaseRectSkeleton
@@ -70,7 +70,7 @@ const PageSkeleton = ({
               animation={animate ? 'wave' : false}
               className={cx(
                 classes.breadcrumbSkeleton,
-                skeletonClasses.skeletonLayout,
+                skeletonClasses.skeletonLayout
               )}
               height={theme.spacing(2.5)}
               variant="text"

@@ -9,7 +9,7 @@ import {
   Column,
   ColumnType,
   ComponentColumnProps,
-  RowColorCondition,
+  RowColorCondition
 } from '../models';
 
 import Cell from '.';
@@ -29,16 +29,16 @@ const useStyles = makeStyles()((theme) => ({
     alignSelf: 'stretch',
     display: 'flex',
     overflow: 'hidden',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap'
   },
   rowNotHovered: {
-    color: theme.palette.text.secondary,
+    color: theme.palette.text.secondary
   },
   text: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
+    whiteSpace: 'nowrap'
+  }
 }));
 
 const DataCell = ({
@@ -47,7 +47,7 @@ const DataCell = ({
   isRowSelected,
   isRowHovered,
   rowColorConditions,
-  disableRowCondition,
+  disableRowCondition
 }: Props): JSX.Element | null => {
   const { classes, cx } = useStyles();
 
@@ -58,7 +58,7 @@ const DataCell = ({
     disableRowCondition,
     isRowHovered,
     row,
-    rowColorConditions,
+    rowColorConditions
   };
 
   const cellByColumnType = {
@@ -74,7 +74,7 @@ const DataCell = ({
       const typography = (
         <Typography
           className={cx(classes.text, {
-            [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row),
+            [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row)
           })}
           variant="body2"
         >
@@ -94,7 +94,7 @@ const DataCell = ({
     [ColumnType.component]: (): JSX.Element | null => {
       const { getHiddenCondition, clickable } = column;
       const Component = column.Component as (
-        props: ComponentColumnProps,
+        props: ComponentColumnProps
       ) => JSX.Element;
 
       const isCellHidden = getHiddenCondition?.(isRowSelected);
@@ -121,7 +121,7 @@ const DataCell = ({
           />
         </Cell>
       );
-    },
+    }
   };
 
   return cellByColumnType[column.type]();
@@ -140,14 +140,14 @@ const MemoizedDataCell = memo<Props>(
     const previousIsComponentHovered =
       previousHasHoverableComponent && prevProps.isRowHovered;
     const previousFormattedString = prevProps.column.getFormattedString?.(
-      prevProps.row,
+      prevProps.row
     );
     const previousIsTruncated = prevProps.column.isTruncated;
     const previousColSpan = prevProps.column.getColSpan?.(
-      prevProps.isRowSelected,
+      prevProps.isRowSelected
     );
     const previousHiddenCondition = prevProps.column.getHiddenCondition?.(
-      prevProps.isRowSelected,
+      prevProps.isRowSelected
     );
 
     const nextHasHoverableComponent = nextProps.column.hasHoverableComponent;
@@ -160,21 +160,21 @@ const MemoizedDataCell = memo<Props>(
       nextHasHoverableComponent && nextProps.isRowHovered;
 
     const nextFormattedString = nextProps.column.getFormattedString?.(
-      nextProps.row,
+      nextProps.row
     );
 
     const nextColSpan = nextProps.column.getColSpan?.(nextProps.isRowSelected);
 
     const nextHiddenCondition = nextProps.column.getHiddenCondition?.(
-      nextProps.isRowSelected,
+      nextProps.isRowSelected
     );
     const nextIsTruncated = nextProps.column.isTruncated;
 
     const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
-      condition(prevProps.row),
+      condition(prevProps.row)
     );
     const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
-      condition(nextProps.row),
+      condition(nextProps.row)
     );
 
     // Explicitely render the Component.
@@ -203,19 +203,19 @@ const MemoizedDataCell = memo<Props>(
       equals(previousHiddenCondition, nextHiddenCondition) &&
       equals(
         previousRenderComponentOnRowUpdate && previousRowProps,
-        nextRenderComponentOnRowUpdate && nextRowProps,
+        nextRenderComponentOnRowUpdate && nextRowProps
       ) &&
       equals(
         previousFormattedString ?? previousRowProps,
-        nextFormattedString ?? nextRowProps,
+        nextFormattedString ?? nextRowProps
       ) &&
       equals(prevRowColors, nextRowColors) &&
       equals(
         prevProps.disableRowCondition(prevProps.row),
-        nextProps.disableRowCondition(nextProps.row),
+        nextProps.disableRowCondition(nextProps.row)
       )
     );
-  },
+  }
 );
 
 export default MemoizedDataCell;

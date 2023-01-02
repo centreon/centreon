@@ -31,7 +31,7 @@ const useKeyObserver = (): UseKeyObserverProps => {
   }, []);
 
   return {
-    isShiftKeyDown,
+    isShiftKeyDown
   };
 };
 

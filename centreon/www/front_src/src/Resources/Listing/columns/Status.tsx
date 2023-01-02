@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { pathEq } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import makeStyles from '@mui/styles/makeStyles';
 import IconAcknowledge from '@mui/icons-material/Person';
 import IconCheck from '@mui/icons-material/Sync';
 
@@ -9,7 +9,7 @@ import {
   ComponentColumnProps,
   SeverityCode,
   StatusChip,
-  IconButton,
+  IconButton
 } from '@centreon/ui';
 
 import useAclQuery from '../../Actions/Resource/aclQuery';
@@ -19,24 +19,24 @@ import {
   labelActionNotPermitted,
   labelCheck,
   labelSetDowntime,
-  labelSetDowntimeOn,
+  labelSetDowntimeOn
 } from '../../translatedLabels';
 
 import { ColumnProps } from '.';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   actions: {
     alignItems: 'center',
     display: 'flex',
     flexWrap: 'nowrap',
     gridGap: theme.spacing(0.75),
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   statusColumn: {
     alignItems: 'center',
     display: 'flex',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 type StatusColumnProps = {
@@ -45,9 +45,9 @@ type StatusColumnProps = {
 
 const StatusColumnOnHover = ({
   actions,
-  row,
+  row
 }: StatusColumnProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { canAcknowledge, canDowntime, canCheck } = useAclQuery();
@@ -55,7 +55,7 @@ const StatusColumnOnHover = ({
   const isResourceOk = pathEq(
     ['status', 'severity_code'],
     SeverityCode.Ok,
-    row,
+    row
   );
 
   const isAcknowledePermitted = canAcknowledge([row]);
@@ -84,7 +84,7 @@ const StatusColumnOnHover = ({
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
-          labelAction: labelAcknowledge,
+          labelAction: labelAcknowledge
         })}
         onClick={(): void => actions.onAcknowledge(row)}
       >
@@ -97,7 +97,7 @@ const StatusColumnOnHover = ({
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
-          labelAction: labelSetDowntime,
+          labelAction: labelSetDowntime
         })}
         onClick={(): void => actions.onDowntime(row)}
       >
@@ -110,7 +110,7 @@ const StatusColumnOnHover = ({
         size="large"
         title={getActionTitle({
           isActionPermitted: isCheckPermitted,
-          labelAction: labelCheck,
+          labelAction: labelCheck
         })}
         onClick={(): void => actions.onCheck(row)}
       >
@@ -122,10 +122,10 @@ const StatusColumnOnHover = ({
 
 const StatusColumn = ({
   actions,
-  t,
+  t
 }: ColumnProps): ((props: ComponentColumnProps) => JSX.Element) => {
   const Status = ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const statusName = row.status.name;
 

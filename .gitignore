@@ -1,2 +1,33 @@
+# behat tests
 acceptance-logs
 xunit-reports
+
+# backend development and project files
+**/.idea/
+**/.vscode/
+**/.scannerwork/
+**/vendor/
+**/nbproject/
+**/.project
+
+# front development files
+**/node_modules/
+
+# Php-CS-Fixer cache + output file
+.php-cs-fixer.cache
+checkstyle.core.xml
+
+# continuous integration and testing files
+.phpunit.result.cache
+**/coverage-report/
+**/centreon-build/
+**/build/
+
+# Mac Os cache files
+.DS_Store
+
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db

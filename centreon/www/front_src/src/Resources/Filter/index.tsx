@@ -5,7 +5,7 @@ import {
   useEffect,
   KeyboardEvent,
   Suspense,
-  RefObject,
+  RefObject
 } from 'react';
 
 import {
@@ -27,11 +27,12 @@ import {
   pipe,
   dropLast,
   or,
-  remove,
+  remove
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -39,9 +40,8 @@ import {
   ClickAwayListener,
   MenuItem,
   Paper,
-  Popper,
+  Popper
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import {
   MemoizedFilter,
@@ -49,7 +49,7 @@ import {
   IconButton,
   getData,
   useRequest,
-  LoadingSkeleton,
+  LoadingSkeleton
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
@@ -59,6 +59,7 @@ import {
   labelNewFilter,
   labelMyFilters,
   labelClearFilter,
+  labelSearchBar
 } from '../translatedLabels';
 
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
@@ -66,12 +67,12 @@ import {
   standardFilterById,
   unhandledProblemsFilter,
   resourceProblemsFilter,
-  allFilter,
+  allFilter
 } from './models';
 import {
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
-  DynamicCriteriaParametersAndValues,
+  DynamicCriteriaParametersAndValues
 } from './Criterias/searchQueryLanguage';
 import {
   applyCurrentFilterDerivedAtom,
@@ -81,7 +82,7 @@ import {
   customFiltersAtom,
   searchAtom,
   sendingFilterAtom,
-  setNewFilterDerivedAtom,
+  setNewFilterDerivedAtom
 } from './filterAtoms';
 import useFilterByModule from './useFilterByModule';
 
@@ -104,9 +105,9 @@ interface DynamicCriteriaResult {
   result: Array<{ level: string; name: string }>;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   autocompletePopper: {
-    zIndex: theme.zIndex.tooltip,
+    zIndex: theme.zIndex.tooltip
   },
   container: {
     alignItems: 'center',
@@ -114,9 +115,9 @@ const useStyles = makeStyles((theme) => ({
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
     gridTemplateColumns: 'auto 175px auto 1fr',
-    width: '100%',
+    width: '100%'
   },
-  loader: { display: 'flex', justifyContent: 'center' },
+  loader: { display: 'flex', justifyContent: 'center' }
 }));
 
 const SaveFilter = lazy(() => import('./Save'));
@@ -128,7 +129,7 @@ const debounceTimeInMs = 500;
 const isDefined = pipe(isNil, not);
 
 const Filter = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { newSelectableCriterias } = useFilterByModule();
@@ -146,9 +147,9 @@ const Filter = (): JSX.Element => {
 
   const {
     sendRequest: sendDynamicCriteriaValueRequests,
-    sending: sendingDynamicCriteriaValueRequests,
+    sending: sendingDynamicCriteriaValueRequests
   } = useRequest<DynamicCriteriaResult>({
-    request: getData,
+    request: getData
   });
 
   const [search, setSearch] = useAtom(searchAtom);
@@ -171,7 +172,7 @@ const Filter = (): JSX.Element => {
 
   const loadDynamicCriteriaSuggestion = ({
     criteria,
-    values,
+    values
   }: DynamicCriteriaParametersAndValues): void => {
     const { buildAutocompleteEndpoint, autocompleteSearch, label } = criteria;
 
@@ -189,16 +190,16 @@ const Filter = (): JSX.Element => {
             not(isEmpty(selectedValues))
               ? {
                   field: 'name',
-                  values: { $ni: selectedValues },
+                  values: { $ni: selectedValues }
                 }
-              : {},
+              : {}
           ],
           regex: {
             fields: ['name'],
-            value: lastValue,
-          },
-        },
-      }),
+            value: lastValue
+          }
+        }
+      })
     }).then(({ result }): void => {
       const results = label.includes('severity level')
         ? pluck('level', result)
@@ -213,7 +214,7 @@ const Filter = (): JSX.Element => {
       if (or(lastValueEqualsToAResult, isEmpty(formattedResult))) {
         const res = [
           ...notSelectedValues,
-          ...map(concat(','), notSelectedValues),
+          ...map(concat(','), notSelectedValues)
         ];
 
         setAutoCompleteSuggestions(res);
@@ -226,7 +227,7 @@ const Filter = (): JSX.Element => {
   };
 
   const debounceDynamicSuggestions = (
-    props: DynamicCriteriaParametersAndValues,
+    props: DynamicCriteriaParametersAndValues
   ): void => {
     clearDebounceDynamicSuggestions();
 
@@ -249,12 +250,12 @@ const Filter = (): JSX.Element => {
     const dynamicCriteriaParameters = getDynamicCriteriaParametersAndValue({
       cursorPosition,
       newSelectableCriterias,
-      search,
+      search
     });
 
     if (isDefined(dynamicCriteriaParameters) && isSearchFieldFocus) {
       debounceDynamicSuggestions(
-        dynamicCriteriaParameters as DynamicCriteriaParametersAndValues,
+        dynamicCriteriaParameters as DynamicCriteriaParametersAndValues
       );
 
       return;
@@ -267,8 +268,8 @@ const Filter = (): JSX.Element => {
       getAutocompleteSuggestions({
         cursorPosition,
         newSelectableCriterias,
-        search,
-      }),
+        search
+      })
     );
   }, [search, cursorPosition]);
 
@@ -284,7 +285,7 @@ const Filter = (): JSX.Element => {
     const dynamicCriteriaParameters = getDynamicCriteriaParametersAndValue({
       cursorPosition,
       newSelectableCriterias,
-      search,
+      search
     });
 
     const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
@@ -334,7 +335,7 @@ const Filter = (): JSX.Element => {
 
     const completedWord = acceptedSuggestion.slice(
       expressionAfterSeparator.length,
-      acceptedSuggestion.length,
+      acceptedSuggestion.length
     );
 
     const cursorCompletionShift =
@@ -352,7 +353,7 @@ const Filter = (): JSX.Element => {
       ? searchBeforeCompletedWord.trim()
       : dropLast(
           expressionAfterSeparator.length,
-          searchBeforeCompletedWord.trim(),
+          searchBeforeCompletedWord.trim()
         );
 
     const suggestion = isEmpty(expressionAfterSeparator.trim())
@@ -363,7 +364,7 @@ const Filter = (): JSX.Element => {
       searchBeforeSuggestion,
       suggestion,
       searchAfterCompletedWord.trim() === '' ? '' : ' ',
-      searchAfterCompletedWord,
+      searchAfterCompletedWord
     ].join('');
 
     setCursorPosition(cursorPosition + cursorCompletionShift);
@@ -388,8 +389,8 @@ const Filter = (): JSX.Element => {
           .replace(expressionToShiftToTheEnd, '')
           .trim(),
         ' ',
-        expressionToShiftToTheEnd,
-      ].join(''),
+        expressionToShiftToTheEnd
+      ].join('')
     );
   };
 
@@ -477,7 +478,7 @@ const Filter = (): JSX.Element => {
   const translatedOptions = [
     unhandledProblemsFilter,
     resourceProblemsFilter,
-    allFilter,
+    allFilter
   ].map(({ id, name }) => ({ id, name: t(name) }));
 
   const customFilterOptions = isEmpty(customFilters)
@@ -486,20 +487,20 @@ const Filter = (): JSX.Element => {
         {
           id: 'my_filters',
           name: t(labelMyFilters),
-          type: 'header',
+          type: 'header'
         },
-        ...customFilters,
+        ...customFilters
       ];
 
   const options = [
     { id: '', name: t(labelNewFilter) },
     ...translatedOptions,
-    ...customFilterOptions,
+    ...customFilterOptions
   ];
 
   const canDisplaySelectedFilter = find(
     propEq('id', currentFilter.id),
-    options,
+    options
   );
 
   const closeSuggestionPopover = (): void => {
@@ -514,7 +515,7 @@ const Filter = (): JSX.Element => {
   const dynamicCriteriaParameters = getDynamicCriteriaParametersAndValue({
     cursorPosition,
     newSelectableCriterias,
-    search,
+    search
   });
 
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
@@ -530,7 +531,7 @@ const Filter = (): JSX.Element => {
     currentFilter,
     isDynamicCriteria,
     sendingDynamicCriteriaValueRequests,
-    user,
+    user
   ];
 
   return (
@@ -566,7 +567,7 @@ const Filter = (): JSX.Element => {
             <Criterias />
           </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
-            <div data-testid={labelClearFilter}>
+            <div data-testid={labelSearchBar}>
               <SearchField
                 fullWidth
                 EndAdornment={renderClearFilter(clearFilter)}
@@ -586,7 +587,7 @@ const Filter = (): JSX.Element => {
                 className={classes.autocompletePopper}
                 open={open}
                 style={{
-                  width: searchRef?.current?.clientWidth,
+                  width: searchRef?.current?.clientWidth
                 }}
               >
                 <Paper square>

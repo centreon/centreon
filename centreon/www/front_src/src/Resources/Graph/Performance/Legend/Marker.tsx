@@ -1,13 +1,9 @@
-import clsx from 'clsx';
 import { equals } from 'ramda';
-
-import { Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 export enum LegendMarkerVariant {
   'dot',
-  'bar',
+  'bar'
 }
 
 interface StylesProps {
@@ -15,17 +11,17 @@ interface StylesProps {
   variant: LegendMarkerVariant;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { color, variant }) => ({
   disabled: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.disabled
   },
-  icon: ({ color, variant }): CreateCSSProperties<StylesProps> => ({
+  icon: {
     backgroundColor: color,
     borderRadius: equals(LegendMarkerVariant.dot, variant) ? '50%' : 0,
     height: equals(LegendMarkerVariant.dot, variant) ? 9 : '100%',
     marginRight: theme.spacing(0.5),
-    width: 9,
-  }),
+    width: 9
+  }
 }));
 
 interface Props {
@@ -37,13 +33,11 @@ interface Props {
 const LegendMarker = ({
   disabled,
   color,
-  variant = LegendMarkerVariant.bar,
+  variant = LegendMarkerVariant.bar
 }: Props): JSX.Element => {
-  const classes = useStyles({ color, variant });
+  const { classes, cx } = useStyles({ color, variant });
 
-  return (
-    <div className={clsx(classes.icon, { [classes.disabled]: disabled })} />
-  );
+  return <div className={cx(classes.icon, { [classes.disabled]: disabled })} />;
 };
 
 export default LegendMarker;

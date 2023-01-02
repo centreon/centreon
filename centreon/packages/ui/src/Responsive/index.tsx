@@ -34,7 +34,7 @@ const Responsive = ({ children, margin = 0 }: Props): JSX.Element => {
       ref={containerRef}
       sx={{
         height: `${containerHeight}px`,
-        overflowY: 'auto',
+        overflowY: 'auto'
       }}
     >
       {children}

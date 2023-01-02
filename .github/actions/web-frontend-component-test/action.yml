@@ -8,16 +8,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v3
+    - uses: pnpm/action-setup@v2
       with:
-        node-version: 17
+        version: 7
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v4
       with:
         browser: chrome
         component: true
-        install-command: npm ci --legacy-peer-deps
+        install-command: pnpm install
         working-directory: ${{ inputs.working_directory }}
 
     - name: Archive videos

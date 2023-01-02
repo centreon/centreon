@@ -1,7 +1,7 @@
 import { isNil, not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
-import { Fade, Theme } from '@mui/material';
+import { Fade } from '@mui/material';
 
 export const defaultBackground = `
 linear-gradient(270deg, rgb(4, 76, 135), rgb(12, 114, 196), rgba(102, 183, 227, 0.2)),
@@ -12,8 +12,8 @@ interface Props {
   image: string | null;
 }
 
-const useStyles = makeStyles<Theme, Props>({
-  wallpaper: ({ image }): CreateCSSProperties => ({
+const useStyles = makeStyles<Props>()((_theme, { image }) => ({
+  wallpaper: {
     background: defaultBackground,
     backgroundImage: `url(${image})`,
     backgroundPosition: '50%',
@@ -23,12 +23,12 @@ const useStyles = makeStyles<Theme, Props>({
     left: 0,
     position: 'fixed',
     right: 0,
-    top: 0,
-  }),
-});
+    top: 0
+  }
+}));
 
 const BackgroundImage = ({ image }: Props): JSX.Element => {
-  const classes = useStyles({ image });
+  const { classes } = useStyles({ image });
 
   return (
     <Fade in={not(isNil(image))}>

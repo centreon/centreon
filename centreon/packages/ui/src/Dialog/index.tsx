@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogActions,
   DialogProps,
-  CircularProgress,
+  CircularProgress
 } from '@mui/material';
 
 interface StylesProps {
@@ -18,8 +18,8 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { contentWidth }) => ({
   dialogContent: {
-    width: contentWidth,
-  },
+    width: contentWidth
+  }
 }));
 
 export type Props = {
@@ -66,7 +66,7 @@ const Dialog = ({
   return (
     <MuiDialog
       PaperProps={{
-        className: dialogPaperClassName,
+        className: dialogPaperClassName
       }}
       open={open}
       scroll="paper"

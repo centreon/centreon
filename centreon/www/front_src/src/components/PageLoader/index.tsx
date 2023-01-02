@@ -1,16 +1,16 @@
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { PageSkeleton } from '@centreon/ui';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   skeletonContainer: {
     height: '100vh',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const PageLoader = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.skeletonContainer}>

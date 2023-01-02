@@ -26,12 +26,12 @@ export interface SortableListProps {
 
 const useStyles = makeStyles()((theme) => ({
   createdTag: {
-    backgroundColor: lighten(theme.palette.primary.main, 0.7),
+    backgroundColor: lighten(theme.palette.primary.main, 0.7)
   },
   tag: {
     height: theme.spacing(1.75),
-    marginInline: theme.spacing(0.5),
-  },
+    marginInline: theme.spacing(0.5)
+  }
 }));
 
 const SortableList = ({
@@ -39,7 +39,7 @@ const SortableList = ({
   deleteValue,
   changeItemsOrder,
   itemClick,
-  itemHover,
+  itemHover
 }: SortableListProps): JSX.Element => {
   const { classes } = useStyles();
 
@@ -47,8 +47,8 @@ const SortableList = ({
     changeItemsOrder(
       map(
         (item) => find(propEq('id', item), items),
-        newItems,
-      ) as Array<DraggableSelectEntry>,
+        newItems
+      ) as Array<DraggableSelectEntry>
     );
 
   return (
@@ -59,7 +59,7 @@ const SortableList = ({
         deleteValue,
         itemClick,
         itemHover,
-        items,
+        items
       })}
       collisionDetection={rectIntersection}
       itemProps={['id', 'name', 'createOption']}

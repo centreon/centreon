@@ -1,5 +1,9 @@
 name: widget-graph-monitoring
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
@@ -10,28 +14,41 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/centreon-widget-graph-monitoring.yml"
+      - ".github/workflows/widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"
     tags:
-      - centreon-widget-graph-monitoring-22.10.**
-
-env:
-  version: "22.10"
+      - centreon-widget-graph-monitoring-*
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-graph-monitoring/graph-monitoring/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: graph-monitoring
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      artifactory_username: ${{ secrets.REPOS_USERNAME }}
+      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: graph-monitoring
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      nexus_username: ${{ secrets.NEXUS_USER }}
+      nexus_password: ${{ secrets.NEXUS_PASSWD }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}

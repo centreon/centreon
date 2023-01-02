@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 
 import { not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '@centreon/ui';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   iconButton: {
-    padding: 0,
+    padding: 0
   },
   tooltip: {
     backgroundColor: 'transparent',
-    maxWidth: 'none',
-  },
+    maxWidth: 'none'
+  }
 }));
 
 interface Props {
@@ -30,9 +30,9 @@ const HoverChip = ({
   Chip,
   label,
   onClick,
-  isHovered = false,
+  isHovered = false
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const [isChipHovered, setIsChipHovered] = useState<boolean>(false);
 
@@ -54,7 +54,7 @@ const HoverChip = ({
           onClick: (e): void => {
             e.preventDefault();
             e.stopPropagation();
-          },
+          }
         }}
         aria-label={label}
         classes={{ tooltip: classes.tooltip }}
@@ -78,7 +78,7 @@ const HoverChip = ({
         </span>
       </Tooltip>
     ),
-    memoProps: [isHovered, isChipHovered, label],
+    memoProps: [isHovered, isChipHovered, label]
   });
 };
 

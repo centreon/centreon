@@ -7,7 +7,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { IconButton } from '../..';
 import {
   labelDisplayThePassword,
-  labelHideThePassword,
+  labelHideThePassword
 } from '../translatedLabels';
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 
 const PasswordEndAdornment = ({
   isVisible,
-  changeVisibility,
+  changeVisibility
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 

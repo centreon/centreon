@@ -7,7 +7,7 @@ import {
   toPairs,
   pipe,
   map,
-  flatten,
+  flatten
 } from 'ramda';
 
 import {
@@ -18,12 +18,12 @@ import {
   SearchQueryParameterValue,
   ConditionsSearchParameter,
   GetListsSearchQueryParameterValueProps,
-  GetConditionsSearchQueryParameterValueState,
+  GetConditionsSearchQueryParameterValueState
 } from './models';
 
 const getFoundFields = ({
   value,
-  fields,
+  fields
 }: RegexSearchParameter): Array<SearchMatch> => {
   const fieldMatches = fields.map((field) => {
     const pattern = `(?:^|\\s)${field.replace('.', '\\.')}:([^\\s]+)`;
@@ -37,7 +37,7 @@ const getFoundFields = ({
 };
 
 const getRegexSearchQueryParameterValue = (
-  regex: RegexSearchParameter | undefined,
+  regex: RegexSearchParameter | undefined
 ): RegexSearchQueryParameterValue => {
   if (regex === undefined) {
     return undefined;
@@ -48,8 +48,8 @@ const getRegexSearchQueryParameterValue = (
   if (!isEmpty(foundFields)) {
     return {
       $and: foundFields.map(({ field, value }) => ({
-        [field]: { $rg: value },
-      })),
+        [field]: { $rg: value }
+      }))
     };
   }
 
@@ -57,13 +57,13 @@ const getRegexSearchQueryParameterValue = (
 
   return {
     $or: fields.map((field) => ({
-      [field]: { $rg: value },
-    })),
+      [field]: { $rg: value }
+    }))
   };
 };
 
 const getListsSearchQueryParameterValue = (
-  lists,
+  lists
 ): GetListsSearchQueryParameterValueProps | undefined => {
   if (lists === undefined) {
     return undefined;
@@ -71,13 +71,13 @@ const getListsSearchQueryParameterValue = (
 
   return {
     $and: lists.map(({ field, values }) => ({
-      [field]: { $in: values },
-    })),
+      [field]: { $in: values }
+    }))
   };
 };
 
 const getConditionsSearchQueryParameterValue = (
-  conditions: Array<ConditionsSearchParameter> | undefined,
+  conditions: Array<ConditionsSearchParameter> | undefined
 ): GetConditionsSearchQueryParameterValueState | undefined => {
   if (conditions === undefined) {
     return undefined;
@@ -86,30 +86,30 @@ const getConditionsSearchQueryParameterValue = (
   const toIndividualOperatorValues = ({
     field,
     values,
-    value,
+    value
   }: ConditionsSearchParameter): Array<Record<string, unknown>> => {
     if (!isNil(value)) {
       return [
         {
-          [field]: value,
-        },
+          [field]: value
+        }
       ];
     }
 
     return toPairs(values || {}).map(([operator, operatorValue]) => ({
       [field]: {
-        [operator]: operatorValue,
-      },
+        [operator]: operatorValue
+      }
     }));
   };
 
   return {
-    $and: pipe(map(toIndividualOperatorValues), flatten)(conditions),
+    $and: pipe(map(toIndividualOperatorValues), flatten)(conditions)
   };
 };
 
 const getSearchQueryParameterValue = (
-  search: SearchParameter | undefined,
+  search: SearchParameter | undefined
 ): SearchQueryParameterValue => {
   if (search === undefined) {
     return undefined;
@@ -125,7 +125,7 @@ const getSearchQueryParameterValue = (
   const result = reject(isNil, [
     regexSearchParam,
     listSearchesParam,
-    conditionSearchesParam,
+    conditionSearchesParam
   ]);
 
   if (result.length === 1) {

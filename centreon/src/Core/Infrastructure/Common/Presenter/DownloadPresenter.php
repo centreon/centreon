@@ -23,41 +23,30 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
 
-use Symfony\Component\HttpFoundation\Response;
+use Core\Application\Common\UseCase\AbstractPresenter;
 
-class DownloadPresenter extends AbstractPresenter implements PresenterFormatterInterface, DownloadInterface
+class DownloadPresenter extends AbstractPresenter implements DownloadInterface
 {
     private const CSV_FILE_EXTENSION = 'csv';
     private const JSON_FILE_EXTENSION = 'json';
 
     private string $downloadFileName = '';
 
-    public function __construct(private PresenterFormatterInterface $presenter)
-    {
-    }
-
     /**
      * @inheritDoc
      */
     public function present(mixed $data): void
     {
-        $this->presenter->present($data);
-        $originalHeaders = $this->presenter->getResponseHeaders();
+        $originalHeaders = $this->getResponseHeaders();
         $originalHeaders['Content-Type'] = 'application/force-download';
         $originalHeaders['Content-Disposition'] = 'attachment; filename="' . $this->generateDownloadFileName() . '"';
-        $this->presenter->setResponseHeaders($originalHeaders);
+        $this->setResponseHeaders($originalHeaders);
+        parent::present($data);
     }
 
     /**
-     * @inheritDoc
-     */
-    public function show(): Response
-    {
-        return $this->presenter->show();
-    }
-
-    /**
-     * @inheritDoc
+     * @param string $fileName
+     * @return void
      */
     public function setDownloadFileName(string $fileName): void
     {
@@ -71,9 +60,9 @@ class DownloadPresenter extends AbstractPresenter implements PresenterFormatterI
      */
     private function generateDownloadFileExtension(): string
     {
-        return match (get_class($this->presenter)) {
-            CsvPresenter::class => self::CSV_FILE_EXTENSION,
-            JsonPresenter::class => self::JSON_FILE_EXTENSION,
+        return match (get_class($this->presenterFormatter)) {
+            CsvFormatter::class => self::CSV_FILE_EXTENSION,
+            JsonFormatter::class => self::JSON_FILE_EXTENSION,
             default => '',
         };
     }

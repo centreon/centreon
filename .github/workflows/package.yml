@@ -1,0 +1,139 @@
+on:
+  workflow_call:
+    inputs:
+      base_directory:
+        type: string
+        description: The module directory
+        required: true
+      spec_file:
+        type: string
+        description: The spec file path to build rpm
+        required: true
+      package_extension:
+        type: string
+        description: The package extension (deb or rpm)
+        required: true
+      frontend_index_cache_key:
+        type: string
+        description: The index.html cache key
+      frontend_index_file:
+        type: string
+        description: The index.html file path
+      frontend_static_cache_key:
+        type: string
+        description: The static directory cache key
+      frontend_static_directory:
+        type: string
+        description: The static directory
+      backend_vendor_cache_key:
+        type: string
+        description: The vendor directory cache key
+      backend_vendor_directory:
+        type: string
+        description: The vendor directory
+      translation_cache_key:
+        type: string
+        description: The translation directory cache key
+      translation_directory:
+        type: string
+        description: The translation directory
+      image_name:
+        type: string
+        description: The image name
+        required: true
+      module_name:
+        type: string
+        description: The module name
+        required: true
+      major_version:
+        type: string
+        description: The major version
+        required: true
+      minor_version:
+        type: string
+        description: The minor version
+        required: true
+      release:
+        type: string
+        description: The release number
+        required: true
+      cache_key:
+        type: string
+        description: The package files cache key
+        required: true
+    secrets:
+      artifactory_username:
+        required: true
+      artifactory_password:
+        required: true
+
+jobs:
+  package:
+    name: Package ${{ inputs.package_extension }}
+    runs-on: ubuntu-22.04
+    container:
+      image: docker.centreon.com/${{ inputs.image_name }}:${{ inputs.major_version }}
+      credentials:
+        username: ${{ secrets.artifactory_username }}
+        password: ${{ secrets.artifactory_password }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/package
+        with:
+          base_directory: ${{ inputs.base_directory }}
+          spec_file:  ${{ inputs.spec_file }}
+          package_extension: ${{ inputs.package_extension }}
+          frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
+          frontend_index_file: ${{ inputs.frontend_index_file }}
+          frontend_static_cache_key: ${{ inputs.frontend_static_cache_key }}
+          frontend_static_directory: ${{ inputs.frontend_static_directory }}
+          backend_vendor_cache_key: ${{ inputs.backend_vendor_cache_key }}
+          backend_vendor_directory: ${{ inputs.backend_vendor_directory }}
+          translation_cache_key: ${{ inputs.translation_cache_key }}
+          translation_directory: ${{ inputs.translation_directory }}
+          module_name: ${{ inputs.module_name }}
+          major_version: ${{ inputs.major_version }}
+          minor_version: ${{ inputs.minor_version }}
+          release: ${{ inputs.release }}
+          cache_key: unsigned-${{ inputs.cache_key }}
+
+      - if: ${{ inputs.package_extension == 'deb' }}
+        uses: actions/cache@v3
+        with:
+          path: ./*.${{ inputs.package_extension }}
+          key: ${{ inputs.cache_key }}
+
+  sign:
+    if: ${{ inputs.package_extension == 'rpm' }}
+    needs: [package]
+    runs-on: ubuntu-22.04
+    container:
+      image: docker.centreon.com/rpm-signing:ubuntu
+      options: -t
+      credentials:
+        username: ${{ secrets.artifactory_username }}
+        password: ${{ secrets.artifactory_password }}
+
+    steps:
+      - run: apt-get install -y zstd
+        shell: bash
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.${{ inputs.package_extension }}
+          key: unsigned-${{ inputs.cache_key }}
+
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+        shell: bash
+
+      - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.${{ inputs.package_extension }}
+          key: ${{ inputs.cache_key }}

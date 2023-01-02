@@ -302,7 +302,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     {
         $approachingDowntimes = array();
 
-        $downtimes = $this->getDowntime();
+        $downtimes = $this->getForEnabledResources();
 
         $gmtObj = new CentreonGMT($this->db);
 

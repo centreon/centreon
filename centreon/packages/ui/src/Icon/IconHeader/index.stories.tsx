@@ -9,10 +9,10 @@ import IconHeader from '.';
 
 export default {
   argTypes: {
-    iconName: { control: 'text' },
+    iconName: { control: 'text' }
   },
   component: IconHeader,
-  title: 'Icon/Header',
+  title: 'Icon/Header'
 } as ComponentMeta<typeof IconHeader>;
 
 const alertOnClick = (name): void => {
@@ -31,7 +31,7 @@ const TemplateIcon: ComponentStory<typeof IconHeader> = (args) => (
 
 export const PlaygroundIcon = TemplateIcon.bind({});
 PlaygroundIcon.args = {
-  iconName: 'Poller',
+  iconName: 'Poller'
 };
 
 export const normal = (): JSX.Element => (

@@ -15,7 +15,7 @@ describe('DialogDuplicate', () => {
         labelTitle="title"
         onCancel={jest.fn()}
         onConfirm={mockConfirm}
-      />,
+      />
     );
 
     fireEvent.click(getByText('confirm'));
@@ -35,7 +35,7 @@ describe('DialogDuplicate', () => {
         labelTitle="title"
         onCancel={jest.fn()}
         onConfirm={mockConfirm}
-      />,
+      />
     );
 
     const input = getByDisplayValue('1');

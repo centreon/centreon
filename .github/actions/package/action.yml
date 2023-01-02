@@ -1,6 +1,12 @@
 name: package
 description: Package module
 inputs:
+  base_directory:
+    description: The module directory
+    required: true
+  spec_file:
+    description: The spec file path to build rpm
+    required: true
   package_extension:
     description: The package extension (deb or rpm)
     required: true
@@ -16,41 +22,31 @@ inputs:
     description: The vendor directory cache key
   backend_vendor_directory:
     description: The vendor directory
-  image_name:
-    description: The action matrix
-    required: true
-  script_name:
-    description: The packaging script name
+  translation_cache_key:
+    description: The translation directory cache key
+  translation_directory:
+    description: The translation directory
   module_name:
     description: The module name
     required: true
-  version:
-    description: The version
+  major_version:
+    description: The major version
+    required: true
+  minor_version:
+    description: The minor version
+    required: true
+  release:
+    description: The release number
     required: true
   cache_key:
     description: The package files cache key
-    required: true
-  sign:
-    description: Wether to sign the package or not
-    default: ""
-  nexus_username:
-    description: The nexus username
-    required: true
-  nexus_password:
-    description: The nexus password
     required: true
 
 runs:
   using: composite
 
   steps:
-    - name: Get minor and release version
-      uses: ./.github/actions/get-package-version
-      with:
-        module_name: ${{ inputs.module_name }}
-      id: get_version
-
-    - name: Restore static directory cache
+    - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
       uses: actions/cache@v3
       with:
@@ -71,28 +67,72 @@ runs:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
 
-    - name: Login to Registry
-      uses: docker/login-action@v2
+    - name: Restore translation directory cache
+      if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
+      uses: actions/cache@v3
       with:
-        registry: registry-docker.centreon.com
-        username: ${{ inputs.nexus_username }}
-        password: ${{ inputs.nexus_password }}
+        path: ${{ inputs.translation_directory }}
+        key: ${{ inputs.translation_cache_key }}
 
-    - name: Package
-      uses: ./.github/actions/runner-docker
-      with:
-        script_name: ${{ inputs.script_name }}
-        image_name: ${{ inputs.image_name }}
-        image_version: ${{ inputs.version }}
-        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }} ${{ inputs.module_name }}
+    - if: ${{ inputs.package_extension == 'rpm' }}
+      run: |
+        VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
+        RELEASE=${{ inputs.release }}
+        MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
 
-    - name: Sign
-      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
-      uses: ./.github/actions/runner-docker
+        mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+        mkdir $MODULE_BASENAME-$VERSION
+        cp -rp ${{ inputs.base_directory }} $MODULE_BASENAME-$VERSION/
+
+        tar czf ~/rpmbuild/SOURCES/$MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME-$VERSION
+
+        if [ -d "$MODULE_BASENAME/packaging/src" ]; then
+          cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
+        fi
+
+        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+
+        cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
+
+        chmod 777 *.rpm
+      shell: bash
+
+    - if: ${{ inputs.package_extension == 'deb' }}
+      run: |
+        set -x
+
+        VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
+        RELEASE=${{ inputs.release }}
+        MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
+
+        cd ${{ inputs.base_directory }}/..
+        cp -r $MODULE_BASENAME/packaging/debian ./$MODULE_BASENAME
+        tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
+        cd ./$MODULE_BASENAME
+
+        ls -lath .
+
+        if [ -f "debian/substvars" ]; then
+          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+        fi
+
+        debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
+        debuild-pbuilder --no-lintian
+
+        # This makes shure that widget pkgs end up in the same dir as non widgets
+        if [[ $MODULE_BASENAME = "centreon-widget"* ]]; then
+          find / -name "*centreon-widget*.deb" -exec mv {} ../../ \;
+        fi
+        ls -lath ..
+      shell: bash
+
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v3
       with:
-        script_name: rpm-signing
-        image_name: rpm-signing
-        image_version: ubuntu
+        name: packages-${{ inputs.package_extension }}
+        path: ./*.${{ inputs.package_extension }}
+        retention-days: 7
 
     - name: Cache packaged files
       uses: actions/cache@v3

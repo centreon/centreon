@@ -11,7 +11,7 @@ export enum Method {
   GET = 'GET',
   PATCH = 'PATCH',
   POST = 'POST',
-  PUT = 'PUT',
+  PUT = 'PUT'
 }
 
 export interface UseMutationQueryProps<T> {
@@ -40,7 +40,7 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method,
+  method
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -53,12 +53,12 @@ const useMutationQuery = <T extends object>({
         endpoint: getEndpoint(),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
-          ...fetchHeaders,
+          ...fetchHeaders
         }),
         isMutation: true,
         method,
-        payload,
-      }),
+        payload
+      })
   );
 
   const manageError = (): void => {
@@ -66,7 +66,7 @@ const useMutationQuery = <T extends object>({
     if (data?.isError) {
       log.error(data.message);
       const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
-        data?.statusCode || 0,
+        data?.statusCode || 0
       );
 
       if (!hasACorrespondingHttpCode) {
@@ -81,7 +81,7 @@ const useMutationQuery = <T extends object>({
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
     isMutating: queryData.isLoading,
     mutate: queryData.mutate,
-    mutateAsync: queryData.mutateAsync,
+    mutateAsync: queryData.mutateAsync
   };
 };
 

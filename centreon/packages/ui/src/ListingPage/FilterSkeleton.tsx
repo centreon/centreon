@@ -5,8 +5,8 @@ import { Skeleton } from '@mui/material';
 const useStyles = makeStyles()((theme) => ({
   filterSkeleton: {
     height: theme.spacing(6),
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const FilterSkeleton = (): JSX.Element => {

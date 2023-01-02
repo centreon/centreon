@@ -2,46 +2,44 @@ import { RefObject } from 'react';
 
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, last } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
+import { Resource } from '../../../models';
 import ShortTypeChip from '../../../ShortTypeChip';
-import {
-  selectedResourcesDetailsAtom,
-  selectResourceDerivedAtom,
-} from '../../detailsAtoms';
+import { selectResourceDerivedAtom } from '../../detailsAtoms';
 import Card from '../Details/Card';
 import SelectableResourceName from '../Details/SelectableResourceName';
 
 import { MetaServiceMetric } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   card: {
     alignItems: 'center',
     display: 'grid',
     gridColumnGap: theme.spacing(2),
     gridTemplateColumns: '1fr 1fr auto',
     justifyItems: 'flex-start',
-    width: '100%',
+    width: '100%'
   },
   container: {
     display: 'grid',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   iconValuePair: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   resources: {
     display: 'flex',
     flexDirection: 'column',
     gridGap: theme.spacing(1),
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'
+  }
 }));
 
 interface Props {
@@ -50,12 +48,9 @@ interface Props {
 }
 
 const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const selectResource = useUpdateAtom(selectResourceDerivedAtom);
-  const setSelectedResourceDetails = useUpdateAtom(
-    selectedResourcesDetailsAtom,
-  );
 
   return (
     <>
@@ -75,7 +70,9 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
                   <SelectableResourceName
                     name={resource.parent?.name as string}
                     variant="body2"
-                    onSelect={(): void => selectResource(resource)}
+                    onSelect={(): void =>
+                      selectResource(resource.parent as Resource)
+                    }
                   />
                 </div>
                 <div className={classes.iconValuePair}>
@@ -83,13 +80,7 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
                   <SelectableResourceName
                     name={resource.name}
                     variant="body2"
-                    onSelect={(): void =>
-                      setSelectedResourceDetails({
-                        resourceId: resource.id,
-                        resourcesDetailsEndpoint:
-                          resource.links?.endpoints?.details,
-                      })
-                    }
+                    onSelect={(): void => selectResource(resource)}
                   />
                 </div>
               </div>

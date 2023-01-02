@@ -17,16 +17,16 @@ const useStyles = makeStyles<StylesProps>()(
       columnGap: theme.spacing(4),
       display: 'grid',
       gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
-      rowGap: theme.spacing(2),
-    },
-  }),
+      rowGap: theme.spacing(2)
+    }
+  })
 );
 
 const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
   const { classes } = useStyles({
     alignItems: grid?.alignItems,
     columns: grid?.columns.length,
-    gridTemplateColumns: grid?.gridTemplateColumns,
+    gridTemplateColumns: grid?.gridTemplateColumns
   });
 
   return (

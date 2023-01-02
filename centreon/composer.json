@@ -90,7 +90,6 @@
         "psr-4": {
             "": "src/",
             "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-            "App\\": "src/",
             "Tests\\": "tests/php/",
             "Centreon\\Test\\Api\\": "tests/api/"
         },

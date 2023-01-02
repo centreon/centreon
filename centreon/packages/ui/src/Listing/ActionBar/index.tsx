@@ -10,26 +10,40 @@ import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
 import ColumnMultiSelect from './ColumnMultiSelect';
 
-const useStyles = makeStyles()((theme) => ({
-  actions: {
-    padding: theme.spacing(1, 0),
-  },
-  container: {
-    alignItems: 'center',
-    display: 'grid',
-    gridGap: theme.spacing(1),
-    gridTemplateColumns: '1fr auto auto',
-    width: '100%',
-  },
-  pagination: {
-    padding: 0,
-  },
-  selectMenu: {
-    '& .MuiMenuItem-root': {
-      lineHeight: 1,
+interface StyleProps {
+  marginWidthTableListing: number;
+  width: number;
+}
+
+const useStyles = makeStyles<StyleProps>()(
+  (theme, { width, marginWidthTableListing }) => ({
+    actions: {
+      padding: theme.spacing(1, 0)
     },
-  },
-}));
+    container: {
+      alignItems: 'center',
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      width: '100%'
+    },
+    moving: {
+      marginRight: theme.spacing((width - marginWidthTableListing) / 8)
+    },
+    pagination: {
+      padding: 0
+    },
+    selectMenu: {
+      '& .MuiMenuItem-root': {
+        lineHeight: 1
+      }
+    },
+    subContainer: {
+      alignItems: 'center',
+      display: 'flex'
+    }
+  })
+);
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -45,6 +59,8 @@ type Props = Pick<
   | 'onSelectColumns'
   | 'onResetColumns'
   | 'actionsBarMemoProps'
+  | 'moveTablePagination'
+  | 'widthToMoveTablePagination'
 >;
 
 const MemoListingActionBar = ({
@@ -59,9 +75,15 @@ const MemoListingActionBar = ({
   onSelectColumns,
   onPaginate,
   onLimitChange,
-  actionsBarMemoProps = [],
+  moveTablePagination = false,
+  widthToMoveTablePagination = 550,
+  actionsBarMemoProps = []
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const marginWidthTableListing = 30;
+  const { classes, cx } = useStyles({
+    marginWidthTableListing,
+    width: widthToMoveTablePagination
+  });
   const { t } = useTranslation();
 
   const changeRowPerPage = (event): void => {
@@ -79,50 +101,58 @@ const MemoListingActionBar = ({
   return useMemoComponent({
     Component: (
       <div className={classes.container}>
-        <div className={classes.actions}>{actions}</div>
-        {columnConfiguration?.selectedColumnIds && (
-          <ColumnMultiSelect
-            columnConfiguration={columnConfiguration}
-            columns={columns}
-            onResetColumns={onResetColumns}
-            onSelectColumns={onSelectColumns}
-          />
-        )}
-        {paginated && (
-          <StyledPagination
-            ActionsComponent={PaginationActions}
-            SelectProps={{
-              MenuProps: {
-                className: classes.selectMenu,
-              },
-              id: labelRowsPerPage,
-            }}
-            className={classes.pagination}
-            colSpan={3}
-            count={totalRows}
-            labelDisplayedRows={labelDisplayedRows}
-            labelRowsPerPage={t(labelRowsPerPage)}
-            page={currentPage}
-            rowsPerPage={limit}
-            rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-            onPageChange={changePage}
-            onRowsPerPageChange={changeRowPerPage}
-          />
-        )}
+        <div className={classes.actions}>
+          <div>{actions}</div>
+        </div>
+        <div className={classes.subContainer}>
+          {columnConfiguration?.selectedColumnIds && (
+            <ColumnMultiSelect
+              columnConfiguration={columnConfiguration}
+              columns={columns}
+              onResetColumns={onResetColumns}
+              onSelectColumns={onSelectColumns}
+            />
+          )}
+          {paginated && (
+            <StyledPagination
+              ActionsComponent={PaginationActions}
+              SelectProps={{
+                MenuProps: {
+                  className: classes.selectMenu
+                },
+                id: labelRowsPerPage
+              }}
+              className={cx(classes.pagination, {
+                [classes.moving]: moveTablePagination
+              })}
+              colSpan={3}
+              count={totalRows}
+              labelDisplayedRows={labelDisplayedRows}
+              labelRowsPerPage={t(labelRowsPerPage)}
+              page={currentPage}
+              rowsPerPage={limit}
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              onPageChange={changePage}
+              onRowsPerPageChange={changeRowPerPage}
+            />
+          )}
+        </div>
       </div>
     ),
     memoProps: [
       paginated,
       totalRows,
       currentPage,
+      moveTablePagination,
+      widthToMoveTablePagination,
       limit,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns,
+        columns
       ),
       columnConfiguration,
-      ...actionsBarMemoProps,
-    ],
+      ...actionsBarMemoProps
+    ]
   });
 };
 
@@ -139,6 +169,8 @@ const ListingActionBar = ({
   onResetColumns,
   onSelectColumns,
   actionsBarMemoProps,
+  moveTablePagination,
+  widthToMoveTablePagination
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -156,8 +188,10 @@ const ListingActionBar = ({
       columns={columns}
       currentPage={currentPage}
       limit={limit}
+      moveTablePagination={moveTablePagination}
       paginated={paginated}
       totalRows={totalRows}
+      widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
       onResetColumns={onResetColumns}

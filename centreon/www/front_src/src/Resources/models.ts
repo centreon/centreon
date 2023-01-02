@@ -1,17 +1,17 @@
 import { ListingModel } from '@centreon/ui';
 
 export enum ResourceType {
-  anomalydetection = 'anomaly-detection',
+  anomalyDetection = 'anomaly-detection',
   host = 'host',
   metaservice = 'metaservice',
-  service = 'service',
+  service = 'service'
 }
 
 export enum ResourceCategory {
   'anomaly-detection' = ResourceType.service,
   'service' = ResourceType.service,
   'host' = ResourceType.host,
-  'metaservice' = ResourceType.metaservice,
+  'metaservice' = ResourceType.metaservice
 }
 
 export type ResourceShortType = 'h' | 's' | 'm' | 'a';
@@ -118,5 +118,5 @@ export type TranslationType = (label: string) => string;
 
 export enum SortOrder {
   asc = 'asc',
-  desc = 'desc',
+  desc = 'desc'
 }

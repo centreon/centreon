@@ -1,0 +1,3 @@
+name: centreon.yaml
+description: Configure Centreon Gorgone to work with Centreon Web.
+centreon: !include @CENTREON_ETC_DIR@/config.d/*.yaml

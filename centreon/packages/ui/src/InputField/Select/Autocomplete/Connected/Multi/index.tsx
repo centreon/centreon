@@ -3,7 +3,7 @@ import ConnectedAutocompleteField from '..';
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(
   MultiAutocompleteField,
-  true,
+  true
 );
 
 export default MultiConnectedAutocompleteField;

@@ -42,6 +42,18 @@ default:
       paths: [ "%paths.base%/features/LocalAuthentication.feature" ]
       contexts:
         - Centreon\Test\Api\Context\LocalAuthenticationContext
+    local_provider_configuration:
+      paths: [ "%paths.base%/features/LocalProviderConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    openid_provider_configuration:
+      paths: [ "%paths.base%/features/OpenIdProviderConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    websso_provider_configuration:
+      paths: [ "%paths.base%/features/WebSSOProviderConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
     user_filter:
       paths: [ "%paths.base%/features/UserFilter.feature" ]
       contexts:
@@ -98,3 +110,19 @@ default:
       paths: [ "%paths.base%/features/MonitoringServerConfiguration.feature" ]
       contexts:
         - Centreon\Test\Api\Context\MonitoringServerConfigurationContext
+    contact_groups_configuration:
+      paths: [ "%paths.base%/features/ConfigurationContactsGroups.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    contact_templates_configuration:
+      paths: [ "%paths.base%/features/ConfigurationContactTemplates.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    vault_configuration:
+      paths: [ "%paths.base%/features/VaultConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    access_groups_configuration:
+      paths: [ "%paths.base%/features/ConfigurationAccessGroups.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext

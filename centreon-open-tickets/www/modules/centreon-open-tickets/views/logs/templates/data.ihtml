@@ -1,0 +1,17 @@
+{assign var=val value=1}
+{foreach from=$tickets item=ticket}
+{if $val % 2 == 1}
+<tr class="list_one">
+{else}
+<tr class="list_two">
+{/if}
+    <td style="padding-left:5px;" class="ListColCenter">{$ticket.timestamp|date_format:"%Y/%m/%d"}</td>
+    <td style="padding-left:5px;" class="ListColCenter">{$ticket.timestamp|date_format:"%H:%M:%S"}</td>
+    <td style="padding-left:5px;"><a href="main.php?p=20202&amp;o=hd&amp;host_name={$ticket.host_name}" target="_blank">{$ticket.host_name}</a></td>
+    <td style="padding-left:5px;"><a href="main.php?p=20201&amp;o=svcd&amp;host_name={$ticket.host_name}&amp;service_description={$ticket.service_description}" target="_blank">{$ticket.service_description}</a></td>
+    <td style="padding-left:5px;" class="ListColCenter">{$ticket.ticket_id}</td>
+    <td style="padding-left:5px;" class="ListColCenter">{$ticket.user}</td>
+    <td style="padding-left:5px;">{$ticket.subject}</td>
+</tr>
+{assign var=val value=$val+1}
+{/foreach}

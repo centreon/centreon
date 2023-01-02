@@ -2,11 +2,11 @@ module.exports = {
   extends: ['plugin:prettier/recommended'],
   globals: {
     Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
+    SharedArrayBuffer: 'readonly'
   },
   parserOptions: {
     ecmaVersion: 2022,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   plugins: ['prefer-arrow-functions', 'sort-keys-fix'],
   root: true,
@@ -16,8 +16,8 @@ module.exports = {
       'error',
       'ignorePackages',
       {
-        js: 'never',
-      },
+        js: 'never'
+      }
     ],
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
     'import/prefer-default-export': 'off',
@@ -30,9 +30,9 @@ module.exports = {
         arrowParens: 'always',
         endOfLine: 'auto',
         singleQuote: true,
-        trailingComma: 'all',
-      },
+        trailingComma: 'none'
+      }
     ],
-    'sort-keys-fix/sort-keys-fix': ['error', 'asc', { natural: true }],
-  },
+    'sort-keys-fix/sort-keys-fix': ['error', 'asc', { natural: true }]
+  }
 };

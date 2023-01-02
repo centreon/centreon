@@ -20,7 +20,7 @@ describe('Listing', () => {
       id: 'name',
       label: 'name',
       sortable: true,
-      type: ColumnType.string,
+      type: ColumnType.string
     },
     {
       getFormattedString: ({ description }): string => description,
@@ -28,15 +28,15 @@ describe('Listing', () => {
       label: 'description',
       sortField: 'descriptionField',
       sortable: true,
-      type: ColumnType.string,
-    },
+      type: ColumnType.string
+    }
   ];
 
   const rows = [
     { description: 'first row description', id: 0, name: 'My First Row' },
     { description: 'second row description', id: 1, name: 'My Second Row' },
     { description: 'third row description', id: 2, name: 'My Third Row' },
-    { description: 'fourth row description', id: 3, name: 'My Fourth Row' },
+    { description: 'fourth row description', id: 3, name: 'My Fourth Row' }
   ];
 
   const onSelectRows = jest.fn();
@@ -50,7 +50,7 @@ describe('Listing', () => {
     disableCheckbox: index % 4 === 0,
     id: index,
     name: `E${index}`,
-    selected: index % 3 === 0,
+    selected: index % 3 === 0
   }));
 
   const PaginationTable = (): JSX.Element => {
@@ -78,7 +78,7 @@ describe('Listing', () => {
         columns={columns}
         rows={rows}
         onSelectRows={onSelectRows}
-      />,
+      />
     );
 
     // The first visible checkbox is the 'select all' one
@@ -101,7 +101,7 @@ describe('Listing', () => {
         rows={rows}
         selectedRows={selectedRows}
         onSelectRows={onSelectRows}
-      />,
+      />
     );
     const firstRowCheckbox = getAllCheckboxes(container)[1];
 
@@ -118,7 +118,7 @@ describe('Listing', () => {
         rows={rows}
         totalRows={4}
         onSelectRows={onSelectRows}
-      />,
+      />
     );
 
     const selectAllCheckbox = getAllCheckboxes(container)[0];
@@ -136,7 +136,7 @@ describe('Listing', () => {
         rows={rows}
         selectedRows={rows}
         onSelectRows={onSelectRows}
-      />,
+      />
     );
 
     const selectAllCheckbox = getAllCheckboxes(container)[0];
@@ -155,7 +155,7 @@ describe('Listing', () => {
         rows={rows}
         selectedRows={selectedRows}
         onSelectRows={onSelectRows}
-      />,
+      />
     );
 
     const selectAllCheckbox = getAllCheckboxes(container)[0];
@@ -169,14 +169,14 @@ describe('Listing', () => {
     const columnWithoutSortField = columns[0];
 
     const { getByLabelText } = render(
-      <Listing columns={columns} rows={rows} onSort={onSort} />,
+      <Listing columns={columns} rows={rows} onSort={onSort} />
     );
 
     fireEvent.click(getByLabelText(`Column ${columnWithoutSortField.label}`));
 
     expect(onSort).toHaveBeenCalledWith({
       sortField: columnWithoutSortField.id,
-      sortOrder: 'desc',
+      sortOrder: 'desc'
     });
   });
 
@@ -184,20 +184,20 @@ describe('Listing', () => {
     const columnWithSortField = columns[1];
 
     const { getByLabelText } = render(
-      <Listing columns={columns} rows={rows} onSort={onSort} />,
+      <Listing columns={columns} rows={rows} onSort={onSort} />
     );
 
     fireEvent.click(getByLabelText(`Column ${columnWithSortField.label}`));
 
     expect(onSort).toHaveBeenCalledWith({
       sortField: columnWithSortField.sortField,
-      sortOrder: 'desc',
+      sortOrder: 'desc'
     });
   });
 
   it('resets the page number to 0 when changing the limit and the current page is different than 0', () => {
     const { getByLabelText, getByRole, getByText } = render(
-      <PaginationTable />,
+      <PaginationTable />
     );
 
     expect(getByText('41-50 of 100'));
@@ -218,13 +218,13 @@ describe('Listing', () => {
       <Listing
         columnConfiguration={{
           selectedColumnIds: columns.map(prop('id')),
-          sortable: false,
+          sortable: false
         }}
         columns={columns}
         rows={rows}
         onSelectColumns={onSelectColumns}
         onSort={onSort}
-      />,
+      />
     );
 
     fireEvent.click(getByLabelText(labelAddColumns).firstChild as HTMLElement);

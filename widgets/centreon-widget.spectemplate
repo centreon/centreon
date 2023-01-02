@@ -1,11 +1,16 @@
 
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define name %{PACKAGE_NAME}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
 
-Summary:    %{summary}
+%define widget_sub_dir %(echo %{name} | sed 's/centreon-widget-//')
+
+Summary:    centreon widget %{name}
 Name:       %{name}
 Version:    %{version}
-Release:    %{release}%{?dist}
+Release:    %{release}
 Source0:    %{name}-%{version}.tar.gz
 
 License:    GPLv2
@@ -15,7 +20,6 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:  noarch
 Requires:   centreon-web >= %{thismajor}
 Requires:   centreon-web < %{nextmajor}
-BuildRequires:  dos2unix
 
 %description
 Add homepage with Centreon Widgets
@@ -31,7 +35,7 @@ Add homepage with Centreon Widgets
 
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets
 %{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
-%{__cp} -rp %{widget_sub_dir}/* %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
+%{__cp} -rp centreon-widget-%{widget_sub_dir}/%{widget_sub_dir}/* %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
 
 
 %clean

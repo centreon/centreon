@@ -28,8 +28,8 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
     position: 'relative',
     right: 0,
     top: 0,
-    transform: 'none',
-  },
+    transform: 'none'
+  }
 }));
 
 export interface Props {
@@ -41,7 +41,7 @@ export interface Props {
 const StatusCounter = ({
   severityCode,
   count,
-  className,
+  className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
 
@@ -49,7 +49,7 @@ const StatusCounter = ({
     <Badge
       badgeContent={numeral(count).format('0a')}
       classes={{
-        badge: cx(classes.badge, className),
+        badge: cx(classes.badge, className)
       }}
       overlap="circular"
     />

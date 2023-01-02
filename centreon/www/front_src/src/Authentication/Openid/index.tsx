@@ -2,36 +2,37 @@ import { useMemo, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { LinearProgress } from '@mui/material';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefineOpenIDConnectConfiguration } from './translatedLabels';
 import useOpenid from './useOpenid';
 import Form from './Form';
 import { OpenidConfiguration } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   loading: {
-    height: theme.spacing(0.5),
-  },
+    height: theme.spacing(0.5)
+  }
 }));
 
 const OpenidConfigurationForm = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const {
     sendingGetOpenidConfiguration,
     initialOpenidConfiguration,
-    loadOpenidConfiguration,
+    loadOpenidConfiguration
   } = useOpenid();
 
   const isOpenidConfigurationEmpty = useMemo(
     () => isNil(initialOpenidConfiguration),
-    [initialOpenidConfiguration],
+    [initialOpenidConfiguration]
   );
 
   useTab(isOpenidConfigurationEmpty);
@@ -42,9 +43,7 @@ const OpenidConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">
-        {t(labelDefineOpenIDConnectConfiguration)}
-      </Typography>
+      <FormTitle title={t(labelDefineOpenIDConnectConfiguration)} />
       <div className={classes.loading}>
         {not(isOpenidConfigurationEmpty) && sendingGetOpenidConfiguration && (
           <LinearProgress />

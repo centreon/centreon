@@ -3,6 +3,7 @@ import { Fragment, useMemo } from 'react';
 import * as R from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { FormikValues, useFormikContext } from 'formik';
 
 import { Divider, Typography } from '@mui/material';
 
@@ -21,46 +22,46 @@ import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
 
 export const getInput = R.cond<
-  InputType,
+  Array<InputType>,
   (props: InputPropsWithoutGroup) => JSX.Element | null
 >([
   [
     R.equals(InputType.Switch) as (b: InputType) => boolean,
-    R.always(SwitchInput),
+    R.always(SwitchInput)
   ],
   [
     R.equals(InputType.Radio) as (b: InputType) => boolean,
-    R.always(RadioInput),
+    R.always(RadioInput)
   ],
   [R.equals(InputType.Text) as (b: InputType) => boolean, R.always(TextInput)],
   [
     R.equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
-    R.always(Autocomplete),
+    R.always(Autocomplete)
   ],
   [
     R.equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
-    R.always(Autocomplete),
+    R.always(Autocomplete)
   ],
   [
     R.equals(InputType.Password) as (b: InputType) => boolean,
-    R.always(TextInput),
+    R.always(TextInput)
   ],
   [
     R.equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
-    R.always(ConnectedAutocomplete),
+    R.always(ConnectedAutocomplete)
   ],
   [
     R.equals(InputType.SingleConnectedAutocomplete) as (
-      b: InputType,
+      b: InputType
     ) => boolean,
-    R.always(ConnectedAutocomplete),
+    R.always(ConnectedAutocomplete)
   ],
   [
     R.equals(InputType.FieldsTable) as (b: InputType) => boolean,
-    R.always(FieldsTable),
+    R.always(FieldsTable)
   ],
   [R.equals(InputType.Grid) as (b: InputType) => boolean, R.always(Grid)],
-  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)],
+  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)]
 ]);
 
 interface StylesProps {
@@ -69,32 +70,32 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   additionalLabel: {
-    marginBottom: theme.spacing(0.5),
+    marginBottom: theme.spacing(0.5)
   },
   buttons: {
     columnGap: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   divider: {
     margin: R.equals(groupDirection, GroupDirection.Horizontal)
       ? theme.spacing(0, 2)
-      : theme.spacing(2, 0),
+      : theme.spacing(2, 0)
   },
   groups: {
     display: 'flex',
     flexDirection: R.equals(groupDirection, GroupDirection.Horizontal)
       ? 'row'
-      : 'column',
+      : 'column'
   },
   inputWrapper: { width: '100%' },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
     marginTop: theme.spacing(1),
-    rowGap: theme.spacing(2),
-  },
+    rowGap: theme.spacing(2)
+  }
 }));
 
 interface Props {
@@ -110,28 +111,35 @@ const Inputs = ({
   groups = [],
   isLoading = false,
   isCollapsible,
-  groupDirection,
+  groupDirection
 }: Props): JSX.Element => {
   const { classes } = useStyles({ groupDirection });
   const { t } = useTranslation();
+  const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = R.pluck('name', groups);
+
+  const visibleInputs = R.filter(
+    ({ hideInput }) =>
+      formikContext ? !hideInput?.(formikContext?.values) || false : true,
+    inputs
+  );
 
   const inputsByGroup = useMemo(
     () =>
       R.groupBy(
         ({ group }) => R.find(R.equals(group), groupsName) as string,
-        inputs,
+        visibleInputs
       ),
-    [inputs],
-  );
+    [visibleInputs]
+  ) as Record<string, Array<InputProps>>;
 
   const sortedGroupNames = useMemo(() => {
     const sortedGroups = R.sort(R.ascend(R.prop('order')), groups);
 
     const usedGroups = R.filter(
       ({ name }) => R.any(R.equals(name), R.keys(inputsByGroup)),
-      sortedGroups,
+      sortedGroups
     );
 
     return R.pluck('name', usedGroups);
@@ -144,20 +152,20 @@ const Inputs = ({
           ...acc,
           [value]: R.sort(
             (a, b) => (b?.required ? 1 : 0) - (a?.required ? 1 : 0),
-            inputsByGroup[value],
-          ),
+            inputsByGroup[value]
+          )
         }),
         {},
-        sortedGroupNames,
+        sortedGroupNames
       ),
-    [inputs],
+    [visibleInputs]
   );
 
   const lastGroup = useMemo(() => R.last(sortedGroupNames), []);
 
   const normalizedInputsByGroup = (
     R.isEmpty(sortedInputsByGroup)
-      ? [[null, inputs]]
+      ? [[null, visibleInputs]]
       : R.toPairs(sortedInputsByGroup)
   ) as Array<[string | null, Array<InputProps>]>;
 

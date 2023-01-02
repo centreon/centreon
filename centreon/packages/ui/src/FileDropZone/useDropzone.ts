@@ -4,7 +4,7 @@ import {
   MutableRefObject,
   useCallback,
   useRef,
-  useState,
+  useState
 } from 'react';
 
 import { all, isNil, lte, not, path, pluck } from 'ramda';
@@ -47,7 +47,7 @@ const useDropzone = ({
   changeFiles,
   resetFilesStatusAndUploadData,
   allowedFilesExtensions,
-  maxFileSize,
+  maxFileSize
 }: UseDropzoneProps): UseDropzoneState => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +60,7 @@ const useDropzone = ({
         event.preventDefault();
         setIsDraggingOver(dragOverValue);
       },
-    [isDraggingOver],
+    [isDraggingOver]
   );
 
   const openFileExplorer = (): void => {
@@ -144,7 +144,7 @@ const useDropzone = ({
     getFilesName,
     handleChangeFiles,
     isDraggingOver,
-    openFileExplorer,
+    openFileExplorer
   };
 };
 

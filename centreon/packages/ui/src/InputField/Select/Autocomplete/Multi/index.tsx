@@ -11,17 +11,17 @@ import Option from '../../Option';
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
     marginRight: theme.spacing(1),
-    padding: 0,
+    padding: 0
   },
   deleteIcon: {
     height: theme.spacing(1.5),
-    width: theme.spacing(1.5),
+    width: theme.spacing(1.5)
   },
   tag: {
     backgroundColor: theme.palette.divider,
     fontSize: theme.typography.caption.fontSize,
-    height: theme.spacing(1.75),
-  },
+    height: theme.spacing(1.75)
+  }
 }));
 
 type Multiple = boolean;
@@ -51,7 +51,7 @@ const MultiAutocompleteField = ({
       <Chip
         classes={{
           deleteIcon: classes.deleteIcon,
-          root: classes.tag,
+          root: classes.tag
         }}
         key={option.id}
         label={option.name}

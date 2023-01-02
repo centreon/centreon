@@ -14,7 +14,7 @@ import {
   not,
   findIndex,
   propEq,
-  pluck,
+  pluck
 } from 'ramda';
 
 import { Typography } from '@mui/material';
@@ -39,13 +39,13 @@ interface Props {
   label: string;
   onSelectedValuesChange?: (
     values: Array<DraggableSelectEntry>,
-    valueAddedOrDeleted?: DraggableSelectEntry,
+    valueAddedOrDeleted?: DraggableSelectEntry
   ) => Array<DraggableSelectEntry>;
   required?: boolean;
 }
 
 const DraggableAutocomplete = (
-  MultiAutocomplete: (props) => JSX.Element,
+  MultiAutocomplete: (props) => JSX.Element
 ): ((props) => JSX.Element) => {
   const InnerDraggableAutocompleteField = ({
     onSelectedValuesChange,
@@ -65,7 +65,7 @@ const DraggableAutocomplete = (
       Array<DraggableSelectEntry>
     >(initialValues || []);
     const [totalValues, setTotalValues] = React.useState<number>(
-      length(initialValues || []),
+      length(initialValues || [])
     );
     const [inputText, setInputText] = React.useState<string | null>(null);
 
@@ -99,7 +99,7 @@ const DraggableAutocomplete = (
         const lastDraggableItem = {
           createOption: lastValue,
           id: `${lastValue}_${totalValues}`,
-          name: lastValue,
+          name: lastValue
         };
 
         setSelectedValues((values) => {
@@ -114,12 +114,12 @@ const DraggableAutocomplete = (
         return;
       }
       const lastItem = last<DraggableSelectEntry>(
-        newValue,
+        newValue
       ) as DraggableSelectEntry;
 
       const lastDraggableItem = {
         id: `${lastItem.name}_${totalValues}`,
-        name: lastItem.name,
+        name: lastItem.name
       };
 
       setSelectedValues((values) => {
@@ -155,7 +155,7 @@ const DraggableAutocomplete = (
         const lastItem = {
           createOption: inputText,
           id: `${inputText}_${totalValues}`,
-          name: inputText,
+          name: inputText
         };
 
         setSelectedValues((values) => {
@@ -184,7 +184,7 @@ const DraggableAutocomplete = (
         helperText={error}
         inputProps={{
           ...renderProps.inputProps,
-          value: inputText || '',
+          value: inputText || ''
         }}
         label={label}
         required={required}
@@ -200,7 +200,7 @@ const DraggableAutocomplete = (
 
       const areValuesEqual = equals(
         pluck('name', initialValues),
-        pluck('name', selectedValues),
+        pluck('name', selectedValues)
       );
 
       if (areValuesEqual) {

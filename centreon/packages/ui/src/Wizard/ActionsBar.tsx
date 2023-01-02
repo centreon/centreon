@@ -8,11 +8,11 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     bottom: 0,
     padding: theme.spacing(1, 3),
-    position: 'sticky',
+    position: 'sticky'
   },
   loader: {
-    marginLeft: theme.spacing(1),
-  },
+    marginLeft: theme.spacing(1)
+  }
 }));
 
 const ActionsBar = ({
@@ -23,7 +23,7 @@ const ActionsBar = ({
   disableActionButtons,
   isLastStep,
   isSubmitting,
-  actionsBarLabels,
+  actionsBarLabels
 }: ActionsBarProps): JSX.Element => {
   const { classes } = useStyles();
 

@@ -9,7 +9,7 @@ const getQueryParameters = ({
   page,
   limit,
   search,
-  customQueryParameters = [],
+  customQueryParameters = []
 }: Parameters): Array<QueryParameter> => {
   return [
     { name: 'page', value: page },
@@ -17,9 +17,9 @@ const getQueryParameters = ({
     { name: 'sort_by', value: sort },
     {
       name: 'search',
-      value: getSearchQueryParameterValue(search),
+      value: getSearchQueryParameterValue(search)
     },
-    ...customQueryParameters,
+    ...customQueryParameters
   ];
 };
 
@@ -30,13 +30,13 @@ const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
 const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
-  customQueryParameters,
+  customQueryParameters
 }: BuildListingEndpointParameters): string => {
   return buildEndpoint({
     baseEndpoint,
     queryParameters: [
-      ...getQueryParameters({ ...parameters, customQueryParameters }),
-    ],
+      ...getQueryParameters({ ...parameters, customQueryParameters })
+    ]
   });
 };
 

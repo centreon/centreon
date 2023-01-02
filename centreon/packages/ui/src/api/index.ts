@@ -2,7 +2,7 @@ import axios, { CancelToken } from 'axios';
 import { isNil, not } from 'ramda';
 
 const contentTypeHeaders = {
-  'Content-Type': 'application/x-www-form-urlencoded',
+  'Content-Type': 'application/x-www-form-urlencoded'
 };
 
 interface GetDataParameters {
@@ -32,7 +32,7 @@ const patchData =
     axios
       .patch(endpoint, data, {
         cancelToken,
-        headers: contentTypeHeaders,
+        headers: contentTypeHeaders
       })
       .then(({ data: result }) => result);
 
@@ -42,7 +42,7 @@ const postData =
     axios
       .post(endpoint, data, {
         cancelToken,
-        headers: contentTypeHeaders,
+        headers: contentTypeHeaders
       })
       .then(({ data: result }) => result);
 
@@ -52,7 +52,7 @@ const putData =
     axios
       .put(endpoint, data, {
         cancelToken,
-        headers: contentTypeHeaders,
+        headers: contentTypeHeaders
       })
       .then(({ data: result }) => result);
 
@@ -62,7 +62,7 @@ const deleteData =
     axios
       .delete(endpoint, {
         cancelToken,
-        headers: contentTypeHeaders,
+        headers: contentTypeHeaders
       })
       .then(({ data }) => data);
 

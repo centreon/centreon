@@ -15,17 +15,17 @@ import WizardContent from './WizardContent';
 const useStyles = makeStyles()(() => ({
   dialogContent: {
     display: 'flex',
-    padding: 0,
+    padding: 0
   },
   fullHeight: {
-    height: '100%',
-  },
+    height: '100%'
+  }
 }));
 
 const actionsBarLabelsDefaultValues = {
   labelFinish: 'Finish',
   labelNext: 'Next',
-  labelPrevious: 'Previous',
+  labelPrevious: 'Previous'
 };
 
 const Wizard = ({
@@ -37,7 +37,7 @@ const Wizard = ({
   open,
   onClose = undefined,
   confirmDialogLabels = undefined,
-  actionsBarLabels = actionsBarLabelsDefaultValues,
+  actionsBarLabels = actionsBarLabelsDefaultValues
 }: WizardProps): JSX.Element => {
   const { classes } = useStyles();
   const [currentStep, setCurrentStep] = useState(0);
@@ -64,7 +64,7 @@ const Wizard = ({
 
   const disableNextOnSendingRequests = (sendingRequests): void => {
     setSendingRequest(
-      pipe(isEmpty, not)(filter(equals(true), sendingRequests)),
+      pipe(isEmpty, not)(filter(equals(true), sendingRequests))
     );
   };
 
@@ -104,7 +104,7 @@ const Wizard = ({
       <Dialog
         fullWidth
         classes={{
-          paper: fullHeight ? classes.fullHeight : undefined,
+          paper: fullHeight ? classes.fullHeight : undefined
         }}
         maxWidth={width}
         open={open}

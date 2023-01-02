@@ -18,20 +18,20 @@ const useStyles = makeStyles()((theme) => {
   return {
     intersectionRow: {
       display: 'contents',
-      width: '100%',
+      width: '100%'
     },
     row: {
       cursor: 'pointer',
       display: 'contents',
-      width: '100%',
+      width: '100%'
     },
     skeleton: {
       height: theme.spacing(2.5),
-      width: '100%',
+      width: '100%'
     },
     skeletonContainer: {
-      padding: theme.spacing(0.5),
-    },
+      padding: theme.spacing(0.5)
+    }
   };
 });
 
@@ -66,7 +66,7 @@ const Row = memo<RowProps>(
     isInViewport,
     visibleColumns,
     checkable,
-    limit,
+    limit
   }: RowProps): JSX.Element => {
     const { classes } = useStyles();
 
@@ -113,7 +113,7 @@ const Row = memo<RowProps>(
       visibleColumns: previousVisibleColumns,
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
-      lastSelectionIndex: prevLastSelectionIndex,
+      lastSelectionIndex: prevLastSelectionIndex
     } = prevProps;
     const {
       row: nextRow,
@@ -123,15 +123,15 @@ const Row = memo<RowProps>(
       isShiftKeyDown: nextIsShiftKeyDown,
       shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
       lastSelectionIndex: nextLastSelectionIndex,
-      limit: nextLimit,
+      limit: nextLimit
     } = nextProps;
 
     if (
       not(
         equals(
           pluck('id', previousVisibleColumns),
-          pluck('id', nextVisibleColumns),
-        ),
+          pluck('id', nextVisibleColumns)
+        )
       )
     ) {
       return false;
@@ -158,10 +158,10 @@ const Row = memo<RowProps>(
     }
 
     const previousRowColors = previousRowColorConditions?.map(({ condition }) =>
-      condition(previousRow),
+      condition(previousRow)
     );
     const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
-      condition(nextRow),
+      condition(nextRow)
     );
 
     return (
@@ -175,7 +175,7 @@ const Row = memo<RowProps>(
       equals(prevShiftKeyDownRowPivot, nextShiftKeyDownRowPivot) &&
       equals(prevLastSelectionIndex, nextLastSelectionIndex)
     );
-  },
+  }
 );
 
 const IntersectionRow = (props: Props): JSX.Element => {
@@ -183,7 +183,7 @@ const IntersectionRow = (props: Props): JSX.Element => {
   const theme = useTheme();
   const { isInViewport, setElement } = useViewportIntersection({
     root: rowRef.current?.parentElement?.parentElement?.parentElement,
-    rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`,
+    rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`
   });
   const { classes } = useStyles();
 

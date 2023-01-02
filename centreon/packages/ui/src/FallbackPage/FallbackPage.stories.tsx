@@ -5,18 +5,18 @@ import { FallbackPage } from './FallbackPage';
 
 const useStyles = makeStyles()({
   container: {
-    height: '100vh',
-  },
+    height: '100vh'
+  }
 });
 
 export default {
   argTypes: {
     contactAdmin: { control: 'text' },
     message: { control: 'text' },
-    title: { control: 'text' },
+    title: { control: 'text' }
   },
   component: FallbackPage,
-  title: 'FallbackPage/LicenceInvalid',
+  title: 'FallbackPage/LicenceInvalid'
 } as ComponentMeta<typeof FallbackPage>;
 
 const TemplateBackground: ComponentStory<typeof FallbackPage> = (args) => {
@@ -33,5 +33,5 @@ export const LicenceInvalid = TemplateBackground.bind({});
 LicenceInvalid.args = {
   contactAdmin: 'Contact your administrator',
   message: 'Invalid licence',
-  title: 'Oops',
+  title: 'Oops'
 };

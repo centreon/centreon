@@ -8,8 +8,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     background: theme.palette.background.paper,
     borderRadius: theme.spacing(0.5),
-    width: theme.spacing(25),
-  },
+    width: theme.spacing(25)
+  }
 }));
 
 export default { title: 'InputField/Text' };
@@ -40,6 +40,10 @@ export const small = (): JSX.Element => (
 
 export const medium = (): JSX.Element => (
   <TextField placeholder="Medium" size="medium" />
+);
+
+export const large = (): JSX.Element => (
+  <TextField placeholder="Large" size="large" />
 );
 
 export const transparent = (): JSX.Element => (

@@ -1,0 +1,79 @@
+name: gorgoned-central-zmq
+description: Configuration example in a full ZMQ environment for Central server
+configuration:
+  centreon:
+    database:
+      db_configuration: 
+        dsn: "mysql:host=localhost;dbname=centreon"
+        username: centreon
+        password: centreon
+      db_realtime: 
+        dsn: "mysql:host=localhost;dbname=centreon_storage"
+        username: centreon
+        password: centreon
+  gorgone:
+    gorgonecore:
+      id: 1
+      privkey: keys/central/privkey.pem
+      # can be: always, first (default), strict
+      fingerprint_mode: first
+      fingerprint_mgr:
+        package: gorgone::class::fingerprint::backend::sql
+        # if unset, it uses global configuration
+        #gorgone_db_type: 
+        #gorgone_db_name: 
+    modules:
+      - name: httpserver
+        package: gorgone::modules::core::httpserver::hooks
+        enable: true
+        address: 0.0.0.0
+        port: 8443
+        ssl: true
+        ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
+        ssl_key_file: /etc/pki/tls/server-key.pem
+        auth:
+          enabled: true
+          user: admin
+          password: password
+        allowed_hosts:
+            enabled: true
+            subnets:
+              - 127.0.0.1/32
+              - 10.30.2.0/16
+
+      - name: cron
+        package: gorgone::modules::core::cron::hooks
+        enable: true
+        cron:
+          - id: echo_date
+            timespec: "* * * * *"
+            action: COMMAND
+            parameters:
+              command: "date >> /tmp/date.log"
+              timeout: 10
+
+      - name: action
+        package: gorgone::modules::core::action::hooks
+        enable: true
+
+      - name: proxy
+        package: gorgone::modules::core::proxy::hooks
+        enable: true
+
+      - name: register
+        package: gorgone::modules::core::register::hooks
+        enable: true
+        config_file: config/registernodes-central.yml
+
+      - name: legacycmd
+        package: gorgone::modules::centreon::legacycmd::hooks
+        enable: true
+        cmd_file: "/var/lib/centreon/centcore.cmd"
+        cache_dir: "/var/cache/centreon/"
+        cache_dir_trap: "/etc/snmp/centreon_traps/"
+        remote_dir: "/var/cache/centreon/config/remote-data/"
+
+      - name: engine
+        package: gorgone::modules::centreon::engine::hooks
+        enable: true
+        command_file: "/var/lib/centreon-engine/rw/centengine.cmd"

@@ -6,7 +6,7 @@ import fetchMock from 'jest-fetch-mock';
 const mockedMatchMedia = () => ({
   addListener: () => {},
   matches: false,
-  removeListener: () => {},
+  removeListener: () => {}
 });
 
 window.matchMedia = window.matchMedia || mockedMatchMedia;
@@ -14,10 +14,10 @@ window.matchMedia = window.matchMedia || mockedMatchMedia;
 document.createRange = () => ({
   commonAncestorContainer: {
     nodeName: 'BODY',
-    ownerDocument: document,
+    ownerDocument: document
   },
   setEnd: () => {},
-  setStart: () => {},
+  setStart: () => {}
 });
 
 global.IntersectionObserver = class IntersectionObserver {
@@ -43,9 +43,9 @@ Object.defineProperty(window, 'matchMedia', {
     media: query,
     onchange: null,
     removeEventListener: jest.fn(),
-    removeListener: jest.fn(),
+    removeListener: jest.fn()
   })),
-  writable: true,
+  writable: true
 });
 
 i18n.use(initReactI18next).init({
@@ -53,13 +53,13 @@ i18n.use(initReactI18next).init({
   keySeparator: false,
   lng: 'en',
   nsSeparator: false,
-  resources: {},
+  resources: {}
 });
 
 window.Image = () => ({
   onerror: () => {},
   onload: () => {},
-  src: null,
+  src: null
 });
 
 fetchMock.enableMocks();

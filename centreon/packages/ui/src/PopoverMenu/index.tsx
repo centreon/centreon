@@ -7,7 +7,7 @@ import {
   Paper,
   Popper,
   PopperPlacementType,
-  useTheme,
+  useTheme
 } from '@mui/material';
 
 import { IconButton } from '..';
@@ -15,8 +15,8 @@ import { IconButton } from '..';
 const useStyles = makeStyles()(() => ({
   popoverIconButton: {
     padding: 0,
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 interface Props {
@@ -38,7 +38,7 @@ const PopoverMenu = ({
   onOpen,
   onClose,
   className,
-  dataTestId,
+  dataTestId
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes, cx } = useStyles();

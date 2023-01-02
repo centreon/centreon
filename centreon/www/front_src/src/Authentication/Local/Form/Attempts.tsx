@@ -3,9 +3,9 @@ import { ChangeEvent, useCallback, useMemo } from 'react';
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, not, path } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { TextField, useMemoComponent } from '@centreon/ui';
 
@@ -14,7 +14,7 @@ import {
   labelNumberOfAttemptsBeforeUserIsBlocked,
   labelStrong,
   labelUnknown,
-  labelWeak,
+  labelWeak
 } from '../translatedLabels';
 import StrengthProgress from '../StrengthProgress';
 
@@ -22,14 +22,14 @@ import { getField } from './utils';
 
 export const attemptsFieldName = 'attempts';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   input: {
-    maxWidth: theme.spacing(43),
-  },
+    maxWidth: theme.spacing(43)
+  }
 }));
 
 const Attempts = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { values, setFieldValue, errors } = useFormikContext<FormikValues>();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -46,17 +46,17 @@ const Attempts = (): JSX.Element => {
 
       setFieldValue(attemptsFieldName, parseInt(value, 10));
     },
-    [attemptsFieldName],
+    [attemptsFieldName]
   );
 
   const attemptsError = getField<string | undefined>({
     field: attemptsFieldName,
-    object: errors,
+    object: errors
   });
 
   const attemptsValue = getField<number>({
     field: attemptsFieldName,
-    object: values,
+    object: values
   });
 
   const thresholds = useMemo(
@@ -64,14 +64,14 @@ const Attempts = (): JSX.Element => {
       { color: theme.palette.success.main, label: labelStrong, value: 0 },
       { color: theme.palette.warning.main, label: labelGood, value: 3 },
       { color: theme.palette.error.main, label: labelWeak, value: 6 },
-      { color: theme.palette.grey[500], label: labelUnknown, value: 11 },
+      { color: theme.palette.grey[500], label: labelUnknown, value: 11 }
     ],
-    [],
+    []
   );
 
   const displayStrengthProgress = useMemo(
     () => isNil(attemptsError) && not(isNil(attemptsValue)),
-    [attemptsError, attemptsValue],
+    [attemptsError, attemptsValue]
   );
 
   return useMemoComponent({
@@ -79,12 +79,13 @@ const Attempts = (): JSX.Element => {
       <div className={classes.input}>
         <TextField
           fullWidth
+          dataTestId={labelNumberOfAttemptsBeforeUserIsBlocked}
           error={attemptsError}
           helperText={attemptsError}
           inputProps={{
             'aria-label': t(labelNumberOfAttemptsBeforeUserIsBlocked),
             'data-testid': 'local_numberOfAttemptsBeforeUserIsBlocked',
-            min: 1,
+            min: 1
           }}
           label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
           name={attemptsFieldName}
@@ -102,7 +103,7 @@ const Attempts = (): JSX.Element => {
         )}
       </div>
     ),
-    memoProps: [attemptsError, attemptsValue],
+    memoProps: [attemptsError, attemptsValue]
   });
 };
 

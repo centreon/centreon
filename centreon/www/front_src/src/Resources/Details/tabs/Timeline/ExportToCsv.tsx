@@ -14,7 +14,7 @@ interface Props {
 
 const ExportToCsv = ({
   getSearch,
-  timelineDownloadEndpoint,
+  timelineDownloadEndpoint
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -23,7 +23,7 @@ const ExportToCsv = ({
 
     const parameters = getSearchQueryParameterValue(data);
     const exportToCSVEndpoint = `${timelineDownloadEndpoint}?search=${JSON.stringify(
-      parameters,
+      parameters
     )}`;
 
     window.open(exportToCSVEndpoint, 'noopener', 'noreferrer');
@@ -35,7 +35,7 @@ const ExportToCsv = ({
         data-testid={labelExportToCSV}
         size="small"
         startIcon={<SaveIcon />}
-        variant="text"
+        variant="contained"
         onClick={exportToCsv}
       >
         {t(labelExportToCSV)}

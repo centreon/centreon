@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -17,10 +16,10 @@ interface Props {
   xIcon: number;
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   icon: {
-    cursor: 'pointer',
-  },
+    cursor: 'pointer'
+  }
 });
 
 const TimeShiftIcon = ({
@@ -28,9 +27,9 @@ const TimeShiftIcon = ({
   Icon,
   direction,
   directionHovered,
-  ariaLabel,
+  ariaLabel
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { graphHeight, marginTop, shiftTime, loading } = useTimeShiftContext();
@@ -50,7 +49,7 @@ const TimeShiftIcon = ({
     },
     width: timeShiftIconSize,
     x: xIcon,
-    y: graphHeight / 2 - timeShiftIconSize / 2 + marginTop,
+    y: graphHeight / 2 - timeShiftIconSize / 2 + marginTop
   };
 
   return useMemoComponent({
@@ -72,8 +71,8 @@ const TimeShiftIcon = ({
       ariaLabel,
       loading,
       directionHovered,
-      graphHeight,
-    ],
+      graphHeight
+    ]
   });
 };
 

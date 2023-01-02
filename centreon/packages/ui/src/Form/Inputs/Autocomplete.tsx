@@ -17,7 +17,7 @@ import { InputPropsWithoutGroup, InputType } from './models';
 const normalizeNewValues = ({
   newValues,
   isMultiple,
-  isCreatable,
+  isCreatable
 }): SelectEntry | Array<string | SelectEntry> => {
   const isSingle = not(isMultiple);
   if (isSingle) {
@@ -45,11 +45,10 @@ const Autocomplete = ({
   required,
   getDisabled,
   getRequired,
-  hideInput,
   change,
   additionalMemoProps,
   autocomplete,
-  type: inputType,
+  type: inputType
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -63,7 +62,7 @@ const Autocomplete = ({
     const normalizedNewValues = normalizeNewValues({
       isCreatable,
       isMultiple,
-      newValues,
+      newValues
     });
 
     setInputText('');
@@ -81,7 +80,7 @@ const Autocomplete = ({
 
   const selectedValues = path<Array<SelectEntry> | SelectEntry>(
     [...fieldName.split('.')],
-    values,
+    values
   );
 
   const getError = useCallback((): Array<string> | undefined => {
@@ -100,7 +99,7 @@ const Autocomplete = ({
           }
 
           return `${selectedValues?.[index]}: ${errorText}`;
-        },
+        }
       );
 
       const filteredErrors = formattedErrors?.filter(Boolean);
@@ -117,7 +116,7 @@ const Autocomplete = ({
 
   const textChange = useCallback(
     (event): void => setInputText(event.target.value),
-    [],
+    []
   );
 
   const getValues = useCallback(():
@@ -127,7 +126,7 @@ const Autocomplete = ({
     if (isMultiple && isCreatable) {
       return selectedValues.map((value) => ({
         id: value,
-        name: value,
+        name: value
       }));
     }
 
@@ -138,20 +137,17 @@ const Autocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   const additionalLabel =
     inputText && isCreatable ? ` (${labelPressEnterToAccept})` : '';
 
   const AutocompleteField = useMemo(
     () => (isMultiple ? MultiAutocompleteField : SingleAutocompleteField),
-    [isMultiple],
+    [isMultiple]
   );
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <div>
         <AutocompleteField
           dataTestId={dataTestId}
@@ -189,9 +185,8 @@ const Autocomplete = ({
       additionalMemoProps,
       isMultiple,
       autocomplete?.options,
-      isCreatable,
-      hidden,
-    ],
+      isCreatable
+    ]
   });
 };
 

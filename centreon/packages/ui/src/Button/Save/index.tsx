@@ -4,13 +4,15 @@ import { makeStyles } from 'tss-react/mui';
 import { Theme, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
+import getNormalizedId from '../../utils/getNormalizedId';
+
 import StartIcon from './StartIcon';
 import Content from './Content';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loadingButton: {
-    width: theme.spacing(5),
-  },
+    width: theme.spacing(5)
+  }
 }));
 
 interface Props extends Record<string, unknown> {
@@ -41,7 +43,7 @@ const SaveButton = ({
   labelSucceeded = '',
   labelLoading = '',
   labelSave = '',
-  size = 'medium',
+  size = 'small',
   className,
   ...rest
 }: Props): JSX.Element => {
@@ -51,7 +53,7 @@ const SaveButton = ({
   const startIconConfig = {
     hasLabel,
     loading,
-    succeeded,
+    succeeded
   } as StartIconConfigProps;
 
   return (
@@ -61,11 +63,13 @@ const SaveButton = ({
           aria-label="save button"
           className={cx(
             {
-              [classes.loadingButton]: !hasLabel,
+              [classes.loadingButton]: !hasLabel
             },
-            className,
+            className
           )}
           color="primary"
+          data-testid={labelSave}
+          id={getNormalizedId(labelSave)}
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}
@@ -78,7 +82,7 @@ const SaveButton = ({
             labelSave,
             labelSucceeded,
             loading,
-            succeeded,
+            succeeded
           })}
         </LoadingButton>
       </div>

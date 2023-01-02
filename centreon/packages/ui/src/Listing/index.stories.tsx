@@ -20,16 +20,16 @@ export default {
     currentPage: { control: 'number' },
     limit: { control: 'number' },
     loading: { control: 'boolean' },
-    totalRows: { control: 'number' },
+    totalRows: { control: 'number' }
   },
   component: Listing,
-  title: 'Listing',
+  title: 'Listing'
 } as ComponentMeta<typeof Listing>;
 
 const useStyles = makeStyles()((theme) => ({
   listing: {
-    backgroundColor: theme.palette.background.default,
-  },
+    backgroundColor: theme.palette.background.default
+  }
 }));
 
 const ComponentColumn = ({ row, isSelected }): JSX.Element => (
@@ -51,20 +51,20 @@ const defaultColumns = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     Component: ComponentColumn,
     id: '#',
     label: 'Custom',
-    type: ColumnType.component,
-  },
+    type: ColumnType.component
+  }
 ];
 
 const columnsWithShortLabel = [
@@ -72,21 +72,21 @@ const columnsWithShortLabel = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
     shortLabel: 'D',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     Component: ComponentColumn,
     id: '#',
     label: 'Custom',
-    type: ColumnType.component,
-  },
+    type: ColumnType.component
+  }
 ];
 
 const tenElements = new Array(10).fill(0);
@@ -107,26 +107,26 @@ const listing = [...tenElements].map((_, index) => ({
   disableRow: index % 5 === 0,
   id: index,
   name: `E${index}`,
-  selected: index % 3 === 0,
+  selected: index % 3 === 0
 }));
 
 const rowColorConditions = [
   {
     color: grey[100],
     condition: ({ active }): boolean => !active,
-    name: 'inactive',
-  },
+    name: 'inactive'
+  }
 ];
 
 const predefinedRowsSelection = [
   {
     label: 'active',
-    rowCondition: (row): boolean => row.active,
+    rowCondition: (row): boolean => row.active
   },
   {
     label: 'not active',
-    rowCondition: (row): boolean => !row.active,
-  },
+    rowCondition: (row): boolean => !row.active
+  }
 ];
 
 const Story = ({
@@ -189,27 +189,27 @@ const editableColumns = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     Component: ComponentColumn,
     id: '#',
     label: 'Custom',
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     disabled: true,
     getFormattedString: ({ name }): string => name,
     id: 'disabled_name',
     label: 'Disabled Name',
-    type: ColumnType.string,
-  },
+    type: ColumnType.string
+  }
 ];
 
 const ListingWithEditableColumns = (): JSX.Element => {
@@ -226,7 +226,7 @@ const ListingWithEditableColumns = (): JSX.Element => {
     <Story
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true,
+        sortable: true
       }}
       columns={editableColumns}
       onResetColumns={resetColumns}
@@ -257,5 +257,5 @@ PlaygroundListing.args = {
   currentPage: 1,
   limit: 10,
   loading: false,
-  totalRows: 10,
+  totalRows: 10
 };

@@ -8,7 +8,7 @@ export default { title: 'InputField/Select' };
 const options = [
   { id: 0, name: 'First Entity' },
   { id: 1, name: 'Second Entity' },
-  { id: 2, name: 'Third Entity' },
+  { id: 2, name: 'Third Entity' }
 ];
 
 export const withThreeOptions = (): JSX.Element => {
@@ -52,7 +52,7 @@ export const openWithColors = (): JSX.Element => (
     open
     options={[
       { color: 'red', id: 0, name: 'Red' },
-      { color: 'yellow', id: 1, name: 'Yellow' },
+      { color: 'yellow', id: 1, name: 'Yellow' }
     ]}
     selectedOptionId={0}
     onChange={(): void => undefined}
@@ -66,9 +66,9 @@ export const openWithHeader = (): JSX.Element => (
       {
         id: 0,
         name: 'Header',
-        type: 'header',
+        type: 'header'
       },
-      { id: 1, name: 'Item' },
+      { id: 1, name: 'Item' }
     ]}
     selectedOptionId={0}
     onChange={(): void => undefined}

@@ -11,7 +11,7 @@ import {
   Paper,
   Popper,
   PopperPlacementType,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import IconReset from '@mui/icons-material/RotateLeft';
 
@@ -23,8 +23,8 @@ import { labelReset } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
-    fontSize: theme.typography.caption.fontSize,
-  },
+    fontSize: theme.typography.caption.fontSize
+  }
 }));
 
 interface Props {
@@ -44,7 +44,7 @@ const IconPopoverMultiAutocomplete = ({
   onChange,
   value,
   onReset,
-  popperPlacement = 'bottom-start',
+  popperPlacement = 'bottom-start'
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes } = useStyles();

@@ -15,37 +15,37 @@ const useStyles = makeStyles()((theme) => ({
   chip: {
     backgroundColor: theme.palette.action.disabledBackground,
     marginTop: theme.spacing(1),
-    width: '95%',
+    width: '95%'
   },
   container: {
     borderRadius: theme.spacing(0.5),
     cursor: 'pointer',
     outline: 'none',
     padding: theme.spacing(1),
-    width: '100%',
+    width: '100%'
   },
   emptyChip: {
     borderColor: theme.palette.divider,
     borderStyle: 'dashed',
     borderWidth: 2,
     padding: theme.spacing(1),
-    textAlign: 'center',
+    textAlign: 'center'
   },
   hidden: {
-    visibility: 'hidden',
+    visibility: 'hidden'
   },
   hovered: {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: theme.palette.action.hover
   },
   icon: {
-    color: theme.palette.action.active,
+    color: theme.palette.action.active
   },
   labelChip: {
-    color: theme.palette.text.secondary,
+    color: theme.palette.text.secondary
   },
   text: {
-    color: theme.palette.text.primary,
-  },
+    color: theme.palette.text.primary
+  }
 }));
 
 const Entry = ({ label }): JSX.Element => {
@@ -102,7 +102,7 @@ const MultiSelectEntries = ({
   onClick,
   values = [],
   highlight = false,
-  error = undefined,
+  error = undefined
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
@@ -116,7 +116,7 @@ const MultiSelectEntries = ({
     <div
       className={cx({
         [classes.hovered]: isHovered || highlight,
-        [classes.container]: true,
+        [classes.container]: true
       })}
       ref={hoverRef as Ref<HTMLDivElement>}
       role="button"
@@ -132,7 +132,7 @@ const MultiSelectEntries = ({
           <IconCreate
             className={cx(
               { [classes.hidden]: !isHovered && !highlight },
-              classes.icon,
+              classes.icon
             )}
             fontSize="small"
           />

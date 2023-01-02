@@ -9,7 +9,7 @@ const mockClick = jest.fn();
 
 const renderUseFileDropzone = ({
   allowedFilesExtensions,
-  maxFileSize,
+  maxFileSize
 }: Pick<
   UseDropzoneProps,
   'allowedFilesExtensions' | 'maxFileSize'
@@ -19,14 +19,14 @@ const renderUseFileDropzone = ({
       allowedFilesExtensions,
       changeFiles: mockChangeFiles,
       maxFileSize,
-      resetFilesStatusAndUploadData: mockResetFilesStatusAndUploadData,
-    }),
+      resetFilesStatusAndUploadData: mockResetFilesStatusAndUploadData
+    })
   );
 
 const createFileList = (files: Array<File>): FileList => {
   const fileList = {
     item: (index): File | undefined => files[index],
-    length: files.length,
+    length: files.length
   } as FileList;
 
   return fileList;
@@ -46,7 +46,7 @@ describe('useDropzone', () => {
 
   it('changes the files when the "handleChangeFiles" function is called and the file extension is valid', () => {
     const { result } = renderUseFileDropzone({
-      allowedFilesExtensions: ['png'],
+      allowedFilesExtensions: ['png']
     });
 
     const fileList = createFileList([file]);
@@ -62,7 +62,7 @@ describe('useDropzone', () => {
 
   it('changes the files when the "dropFiles" function is called and the file extension is valid', () => {
     const { result } = renderUseFileDropzone({
-      allowedFilesExtensions: ['png'],
+      allowedFilesExtensions: ['png']
     });
 
     const fileList = createFileList([file]);
@@ -71,7 +71,7 @@ describe('useDropzone', () => {
       result.current.dropFiles({
         dataTransfer: { files: fileList },
         preventDefault: jest.fn(),
-        stopPropagation: jest.fn(),
+        stopPropagation: jest.fn()
       });
     });
 
@@ -82,7 +82,7 @@ describe('useDropzone', () => {
 
   it('does not change the files and returns an error function when "handleChangeFiles" is called and the file extension is not valid', () => {
     const { result } = renderUseFileDropzone({
-      allowedFilesExtensions: ['jpg'],
+      allowedFilesExtensions: ['jpg']
     });
 
     const fileList = createFileList([file]);
@@ -99,7 +99,7 @@ describe('useDropzone', () => {
   it('does not change the files and returns an error function when "handleChangeFiles" is called and the file size is too big', () => {
     const { result } = renderUseFileDropzone({
       allowedFilesExtensions: ['png'],
-      maxFileSize: 100,
+      maxFileSize: 100
     });
 
     const fileList = createFileList([bigFile]);
@@ -115,20 +115,20 @@ describe('useDropzone', () => {
 
   it('gets the file name', () => {
     const { result } = renderUseFileDropzone({
-      allowedFilesExtensions: ['png'],
+      allowedFilesExtensions: ['png']
     });
 
     const fileList = createFileList([file, otherFile]);
 
     expect(result.current.getFilesName(fileList)).toEqual([
       'example.png',
-      'example2.png',
+      'example2.png'
     ]);
   });
 
   it('opens the file explorer when the "openFileExplorer" function is called', () => {
     const { result } = renderUseFileDropzone({
-      allowedFilesExtensions: ['png'],
+      allowedFilesExtensions: ['png']
     });
 
     act(() => {

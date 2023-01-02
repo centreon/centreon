@@ -9,9 +9,9 @@ interface UseDeepCallback<TParameters, TReturn, TMemoProps> {
 
 const useDeepCallback = <TParameters, TReturn, TMemoProps>({
   deps,
-  callback,
+  callback
 }: UseDeepCallback<TParameters, TReturn, TMemoProps>): ((
-  props: TParameters,
+  props: TParameters
 ) => TReturn) => useCallback((props) => callback(props), useDeepCompare(deps));
 
 export default useDeepCallback;

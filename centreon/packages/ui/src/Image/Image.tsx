@@ -6,7 +6,7 @@ import { useLoadImage } from './useLoadImage';
 
 export enum ImageVariant {
   Contain = 'contain',
-  Cover = 'cover',
+  Cover = 'cover'
 }
 
 interface Props {
@@ -24,9 +24,9 @@ const useStyles = makeStyles<Pick<Props, 'width' | 'height' | 'variant'>>()(
     imageContent: {
       height,
       objectFit: variant,
-      width,
-    },
-  }),
+      width
+    }
+  })
 );
 
 const ImageContent: FC<Omit<Props, 'fallback'>> = ({
@@ -35,7 +35,7 @@ const ImageContent: FC<Omit<Props, 'fallback'>> = ({
   height,
   width,
   imagePath,
-  variant = ImageVariant.Cover,
+  variant = ImageVariant.Cover
 }) => {
   const { classes, cx } = useStyles({ height, variant, width });
   const image = useLoadImage({ alt, imageSrc: imagePath });

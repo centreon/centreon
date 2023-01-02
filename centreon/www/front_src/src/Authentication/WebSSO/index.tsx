@@ -2,42 +2,43 @@ import { useMemo, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { LinearProgress } from '@mui/material';
 
 import useTab from '../useTab';
+import FormTitle from '../FormTitle';
 
 import { labelDefineWebSSOConfiguration } from './translatedLabels';
 import useWebSSO from './useWebSSO';
 import WebSSOForm from './Form';
 import { WebSSOConfiguration } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
-    width: 'fit-content',
+    width: 'fit-content'
   },
   loading: {
-    height: theme.spacing(0.5),
+    height: theme.spacing(0.5)
   },
   paper: {
-    padding: theme.spacing(2),
-  },
+    padding: theme.spacing(2)
+  }
 }));
 
 const WebSSOConfigurationForm = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const {
     sendingGetWebSSOConfiguration,
     initialWebSSOConfiguration,
-    loadWebSSOonfiguration,
+    loadWebSSOonfiguration
   } = useWebSSO();
 
   const isWebSSOConfigurationEmpty = useMemo(
     () => isNil(initialWebSSOConfiguration),
-    [initialWebSSOConfiguration],
+    [initialWebSSOConfiguration]
   );
 
   useTab(isWebSSOConfigurationEmpty);
@@ -48,7 +49,7 @@ const WebSSOConfigurationForm = (): JSX.Element => {
 
   return (
     <div>
-      <Typography variant="h4">{t(labelDefineWebSSOConfiguration)}</Typography>
+      <FormTitle title={t(labelDefineWebSSOConfiguration)} />
       <div className={classes.loading}>
         {not(isWebSSOConfigurationEmpty) && sendingGetWebSSOConfiguration && (
           <LinearProgress />

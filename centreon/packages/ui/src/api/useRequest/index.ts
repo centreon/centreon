@@ -29,7 +29,7 @@ const useRequest = <TResult>({
   decoder,
   getErrorMessage,
   defaultFailureMessage = 'Oops, something went wrong',
-  httpCodesBypassErrorSnackbar = [],
+  httpCodesBypassErrorSnackbar = []
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
@@ -44,7 +44,7 @@ const useRequest = <TResult>({
     log.error(error);
     const message = defaultTo(
       pathOr(defaultFailureMessage, ['response', 'data', 'message']),
-      getErrorMessage,
+      getErrorMessage
     )(error);
 
     showErrorMessage(message);
@@ -69,7 +69,7 @@ const useRequest = <TResult>({
         }
 
         const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
-          path<number>(['response', 'status'], error) as number,
+          path<number>(['response', 'status'], error) as number
         );
 
         if (hasACorrespondingHttpCode) {

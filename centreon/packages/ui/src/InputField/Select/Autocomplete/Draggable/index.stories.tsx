@@ -16,7 +16,7 @@ import { ItemActionProps } from '.';
 
 export default {
   decorators: [withMock],
-  title: 'InputField/Autocomplete/Draggable',
+  title: 'InputField/Autocomplete/Draggable'
 };
 
 const buildEntities = (from): Array<SelectEntry> => {
@@ -24,7 +24,7 @@ const buildEntities = (from): Array<SelectEntry> => {
     .fill(0)
     .map((_, index) => ({
       id: from + index,
-      name: `Entity ${from + index}`,
+      name: `Entity ${from + index}`
     }));
 };
 
@@ -32,9 +32,9 @@ const buildResult = (page): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,
-    total: 40,
+    total: 40
   },
-  result: buildEntities((page - 1) * 10),
+  result: buildEntities((page - 1) * 10)
 });
 
 const baseEndpoint = 'endpoint';
@@ -42,7 +42,7 @@ const baseEndpoint = 'endpoint';
 const getEndpoint = ({ endpoint, parameters }): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    parameters,
+    parameters
   });
 
 const mockSearch = (page: number): object => ({
@@ -54,7 +54,7 @@ const mockSearch = (page: number): object => ({
     return buildResult(parseInt(searchParams.page || '0', 10));
   },
   status: 200,
-  url: `/endpoint?page=${page}&search=`,
+  url: `/endpoint?page=${page}&search=`
 });
 
 const getMockData = (): Array<object> => [
@@ -67,18 +67,18 @@ const getMockData = (): Array<object> => [
       return buildResult(parseInt(searchParams.page || '0', 10));
     },
     status: 200,
-    url: '/endpoint?page=',
+    url: '/endpoint?page='
   },
   mockSearch(1),
   mockSearch(2),
   mockSearch(3),
-  mockSearch(4),
+  mockSearch(4)
 ];
 
 const options = [
   { id: `0`, name: 'First Entity' },
   { id: `1`, name: 'Second Entity' },
-  { id: `2`, name: 'Third Entity' },
+  { id: `2`, name: 'Third Entity' }
 ];
 
 const MultiDraggable = (): JSX.Element => (
@@ -111,7 +111,7 @@ export const draggableConnected = (): JSX.Element => (
   <MultiDraggableConnected />
 );
 draggableConnected.parameters = {
-  mockData: getMockData(),
+  mockData: getMockData()
 };
 
 const MultiDraggableError = (): JSX.Element => (
@@ -159,7 +159,7 @@ const MultiDraggableClickAndHoverItem = (): JSX.Element => {
     <div>
       <Tooltip
         PopperProps={{
-          anchorEl: hoveredItem?.anchorElement,
+          anchorEl: hoveredItem?.anchorElement
         }}
         open={not(isNil(hoveredItem?.anchorElement))}
         title={hoveredItem?.item.name || ''}

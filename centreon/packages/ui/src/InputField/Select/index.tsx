@@ -10,22 +10,24 @@ import {
   SelectProps,
   FormHelperText,
   ListSubheader,
-  Divider,
+  Divider
 } from '@mui/material';
+
+import getNormalizedId from '../../utils/getNormalizedId';
 
 import Option from './Option';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
-    padding: theme.spacing(0.75),
+    padding: theme.spacing(0.75)
   },
   input: {
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: theme.typography.body1.fontSize
   },
   noLabelInput: {
-    padding: theme.spacing(1),
-  },
+    padding: theme.spacing(1)
+  }
 }));
 
 export interface SelectEntry {
@@ -42,7 +44,7 @@ export interface SelectEntry {
 type Props = {
   ariaLabel?: string;
   compact?: boolean;
-  dataTestId?: string;
+  dataTestId: string;
   error?: string;
   label?: string;
   onChange;
@@ -86,10 +88,11 @@ const SelectField = ({
           'aria-label': ariaLabel,
           className: cx(classes.input, {
             [classes.noLabelInput]: !label && !compact,
-            [classes.compact]: compact,
+            [classes.compact]: compact
           }),
           'data-testid': dataTestId,
-          ...inputProps,
+          id: getNormalizedId(dataTestId || ''),
+          ...inputProps
         }}
         label={label}
         renderValue={(id): string => {
@@ -106,7 +109,7 @@ const SelectField = ({
             if (type === 'header') {
               return [
                 <ListSubheader key={key}>{name}</ListSubheader>,
-                <Divider key={`${key}-divider`} />,
+                <Divider key={`${key}-divider`} />
               ];
             }
 

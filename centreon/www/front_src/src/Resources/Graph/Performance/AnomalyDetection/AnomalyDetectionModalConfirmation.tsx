@@ -1,14 +1,19 @@
-import { ReactNode } from 'react';
-
 import { useTranslation } from 'react-i18next';
+
+import { Typography } from '@mui/material';
 
 import { Dialog } from '@centreon/ui';
 
-import { labelCancel, labelMenageEnvelope } from '../../../translatedLabels';
+import {
+  labelEditAnomalyDetectionConfirmation,
+  labelMenageEnvelope,
+  labelSave,
+  labelCancel
+} from '../../../translatedLabels';
 
 interface Props {
-  children: ReactNode;
-  labelConfirm: string;
+  dataTestid: string;
+
   open: boolean;
   sendCancel: (value: boolean) => void;
   sendConfirm: (value: boolean) => void;
@@ -20,8 +25,7 @@ const AnomalyDetectionModalConfirmation = ({
   setOpen,
   sendCancel,
   sendConfirm,
-  children,
-  labelConfirm,
+  dataTestid
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -32,14 +36,16 @@ const AnomalyDetectionModalConfirmation = ({
 
   return (
     <Dialog
+      data-testid={dataTestid}
       labelCancel={t(labelCancel)}
-      labelConfirm={t(labelConfirm)}
+      labelConfirm={t(labelSave)}
       labelTitle={t(labelMenageEnvelope)}
       open={open}
       onCancel={cancel}
+      onClose={(): void => setOpen(false)}
       onConfirm={(): void => sendConfirm(true)}
     >
-      {children}
+      <Typography>{t(labelEditAnomalyDetectionConfirmation)}</Typography>
     </Dialog>
   );
 };

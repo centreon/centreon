@@ -15,7 +15,7 @@ jms_serializer:
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
     api.header: "Api-Version"
-    api.version.latest: "22.10"
+    api.version.latest: "23.04"
     debug_log_file: '%log_path%/centreon-web.log'
     env(DEBUG_LEVEL): !php/const Monolog\Logger::NOTICE
     curl.timeout: 60
@@ -53,12 +53,12 @@ services:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false
 
-    json_presenter:
-        class: Core\Infrastructure\Common\Presenter\JsonPresenter
+    json_formatter:
+        class: Core\Infrastructure\Common\Presenter\JsonFormatter
         public: false
 
     Core\Infrastructure\Common\Presenter\PresenterFormatterInterface:
-        class: Core\Infrastructure\Common\Presenter\JsonPresenter
+        class: Core\Infrastructure\Common\Presenter\JsonFormatter
         public: false
 
     # Encryption
@@ -95,7 +95,7 @@ services:
 
     presenter.download.csv:
         class: Core\Infrastructure\Common\Presenter\DownloadPresenter
-        arguments: ['@Core\Infrastructure\Common\Presenter\CsvPresenter']
+        arguments: ['@Core\Infrastructure\Common\Presenter\CsvFormatter']
 
     Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricPresenterInterface:
         class: Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
@@ -437,4 +437,8 @@ services:
     # Session
     Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface:
         class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
+        public: true
+
+    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
         public: true

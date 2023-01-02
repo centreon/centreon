@@ -4,7 +4,7 @@ import { License } from './models';
 
 export const licenseDecoder = JsonDecoder.object<License>(
   {
-    success: JsonDecoder.boolean,
+    success: JsonDecoder.boolean
   },
-  'License',
+  'License'
 );

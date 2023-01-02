@@ -9,7 +9,7 @@ interface UseDeepMemo<TVariable, TMemoProps> {
 
 const useDeepMemo = <TVariable, TMemoProps>({
   deps,
-  variable,
+  variable
 }: UseDeepMemo<TVariable, TMemoProps>): TVariable =>
   useMemo(() => variable, useDeepCompare(deps));
 

@@ -9,7 +9,7 @@ import MultiConnectedAutocompleteField from './Multi';
 
 export default {
   decorators: [withMock],
-  title: 'InputField/Autocomplete/Connected',
+  title: 'InputField/Autocomplete/Connected'
 };
 
 const buildEntities = (from): Array<SelectEntry> => {
@@ -17,7 +17,7 @@ const buildEntities = (from): Array<SelectEntry> => {
     .fill(0)
     .map((_, index) => ({
       id: from + index,
-      name: `Entity ${from + index}`,
+      name: `Entity ${from + index}`
     }));
 };
 
@@ -25,9 +25,9 @@ const buildResult = (page): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,
-    total: 40,
+    total: 40
   },
-  result: buildEntities((page - 1) * 10),
+  result: buildEntities((page - 1) * 10)
 });
 
 const baseEndpoint = 'endpoint';
@@ -35,7 +35,7 @@ const baseEndpoint = 'endpoint';
 const getEndpoint = ({ endpoint, parameters }): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    parameters,
+    parameters
   });
 
 const mockSearch = (page: number): object => ({
@@ -47,7 +47,7 @@ const mockSearch = (page: number): object => ({
     return buildResult(parseInt(searchParams.page || '0', 10));
   },
   status: 200,
-  url: `/endpoint?page=${page}&search=`,
+  url: `/endpoint?page=${page}&search=`
 });
 
 const getMockData = (): Array<object> => [
@@ -60,12 +60,12 @@ const getMockData = (): Array<object> => [
       return buildResult(parseInt(searchParams.page || '0', 10));
     },
     status: 200,
-    url: '/endpoint?page=',
+    url: '/endpoint?page='
   },
   mockSearch(1),
   mockSearch(2),
   mockSearch(3),
-  mockSearch(4),
+  mockSearch(4)
 ];
 
 export const single = (): JSX.Element => (
@@ -79,7 +79,7 @@ export const single = (): JSX.Element => (
   />
 );
 single.parameters = {
-  mockData: getMockData(),
+  mockData: getMockData()
 };
 
 export const multi = (): JSX.Element => (
@@ -93,5 +93,5 @@ export const multi = (): JSX.Element => (
   />
 );
 multi.parameters = {
-  mockData: getMockData(),
+  mockData: getMockData()
 };

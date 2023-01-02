@@ -15,21 +15,21 @@ interface User {
 
 const user: User = {
   email: 'john@doe.com',
-  name: 'John Doe',
+  name: 'John Doe'
 };
 
 jest.mock('../../Snackbar/useSnackbar', () => ({
   __esModule: true,
   default: jest
     .fn()
-    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage })),
+    .mockImplementation(() => ({ showErrorMessage: mockedShowErrorMessage }))
 }));
 
 const renderFetchQuery = <T extends object>(
-  params: UseFetchQueryProps<T>,
+  params: UseFetchQueryProps<T>
 ): RenderHookResult<UseFetchQueryState<T>, unknown> =>
   renderHook(() => useFetchQuery<T>(params), {
-    wrapper: TestQueryProvider,
+    wrapper: TestQueryProvider
   }) as RenderHookResult<UseFetchQueryState<T>, unknown>;
 
 describe('useFetchQuery', () => {
@@ -43,7 +43,7 @@ describe('useFetchQuery', () => {
 
     renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
-      getQueryKey: () => ['queryKey'],
+      getQueryKey: () => ['queryKey']
     });
 
     await waitFor(() => {
@@ -55,7 +55,7 @@ describe('useFetchQuery', () => {
     fetchMock.once(JSON.stringify(user));
     const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
-      getQueryKey: () => ['queryKey'],
+      getQueryKey: () => ['queryKey']
     });
 
     await waitFor(() => {
@@ -65,12 +65,12 @@ describe('useFetchQuery', () => {
 
   it("shows an error from the API via the Snackbar and inside the browser's console", async () => {
     fetchMock.once(JSON.stringify({ code: 2, message: 'custom message' }), {
-      status: 400,
+      status: 400
     });
 
     const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
-      getQueryKey: () => ['queryKey'],
+      getQueryKey: () => ['queryKey']
     });
 
     await waitFor(() => {
@@ -82,7 +82,7 @@ describe('useFetchQuery', () => {
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
         message: 'custom message',
-        statusCode: 400,
+        statusCode: 400
       });
     });
   });
@@ -92,12 +92,12 @@ describe('useFetchQuery', () => {
 
     renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
-      getQueryKey: () => ['queryKey'],
+      getQueryKey: () => ['queryKey']
     });
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).toHaveBeenCalledWith(
-        'Something went wrong',
+        'Something went wrong'
       );
     });
 
@@ -106,37 +106,37 @@ describe('useFetchQuery', () => {
 
   it('shows a default failure message via the Snackbar as fallback', async () => {
     fetchMock.once(JSON.stringify({}), {
-      status: 400,
+      status: 400
     });
 
     const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
-      getQueryKey: () => ['queryKey'],
+      getQueryKey: () => ['queryKey']
     });
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).toHaveBeenCalledWith(
-        'Something went wrong',
+        'Something went wrong'
       );
     });
 
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
         message: 'Something went wrong',
-        statusCode: 400,
+        statusCode: 400
       });
     });
   });
 
   it('does not show any message via the Snackbar when the httpCodesBypassErrorSnackbar is passed', async () => {
     fetchMock.once(JSON.stringify({}), {
-      status: 400,
+      status: 400
     });
 
     const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
-      httpCodesBypassErrorSnackbar: [400],
+      httpCodesBypassErrorSnackbar: [400]
     });
 
     await waitFor(() => {
@@ -146,7 +146,7 @@ describe('useFetchQuery', () => {
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
         message: 'Something went wrong',
-        statusCode: 400,
+        statusCode: 400
       });
     });
   });

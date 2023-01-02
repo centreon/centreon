@@ -32,9 +32,24 @@
  *
  */
 
+ ::-webkit-scrollbar {
+    height: var(--scrollbar-height);
+    width: var(--scrollbar-width);
+    background-color: var(--scrollbar-background);
+}
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-background);
+    border-radius: calc(var(--scrollbar-width) / 2);
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-background-hover);
+}
+
 * {
     margin:0;
     padding:0;
+    scrollbar-color: var(--scrollbar-thumb-background) var(--scrollbar-background);
+    scrollbar-width: thin;
 }
 html {
     height: 100%;
@@ -1837,7 +1852,6 @@ span.show-disabled[disabled]::after {
 }
 .ToolbarTable {
     margin: 6px 0px;
-    font-size: 0;
 }
 .ToolbarTR          {padding-left:10px;}
 .ToolbarTR td:first-child {

@@ -6,7 +6,7 @@ import {
   act,
   resetMocks,
   mockResponse,
-  getFetchCall,
+  getFetchCall
 } from '../../../../testRenderer';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
@@ -21,12 +21,12 @@ const optionsData = {
   meta: {
     limit: 2,
     page: 1,
-    total: 20,
+    total: 20
   },
   result: [
     { id: 0, name: 'My Option 1' },
-    { id: 1, name: 'My Option 2' },
-  ],
+    { id: 1, name: 'My Option 2' }
+  ]
 };
 
 const baseEndpoint = 'endpoint';
@@ -40,7 +40,7 @@ interface Props {
 }
 
 const renderSingleConnectedAutocompleteField = (
-  { searchConditions }: Props = { searchConditions: undefined },
+  { searchConditions }: Props = { searchConditions: undefined }
 ): RenderResult =>
   render(
     <TestQueryProvider>
@@ -51,7 +51,7 @@ const renderSingleConnectedAutocompleteField = (
         placeholder="Type here..."
         searchConditions={searchConditions}
       />
-    </TestQueryProvider>,
+    </TestQueryProvider>
   );
 
 describe(SingleConnectedAutocompleteField, () => {
@@ -90,14 +90,14 @@ describe(SingleConnectedAutocompleteField, () => {
     });
 
     fireEvent.change(getByPlaceholderText(placeholder), {
-      target: { value: 'My Option 2' },
+      target: { value: 'My Option 2' }
     });
 
     await waitFor(() => {
       expect(getFetchCall(2)).toEqual(
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
-          '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}',
-        )}`,
+          '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}'
+        )}`
       );
     });
   });
@@ -108,10 +108,10 @@ describe(SingleConnectedAutocompleteField, () => {
         {
           field: 'parent_name',
           value: {
-            $eq: 'Centreon-Server',
-          },
-        },
-      ],
+            $eq: 'Centreon-Server'
+          }
+        }
+      ]
     });
 
     fireEvent.click(getByLabelText('Open'));
@@ -119,8 +119,8 @@ describe(SingleConnectedAutocompleteField, () => {
     await waitFor(() => {
       expect(getFetchCall(0)).toEqual(
         `${baseEndpoint}?page=1&search=${encodeURIComponent(
-          '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}',
-        )}`,
+          '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}'
+        )}`
       );
     });
   });

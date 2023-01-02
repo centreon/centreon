@@ -28,13 +28,13 @@ const SortableItem = ({
     setNodeRef,
     transform,
     isDragging,
-    transition,
+    transition
   } = useSortable({ id: itemId });
 
   const style = {
     opacity: isDragging ? '0.7' : '1',
     transform: CSS.Translate.toString(transform),
-    transition,
+    transition
   };
 
   return useMemoComponent({
@@ -56,8 +56,8 @@ const SortableItem = ({
       transform,
       props(itemProps, rest),
       ...memoProps,
-      ...additionalProps,
-    ],
+      ...additionalProps
+    ]
   });
 };
 

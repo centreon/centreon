@@ -10,7 +10,7 @@ import { ThemeMode } from '@centreon/ui-context';
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
     marginRight: theme.spacing(1),
-    padding: 0,
+    padding: 0
   },
   container: {
     '&:hover, &.Mui-selected, &.Mui-selected:hover': {
@@ -19,11 +19,11 @@ const useStyles = makeStyles()((theme) => ({
         : theme.palette.primary.light,
       color: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.common.white
-        : theme.palette.primary.main,
+        : theme.palette.primary.main
     },
     alignItems: 'center',
-    display: 'flex',
-  },
+    display: 'flex'
+  }
 }));
 
 interface Props {
@@ -54,7 +54,7 @@ const Option = forwardRef(
         </Stack>
       </div>
     );
-  },
+  }
 );
 
 export default Option;

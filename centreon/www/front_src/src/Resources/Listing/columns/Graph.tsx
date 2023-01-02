@@ -2,15 +2,15 @@ import { useEffect, lazy, Suspense } from 'react';
 
 import { path, isNil, not } from 'ramda';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import { Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconGraph from '@mui/icons-material/BarChart';
 
 import {
   IconButton,
   ComponentColumnProps,
-  LoadingSkeleton,
+  LoadingSkeleton
 } from '@centreon/ui';
 
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
@@ -18,23 +18,24 @@ import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
-  isListingGraphOpenAtom,
+  isListingGraphOpenAtom
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
 import { lastDayPeriod } from '../../Details/tabs/Graph/models';
+import { getDisplayAdditionalLinesCondition } from '../../Graph/Performance/AnomalyDetection/graph';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
 
 const PerformanceGraph = lazy(() => import('../../Graph/Performance'));
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   graph: {
     display: 'block',
     overflow: 'auto',
     padding: theme.spacing(1),
-    width: 575,
-  },
+    width: 575
+  }
 }));
 
 interface GraphProps {
@@ -46,16 +47,16 @@ interface GraphProps {
 const Graph = ({
   row,
   endpoint,
-  displayCompleteGraph,
+  displayCompleteGraph
 }: GraphProps): JSX.Element => {
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
   const setIsListingGraphOpen = useUpdateAtom(isListingGraphOpenAtom);
   const changeMousePositionAndTimeValue = useUpdateAtom(
-    changeMousePositionAndTimeValueDerivedAtom,
+    changeMousePositionAndTimeValueDerivedAtom
   );
 
   const graphQueryParameters = getGraphQueryParameters({
-    timePeriod: lastDayPeriod,
+    timePeriod: lastDayPeriod
   });
 
   useEffect(() => {
@@ -74,7 +75,9 @@ const Graph = ({
         displayCompleteGraph={displayCompleteGraph}
         displayTitle={false}
         endpoint={`${endpoint}${graphQueryParameters}`}
+        getDisplayAdditionalLinesCondition={getDisplayAdditionalLinesCondition}
         graphHeight={150}
+        interactWithGraph={false}
         resource={row}
         timeline={[]}
       />
@@ -97,15 +100,15 @@ const renderChip =
     );
 
 const GraphColumn = ({
-  onClick,
+  onClick
 }: {
   onClick: (row) => void;
 }): ((props: ComponentColumnProps) => JSX.Element | null) => {
   const GraphHoverChip = ({
     row,
-    isHovered,
+    isHovered
   }: ComponentColumnProps): JSX.Element | null => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const { type } = row;
 
@@ -113,7 +116,7 @@ const GraphColumn = ({
 
     const endpoint = path<string | undefined>(
       ['links', 'endpoints', 'performance_graph'],
-      row,
+      row
     );
 
     if (isNil(endpoint) && !isHost) {

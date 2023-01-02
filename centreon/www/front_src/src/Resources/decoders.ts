@@ -12,24 +12,24 @@ import {
   ResourceType,
   ResourceUris,
   Status,
-  Severity,
+  Severity
 } from './models';
 
 const statusDecoder = JsonDecoder.object<Status>(
   {
     name: JsonDecoder.string,
-    severity_code: JsonDecoder.number,
+    severity_code: JsonDecoder.number
   },
-  'Status',
+  'Status'
 );
 
 const severityIcon = JsonDecoder.object<Icon>(
   {
     id: JsonDecoder.number,
     name: JsonDecoder.string,
-    url: JsonDecoder.string,
+    url: JsonDecoder.string
   },
-  'SeverityIcon',
+  'SeverityIcon'
 );
 
 const severityDecoder = JsonDecoder.object<Severity>(
@@ -38,9 +38,9 @@ const severityDecoder = JsonDecoder.object<Severity>(
     id: JsonDecoder.number,
     level: JsonDecoder.number,
     name: JsonDecoder.string,
-    type: JsonDecoder.string,
+    type: JsonDecoder.string
   },
-  'Severity',
+  'Severity'
 );
 
 const commonDecoders = {
@@ -52,10 +52,10 @@ const commonDecoders = {
       {
         id: JsonDecoder.optional(JsonDecoder.number),
         name: JsonDecoder.string,
-        url: JsonDecoder.string,
+        url: JsonDecoder.string
       },
-      'ResourceIcon',
-    ),
+      'ResourceIcon'
+    )
   ),
   id: JsonDecoder.number,
   in_downtime: JsonDecoder.optional(JsonDecoder.boolean),
@@ -72,10 +72,12 @@ const commonDecoders = {
             downtime: JsonDecoder.optional(JsonDecoder.string),
             metrics: JsonDecoder.optional(JsonDecoder.string),
             performance_graph: JsonDecoder.optional(JsonDecoder.string),
+            sensitivity: JsonDecoder.optional(JsonDecoder.string),
             status_graph: JsonDecoder.optional(JsonDecoder.string),
             timeline: JsonDecoder.optional(JsonDecoder.string),
+            timeline_download: JsonDecoder.optional(JsonDecoder.string)
           },
-          'ResourceLinksEndpoints',
+          'ResourceLinksEndpoints'
         ),
         externals: JsonDecoder.object<ResourceExternals>(
           {
@@ -84,29 +86,30 @@ const commonDecoders = {
               JsonDecoder.object<Notes>(
                 {
                   label: JsonDecoder.optional(JsonDecoder.string),
-                  url: JsonDecoder.string,
+                  url: JsonDecoder.string
                 },
-                'ResourceLinksExternalNotes',
-              ),
-            ),
+                'ResourceLinksExternalNotes'
+              )
+            )
           },
-          'ResourceLinksExternals',
+          'ResourceLinksExternals'
         ),
         uris: JsonDecoder.object<ResourceUris>(
           {
             configuration: JsonDecoder.optional(JsonDecoder.string),
             logs: JsonDecoder.optional(JsonDecoder.string),
-            reporting: JsonDecoder.optional(JsonDecoder.string),
+            reporting: JsonDecoder.optional(JsonDecoder.string)
           },
-          'ResourceLinksUris',
-        ),
+          'ResourceLinksUris'
+        )
       },
-      'ResourceLinks',
-    ),
+      'ResourceLinks'
+    )
   ),
   name: JsonDecoder.string,
   notification_enabled: JsonDecoder.optional(JsonDecoder.boolean),
   passive_checks: JsonDecoder.optional(JsonDecoder.boolean),
+  service_id: JsonDecoder.optional(JsonDecoder.number),
   severity: JsonDecoder.optional(severityDecoder),
   severity_level: JsonDecoder.optional(JsonDecoder.number),
   short_type: JsonDecoder.oneOf<ResourceShortType>(
@@ -114,24 +117,24 @@ const commonDecoders = {
       JsonDecoder.isExactly('h'),
       JsonDecoder.isExactly('m'),
       JsonDecoder.isExactly('s'),
-      JsonDecoder.isExactly('a'),
+      JsonDecoder.isExactly('a')
     ],
-    'ResourceShortType',
+    'ResourceShortType'
   ),
   status: JsonDecoder.optional(statusDecoder),
   tries: JsonDecoder.optional(JsonDecoder.string),
   type: JsonDecoder.enumeration<ResourceType>(ResourceType, 'ResourceType'),
-  uuid: JsonDecoder.string,
+  uuid: JsonDecoder.string
 };
 
 const resourceDecoder = JsonDecoder.object<Resource>(
   {
     ...commonDecoders,
     parent: JsonDecoder.optional(
-      JsonDecoder.object<Parent>(commonDecoders, 'ResourceParent'),
-    ),
+      JsonDecoder.object<Parent>(commonDecoders, 'ResourceParent')
+    )
   },
-  'Resource',
+  'Resource'
 );
 
 export { statusDecoder, resourceDecoder };

@@ -4,12 +4,12 @@ import { useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Paper, Button, Tab } from '@mui/material';
+import { Button, Paper, Tab, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
+import { SearchField } from '..';
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
-import { SearchField } from '..';
 import Panel from '../Panel';
 
 import Filter from './Filter';
@@ -20,13 +20,13 @@ export default { title: 'Listing Page' };
 
 const useStyles = makeStyles()((theme) => ({
   autoComplete: {
-    width: 250,
+    width: 250
   },
   comment: {
-    gridArea: 'comment',
+    gridArea: 'comment'
   },
   description: {
-    gridArea: 'description',
+    gridArea: 'description'
   },
   detailsContent: {
     display: 'grid',
@@ -35,7 +35,7 @@ const useStyles = makeStyles()((theme) => ({
       'title title'
       'description comment'
     `,
-    gridTemplateRows: '50px 100px',
+    gridTemplateRows: '50px 100px'
   },
   detailsPanel: {
     display: 'grid',
@@ -43,7 +43,7 @@ const useStyles = makeStyles()((theme) => ({
     gridTemplateColumns: '94%',
     gridTemplateRows: 'auto 1fr',
     justifyContent: 'center',
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(2)
   },
   detailsPanelHeader: {
     display: 'grid',
@@ -51,19 +51,19 @@ const useStyles = makeStyles()((theme) => ({
     gridTemplateColumns: 'auto min-content',
     justifyItems: 'center',
     margin: '0 auto',
-    width: '95%',
+    width: '95%'
   },
   filterSummary: {
     alignItems: 'center',
     display: 'grid',
     gridGap: theme.spacing(2),
-    gridTemplateColumns: 'auto auto 1fr',
+    gridTemplateColumns: 'auto auto 1fr'
   },
   title: {
     alignItems: 'center',
     gridArea: 'title',
-    textAlign: 'center',
-  },
+    textAlign: 'center'
+  }
 }));
 
 const columns = [
@@ -71,20 +71,20 @@ const columns = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ alias }): string => alias,
     id: 'alias',
     label: 'Alias',
-    type: ColumnType.string,
-  },
+    type: ColumnType.string
+  }
 ];
 
 const twentyFiveElements = new Array(25).fill(0);
@@ -94,15 +94,15 @@ const elements = [...twentyFiveElements].map((_, index) => ({
   alias: `Alias ${index}`,
   description: `Entity ${index}`,
   id: index,
-  name: `E${index}`,
+  name: `E${index}`
 }));
 
 const rowColorConditions = [
   {
     color: grey[500],
     condition: ({ active }): boolean => !active,
-    name: 'inactive',
-  },
+    name: 'inactive'
+  }
 ];
 
 const listing = (
@@ -136,7 +136,7 @@ interface FilterWithOpenButton {
 }
 
 const FilterWithOpenButton = ({
-  onOpen = (): undefined => undefined,
+  onOpen = (): undefined => undefined
 }: FilterWithOpenButton): JSX.Element => {
   const { classes } = useStyles();
 
@@ -234,7 +234,7 @@ const DetailsPanelHeader = (): JSX.Element => {
 };
 
 const DetailsPanel = ({
-  onClose = (): undefined => undefined,
+  onClose = (): undefined => undefined
 }: PanelProps): JSX.Element => (
   <Panel
     header={<DetailsPanelHeader />}
@@ -294,6 +294,31 @@ export const withFixedPanel = (): JSX.Element => {
       panelFixed
       filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={listing}
+      panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
+      panelOpen={open}
+    />
+  );
+};
+
+export const withResponsivePaginationTable = (): JSX.Element => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <ListingPage
+      filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
+      listing={
+        <Listing
+          columns={columns}
+          currentPage={0}
+          limit={elements.length}
+          moveTablePagination={open}
+          rowColorConditions={rowColorConditions}
+          rows={elements}
+          totalRows={elements.length}
+          widthToMoveTablePagination={550}
+        />
+      }
+      memoListingProps={[open]}
       panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
       panelOpen={open}
     />

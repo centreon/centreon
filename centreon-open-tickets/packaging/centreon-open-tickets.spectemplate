@@ -1,0 +1,64 @@
+%define debug_package %{nil}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
+%define centreon_etc /etc/centreon
+%define centreon_dir %{_datadir}/centreon
+%define centreon_log /var/log/centreon
+%define centreon_varlib /var/lib/centreon
+%define centreon_www %{_datadir}/centreon/www
+
+Name:           centreon-open-tickets
+Version:        %{version}
+Release:        %{release}
+Summary:        Centreon Open Tickets add-on for Centreon
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
+
+Group:          Networking/Other
+License:        Apache-2.0
+URL:            https://github.com/centreon/centreon-open-tickets
+Source0:        %{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:      noarch
+Requires:	    centreon-web >= %{thismajor}
+Requires:       centreon-web < %{nextmajor}
+Obsoletes:      centreon-open-tickets-module
+Obsoletes:      centreon-open-tickets-widget
+Provides:       centreon-open-tickets-module = %{version}-%{release}
+Provides:       centreon-open-tickets-widget = %{version}-%{release}
+AutoReqProv: no
+
+%description
+The module allows to open tickets on ITSM providers.
+
+%prep
+%setup -q -n %{name}-%{version}
+
+# Change CENTREON_ETC Macro
+find .          \
+        -type f \
+        -exec %{__grep} -qE '(@@CENTREON_ETC@@)' {} ';'   \
+        -exec %{__sed} -i -e 's|@@CENTREON_ETC@@|'"/etc/centreon/"'|g'\
+        {} ';'
+
+%install
+# Install centreon-open-tickets web files
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/modules/%{name}
+%{__cp} -rp centreon-open-tickets/www/modules/%{name} $RPM_BUILD_ROOT%{centreon_www}/modules/
+
+# Install centreon-open-tickets files
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/widgets/
+%{__install} -d $RPM_BUILD_ROOT%{centreon_www}/widgets/open-tickets
+%{__cp} -rp centreon-open-tickets/widgets/open-tickets $RPM_BUILD_ROOT%{centreon_www}/widgets/
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+
+%defattr(-,apache,apache,-)
+%{centreon_www}/modules/%{name}
+%{centreon_www}/widgets/open-tickets
+
+%changelog

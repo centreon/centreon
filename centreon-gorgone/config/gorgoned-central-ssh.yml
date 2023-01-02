@@ -1,0 +1,54 @@
+name: gorgoned-central-ssh
+description: Configuration example in a SSH environment for Central server
+configuration:
+  centreon:
+    database:
+      db_configuration: 
+        dsn: "mysql:host=localhost;dbname=centreon"
+        username: centreon
+        password: centreon
+      db_realtime: 
+        dsn: "mysql:host=localhost;dbname=centreon_storage"
+        username: centreon
+        password: centreon
+  gorgone:
+    gorgonecore:
+      timeout: 50
+    modules:
+      - name: httpserver
+        package: gorgone::modules::core::httpserver::hooks
+        enable: true
+        address: 0.0.0.0
+        port: 8443
+        ssl: true
+        ssl_cert_file: /etc/pki/tls/certs/server-cert.pem
+        ssl_key_file: /etc/pki/tls/server-key.pem
+        auth:
+          enabled: true
+          user: admin
+          password: password
+
+      - name: action
+        package: gorgone::modules::core::action::hooks
+        enable: true
+
+      - name: proxy
+        package: gorgone::modules::core::proxy::hooks
+        enable: true
+
+      - name: nodes
+        package: gorgone::modules::centreon::nodes::hooks
+        enable: true
+
+      - name: legacycmd
+        package: gorgone::modules::centreon::legacycmd::hooks
+        enable: true
+        cmd_file: "/var/lib/centreon/centcore.cmd"
+        cache_dir: "/var/cache/centreon/"
+        cache_dir_trap: "/etc/snmp/centreon_traps/"
+        remote_dir: "/var/cache/centreon/config/remote-data/"
+
+      - name: engine
+        package: gorgone::modules::centreon::engine::hooks
+        enable: true
+        command_file: "/var/lib/centreon-engine/rw/centengine.cmd"

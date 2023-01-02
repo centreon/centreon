@@ -1,8 +1,5 @@
 import { pipe, split, head, propOr, T } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType, Column } from '@centreon/ui';
 
@@ -24,7 +21,7 @@ import {
   labelNotification,
   labelCheck,
   labelSeverity,
-  labelParentAlias,
+  labelParentAlias
 } from '../../translatedLabels';
 import truncate from '../../truncate';
 
@@ -44,24 +41,20 @@ interface StyleProps {
   isHovered: boolean;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
+const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
   resourceDetailsCell: {
     alignItems: 'center',
     display: 'flex',
     flexWrap: 'nowrap',
-    padding: theme.spacing(0, 0.5),
+    padding: theme.spacing(0, 0.5)
   },
   resourceNameItem: {
-    lineHeight: 1,
     marginLeft: theme.spacing(1),
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap'
   },
-  resourceNameText: ({ isHovered }): CreateCSSProperties => ({
-    color: isHovered
-      ? theme.palette.text.primary
-      : theme.palette.text.secondary,
-    lineHeight: 1,
-  }),
+  resourceNameText: {
+    color: isHovered ? theme.palette.text.primary : theme.palette.text.secondary
+  }
 }));
 
 export interface ColumnProps {
@@ -81,7 +74,7 @@ export const defaultSelectedColumnIds = [
   'tries',
   'last_check',
   'information',
-  'state',
+  'state'
 ];
 
 export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
@@ -94,7 +87,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     shortLabel: 'S',
     sortField: 'severity_level',
     sortable: true,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: StatusColumn({ actions, t }),
@@ -107,7 +100,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'status_severity_code',
     sortable: true,
     type: ColumnType.component,
-    width: 'minmax(100px, max-content)',
+    width: 'minmax(100px, max-content)'
   },
   {
     Component: ResourceColumn,
@@ -117,7 +110,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['icon', 'short_type', 'name'],
     sortField: 'name',
     sortable: true,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: ParentResourceColumn,
@@ -127,7 +120,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['parent'],
     sortField: 'parent_name',
     sortable: true,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: NotesUrlColumn,
@@ -137,7 +130,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['links'],
     shortLabel: 'N',
     sortable: false,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: ActionUrlColumn,
@@ -147,7 +140,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['links'],
     shortLabel: 'A',
     sortable: false,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: GraphColumn({ onClick: actions.onDisplayGraph }),
@@ -156,7 +149,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelGraph),
     shortLabel: 'G',
     sortable: false,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     getFormattedString: ({ duration }): string => duration,
@@ -164,34 +157,34 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelDuration),
     sortField: 'last_status_change',
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ tries }): string => tries,
     id: 'tries',
     label: t(labelTries),
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ last_check }): string => last_check,
     id: 'last_check',
     label: t(labelLastCheck),
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: pipe(
       propOr('', 'information'),
       split('\n'),
       head,
-      truncate,
+      truncate
     ) as (row) => string,
     id: 'information',
     label: t(labelInformation),
     sortable: false,
     type: ColumnType.string,
-    width: 'minmax(50px, 1fr)',
+    width: 'minmax(50px, 1fr)'
   },
   {
     Component: StateColumn,
@@ -200,14 +193,14 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelState),
     rowMemoProps: ['in_downtime', 'acknowledged', 'name', 'links'],
     sortable: false,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     getFormattedString: ({ alias }): string => alias,
     id: 'alias',
     label: t(labelAlias),
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     Component: ParentAliasColumn,
@@ -217,14 +210,14 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['parent'],
     sortField: 'parent_alias',
     sortable: true,
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
     id: 'fqdn',
     label: t(labelFqdn),
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     getFormattedString: ({ monitoring_server_name }): string =>
@@ -232,7 +225,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     id: 'monitoring_server_name',
     label: t(labelMonitoringServer),
     sortable: true,
-    type: ColumnType.string,
+    type: ColumnType.string
   },
   {
     Component: NotificationColumn,
@@ -241,7 +234,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelNotification),
     rowMemoProps: ['notification_enabled'],
     shortLabel: 'Notif',
-    type: ColumnType.component,
+    type: ColumnType.component
   },
   {
     Component: ChecksColumn,
@@ -250,8 +243,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelCheck),
     rowMemoProps: ['passive_checks', 'active_checks'],
     shortLabel: 'C',
-    type: ColumnType.component,
-  },
+    type: ColumnType.component
+  }
 ];
 
 export { useStyles as useColumnStyles };

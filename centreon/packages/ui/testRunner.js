@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable consistent-return */
 const config = {
-  story: null,
+  story: null
 };
 const argv = process.argv.slice(0, 2);
 
@@ -29,7 +29,5 @@ process.argv.reduce((cmd, arg) => {
 });
 
 process.env.TEST_CONFIGURATION = JSON.stringify(config);
-
-process.argv = argv;
 
 require('jest/bin/jest');

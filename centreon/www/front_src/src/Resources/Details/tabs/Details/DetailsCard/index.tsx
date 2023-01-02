@@ -1,22 +1,22 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import Card from '../Card';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   active: {
-    color: theme.palette.success.main,
+    color: theme.palette.success.main
   },
   container: {
-    border: 0,
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   title: {
     display: 'flex',
     gridGap: theme.spacing(1),
     overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
+    textOverflow: 'ellipsis'
+  }
 }));
 
 interface Props {
@@ -28,9 +28,9 @@ interface Props {
 const DetailsCard = ({
   title,
   line,
-  isCustomCard = false,
+  isCustomCard = false
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   if (isCustomCard) {
     return line;

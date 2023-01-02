@@ -5,10 +5,10 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { and, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, Typography, Button, Popover } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import makeStyles from '@mui/styles/makeStyles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
@@ -20,11 +20,11 @@ import {
   labelEndDateGreaterThanStartDate,
   labelTo,
   labelCompactTimePeriod,
-  labelFrom,
+  labelFrom
 } from '../../../translatedLabels';
 import {
   CustomTimePeriod,
-  CustomTimePeriodProperty,
+  CustomTimePeriodProperty
 } from '../../../Details/tabs/Graph/models';
 import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
@@ -43,82 +43,82 @@ interface Props {
 
 dayjs.extend(isSameOrAfter);
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   button: {
     height: '100%',
-    padding: theme.spacing(0, 0.5),
+    padding: theme.spacing(0, 0.5)
   },
   buttonContent: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'grid',
-    gridTemplateColumns: 'min-content auto',
+    gridTemplateColumns: 'min-content auto'
   },
   compactFromTo: {
     display: 'flex',
     flexDirection: 'column',
-    padding: theme.spacing(0.5, 0, 0.5, 0),
+    padding: theme.spacing(0.5, 0, 0.5, 0)
   },
   date: {
-    display: 'flex',
+    display: 'flex'
   },
   dateLabel: {
     display: 'flex',
     flex: 1,
-    paddingRight: 4,
+    paddingRight: 4
   },
   error: {
-    textAlign: 'center',
+    textAlign: 'center'
   },
   fromTo: {
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, auto)',
+    gridTemplateColumns: 'repeat(2, auto)'
   },
   minimalFromTo: {
     display: 'grid',
     gridTemplateRows: 'repeat(2, min-content)',
-    rowGap: theme.spacing(0.3),
+    rowGap: theme.spacing(0.3)
   },
   minimalPickers: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'grid',
-    gridTemplateColumns: 'min-content auto',
+    gridTemplateColumns: 'min-content auto'
   },
   pickerText: {
     cursor: 'pointer',
-    lineHeight: '1.2',
+    lineHeight: '1.2'
   },
   pickers: {
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
     display: 'grid',
     gridTemplateColumns: `minmax(${theme.spacing(15)}, ${theme.spacing(
-      17,
-    )}px) min-content minmax(${theme.spacing(15)}, ${theme.spacing(17)})`,
+      17
+    )}px) min-content minmax(${theme.spacing(15)}, ${theme.spacing(17)})`
   },
   popover: {
     display: 'grid',
     gridTemplateRows: 'auto auto auto',
     justifyItems: 'center',
     padding: theme.spacing(1, 2),
-    rowGap: theme.spacing(1),
+    rowGap: theme.spacing(1)
   },
   timeContainer: {
     alignItems: 'center',
     display: 'flex',
-    flexDirection: 'row',
-  },
+    flexDirection: 'row'
+  }
 }));
 
 const CustomTimePeriodPickers = ({
   customTimePeriod,
   acceptDate,
-  isCompact: isMinimalWidth,
+  isCompact: isMinimalWidth
 }: Props): JSX.Element => {
-  const classes = useStyles(isMinimalWidth);
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [start, setStart] = useState<Date>(customTimePeriod.start);
@@ -136,12 +136,12 @@ const CustomTimePeriodPickers = ({
     cond([
       [
         (): boolean => equals(CustomTimePeriodProperty.start, property),
-        (): void => setStart(date),
+        (): void => setStart(date)
       ],
       [
         (): boolean => equals(CustomTimePeriodProperty.end, property),
-        (): void => setEnd(date),
-      ],
+        (): void => setEnd(date)
+      ]
     ])();
 
     if (
@@ -153,7 +153,7 @@ const CustomTimePeriodPickers = ({
     }
     acceptDate({
       date,
-      property,
+      property
     });
   };
 
@@ -161,7 +161,7 @@ const CustomTimePeriodPickers = ({
     if (
       and(
         dayjs(customTimePeriod.start).isSame(dayjs(start), 'minute'),
-        dayjs(customTimePeriod.end).isSame(dayjs(end), 'minute'),
+        dayjs(customTimePeriod.end).isSame(dayjs(end), 'minute')
       )
     ) {
       return;
@@ -205,7 +205,7 @@ const CustomTimePeriodPickers = ({
                 <Typography variant="caption">
                   {format({
                     date: customTimePeriod.start,
-                    formatString: dateTimeFormat,
+                    formatString: dateTimeFormat
                   })}
                 </Typography>
               </div>
@@ -218,7 +218,7 @@ const CustomTimePeriodPickers = ({
                 <Typography variant="caption">
                   {format({
                     date: customTimePeriod.end,
-                    formatString: dateTimeFormat,
+                    formatString: dateTimeFormat
                   })}
                 </Typography>
               </div>
@@ -230,18 +230,18 @@ const CustomTimePeriodPickers = ({
         anchorEl={anchorEl}
         anchorOrigin={{
           horizontal: 'center',
-          vertical: 'top',
+          vertical: 'top'
         }}
         open={displayPopover}
         transformOrigin={{
           horizontal: 'center',
-          vertical: 'top',
+          vertical: 'top'
         }}
         onClose={closePopover}
       >
         <LocalizationProvider
+          adapterLocale={locale.substring(0, 2)}
           dateAdapter={Adapter}
-          locale={locale.substring(0, 2)}
         >
           <div className={classes.popover}>
             <div>

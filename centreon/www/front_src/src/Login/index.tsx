@@ -4,9 +4,9 @@ import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
 import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
@@ -30,15 +30,15 @@ const LoginForm = lazy(() => import('./Form'));
 
 const Logo = lazy(() => import('./Logo'));
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   copyrightAndVersion: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing(0.5),
+    rowGap: theme.spacing(0.5)
   },
   copyrightSkeleton: {
-    width: theme.spacing(16),
+    width: theme.spacing(16)
   },
   loginBackground: {
     alignItems: 'center',
@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100vh',
     justifyContent: 'center',
     rowGap: theme.spacing(2),
-    width: '100%',
+    width: '100%'
   },
   loginPaper: {
     alignItems: 'center',
@@ -58,18 +58,17 @@ const useStyles = makeStyles((theme) => ({
     justifyItems: 'center',
     minWidth: theme.spacing(30),
     padding: theme.spacing(4, 5),
-    rowGap: theme.spacing(4),
-    width: '17%',
-  },
+    rowGap: theme.spacing(4)
+  }
 }));
 
 const initialValues: LoginFormValues = {
   alias: '',
-  password: '',
+  password: ''
 };
 
 const LoginPage = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
