@@ -73,22 +73,6 @@ class Centreon_Object_Host extends Centreon_Object
                 );
 
                 if (
-                    array_key_exists('host_snmp_community_is_password', $params)
-                    && $params['host_snmp_community_is_password'] === '0'
-                    && ! empty($hostSecrets)
-                ) {
-                    /**
-                     * If no more fields are password types,
-                     * we delete the host from the vault has it will not be readen.
-                     */
-                    $this->deleteHostFromVault(
-                        $vaultConfiguration,
-                        (int) $hostId,
-                        $clientToken,
-                        $centreonLog,
-                        $httpClient
-                    );
-                } elseif (
                     array_key_exists('host_snmp_community', $params)
                     && $params['host_snmp_community_is_password'] === '1'
                 ) {
