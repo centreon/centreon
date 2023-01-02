@@ -1396,6 +1396,10 @@ class CentreonHost extends CentreonObject
             $addStr .= "\n";
             echo $addStr;
             foreach ($element as $parameter => $value) {
+                //Skip host_snmp_community_is_password as it is not needed in export file.
+                if ($parameter === "host_snmp_community_is_password") {
+                    continue;
+                }
                 if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
                     $action_tmp = null;
                     if ($parameter == "timeperiod_tp_id" || $parameter == "timeperiod_tp_id2") {
@@ -1419,6 +1423,18 @@ class CentreonHost extends CentreonObject
                         unset($tmpObj);
                     }
                     $value = CentreonUtils::convertLineBreak($value);
+                    if (
+                        $parameter === "host_snmp_community"
+                    ) {
+                        //Skip export of SNMP Community if it's a vault path
+                        if(preg_match('/^secret::\d+::/', $value)) {
+                            continue;
+                        }
+                        //Check that the value exists to handle compatibility from previous version
+                        $value .= array_key_exists('host_snmp_community_is_password', $element)
+                            ? $this->delim . $element['host_snmp_community_is_password']
+                            : $this->delim . '0';
+                    }
                     echo $this->action . $this->delim
                         . "setparam" . $this->delim
                         . $element[$this->object->getUniqueLabelField()] . $this->delim
