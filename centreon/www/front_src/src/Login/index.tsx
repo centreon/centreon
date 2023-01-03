@@ -58,8 +58,7 @@ const useStyles = makeStyles()((theme) => ({
     justifyItems: 'center',
     minWidth: theme.spacing(30),
     padding: theme.spacing(4, 5),
-    rowGap: theme.spacing(4),
-    width: '17%'
+    rowGap: theme.spacing(4)
   }
 }));
 

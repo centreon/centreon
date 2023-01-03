@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DesktopDateTimePicker } from '@mui/x-date-pickers';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -71,7 +71,7 @@ const DateTimePickerInput = ({
   };
 
   return (
-    <DateTimePicker<dayjs.Dayjs>
+    <DesktopDateTimePicker<dayjs.Dayjs>
       hideTabs
       PopperProps={{
         open: isOpen
