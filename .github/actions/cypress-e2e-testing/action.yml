@@ -56,7 +56,7 @@ runs:
 
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
-      bash: bash
+      shell: bash
 
     - name: Upload e2e tests Results
       if: always()
