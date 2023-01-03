@@ -147,7 +147,7 @@ Then(
       .find('#validForm input[name="submitC"]')
       .click();
 
-    cy.wait(1000)
+    cy.wait('@getTimeZone')
       .getIframeBody()
       .find('#Form')
       .find('#tab1')
@@ -293,7 +293,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait(1000)
+  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
@@ -326,7 +326,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait(1000)
+  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
