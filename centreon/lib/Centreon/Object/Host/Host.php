@@ -151,6 +151,7 @@ class Centreon_Object_Host extends Centreon_Object
             $centreonLog->insertLog(5, $url . " Unable to retrieve client token from Vault");
             throw new \Exception('Unable to authenticate to Vault');
         }
+
         return $loginResponse['auth']['client_token'];
     }
 
