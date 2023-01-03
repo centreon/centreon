@@ -17837,7 +17837,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"htpl\",\n  \"values\": \"{{htpl_name}};snmp_community;{{host_snmp_community}}\"\n}"
+							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"htpl\",\n  \"values\": \"{{htpl_name}};snmp_community;{{host_snmp_community}};0\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -22287,7 +22287,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"host\",\n  \"values\": \"{{host_name}};snmp_community;{{host_snmp_community}}\"\n}"
+							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"host\",\n  \"values\": \"{{host_name}};snmp_community;{{host_snmp_community}};0\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
