@@ -3036,7 +3036,7 @@ function writeSecretsInVault(
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getStorage()
-            . '/centreon/hosts/' . $hostId;
+            . '/monitoring/hosts/' . $hostId;
         $centreonLog->insertLog(5, "Writing Host Secrets at : " . $url);
         $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
     } catch(\Exception $ex) {
@@ -3065,7 +3065,7 @@ function writeSecretsInVault(
 function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
 {
     $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-        . "/centreon/hosts/" . $hostId;
+        . "/monitoring/hosts/" . $hostId;
 
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
@@ -3096,7 +3096,7 @@ function getHostSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $hostSecrets = [];
     try {
@@ -3134,7 +3134,7 @@ function deleteHostFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Deleting Host: %d", $hostId));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
