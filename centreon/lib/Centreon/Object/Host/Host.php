@@ -34,6 +34,8 @@
  */
 
 require_once "Centreon/Object/Object.php";
+
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
@@ -46,6 +48,7 @@ class Centreon_Object_Host extends Centreon_Object
     protected $table = "host";
     protected $primaryKey = "host_id";
     protected $uniqueLabelField = "host_name";
+    private static ?ReadVaultConfigurationRepositoryInterface $repository = null;
 
     /**
      * Update host table
@@ -86,6 +89,7 @@ class Centreon_Object_Host extends Centreon_Object
                         $httpClient
                     );
                     $this->updateHostTablesWithVaultPath($vaultConfiguration, $hostId, $this->db);
+                //@TODO: Update this conditions while handling macros
                 } elseif (
                     array_key_exists('host_snmp_community', $params)
                     && $params['host_snmp_community_is_password'] === '0'
@@ -112,10 +116,7 @@ class Centreon_Object_Host extends Centreon_Object
      */
     private function getVaultConfiguration(): ?VaultConfiguration
     {
-        $kernel = \App\Kernel::createForWeb();
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
-        );
+        $readVaultConfigurationRepository = self::getVaultConfigurationRepositoryInstance();
 
         return $readVaultConfigurationRepository->findDefaultVaultConfiguration();
     }
@@ -127,7 +128,7 @@ class Centreon_Object_Host extends Centreon_Object
      * @param CentreonUserLog $centreonLog
      * @param CentreonRestHttp $httpClient
      * @return string
-     * @throws \Exception
+     * @throws \Throwable
      */
     private function authenticateToVault(
         VaultConfiguration $vaultConfiguration,
@@ -142,7 +143,7 @@ class Centreon_Object_Host extends Centreon_Object
             ];
             $centreonLog->insertLog(5, 'Authenticating to Vault: ' . $url);
             $loginResponse = $httpClient->call($url, "POST", $body);
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $centreonLog->insertLog(5, $url . " did not respond with a 200 status");
             throw $ex;
         }
@@ -151,7 +152,6 @@ class Centreon_Object_Host extends Centreon_Object
             $centreonLog->insertLog(5, $url . " Unable to retrieve client token from Vault");
             throw new \Exception('Unable to authenticate to Vault');
         }
-
         return $loginResponse['auth']['client_token'];
     }
 
@@ -176,22 +176,21 @@ class Centreon_Object_Host extends Centreon_Object
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
             . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
         $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
-        $hostSecrets = [];
         try {
             $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
         } catch (\RestNotFoundException $ex) {
             $centreonLog->insertLog(5, sprintf("Host %d not found in vault", $hostId));
 
-            return $hostSecrets;
+            return [];
         } catch (\Exception $ex) {
             $centreonLog->insertLog(5, sprintf('Unable to get secrets for host : %d', $hostId));
             throw $ex;
         }
         if (array_key_exists('data', $content)) {
-            $hostSecrets = $content['data'];
+            return $content['data'];
         }
 
-        return $hostSecrets;
+        return [];
     }
 
     /**
@@ -248,7 +247,7 @@ class Centreon_Object_Host extends Centreon_Object
         \CentreonDB $pearDB
     ): void {
         $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-            . "/hosts/" . $hostId;
+            . "/centreon/hosts/" . $hostId;
 
         $statementUpdateHost = $pearDB->prepare(
             <<<SQL
@@ -286,5 +285,22 @@ class Centreon_Object_Host extends Centreon_Object
             $centreonLog->insertLog(5, sprintf("Unable to delete Host: %d", $hostId));
             throw $ex;
         }
+    }
+
+    /**
+     * Singleton for Repository Instanciation
+     *
+     * @return ReadVaultConfigurationRepositoryInterface
+     */
+    private static function getVaultConfigurationRepositoryInstance(): ReadVaultConfigurationRepositoryInterface
+    {
+        if (self::$repository === null) {
+            $kernel = \App\Kernel::createForWeb();
+            self::$repository = $kernel->getContainer()->get(
+                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+            );
+        }
+
+        return self::$repository;
     }
 }
