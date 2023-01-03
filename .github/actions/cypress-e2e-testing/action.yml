@@ -58,5 +58,5 @@ runs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ inputs.module }}-cypress-e2e-test-reports
+        name: ${{ inputs.name }}-test-reports
         path: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml
