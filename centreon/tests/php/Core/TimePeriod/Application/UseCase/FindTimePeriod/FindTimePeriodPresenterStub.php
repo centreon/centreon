@@ -29,10 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FindTimePeriodPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var FindTimePeriodResponse
-     */
-    public $response;
+    public FindTimePeriodResponse $response;
 
     /**
      * @param FindTimePeriodResponse $response

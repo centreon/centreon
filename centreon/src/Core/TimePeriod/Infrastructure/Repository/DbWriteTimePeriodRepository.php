@@ -24,9 +24,7 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Model\{ExtraTimePeriod, NewExtraTimePeriod, NewTimePeriod, Template, TimePeriod};
@@ -35,19 +33,12 @@ class DbWriteTimePeriodRepository extends AbstractRepositoryRDB implements Write
 {
     use LoggerTrait;
 
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
     }
 
     /**

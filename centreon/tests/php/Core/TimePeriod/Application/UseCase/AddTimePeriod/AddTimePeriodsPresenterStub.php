@@ -26,15 +26,11 @@ namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class AddTimePeriodsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var CreatedResponse
-     */
-    public $response;
+    public CreatedResponse $response;
 
     /**
      * @param CreatedResponse $response

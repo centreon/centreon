@@ -27,12 +27,13 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewExtraTimePeriod
 {
-    public const MIN_DAY_RANGE_LENGTH = 1;
-    public const MAX_DAY_RANGE_LENGTH = 2048;
+    public const MIN_DAY_RANGE_LENGTH = 1,
+                 MAX_DAY_RANGE_LENGTH = 2048;
 
     /**
      * @param string $dayRange
      * @param TimeRange $timeRange
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(private string $dayRange, private TimeRange $timeRange)

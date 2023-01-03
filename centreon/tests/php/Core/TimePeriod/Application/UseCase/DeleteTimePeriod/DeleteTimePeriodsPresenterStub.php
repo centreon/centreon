@@ -28,10 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DeleteTimePeriodsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var CreatedResponse
-     */
-    public $response;
+    public CreatedResponse $response;
 
     /**
      * @param CreatedResponse $response

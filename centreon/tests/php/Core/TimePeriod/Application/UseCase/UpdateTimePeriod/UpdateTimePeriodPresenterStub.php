@@ -23,17 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
+use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriodsResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Core\Application\Common\UseCase\AbstractPresenter;
 
 class UpdateTimePeriodPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var FindTimePeriodsResponse
-     */
-    public $response;
+    public FindTimePeriodsResponse $response;
 
     /**
      * @param FindTimePeriodsResponse $response
