@@ -369,7 +369,7 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
-      name: e2e
+      name: legacy-e2e
       module_name: centreon
       image_name: centreon-web
       features_path: features
@@ -383,7 +383,7 @@ jobs:
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
-      name: cypress-e2e
+      name: e2e
       module_name: centreon
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
