@@ -314,7 +314,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $days = [];
         $weekdays = [1 => 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         foreach ($weekdays as $id => $name) {
-            if (($timeRange = $data['tp_' . $name]) !== '') {
+            if (($timeRange = $data['tp_' . $name]) !== null && $timeRange !== '') {
                 $days[] = new Day($id, new TimeRange($timeRange));
             }
         }
