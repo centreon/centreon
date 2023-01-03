@@ -80,13 +80,13 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-reports
-          path: ${{ inputs.name }}-xunit-reports
+          name: cypress-e2e-test-reports
+          path: cypress-e2e-xunit-reports
 
       - name: Publish tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          check_name: ${{ inputs.name }}-test-reports
+          check_name: cypress-e2e-test-reports
           comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/cypress-fe.xml
+          junit_files: cypress-e2e-xunit-reports/**/*.xml
