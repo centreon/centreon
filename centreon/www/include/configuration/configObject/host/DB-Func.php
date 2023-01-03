@@ -1143,7 +1143,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
             $ret["command_command_id"]
         );
     }
-
+    $macros = $hostObj->getFormattedMacros();
     $passwordTypeData = [];
     if (
         array_key_exists('host_snmp_community_is_password', $ret)
@@ -1155,6 +1155,11 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     }
 
     //@TODO: Check if Macro value are passwords
+    foreach($macros as $macroInfos) {
+        if ($macroInfos['macroPassword'] === '1') {
+            $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
+    }
 
     //Check if a vault configuration exists
     if (! empty($passwordTypeData)) {
@@ -3036,7 +3041,7 @@ function writeSecretsInVault(
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getStorage()
-            . '/centreon/hosts/' . $hostId;
+            . '/monitoring/hosts/' . $hostId;
         $centreonLog->insertLog(5, "Writing Host Secrets at : " . $url);
         $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
     } catch(\Exception $ex) {
@@ -3062,17 +3067,17 @@ function writeSecretsInVault(
  * @param \CentreonDB $pearDB
  * @throws \Throwable
  */
-function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
+function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, array $macroIds, \CentreonDB $pearDB): void
 {
-    $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-        . "/centreon/hosts/" . $hostId;
+    $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+        . "/monitoring/hosts/" . $hostId;
 
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
             UPDATE `host` SET host_snmp_community = :path WHERE host_id = :hostId
         SQL
     );
-    $statementUpdateHost->bindValue(':path', $path, \PDO::PARAM_STR);
+    $statementUpdateHost->bindValue(':path', $hostPath, \PDO::PARAM_STR);
     $statementUpdateHost->bindValue(':hostId', (int) $hostId);
     $statementUpdateHost->execute();
 }
@@ -3096,7 +3101,7 @@ function getHostSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $hostSecrets = [];
     try {
@@ -3134,7 +3139,7 @@ function deleteHostFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Deleting Host: %d", $hostId));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
