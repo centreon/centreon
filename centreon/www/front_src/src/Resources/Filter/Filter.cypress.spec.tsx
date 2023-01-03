@@ -184,6 +184,8 @@ describe('Filter', () => {
 
   it('executes a listing request with "Unhandled problems" filter by default', () => {
     cy.waitForRequest('@defaultRequest');
+
+    cy.matchImageSnapshot();
   });
 
   searchableFields.forEach((searchableField) => {
@@ -197,6 +199,8 @@ describe('Filter', () => {
       cy.findByLabelText(labelSearchOptions).click();
       cy.findByText(labelSearch).click();
       cy.waitForRequest(`@request/${searchableField}`);
+
+      cy.matchImageSnapshot();
     });
   });
   it('executes a listing request with an "$or" search param containing all searchable fields when a string that does not correspond to any searchable field is typed in the search field', () => {
@@ -236,6 +240,8 @@ describe('Filter', () => {
         )
       ).to.be.true;
     });
+
+    cy.matchImageSnapshot();
   });
 });
 
@@ -332,6 +338,8 @@ describe('Custom filter', () => {
       cy.findByText(labelSearch).click();
 
       cy.waitForRequest(`@request/${criteriaName}`);
+
+      cy.matchImageSnapshot();
     });
   });
 });
