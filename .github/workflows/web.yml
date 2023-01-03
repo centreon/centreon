@@ -286,7 +286,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-22.04
     needs: [package]
-    if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
