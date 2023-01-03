@@ -71,10 +71,22 @@ jobs:
           module: centreon
           feature_file_path: ${{matrix.feature}}
 
+  cypress-e2e-test-report:
+    needs: [cypress-e2e-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-cypress-e2e-test-reports
+          path: ${{ inputs.name }}-xunit-e2e-reports
+
       - name: Publish tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          check_name: ${{ inputs.name }}-tests-report
+          check_name: ${{ inputs.name }}-e2e-tests-report
           comment_mode: failures
           junit_files: ${{ inputs.name }}-xunit-reports/**/cypress-fe.xml
