@@ -88,6 +88,8 @@ class CentreonHost extends CentreonObject
     public const INVALID_GEO_COORDS = "Invalid geo coords";
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
+    public const HOST_SNMP_COMMUNITY_FIELD = "host_snmp_community";
+    public const HOST_SNMP_COMMUNITY_PASSWORD_FIELD = "host_snmp_community_is_password";
 
     /**
      *
@@ -764,6 +766,10 @@ class CentreonHost extends CentreonObject
                     $params[1] = 'host_location';
                     $params[2] = $iIdTimezone;
                     break;
+                case 'snmp_community':
+                    $params[1] = self::HOST_SNMP_COMMUNITY_FIELD;
+                    $params[3] = $params[3] === '1' ? '1' : '0';
+                    break;
                 default:
                     if (!preg_match("/^host_/", $params[1])) {
                         $params[1] = "host_" . $params[1];
@@ -773,6 +779,9 @@ class CentreonHost extends CentreonObject
 
             if ($extended == false) {
                 $updateParams = array($params[1] => $params[2]);
+                if ($params[1] === self::HOST_SNMP_COMMUNITY_FIELD) {
+                    $updateParams[self::HOST_SNMP_COMMUNITY_PASSWORD_FIELD] = $params[3];
+                }
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             } else {
@@ -1389,6 +1398,10 @@ class CentreonHost extends CentreonObject
             $addStr .= "\n";
             echo $addStr;
             foreach ($element as $parameter => $value) {
+                //Skip "SNMP Community is password" field, as it is not needed in export file.
+                if ($parameter === self::HOST_SNMP_COMMUNITY_PASSWORD_FIELD) {
+                    continue;
+                }
                 if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
                     $action_tmp = null;
                     if ($parameter == "timeperiod_tp_id" || $parameter == "timeperiod_tp_id2") {
@@ -1412,6 +1425,16 @@ class CentreonHost extends CentreonObject
                         unset($tmpObj);
                     }
                     $value = CentreonUtils::convertLineBreak($value);
+                    if ($parameter === HOST_SNMP_COMMUNITY_FIELD) {
+                        //Skip export of SNMP Community if it's a vault path
+                        if(preg_match('/^secret::\d+::/', $value)) {
+                            continue;
+                        }
+                        //Check that the value exists to handle compatibility from previous version
+                        $value .= array_key_exists(self::HOST_SNMP_COMMUNITY_PASSWORD_FIELD, $element)
+                            ? $this->delim . $element[self::HOST_SNMP_COMMUNITY_PASSWORD_FIELD]
+                            : $this->delim . '0';
+                    }
                     echo $this->action . $this->delim
                         . "setparam" . $this->delim
                         . $element[$this->object->getUniqueLabelField()] . $this->delim
