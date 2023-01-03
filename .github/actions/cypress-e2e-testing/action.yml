@@ -65,3 +65,6 @@ runs:
       with:
         name: ${{ inputs.name }}-test-reports
         path: ${{ inputs.module }}/tests/e2e/cypress/results/reports/*.xml
+
+    - name: Delete all summary content
+      run: rm $GITHUB_STEP_SUMMARY
