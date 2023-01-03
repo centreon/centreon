@@ -768,7 +768,7 @@ class CentreonHost extends CentreonObject
                     break;
                 case 'snmp_community':
                     $params[1] = self::HOST_SNMP_COMMUNITY_FIELD;
-                    $params[3] === '1' ?: $params[3] = '0';
+                    $params[3] = $params[3] === '1' ? '1' : '0';
                     break;
                 default:
                     if (!preg_match("/^host_/", $params[1])) {

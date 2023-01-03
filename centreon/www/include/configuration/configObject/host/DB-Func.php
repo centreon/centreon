@@ -1627,7 +1627,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
             );
 
             if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                // If no more fields are password types, we delete the host from the vault has it will not be read.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
@@ -1799,7 +1799,7 @@ function updateHost_MC($host_id = null)
             );
 
             if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                // If no more fields are password types, we delete the host from the vault has it will not be read.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
@@ -3065,7 +3065,7 @@ function writeSecretsInVault(
 function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
 {
     $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-        . "/hosts/" . $hostId;
+        . "/centreon/hosts/" . $hostId;
 
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
