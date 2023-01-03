@@ -6,7 +6,7 @@ import { Filter } from '../Filter/models';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
 import { SortOrder } from '../models';
 
-interface EndpointParams {
+export interface EndpointParams {
   hostCategories?: Array<string>;
   hostGroups?: Array<string>;
   hostSeverities?: Array<string>;

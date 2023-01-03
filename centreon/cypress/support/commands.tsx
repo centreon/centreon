@@ -43,7 +43,7 @@ export interface InterceptAPIRequestProps {
   alias: string;
   method: Method;
   path: string;
-  response: object | Array<object>;
+  response?: object | Array<object>;
   statusCode?: number;
 }
 
