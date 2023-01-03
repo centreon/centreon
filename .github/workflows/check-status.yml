@@ -49,7 +49,7 @@ jobs:
               fi
 
               if [ $ITERATIONS -lt 60 ]; then
-                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/30)"
+                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/60)"
                   sleep 60s
               fi
 
