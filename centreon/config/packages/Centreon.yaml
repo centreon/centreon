@@ -34,6 +34,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
