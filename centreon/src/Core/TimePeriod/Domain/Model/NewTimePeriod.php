@@ -68,7 +68,7 @@ class NewTimePeriod
     /**
      * @param NewExtraTimePeriod $exception
      */
-    public function addException(NewExtraTimePeriod $exception): void
+    public function addExtraTimePeriod(NewExtraTimePeriod $exception): void
     {
         $this->extraTimePeriods[] = $exception;
     }
@@ -147,7 +147,7 @@ class NewTimePeriod
     {
         $this->extraTimePeriods = [];
         foreach ($extraTimePeriods as $exception) {
-            $this->addException($exception);
+            $this->addExtraTimePeriod($exception);
         }
     }
 
