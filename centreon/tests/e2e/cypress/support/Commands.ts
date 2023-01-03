@@ -183,10 +183,6 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('getRefreshDataOnIframe', () => {
-  return cy.wait(['@getTimeZone', '@getTimeZone']);
-});
-
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -214,7 +210,6 @@ declare global {
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
-      getRefreshDataOnIframe: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
