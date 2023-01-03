@@ -244,7 +244,7 @@ jobs:
       frontend-unit-test,
       frontend-component-test
     ]
-    if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
