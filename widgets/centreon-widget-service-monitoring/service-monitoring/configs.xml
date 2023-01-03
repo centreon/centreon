@@ -71,7 +71,7 @@
       <option value="last_state_change" label="Duration"/>
       <option value="last_hard_state_change" label="Hard State Duration"/>
     </preference>
-    <preference label="Order By status (second sort)" name="order_by2" defaultValue="" type="sort">
+    <preference label="Order By status (second sort)&lt;br/&gt; &lt;span style=&quot;color:red&quot;&gt;(Be aware this might have impact on performances)&lt;/span&gt;" name="order_by2" defaultValue="" type="sort">
       <option value="h_state" label="Host Status"/>
       <option value="s_state" label="Service Status"/>
     </preference>
