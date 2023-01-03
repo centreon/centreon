@@ -28,6 +28,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Template
 {
+    public const MIN_ALIAS_LENGTH = TimePeriod::MIN_ALIAS_LENGTH,
+                 MAX_ALIAS_LENGTH = TimePeriod::MAX_ALIAS_LENGTH;
+
     /**
      * @param int $id
      * @param string $alias
@@ -38,7 +41,16 @@ class Template
     {
         Assertion::min($id, 1, 'Template::id');
         $this->alias = trim($alias);
-        Assertion::notEmpty($this->alias, 'Template::alias');
+        Assertion::minLength(
+            $this->alias,
+            self::MIN_ALIAS_LENGTH,
+            'Template::alias'
+        );
+        Assertion::maxLength(
+            $this->alias,
+            self::MAX_ALIAS_LENGTH,
+            'Template::alias'
+        );
     }
 
     /**

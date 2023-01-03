@@ -25,7 +25,7 @@ namespace Tests\Core\TimePeriod\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Model\ {
-    Day, NewExtraTimePeriod, NewTimePeriod, Template, TimeRange
+    Day, NewExtraTimePeriod, NewTimePeriod, TimeRange
 };
 
 it(
@@ -35,7 +35,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewTimePeriod::MIN_NAME_LENGTH,
         'NewTimePeriod::alias'
     )->getMessage()
 );
@@ -47,7 +50,26 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewTimePeriod::MIN_NAME_LENGTH,
+        'NewTimePeriod::alias'
+    )->getMessage()
+);
+
+$badAlias = str_repeat('_', NewTimePeriod::MAX_ALIAS_LENGTH + 1);
+it(
+    'should throw an exception if alias is too long',
+    function () use ($badAlias): void {
+        new NewTimePeriod('fake_name', $badAlias);
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::maxLength(
+        $badAlias,
+        mb_strlen($badAlias),
+        NewTimePeriod::MAX_ALIAS_LENGTH,
         'NewTimePeriod::alias'
     )->getMessage()
 );
@@ -59,7 +81,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewTimePeriod::MIN_NAME_LENGTH,
         'NewTimePeriod::name'
     )->getMessage()
 );
@@ -71,7 +96,26 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewTimePeriod::MIN_NAME_LENGTH,
+        'NewTimePeriod::name'
+    )->getMessage()
+);
+
+$badName = str_repeat('_', NewTimePeriod::MAX_NAME_LENGTH + 1);
+it(
+    'should throw an exception if name is too long',
+    function () use ($badName): void {
+        new NewTimePeriod($badName, 'fake_alias');
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::maxLength(
+        $badName,
+        mb_strlen($badName),
+        NewTimePeriod::MAX_NAME_LENGTH,
         'NewTimePeriod::name'
     )->getMessage()
 );
@@ -81,7 +125,7 @@ it(
     function (): void {
         $tp = new NewTimePeriod('fake_name', 'fake_alias');
         $tp->setExtraTimePeriods([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -93,7 +137,7 @@ it(
     function (): void {
         $tp = new NewTimePeriod('fake_name', 'fake_alias');
         $tp->setTemplates([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -105,7 +149,7 @@ it(
     function (): void {
         $tp = new NewTimePeriod('fake_name', 'fake_alias');
         $tp->setDays([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(

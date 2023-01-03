@@ -35,7 +35,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        TimePeriod::MIN_ALIAS_LENGTH,
         'TimePeriod::alias'
     )->getMessage()
 );
@@ -47,7 +50,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        TimePeriod::MIN_ALIAS_LENGTH,
         'TimePeriod::alias'
     )->getMessage()
 );
@@ -59,7 +65,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        TimePeriod::MIN_NAME_LENGTH,
         'TimePeriod::name'
     )->getMessage()
 );
@@ -98,7 +107,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        TimePeriod::MIN_NAME_LENGTH,
         'TimePeriod::name'
     )->getMessage()
 );

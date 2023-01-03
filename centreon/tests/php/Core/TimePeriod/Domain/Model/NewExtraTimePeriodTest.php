@@ -36,7 +36,26 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewExtraTimePeriod::MIN_DAY_RANGE_LENGTH,
+        'NewExtraTimePeriod::dayRange'
+    )->getMessage()
+);
+
+$badValue = str_repeat('_', NewExtraTimePeriod::MAX_DAY_RANGE_LENGTH + 1);
+it(
+    'should throw exception with too long day range',
+    function () use ($timeRange, $badValue): void {
+        new NewExtraTimePeriod($badValue, $timeRange);
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::maxLength(
+        $badValue,
+        mb_strlen($badValue),
+        NewExtraTimePeriod::MAX_DAY_RANGE_LENGTH,
         'NewExtraTimePeriod::dayRange'
     )->getMessage()
 );
@@ -48,7 +67,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewExtraTimePeriod::MIN_DAY_RANGE_LENGTH,
         'NewExtraTimePeriod::dayRange'
     )->getMessage()
 );

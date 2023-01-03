@@ -28,8 +28,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class TimePeriod
 {
-    public const MAX_ALIAS_LENGTH = 200;
-    public const MAX_NAME_LENGTH = 200;
+    public const MIN_ALIAS_LENGTH = 1,
+                 MAX_ALIAS_LENGTH = 200,
+                 MIN_NAME_LENGTH = 1,
+                 MAX_NAME_LENGTH = 200;
 
     private string $name;
 
@@ -84,7 +86,7 @@ class TimePeriod
     public function setAlias(string $alias): void
     {
         $alias = trim($alias);
-        Assertion::notEmpty($alias, 'TimePeriod::alias');
+        Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, 'TimePeriod::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'TimePeriod::alias');
         $this->alias = $alias;
     }
@@ -105,7 +107,7 @@ class TimePeriod
     public function setName(string $name): void
     {
         $name = trim($name);
-        Assertion::notEmpty($name, 'TimePeriod::name');
+        Assertion::minLength($name, self::MIN_NAME_LENGTH, 'TimePeriod::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'TimePeriod::name');
         $this->name = $name;
     }

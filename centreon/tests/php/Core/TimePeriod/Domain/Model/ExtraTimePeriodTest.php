@@ -25,6 +25,7 @@ namespace Tests\Core\TimePeriod\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
+use Core\TimePeriod\Domain\Model\NewExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
 $timeRange = new TimeRange('00:01-02:00');
@@ -44,6 +45,22 @@ it(
     )->getMessage()
 );
 
+$badValue = str_repeat('_', NewExtraTimePeriod::MAX_DAY_RANGE_LENGTH + 1);
+it(
+    'should throw exception with too long day range',
+    function () use ($timeRange, $badValue): void {
+        new ExtraTimePeriod(1, $badValue, $timeRange);
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::maxLength(
+        $badValue,
+        mb_strlen($badValue),
+        NewExtraTimePeriod::MAX_DAY_RANGE_LENGTH,
+        'ExtraTimePeriod::dayRange'
+    )->getMessage()
+);
+
 $dayRange = '     ';
 it(
     'should throw exception if day range consists only of space',
@@ -52,7 +69,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        NewExtraTimePeriod::MIN_DAY_RANGE_LENGTH,
         'ExtraTimePeriod::dayRange'
     )->getMessage()
 );

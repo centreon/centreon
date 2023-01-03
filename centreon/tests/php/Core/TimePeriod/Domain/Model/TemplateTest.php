@@ -35,7 +35,26 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        Template::MIN_ALIAS_LENGTH,
+        'Template::alias'
+    )->getMessage()
+);
+
+$badAlias = str_repeat('_', Template::MAX_ALIAS_LENGTH + 1);
+it(
+    'should throw an exception if alias is too long',
+    function () use ($badAlias): void {
+        new Template(1, $badAlias);
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::maxLength(
+        $badAlias,
+        mb_strlen($badAlias),
+        Template::MAX_ALIAS_LENGTH,
         'Template::alias'
     )->getMessage()
 );
@@ -48,7 +67,10 @@ it(
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::notEmpty(
+    AssertionException::minLength(
+        '',
+        0,
+        Template::MIN_ALIAS_LENGTH,
         'Template::alias'
     )->getMessage()
 );

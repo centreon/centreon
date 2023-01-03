@@ -27,6 +27,11 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewTimePeriod
 {
+    public const MIN_NAME_LENGTH = 1,
+                 MAX_NAME_LENGTH = 200,
+                 MIN_ALIAS_LENGTH = 1,
+                 MAX_ALIAS_LENGTH = 200;
+
     private string $name;
 
     private string $alias;
@@ -51,11 +56,11 @@ class NewTimePeriod
         string $alias,
     ) {
         $name = trim($name);
-        Assertion::notEmpty($name, 'NewTimePeriod::name');
-        Assertion::maxLength($name, 200, 'NewTimePeriod::name');
+        Assertion::minLength($name, self::MIN_NAME_LENGTH, 'NewTimePeriod::name');
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'NewTimePeriod::name');
         $alias = trim($alias);
-        Assertion::notEmpty($alias, 'NewTimePeriod::alias');
-        Assertion::maxLength($alias, 200, 'NewTimePeriod::alias');
+        Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, 'NewTimePeriod::alias');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'NewTimePeriod::alias');
         $this->name = $name;
         $this->alias = $alias;
     }
