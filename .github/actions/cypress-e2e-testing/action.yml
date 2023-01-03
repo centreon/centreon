@@ -54,9 +54,10 @@ runs:
         name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
 
-    - run: |
-      mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
-    
+    - name: Rename cypress report
+      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
+      bash: bash
+
     - name: Upload e2e tests Results
       if: always()
       uses: actions/upload-artifact@v3
