@@ -38,7 +38,7 @@ jobs:
               fi
 
               if [ $(echo $CHECK_SUITES | grep -o -i 'failure' | wc -l) -gt 0 ]; then
-                  echo "some jobs are failed"
+                  echo "some jobs have failed"
                   exit 1
               fi
 
