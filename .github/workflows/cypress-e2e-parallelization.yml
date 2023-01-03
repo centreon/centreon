@@ -75,7 +75,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-reports
+          name: cypress-e2e-test-reports
           path: centreon/tests/e2e/cypress/results/reports/*.xml
 
       - name: Delete all summary content
