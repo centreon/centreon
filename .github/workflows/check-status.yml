@@ -44,7 +44,7 @@ jobs:
 
               # only remaining pending job should be check-status itself
               if [ $(echo $CHECK_SUITES | grep -o -i 'pending' | wc -l) -eq 1 ]; then
-                  echo "all jobs are passed"
+                  echo "all jobs have passed"
                   exit 0
               fi
 
