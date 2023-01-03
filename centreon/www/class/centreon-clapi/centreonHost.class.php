@@ -1427,7 +1427,7 @@ class CentreonHost extends CentreonObject
                     $value = CentreonUtils::convertLineBreak($value);
                     if ($parameter === self::HOST_SNMP_COMMUNITY_FIELD) {
                         //Skip export of SNMP Community if it's a vault path
-                        if(preg_match('/^secret::\d+::/', $value)) {
+                        if (preg_match('/^secret::\d+::/', $value)) {
                             continue;
                         }
                         //Check that the value exists to handle compatibility from previous version
