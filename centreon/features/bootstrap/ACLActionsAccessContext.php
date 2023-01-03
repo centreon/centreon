@@ -450,9 +450,6 @@ class ACLActionsAccessContext extends CentreonContext
         $this->currentPage = new ContactConfigurationPage($this);
         $this->currentPage->setProperties($this->nonAdminUser);
         $this->currentPage->save();
-        $this->currentPage = new ContactGroupsConfigurationPage($this);
-        $this->currentPage->setProperties($this->adminContactGroup);
-        $this->currentPage->save();
         $this->currentPage = new ACLGroupConfigurationPage($this);
         $this->currentPage->setProperties($this->nonAdminAclGroup);
         $this->currentPage->save();
@@ -465,6 +462,9 @@ class ACLActionsAccessContext extends CentreonContext
     {
         $this->currentPage = new ContactConfigurationPage($this);
         $this->currentPage->setProperties($this->adminUser);
+        $this->currentPage->save();
+        $this->currentPage = new ContactGroupsConfigurationPage($this);
+        $this->currentPage->setProperties($this->adminContactGroup);
         $this->currentPage->save();
         $this->currentPage = new ACLGroupConfigurationPage($this);
         $this->currentPage->setProperties($this->adminAclGroup);
