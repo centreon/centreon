@@ -71,6 +71,13 @@ jobs:
           module: centreon
           feature_file_path: ${{matrix.feature}}
 
+      - name: Upload e2e tests Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: centreon/tests/e2e/cypress/results/reports/*.xml
+
       - name: Delete all summary content
         run: rm $GITHUB_STEP_SUMMARY
         shell: bash
