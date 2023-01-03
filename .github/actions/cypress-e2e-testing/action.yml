@@ -68,3 +68,4 @@ runs:
 
     - name: Delete all summary content
       run: rm $GITHUB_STEP_SUMMARY
+      shell: bash
