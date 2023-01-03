@@ -58,5 +58,11 @@ runs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ inputs.name }}-test-reports
+        name: ${{ steps.formatFeatureFilePath.outputs.value }}-test-reports
         path: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml
+
+    - name: Download Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ steps.formatFeatureFilePath.outputs.value }}-test-reports
+        path: ${{ inputs.name }}-xunit-reports
