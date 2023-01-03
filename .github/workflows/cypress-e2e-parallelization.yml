@@ -36,13 +36,13 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    name: ${{ matrix.feature }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
+    name: ${{ matrix.feature }}
 
     steps:
       - name: Checkout sources
@@ -71,6 +71,10 @@ jobs:
           module: centreon
           feature_file_path: ${{matrix.feature}}
 
+      - name: Delete all summary content
+        run: rm $GITHUB_STEP_SUMMARY
+        shell: bash
+
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
     if: always()
@@ -87,6 +91,6 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          check_name: cypress-e2e-test-reports
+          check_name: cypress-e2e-tests-report
           comment_mode: failures
           junit_files: cypress-e2e-xunit-reports/**/*.xml
