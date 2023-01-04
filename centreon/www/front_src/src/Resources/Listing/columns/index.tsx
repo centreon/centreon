@@ -194,6 +194,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     ) as (row) => string,
     id: 'information',
     label: t(labelInformation),
+    rowMemoProps: ['information'],
     sortable: false,
     type: ColumnType.string,
     width: 'minmax(100px, 1fr)'
