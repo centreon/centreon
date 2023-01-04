@@ -31,20 +31,20 @@ beforeEach(() => {
 
 Given('an administrator is logged on the platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@getNavigationList')
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
-    .get('div[role="tablist"] button:nth-child(2)')
-    .click();
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
 });
 
 When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
-    cy.wait('@getOIDCResponse');
+    cy.wait('@getNavigationList')
+      .navigateTo({
+        page: 'Authentication',
+        rootItemNumber: 4
+      })
+      .get('div[role="tablist"] button:nth-child(2)')
+      .click()
+      .wait('@getOIDCResponse');
     cy.getByLabel({ label: 'Identity provider' }).click();
     configureOpenIDConnect();
   }
@@ -61,10 +61,11 @@ Then('the configuration is saved and secrets are not visible', () => {
 });
 
 When('the administrator configures the authentication mode', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.wait('@getNavigationList')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 });
