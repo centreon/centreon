@@ -8,6 +8,7 @@
     "cypress:run:develop": "pnpm start:docker && cypress run --config-file cypress.dev.config.ts --browser=chrome --e2e && pnpm kill:docker",
     "cypress:open": "cypress open --config-file cypress.dev.config.ts --browser=chrome",
     "cypress:run": "cypress run --config-file cypress.dev.config.ts --browser=chrome",
+    "cypress:ci:remove-summary": "rm $GITHUB_STEP_SUMMARY",
     "cypress:run:develop:debug": "pnpm start:docker && DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && pnpm kill:docker",
     "cypress:open:dev": "pnpm start:docker && cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e && pnpm kill:docker",
     "eslint": "eslint ./cypress",
