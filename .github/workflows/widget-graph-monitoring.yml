@@ -43,6 +43,8 @@ jobs:
     with:
       widget_name: graph-monitoring
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       artifactory_username: ${{ secrets.REPOS_USERNAME }}
