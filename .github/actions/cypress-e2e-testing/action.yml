@@ -48,8 +48,8 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         command: |
-        rm $GITHUB_STEP_SUMMARY
-        pnpm cypress run --spec "cypress/e2e/**/${{ inputs.feature_file_path }}" --config-file cypress.config.ts --browser=chrome
+          rm $GITHUB_STEP_SUMMARY
+          pnpm cypress run --spec cypress/e2e/**/${{ inputs.feature_file_path }} --config-file cypress.config.ts --browser=chrome
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
