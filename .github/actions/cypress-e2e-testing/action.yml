@@ -36,22 +36,6 @@ runs:
           find: '/'
           replace: '-'
 
-    - name: Delete all summary content
-      run: rm $GITHUB_STEP_SUMMARY
-      shell: bash
-
-    - name: Echo summary content
-      run: echo "$GITHUB_STEP_SUMMARY"
-      shell: bash
-
-    - name: Remove summary content
-      run: echo "" > $GITHUB_STEP_SUMMARY
-      shell: bash
-
-    - name: Echo summary content
-      run: echo "$GITHUB_STEP_SUMMARY"
-      shell: bash
-
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
@@ -64,22 +48,6 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         quiet: true
-
-    - name: Delete all summary content
-      run: rm $GITHUB_STEP_SUMMARY
-      shell: bash
-
-    - name: Echo summary content
-      run: echo "$GITHUB_STEP_SUMMARY"
-      shell: bash
-
-    - name: Remove summary content
-      run: echo "" > $GITHUB_STEP_SUMMARY
-      shell: bash
-
-    - name: Echo summary content
-      run: echo "$GITHUB_STEP_SUMMARY"
-      shell: bash
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
