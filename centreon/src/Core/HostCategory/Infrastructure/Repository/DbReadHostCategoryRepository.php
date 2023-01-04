@@ -230,7 +230,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $this->info('Check existance of host category with id #' . $hostCategoryId);
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
@@ -257,12 +257,12 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $concat = new SqlConcatenator();
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id
+            'SELECT 1
             FROM `:db`.hostcategories hc
             INNER JOIN `:db`.acl_resources_hc_relations arhr
                 ON hc.hc_id = arhr.hc_id
