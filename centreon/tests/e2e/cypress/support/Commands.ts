@@ -155,12 +155,10 @@ Cypress.Commands.add(
         .contains(subMenu)
         .trigger('mouseover');
       cy.contains(page).click();
-      cy.wait('@getNavigationList');
 
       return;
     }
     cy.hoverRootMenuItem(rootItemNumber).contains(page).click();
-    cy.wait('@getNavigationList');
   }
 );
 
