@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable react/jsx-no-constructed-context-values */
 import { useAtomValue } from 'jotai';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import * as Ramda from 'ramda';
@@ -37,7 +35,7 @@ import useFilter from './useFilter';
 
 import Filter from '.';
 
-const fakeData = {
+const emptyListData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
   result: []
 };
@@ -93,7 +91,7 @@ const filterParams: Array<FilterParameter> = [
   ]
 ];
 
-const customFilter = [
+const customFilters = [
   [
     labelAll,
     {
@@ -146,7 +144,7 @@ describe('Filter', () => {
       alias: 'filterRequest',
       method: Method.GET,
       path: '**/events-view*',
-      response: fakeData
+      response: emptyListData
     });
 
     const DefaultEndpoint = getListingEndpoint({});
@@ -155,14 +153,29 @@ describe('Filter', () => {
       alias: `defaultRequest`,
       method: Method.GET,
       path: Ramda.replace('./api/latest/monitoring', '**', DefaultEndpoint),
-      response: fakeData
+      response: emptyListData
     });
 
-    cy.mount({
-      Component: <FilterWithProvider />
+    const searchValue = 'foobar';
+
+    const endpointWithSearchValue = getListingEndpoint({
+      resourceTypes: [],
+      search: searchValue,
+      states: [],
+      statusTypes: [],
+      statuses: []
     });
 
-    cy.viewport(1200, 1000);
+    cy.interceptAPIRequest({
+      alias: `getListRequest`,
+      method: Method.GET,
+      path: Ramda.replace(
+        './api/latest/monitoring',
+        '**',
+        endpointWithSearchValue
+      ),
+      response: emptyListData
+    });
 
     searchableFields.forEach((searchableField) => {
       const search = 'foobar';
@@ -180,6 +193,12 @@ describe('Filter', () => {
         path: Ramda.replace('./api/latest/monitoring', '**', endpoint)
       });
     });
+
+    cy.mount({
+      Component: <FilterWithProvider />
+    });
+
+    cy.viewport(1200, 1000);
   });
 
   it('executes a listing request with "Unhandled problems" filter by default', () => {
@@ -191,6 +210,7 @@ describe('Filter', () => {
   searchableFields.forEach((searchableField) => {
     it(`executes a listing request with an "$and" search param containing ${searchableField} when ${searchableField} is typed in the search field`, () => {
       cy.waitForRequest('@filterRequest');
+
       const search = 'foobar';
       const fieldSearchValue = `${searchableField}:${search}`;
 
@@ -198,28 +218,16 @@ describe('Filter', () => {
       cy.findByPlaceholderText(labelSearch).type(fieldSearchValue);
       cy.findByLabelText(labelSearchOptions).click();
       cy.findByText(labelSearch).click();
+
       cy.waitForRequest(`@request/${searchableField}`);
 
       cy.matchImageSnapshot();
     });
   });
+
   it('executes a listing request with an "$or" search param containing all searchable fields when a string that does not correspond to any searchable field is typed in the search field', () => {
     const searchValue = 'foobar';
 
-    const endpoint = getListingEndpoint({
-      resourceTypes: [],
-      search: searchValue,
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
-
-    cy.interceptAPIRequest({
-      alias: `getListRequest`,
-      method: Method.GET,
-      path: Ramda.replace('./api/latest/monitoring', '**', endpoint),
-      response: fakeData
-    });
     const searchableFieldExpressions = searchableFields.map(
       (searchableField) => `{"${searchableField}":{"$rg":"${searchValue}"}}`
     );
@@ -233,6 +241,7 @@ describe('Filter', () => {
     cy.findByText(labelSearch).click();
 
     cy.waitForRequest('@getListRequest').then(({ request }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(
         Ramda.includes(
           `search={"$or":[${searchableFieldExpressions}]}`,
@@ -251,11 +260,11 @@ describe('Custom filter', () => {
       alias: 'filterRequest',
       method: Method.GET,
       path: '**/events-view*',
-      response: fakeData
+      response: emptyListData
     });
 
     cy.interceptAPIRequest({
-      alias: 'hostgroups',
+      alias: 'hostgroupsRequest',
       method: Method.GET,
       path: '**/hostgroups?*',
       response: {
@@ -265,7 +274,7 @@ describe('Custom filter', () => {
     });
 
     cy.interceptAPIRequest({
-      alias: 'dataToListingTable',
+      alias: 'serviceGroupsRequest',
       method: Method.GET,
       path: '**/servicegroups?*',
       response: {
@@ -299,7 +308,7 @@ describe('Custom filter', () => {
 
     cy.viewport(1200, 1000);
 
-    customFilter.forEach(([filterGroup, criterias]) => {
+    customFilters.forEach(([filterGroup, criterias]) => {
       const endpoint = getListingEndpoint(criterias as EndpointParams);
 
       cy.interceptAPIRequest({
@@ -309,7 +318,8 @@ describe('Custom filter', () => {
       });
     });
   });
-  customFilter.forEach(([filterGroup, criterias]) => {
+
+  customFilters.forEach(([filterGroup, criterias]) => {
     it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
@@ -321,7 +331,7 @@ describe('Custom filter', () => {
     });
   });
 
-  filterParams.forEach(([criteriaName, optionToSelect, _]) => {
+  filterParams.forEach(([criteriaName, optionToSelect]) => {
     it(`executes a listing request with current search and selected ${criteriaName} criteria when it's changed`, () => {
       const searchValue = 'foobar';
 
