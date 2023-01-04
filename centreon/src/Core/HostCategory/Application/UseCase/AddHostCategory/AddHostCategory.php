@@ -1,7 +1,7 @@
 <?php
 
 /*
-* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
+namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -33,11 +34,11 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\NewHostCategory;
+use Core\HostCategory\Infrastructure\API\AddHostCategory\AddHostCategoryPresenter;
 
-final class CreateHostCategory
+final class AddHostCategory
 {
     use LoggerTrait;
 
@@ -48,7 +49,11 @@ final class CreateHostCategory
     ) {
     }
 
-    public function __invoke(CreateHostCategoryRequest $request, PresenterInterface $presenter): void
+    /**
+     * @param AddHostCategoryRequest $request
+     * @param AddHostCategoryPresenter $presenter
+     */
+    public function __invoke(AddHostCategoryRequest $request, PresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
@@ -56,7 +61,7 @@ final class CreateHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::createNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostCategoryException::addNotAllowed()->getMessage())
                 );
             } elseif ($this->readHostCategoryRepository->existsByName(trim($request->name))) {
                 $this->error('Host category name already exists', [
@@ -73,13 +78,12 @@ final class CreateHostCategory
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
 
                 $presenter->present(
-                    // new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
-                    $this->createResponse($hostCategory ?? null)
+                    new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
                 );
             }
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostCategoryException::createHostCategory($ex)->getMessage())
+                new ErrorResponse(HostCategoryException::addHostCategory($ex)->getMessage())
             );
             $this->error($ex->getMessage());
         }
@@ -87,20 +91,19 @@ final class CreateHostCategory
 
     /**
      * @param HostCategory|null $hostCategory
-     * @return CreateHostCategoryResponse
+     * @return AddHostCategoryResponse
      */
-    private function createResponse(?HostCategory $hostCategory): CreateHostCategoryResponse
+    private function createResponse(?HostCategory $hostCategory): AddHostCategoryResponse
     {
-        $response = new CreateHostCategoryResponse();
+        $response = new AddHostCategoryResponse();
         if ($hostCategory !== null) {
-            $response->hostCategory = [
-                'id' => $hostCategory->getId(),
-                'name' => $hostCategory->getName(),
-                'alias' => $hostCategory->getAlias(),
-                'is_activated' => $hostCategory->isActivated(),
-                'comment' => $hostCategory->getComment(),
-            ];
+            $response->id = $hostCategory->getId();
+            $response->name = $hostCategory->getName();
+            $response->alias = $hostCategory->getAlias();
+            $response->isActivated = $hostCategory->isActivated();
+            $response->comment = $hostCategory->getComment();
         }
+
         return $response;
     }
 }

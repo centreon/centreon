@@ -275,7 +275,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $this->info('Check existance of host category with name ' . $hostCategoryName);
 
         $request = $this->translateDbName(
-            'SELECT hc.hc_id FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryName', $hostCategoryName, \PDO::PARAM_STR);
@@ -302,6 +302,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
         if ($result === false) {
+
             return null;
         }
 

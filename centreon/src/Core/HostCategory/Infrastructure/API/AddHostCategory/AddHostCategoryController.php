@@ -1,7 +1,7 @@
 <?php
 
 /*
-* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,25 +21,32 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\API\CreateHostCategory;
+namespace Core\HostCategory\Infrastructure\API\AddHostCategory;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategory;
-use Core\HostCategory\Application\UseCase\CreateHostCategory\CreateHostCategoryRequest;
-use Core\HostCategory\Infrastructure\API\CreateHostCategory\CreateHostCategoryPresenter;
+use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategory;
+use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategoryRequest;
+use Core\HostCategory\Infrastructure\API\AddHostCategory\AddHostCategoryPresenter;
 use Symfony\Component\HttpFoundation\Request;
 
-final class CreateHostCategoryController extends AbstractController
+final class AddHostCategoryController extends AbstractController
 {
+    /**
+     * @param Request $request
+     * @param AddHostCategory $useCase
+     * @param AddHostCategoryPresenter $presenter
+     *
+     * @return object
+     */
     public function __invoke(
         Request $request,
-        CreateHostCategory $useCase,
-        CreateHostCategoryPresenter $presenter
+        AddHostCategory $useCase,
+        AddHostCategoryPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         /** @var array{name:string,alias:string,comments:string|null} $data */
-        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/CreateHostCategorySchema.json');
+        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostCategorySchema.json');
 
         $hostCategoryRequest = $this->createRequestDto($data);
 
@@ -50,11 +57,12 @@ final class CreateHostCategoryController extends AbstractController
 
     /**
      * @param array{name:string,alias:string,comments:string|null} $data
-     * @return CreateHostCategoryRequest
+     *
+     * @return AddHostCategoryRequest
      */
-    private function createRequestDto(array $data): CreateHostCategoryRequest
+    private function createRequestDto(array $data): AddHostCategoryRequest
     {
-        $hostCategoryRequest = new CreateHostCategoryRequest();
+        $hostCategoryRequest = new AddHostCategoryRequest();
         $hostCategoryRequest->name = $data['name'];
         $hostCategoryRequest->alias = $data['alias'];
         $hostCategoryRequest->comment = $data['comments'] ?? null;

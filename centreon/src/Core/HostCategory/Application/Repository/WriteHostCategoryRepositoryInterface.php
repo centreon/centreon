@@ -36,7 +36,7 @@ interface WriteHostCategoryRepositoryInterface
 
     /**
      * Add a host category
-     * Return the id of the host category
+     * Return the id of the host category.
      *
      * @param NewHostCategory $hostCategory
      * @return int

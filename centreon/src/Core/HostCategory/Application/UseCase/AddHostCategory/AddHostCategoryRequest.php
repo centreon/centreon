@@ -1,7 +1,7 @@
 <?php
 
 /*
-* Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
 *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
+namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 
-final class CreateHostCategoryRequest
+final class AddHostCategoryRequest
 {
-    public string $name;
+    public string $name = '';
 
-    public string $alias;
+    public string $alias = '';
 
-    public ?string $comment;
+    public ?string $comment = null;
 }

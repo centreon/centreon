@@ -1,7 +1,7 @@
 <?php
 
 /*
-* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,12 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\CreateHostCategory;
+namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 
-final class CreateHostCategoryResponse
+final class AddHostCategoryResponse
 {
-    /**
-     * @var array{id:int,name:string,alias:string,is_activated:bool,comment:string|null}>
-     */
-    public array $hostCategory;
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $alias = '';
+
+    public bool $isActivated = true;
+
+    public ?string $comment = null;
 }

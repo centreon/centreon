@@ -67,9 +67,9 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         $this->debug('Add host category', ['hostCategory' => $hostCategory]);
 
         $request = $this->translateDbName(
-            "INSERT INTO `:db`.hostcategories
+            'INSERT INTO `:db`.hostcategories
             (hc_name, hc_alias, hc_comment) VALUES
-            (:name, :alias, :comment)"
+            (:name, :alias, :comment)'
         );
         $statement = $this->db->prepare($request);
 
