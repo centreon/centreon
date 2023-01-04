@@ -62,6 +62,10 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
 
+      - name: Delete all summary content
+        run: rm $GITHUB_STEP_SUMMARY
+        shell: bash
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -77,10 +81,6 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-reports
           path: centreon/tests/e2e/cypress/results/reports/*.xml
-
-      - name: Delete all summary content
-        run: rm $GITHUB_STEP_SUMMARY
-        shell: bash
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
