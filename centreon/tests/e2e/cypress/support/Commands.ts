@@ -81,8 +81,8 @@ Cypress.Commands.add(
 
       return cy
         .get('.SnackbarContent-root > .MuiPaper-root')
-        .then(() => {
-          if (cy.get('.SnackbarContent-root > .MuiPaper-root').contains('Login succeeded')) {
+        .then(($snackbar) => {
+          if ($snackbar.text().includes('Login succeeded')) {
             cy.wait('@getNavigationList');
           }
         })
