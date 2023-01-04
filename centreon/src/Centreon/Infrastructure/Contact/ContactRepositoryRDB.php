@@ -55,14 +55,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
+            COALESCE(contact.default_page, template.default_page) as default_page
             FROM `:db`.contact
+            LEFT JOIN centreon.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
             WHERE contact.contact_id = :contact_id
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
@@ -87,15 +90,18 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
+            COALESCE(contact.default_page, template.default_page) as default_page
             FROM `:db`.contact
+            LEFT JOIN centreon.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
-            WHERE contact_alias = :username
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+            WHERE contact.contact_alias = :username
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
         $statement = $this->db->prepare($request);
@@ -118,15 +124,18 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
+            COALESCE(contact.default_page, template.default_page) as default_page
             FROM `:db`.contact
+            LEFT JOIN centreon.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
-            WHERE contact_email = :email
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+            WHERE contact.contact_email = :email
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
         $statement = $this->db->prepare($request);
@@ -148,14 +157,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
+            COALESCE(contact.default_page, template.default_page) as default_page
             FROM `:db`.contact
+            LEFT JOIN centreon.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
             INNER JOIN `:db`.session
               on session.user_id = contact.contact_id
             WHERE session.session_id = :session_id
@@ -182,14 +194,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $statement = $this->db->prepare(
             $this->translateDbName(
                 "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
+                COALESCE(contact.default_page, template.default_page) as default_page
                 FROM `:db`.contact
+                LEFT JOIN centreon.contact as template
+                    ON contact.contact_template_id = template.contact_id
                 LEFT JOIN `:db`.contact_password cp
                     ON cp.contact_id = contact.contact_id
                 LEFT JOIN `:db`.timezone tz
                     ON tz.timezone_id = contact.contact_location
                 LEFT JOIN `:db`.topology t
-                    ON t.topology_page = contact.default_page
+                    ON t.topology_page = COALESCE(contact.default_page, template.default_page)
                 INNER JOIN `:db`.security_authentication_tokens sat
                     ON sat.user_id = contact.contact_id
                 WHERE sat.token = :token
@@ -401,42 +416,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             );
             if (!empty($contact['topology_url_opt'])) {
                 $page->setUrlOptions($contact['topology_url_opt']);
-            }
-        } else {
-            if ($contact['contact_template_id'] !== null) {
-                $request = $this->translateDbName(
-                    "SELECT default_page FROM `:db`.contact WHERE contact_id = :contact_template_id"
-                );
-                $statement = $this->db->prepare($request);
-                $statement->bindValue(
-                    ':contact_template_id',
-                    $contact['contact_template_id'],
-                    \PDO::PARAM_INT
-                );
-                $statement->execute();
-                if ($statement->rowCount() > 0) {
-                    $contactTemplate = $statement->fetch(\PDO::FETCH_ASSOC);
-                    $request = $this->translateDbName(
-                        "SELECT topology.* FROM `:db`.topology WHERE topology_page = :topology_page"
-                    );
-                    $statement = $this->db->prepare($request);
-                    $statement->bindValue(
-                        ':topology_page',
-                        $contactTemplate["default_page"],
-                        \PDO::PARAM_INT
-                    );
-                    $statement->execute();
-                    $topology = $statement->fetch(\PDO::FETCH_ASSOC);
-                    $page = new Page(
-                        $topology['topology_id'],
-                        $topology['topology_url'],
-                        $contactTemplate['default_page'],
-                        (bool)$topology['is_react']
-                    );
-                    if (! empty($topology['topology_url_opt'])) {
-                        $page->setUrlOptions($data['topology_url_opt']);
-                    }
-                }
             }
         }
         $contact = (new Contact())
