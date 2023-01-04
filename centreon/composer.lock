@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "66ca8f5fd242eac75345239a4537e5ef",
+    "content-hash": "a462a0aee036805119b458c19f2f9315",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6657,16 +6657,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-monorepo-21.10",
+            "version": "21.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "bb700cf6f92a41d1272949b8d48a06521aee3248"
+                "reference": "eaf7f2bed1661c9ec795ef1a1ce9168b60265541"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/bb700cf6f92a41d1272949b8d48a06521aee3248",
-                "reference": "bb700cf6f92a41d1272949b8d48a06521aee3248",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/eaf7f2bed1661c9ec795ef1a1ce9168b60265541",
+                "reference": "eaf7f2bed1661c9ec795ef1a1ce9168b60265541",
                 "shasum": ""
             },
             "require": {
@@ -6711,9 +6711,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo-21.10"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/21.10.x"
             },
-            "time": "2022-11-17T13:43:48+00:00"
+            "time": "2023-01-04T14:10:09+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
