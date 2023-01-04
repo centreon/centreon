@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Application\Common\UseCase\{ErrorResponse, NoContentResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
@@ -46,7 +47,7 @@ it('should present an ErrorResponse when an exception is raised', function () {
         ->with($request->id)
         ->willThrowException(new \Exception());
 
-    $presenter = new UpdateTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase = new UpdateTimePeriod($this->readRepository, $this->writeRepository);
     $useCase($request, $presenter);
 
@@ -66,7 +67,7 @@ it('should present a NotFoundResponse when the time period to update is not foun
         ->with($request->id)
         ->willReturn(null);
 
-    $presenter = new UpdateTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase = new UpdateTimePeriod($this->readRepository, $this->writeRepository);
     $useCase($request, $presenter);
 
@@ -96,7 +97,7 @@ it('should present an ErrorResponse when the time period name already exists', f
         ->with($request->name, $request->id)
         ->willReturn(true);
 
-    $presenter = new UpdateTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase = new UpdateTimePeriod($this->readRepository, $this->writeRepository);
     $useCase($request, $presenter);
 
@@ -126,7 +127,7 @@ it('should present a NoContentResponse after update', function () {
         ->with($request->name, $request->id)
         ->willReturn(false);
 
-    $presenter = new UpdateTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase = new UpdateTimePeriod($this->readRepository, $this->writeRepository);
     $useCase($request, $presenter);
 

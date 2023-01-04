@@ -38,19 +38,12 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 {
     use LoggerTrait;
 
-    private SqlRequestParametersTranslator $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**
@@ -113,6 +106,9 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     {
         $this->info('Find time periods by request parameter');
         $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlRequestTranslator
+            ->getRequestParameters()
+            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlRequestTranslator->setConcordanceArray([
             'id' => 'tp_id',
             'name' => 'tp_name',

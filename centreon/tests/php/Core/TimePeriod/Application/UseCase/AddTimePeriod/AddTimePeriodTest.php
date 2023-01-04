@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
@@ -44,7 +45,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willThrowException(new \Exception());
 
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase(new AddTimePeriodRequest(), $presenter);
 
     expect($presenter->getResponseStatus())
@@ -64,7 +65,7 @@ it('should present an ErrorResponse when the name already exists', function () {
     $request = new AddTimePeriodRequest();
     $request->name = $nameToFind;
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($request, $presenter);
 
     expect($presenter->getResponseStatus())
@@ -96,7 +97,7 @@ it('should present an ErrorResponse when the new time period can not be found af
     $request->name = $nameToFind;
     $request->alias = 'fake_alias';
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new AddTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($request, $presenter);
 
     expect($presenter->getResponseStatus())

@@ -68,7 +68,7 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
                 $this->setResponseHeaders([
                     'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
                 ]);
-            } catch (\Exception $ex) {
+            } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [
                     'message' => $ex->getMessage(),
                     'trace' => $ex->getTraceAsString(),

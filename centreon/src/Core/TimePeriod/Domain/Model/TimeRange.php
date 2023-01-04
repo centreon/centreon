@@ -47,7 +47,7 @@ class TimeRange implements \Stringable
         if (! $this->isValidTimeRangeFormat($timeRange)) {
             throw TimeRangeException::badTimeRangeFormat($timeRange);
         }
-        if (! $this->areTimeRangesConsistent($timeRange)) {
+        if (! $this->areTimeRangesOrderedWithoutOverlap($timeRange)) {
             throw TimeRangeException::orderTimeIntervalsNotConsistent();
         }
         $this->timeRange = $timeRange;
@@ -86,7 +86,7 @@ class TimeRange implements \Stringable
      *
      * @return bool
      */
-    private function areTimeRangesConsistent(string $timeRanges): bool
+    private function areTimeRangesOrderedWithoutOverlap(string $timeRanges): bool
     {
         $previousEndTime = null;
         foreach (explode(',', $timeRanges) as $timeRange) {

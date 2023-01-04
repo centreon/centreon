@@ -27,12 +27,14 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Model\NewExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
-$timeRange = new TimeRange('00:01-02:00');
+beforeEach(function () {
+    $this->timeRange = new TimeRange('00:01-02:00');
+});
 
 it(
     'should throw exception with empty day range',
-    function () use ($timeRange): void {
-        new NewExtraTimePeriod('', $timeRange);
+    function (): void {
+        new NewExtraTimePeriod('', $this->timeRange);
     }
 )->throws(
     \InvalidArgumentException::class,
@@ -47,8 +49,8 @@ it(
 $badValue = str_repeat('_', NewExtraTimePeriod::MAX_DAY_RANGE_LENGTH + 1);
 it(
     'should throw exception with too long day range',
-    function () use ($timeRange, $badValue): void {
-        new NewExtraTimePeriod($badValue, $timeRange);
+    function () use ($badValue): void {
+        new NewExtraTimePeriod($badValue, $this->timeRange);
     }
 )->throws(
     \InvalidArgumentException::class,
@@ -62,8 +64,8 @@ it(
 
 it(
     'should throw exception if day range consists only of space',
-    function () use ($timeRange): void {
-        new NewExtraTimePeriod('   ', $timeRange);
+    function (): void {
+        new NewExtraTimePeriod('   ', $this->timeRange);
     }
 )->throws(
     \InvalidArgumentException::class,
@@ -77,9 +79,9 @@ it(
 
 it(
     'should apply trim on the day range value',
-    function () use ($timeRange): void {
+    function (): void {
         $dayRange = '00:00-01:00 ';
-        $extraTimePeriod = new NewExtraTimePeriod($dayRange, $timeRange);
+        $extraTimePeriod = new NewExtraTimePeriod($dayRange, $this->timeRange);
         expect(trim($dayRange))->toBe($extraTimePeriod->getDayRange());
     }
 );

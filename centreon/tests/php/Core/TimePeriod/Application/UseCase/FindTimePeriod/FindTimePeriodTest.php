@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
@@ -46,7 +47,7 @@ it('should present a ErrorResponse response when the exception is raised', funct
         ->willThrowException(new \Exception());
 
     $useCase = new FindTimePeriod($this->readRepository);
-    $presenter = new FindTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($timePeriodId, $presenter);
 
     expect($presenter->getResponseStatus())
@@ -64,7 +65,7 @@ it('should present an NotFoundResponse when the time period is not found', funct
         ->willReturn(null);
 
     $useCase = new FindTimePeriod($this->readRepository);
-    $presenter = new FindTimePeriodPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($timePeriodId, $presenter);
 
     expect($presenter->getResponseStatus())

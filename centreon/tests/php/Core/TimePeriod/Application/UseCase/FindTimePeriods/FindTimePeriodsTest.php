@@ -25,6 +25,7 @@ namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\Infrastructure\Common\Presenter\{JsonFormatter, PresenterFormatterInterface};
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -45,7 +46,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willThrowException(new \Exception());
 
     $useCase = new FindTimePeriods($this->repository, $this->requestParameter);
-    $presenter = new FindTimePeriodsPresenterStub(
+    $presenter = new DefaultPresenter(
         $this->createMock(JsonFormatter::class)
     );
     $useCase($presenter);

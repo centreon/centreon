@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\DeleteTimePeriod;
 
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Application\Common\UseCase\{ErrorResponse, NoContentResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
@@ -44,7 +45,7 @@ it('should present a NotFoundResponse error when the time period is not found', 
         ->willReturn(false);
 
     $useCase = new DeleteTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new DeleteTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($timePeriodId, $presenter);
 
     expect($presenter->getResponseStatus())
@@ -67,7 +68,7 @@ it('should present a ErrorResponse response when the exception is raised', funct
         ->willThrowException(new \Exception());
 
     $useCase = new DeleteTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new DeleteTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($timePeriodId, $presenter);
 
     expect($presenter->getResponseStatus())
@@ -85,7 +86,7 @@ it('should present a NoContentResponse response when the time period is deleted'
         ->willReturn(true);
 
     $useCase = new DeleteTimePeriod($this->readRepository, $this->writeRepository);
-    $presenter = new DeleteTimePeriodsPresenterStub($this->formatter);
+    $presenter = new DefaultPresenter($this->formatter);
     $useCase($timePeriodId, $presenter);
 
     expect($presenter->getResponseStatus())
