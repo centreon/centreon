@@ -53,6 +53,13 @@ runs:
         name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
 
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-screenshots-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/screenshots/
+
     - name: Publish tests report
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: ${{ always() }}

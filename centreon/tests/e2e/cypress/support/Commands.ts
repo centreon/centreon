@@ -65,11 +65,10 @@ Cypress.Commands.add(
           Cypress.Cookies.defaults({
             preserve: 'PHPSESSID'
           });
-          cy.wait('@getNavigationList');
         });
     }
 
-    return cy
+    cy
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
@@ -79,6 +78,8 @@ Cypress.Commands.add(
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
+
+    return cy.wait('@getNavigationList');
   }
 );
 
