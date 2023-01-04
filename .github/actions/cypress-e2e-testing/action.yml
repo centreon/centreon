@@ -43,6 +43,8 @@ runs:
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
+      env:
+        DEBUG: '@cypress/github-action'
 
     - name: Archive videos
       uses: actions/upload-artifact@v3

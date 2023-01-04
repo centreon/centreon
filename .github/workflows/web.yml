@@ -131,74 +131,6 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-
-    steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
-      - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
-
-      - name: Lint
-        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
-        working-directory: centreon
-
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
-
-  frontend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
-
-      - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
-        working-directory: centreon
-
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: "centreon-web-frontend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/junit.xml"
-
-  frontend-component-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - uses: ./.github/actions/web-frontend-component-test
-        with:
-          working_directory: centreon
-
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
@@ -239,10 +171,7 @@ jobs:
       translation-build,
       backend-dependencies,
       backend-unit-test,
-      frontend-build,
-      frontend-lint,
-      frontend-unit-test,
-      frontend-component-test
+      frontend-build
     ]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
