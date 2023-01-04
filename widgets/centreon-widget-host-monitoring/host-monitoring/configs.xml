@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This interactive host event console widget displays the hosts status and allows to act on them (acknowledge, add downtime, etc.). Multiple parameters allow to select which hosts to display (based on their name, hostgroup, status, etc.) or which columns (name, alias, IP address, status duration, output, etc.).</description>
-    <version>21.10.0</version>
+    <version>21.10.1</version>
     <keywords>centreon, widget, host, monitoring</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/host-monitoring/resources/centreon-logo.png</thumbnail>
