@@ -65,7 +65,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          name: cypress-e2e
+          name: ${{ inputs.name }}
           image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
@@ -75,7 +75,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: cypress-e2e-test-reports
+          name: ${{ inputs.name }}-test-reports
           path: centreon/tests/e2e/cypress/results/reports/*.xml
 
       - name: Delete all summary content
@@ -91,13 +91,13 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: cypress-e2e-test-reports
-          path: cypress-e2e-xunit-reports
+          name: ${{ inputs.name }}-test-reports
+          path: ${{ inputs.name }}-xunit-reports
 
       - name: Publish tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          check_name: cypress-e2e-tests-report
+          check_name: ${{ inputs.name }}-tests-report
           comment_mode: failures
-          junit_files: cypress-e2e-xunit-reports/**/*.xml
+          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
