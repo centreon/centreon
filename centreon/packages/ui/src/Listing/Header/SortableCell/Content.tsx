@@ -36,7 +36,6 @@ const useStyles = makeStyles<StylesProps>()(
     },
     content: {
       alignItems: 'center',
-      backgroundColor: theme.palette.background.listingHeader,
       borderRadius: isDragging && isInDragOverlay ? theme.spacing(0.5) : 0,
       color: theme.palette.common.white,
       display: 'flex',
@@ -47,6 +46,11 @@ const useStyles = makeStyles<StylesProps>()(
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
       outline: 'none'
+    },
+    simpleHeaderCellContent: {
+      alignItems: 'center',
+      display: 'inline-flex',
+      marginRight: theme.spacing(2)
     },
     tableCell: {
       backgroundColor: isInDragOverlay
@@ -153,10 +157,7 @@ const SortableHeaderCellContent = ({
             {headerContent}
           </TableSortLabel>
         ) : (
-          <>
-            {headerContent}
-            <DraggableIcon />
-          </>
+          <div className={classes.simpleHeaderCellContent}>{headerContent}</div>
         )}
       </div>
     </TableCell>
