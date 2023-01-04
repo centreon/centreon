@@ -438,7 +438,3 @@ services:
     Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface:
         class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
         public: true
-
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
-        public: true
