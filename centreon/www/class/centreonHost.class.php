@@ -872,7 +872,7 @@ class CentreonHost
                 $dbResult = $this->db->query("SELECT MAX(host_macro_id) FROM on_demand_macro_host");
                 $macro_id = $dbResult->fetch();
                 $this->formattedMacros[(int) $macro_id['MAX(host_macro_id)']] = [
-                    "macroName" => '_' . strtoupper($value),
+                    "macroName" => '_HOST' . strtoupper($value),
                     "macroValue" => $macrovalues[$key],
                     "macroPassword" => $macroPassword[$key] ?? '0',
                 ];
