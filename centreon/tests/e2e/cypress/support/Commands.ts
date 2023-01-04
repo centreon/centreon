@@ -79,7 +79,13 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy.wait('@getNavigationList');
+      return cy
+        .get('.SnackbarContent-root > .MuiPaper-root')
+        .then(() => {
+          if (cy.get('.SnackbarContent-root > .MuiPaper-root').contains('Login succeeded')) {
+            cy.wait('@getNavigationList');
+          }
+        })
   }
 );
 

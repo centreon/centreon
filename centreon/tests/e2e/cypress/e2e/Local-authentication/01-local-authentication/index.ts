@@ -27,10 +27,6 @@ beforeEach(() => {
     method: 'GET',
     url: 'centreon/api/latest/configuration/users?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D'
   }).as('getListContact');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('getLoginResponse');
   getUserContactId('user1')
     .as('user1Id')
     .then(() => {
@@ -446,20 +442,17 @@ Then('the user is locked after reaching the number of allowed attempts', () => {
     jsonName: 'user-non-admin-with-wrong-password',
     preserveToken: false
   })
-    .wait('@getLoginResponse')
     .reload();
 
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
     preserveToken: false
   })
-    .wait('@getLoginResponse')
     .reload()
     .loginByTypeOfUser({
       jsonName: 'user-non-admin-with-wrong-password',
       preserveToken: false
     })
-    .wait('@getLoginResponse')
     .get('.SnackbarContent-root > .MuiPaper-root')
     .contains('User is blocked');
 
