@@ -49,7 +49,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
             'DELETE hc FROM `:db`.hostcategories hc
             WHERE hc.hc_id = :hostCategoryId'
         );
-        $request .= " AND hc.level IS NULL ";
+        $request .= ' AND hc.level IS NULL ';
 
         $statement = $this->db->prepare($request);
 

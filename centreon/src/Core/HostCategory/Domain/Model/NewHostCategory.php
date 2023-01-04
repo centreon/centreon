@@ -32,6 +32,7 @@ class NewHostCategory
                 MAX_COMMENT_LENGTH = 65535;
 
     protected bool $isActivated = true;
+
     protected ?string $comment = null;
 
     /**

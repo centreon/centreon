@@ -43,6 +43,7 @@ class HostCategoryException extends \Exception
 
     /**
      * @param \Throwable $ex
+     *
      * @return self
      */
     public static function findHostCategories(\Throwable $ex): self
@@ -52,6 +53,7 @@ class HostCategoryException extends \Exception
 
     /**
      * @param \Throwable $ex
+     *
      * @return self
      */
     public static function deleteHostCategory(\Throwable $ex): self

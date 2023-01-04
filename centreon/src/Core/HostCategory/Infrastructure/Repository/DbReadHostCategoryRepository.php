@@ -113,6 +113,73 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $hostCategoryId): bool
+    {
+        $this->info('Check existance of host category with id #' . $hostCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool
+    {
+        $this->info(
+            'Check existance of host category by access groups',
+            ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('Access groups array empty');
+            return false;
+        }
+
+        $concat = new SqlConcatenator();
+
+        $accessGroupIds = array_map(
+            fn ($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $request = $this->translateDbName(
+            'SELECT 1
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      * @return HostCategory[]
@@ -217,73 +284,6 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
         $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function exists(int $hostCategoryId): bool
-    {
-        $this->info('Check existance of host category with id #' . $hostCategoryId);
-
-        $request = $this->translateDbName(
-            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool
-    {
-        $this->info(
-            'Check existance of host category by access groups',
-            ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
-        );
-
-        if (empty($accessGroups)) {
-            $this->debug('Access groups array empty');
-            return false;
-        }
-
-        $concat = new SqlConcatenator();
-
-        $accessGroupIds = array_map(
-            fn ($accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        $request = $this->translateDbName(
-            'SELECT 1
-            FROM `:db`.hostcategories hc
-            INNER JOIN `:db`.acl_resources_hc_relations arhr
-                ON hc.hc_id = arhr.hc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE hc.hc_id = :hostCategoryId'
-        );
-
-        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-
-        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
-        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
-            $statement->bindValue($param, $value, $type);
-        }
-        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
-
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

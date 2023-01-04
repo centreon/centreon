@@ -23,12 +23,10 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\Repository;
 
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-
 interface WriteHostCategoryRepositoryInterface
 {
     /**
-     * Delete host category by id
+     * Delete host category by id.
      *
      * @param int $hostCategoryId
      */

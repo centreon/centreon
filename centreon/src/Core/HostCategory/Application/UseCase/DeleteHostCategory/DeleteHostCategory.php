@@ -48,6 +48,10 @@ final class DeleteHostCategory
     ) {
     }
 
+    /**
+     * @param int $hostCategoryId
+     * @param PresenterInterface $presenter
+     */
     public function __invoke(int $hostCategoryId, PresenterInterface $presenter): void
     {
         try {
@@ -70,7 +74,7 @@ final class DeleteHostCategory
                 } else {
                     $this->error('Host category not found', [
                         'hostcategory_id' => $hostCategoryId,
-                        'accessgroups' => $accessGroups
+                        'accessgroups' => $accessGroups,
                     ]);
                     $presenter->setResponseStatus(new NotFoundResponse('Host category'));
                 }
