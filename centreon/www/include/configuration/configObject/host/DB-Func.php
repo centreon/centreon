@@ -1626,7 +1626,10 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                 $httpClient
             );
 
-            if (! empty($passwordTypeData)) {
+            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
+                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
+            } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
                 foreach($passwordTypeData as $keyName => $value) {
                     $hostSecrets[$keyName] = $value;
@@ -1635,15 +1638,12 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                     $vaultConfiguration,
                     $host_id,
                     $clientToken,
-                    $passwordTypeData,
+                    $hostSecrets,
                     $centreonLog,
                     $httpClient
                 );
+
                 updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
-            }
-            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
-                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             }
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1798,7 +1798,10 @@ function updateHost_MC($host_id = null)
                 $httpClient
             );
 
-            if (! empty($passwordTypeData)) {
+            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
+                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
+            } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
                 foreach($passwordTypeData as $keyName => $value) {
                     $hostSecrets[$keyName] = $value;
@@ -1807,15 +1810,12 @@ function updateHost_MC($host_id = null)
                     $vaultConfiguration,
                     $host_id,
                     $clientToken,
-                    $passwordTypeData,
+                    $hostSecrets,
                     $centreonLog,
                     $httpClient
                 );
+
                 updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
-            }
-            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
-                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             }
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -3036,7 +3036,7 @@ function writeSecretsInVault(
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getStorage()
-            . '/centreon/hosts/' . $hostId;
+            . '/monitoring/hosts/' . $hostId;
         $centreonLog->insertLog(5, "Writing Host Secrets at : " . $url);
         $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
     } catch(\Exception $ex) {
@@ -3065,7 +3065,7 @@ function writeSecretsInVault(
 function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
 {
     $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-        . "/hosts/" . $hostId;
+        . "/monitoring/hosts/" . $hostId;
 
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
@@ -3096,7 +3096,7 @@ function getHostSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $hostSecrets = [];
     try {
@@ -3134,7 +3134,7 @@ function deleteHostFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/centreon/hosts/' . $hostId;
+        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
     $centreonLog->insertLog(5, sprintf("Deleting Host: %d", $hostId));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
