@@ -62,18 +62,6 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
 
-      - name: Delete all summary content
-        run: rm $GITHUB_STEP_SUMMARY
-        shell: bash
-
-      - name: Echo summary content
-        run: echo "$GITHUB_STEP_SUMMARY"
-        shell: bash
-
-      - name: Remove summary content
-        run: echo "" > $GITHUB_STEP_SUMMARY
-        shell: bash
-
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -82,18 +70,6 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
-
-      - name: Delete all summary content
-        run: rm $GITHUB_STEP_SUMMARY
-        shell: bash
-
-      - name: Echo summary content
-        run: echo "$GITHUB_STEP_SUMMARY"
-        shell: bash
-
-      - name: Remove summary content
-        run: echo "" > $GITHUB_STEP_SUMMARY
-        shell: bash
 
       - name: Upload e2e tests Results
         if: always()
