@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>This graph widget displays the evolution of metrics over time. It is possible to select the time window.</description>
-        <version>22.04.0</version>
+        <version>22.04.1</version>
         <keywords>centreon, widget, rrd, monitoring</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/graph-monitoring/resources/centreon-logo.png</thumbnail>

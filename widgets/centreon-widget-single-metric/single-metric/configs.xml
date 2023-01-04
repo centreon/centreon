@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>This widget permits to display a perfdata value from any service and custom the tile.</description>
-  <version>22.04.0</version>
+  <version>22.04.1</version>
   <keywords>centreon, widget, service, perfdata</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/single-metric/resources/logo1.png</thumbnail>
