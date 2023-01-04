@@ -11,11 +11,9 @@ import {
   Theme
 } from '@mui/material';
 
-import useStyleTable from '../useStyleTable';
-
 import { Props as DataCellProps } from './DataCell';
 
-interface GetBackgroundColorProps extends Props {
+interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
 }
 
@@ -45,10 +43,20 @@ const getBackgroundColor = ({
   return 'unset';
 };
 
-const useStyles = makeStyles<Props>()(
+interface StylesProps extends Props {
+  isRowHighlighted?: boolean;
+}
+
+const useStyles = makeStyles<StylesProps>()(
   (
     theme,
-    { isRowHovered, row, rowColorConditions, disableRowCondition, color }
+    {
+      isRowHovered,
+      row,
+      rowColorConditions,
+      disableRowCondition,
+      isRowHighlighted
+    }
   ) => ({
     root: {
       alignItems: 'center',
@@ -61,14 +69,15 @@ const useStyles = makeStyles<Props>()(
       }),
       borderBottom: `1px solid ${theme.palette.divider}`,
       display: 'flex',
-      'div:nth-child(n)': {
+      'div:nth-of-type(n)': {
         alignItems: 'center',
         display: 'flex'
       },
       height: '100%',
       overflow: 'hidden',
-      p: {
-        color
+      p: isRowHighlighted && {
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightBold
       },
       padding: 0,
       whiteSpace: 'nowrap'
@@ -81,15 +90,12 @@ interface Props
       DataCellProps,
       'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
     >,
-    TableCellProps {}
+    TableCellProps {
+  isRowHighlighted?: boolean;
+}
 
 const Cell = (props: Props): JSX.Element => {
-  const { row } = props;
-  const { colorBodyCell } = useStyleTable({
-    severityCode: row?.status?.severity_code
-  });
-
-  const { classes, cx } = useStyles({ ...props, color: colorBodyCell });
+  const { classes, cx } = useStyles(props);
 
   const { children } = props;
 

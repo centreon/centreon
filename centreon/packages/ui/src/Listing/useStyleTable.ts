@@ -1,26 +1,20 @@
 import { useEffect } from 'react';
 
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { equals, isNil } from 'ramda';
+import { isNil } from 'ramda';
 
-import {
-  userAtom,
-  ResourceStatusViewMode,
-  ThemeMode
-} from '@centreon/ui-context';
+import { ListingVariant } from '@centreon/ui-context';
 
 import { Column, TableStyleAtom as Style } from './models';
-import { tableStyleAtom, tableStyleDerivedAtom } from './TableAtom';
+import { tableStyleAtom, tableStyleDerivedAtom } from './tableAtoms';
 
 interface TableStyle {
   checkable?: boolean;
   currentVisibleColumns?: Array<Column>;
-  severityCode?: number;
-  viewMode?: ResourceStatusViewMode;
+  viewMode?: ListingVariant;
 }
 
 interface Table {
-  colorBodyCell: string;
   dataStyle: Style;
   getGridTemplateColumn: string;
 }
@@ -28,29 +22,11 @@ interface Table {
 const useStyleTable = ({
   checkable,
   currentVisibleColumns,
-  viewMode,
-  severityCode
+  viewMode
 }: TableStyle): Table => {
   const dataStyle = useAtomValue(tableStyleAtom);
-  const { themeMode } = useAtomValue(userAtom);
 
   const updateStyleTable = useUpdateAtom(tableStyleDerivedAtom);
-
-  const getBodyTextColor = ({ theme, severityCode: code }): string => {
-    if (equals(ThemeMode.dark, theme)) {
-      if (equals(code, 1)) {
-        return '#FFFFFF';
-      }
-
-      return '#B5B5B5';
-    }
-
-    if (equals(code, 1)) {
-      return '#000000';
-    }
-
-    return '#666666';
-  };
 
   const getGridTemplateColumn = (): string => {
     const checkbox = checkable ? '50px ' : '';
@@ -70,6 +46,7 @@ const useStyleTable = ({
 
     return `${checkbox}${columnTemplate}`;
   };
+
   useEffect(() => {
     if (viewMode) {
       updateStyleTable({ viewMode });
@@ -77,10 +54,6 @@ const useStyleTable = ({
   }, [viewMode]);
 
   return {
-    colorBodyCell: getBodyTextColor({
-      severityCode,
-      theme: themeMode
-    }),
     dataStyle,
     getGridTemplateColumn: getGridTemplateColumn()
   };

@@ -1,12 +1,17 @@
-import React from 'react';
+import { Dispatch, SetStateAction } from 'react';
+
+export enum ListingVariant {
+  compact = 'compact',
+  extended = 'extended'
+}
 
 export interface User {
-  ResourceStatusViewMode: ResourceStatusViewMode;
   alias: string;
   default_page?: string | null;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
+  resourceStatusViewMode: ListingVariant;
   themeMode?: ThemeMode;
   timezone: string;
   use_deprecated_pages: boolean;
@@ -17,14 +22,9 @@ export enum ThemeMode {
   light = 'light'
 }
 
-export enum ResourceStatusViewMode {
-  compact = 'compact',
-  extended = 'extended'
-}
-
 export interface CloudServices {
   areCloudServicesEnabled: boolean;
-  setAreCloudServicesEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setAreCloudServicesEnabled: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface Acknowledgement {

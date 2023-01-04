@@ -1,6 +1,6 @@
 import { KeyValuePair } from 'ramda';
 
-export enum ResourceStatusViewMode {
+export enum resourceStatusViewMode {
   compact = 'compact',
   extended = 'extended'
 }
@@ -15,7 +15,7 @@ export interface DefaultParameters {
   monitoring_default_downtime_fixed: boolean;
   monitoring_default_downtime_with_services: boolean;
   monitoring_default_refresh_interval: string;
-  resource_status_view_mode: ResourceStatusViewMode;
+  resource_status_view_mode: resourceStatusViewMode;
 }
 
 type Translation = KeyValuePair<string, string>;

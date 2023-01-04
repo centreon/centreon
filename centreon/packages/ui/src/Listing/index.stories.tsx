@@ -8,7 +8,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Button } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
-import { ResourceStatusViewMode } from '@centreon/ui-context/src';
+import { ListingVariant } from '@centreon/ui-context';
 
 import { ListingProps } from '..';
 
@@ -165,10 +165,10 @@ const Story = ({
 export const normal = (): JSX.Element => <Story />;
 
 export const WithViewModeExtended = (): JSX.Element => {
-  const [viewMode, setViewMode] = useState(ResourceStatusViewMode.extended);
-  const newViewMode = equals(viewMode, ResourceStatusViewMode.compact)
-    ? ResourceStatusViewMode.extended
-    : ResourceStatusViewMode.compact;
+  const [viewMode, setViewMode] = useState(ListingVariant.extended);
+  const newViewMode = equals(viewMode, ListingVariant.compact)
+    ? ListingVariant.extended
+    : ListingVariant.compact;
 
   return (
     <>

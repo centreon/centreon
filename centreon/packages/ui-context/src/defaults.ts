@@ -1,12 +1,12 @@
-import { User, ThemeMode, ResourceStatusViewMode } from './types';
+import { User, ThemeMode, ListingVariant } from './types';
 
 const defaultUser: User = {
-  ResourceStatusViewMode: ResourceStatusViewMode.compact,
   alias: '',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
+  resourceStatusViewMode: ListingVariant.compact,
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false

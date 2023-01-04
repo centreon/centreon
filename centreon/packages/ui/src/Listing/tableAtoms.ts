@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { equals } from 'ramda';
 
-import { ResourceStatusViewMode as ViewMode } from '@centreon/ui-context';
+import { ListingVariant } from '@centreon/ui-context';
 
 import { TableStyleAtom } from './models';
 
@@ -15,13 +15,17 @@ const extendedTableBody = {
   height: 38
 };
 
+const compactTableHeader = {
+  height: 30
+};
+
+const extendedTableHeader = {
+  height: 38
+};
+
 export const tableStyleAtom = atom<TableStyleAtom>({
   body: compactTableBody,
-  header: {
-    backgroundColor: '#666666',
-    color: 'white',
-    height: 38
-  },
+  header: compactTableHeader,
   statusColumnChip: {
     height: 20,
     width: 80
@@ -31,15 +35,11 @@ export const tableStyleAtom = atom<TableStyleAtom>({
 export const tableStyleDerivedAtom = atom(null, (get, set, { viewMode }) => {
   const tableStyle = get(tableStyleAtom);
 
-  if (equals(viewMode, ViewMode.extended)) {
-    set(tableStyleAtom, {
-      ...tableStyle,
-      body: { ...extendedTableBody }
-    });
-  } else {
-    set(tableStyleAtom, {
-      ...tableStyle,
-      body: { ...compactTableBody }
-    });
-  }
+  const isExtendedMode = equals(viewMode, ListingVariant.extended);
+
+  set(tableStyleAtom, {
+    ...tableStyle,
+    body: isExtendedMode ? extendedTableBody : compactTableBody,
+    header: isExtendedMode ? extendedTableHeader : compactTableHeader
+  });
 });

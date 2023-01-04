@@ -11,34 +11,34 @@ import {
 } from '@mui/material';
 
 import { Props as ListingProps } from '../..';
-import { Column, TableStyleAtom as TableStyle } from '../../models';
-import useStyleTable from '../../useStyleTable';
+import { Column } from '../../models';
 import HeaderLabel from '../Label';
 
-import DraggableIcon from './DraggableIconIcon';
+import DraggableIcon from './DraggableIcon';
 
-type StylesProps = Pick<Props, 'isDragging'> & {
-  headerStyle: TableStyle['header'];
-};
+type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, headerStyle }) => ({
+  (theme, { isDragging, isInDragOverlay }) => ({
     active: {
       '&.Mui-active': {
         '& .MuiTableSortLabel-icon': {
-          color: headerStyle.color
+          color: theme.palette.common.white
         },
-        color: headerStyle.color
+        color: theme.palette.common.white
       },
       '&:hover': {
         '& .MuiTableSortLabel-icon': {
           opacity: 1
         },
-        color: headerStyle.color
+        color: theme.palette.common.white
       }
     },
     content: {
       alignItems: 'center',
+      backgroundColor: theme.palette.background.listingHeader,
+      borderRadius: isDragging && isInDragOverlay ? theme.spacing(0.5) : 0,
+      color: theme.palette.common.white,
       display: 'flex',
       minHeight: theme.spacing(3)
     },
@@ -47,6 +47,13 @@ const useStyles = makeStyles<StylesProps>()(
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
       outline: 'none'
+    },
+    tableCell: {
+      backgroundColor: isInDragOverlay
+        ? 'transparent'
+        : theme.palette.background.listingHeader,
+      borderBottom: 'none',
+      padding: 0
     }
   })
 );
@@ -55,6 +62,7 @@ type Props = Pick<
   ListingProps<unknown>,
   'columnConfiguration' | 'sortField' | 'sortOrder' | 'onSort'
 > & {
+  areColumnsEditable: boolean;
   className: string;
   column: Column;
   isDragging?: boolean;
@@ -72,12 +80,13 @@ const SortableHeaderCellContent = ({
   isDragging,
   itemRef,
   style,
+  isInDragOverlay,
+  areColumnsEditable,
   ...props
 }: Props): JSX.Element => {
-  const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({
-    headerStyle: dataStyle.header,
-    isDragging
+    isDragging,
+    isInDragOverlay
   });
   const [cellHovered, setCellHovered] = React.useState(false);
 
@@ -115,13 +124,16 @@ const SortableHeaderCellContent = ({
 
   return (
     <TableCell
+      className={classes.tableCell}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
+      ref={itemRef}
+      style={style}
       onMouseOut={mouseOut}
       onMouseOver={mouseOver}
     >
-      <div className={classes.content} ref={itemRef} style={style}>
-        {!cellHovered && <DraggableIcon />}
-        {columnConfiguration?.sortable && cellHovered && (
+      <div className={classes.content}>
+        {(!cellHovered || !areColumnsEditable) && <DraggableIcon />}
+        {columnConfiguration?.sortable && areColumnsEditable && cellHovered && (
           <DraggableIcon
             visible
             {...props}

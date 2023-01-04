@@ -5,9 +5,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
 
-import { ResourceStatusViewMode as ViewMode } from '@centreon/ui-context';
+import { ListingVariant } from '@centreon/ui-context';
 
-import DraggableIcon from '../Header/SortableCell/DraggableIconIcon';
+import DraggableIcon from '../Header/SortableCell/DraggableIcon';
 import {
   Column,
   ColumnType,
@@ -23,11 +23,12 @@ import Cell from '.';
 interface Props {
   column: Column;
   disableRowCondition: (row) => boolean;
+  getHighlightRowCondition?: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
-  viewMode?: ViewMode;
+  viewMode?: ListingVariant;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -62,7 +63,8 @@ const DataCell = ({
   isRowHovered,
   rowColorConditions,
   disableRowCondition,
-  viewMode
+  viewMode,
+  getHighlightRowCondition
 }: Props): JSX.Element | null => {
   const { dataStyle } = useStyleTable({ viewMode });
   const { classes } = useStyles();
@@ -74,6 +76,8 @@ const DataCell = ({
     row,
     rowColorConditions
   };
+
+  const isRowHighlighted = getHighlightRowCondition?.(row);
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
@@ -95,7 +99,11 @@ const DataCell = ({
       );
 
       return (
-        <Cell style={{ gridColumn }} {...commonCellProps}>
+        <Cell
+          isRowHighlighted={isRowHighlighted}
+          style={{ gridColumn }}
+          {...commonCellProps}
+        >
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
@@ -120,6 +128,7 @@ const DataCell = ({
 
       return (
         <Cell
+          isRowHighlighted={isRowHighlighted}
           onClick={(e): void => {
             if (!clickable) {
               return;
@@ -182,6 +191,9 @@ const MemoizedDataCell = memo<Props>(
     const previousHiddenCondition = prevProps.column.getHiddenCondition?.(
       prevProps.isRowSelected
     );
+    const previousIsRowHighlighted = prevProps.getHighlightRowCondition?.(
+      prevProps.row
+    );
 
     const nextHasHoverableComponent = nextProps.column.hasHoverableComponent;
     const nextRenderComponentOnRowUpdate =
@@ -208,6 +220,9 @@ const MemoizedDataCell = memo<Props>(
     );
     const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
       condition(nextProps.row)
+    );
+    const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
+      nextProps.row
     );
 
     // Explicitely render the Component.
@@ -246,7 +261,8 @@ const MemoizedDataCell = memo<Props>(
       equals(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)
-      )
+      ) &&
+      equals(previousIsRowHighlighted, nextIsRowHighlighted)
     );
   }
 );

@@ -12,13 +12,8 @@ import { getVisibleColumns, Props as ListingProps } from '..';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
 import Checkbox from '../Checkbox';
-import {
-  Column,
-  TableStyleAtom as TableStyle,
-  PredefinedRowSelection
-} from '../models';
+import { Column, PredefinedRowSelection } from '../models';
 import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
-import useStyleTable from '../useStyleTable';
 
 import PredefinedSelectionList from './PredefinedSelectionList';
 import SortableHeaderCellContent from './SortableCell/Content';
@@ -31,27 +26,30 @@ const HeaderCell = withStyles(TableCell, (theme) => ({
   }
 }));
 
-interface StylesProps {
-  headerStyle: TableStyle['header'];
-}
-
-const useStyles = makeStyles<StylesProps>()((theme, { headerStyle }) => ({
-  CheckboxHeaderCell: {
+const useStyles = makeStyles()((theme) => ({
+  checkbox: {
+    '&.Mui-checked': {
+      color: theme.palette.common.white
+    },
+    '&.MuiCheckbox-indeterminate': {
+      color: theme.palette.common.white
+    },
+    color: theme.palette.common.white
+  },
+  checkboxHeaderCell: {
     alignItems: 'center',
+    backgroundColor: theme.palette.background.listingHeader,
     borderBottom: 'none',
     display: 'flex',
     justifyContent: 'end',
-    minWidth: theme.spacing(51 / 8)
+    minWidth: theme.spacing(51 / 8),
+    padding: 0
   },
-  checkBox: {
-    color: headerStyle.color
-  },
-
   headerLabelDragging: {
     cursor: 'grabbing'
   },
   predefinedRowsMenu: {
-    color: headerStyle.color,
+    color: theme.palette.common.white,
     width: theme.spacing(2)
   },
   row: {
@@ -70,6 +68,7 @@ type Props = Pick<
   | 'columnConfiguration'
   | 'totalRows'
 > & {
+  areColumnsEditable: boolean;
   memoProps: Array<unknown>;
   onSelectAllClick: (event) => void;
   onSelectRowsWithCondition: (condition) => void;
@@ -101,10 +100,10 @@ const ListingHeader = ({
   checkable,
   predefinedRowsSelection,
   onSelectRowsWithCondition,
-  memoProps
+  memoProps,
+  areColumnsEditable
 }: Props): JSX.Element => {
-  const { dataStyle } = useStyleTable({});
-  const { classes, cx } = useStyles({ headerStyle: dataStyle.header });
+  const { classes, cx } = useStyles();
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -127,6 +126,7 @@ const ListingHeader = ({
     }: ContentProps): JSX.Element => {
       return (
         <SortableHeaderCellContent
+          areColumnsEditable={areColumnsEditable}
           column={getColumnById(id)}
           columnConfiguration={columnConfiguration}
           isDragging={isDragging}
@@ -144,16 +144,18 @@ const ListingHeader = ({
     [columnConfiguration, columns, sortField, sortOrder]
   );
 
+  const hasRows = not(equals(rowCount, 0));
+
   return (
-    <TableHead className={classes.row}>
+    <TableHead className={cx(classes.row, 'listingHeader')} component="div">
       <TableRow className={classes.row} component="div">
         {checkable && (
-          <TableCell className={cx(classes.CheckboxHeaderCell)} component="div">
+          <TableCell className={classes.checkboxHeaderCell} component="div">
             <Checkbox
-              checked={selectedRowCount === rowCount}
-              className={classes.checkBox}
+              checked={hasRows && selectedRowCount === rowCount}
+              className={classes.checkbox}
               indeterminate={
-                selectedRowCount > 0 && selectedRowCount < rowCount
+                hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
               }
               inputProps={{ 'aria-label': 'Select all' }}
               onChange={onSelectAllClick}
@@ -215,7 +217,8 @@ const MemoizedListingHeader = React.memo<Props>(
     ) &&
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
-    equals(prevProps.memoProps, nextProps.memoProps)
+    equals(prevProps.memoProps, nextProps.memoProps) &&
+    equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
 );
 
 export default MemoizedListingHeader;

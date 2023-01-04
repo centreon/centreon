@@ -67,8 +67,6 @@ export interface TableStyleAtom {
     height: number;
   };
   header: {
-    backgroundColor: string;
-    color: string;
     height: number;
   };
   statusColumnChip: {

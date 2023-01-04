@@ -116,7 +116,7 @@ const useApp = (): UseAppState => {
         });
         setUser({
           ...user,
-          ResourceStatusViewMode: retrievedParameters.resource_status_view_mode
+          resourceStatusViewMode: retrievedParameters.resource_status_view_mode
         });
       })
       .catch((error) => {

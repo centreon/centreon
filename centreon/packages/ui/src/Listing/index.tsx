@@ -37,10 +37,7 @@ import {
   useTheme
 } from '@mui/material';
 
-import {
-  ResourceStatusViewMode,
-  ResourceStatusViewMode as ViewMode
-} from '@centreon/ui-context';
+import { ListingVariant } from '@centreon/ui-context';
 
 import useKeyObserver from '../utils/useKeyObserver';
 import useMemoComponent from '../utils/useMemoComponent';
@@ -89,7 +86,7 @@ interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
   rows: Array<unknown>;
-  viewMode: ViewMode;
+  viewMode: ListingVariant;
 }
 
 const useStyles = makeStyles<StylesProps>()(
@@ -128,23 +125,18 @@ const useStyles = makeStyles<StylesProps>()(
       width: '100%'
     },
     table: {
+      '.listingHeader div div': {
+        backgroundColor: theme.palette.background.listingHeader,
+        height: dataStyle.header.height,
+        padding: 0
+      },
       alignItems: 'center',
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
         rows?.length
       }, ${dataStyle.body.height}px)`,
-      position: 'relative',
-      'tbody :first-child': {
-        gridColumnStart: 1
-      },
-      'thead div div:nth-child(n)': {
-        backgroundColor: dataStyle.header.backgroundColor,
-        color: dataStyle.header.color,
-        height: dataStyle.header.height,
-        outline: `solid ${dataStyle.header.backgroundColor}`,
-        padding: 0
-      }
+      position: 'relative'
     },
     tableBody: {
       display: 'contents',
@@ -166,6 +158,7 @@ export interface Props<TRow> {
   currentPage?: number;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
+  getHighlightRowCondition?: (row: TRow) => boolean;
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
@@ -187,7 +180,7 @@ export interface Props<TRow> {
   sortField?: string;
   sortOrder?: SortOrder;
   totalRows?: number;
-  viewMode?: ViewMode;
+  viewMode?: ListingVariant;
   widthToMoveTablePagination?: number;
 }
 
@@ -227,8 +220,9 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
   moveTablePagination,
-  viewMode = ResourceStatusViewMode.compact,
-  widthToMoveTablePagination
+  viewMode = ListingVariant.compact,
+  widthToMoveTablePagination,
+  getHighlightRowCondition
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -491,6 +485,8 @@ const Listing = <TRow extends { id: RowId }>({
     setShiftKeyDownRowPivot(lastSelectionIndex);
   }, [isShiftKeyDown, lastSelectionIndex]);
 
+  const areColumnsEditable = not(isNil(onSelectColumns));
+
   return (
     <>
       {loading && rows.length > 0 && (
@@ -539,6 +535,7 @@ const Listing = <TRow extends { id: RowId }>({
             size="small"
           >
             <ListingHeader
+              areColumnsEditable={areColumnsEditable}
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
@@ -556,6 +553,7 @@ const Listing = <TRow extends { id: RowId }>({
 
             <TableBody
               className={classes.tableBody}
+              component="div"
               onMouseLeave={clearHoveredRow}
             >
               {rows.map((row, index) => {
@@ -617,6 +615,7 @@ const Listing = <TRow extends { id: RowId }>({
                       <DataCell
                         column={column}
                         disableRowCondition={disableRowCondition}
+                        getHighlightRowCondition={getHighlightRowCondition}
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}

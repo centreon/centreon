@@ -6,7 +6,11 @@ import { useAtom } from 'jotai';
 import { useTheme, alpha } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
-import { MemoizedListing as Listing, useSnackbar } from '@centreon/ui';
+import {
+  MemoizedListing as Listing,
+  SeverityCode,
+  useSnackbar
+} from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
 import { rowColorConditions } from '../colors';
@@ -68,7 +72,7 @@ const ResourceListing = (): JSX.Element => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const { ResourceStatusViewMode } = useAtomValue(userAtom);
+  const { resourceStatusViewMode } = useAtomValue(userAtom);
 
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -188,6 +192,9 @@ const ResourceListing = (): JSX.Element => {
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
+      getHighlightRowCondition={({ status }): boolean =>
+        equals(status?.severity_code, SeverityCode.High)
+      }
       getId={getId}
       headerMemoProps={[search]}
       limit={listing?.meta.limit}
@@ -214,7 +221,7 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={ResourceStatusViewMode}
+      viewMode={resourceStatusViewMode}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
