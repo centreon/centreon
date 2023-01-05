@@ -4,6 +4,9 @@ info:
   description: |
     # New features
     + Added vault configuration endpoints
+    +
+    # Updated features
+    + Updated host categories endpoint (GET)
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -272,9 +275,15 @@ paths:
     get:
       tags:
         - Host category
-      summary: "List all host categories"
+      summary: "List host categories"
       description: |
-        List of all host category configurations
+        List of host category configurations
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * alias
+        * is_activated
       responses:
         "200":
           description: "OK"
@@ -942,9 +951,9 @@ paths:
       summary: Update a user
       description: |
         Update a user
-        
+
         The available parameters to be updated are :
-        
+
         * theme
       requestBody:
         required: true
@@ -5261,12 +5270,8 @@ components:
           example: "host-category"
         is_activated:
           type: boolean
-          description: "Indicates whether this host category is enabled or not"
-          example: "true"
-        comments:
-          type: string
-          description: "Host category comments"
-          nullable: true
+          description: is active or not (enable/disable)
+          example: true
     Configuration.Host.Severity:
       type: object
       properties:
@@ -6551,7 +6556,7 @@ components:
             name:
               type: string
               description: "Name of the severity"
-              example: "Priority 1" 
+              example: "Priority 1"
             icon:
               type: object
               properties:
