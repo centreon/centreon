@@ -18,18 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Centreon\Test\Api\Context;
 
-use Symfony\Component\HttpFoundation\Response;
+use Centreon\Test\Behat\Api\Context\ApiContext;
 
-interface PresenterFormatterInterface
+class TimePeriodConfigurationContext extends ApiContext
 {
-    /**
-     * @param mixed $data
-     * @param array<string, mixed> $headers
-     * @return Response
-     */
-    public function format(mixed $data, array $headers): Response;
 }

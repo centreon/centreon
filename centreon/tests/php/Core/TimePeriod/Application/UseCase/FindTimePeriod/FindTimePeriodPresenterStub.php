@@ -18,18 +18,32 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
+use Core\Application\Common\UseCase\{AbstractPresenter, CreatedResponse, PresenterInterface};
+use Core\TimePeriod\Application\UseCase\FindTimePeriod\FindTimePeriodResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-interface PresenterFormatterInterface
+class FindTimePeriodPresenterStub extends AbstractPresenter implements PresenterInterface
 {
+    public FindTimePeriodResponse $response;
+
     /**
-     * @param mixed $data
-     * @param array<string, mixed> $headers
+     * @param FindTimePeriodResponse $response
+     */
+    public function present(mixed $response): void
+    {
+        $this->response = $response;
+    }
+
+    /**
      * @return Response
      */
-    public function format(mixed $data, array $headers): Response;
+    public function show(): Response
+    {
+        return new Response();
+    }
 }

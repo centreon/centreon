@@ -18,18 +18,33 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-interface PresenterFormatterInterface
+class AddTimePeriodsPresenterStub extends AbstractPresenter implements PresenterInterface
 {
+    public CreatedResponse $response;
+
     /**
-     * @param mixed $data
-     * @param array<string, mixed> $headers
+     * @param CreatedResponse $response
+     */
+    public function present(mixed $response): void
+    {
+        $this->response = $response;
+    }
+
+    /**
      * @return Response
      */
-    public function format(mixed $data, array $headers): Response;
+    public function show(): Response
+    {
+        return new Response();
+    }
 }

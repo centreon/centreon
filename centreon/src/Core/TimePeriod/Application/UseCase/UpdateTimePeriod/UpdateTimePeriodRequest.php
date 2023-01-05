@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,25 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
-use Symfony\Component\HttpFoundation\Response;
-
-interface PresenterFormatterInterface
+final class UpdateTimePeriodRequest
 {
-    /**
-     * @param mixed $data
-     * @param array<string, mixed> $headers
-     * @return Response
-     */
-    public function format(mixed $data, array $headers): Response;
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $alias = '';
+
+    /** @var array<array{day: integer, time_range: string}> */
+    public array $days = [];
+
+    /** @var int[] */
+    public array $templates = [];
+
+    /** @var array<array{day_range: string, time_range: string}> */
+    public array $exceptions = [];
 }

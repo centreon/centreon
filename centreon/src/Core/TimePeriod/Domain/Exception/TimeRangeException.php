@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Core\TimePeriod\Domain\Exception;
 
-use Symfony\Component\HttpFoundation\Response;
-
-interface PresenterFormatterInterface
+class TimeRangeException extends \InvalidArgumentException
 {
     /**
-     * @param mixed $data
-     * @param array<string, mixed> $headers
-     * @return Response
+     * @param string $badTimeRange
+     *
+     * @return self
      */
-    public function format(mixed $data, array $headers): Response;
+    public static function badTimeRangeFormat(string $badTimeRange): self
+    {
+        return new self(sprintf(_('The time range format is wrong (%s)'), $badTimeRange));
+    }
+
+    /**
+     * @return self
+     */
+    public static function orderTimeIntervalsNotConsistent(): self
+    {
+        return new self(_('The order of the time intervals is not consistent'));
+    }
 }

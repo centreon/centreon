@@ -4,11 +4,11 @@ info:
   description: |
     # New features
     + Added vault configuration endpoints
+    + Added time period configuration endpoints
     + Added host categories endpoint (DELETE)
     +
     # Updated features
     + Updated host categories endpoint (GET)
-    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -63,8 +63,8 @@ tags:
   - name: Service
   - name: Service group
   - name: Service category
-  - name: Host category
   - name: Severity
+  - name: Time period
   - name: Topology
 security:
   - Token: []
@@ -873,6 +873,131 @@ paths:
                         example: false
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/timeperiods:
+    get:
+      tags:
+      - Time period
+      summary: "Get all time periods"
+      description: |
+        Get list of all time periods
+        
+        The available parameters to **search** / **sort_by** are:
+        
+        * id
+        * name
+        * alias
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.TimePeriod'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+      - Time period
+      summary: "Create a new time period"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.NewTimePeriod'
+      responses:
+        '201':
+          description: "Time period created"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/timeperiods/{id}:
+    delete:
+      tags:
+      - Time period
+      summary: "Delete a time period"
+      parameters:
+      - in: path
+        name: id
+        description: "ID of the time period to be deleted"
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      responses:
+        '204':
+          description: "Time period deleted"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+      - Time period
+      summary: "Get a time period"
+      parameters:
+        - in: path
+          name: id
+          description: "Time period ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.TimePeriod'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+      - Time period
+      summary: "Update a time period"
+      parameters:
+      - in: path
+        name: id
+        description: "ID of the time period to be updated"
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.NewTimePeriod'
+      responses:
+        '204':
+          description: "Time period updated"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
@@ -5263,6 +5388,108 @@ components:
                 type: string
                 description: "Comment to add to the monitored resource"
                 example: "Resource is not-OK but it is expected"
+    Configuration.NewTimePeriod:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the time period
+          example: 24x7
+        alias:
+          type: string
+          description: Alias of the time period
+          example: Always
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.days"
+        templates:
+          type: array
+          description: "IDs of the time periods used as a template"
+          items:
+            type: integer
+        exceptions:
+          type: array
+          description: "List of exceptions to the standard schedule"
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
+    Configuration.TimePeriod:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Time period ID"
+          example: 1
+        name:
+          type: string
+          description: "Name of the time period"
+          example: 24x7
+        alias:
+          type: string
+          description: "Alias of the time period"
+          example: Always
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.days"
+        templates:
+          type: array
+          description: "IDs of the time periods used as a template"
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: "ID of the time periods used as a template"
+                example: 1
+              alias:
+                type: string
+                description: "Alias of the time period"
+                example: "Always"
+        exceptions:
+          type: array
+          description: "List of exceptions to the standard schedule"
+          items:
+            allOf:
+            - type: object
+              properties:
+                id:
+                  type: integer
+                  description: ID of the extra period
+                  example: 1
+            - $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
+    Configuration.TimePeriod.days:
+      type: object
+      properties:
+        day:
+          type: integer
+          description: Number of the day (1=monday)
+          example: 1
+          minimum: 1
+          maximum: 7
+        time_range:
+          type: string
+          description: "Time range for the day"
+          example: "00:00-06:00,07:00-08:00"
+    Configuration.TimePeriod.ExtraTimePeriod:
+      type: object
+      properties:
+        day_range:
+          type: string
+          description: |
+            Directives, including weekdays, days of the month, and calendar dates
+            
+            * Calendar date (2008-01-01)
+            * Specific month date (January 1st)
+            * Generic month date (Day 15)
+            * Offset weekday of specific month (2nd Tuesday in December)
+            * Offset weekday (3rd Monday)
+            * Normal weekday (Tuesday)
+          example: "monday 1"
+        time_range:
+          type: string
+          description: "Time range for the day"
+          example: "00:00-06:00,07:00-08:00"
     Configuration.User:
       type: object
       properties:

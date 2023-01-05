@@ -126,3 +126,7 @@ default:
       paths: [ "%paths.base%/features/ConfigurationAccessGroups.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext
+    time_periods:
+      paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\TimePeriodConfigurationContext

@@ -17229,3 +17229,27 @@ msgstr "Catégorie d'hôtes introuvable"
 
 msgid "Error while deleting host category"
 msgstr "Erreur lors de la suppression d'une catégorie d'hôtes"
+
+msgid "Error when deleting the time period %d"
+msgstr "Erreur lors de la suppression de la période de temps %d"
+
+msgid "Error when updating the time period %d"
+msgstr "Erreur lors de la mise à jour de la période de temps %d"
+
+msgid "Error when adding the time period"
+msgstr "Erreur lors de l'ajout de la période de temps"
+
+msgid "Error when searching for time periods"
+msgstr "Erreur lors de la recherche de périodes de temps"
+
+msgid "Error when searching for the time period %d"
+msgstr "Erreur lors de la recherche de la période de temps %d"
+
+msgid "The time period name '%s' already exists"
+msgstr "La période de temps '%s' existe déjà"
+
+msgid "The time range format is wrong (%s)"
+msgstr "Le format de l'intervalle de temps est incorrect (%s)"
+
+msgid "The order of the time intervals is not consistent"
+msgstr "L'ordre des intervalles de temps n'est pas cohérent"

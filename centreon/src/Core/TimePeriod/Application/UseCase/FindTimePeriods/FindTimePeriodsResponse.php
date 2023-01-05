@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,28 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Presenter;
+namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
-abstract class AbstractFormatter
+class FindTimePeriodsResponse
 {
     /**
-     * @var array<string, string>
+     * @var array<array{
+     *     id: int,
+     *     name: string,
+     *     alias: string,
+     *     days: array<array{day: int, time_range: string}>,
+     *     templates: array<array{id: int, alias: string}>,
+     *     exceptions: array<array{id: int, day_range: string, time_range: string}>
+     * }>
      */
-    protected array $responseHeaders = [];
-
-    /**
-     * @param array<string, string> $responseHeaders
-     */
-    public function setResponseHeaders(array $responseHeaders): void
-    {
-        $this->responseHeaders = $responseHeaders;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getResponseHeaders(): array
-    {
-        return $this->responseHeaders;
-    }
+    public array $timePeriods = [];
 }
