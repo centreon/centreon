@@ -1605,7 +1605,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
             );
 
             if (
-                ! preg_match('/^secret::\d+::/', $ret['host_snmp_community'])
+                ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
                 && empty($passwordTypeData)
                 && ! empty($hostSecrets)
             ) {
@@ -1681,9 +1681,7 @@ function updateHost_MC($host_id = null)
             unset($ret[$name]);
         }
     }
-    if (array_key_exists('host_snmp_community', $ret) && preg_match('/^secret::\d+::/', $ret['host_snmp_community'])) {
-        unset($ret['host_snmp_community']);
-    }
+
     $bindParams = sanitizeFormHostParameters($ret);
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
@@ -1750,7 +1748,11 @@ function updateHost_MC($host_id = null)
     if ($vaultConfiguration !== null) {
         try {
             $passwordTypeData = [];
-            if(array_key_exists(':host_snmp_community', $bindParams)) {
+            if(
+                array_key_exists(':host_snmp_community', $bindParams)
+                && ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
+                && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null
+            ) {
                 $passwordTypeData = [
                     '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
                 ];
@@ -1766,10 +1768,7 @@ function updateHost_MC($host_id = null)
                 $httpClient
             );
 
-            if (empty($passwordTypeData) && ! empty($hostSecrets)) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
-                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
-            } elseif (! empty($passwordTypeData)) {
+            if (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
                 foreach($passwordTypeData as $keyName => $value) {
                     $hostSecrets[$keyName] = $value;
