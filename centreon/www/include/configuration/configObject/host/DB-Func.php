@@ -1605,12 +1605,12 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                 $httpClient
             );
 
+            // If no more fields are password types, we delete the host from the vault has it will not be read.
             if (
                 ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
                 && empty($passwordTypeData)
                 && ! empty($hostSecrets)
             ) {
-                // If no more fields are password types, we delete the host from the vault has it will not be read.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
@@ -1802,7 +1802,6 @@ function updateHost_MC($host_id = null)
 function updateHostHostParent($host_id = null, $ret = array())
 {
     global $form, $pearDB;
-
     if (!$host_id) {
         return;
     }
