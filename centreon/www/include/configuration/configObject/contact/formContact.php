@@ -500,12 +500,12 @@ if (! empty($aclUser)) {
 
         // Classify topologies by parents
         foreach (array_keys($topologies) as $page) {
-            if (strlen($page) == 1) {
+            if (strlen($page) === 1) {
                 // MENU level 1
                 if (! array_key_exists($page, $parentsLvl)) {
                     $parentsLvl[$page] = [];
                 }
-            } elseif (strlen($page) == 3) {
+            } elseif (strlen($page) === 3) {
                 // MENU level 2
                 $parentLvl1 = substr($page, 0, 1);
                 if (! array_key_exists($parentLvl1, $parentsLvl)) {
@@ -514,7 +514,7 @@ if (! empty($aclUser)) {
                 if (! array_key_exists($page, $parentsLvl[$parentLvl1])) {
                     $parentsLvl[$parentLvl1][$page] = [];
                 }
-            } elseif (strlen($page) == 5) {
+            } elseif (strlen($page) === 5) {
                 // MENU level 3
                 $parentLvl1 = substr($page, 0, 1);
                 $parentLvl2 = substr($page, 0, 3);
@@ -537,14 +537,12 @@ if (! empty($aclUser)) {
      * Check if at least one child can be shown
      */
     $oneChildCanBeShown = function () use (&$childrenLvl3, &$translatedPages): bool {
-        $isCanBeShow = false;
         foreach ($childrenLvl3 as $topologyPage) {
             if ($translatedPages[$topologyPage]['show']) {
-                $isCanBeShow = true;
-                break;
+                return true;
             }
         }
-        return $isCanBeShow;
+        return false;
     };
 
     $topologies = $createTopologyTree($acls);
@@ -607,7 +605,7 @@ if (! empty($aclUser)) {
             }
 
             // select parent from level 2 if level 3 is missing
-            $pageId = $parentLvl3 ?: $parentLvl2;
+            $pageId = $parentLvl3 ?? $parentLvl2;
 
             if (! $isThirdLevelMenu && $translatedPages[$pageId]['show']) {
                 /**

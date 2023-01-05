@@ -55,8 +55,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
-            COALESCE(contact.default_page, template.default_page) as default_page
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
             LEFT JOIN centreon.contact as template
                 ON contact.contact_template_id = template.contact_id
@@ -90,8 +89,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
-            COALESCE(contact.default_page, template.default_page) as default_page
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
             LEFT JOIN centreon.contact as template
                 ON contact.contact_template_id = template.contact_id
@@ -124,8 +122,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
-            COALESCE(contact.default_page, template.default_page) as default_page
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
             LEFT JOIN centreon.contact as template
                 ON contact.contact_template_id = template.contact_id
@@ -157,8 +154,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
-            COALESCE(contact.default_page, template.default_page) as default_page
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
             LEFT JOIN centreon.contact as template
                 ON contact.contact_template_id = template.contact_id
@@ -194,8 +190,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $statement = $this->db->prepare(
             $this->translateDbName(
                 "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name,
-                COALESCE(contact.default_page, template.default_page) as default_page
+                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
                 FROM `:db`.contact
                 LEFT JOIN centreon.contact as template
                     ON contact.contact_template_id = template.contact_id
