@@ -37,7 +37,7 @@
 // Be Careful with internal_name, it's case sensitive (with directory module name)
 $module_conf['centreon-dsm']["name"] = "centreon-dsm";
 $module_conf['centreon-dsm']["rname"] = "Dynamic Services Management";
-$module_conf['centreon-dsm']["mod_release"] = "22.04.1";
+$module_conf['centreon-dsm']["mod_release"] = "22.04.0";
 $module_conf['centreon-dsm']["infos"] = "Centreon Dynamic Service Management (Centreon-DSM) is a module to manage " .
     "alarms with an event logs system. With DSM, Centreon can receive events such as SNMP traps resulting from the " .
     "detection of a problem and assign events dynamically to a slot defined in Centreon, like a tray events.
@@ -52,7 +52,7 @@ The goal of this module is to overhead the basic trap management system of Centr
 $module_conf['centreon-dsm']["is_removeable"] = "1";
 $module_conf['centreon-dsm']["author"] = "Centreon";
 $module_conf['centreon-dsm']["stability"] = "stable";
-$module_conf['centreon-dsm']["last_update"] = "2023-01-04";
+$module_conf['centreon-dsm']["last_update"] = "2022-05-18";
 $module_conf['centreon-dsm']["release_note"] =
     "https://docs.centreon.com/22.04/en/releases/centreon-os-extensions.html";
 $module_conf['centreon-dsm']["images"] = [

@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>This widget is associated to the Open Tickets Module and allows for selecting hosts or services events for which to create tickets in your favorite ITSM tools. This widget can also list already created tickets with their ID and datetime.</description>
-  <version>22.04.1</version>
+  <version>22.04.0</version>
   <keywords>centreon, widget, tickets</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/open-tickets/resources/centreon-logo.png</thumbnail>

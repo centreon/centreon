@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>Widget for displaying Host Status and service status Summary</description>
-    <version>22.04.1</version>
+    <version>22.04.0</version>
     <keywords>centreon, widget, host, monitoring, service</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/tactical-overview/resources/centreon-logo.png</thumbnail>
