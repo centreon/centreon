@@ -1147,7 +1147,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
 
     //Check if a vault configuration exists
     $vaultConfiguration = getVaultConfiguration();
-    //If there is a vault configuration write into vault
+    //If there is a vault configuration and host snmp community is defined, write into vault
     if ($vaultConfiguration !== null && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
         try {
             $passwordTypeData = [
@@ -1584,6 +1584,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
     if ($vaultConfiguration !== null) {
         try {
             $passwordTypeData = [];
+            //If the SNMP Community is defined and is not a vault path it should be updated.
             if (
                 array_key_exists(':host_snmp_community', $bindParams)
                 && ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
@@ -1609,7 +1610,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                 && empty($passwordTypeData)
                 && ! empty($hostSecrets)
             ) {
-                // If no more fields are password types, we delete the host from the vault has it will not be readen.
+                // If no more fields are password types, we delete the host from the vault has it will not be read.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
                 //Replace olds vault values by the new ones
@@ -1748,6 +1749,7 @@ function updateHost_MC($host_id = null)
     if ($vaultConfiguration !== null) {
         try {
             $passwordTypeData = [];
+            //If the SNMP Community is defined and is not a vault path it should be updated.
             if(
                 array_key_exists(':host_snmp_community', $bindParams)
                 && ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
