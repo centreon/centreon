@@ -18,6 +18,12 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { contentWidth }) => ({
   dialogContent: {
+    // we use both this additional class and the MUI one to increase specificity
+    // MUI override the padding of this element using a selector of type .title + .content
+    // so we need an higher specificity selector
+    '&.MuiDialogContent-root': {
+      paddingTop: theme.spacing(1)
+    },
     width: contentWidth
   }
 }));
