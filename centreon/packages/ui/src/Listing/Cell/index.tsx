@@ -99,7 +99,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%',
       overflow: 'hidden',
       ...getTextStyleByViewMode({ theme, viewMode }),
-      ...getRowHighlightStyle({ isRowHighlighted, theme }),
+      p: getRowHighlightStyle({ isRowHighlighted, theme }),
       padding: 0,
       whiteSpace: 'nowrap'
     }
