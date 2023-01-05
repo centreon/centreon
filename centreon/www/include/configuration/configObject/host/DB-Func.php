@@ -1681,7 +1681,7 @@ function updateHost_MC($host_id = null)
             unset($ret[$name]);
         }
     }
-    if (array_key_exists('host_snmp_community', $ret) && preg_match('/^secret::\\d+::/', $ret['host_snmp_community'])) {
+    if (array_key_exists('host_snmp_community', $ret) && preg_match('/^secret::\d+::/', $ret['host_snmp_community'])) {
         unset($ret['host_snmp_community']);
     }
     $bindParams = sanitizeFormHostParameters($ret);
