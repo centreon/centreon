@@ -9,7 +9,6 @@ import {
   labelSearch,
   labelResourceProblems,
   labelAll,
-  labelUnhandledProblems,
   labelSearchOptions,
   labelType,
   labelHost,
@@ -18,6 +17,7 @@ import {
   labelStatus,
   labelOk,
   labelStatusType,
+  labelStateFilter,
   labelSoft,
   labelHostGroup,
   labelServiceGroup
@@ -328,7 +328,9 @@ describe('Custom filters', () => {
     it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
-      cy.findByText(labelUnhandledProblems).click();
+      cy.waitForRequest('@filterRequest');
+
+      cy.findByLabelText(labelStateFilter).click();
 
       cy.findByText(filterGroup).click();
 
