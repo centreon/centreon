@@ -77,7 +77,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostCategoryException::deleteHostCategory(new \Exception())->getMessage());
 });
 
-it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
+it('should present a ForbiddenResponse when a non-admin user has insufficient rights', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,

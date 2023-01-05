@@ -113,7 +113,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      */
     public function exists(int $hostCategoryId): bool
     {
-        $this->info('Check existance of host category with id #' . $hostCategoryId);
+        $this->info('Check existence of host category with id #' . $hostCategoryId);
 
         $request = $this->translateDbName(
             'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
@@ -131,7 +131,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
     public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool
     {
         $this->info(
-            'Check existance of host category by access groups',
+            'Check existence of host category by access groups',
             ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
         );
 

@@ -17225,7 +17225,7 @@ msgid "You are not allowed to delete host categories"
 msgstr "Vous n'êtes pas autorisé à supprimer des catégories d'hôtes"
 
 msgid "Host category not found"
-msgstr "Catégorie d'hôte introuvable"
+msgstr "Catégorie d'hôtes introuvable"
 
 msgid "Error while deleting host category"
-msgstr "Erreur lors de la suppression d'une catégorie d'hôte"
+msgstr "Erreur lors de la suppression d'une catégorie d'hôtes"
