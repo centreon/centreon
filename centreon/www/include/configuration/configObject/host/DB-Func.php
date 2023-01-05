@@ -443,8 +443,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                      * The regex /^secret::\\d+::/ define that the value is store in vault.
                      */
                     if (
-                        (bool) $row['host_snmp_community_is_password'] === true
-                        && ! empty($row['host_snmp_community'])
+                        ! empty($row['host_snmp_community'])
                         && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
                     ) {
                         $vaultConfiguration = getVaultConfiguration();
@@ -1144,40 +1143,31 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
         );
     }
 
-    $passwordTypeData = [];
-    if (
-        array_key_exists('host_snmp_community_is_password', $ret)
-        && (bool) $ret['host_snmp_community_is_password'] === true
-    ) {
-        $passwordTypeData = [
-            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
-        ];
-    }
-
     //@TODO: Check if Macro value are passwords
 
     //Check if a vault configuration exists
-    if (! empty($passwordTypeData)) {
-        $vaultConfiguration = getVaultConfiguration();
-        //If there is a vault configuration write into vault
-        if ($vaultConfiguration !== null) {
-            try {
-                $httpClient = new CentreonRestHttp();
-                $centreonLog = new CentreonUserLog(-1, $pearDB);
-                $clientToken = authenticateToVault($vaultConfiguration, $centreonLog, $httpClient);
-                writeSecretsInVault(
-                    $vaultConfiguration,
-                    $host_id['MAX(host_id)'],
-                    $clientToken,
-                    $passwordTypeData,
-                    $centreonLog,
-                    $httpClient
-                );
-                updateHostTablesWithVaultPath($vaultConfiguration, $host_id['MAX(host_id)'], $pearDB);
-            } catch (\Throwable $ex) {
-                $centreonLog->insertLog(5, (string) $ex);
-                error_log((string) $ex);
-            }
+    $vaultConfiguration = getVaultConfiguration();
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
+        try {
+            $passwordTypeData = [
+                '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+            ];
+            $httpClient = new CentreonRestHttp();
+            $centreonLog = new CentreonUserLog(-1, $pearDB);
+            $clientToken = authenticateToVault($vaultConfiguration, $centreonLog, $httpClient);
+            writeSecretsInVault(
+                $vaultConfiguration,
+                $host_id['MAX(host_id)'],
+                $clientToken,
+                $passwordTypeData,
+                $centreonLog,
+                $httpClient
+            );
+            updateHostTablesWithVaultPath($vaultConfiguration, $host_id['MAX(host_id)'], $pearDB);
+        } catch (\Throwable $ex) {
+            $centreonLog->insertLog(5, (string) $ex);
+            error_log((string) $ex);
         }
     }
 
@@ -1485,18 +1475,8 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
-    if (
-        $ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE
-        || preg_match('/^secret::\\d+::/', $ret['host_snmp_community'])
-    ) {
-        unset($ret['host_snmp_community']);
-    }
     $bindParams = sanitizeFormHostParameters($ret);
 
-    //If the checkbox is not checked that mean the value is not a password and should be updated as well
-    if (! array_key_exists('host_snmp_community_is_password', $ret)) {
-        $bindParams[':host_snmp_community_is_password'] = [\PDO::PARAM_STR => '0'];
-    }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -1596,18 +1576,6 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
     if (isset($ret['criticality_id'])) {
         setHostCriticality($host_id, $ret['criticality_id']);
     }
-
-    $passwordTypeData = [];
-    if (
-        array_key_exists('host_snmp_community_is_password', $ret)
-        && (bool) $ret['host_snmp_community_is_password'] === true
-        && array_key_exists(':host_snmp_community', $bindParams)
-    ) {
-        $passwordTypeData = [
-            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
-        ];
-    }
-
     //@TODO: Check if Macro value are passwords
 
     $vaultConfiguration = getVaultConfiguration();
@@ -1615,6 +1583,16 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {
+            $passwordTypeData = [];
+            if (
+                array_key_exists(':host_snmp_community', $bindParams)
+                && ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
+                && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null
+            ) {
+                $passwordTypeData = [
+                    '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+                ];
+            }
             $httpClient = new CentreonRestHttp();
             $centreonLog = new CentreonUserLog(-1, $pearDB);
             $clientToken = authenticateToVault($vaultConfiguration, $centreonLog, $httpClient);
@@ -1626,7 +1604,11 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
                 $httpClient
             );
 
-            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
+            if (
+                ! preg_match('/^secret::\d+::/', $ret['host_snmp_community'])
+                && empty($passwordTypeData)
+                && ! empty($hostSecrets)
+            ) {
                 // If no more fields are password types, we delete the host from the vault has it will not be readen.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
@@ -1699,18 +1681,10 @@ function updateHost_MC($host_id = null)
             unset($ret[$name]);
         }
     }
-    if (
-        array_key_exists('host_snmp_community', $ret)
-        && ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE
-        || preg_match('/^secret::\\d+::/', $ret['host_snmp_community']))
-    ) {
+    if (array_key_exists('host_snmp_community', $ret) && preg_match('/^secret::\\d+::/', $ret['host_snmp_community'])) {
         unset($ret['host_snmp_community']);
     }
     $bindParams = sanitizeFormHostParameters($ret);
-    //If the checkbox is not checked that mean the value is not a password and should be updated as well
-    if (! array_key_exists('host_snmp_community_is_password', $ret)) {
-        $bindParams[':host_snmp_community_is_password'] = [\PDO::PARAM_STR => '0'];
-    }
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -1769,24 +1743,18 @@ function updateHost_MC($host_id = null)
         setHostCriticality($host_id, $ret['criticality_id']);
     }
 
-    $passwordTypeData = [];
-    if (
-        array_key_exists('host_snmp_community_is_password', $ret)
-        && (bool) $ret['host_snmp_community_is_password'] === true
-        && array_key_exists(':host_snmp_community', $bindParams)
-    ) {
-        $passwordTypeData = [
-            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
-        ];
-    }
-
     //@TODO: Check if Macro value are passwords
 
     $vaultConfiguration = getVaultConfiguration();
-
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {
+            $passwordTypeData = [];
+            if(array_key_exists(':host_snmp_community', $bindParams)) {
+                $passwordTypeData = [
+                    '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+                ];
+            }
             $httpClient = new CentreonRestHttp();
             $centreonLog = new CentreonUserLog(-1, $pearDB);
             $clientToken = authenticateToVault($vaultConfiguration, $centreonLog, $httpClient);
@@ -1798,7 +1766,7 @@ function updateHost_MC($host_id = null)
                 $httpClient
             );
 
-            if (! array_key_exists('host_snmp_community_is_password', $ret) && ! empty($hostSecrets)) {
+            if (empty($passwordTypeData) && ! empty($hostSecrets)) {
                 // If no more fields are password types, we delete the host from the vault has it will not be readen.
                 deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $centreonLog, $httpClient);
             } elseif (! empty($passwordTypeData)) {
@@ -2950,13 +2918,6 @@ function sanitizeFormHostParameters(array $ret): array
                 $bindParams[':' . $inputName] = [
                     \PDO::PARAM_STR => in_array($inputValue[$inputName], ['0', '1', '2'])
                         ? $inputValue[$inputName]
-                        : null
-                ];
-                break;
-            case 'host_snmp_community_is_password':
-                $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_STR => in_array($inputValue, ['0', '1'])
-                        ? $inputValue
                         : null
                 ];
                 break;

@@ -80,7 +80,6 @@
 		        <td class="FormRowField"><img class="helpTooltip" name="snmp_options"> {$form.host_snmp_community.label} & {$form.host_snmp_version.label}</td>
 		        <td class="FormRowValue">
 					{$form.host_snmp_community.html}&nbsp;&nbsp;{$form.host_snmp_version.html}
-					&nbsp;&nbsp;{$form.host_snmp_community_is_password.label}&nbsp;{$form.host_snmp_community_is_password.html}
 				</td>
 		    </tr>
             {if isset($form.nagios_server_id.label)}
