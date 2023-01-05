@@ -70,18 +70,14 @@ export interface ColumnProps {
 }
 
 export const defaultSelectedColumnIds = [
-  'severity',
   'status',
   'resource',
   'parent_resource',
-  'notes_url',
-  'action_url',
   'graph',
   'duration',
-  'tries',
   'last_check',
   'information',
-  'state'
+  'tries'
 ];
 
 export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [

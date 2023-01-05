@@ -24,7 +24,7 @@ const ParentResourceColumn = ({
       </div>
       {renderEllipsisTypography?.({
         className: classes.resourceNameText,
-        formattedString: row.name
+        formattedString: row.parent?.name || ''
       })}
     </>
   );
