@@ -58,18 +58,20 @@ class AddHostCategoryPresenter extends AbstractPresenter
                 'is_activated' => $payload->isActivated,
                 'comments' => $payload->comment,
             ]);
-            try {
-                $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
-                ]);
-            } catch (\Throwable $ex) {
-                $this->error('Impossible to generate the location header', [
-                    'message' => $ex->getMessage(),
-                    'trace' => $ex->getTraceAsString(),
-                    'route' => self::ROUTE_NAME,
-                    'payload' => $payload,
-                ]);
-            }
+
+            // NOT setting location as required route does not currently exist
+            // try {
+            //     $this->setResponseHeaders([
+            //         'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
+            //     ]);
+            // } catch (\Throwable $ex) {
+            //     $this->error('Impossible to generate the location header', [
+            //         'message' => $ex->getMessage(),
+            //         'trace' => $ex->getTraceAsString(),
+            //         'route' => self::ROUTE_NAME,
+            //         'payload' => $payload,
+            //     ]);
+            // }
         }
         parent::present($data);
     }

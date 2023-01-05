@@ -86,4 +86,12 @@ class HostCategoryException extends \Exception
     {
         return new self(_('Host category name already exists'));
     }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving recently created host category'));
+    }
 }

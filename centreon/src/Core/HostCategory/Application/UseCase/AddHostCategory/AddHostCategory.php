@@ -76,6 +76,13 @@ final class AddHostCategory
 
                 $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
+                if (! $hostCategory) {
+                    $presenter->setResponseStatus(
+                        new ErrorResponse(HostCategoryException::errorWhileRetrievingJustCreated()->getMessage())
+                    );
+
+                    return;
+                }
 
                 $presenter->present(
                     new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))

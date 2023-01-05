@@ -55,6 +55,24 @@ beforeEach(function () {
     $this->hostCategory = new HostCategory(1, $this->request->name, $this->request->alias);
 });
 
+it('should present an ErrorResponse when a generic exception is thrown', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willThrowException(new \Exception());
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
+});
+
 it('should present an ForbiddenResponse when a user has unsufficient rights', function (): void {
     $this->user
         ->expects($this->once())
@@ -107,6 +125,32 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
+});
+
+it('should present an ErrorResponse if the newly created host category cannot be retrieved', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn(1);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(null);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->toBe(HostCategoryException::errorWhileRetrievingJustCreated(new \Exception())->getMessage());
 });
 
 it('should return created object on success', function () {
