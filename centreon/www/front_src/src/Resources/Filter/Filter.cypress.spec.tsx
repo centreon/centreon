@@ -45,6 +45,11 @@ const linuxServersHostGroup = {
   name: 'Linux-servers'
 };
 
+const FirewallHostGroup = {
+  id: 1,
+  name: 'Firewall'
+};
+
 const webAccessServiceGroup = {
   id: 0,
   name: 'Web-access'
@@ -254,7 +259,7 @@ describe('Filter', () => {
   });
 });
 
-describe('Custom filter', () => {
+describe('Custom filters', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'filterRequest',
@@ -348,6 +353,100 @@ describe('Custom filter', () => {
       cy.findByText(labelSearch).click();
 
       cy.waitForRequest(`@request/${criteriaName}`);
+
+      cy.matchImageSnapshot();
+    });
+  });
+});
+
+describe('Keyboard actions', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'hostgroupsRequest',
+      method: Method.GET,
+      path: '**/hostgroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [linuxServersHostGroup, FirewallHostGroup]
+      }
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'serviceGroupsRequest',
+      method: Method.GET,
+      path: '**/servicegroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [webAccessServiceGroup]
+      }
+    });
+
+    cy.mount({
+      Component: <FilterWithProvider />
+    });
+
+    cy.viewport(1200, 1000);
+  });
+
+  it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the tab key is pressed', () => {
+    const searchBar = cy.findByPlaceholderText(labelSearch);
+
+    searchBar.clear();
+
+    searchBar.type('stat').tab();
+    searchBar.should('have.value', 'state:');
+
+    searchBar.type('u').tab();
+
+    searchBar.should('have.value', 'state:unhandled');
+
+    searchBar.type(' st').tab();
+
+    searchBar.should('have.value', 'state:unhandled status:');
+
+    searchBar.type(' type:');
+    searchBar.type('{downArrow}').tab();
+
+    searchBar.should('have.value', 'state:unhandled status: type:service');
+
+    cy.matchImageSnapshot();
+  });
+
+  it(`accepts the selected autocomplete suggestion when the beginning of a dynamic criteria is input and the "tab" key or the "enter" key is pressed`, () => {
+    const searchBar = cy.findByPlaceholderText(labelSearch);
+
+    [
+      (): void => {
+        cy.tab();
+      },
+      (targetElemnt): void => {
+        targetElemnt.type('{Enter}');
+      }
+    ].forEach((keyboardAction) => {
+      searchBar.clear();
+      searchBar.type('host');
+      keyboardAction(searchBar);
+      searchBar.should('have.value', 'host_group:');
+      searchBar.type('ESX');
+      cy.findByText(linuxServersHostGroup.name).should('exist');
+      keyboardAction(searchBar);
+      cy.findByPlaceholderText(labelSearch).should(
+        'have.value',
+        `host_group:${linuxServersHostGroup.name}`
+      );
+
+      searchBar.type(',');
+      cy.findByText('Firewall').should('exist');
+      searchBar.type('{downArrow}');
+      keyboardAction(cy.findByPlaceholderText(labelSearch));
+      cy.waitForRequest('@hostgroupsRequest');
 
       cy.matchImageSnapshot();
     });
