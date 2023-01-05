@@ -1,7 +1,7 @@
 <?php
 
 /*
-* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace Core\HostCategory\Infrastructure\Repository;
+
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -76,7 +77,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -105,6 +106,73 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
 
         return $this->retrieveHostCategories($concatenator, $requestParameters);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $hostCategoryId): bool
+    {
+        $this->info('Check existence of host category with id #' . $hostCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool
+    {
+        $this->info(
+            'Check existence of host category by access groups',
+            ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('Access groups array empty');
+            return false;
+        }
+
+        $concat = new SqlConcatenator();
+
+        $accessGroupIds = array_map(
+            fn ($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $request = $this->translateDbName(
+            'SELECT 1
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations arhr
+                ON hc.hc_id = arhr.hc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**

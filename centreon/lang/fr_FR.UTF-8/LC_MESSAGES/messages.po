@@ -17220,3 +17220,12 @@ msgstr "Vous n'êtes pas autorisé à accéder aux catégories d'hôtes"
 
 msgid "Error while searching for host categories"
 msgstr "Erreur lors de la recherche des catégories d'hôtes"
+
+msgid "You are not allowed to delete host categories"
+msgstr "Vous n'êtes pas autorisé à supprimer des catégories d'hôtes"
+
+msgid "Host category not found"
+msgstr "Catégorie d'hôtes introuvable"
+
+msgid "Error while deleting host category"
+msgstr "Erreur lors de la suppression d'une catégorie d'hôtes"

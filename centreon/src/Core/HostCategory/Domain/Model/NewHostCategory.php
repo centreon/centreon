@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\HostCategory\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-use PhpParser\Node\Expr\Cast\String_;
 
 class NewHostCategory
 {
@@ -33,6 +32,7 @@ class NewHostCategory
                 MAX_COMMENT_LENGTH = 65535;
 
     protected bool $isActivated = true;
+
     protected ?string $comment = null;
 
     /**
