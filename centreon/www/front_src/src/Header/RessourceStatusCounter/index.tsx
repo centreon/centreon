@@ -75,19 +75,7 @@ const RessourceStatusCounter = <
 
   const hasPending = data.pending > 0;
 
-  return (
-    <ClickAwayListener
-      onClickAway={(): void => {
-        if (!toggled) {
-          return;
-        }
-
-        toggleDetailedView();
-      }}
-    >
-      {children({ data, hasPending, toggleDetailedView, toggled })}
-    </ClickAwayListener>
-  );
+  return children({ data, hasPending, toggleDetailedView, toggled })
 };
 
 export default RessourceStatusCounter;
