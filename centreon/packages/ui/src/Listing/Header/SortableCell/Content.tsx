@@ -94,7 +94,7 @@ const SortableHeaderCellContent = ({
   viewMode,
   ...props
 }: Props): JSX.Element => {
-  const { classes } = useStyles({
+  const { classes, cx } = useStyles({
     isDragging,
     isInDragOverlay,
     viewMode
@@ -143,13 +143,12 @@ const SortableHeaderCellContent = ({
       onMouseOver={mouseOver}
     >
       <div className={classes.content}>
-        {(!cellHovered || !areColumnsEditable) && <DraggableIcon />}
-        {columnConfiguration?.sortable && areColumnsEditable && cellHovered && (
+      {columnConfiguration?.sortable && areColumnsEditable && (
           <DraggableIcon
-            visible
+            visible={cellHovered}
             {...props}
-            aria-label={columnLabel}
-            className={classes.dragHandle}
+            className={cx({ [classes.dragHandle]: cellHovered })}
+            columnLabel={columnLabel}
           />
         )}
 

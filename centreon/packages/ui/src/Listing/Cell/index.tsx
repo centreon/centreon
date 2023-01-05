@@ -128,7 +128,7 @@ const Cell = (props: Props): JSX.Element => {
       }}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       {...omit(
-        ['isRowHovered', 'row', 'rowColorConditions', 'disableRowCondition'],
+        ['isRowHovered', 'row', 'rowColorConditions', 'disableRowCondition', 'isRowHighlighted', 'viewMode'],
         props
       )}
     >
