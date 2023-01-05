@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,48 +28,53 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToIntegerNormali
 // Testing nullability
 
 it(
-    'should success for value NULL (when allowed)',
-    fn() => expect((new BoolToIntegerNormalizer(nullable: true))->normalize(null))->toBe(null)
+    'should success with NULL when allowed',
+    fn() => expect(
+        (new BoolToIntegerNormalizer(nullable: true))
+            ->normalize(null)
+    )->toBe(null)
 );
 
 // Expected success values
 
-foreach (
-    [
-        // truthy
-        [true, 1234],
-        [1, 1234],
-        ['true', 1234],
-        ['TRUE', 1234],
-        [1234, 1234],
-        // falsy
-        [false, 4321],
-        [0, 4321],
-        ['false', 4321],
-        ['FALSE', 4321],
-        [4321, 4321],
-    ] as [$tested, $expected]
-) {
-    it(
-        'should success for value ' . var_export($tested, true),
-        fn() => expect((new BoolToIntegerNormalizer(4321, 1234))->normalize($tested))->toBe($expected)
+it(
+    'should success',
+    fn($tested, $expected) => expect(
+        (new BoolToIntegerNormalizer(4321, 1234))
+            ->normalize($tested)
+    )->toBe($expected)
+)
+    ->with(
+        [
+            // truthy
+            [true, 1234],
+            [1, 1234],
+            ['true', 1234],
+            ['TRUE', 1234],
+            [1234, 1234],
+            // falsy
+            [false, 4321],
+            [0, 4321],
+            ['false', 4321],
+            ['FALSE', 4321],
+            [4321, 4321],
+        ]
     );
-}
 
 // Expected failure values
 
-foreach (
-    [
-        null,
-        -1,
-        2,
-        'FooBar',
-        'TrUe',
-        'fAlSe',
-    ] as $tested
-) {
-    it(
-        'should fail for value ' . var_export($tested, true),
-        fn() => (new BoolToIntegerNormalizer())->normalize($tested)
-    )->throws(\TypeError::class);
-}
+it(
+    'should fail',
+    fn($tested) => (new BoolToIntegerNormalizer())->normalize($tested)
+)
+    ->with(
+        [
+            null,
+            -1,
+            2,
+            'FooBar',
+            'TrUe',
+            'fAlSe',
+        ]
+    )
+    ->throws(\TypeError::class);
