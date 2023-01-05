@@ -143,7 +143,7 @@ const SortableHeaderCellContent = ({
       onMouseOver={mouseOver}
     >
       <div className={classes.content}>
-      {columnConfiguration?.sortable && areColumnsEditable && (
+        {columnConfiguration?.sortable && areColumnsEditable && (
           <DraggableIcon
             visible={cellHovered}
             {...props}
