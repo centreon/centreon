@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,48 +28,53 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 // Testing nullability
 
 it(
-    'should success for value NULL (when allowed)',
-    fn() => expect((new BoolToEnumNormalizer(nullable: true))->normalize(null))->toBe(null)
+    'should success with NULL when allowed',
+    fn() => expect(
+        (new BoolToEnumNormalizer(nullable: true))
+            ->normalize(null)
+    )->toBe(null)
 );
 
 // Expected success values
 
-foreach (
-    [
-        // truthy
-        [true, 'customTRUE'],
-        [1, 'customTRUE'],
-        ['true', 'customTRUE'],
-        ['TRUE', 'customTRUE'],
-        ['customTRUE', 'customTRUE'],
-        // falsy
-        [false, 'customFALSE'],
-        [0, 'customFALSE'],
-        ['false', 'customFALSE'],
-        ['FALSE', 'customFALSE'],
-        ['customFALSE', 'customFALSE'],
-    ] as [$tested, $expected]
-) {
-    it(
-        'should success for value ' . var_export($tested, true),
-        fn() => expect((new BoolToEnumNormalizer('customFALSE', 'customTRUE'))->normalize($tested))->toBe($expected)
+it(
+    'should success',
+    fn($tested, $expected) => expect(
+        (new BoolToEnumNormalizer('customFALSE', 'customTRUE'))
+            ->normalize($tested)
+    )->toBe($expected)
+)
+    ->with(
+        [
+            // truthy
+            [true, 'customTRUE'],
+            [1, 'customTRUE'],
+            ['true', 'customTRUE'],
+            ['TRUE', 'customTRUE'],
+            ['customTRUE', 'customTRUE'],
+            // falsy
+            [false, 'customFALSE'],
+            [0, 'customFALSE'],
+            ['false', 'customFALSE'],
+            ['FALSE', 'customFALSE'],
+            ['customFALSE', 'customFALSE'],
+        ]
     );
-}
 
 // Expected failure values
 
-foreach (
-    [
-        null,
-        -1,
-        2,
-        'FooBar',
-        'TrUe',
-        'fAlSe',
-    ] as $tested
-) {
-    it(
-        'should fail for value ' . var_export($tested, true),
-        fn() => (new BoolToEnumNormalizer())->normalize($tested)
-    )->throws(\TypeError::class);
-}
+it(
+    'should fail',
+    fn($tested) => (new BoolToEnumNormalizer())->normalize($tested)
+)
+    ->with(
+        [
+            null,
+            -1,
+            2,
+            'FooBar',
+            'TrUe',
+            'fAlSe',
+        ]
+    )
+    ->throws(\TypeError::class);

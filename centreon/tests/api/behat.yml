@@ -105,7 +105,11 @@ default:
     host_groups:
       paths: [ "%paths.base%/features/HostGroup.feature" ]
       contexts:
-        - Centreon\Test\Api\Context\HostGroupContext
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_host_groups:
+      paths: [ "%paths.base%/features/CloudHostGroup.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
     monitoring_server_configuration:
       paths: [ "%paths.base%/features/MonitoringServerConfiguration.feature" ]
       contexts:

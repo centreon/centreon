@@ -386,6 +386,11 @@ paths:
         * name
         * alias
         * is_activated
+        
+        Changes in 23.04 :
+        
+        * `icon` was renamed `icon_id` and is no longer an object but the image ID
+        * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
       responses:
         "200":
           description: "OK"
@@ -4860,7 +4865,7 @@ components:
               type: string
               format: email
               description: "Contact email"
-              example: "admin@localhost"
+              example: "admin@localhost.com"
             is_admin:
               type: boolean
               description: "Indicates whether it is an admin user or not"
@@ -5770,12 +5775,16 @@ components:
           maxLength: 255
           description: "Define an optional URL that can be used to provide more actions to be performed on the host group. You will see the link to the action URL in the host group details"
           example: "action url"
-        icon:
-          $ref: '#/components/schemas/Media.NullableImage'
-          description: "Define the image that should be associated with this host group"
-        icon_map:
-          $ref: '#/components/schemas/Media.NullableImage'
-          description: "Define an image that should be associated with this host group in the statusmap CGI in monitoring engine"
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host group"
+          example: 1
+        icon_map_id:
+          type: integer
+          nullable: true
+          description: "Define an image ID that should be associated with this host group in the statusmap CGI in monitoring engine"
+          example: 1
         geo_coords:
           type: string
           nullable: true
@@ -5852,26 +5861,6 @@ components:
         has_changed:
           type: boolean
           description: "Indicates whether the access group has changed or not"
-    Media.NullableImage:
-      type: object
-      nullable: true
-      properties:
-        id:
-          type: integer
-          description: "Image id"
-        name:
-          type: string
-          description: "Image name"
-          maxLength: 255
-        path:
-          type: string
-          maxLength: 255
-          description: "Image path"
-        comment:
-          type: string
-          nullable: true
-          maxLength: 65535
-          description: "Image comments"
     Media.Image:
       type: object
       properties:
