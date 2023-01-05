@@ -26,7 +26,6 @@ namespace Core\HostCategory\Infrastructure\API\FindHostCategories;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
-use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindHostCategoriesPresenter extends AbstractPresenter
