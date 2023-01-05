@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { isNil, omit } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { CSSObject } from 'tss-react';
 
 import {
   alpha,
@@ -10,6 +11,10 @@ import {
   TableCellProps,
   Theme
 } from '@mui/material';
+
+import { ListingVariant } from '@centreon/ui-context';
+
+import { getTextStyleByViewMode } from '../useStyleTable';
 
 import { Props as DataCellProps } from './DataCell';
 
@@ -45,7 +50,24 @@ const getBackgroundColor = ({
 
 interface StylesProps extends Props {
   isRowHighlighted?: boolean;
+  viewMode?: ListingVariant;
 }
+
+interface GetRowHighlightStyleProps {
+  isRowHighlighted?: boolean;
+  theme: Theme;
+}
+
+const getRowHighlightStyle = ({
+  isRowHighlighted,
+  theme
+}: GetRowHighlightStyleProps): CSSObject | undefined =>
+  isRowHighlighted
+    ? {
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightBold
+      }
+    : undefined;
 
 const useStyles = makeStyles<StylesProps>()(
   (
@@ -55,7 +77,8 @@ const useStyles = makeStyles<StylesProps>()(
       row,
       rowColorConditions,
       disableRowCondition,
-      isRowHighlighted
+      isRowHighlighted,
+      viewMode
     }
   ) => ({
     root: {
@@ -75,10 +98,8 @@ const useStyles = makeStyles<StylesProps>()(
       },
       height: '100%',
       overflow: 'hidden',
-      p: isRowHighlighted && {
-        color: theme.palette.text.primary,
-        fontWeight: theme.typography.fontWeightBold
-      },
+      ...getTextStyleByViewMode({ theme, viewMode }),
+      ...getRowHighlightStyle({ isRowHighlighted, theme }),
       padding: 0,
       whiteSpace: 'nowrap'
     }
@@ -92,6 +113,7 @@ interface Props
     >,
     TableCellProps {
   isRowHighlighted?: boolean;
+  viewMode?: ListingVariant;
 }
 
 const Cell = (props: Props): JSX.Element => {

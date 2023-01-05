@@ -102,6 +102,7 @@ const DataCell = ({
         <Cell
           isRowHighlighted={isRowHighlighted}
           style={{ gridColumn }}
+          viewMode={viewMode}
           {...commonCellProps}
         >
           {isTruncated && (
@@ -129,6 +130,7 @@ const DataCell = ({
       return (
         <Cell
           isRowHighlighted={isRowHighlighted}
+          viewMode={viewMode}
           onClick={(e): void => {
             if (!clickable) {
               return;
@@ -232,7 +234,7 @@ const MemoizedDataCell = memo<Props>(
 
     // Explicitely prevent the component from rendering.
     if (nextRenderComponentCondition === false) {
-      return true;
+      return equals(prevProps.viewMode, nextProps.viewMode);
     }
 
     const previousRowProps = previousRowMemoProps
@@ -262,7 +264,8 @@ const MemoizedDataCell = memo<Props>(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)
       ) &&
-      equals(previousIsRowHighlighted, nextIsRowHighlighted)
+      equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
+      equals(prevProps.viewMode, nextProps.viewMode)
     );
   }
 );

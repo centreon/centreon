@@ -8,6 +8,8 @@ import { makeStyles, withStyles } from 'tss-react/mui';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { TableCell, TableHead, TableRow } from '@mui/material';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 import { getVisibleColumns, Props as ListingProps } from '..';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
@@ -75,6 +77,7 @@ type Props = Pick<
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
+  viewMode?: ListingVariant;
 };
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
@@ -101,7 +104,8 @@ const ListingHeader = ({
   predefinedRowsSelection,
   onSelectRowsWithCondition,
   memoProps,
-  areColumnsEditable
+  areColumnsEditable,
+  viewMode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
@@ -135,6 +139,7 @@ const ListingHeader = ({
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
+          viewMode={viewMode}
           onSort={onSort}
           {...listeners}
           {...attributes}
@@ -218,7 +223,8 @@ const MemoizedListingHeader = React.memo<Props>(
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
     equals(prevProps.memoProps, nextProps.memoProps) &&
-    equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
+    equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable) &&
+    equals(prevProps.viewMode, nextProps.viewMode)
 );
 
 export default MemoizedListingHeader;

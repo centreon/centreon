@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { isNil } from 'ramda';
+import { equals, isNil, pick } from 'ramda';
+import { CSSObject } from 'tss-react';
+
+import { Theme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -18,6 +21,24 @@ interface Table {
   dataStyle: Style;
   getGridTemplateColumn: string;
 }
+
+const isCompactMode = equals<ListingVariant | undefined>(
+  ListingVariant.compact
+);
+
+interface GetTextStyleProps {
+  theme: Theme;
+  viewMode?: ListingVariant;
+}
+
+export const getTextStyleByViewMode = ({
+  viewMode,
+  theme
+}: GetTextStyleProps): CSSObject =>
+  pick(
+    ['color', 'fontSize', 'lineHeight'],
+    theme.typography[isCompactMode(viewMode) ? 'body2' : 'body1']
+  );
 
 const useStyleTable = ({
   checkable,

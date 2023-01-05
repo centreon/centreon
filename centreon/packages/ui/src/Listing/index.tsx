@@ -545,6 +545,7 @@ const Listing = <TRow extends { id: RowId }>({
               selectedRowCount={selectedRows.length}
               sortField={sortField}
               sortOrder={sortOrder}
+              viewMode={viewMode}
               onSelectAllClick={selectAllRows}
               onSelectColumns={onSelectColumns}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
@@ -581,6 +582,7 @@ const Listing = <TRow extends { id: RowId }>({
                     rowColorConditions={rowColorConditions}
                     shiftKeyDownRowPivot={shiftKeyDownRowPivot}
                     tabIndex={-1}
+                    viewMode={viewMode}
                     visibleColumns={visibleColumns}
                     onClick={(): void => {
                       onRowClick(row);

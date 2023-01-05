@@ -10,16 +10,19 @@ import {
   Tooltip
 } from '@mui/material';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
+import { getTextStyleByViewMode } from '../../useStyleTable';
 
 import DraggableIcon from './DraggableIcon';
 
-type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
+type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay' | 'viewMode'>;
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, isInDragOverlay }) => ({
+  (theme, { isDragging, isInDragOverlay, viewMode }) => ({
     active: {
       '&.Mui-active': {
         '& .MuiTableSortLabel-icon': {
@@ -57,7 +60,8 @@ const useStyles = makeStyles<StylesProps>()(
         ? 'transparent'
         : theme.palette.background.listingHeader,
       borderBottom: 'none',
-      padding: 0
+      padding: 0,
+      ...getTextStyleByViewMode({ theme, viewMode })
     }
   })
 );
@@ -73,6 +77,7 @@ type Props = Pick<
   isInDragOverlay?: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   style;
+  viewMode?: ListingVariant;
 };
 
 const SortableHeaderCellContent = ({
@@ -86,11 +91,13 @@ const SortableHeaderCellContent = ({
   style,
   isInDragOverlay,
   areColumnsEditable,
+  viewMode,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles({
     isDragging,
-    isInDragOverlay
+    isInDragOverlay,
+    viewMode
   });
   const [cellHovered, setCellHovered] = React.useState(false);
 
