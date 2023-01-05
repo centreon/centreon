@@ -49,7 +49,7 @@ class UpdateTimePeriod
      */
     public function __invoke(UpdateTimePeriodRequest $request, PresenterInterface $presenter): void
     {
-        $this->info('Update of the time period', ['request' => $request]);
+        $this->info('Updating the time period', ['request' => $request]);
         try {
             if (($timePeriod = $this->readTimePeriodRepository->findById($request->id)) === null) {
                 $this->error('Time period not found', ['id' => $request->id]);

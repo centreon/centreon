@@ -54,7 +54,7 @@ it('should present a NotFoundResponse error when the time period is not found', 
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present a ErrorResponse response when the exception is raised', function () {
+it('should present an ErrorResponse response when the exception is raised', function () {
     $timePeriodId = 1;
     $this->readRepository
         ->expects($this->once())

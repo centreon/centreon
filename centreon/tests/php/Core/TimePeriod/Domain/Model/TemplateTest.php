@@ -76,7 +76,7 @@ it(
 );
 
 it(
-    'should throw an exception if id id less than of 1',
+    'should throw an exception if ID is less than 1',
     function (): void {
         new Template(0, 'fake_value');
     }

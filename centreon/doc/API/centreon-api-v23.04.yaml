@@ -931,7 +931,7 @@ paths:
       parameters:
       - in: path
         name: id
-        description: "Id of the time period to be deleted"
+        description: "ID of the time period to be deleted"
         required: true
         schema:
           type: integer
@@ -953,7 +953,7 @@ paths:
       parameters:
         - in: path
           name: id
-          description: "Time period id"
+          description: "Time period ID"
           required: true
           schema:
             type: integer
@@ -979,7 +979,7 @@ paths:
       parameters:
       - in: path
         name: id
-        description: "Id of the time period to be updated"
+        description: "ID of the time period to be updated"
         required: true
         schema:
           type: integer
@@ -5405,12 +5405,12 @@ components:
             $ref: "#/components/schemas/Configuration.TimePeriod.days"
         templates:
           type: array
-          description: "Ids of the time periods used as a template"
+          description: "IDs of the time periods used as a template"
           items:
             type: integer
         exceptions:
           type: array
-          description: "List of exception to the standard schedule"
+          description: "List of exceptions to the standard schedule"
           items:
             $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
     Configuration.TimePeriod:
@@ -5418,7 +5418,7 @@ components:
       properties:
         id:
           type: integer
-          description: "Time period id"
+          description: "Time period ID"
           example: 1
         name:
           type: string
@@ -5434,13 +5434,13 @@ components:
             $ref: "#/components/schemas/Configuration.TimePeriod.days"
         templates:
           type: array
-          description: "Ids of the time periods used as a template"
+          description: "IDs of the time periods used as a template"
           items:
             type: object
             properties:
               id:
                 type: integer
-                description: "Id of the time periods used as a template"
+                description: "ID of the time periods used as a template"
                 example: 1
               alias:
                 type: string
@@ -5448,14 +5448,14 @@ components:
                 example: "Always"
         exceptions:
           type: array
-          description: "List of exception to the standard schedule"
+          description: "List of exceptions to the standard schedule"
           items:
             allOf:
             - type: object
               properties:
                 id:
                   type: integer
-                  description: Id of the extra period
+                  description: ID of the extra period
                   example: 1
             - $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
     Configuration.TimePeriod.days:

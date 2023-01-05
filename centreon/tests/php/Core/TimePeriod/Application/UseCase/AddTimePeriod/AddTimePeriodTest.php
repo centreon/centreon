@@ -74,7 +74,7 @@ it('should present an ErrorResponse when the name already exists', function () {
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
 });
 
-it('should present an ErrorResponse when the new time period can not be found after creation', function () {
+it('should present an ErrorResponse when the new time period cannot be found after creation', function () {
     $nameToFind = 'fake_name';
     $this->readRepository
         ->expects($this->once())

@@ -84,7 +84,7 @@ it(
 );
 
 it(
-    'should throw exception when the start of the interval is greater than at the end of the interval',
+    'should throw exception when the start of the interval is greater than the end of the interval',
     function (): void {
         new TimeRange('12:01-12:00');
     }
@@ -104,7 +104,7 @@ it(
 );
 
 it(
-    'should throw exception when the start of the second interval is less than at the end of the first interval',
+    'should throw exception when the start of the second interval is less than the end of the first interval',
     function (): void {
         new TimeRange('00:00-12:00,11:00-14:00');
     }

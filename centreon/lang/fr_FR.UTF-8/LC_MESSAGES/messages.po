@@ -17246,7 +17246,7 @@ msgid "Error when searching for the time period %d"
 msgstr "Erreur lors de la recherche de la période de temps %d"
 
 msgid "The time period name '%s' already exists"
-msgstr "Le nom de la période de temps '%s' existe déjà"
+msgstr "La période de temps '%s' existe déjà"
 
 msgid "The time range format is wrong (%s)"
 msgstr "Le format de l'intervalle de temps est incorrect (%s)"

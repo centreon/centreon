@@ -32,7 +32,7 @@ $timeRange = new TimeRange('00:01-02:00');
 $dayRange = '';
 
 it(
-    'should throw an exception if id id less than of 1',
+    'should throw an exception if ID is less than 1',
     function () use ($dayRange, $timeRange): void {
         new ExtraTimePeriod(0, $dayRange, $timeRange);
     }

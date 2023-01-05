@@ -28,7 +28,7 @@ use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
 it(
-    'should throw an exception if the day id is less than 1',
+    'should throw an exception if the day ID is less than 1',
     function (): void {
         new Day(0, new TimeRange('00:00-12:00'));
     }
@@ -42,7 +42,7 @@ it(
 );
 
 it(
-    'should throw an exception if the day id is more than 7',
+    'should throw an exception if the day ID is more than 7',
     function (): void {
         new Day(8, new TimeRange('00:00-12:00'));
     }

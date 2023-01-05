@@ -38,7 +38,7 @@ beforeEach(function () {
     $this->formatter = $this->createMock(JsonFormatter::class);
 });
 
-it('should present a ErrorResponse response when the exception is raised', function () {
+it('should present an ErrorResponse response when the exception is raised', function () {
     $timePeriodId = 1;
     $this->readRepository
         ->expects($this->once())
@@ -56,7 +56,7 @@ it('should present a ErrorResponse response when the exception is raised', funct
         ->toBe(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage());
 });
 
-it('should present an NotFoundResponse when the time period is not found', function () {
+it('should present a NotFoundResponse when the time period is not found', function () {
     $timePeriodId = 1;
     $this->readRepository
         ->expects($this->once())

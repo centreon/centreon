@@ -116,7 +116,7 @@ it(
 );
 
 it(
-    'should throw an exception should if the given extra periods are not of the right type',
+    'should throw an exception if the given extra periods are not of the right type',
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setExtraTimePeriods([
@@ -128,7 +128,7 @@ it(
 );
 
 it(
-    'should throw an exception should if the given templates are not of the right type',
+    'should throw an exception if the given templates are not of the right type',
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setTemplates([
@@ -140,7 +140,7 @@ it(
 );
 
 it(
-    'should throw an exception should if the given days are not of the right type',
+    'should throw an exception if the given days are not of the right type',
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setDays([
