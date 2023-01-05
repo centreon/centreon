@@ -5,6 +5,7 @@ import { mount } from 'cypress/react18';
 
 import '@testing-library/cypress/add-commands';
 import 'cypress-msw-interceptor';
+import 'cypress-plugin-tab';
 
 import { ThemeProvider } from '@centreon/ui';
 

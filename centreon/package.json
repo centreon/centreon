@@ -39,6 +39,7 @@
     "cypress": "10.6.0",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-msw-interceptor": "^2.1.0",
+    "cypress-plugin-tab": "^1.0.5",
     "eslint": "^8.27.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.5.0",

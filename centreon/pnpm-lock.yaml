@@ -50,6 +50,7 @@ importers:
       cypress: 10.6.0
       cypress-image-snapshot: ^4.0.1
       cypress-msw-interceptor: ^2.1.0
+      cypress-plugin-tab: ^1.0.5
       d3-array: 3.2.0
       d3-scale: ^4.0.2
       dayjs: ^1.11.6
@@ -198,6 +199,7 @@ importers:
       cypress: 10.6.0
       cypress-image-snapshot: 4.0.1_cypress@10.6.0+jest@28.1.3
       cypress-msw-interceptor: 2.1.0_cypress@10.6.0+msw@0.49.1
+      cypress-plugin-tab: 1.0.5
       eslint: 8.28.0
       eslint-config-airbnb: 19.0.4_invmju5ptcaxqzgen2r53lkkoi
       eslint-config-prettier: 8.5.0_eslint@8.28.0
@@ -7936,6 +7938,13 @@ packages:
       uri-js: 4.4.1
     dev: true
 
+  /ally.js/1.4.1:
+    resolution: {integrity: sha512-ZewdfuwP6VewtMN36QY0gmiyvBfMnmEaNwbVu2nTS6zRt069viTgkYgaDiqu6vRJ1VJCriNqV0jGMu44R8zNbA==}
+    dependencies:
+      css.escape: 1.5.1
+      platform: 1.3.3
+    dev: true
+
   /ansi-align/3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
     dependencies:
@@ -9933,6 +9942,12 @@ packages:
       msw: 0.49.1_typescript@4.9.3
       node-match-path: 0.6.3
       prop-types: 15.8.1
+    dev: true
+
+  /cypress-plugin-tab/1.0.5:
+    resolution: {integrity: sha512-QtTJcifOVwwbeMP3hsOzQOKf3EqKsLyjtg9ZAGlYDntrCRXrsQhe4ZQGIthRMRLKpnP6/tTk6G0gJ2sZUfRliQ==}
+    dependencies:
+      ally.js: 1.4.1
     dev: true
 
   /cypress-wait-until/1.7.2:
@@ -17294,6 +17309,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       find-up: 5.0.0
+    dev: true
+
+  /platform/1.3.3:
+    resolution: {integrity: sha512-VJK1SRmXBpjwsB4YOHYSturx48rLKMzHgCqDH2ZDa6ZbMS/N5huoNqyQdK5Fj/xayu3fqbXckn5SeCS1EbMDZg==}
     dev: true
 
   /plist/3.0.6:
