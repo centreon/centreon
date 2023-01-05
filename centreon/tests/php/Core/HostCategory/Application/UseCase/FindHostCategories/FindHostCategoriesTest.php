@@ -82,7 +82,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostCategoryException::findHostCategories(new Exception())->getMessage());
 });
 
-it('should present an ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
+it('should present a ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
