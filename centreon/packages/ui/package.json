@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.10",
+  "version": "23.4.11-MON-16229/fix-console-warnings.0",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
