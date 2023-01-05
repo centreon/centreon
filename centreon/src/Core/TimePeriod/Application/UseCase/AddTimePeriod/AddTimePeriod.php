@@ -57,7 +57,7 @@ class AddTimePeriod
             $this->info('Add a new time period', ['request' => $request]);
 
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
-                $this->error('Time period name already exists');
+                $this->error('A time period with this name already exists');
                 $presenter->setResponseStatus(
                     new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
                 );
