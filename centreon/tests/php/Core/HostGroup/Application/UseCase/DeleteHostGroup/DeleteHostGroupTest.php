@@ -85,7 +85,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->toBe(HostGroupException::errorWhileDeleting()->getMessage());
 });
 
-it('should present an ForbiddenResponse when the user has not the correct role', function (): void {
+it('should present a ForbiddenResponse when the user does not have the correct role', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
