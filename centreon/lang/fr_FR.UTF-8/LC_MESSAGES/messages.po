@@ -17259,3 +17259,9 @@ msgstr "Erreur durant la recherche de groupes d'hôtes"
 
 msgid "You are not allowed to access host groups"
 msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
+
+msgid "Host group not found"
+msgstr "Groupe d'hôtes non trouvé"
+
+msgid "Error while deleting a host group"
+msgstr "Erreur durant la suppression d'un groupe d'hôtes"

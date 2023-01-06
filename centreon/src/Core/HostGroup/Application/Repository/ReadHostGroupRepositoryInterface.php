@@ -51,4 +51,50 @@ interface ReadHostGroupRepositoryInterface
      * @return list<HostGroup>
      */
     public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array;
+
+    /**
+     * Find one host group without acl.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return HostGroup|null
+     */
+    public function findOne(int $hostGroupId): ?HostGroup;
+
+    /**
+     * Find one host group with access groups.
+     *
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostGroup|null
+     */
+    public function findOneByAccessGroups(int $hostGroupId, array $accessGroups): ?HostGroup;
+
+    /**
+     * Tells whether the host group exists.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOne(int $hostGroupId): bool;
+
+    /**
+     * Tells whether the host group exists but with access groups.
+     *
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOneByAccessGroups(int $hostGroupId, array $accessGroups): bool;
 }

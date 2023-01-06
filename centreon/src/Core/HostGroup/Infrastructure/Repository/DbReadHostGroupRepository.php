@@ -86,6 +86,56 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findOne(int $hostGroupId): ?HostGroup
+    {
+        $concatenator = $this->getFindHostGroupConcatenator();
+
+        return $this->retrieveHostgroup($concatenator, $hostGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findOneByAccessGroups(int $hostGroupId, array $accessGroups): ?HostGroup
+    {
+        if ([] === $accessGroups) {
+            return null;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+
+        return $this->retrieveHostgroup($concatenator, $hostGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsOne(int $hostGroupId): bool
+    {
+        $concatenator = $this->getFindHostGroupConcatenator();
+
+        return $this->existsHostGroup($concatenator, $hostGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsOneByAccessGroups(int $hostGroupId, array $accessGroups): bool
+    {
+        if ([] === $accessGroups) {
+            return false;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+
+        return $this->existsHostGroup($concatenator, $hostGroupId);
+    }
+
+    /**
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
@@ -164,11 +214,11 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
+     * @throws AssertionFailedException
      * @throws InvalidGeoCoordException
      * @throws RequestParametersTranslatorException
      * @throws \InvalidArgumentException
      * @throws \PDOException
-     * @throws AssertionFailedException
      *
      * @return list<HostGroup>
      */
@@ -207,6 +257,72 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         return $hostGroups;
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $hostGroupId
+     *
+     * @throws \PDOException
+     *
+     * @return bool
+     */
+    private function existsHostGroup(SqlConcatenator $concatenator, int $hostGroupId): bool
+    {
+        $concatenator
+            // We override the select because we just need to get the ID to check the existence.
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT 1
+                    SQL
+            )
+            // We add the filtering by host group id.
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE hg.hg_id = :hostgroup_id
+                    SQL
+            )
+            ->storeBindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $hostGroupId
+     *
+     * @throws AssertionFailedException
+     * @throws InvalidGeoCoordException
+     * @throws \PDOException
+     *
+     * @return HostGroup|null
+     */
+    private function retrieveHostgroup(SqlConcatenator $concatenator, int $hostGroupId): ?HostGroup
+    {
+        // We add the filtering by host group id.
+        $concatenator
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE hg.hg_id = :hostgroup_id
+                    SQL
+            )
+            ->storeBindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        // Retrieve the first row
+        /** @var null|false|HostGroupResultSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createHostGroupFromArray($data) : null;
     }
 
     /**
