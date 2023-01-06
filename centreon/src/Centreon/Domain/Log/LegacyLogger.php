@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,12 +23,9 @@ declare(strict_types=1);
 namespace Centreon\Domain\Log;
 
 use Psr\Log\LoggerInterface;
-use Centreon\Domain\Log\LoggerTrait;
 
 /**
- * This class is designed to be used in legacy codebase to use a logger
- *
- * @package Centreon\Domain\Log
+ * This class is designed to be used in legacy codebase to use a logger.
  */
 class LegacyLogger implements LoggerInterface
 {
@@ -44,9 +41,14 @@ class LegacyLogger implements LoggerInterface
         log as traitLog;
     }
 
+    public function __construct()
+    {
+        $this->addIgnoreClass(__CLASS__);
+    }
+
     public function emergency($message, array $context = []): void
     {
-        $this->traitEmergency($message, $context);
+        $this->traitEmergency((string) $message, $context);
     }
 
     /**
@@ -54,7 +56,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function alert($message, array $context = []): void
     {
-        $this->traitAlert($message, $context);
+        $this->traitAlert((string) $message, $context);
     }
 
     /**
@@ -62,7 +64,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function critical($message, array $context = []): void
     {
-        $this->traitCritical($message, $context);
+        $this->traitCritical((string) $message, $context);
     }
 
     /**
@@ -70,7 +72,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function error($message, array $context = []): void
     {
-        $this->traitError($message, $context);
+        $this->traitError((string) $message, $context);
     }
 
     /**
@@ -78,7 +80,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function warning($message, array $context = []): void
     {
-        $this->traitWarning($message, $context);
+        $this->traitWarning((string) $message, $context);
     }
 
     /**
@@ -86,7 +88,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function notice($message, array $context = []): void
     {
-        $this->traitNotice($message, $context);
+        $this->traitNotice((string) $message, $context);
     }
 
     /**
@@ -94,7 +96,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function info($message, array $context = []): void
     {
-        $this->traitInfo($message, $context);
+        $this->traitInfo((string) $message, $context);
     }
 
     /**
@@ -102,7 +104,7 @@ class LegacyLogger implements LoggerInterface
      */
     public function debug($message, array $context = []): void
     {
-        $this->traitDebug($message, $context);
+        $this->traitDebug((string) $message, $context);
     }
 
     /**
@@ -110,6 +112,6 @@ class LegacyLogger implements LoggerInterface
      */
     public function log($level, $message, array $context = []): void
     {
-        $this->traitLog($level, $message, $context);
+        $this->traitLog($level, (string) $message, $context);
     }
 }
