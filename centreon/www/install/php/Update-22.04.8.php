@@ -27,12 +27,12 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 22.04.8: ';
 
 try {
-    // Transactional queries
     if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
         $errorMessage = "Unable to remove app_key column";
         $pearDB->query("ALTER TABLE `remote_servers` DROP COLUMN `app_key`");
     }
 
+    // Transactional queries
     $pearDB->beginTransaction();
     $errorMessage = "Impossible to delete color picker topology_js entries";
     $pearDB->query(
