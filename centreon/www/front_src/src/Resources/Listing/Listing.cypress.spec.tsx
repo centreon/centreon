@@ -225,6 +225,17 @@ describe('Resource Listing', () => {
 
     cy.matchImageSnapshot();
   });
+
+  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+    cy.waitFiltersAndListingRequests();
+
+    cy.moveSortableElement({
+      ariaLabel: 'Parent Drag handle',
+      direction: 'right'
+    });
+
+    cy.matchImageSnapshot();
+  });
 });
 
 describe('column sorting', () => {
