@@ -5805,7 +5805,7 @@ components:
         - properties:
             id:
               type: integer
-              description: "Host group id"
+              description: "Host group ID"
               example: 1
     Configuration.Host.Group.Add:
       type: object

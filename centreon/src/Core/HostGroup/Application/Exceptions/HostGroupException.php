@@ -54,7 +54,7 @@ class HostGroupException extends \Exception
      */
     public static function errorWhileRetrievingJustCreated(): self
     {
-        return new self(_('Error while retrieving just created host group'));
+        return new self(_('Error while retrieving newly created host group'));
     }
 
     /**

@@ -75,7 +75,7 @@ final class AddHostGroup
                 $this->info('Add host group', ['request' => $request]);
             } else {
                 $this->error(
-                    "User doesn't have sufficient right to add host groups",
+                    "User doesn't have sufficient rights to add host groups",
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(

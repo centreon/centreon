@@ -162,7 +162,7 @@ foreach (['iconId', 'iconMapId'] as $iconField) {
 }
 
 it(
-    'should present an ErrorResponse if the just created host group cannot be retrieved',
+    'should present an ErrorResponse if the newly created host group cannot be retrieved',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -191,7 +191,7 @@ it(
 );
 
 it(
-    'should present an ForbiddenResponse when the user has not the correct role',
+    'should present a ForbiddenResponse when the user does not have the correct role',
     function (): void {
         $this->contact
             ->expects($this->once())
