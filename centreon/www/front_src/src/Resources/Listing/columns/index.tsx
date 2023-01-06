@@ -82,17 +82,6 @@ export const defaultSelectedColumnIds = [
 
 export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
   {
-    Component: SeverityColumn,
-    getRenderComponentOnRowUpdateCondition: T,
-    id: 'severity',
-    label: t(labelSeverity),
-    rowMemoProps: ['severity_level'],
-    shortLabel: 'S',
-    sortField: 'severity_level',
-    sortable: true,
-    type: ColumnType.component
-  },
-  {
     Component: StatusColumn({ actions, t }),
     clickable: true,
     getRenderComponentOnRowUpdateCondition: T,
@@ -126,26 +115,6 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortable: true,
     type: ColumnType.component,
     width: 'max-content'
-  },
-  {
-    Component: NotesUrlColumn,
-    getRenderComponentOnRowUpdateCondition: T,
-    id: 'notes_url',
-    label: t(labelNotes),
-    rowMemoProps: ['links'],
-    shortLabel: 'N',
-    sortable: false,
-    type: ColumnType.component
-  },
-  {
-    Component: ActionUrlColumn,
-    getRenderComponentOnRowUpdateCondition: T,
-    id: 'action_url',
-    label: t(labelAction),
-    rowMemoProps: ['links'],
-    shortLabel: 'A',
-    sortable: false,
-    type: ColumnType.component
   },
   {
     Component: GraphColumn({ onClick: actions.onDisplayGraph }),
@@ -194,6 +163,37 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortable: false,
     type: ColumnType.string,
     width: 'minmax(100px, 1fr)'
+  },
+  {
+    Component: SeverityColumn,
+    getRenderComponentOnRowUpdateCondition: T,
+    id: 'severity',
+    label: t(labelSeverity),
+    rowMemoProps: ['severity_level'],
+    shortLabel: 'S',
+    sortField: 'severity_level',
+    sortable: true,
+    type: ColumnType.component
+  },
+  {
+    Component: NotesUrlColumn,
+    getRenderComponentOnRowUpdateCondition: T,
+    id: 'notes_url',
+    label: t(labelNotes),
+    rowMemoProps: ['links'],
+    shortLabel: 'N',
+    sortable: false,
+    type: ColumnType.component
+  },
+  {
+    Component: ActionUrlColumn,
+    getRenderComponentOnRowUpdateCondition: T,
+    id: 'action_url',
+    label: t(labelAction),
+    rowMemoProps: ['links'],
+    shortLabel: 'A',
+    sortable: false,
+    type: ColumnType.component
   },
   {
     Component: StateColumn,
