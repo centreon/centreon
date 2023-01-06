@@ -243,7 +243,7 @@ trait LoggerTrait
      */
     private function prefixMessage(string $message): string
     {
-        $debugTrace = debug_backtrace();
+        $debugTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         /**
          * @var array{file: string, line: int} $trace
          */
