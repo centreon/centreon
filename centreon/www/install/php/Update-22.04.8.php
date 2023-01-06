@@ -28,7 +28,17 @@ $versionOfTheUpgrade = 'UPGRADE - 22.04.8: ';
 
 try {
     // Transactional queries
+    if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
+        $errorMessage = "Unable to remove app_key column";
+        $pearDB->query("ALTER TABLE `remote_servers` DROP COLUMN `app_key`");
+    }
+
     $pearDB->beginTransaction();
+    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $pearDB->query(
+        "DELETE FROM `topology_JS`
+        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
+    );
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     decodeIllegalCharactersNagios($pearDB);
