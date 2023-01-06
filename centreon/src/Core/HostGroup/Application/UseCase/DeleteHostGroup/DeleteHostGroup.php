@@ -59,7 +59,7 @@ final class DeleteHostGroup
                 $presenter->setResponseStatus($this->deleteHostGroupAsContact($hostGroupId));
             } else {
                 $this->error(
-                    "User doesn't have sufficient right to see host groups",
+                    "User doesn't have sufficient rights to see host groups",
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
