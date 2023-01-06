@@ -17264,4 +17264,4 @@ msgid "Host group not found"
 msgstr "Groupe d'hôtes non trouvé"
 
 msgid "Error while deleting a host group"
-msgstr "Erreur durant la suppression d'un groupe d'hôte"
+msgstr "Erreur durant la suppression d'un groupe d'hôtes"
