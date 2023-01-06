@@ -27,8 +27,6 @@ When('I select the acknowledge action on a problematic Resource', () => {
   cy.contains(serviceInAcknowledgementName)
     .parent()
     .parent()
-    .parent()
-    .parent()
     .find('input[type="checkbox"]:first')
     .click();
 
@@ -45,8 +43,6 @@ Then('the problematic Resource is displayed as acknowledged', () => {
       .refreshListing()
       .then(() => cy.contains(serviceInAcknowledgementName))
       .parent()
-      .parent()
-      .parent()
       .then((val) => {
         return (
           val.css('background-color') === actionBackgroundColors.acknowledge
@@ -57,8 +53,6 @@ Then('the problematic Resource is displayed as acknowledged', () => {
 
 When('I select the downtime action on a problematic Resource', () => {
   cy.contains(serviceInDowntimeName)
-    .parent()
-    .parent()
     .parent()
     .parent()
     .find('input[type="checkbox"]:first')
@@ -75,8 +69,6 @@ Then('the problematic Resource is displayed as in downtime', () => {
     return cy
       .refreshListing()
       .then(() => cy.contains(serviceInDowntimeName))
-      .parent()
-      .parent()
       .parent()
       .then((val) => {
         return (
