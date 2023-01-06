@@ -5,7 +5,7 @@ import {
   actionBackgroundColors,
   actions,
   insertResourceFixtures,
-  tearDownResource,
+  tearDownResource
 } from '../common';
 
 const serviceInAcknowledgementName = 'service_test_ack';
@@ -13,6 +13,14 @@ const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
   insertResourceFixtures();
+});
+
+beforeEach(() => {
+  cy.get('[aria-label="Add columns"]').click();
+
+  cy.contains('State').click();
+
+  cy.get('[aria-label="Add columns"]').click();
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {
