@@ -168,7 +168,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
             $statement->bindValue($param, $value, $type);
         }
-        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_STR);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
 
         $statement->execute();
 
