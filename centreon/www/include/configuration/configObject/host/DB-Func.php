@@ -1479,12 +1479,18 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
 
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
+        if ($token === ':host_snmp_community' && preg_match('/^secret::\d+::/',$bindParams[$token][\PDO::PARAM_STR])) {
+            continue;
+        }
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
     }
     $rq = rtrim($rq, ', ');
     $rq .= " WHERE host_id = :hostId";
     $stmt = $pearDB->prepare($rq);
     foreach ($bindParams as $token => $bindValues) {
+        if ($token === ':host_snmp_community' && preg_match('/^secret::\d+::/',$bindParams[$token][\PDO::PARAM_STR])) {
+            continue;
+        }
         foreach ($bindValues as $paramType => $value) {
             $stmt->bindValue($token, $value, $paramType);
         }
