@@ -147,6 +147,7 @@ const SortableHeaderCellContent = ({
           <DraggableIcon
             visible={cellHovered}
             {...props}
+            isInteractive
             className={cx({ [classes.dragHandle]: cellHovered })}
             columnLabel={columnLabel}
           />
