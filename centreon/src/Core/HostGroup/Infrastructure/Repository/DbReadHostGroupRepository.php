@@ -136,6 +136,24 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @inheritDoc
+     */
+    public function nameAlreadyExists(string $hostGroupName): bool
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1 FROM `:db`.`hostgroup` WHERE hg_name = :name
+                    SQL
+            )
+        );
+        $statement->bindValue(':name', $hostGroupName);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
@@ -214,11 +232,11 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @throws AssertionFailedException
      * @throws InvalidGeoCoordException
      * @throws RequestParametersTranslatorException
      * @throws \InvalidArgumentException
      * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return list<HostGroup>
      */
@@ -296,9 +314,9 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      * @param SqlConcatenator $concatenator
      * @param int $hostGroupId
      *
-     * @throws AssertionFailedException
      * @throws InvalidGeoCoordException
      * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return HostGroup|null
      */
@@ -330,8 +348,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      *
      * @phpstan-param HostGroupResultSet $result
      *
-     * @throws InvalidGeoCoordException
      * @throws AssertionFailedException
+     * @throws InvalidGeoCoordException
      *
      * @return HostGroup
      */

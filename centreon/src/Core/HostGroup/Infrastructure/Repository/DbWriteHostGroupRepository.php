@@ -26,10 +26,15 @@ namespace Core\HostGroup\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
+use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\NewHostGroup;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
+    use RepositoryTrait;
     use LoggerTrait;
 
     public function __construct(DatabaseConnection $db)
@@ -54,5 +59,67 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function add(NewHostGroup $newHostGroup): int
+    {
+        $insert = <<<'SQL'
+            INSERT INTO `:db`.`hostgroup`
+                (
+                    hg_name,
+                    hg_alias,
+                    hg_notes,
+                    hg_notes_url,
+                    hg_action_url,
+                    hg_icon_image,
+                    hg_map_icon_image,
+                    hg_rrd_retention,
+                    geo_coords,
+                    hg_comment,
+                    hg_activate
+                )
+            VALUES
+                (
+                    :name,
+                    :alias,
+                    :notes,
+                    :notes_url,
+                    :action_url,
+                    :icon_image,
+                    :map_icon_image,
+                    :rrd_retention,
+                    :geo_coords,
+                    :comment,
+                    :activate
+                )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($insert));
+        $this->bindValueOfHostGroup($statement, $newHostGroup);
+        $statement->execute();
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @param \PDOStatement $statement
+     * @param HostGroup|NewHostGroup $newHostGroup
+     */
+    private function bindValueOfHostGroup(\PDOStatement $statement, HostGroup|NewHostGroup $newHostGroup): void
+    {
+        $statement->bindValue(':name', $newHostGroup->getName());
+        $statement->bindValue(':alias', $this->emptyStringAsNull($newHostGroup->getAlias()));
+        $statement->bindValue(':notes', $this->emptyStringAsNull($newHostGroup->getNotes()));
+        $statement->bindValue(':notes_url', $this->emptyStringAsNull($newHostGroup->getNotesUrl()));
+        $statement->bindValue(':action_url', $this->emptyStringAsNull($newHostGroup->getActionUrl()));
+        $statement->bindValue(':icon_image', $newHostGroup->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(':map_icon_image', $newHostGroup->getIconMapId(), \PDO::PARAM_INT);
+        $statement->bindValue(':rrd_retention', $newHostGroup->getRrdRetention(), \PDO::PARAM_INT);
+        $statement->bindValue(':geo_coords', $newHostGroup->getGeoCoords()?->__toString());
+        $statement->bindValue(':comment', $this->emptyStringAsNull($newHostGroup->getComment()));
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($newHostGroup->isActivated()));
     }
 }

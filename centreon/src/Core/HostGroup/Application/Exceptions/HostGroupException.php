@@ -48,4 +48,33 @@ class HostGroupException extends \Exception
     {
         return new self(_('Error while deleting a host group'));
     }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving newly created host group'));
+    }
+
+    /**
+     * @param string $iconName
+     * @param int $iconId
+     *
+     * @return self
+     */
+    public static function iconDoesNotExist(string $iconName, int $iconId): self
+    {
+        return new self(sprintf(_("The host group icon '%s' with id '%d' does not exist"), $iconName, $iconId));
+    }
+
+    /**
+     * @param string $hostGroupName
+     *
+     * @return self
+     */
+    public static function nameAlreadyExists(string $hostGroupName): self
+    {
+        return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName));
+    }
 }
