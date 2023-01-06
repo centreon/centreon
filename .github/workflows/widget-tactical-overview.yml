@@ -12,7 +12,10 @@ on:
       - "widgets/centreon-widget-tactical-overview/**"
   push:
     branches:
-      - dev-21.10.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - ".github/workflows/widget-tactical-overview.yml"
       - "widgets/centreon-widget-tactical-overview/**"
