@@ -239,7 +239,7 @@ if (!is_null($host_id)) {
             " AND s.enabled = 1 ";
         $DBRESULT = $pearDBO->query($rq);
 
-        $tab_status_service = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING");
+        $tab_status_service = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", 3 => "UNKNOWN", 4 => "PENDING");
         $tab_class_service = array(
             "ok" => 'service_ok',
             "warning" => 'service_warning',
@@ -301,10 +301,13 @@ if (!is_null($host_id)) {
             if (isset($data['performance_data'])) {
                 $data['performance_data'] = $data['performance_data'];
             }
+            if ($data["current_state"] === null || !in_array($data["current_state"], array_keys($tab_status_service))) {
+                $data["current_state"] = 4; // default to PENDING
+            }
             if ($data["service_description"] == $svc_description) {
                 $service_status = $data;
             }
-            if (!isset($tab_status[$data["current_state"]])) {
+            if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
                 $tab_status[$tab_status_service[$data["current_state"]]] = 0;
             }
             $tab_status[$tab_status_service[$data["current_state"]]]++;
