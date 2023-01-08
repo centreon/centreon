@@ -92,6 +92,19 @@ class Assertion
     }
 
     /**
+     * Assert that a value is at least an integer > 0.
+     *
+     * @param positive-int $value Value to test
+     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function positiveInt(int $value, ?string $propertyPath = null): void
+    {
+        self::min($value, 1, $propertyPath);
+    }
+
+    /**
      * Assert that a value is at least as big as a given limit.
      *
      * @param int $value Value to test
