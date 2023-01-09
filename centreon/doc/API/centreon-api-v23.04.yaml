@@ -323,7 +323,7 @@ paths:
                   type: "string"
                   example: "host-category-alias"
       responses:
-        '204':
+        '201':
           description: "OK"
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -446,7 +446,7 @@ paths:
         Mandatory body properties are:
 
         * name
-        
+
         `Since Centreon web 23.04`
       requestBody:
         required: true

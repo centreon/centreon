@@ -152,7 +152,7 @@ Feature:
         "comments": "blablabla"
     }
     """
-    Then the response code should be "200"
+    Then the response code should be "201"
     And the JSON should be equal to:
     """
     {
