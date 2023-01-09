@@ -24,10 +24,17 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Common\Presenter;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{
-    BodyResponseInterface, CreatedResponse, ErrorResponse, ForbiddenResponse,
-    InvalidArgumentResponse, NoContentResponse, NotFoundResponse, PaymentRequiredResponse,
-    ResponseStatusInterface, UnauthorizedResponse
+use Core\Application\Common\UseCase\{BodyResponseInterface,
+    ConflictResponse,
+    CreatedResponse,
+    ErrorResponse,
+    ForbiddenResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    PaymentRequiredResponse,
+    ResponseStatusInterface,
+    UnauthorizedResponse
 };
 use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 
@@ -69,6 +76,10 @@ class JsonFormatter implements PresenterFormatterInterface
                     $this->debug('Forbidden. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_FORBIDDEN, $headers);
+                case $data instanceof ConflictResponse:
+                    $this->debug('Conflict. Generating an error response');
+
+                    return $this->generateJsonErrorResponse($data, Response::HTTP_CONFLICT, $headers);
                 case $data instanceof CreatedResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
                 case $data instanceof NoContentResponse:
@@ -112,8 +123,8 @@ class JsonFormatter implements PresenterFormatterInterface
      * @param int $code
      * @param array<string, mixed> $headers
      *
-     * @throws \InvalidArgumentException
      * @throws \TypeError
+     * @throws \InvalidArgumentException
      *
      * @return JsonResponse
      */
@@ -129,8 +140,8 @@ class JsonFormatter implements PresenterFormatterInterface
      * @param int $code
      * @param array<string, mixed> $headers
      *
-     * @throws \InvalidArgumentException
      * @throws \TypeError
+     * @throws \InvalidArgumentException
      *
      * @return JsonResponse
      */
