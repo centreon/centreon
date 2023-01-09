@@ -1,0 +1,99 @@
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/metadata-syntax-for-github-actions
+name: 'Cypress.io'
+description: 'GitHub Action for running Cypress end-to-end tests'
+author: 'Gleb Bahmutov'
+inputs:
+  record:
+    description: 'Sends test results to Cypress Dashboard'
+    required: false
+    default: false
+  config:
+    description: 'Set configuration values. Separate multiple values with a comma. The values set here override any values set in your configuration file.'
+    required: false
+  config-file:
+    description: 'Path to the cypress config file where configuration values are set.'
+    required: false
+    default: ''
+  env:
+    description: 'Sets Cypress environment variables'
+    required: false
+  browser:
+    description: 'Name of the browser to use'
+    required: false
+  command:
+    description: 'Command that overrides cypress run'
+    required: false
+  start:
+    description: 'Command for starting local server in the background'
+    required: false
+  start-windows:
+    description: 'A different start command on Windows'
+    required: false
+  build:
+    description: 'Command to run in build step before starting tests'
+    required: false
+  install:
+    description: 'Whether or not to run install'
+    required: false
+  install-command:
+    description: 'Custom install command to use'
+    required: false
+  runTests:
+    description: 'Whether or not to run tests'
+    required: false
+  wait-on:
+    description: 'Local server URL to wait for'
+    required: false
+  wait-on-timeout:
+    description: 'Amount of time to wait for wait-on url to be available'
+    required: false
+  parallel:
+    description: 'Whether or not to load balance tests using multiple containers'
+    required: false
+  group:
+    description: 'Group setting for tests'
+    required: false
+  tag:
+    description: 'Tag setting for tests'
+    required: false
+  working-directory:
+    description: 'Working directory containing Cypress folder'
+    required: false
+  headed:
+    description: 'Whether or not to use headed mode'
+    required: false
+  summary:
+    description: 'Whether or not to publish job summary'
+    required: false
+    default: true
+  spec:
+    description: 'Provide a specific specs to run'
+    required: false
+  project:
+    description: 'Path of project to run'
+    required: false
+  command-prefix:
+    description: 'You can prefix the default test command using the command-prefix option.'
+    required: false
+  ci-build-id:
+    description: 'ID associates multiple CI machines to one test run'
+    required: false
+  cache-key:
+    description: 'Custom cache key'
+    required: false
+  quiet:
+    description: 'Whether or not to silence any Cypress specific output from stdout'
+    required: false
+  component:
+    description: "Lets the action know that Cypress is running component tests and not e2e tests"
+    required: false
+    default: false
+outputs:
+  dashboardUrl:
+    description: 'Cypress Dashboard URL if the run was recorded'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
+branding:
+  color: 'green'
+  icon: 'check-square'
