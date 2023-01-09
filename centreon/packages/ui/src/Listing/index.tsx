@@ -127,6 +127,7 @@ const useStyles = makeStyles<StylesProps>()(
     table: {
       '.listingHeader div div': {
         backgroundColor: theme.palette.background.listingHeader,
+        boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
         height: dataStyle.header.height,
         padding: 0
       },
