@@ -40,7 +40,11 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 
 <?php
 
-function service_ack()
+/**
+ * service_ack: put an ack on a host and service
+ * @param int $autoCloseActionPopup set to 1 if you want to automatically close call popup
+ */
+function service_ack(int $autoCloseActionPopup)
 {
     global $cmd, $centreon, $centreon_path;
 
@@ -90,7 +94,31 @@ function service_ack()
     $template->assign('force_active_checked', $force_active_checked);
     $template->assign('titleLabel', $title);
     $template->assign('submitLabel', _("Acknowledge"));
+    $template->assign('autoCloseActionPopup', $autoCloseActionPopup);
     $template->display('acknowledge.ihtml');
+}
+
+/**
+ * schedule_check: prepare variables for widget popup when scheduling a check
+ * @param int $isService set to 1 if you want to schedule a check on a service
+ * @param int $forced set to 1 if you want to schedule a forced check
+ * @param int $autoCloseActionPopup set to 1 if you want to automatically close call popup
+ */
+function schedule_check(int $isService, int $forced, int $autoCloseActionPopup)
+{
+    global $cmd, $centreon, $centreon_path;
+
+    $selection = filter_var($_REQUEST['selection'], FILTER_SANITIZE_STRING);
+
+    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $template = new Smarty();
+    $template = initSmartyTpl($path . 'templates/', $template, "./", $centreon_path);
+    $template->assign('selection', $selection);
+    $template->assign('titleLabel', _("Scheduling checks"));
+    $template->assign('forced', $forced);
+    $template->assign('isService', $isService);
+    $template->assign('autoCloseActionPopup', $autoCloseActionPopup);
+    $template->display('schedulecheck.ihtml');
 }
 
 function format_popup()
@@ -196,7 +224,19 @@ try {
     } elseif ($cmd == 10) {
         remove_tickets();
     } elseif ($cmd == 70) {
-        service_ack();
+        service_ack($preferences['auto_close_action_popup']);
+    //schedule service forced check
+    } elseif ($cmd == 80) {
+        schedule_check(1, 1, $preferences['auto_close_action_popup']);
+    // schedule service check
+    } elseif ($cmd == 81) {
+        schedule_check(1, 0, $preferences['auto_close_action_popup']);
+    // schedule host forced check
+    } elseif ($cmd == 82) {
+        schedule_check(0, 1, $preferences['auto_close_action_popup']);
+    // schedule host check
+    } elseif ($cmd == 83) {
+        schedule_check(0, 0, $preferences['auto_close_action_popup']);
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";
