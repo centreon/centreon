@@ -19,6 +19,10 @@
 				{$form.o1.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-1">{$msg.addT}</a>
 				<a href='#' class="btc bt_info ml-1" onClick="window.open('./main.php?p={$p}&o=sd&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=350, height=250');">{$syncDir}</a>
+				<label >
+					{$availiableSpace} Available
+				</label>
+
 			</td>
 			{php}
 			   include('./include/common/pagination.php');
@@ -66,6 +70,9 @@
 				{$form.o2.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-1">{$msg.addT}</a>&nbsp;&nbsp;
 				<a href='#' class="btc bt_info ml-1" onClick="window.open('./main.php?p={$p}&o=sd&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=350, height=250');">{$syncDir}</a>
+				<a >
+					{$availiableSpace} Available
+				</a>
 			</td>
 			
 			{php}
