@@ -12,7 +12,10 @@ on:
       - "widgets/centreon-widget-single-metric/**"
   push:
     branches:
-      - dev-22.10.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - ".github/workflows/centreon-widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
@@ -43,6 +46,8 @@ jobs:
     with:
       widget_name: single-metric
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USER }}
