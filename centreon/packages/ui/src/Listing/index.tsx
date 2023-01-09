@@ -619,6 +619,7 @@ const Listing = <TRow extends { id: RowId }>({
 
                     {visibleColumns.map((column) => (
                       <DataCell
+                        areColumnsEditable={areColumnsEditable}
                         column={column}
                         disableRowCondition={disableRowCondition}
                         getHighlightRowCondition={getHighlightRowCondition}

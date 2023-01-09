@@ -21,6 +21,7 @@ import EllipsisTypography from './EllipsisTypography';
 import Cell from '.';
 
 interface Props {
+  areColumnsEditable: boolean;
   column: Column;
   disableRowCondition: (row) => boolean;
   getHighlightRowCondition?: (row) => boolean;
@@ -64,7 +65,8 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition,
   viewMode,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  areColumnsEditable
 }: Props): JSX.Element | null => {
   const { dataStyle } = useStyleTable({ viewMode });
   const { classes } = useStyles();
@@ -109,7 +111,7 @@ const DataCell = ({
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
           <>
-            <DraggableIcon />
+            {areColumnsEditable && <DraggableIcon />}
             {!isTruncated && typography}
           </>
         </Cell>
@@ -141,7 +143,9 @@ const DataCell = ({
           {...commonCellProps}
         >
           <>
-            <DraggableIcon className={classes.componentColumn} />
+            {areColumnsEditable && (
+              <DraggableIcon className={classes.componentColumn} />
+            )}
 
             <Component
               isHovered={isRowHovered}
@@ -265,7 +269,8 @@ const MemoizedDataCell = memo<Props>(
         nextProps.disableRowCondition(nextProps.row)
       ) &&
       equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
-      equals(prevProps.viewMode, nextProps.viewMode)
+      equals(prevProps.viewMode, nextProps.viewMode) &&
+      equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
     );
   }
 );
