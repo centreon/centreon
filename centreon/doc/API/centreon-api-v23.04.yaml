@@ -463,6 +463,8 @@ paths:
                 $ref: '#/components/schemas/Configuration.Host.Group'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups/{hostgroup_id}:
