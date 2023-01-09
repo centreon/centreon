@@ -109,7 +109,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayMonth',
-    value: '6'
+    value: '2'
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
@@ -130,7 +130,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector: '#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordHour',
-    value: '1'
+    value: '2'
   },
   {
     selector: '#Last3passwordscanbereused',
