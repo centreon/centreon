@@ -198,7 +198,7 @@ if (!$isAdmin) {
 
     $aclGroupsQueryBinds = [];
     foreach ($aclGroupsExploded as $key => $value) {
-            $aclGroupsQueryBinds[':acl_group_' . $key] = str_replace("'","",$value);
+        $aclGroupsQueryBinds[':acl_group_' . $key] = str_replace("'","",$value);
     }
     $aclGroupBinds = implode(',', array_keys($aclGroupsQueryBinds));
     $sql = "SELECT service_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id
