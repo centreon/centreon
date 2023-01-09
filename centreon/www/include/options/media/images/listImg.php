@@ -156,11 +156,11 @@ $tpl->assign("elemArr", $elemArr);
 $diskStmnt = $pearDB->query("SELECT value FROM options AS o WHERE  o.key = 'nagios_path_img'")->fetch();
 
 $bytes = disk_free_space($diskStmnt["value"]);
-$si_prefix = array ('B', 'KB', 'MB', 'GB', 'TB');
-$base = 1024;
-$class = min((int)log($bytes, $base), count($si_prefix) - 1);
-$availiableSpace = sprintf('%1.2f', $bytes / pow($base, $class)) . ' ' . $si_prefix[$class];
-$tpl->assign("availiableSpace",$availiableSpace);
+$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+$class = min((int)log($bytes, 1024), count($units) - 1);
+$availiableSpace = sprintf('%1.2f', $bytes / pow(1024, $class)) . ' ' . $units[$class];
+$tpl->assign("availiableSpace", $availiableSpace);
+$tpl->assign("Available", _("Available"));
 
 /*
  * Different messages we put in the template
