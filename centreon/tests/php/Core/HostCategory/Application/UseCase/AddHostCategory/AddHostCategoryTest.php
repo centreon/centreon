@@ -73,7 +73,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
 });
 
-it('should present an ForbiddenResponse when a user has unsufficient rights', function (): void {
+it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -87,7 +87,7 @@ it('should present an ForbiddenResponse when a user has unsufficient rights', fu
         ->toBe(HostCategoryException::addNotAllowed()->getMessage());
 });
 
-it('should present a InvalidArgumentResponse when name is already used', function () {
+it('should present an InvalidArgumentResponse when name is already used', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

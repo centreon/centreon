@@ -17279,7 +17279,7 @@ msgid "You are not allowed to create host categories"
 msgstr "Vous n'êtes pas autorisé à créer des catégories d'hôtes"
 
 msgid "Host category name already exists"
-msgstr "Nom de catégorie d'hôtes déjà existant"
+msgstr "Ce nom de catégorie d'hôtes existe déjà"
 
 msgid "Error while creating host category"
 msgstr "Erreur lors de la création d'une catégorie d'hôtes"

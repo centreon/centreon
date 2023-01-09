@@ -272,7 +272,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
      */
     public function existsByName(string $hostCategoryName): bool
     {
-        $this->info('Check existance of host category with name ' . $hostCategoryName);
+        $this->info('Check existence of host category with name ' . $hostCategoryName);
 
         $request = $this->translateDbName(
             'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'

@@ -57,7 +57,7 @@ final class AddHostCategory
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
-                $this->error('User doesn\'t have sufficient right to see host categories', [
+                $this->error('User doesn\'t have sufficient rights to see host categories', [
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
