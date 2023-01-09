@@ -103,6 +103,10 @@ if (($o === HOST_MODIFY || $o === HOST_WATCH) && isset($host_id)) {
     $host = array_map("myDecode", $host_list);
     $cmdId = $host['command_command_id'];
 
+    if (! empty($host['host_snmp_community'])) {
+        $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
+    }
+
     // Set Host Notification Options
     $tmp = explode(',', $host["host_notification_options"]);
     foreach ($tmp as $key => $value) {
@@ -368,7 +372,19 @@ if ($o !== HOST_MASSIVE_CHANGE) {
         )
     );
 }
-$form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+
+switch ($o) {
+    case HOST_ADD:
+    case HOST_MASSIVE_CHANGE:
+        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        break;
+    default:
+        $snmpAttribute = $attrsText;
+        $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
+        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        break;
+}
+
 $form->addElement('select', 'host_snmp_version', _("Version"), array(null => null, 1 => "1", "2c" => "2c", 3 => "3"));
 
 /*
