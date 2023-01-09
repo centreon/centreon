@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse};
+use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
@@ -69,7 +69,7 @@ it('should present an ErrorResponse when the name already exists', function () {
     $useCase($request, $presenter);
 
     expect($presenter->getResponseStatus())
-        ->toBeInstanceOf(ErrorResponse::class)
+        ->toBeInstanceOf(ConflictResponse::class)
         ->and($presenter->getResponseStatus()?->getMessage())
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
 });

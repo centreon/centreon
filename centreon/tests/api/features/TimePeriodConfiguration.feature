@@ -108,11 +108,11 @@ Feature:
         ]
     }
     """
-    Then the response code should be 500
+    Then the response code should be 409
     And the JSON should be equal to:
     """
     {
-        "code": 500,
+        "code": 409,
         "message": "The time period name 'test_name' already exists"
     }
     """
