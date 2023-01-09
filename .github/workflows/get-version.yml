@@ -93,7 +93,7 @@ jobs:
               STABILITY="testing"
               ;;
             master | [2-9][0-9].[0-9][0-9].x)
-              STABILITY=""
+              STABILITY="stable"
               ;;
             *)
               STABILITY="canary"
