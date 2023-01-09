@@ -191,24 +191,11 @@ if (!$isAdmin) {
     unset($statement);
     $hostId = $row['host_id'];
     $serviceId = $row['service_id'];
-    $aclGroupsExploded = explode(',', $aclGroups);
-    if (empty($aclGroupsExploded)) {
-        throw new \Exception('Access denied');
-    }
-
-    $aclGroupsQueryBinds = [];
-    foreach ($aclGroupsExploded as $key => $value) {
-        $aclGroupsQueryBinds[':acl_group_' . $key] = $value;
-    }
-    $aclGroupBinds = implode(',', array_keys($aclGroupsQueryBinds));
     $sql = "SELECT service_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id
-        AND group_id IN ($aclGroupBinds)";
+        AND group_id IN ($aclGroups)";
     $statement = $pearDBO->prepare($sql);
     $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
     $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
-    foreach ($aclGroupsQueryBinds as $key => $value) {
-        $statement->bindValue($key, (int) $value, \PDO::PARAM_INT);
-    }
     $statement->execute();
     if (!$statement->rowCount()) {
         die('Access denied');
