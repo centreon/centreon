@@ -8,6 +8,7 @@ import { userAtom } from '@centreon/ui-context';
 import {
   labelSearch,
   labelResourceProblems,
+  labelUnhandledProblems,
   labelAll,
   labelSearchOptions,
   labelType,
@@ -397,60 +398,51 @@ describe('Keyboard actions', () => {
     cy.viewport(1200, 1000);
   });
 
-  it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the tab key is pressed', () => {
+  it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the "enter" key is pressed', () => {
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
     searchBar.clear();
 
-    searchBar.type('stat').tab();
+    searchBar.type('stat').type('{enter}');
     searchBar.should('have.value', 'state:');
 
-    searchBar.type('u').tab();
+    searchBar.type('u').type('{enter}');
 
     searchBar.should('have.value', 'state:unhandled');
 
-    searchBar.type(' st').tab();
+    searchBar.type(' st').type('{enter}');
 
     searchBar.should('have.value', 'state:unhandled status:');
 
     searchBar.type(' type:');
-    searchBar.type('{downArrow}').tab();
+    searchBar.type('{downArrow}').type('{enter}');
 
     searchBar.should('have.value', 'state:unhandled status: type:service');
 
     cy.matchImageSnapshot();
   });
 
-  it(`accepts the selected autocomplete suggestion when the beginning of a dynamic criteria is input and the "tab" key or the "enter" key is pressed`, () => {
+  it(`accepts the selected autocomplete suggestion when the beginning of a dynamic criteria is input and the "enter" key is pressed`, () => {
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
-    [
-      (): void => {
-        cy.tab();
-      },
-      (targetElemnt): void => {
-        targetElemnt.type('{Enter}');
-      }
-    ].forEach((keyboardAction) => {
-      searchBar.clear();
-      searchBar.type('host');
-      keyboardAction(searchBar);
-      searchBar.should('have.value', 'host_group:');
-      searchBar.type('ESX');
-      cy.findByText(linuxServersHostGroup.name).should('exist');
-      keyboardAction(searchBar);
-      cy.findByPlaceholderText(labelSearch).should(
-        'have.value',
-        `host_group:${linuxServersHostGroup.name}`
-      );
+    searchBar.clear();
+    searchBar.type('host');
+    searchBar.type('{Enter}');
+    searchBar.should('have.value', 'host_group:');
+    searchBar.type('ESX');
+    cy.findByText(linuxServersHostGroup.name).should('exist');
+    searchBar.type('{Enter}');
+    cy.findByPlaceholderText(labelSearch).should(
+      'have.value',
+      `host_group:${linuxServersHostGroup.name}`
+    );
 
-      searchBar.type(',');
-      cy.findByText('Firewall').should('exist');
-      searchBar.type('{downArrow}');
-      keyboardAction(cy.findByPlaceholderText(labelSearch));
-      cy.waitForRequest('@hostgroupsRequest');
+    searchBar.type(',');
+    cy.findByText('Firewall').should('exist');
+    searchBar.type('{downArrow}');
+    searchBar.type('{Enter}');
+    cy.waitForRequest('@hostgroupsRequest');
 
-      cy.matchImageSnapshot();
-    });
+    cy.matchImageSnapshot();
   });
 });
