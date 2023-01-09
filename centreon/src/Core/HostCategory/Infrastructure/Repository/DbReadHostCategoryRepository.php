@@ -266,4 +266,49 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
 
         return (bool) $statement->fetchColumn();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(string $hostCategoryName): bool
+    {
+        $this->info('Check existence of host category with name ' . $hostCategoryName);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryName', $hostCategoryName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $hostCategoryId): ?HostCategory
+    {
+        $this->info('Get a host category with id #' . $hostCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            FROM `:db`.hostcategories hc
+            WHERE hc.hc_id = :hostCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+
+            return null;
+        }
+
+        /** @var array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result */
+        $hostCategory = $this->createHostCategoryFromArray($result);
+
+        return $hostCategory;
+    }
 }

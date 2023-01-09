@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\Repository;
 
+use Core\HostCategory\Domain\Model\NewHostCategory;
+
 interface WriteHostCategoryRepositoryInterface
 {
     /**
@@ -31,4 +33,14 @@ interface WriteHostCategoryRepositoryInterface
      * @param int $hostCategoryId
      */
     public function deleteById(int $hostCategoryId): void;
+
+    /**
+     * Add a host category
+     * Return the id of the host category.
+     *
+     * @param NewHostCategory $hostCategory
+     * @return int
+     * @throws \Throwable
+     */
+    public function add(NewHostCategory $hostCategory): int;
 }

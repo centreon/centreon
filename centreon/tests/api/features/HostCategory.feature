@@ -139,3 +139,27 @@ Feature:
     When I send a GET request to '/api/latest/configuration/hosts/categories'
     Then the response code should be "200"
     And the json node "result" should have 0 elements
+
+
+  Scenario: Create a host category
+    Given I am logged in
+
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+    """
+    {
+        "name": "host-cat-name",
+        "alias": "host-cat-alias",
+        "comments": "blablabla"
+    }
+    """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+    """
+    {
+        "id": 1,
+        "name": "host-cat-name",
+        "alias": "host-cat-alias",
+        "is_activated": true,
+        "comments": "blablabla"
+    }
+    """
