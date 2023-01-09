@@ -140,6 +140,9 @@ const useStyles = makeStyles<StylesProps>()(
     },
     tableBody: {
       display: 'contents',
+      'div:first-of-type': {
+        gridColumnStart: 1
+      },
       position: 'relative'
     },
     tableWrapper: {
