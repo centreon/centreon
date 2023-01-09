@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\NewHostCategory;
 
 class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements WriteHostCategoryRepositoryInterface
 {
@@ -56,5 +57,28 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements Wri
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
 
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function add(NewHostCategory $hostCategory): int
+    {
+        $this->debug('Add host category', ['hostCategory' => $hostCategory]);
+
+        $request = $this->translateDbName(
+            'INSERT INTO `:db`.hostcategories
+            (hc_name, hc_alias, hc_comment) VALUES
+            (:name, :alias, :comment)'
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':comment', $hostCategory->getComment(), \PDO::PARAM_STR);
+
+        $statement->execute();
+
+        return (int) $this->db->lastInsertId();
     }
 }

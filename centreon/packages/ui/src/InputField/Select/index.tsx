@@ -81,7 +81,6 @@ const SelectField = ({
     <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
       {label && <InputLabel>{label}</InputLabel>}
       <Select
-        disableUnderline
         displayEmpty
         fullWidth={fullWidth}
         inputProps={{

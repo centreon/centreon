@@ -5,7 +5,7 @@ info:
     # New features
     + Added vault configuration endpoints
     + Added time period configuration endpoints
-    + Added host categories endpoint (DELETE)
+    + Added host categories endpoints (DELETE, POST)
     +
     # Updated features
     + Updated host categories endpoint (GET)
@@ -300,8 +300,35 @@ paths:
                       $ref: '#/components/schemas/Configuration.Host.Category'
                   meta:
                     $ref: '#/components/schemas/Meta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Host category
+      summary: "Create a host category"
+      description: |
+        Create a host category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: "string"
+                  example: "host-category-name"
+                alias:
+                  type: "string"
+                  example: "host-category-alias"
+      responses:
+        '201':
+          description: "OK"
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/categories/{host_category_id}:
@@ -386,9 +413,9 @@ paths:
         * name
         * alias
         * is_activated
-        
+
         Changes in 23.04 :
-        
+
         * `icon` was renamed `icon_id` and is no longer an object but the image ID
         * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
       responses:
@@ -419,7 +446,7 @@ paths:
         Mandatory body properties are:
 
         * name
-        
+
         `Since Centreon web 23.04`
       requestBody:
         required: true
@@ -938,9 +965,9 @@ paths:
       summary: "Get all time periods"
       description: |
         Get list of all time periods
-        
+
         The available parameters to **search** / **sort_by** are:
-        
+
         * id
         * name
         * alias
@@ -5543,7 +5570,7 @@ components:
           type: string
           description: |
             Directives, including weekdays, days of the month, and calendar dates
-            
+
             * Calendar date (2008-01-01)
             * Specific month date (January 1st)
             * Generic month date (Day 15)
