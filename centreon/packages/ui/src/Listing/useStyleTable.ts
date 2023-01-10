@@ -61,7 +61,7 @@ const useStyleTable = ({
           return 'auto';
         }
 
-        return equals(type(width), 'number') ? `${width}px` : width;
+        return equals(type(width), 'Number') ? `${width}px` : width;
       })
       .join(' ');
 
