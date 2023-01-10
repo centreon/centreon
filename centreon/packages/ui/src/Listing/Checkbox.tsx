@@ -2,11 +2,11 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Checkbox as MuiCheckbox, CheckboxProps } from '@mui/material';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()({
   container: {
     padding: 0
   }
-}));
+});
 
 const Checkbox = ({
   className,
