@@ -49,7 +49,7 @@ runs:
           TYPE=Release
         fi
 
-        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":11789,\"released\":false}"
+        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":11100,\"released\":false}"
 
         curl --request POST \
           --url 'https://centreon.atlassian.net/rest/api/3/version' \
