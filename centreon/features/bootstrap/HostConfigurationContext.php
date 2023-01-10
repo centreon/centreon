@@ -354,6 +354,9 @@ class HostConfigurationContext extends CentreonContext
                     $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['name']);
                     $object = $this->currentPage->getProperties();
                     foreach ($this->duplicatedProperties as $key => $value) {
+                        if ($key === "snmp_community") {
+                            $value = self::PASSWORD_REPLACEMENT_VALUE;
+                        }
                         if ($value != $object[$key]) {
                             $this->tableau[] = $key;
                         }

@@ -389,6 +389,9 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
                     $object = $this->currentPage->getProperties();
                     foreach ($this->duplicatedProperties as $key => $value) {
                         if ($value != $object[$key]) {
+                            if ($key === "snmp_community") {
+                                $value = self::PASSWORD_REPLACEMENT_VALUE;
+                            }
                             if (is_array($value)) {
                                 $value = implode(' ', $value);
                             }
