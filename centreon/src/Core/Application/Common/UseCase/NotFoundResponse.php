@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,20 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
-class NotFoundResponse implements ResponseStatusInterface
+class NotFoundResponse extends AbstractResponse
 {
     /**
-     * @param string $objectNotFound
+     * @param string|\Throwable $objectNotFound
      */
-    public function __construct(private string $objectNotFound)
+    public function __construct(string|\Throwable $objectNotFound)
     {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMessage(): string
-    {
-        return _($this->objectNotFound . ' not found');
+        parent::__construct(
+            \is_string($objectNotFound)
+                ? $objectNotFound . ' not found'
+                : $objectNotFound
+        );
     }
 }
