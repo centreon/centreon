@@ -138,7 +138,7 @@ describe('Authentication', () => {
     cy.waitForRequest('@getMinLengthPasswordSecurityPolicyFromAPI');
   });
 
-  it('updates the retrieved form recommended values and reset the form to the inital values', () => {
+  it('updates the retrieved form recommended values and reset the form to the inital values when the "Reset" button is clicked', () => {
     cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
     cy.findByText(labelDefinePasswordPasswordSecurityPolicy).should(
