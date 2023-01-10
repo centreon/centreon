@@ -323,8 +323,10 @@ class MassiveChangeHostsContext extends CentreonContext
                 $this->spin(
                     function ($context) use ($hostProperties) {
                         $object = $context->currentPage->getProperties();
-                        $object["snmp_community"] = self::PASSWORD_REPLACEMENT_VALUE;
                         foreach ($hostProperties as $key => $value) {
+                            if ($key === "snmp_community") {
+                                $value = self::PASSWORD_REPLACEMENT_VALUE;
+                            }
                             if ($value != $object[$key]) {
                                 $context->notUpdatedProperties[] = $key;
                             }

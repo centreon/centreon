@@ -309,8 +309,10 @@ class HostConfigurationContext extends CentreonContext
                     $this->currentPage = new HostConfigurationListingPage($this);
                     $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
                     $object = $this->currentPage->getProperties();
-                    $object['snmp_community'] = self::PASSWORD_REPLACEMENT_VALUE
                     foreach ($this->updatedProperties as $key => $value) {
+                        if ($key === "snmp_community") {
+                            $value = self::PASSWORD_REPLACEMENT_VALUE;
+                        }
                         if ($value != $object[$key]) {
                             $this->tableau[] = $key;
                         }
