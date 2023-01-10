@@ -12,7 +12,10 @@ on:
       - "widgets/centreon-widget-live-top10-memory-usage/**"
   push:
     branches:
-      - dev-22.04.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
@@ -43,6 +46,8 @@ jobs:
     with:
       widget_name: live-top10-memory-usage
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USER }}
