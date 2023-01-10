@@ -117,7 +117,7 @@ Feature:
             "limit": 10,
             "search": {},
             "sort_by": {},
-            "total": 1
+            "total": 2
         }
     }
     """
