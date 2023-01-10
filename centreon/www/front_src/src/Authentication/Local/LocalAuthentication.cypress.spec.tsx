@@ -416,7 +416,7 @@ describe('Authentication', () => {
       );
     });
 
-    it('selects the "Can reuse passwords" field when clicking on the corresponding switch', () => {
+    it('selects the "Can reuse passwords" field when the corresponding switch is clicked', () => {
       cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
       cy.findByText(labelPasswordExpirationPolicy).should('be.visible');
