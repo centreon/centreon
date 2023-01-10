@@ -23,6 +23,27 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
-class ErrorAuthenticationConditionsResponse extends ForbiddenResponse
+/**
+ * This is standard Error Response which accepts either
+ * - a string which will be translated
+ * - a Throwable from which we will get the message.
+ */
+abstract class AbstractResponse implements ResponseStatusInterface
 {
+    /**
+     * @param string|\Throwable $message
+     */
+    public function __construct(private readonly string|\Throwable $message)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getMessage(): string
+    {
+        return \is_string($this->message)
+            ? _($this->message)
+            : $this->message->getMessage();
+    }
 }
