@@ -36,14 +36,14 @@ try {
         );
     }
 
+    // Transactional queries
+    $pearDB->beginTransaction();
+
     $errorMessage = "Impossible to delete color picker topology_js entries";
     $pearDB->query(
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
-
-    // Transactional queries
-    $pearDB->beginTransaction();
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     decodeIllegalCharactersNagios($pearDB);
