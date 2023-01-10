@@ -1,17 +1,14 @@
 ---
-name: Tag centreon widget tactical overview releases
+name: release-widget-tactical-overview
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-tactical-overview.yml"
       - "widgets/centreon-widget-tactical-overview/**"
   workflow_dispatch:
 
@@ -20,6 +17,7 @@ env:
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources

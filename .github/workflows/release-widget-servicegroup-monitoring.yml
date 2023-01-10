@@ -1,17 +1,14 @@
 ---
-name: Tag centreon widget servicegroup monitoring releases
+name: release-widget-servicegroup-monitoring
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-servicegroup-monitoring.yml"
       - "widgets/centreon-widget-servicegroup-monitoring/**"
   workflow_dispatch:
 
@@ -20,6 +17,7 @@ env:
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
