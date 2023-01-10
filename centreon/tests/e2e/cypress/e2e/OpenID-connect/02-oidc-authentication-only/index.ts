@@ -64,6 +64,11 @@ When(
       .contains('Identity provider')
       .click();
     configureOpenIDConnect();
+    cy.getByLabel({ label: 'save button', tag: 'button' })
+      .click()
+      .wait('@updateOIDCResponse')
+      .its('response.statusCode')
+      .should('eq', 204);
     cy.wait('@updateOIDCResponse')
       .its('response.statusCode')
       .should('eq', 204)
