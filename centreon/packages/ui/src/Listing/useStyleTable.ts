@@ -44,7 +44,7 @@ const useStyleTable = ({
   checkable,
   currentVisibleColumns,
   viewMode
-}: TableStyle): Table => {
+}: TableStyle): TableStyleState => {
   const dataStyle = useAtomValue(tableStyleAtom);
 
   const updateStyleTable = useUpdateAtom(tableStyleDerivedAtom);
