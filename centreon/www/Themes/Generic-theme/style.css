@@ -1896,7 +1896,9 @@ font-size: 12px;
     text-align:justify;
 }
 
-#validForm label {padding:2px 4px;}
+#validForm label {
+    padding: 2px 18px;
+}
 
 .FormFooter,.ListColFooter5,.ListColFooter5 a,.ListColFooterCenter,.ListColFooterLeft,.ListColFooterRight   {font-size:12px;font-weight:700;padding-right:10px;}
 .ListColFooterRight,.ListColRight,.Toolbar_pagelimit {text-align:right;}

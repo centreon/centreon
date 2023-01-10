@@ -172,10 +172,10 @@ $form->addElement(
     "button",
     "cancel",
     _("Cancel"),
-    array(
-        "onClick" => "javascript:window.location.href='?p=$p'"
-    ),
-    array("class" => "btc bt_default")
+    [
+        "onClick" => "javascript:window.location.href='?p=$p'",
+        "class" => "btc bt_default"
+    ]
 );
 
 $form->addElement('textarea', 'img_comment', _("Comments"), $attrsTextarea);
