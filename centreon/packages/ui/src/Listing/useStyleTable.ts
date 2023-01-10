@@ -17,7 +17,7 @@ interface TableStyle {
   viewMode?: ListingVariant;
 }
 
-interface Table {
+interface TableStyleState {
   dataStyle: Style;
   getGridTemplateColumn: string;
 }
