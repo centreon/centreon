@@ -54,15 +54,34 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
     label: 'Use basic authentication for token endpoint authentication',
     tag: 'input'
   }).uncheck({ force: true });
-  cy.getByLabel({ label: 'Disable verify peer', tag: 'input' }).check({
+
+  return cy.getByLabel({ label: 'Disable verify peer', tag: 'input' }).check({
     force: true
   });
+};
 
-  return cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+const getUserContactId = (userName: string): Cypress.Chainable => {
+  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}';`;
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
+
+  return cy
+    .exec(command, { failOnNonZeroExit: true, log: true })
+    .then(({ code, stdout, stderr }) => {
+      if (!stderr && code === 0) {
+        const idUser = parseInt(stdout.split('\n')[1], 10);
+
+        return cy.wrap(idUser || '0');
+      }
+
+      return cy.log(`Can't execute command on database.`);
+    });
 };
 
 export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect
+  configureOpenIDConnect,
+  getUserContactId
 };

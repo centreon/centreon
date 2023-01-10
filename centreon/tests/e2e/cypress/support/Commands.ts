@@ -14,6 +14,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'getByTestId',
+  ({ tag = '', testId }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid="${testId}"]`);
+  }
+);
+
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
 });
@@ -222,6 +229,11 @@ interface GetByLabelProps {
   tag?: string;
 }
 
+interface GetByTestIdProps {
+  tag?: string;
+  testId: string;
+}
+
 interface NavigateToProps {
   page: string;
   rootItemNumber: number;
@@ -243,6 +255,7 @@ declare global {
     interface Chainable {
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
+      getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;

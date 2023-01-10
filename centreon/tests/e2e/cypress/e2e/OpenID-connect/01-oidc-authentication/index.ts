@@ -51,7 +51,9 @@ When(
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.wait('@updateOIDCResponse')
+  cy.getByLabel({ label: 'save button', tag: 'button' })
+    .click()
+    .wait('@updateOIDCResponse')
     .its('response.statusCode')
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
