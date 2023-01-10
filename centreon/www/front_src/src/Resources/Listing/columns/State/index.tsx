@@ -21,14 +21,14 @@ interface StateChipProps {
   label: string;
 }
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()({
   container: {
     display: 'flex',
     flexDirection: 'row',
     gridGap: 2,
     marginLeft: 2
   }
-}));
+});
 
 const StateHoverChip = ({
   endpoint,
