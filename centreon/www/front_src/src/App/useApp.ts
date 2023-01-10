@@ -59,7 +59,7 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
-  const [user, setUser] = useAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
