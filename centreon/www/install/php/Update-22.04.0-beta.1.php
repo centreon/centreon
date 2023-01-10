@@ -492,22 +492,19 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
     $blockIds = array_map(fn ($typeId) => "{$outputTag}_{$typeId}", $typeIds);
 
     // Retrieve broker config ids to migrate
+    $subqueries = [];
     $bindedValues = [];
     foreach ($blockIds as $key => $blockId) {
+        $subqueries[] = "SELECT DISTINCT(config_id) FROM cfg_centreonbroker_info
+            WHERE config_group = 'output' AND config_key = 'blockId' AND config_value = :blockId_{$key}";
         $bindedValues[":blockId_{$key}"] = $blockId;
     }
-    $stmt = $pearDB->prepare(
-        "SELECT config_value, config_id FROM cfg_centreonbroker_info
-        WHERE config_group = 'output' AND config_key = 'blockId'
-        AND config_value IN (" . implode(", ", array_keys($bindedValues)) . ")"
-    );
+    $stmt = $pearDB->prepare(implode(' INTERSECT ', $subqueries));
     foreach ($bindedValues as $param => $value) {
         $stmt->bindValue($param, $value, \PDO::PARAM_STR);
     }
     $stmt->execute();
-
-    $configResults = $stmt->fetchAll(\PDO::FETCH_COLUMN|\PDO::FETCH_GROUP);
-    $configIds = array_intersect($configResults[$blockIds[0]], $configResults[$blockIds[1]]);
+    $configIds = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
     if (empty($configIds)) {
         throw new \Exception("Cannot find broker config ids to migrate");
     }
