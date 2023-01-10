@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,33 +45,33 @@ class JsonFormatter implements PresenterFormatterInterface
     {
         if (is_object($data)) {
             switch (true) {
-                case is_a($data, NotFoundResponse::class):
+                case $data instanceof NotFoundResponse:
                     $this->debug('Data not found. Generating a not found response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_NOT_FOUND, $headers);
-                case is_a($data, ErrorResponse::class):
+                case $data instanceof ErrorResponse:
                     $this->debug('Data error. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_INTERNAL_SERVER_ERROR, $headers);
-                case is_a($data, InvalidArgumentResponse::class):
+                case $data instanceof InvalidArgumentResponse:
                     $this->debug('Invalid argument. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_BAD_REQUEST, $headers);
-                case is_a($data, UnauthorizedResponse::class):
+                case $data instanceof UnauthorizedResponse:
                     $this->debug('Unauthorized. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_UNAUTHORIZED, $headers);
-                case is_a($data, PaymentRequiredResponse::class):
+                case $data instanceof PaymentRequiredResponse:
                     $this->debug('Payment required. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_PAYMENT_REQUIRED, $headers);
-                case is_a($data, ForbiddenResponse::class):
+                case $data instanceof ForbiddenResponse:
                     $this->debug('Forbidden. Generating an error response');
 
                     return $this->generateJsonErrorResponse($data, Response::HTTP_FORBIDDEN, $headers);
-                case is_a($data, CreatedResponse::class):
+                case $data instanceof CreatedResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
-                case is_a($data, NoContentResponse::class):
+                case $data instanceof NoContentResponse:
                     return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
