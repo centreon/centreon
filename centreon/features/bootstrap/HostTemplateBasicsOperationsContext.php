@@ -7,6 +7,7 @@ use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
 
 class HostTemplateBasicsOperationsContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $hostCategory1 = array(
@@ -337,6 +338,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
                     $this->currentPage = new HostTemplateConfigurationListingPage($this);
                     $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
                     $object = $this->currentPage->getProperties();
+                    $objec['snmp_community'] = self::PASSWORD_REPLACEMENT_VALUE;
                     foreach ($this->updatedProperties as $key => $value) {
                         if ($value != $object[$key]) {
                             if (is_array($value)) {
