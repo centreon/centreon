@@ -1475,6 +1475,9 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
+    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        unset($ret['host_snmp_community']);
+    }
     $bindParams = sanitizeFormHostParameters($ret);
 
     $rq = "UPDATE host SET ";

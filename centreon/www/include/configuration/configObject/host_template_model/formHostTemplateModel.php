@@ -67,6 +67,9 @@ if (($o === HOST_TEMPLATE_MODIFY || $o === HOST_TEMPLATE_WATCH) && isset($host_i
     # Set base value
     if ($statement->rowCount()) {
         $host = array_map("myDecode", $statement->fetch());
+        if (! empty($host['host_snmp_community'])) {
+            $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
+        }
 
         $cmdId = $host['command_command_id'];
         # Set Host Notification Options
@@ -271,7 +274,17 @@ if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
 }
 $form->addElement('text', 'host_address', _("Address"), $attrsText);
 $form->addElement('select', 'host_snmp_version', _("Version"), array(null => null, 1 => "1", "2c" => "2c", 3 => "3"));
-$form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+switch ($o) {
+    case HOST_TEMPLATE_ADD:
+    case HOST_TEMPLATE_MASSIVE_CHANGE:
+        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        break;
+    default:
+        $snmpAttribute = $attrsText;
+        $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
+        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        break;
+}
 
 $timeAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list';
 $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone'
