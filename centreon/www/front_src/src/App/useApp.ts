@@ -114,10 +114,10 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
-        setUser({
-          ...user,
+        setUser((currentUser) => ({
+          ...currentUser,
           resourceStatusViewMode: retrievedParameters.resource_status_view_mode
-        });
+        }));
       })
       .catch((error) => {
         if (pathEq(['response', 'status'], 401)(error)) {
