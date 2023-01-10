@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { equals, isNil, pick } from 'ramda';
+import { equals, isNil, pick, type } from 'ramda';
 import { CSSObject } from 'tss-react';
 
 import { Theme } from '@mui/material';
@@ -61,7 +61,7 @@ const useStyleTable = ({
           return 'auto';
         }
 
-        return equals(type(width), 'Number') ? `${width}px` : width;
+        return equals(type(width), 'number') ? `${width}px` : width;
       })
       .join(' ');
 
