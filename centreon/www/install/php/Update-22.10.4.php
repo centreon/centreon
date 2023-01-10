@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,3 +19,95 @@
  *
  */
 
+require_once __DIR__ . '/../../class/centreonLog.class.php';
+$centreonLog = new CentreonLog();
+
+//error specific content
+$versionOfTheUpgrade = 'UPGRADE - 22.10.4: ';
+$errorMessage = '';
+
+try {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
+        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $pearDB->query(
+            "ALTER TABLE `cfg_centreonbroker`
+            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
+            AFTER `event_queue_max_size`"
+        );
+    }
+
+    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $pearDB->query(
+        "DELETE FROM `topology_JS`
+        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
+    );
+
+    // Transactional queries
+    $pearDB->beginTransaction();
+
+    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
+    decodeIllegalCharactersNagios($pearDB);
+
+    $pearDB->commit();
+} catch (\Exception $e) {
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+}
+
+/**
+ * Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
+ * The aim is to decode entities from them.
+ *
+ * @param CentreonDB $pearDB
+ */
+function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
+{
+    $configs = $pearDB->query(
+        <<<'SQL'
+            SELECT
+                nagios_id,
+                illegal_object_name_chars,
+                illegal_macro_output_chars
+            FROM
+                `cfg_nagios`
+            SQL
+    )->fetchAll(PDO::FETCH_ASSOC);
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            UPDATE
+                `cfg_nagios`
+            SET
+                illegal_object_name_chars = :illegal_object_name_chars,
+                illegal_macro_output_chars = :illegal_macro_output_chars
+            WHERE
+                nagios_id = :nagios_id
+            SQL
+    );
+    foreach ($configs as $config) {
+        $modified = $config;
+        $modified['illegal_object_name_chars'] = html_entity_decode($config['illegal_object_name_chars']);
+        $modified['illegal_macro_output_chars'] = html_entity_decode($config['illegal_macro_output_chars']);
+
+        if ($config === $modified) {
+            // no need to update, we skip a useless query
+            continue;
+        }
+
+        $statement->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
+        $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
+        $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+        $statement->execute();
+    }
+}
