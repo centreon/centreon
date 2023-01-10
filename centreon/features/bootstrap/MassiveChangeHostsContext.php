@@ -9,6 +9,7 @@ use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
 
 class MassiveChangeHostsContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $host1 = array(
@@ -322,7 +323,7 @@ class MassiveChangeHostsContext extends CentreonContext
                 $this->spin(
                     function ($context) use ($hostProperties) {
                         $object = $context->currentPage->getProperties();
-                        $object["snmp_community"] = PASSWORD_REPLACEMENT_VALUE;
+                        $object["snmp_community"] = self::PASSWORD_REPLACEMENT_VALUE;
                         foreach ($hostProperties as $key => $value) {
                             if ($value != $object[$key]) {
                                 $context->notUpdatedProperties[] = $key;
