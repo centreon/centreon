@@ -38,7 +38,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin
+ Scenario: Host categories listing as non-admin with ACL filter
     Given the following CLAPI import data:
     """
     HC;ADD;host-cat1;host-cat1-alias
@@ -80,7 +80,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin
+  Scenario: Host categories listing as non-admin without ACL filter
     Given the following CLAPI import data:
     """
     HC;ADD;host-cat1;host-cat1-alias
@@ -90,7 +90,6 @@ Feature:
     ACLMENU;add;ACL Menu test;my alias
     ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
     ACLRESOURCE;add;ACL Resource test;my alias
-    ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
     ACLGROUP;add;ACL Group test;my alias
     ACLGROUP;addmenu;ACL Group test;ACL Menu test
     ACLGROUP;addresource;ACL Group test;ACL Resource test
@@ -104,6 +103,13 @@ Feature:
     """
     {
         "result": [
+            {
+                "id": 1,
+                "name": "host-cat1",
+                "alias": "host-cat1-alias",
+                "is_activated": true,
+                "comments": null
+            },
             {
                 "id": 2,
                 "name": "host-cat2",
@@ -122,7 +128,7 @@ Feature:
     }
     """
 
-  Scenario: Delete a host category
+  Scenario: Delete a host category as admin user
     Given I am logged in
     And the following CLAPI import data:
     """
@@ -140,6 +146,60 @@ Feature:
     Then the response code should be "200"
     And the json node "result" should have 0 elements
 
+  Scenario: Delete a host category as non-admin user with ACL filter
+    Given the following CLAPI import data:
+    """
+    HC;ADD;host-cat1;host-cat1-alias
+    CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;ala;reach_api;1
+    ACLMENU;add;ACL Menu test;my alias
+    ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat1
+    ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;ACL Menu test
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;addcontact;ACL Group test;ala
+    """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
+
+  Scenario: Delete a host category as non-admin user without ACL filter
+    Given the following CLAPI import data:
+    """
+    HC;ADD;host-cat1;host-cat1-alias
+    CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;ala;reach_api;1
+    ACLMENU;add;ACL Menu test;my alias
+    ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;ACL Menu test
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;addcontact;ACL Group test;ala
+    """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 1 elements
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
 
   Scenario: Create a host category
     Given I am logged in
