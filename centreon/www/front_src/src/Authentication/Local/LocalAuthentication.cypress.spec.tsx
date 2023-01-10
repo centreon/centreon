@@ -238,7 +238,7 @@ describe('Authentication', () => {
       cy.findAllByLabelText(labelStrong).should('be.visible');
     });
 
-    it('changes the password minimum length value when "45" is typed in the input', () => {
+    it('updates the password minimum length value when the corresponding input is changed', () => {
       cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
       cy.findByLabelText(labelMinimumPasswordLength)
