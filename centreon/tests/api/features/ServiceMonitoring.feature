@@ -18,6 +18,7 @@ Feature:
         And the configuration is generated and exported
         And I wait until host "test" is monitored
         And I wait until service "test_service1" from host "test" is monitored
+        And I wait until service "test_service2" from host "test" is monitored
 
         When I send a GET request to '/api/v21.10/monitoring/services?search={"host.name":"test"}'
         Then the response code should be "200"
