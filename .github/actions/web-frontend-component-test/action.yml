@@ -1,5 +1,6 @@
 name: "Web Cypress Component Testing"
 description: "Web Cypress Component Testing"
+inputs:
   module:
     description: "Module on test will be run."
     required: true
