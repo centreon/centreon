@@ -40,5 +40,5 @@ runs:
         path: ${{ inputs.module }}/cypress/results/videos
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.working_directory }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
       shell: bash
