@@ -19,8 +19,8 @@ runs:
       id: formatSpecFilePath
       with:
           source: ${{ inputs.spec_file_path }}
-          find: '/'
-          replace: '-'
+          find: '.cypress.spec.tsx'
+          replace: '.'
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
