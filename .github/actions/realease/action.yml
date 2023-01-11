@@ -10,6 +10,7 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+
 runs:
   using: "composite"
   steps:
@@ -20,6 +21,8 @@ runs:
         echo "Major version: $MAJOR_VERSION"
         HOTFIX=$(echo $GITHUB_REF_NAME | grep -oP '(hotfix|)')
         echo "Hotfix: $HOTFIX"
+        BETA=$(echo $GITHUB_REF_NAME | grep -oP '(beta|)')
+        echo "Beta: $BETA"
         RELEASE_ID=$(git log -1 --pretty=%B | grep -oP '(#[0-9]{4,}#)' | grep -oP '([0-9]+)')
         echo "Release Id: $RELEASE_ID"
 
