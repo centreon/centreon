@@ -36,6 +36,10 @@
 
 namespace CentreonClapi;
 
+use Centreon\Domain\Log\LegacyLogger;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+
 require_once "centreonObject.class.php";
 require_once "centreonConfigurationChange.class.php";
 require_once "centreonUtils.class.php";
@@ -88,6 +92,8 @@ class CentreonHost extends CentreonObject
     public const INVALID_GEO_COORDS = "Invalid geo coords";
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
+    public const HOST_SNMP_COMMUNITY_FIELD = "host_snmp_community";
+    private static ?ReadVaultConfigurationRepositoryInterface $repository = null;
 
     /**
      *
@@ -1412,6 +1418,11 @@ class CentreonHost extends CentreonObject
                         unset($tmpObj);
                     }
                     $value = CentreonUtils::convertLineBreak($value);
+                    if ($parameter === self::HOST_SNMP_COMMUNITY_FIELD && preg_match('/^secret::\d+::/', $value) && $this->getVaultConfiguration() !== null) {
+                        $logger = $this->getLogger();
+                        $httpClient = new \CentreonRestHttp();
+                        $clientToken = $this->authenticateToVault($this->getVaultConfiguration(), $logger, $httpClient);
+                    }
                     echo $this->action . $this->delim
                         . "setparam" . $this->delim
                         . $element[$this->object->getUniqueLabelField()] . $this->delim
@@ -1933,5 +1944,124 @@ class CentreonHost extends CentreonObject
             return $macroReturn;
         }
         return false;
+    }
+
+    /**
+     * Get vault configurations
+     *
+     * @return VaultConfiguration|null
+     */
+    private function getVaultConfiguration(): ?VaultConfiguration
+    {
+        $readVaultConfigurationRepository = self::getVaultConfigurationRepositoryInstance();
+
+        return $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    }
+
+    /**
+     * Singleton for Repository Instanciation
+     *
+     * @return ReadVaultConfigurationRepositoryInterface
+     */
+    private static function getVaultConfigurationRepositoryInstance(): ReadVaultConfigurationRepositoryInterface
+    {
+        if (self::$repository === null) {
+            $kernel = \App\Kernel::createForWeb();
+            self::$repository = $kernel->getContainer()->get(
+                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+            );
+        }
+
+        return self::$repository;
+    }
+
+    /**
+     * Get logger
+     *
+     * @return LegacyLogger
+     */
+    private function getLogger(): LegacyLogger
+    {
+        try {
+            $kernel = \App\Kernel::createForWeb();
+            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\LegacyLogger::class);
+        } catch(\Throwable $ex) {
+            error_log((string) $ex);
+            throw $ex;
+        }
+
+        return $logger;
+    }
+
+    /**
+     * Get Client Token for Vault.
+     *
+     * @param VaultConfiguration $vaultConfiguration
+     * @param LegacyLogger $logger
+     * @param \CentreonRestHttp $httpClient
+     * @return string
+     * @throws \Throwable
+     */
+    private function authenticateToVault(
+        VaultConfiguration $vaultConfiguration,
+        LegacyLogger $logger,
+        \CentreonRestHttp $httpClient
+    ): string {
+        try {
+            $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $body = [
+                "role_id" => $vaultConfiguration->getRoleId(),
+                "secret_id" => $vaultConfiguration->getSecretId(),
+            ];
+            $logger->info('Authenticating to Vault: ' . $url);
+            $loginResponse = $httpClient->call($url, "POST", $body);
+        } catch (\Throwable $ex) {
+            $logger->error($url . " did not respond with a 2XX status");
+            throw $ex;
+        }
+
+        if (! isset($loginResponse['auth']['client_token'])) {
+            $logger->error($url . " Unable to retrieve client token from Vault");
+            throw new \Exception('Unable to authenticate to Vault');
+        }
+        return $loginResponse['auth']['client_token'];
+    }
+
+    /**
+     * Get host secrets data from vault
+     *
+     * @param VaultConfiguration $vaultConfiguration
+     * @param integer $hostId
+     * @param string $clientToken
+     * @param LegacyLogger $logger
+     * @param \CentreonRestHttp $httpClient
+     * @return array<string, mixed>
+     * @throws \Throwable
+     */
+    private function getHostSecretsFromVault(
+        VaultConfiguration $vaultConfiguration,
+        int $hostId,
+        string $clientToken,
+        LegacyLogger $logger,
+        \CentreonRestHttp $httpClient
+    ): array {
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+            $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
+        try {
+            $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
+        } catch (\RestNotFoundException $ex) {
+            $logger->info(sprintf("Host %d not found in vault", $hostId));
+
+            return [];
+        } catch (\Exception $ex) {
+            $logger->error(sprintf('Unable to get secrets for host : %d', $hostId));
+            throw $ex;
+        }
+        if (array_key_exists('data', $content)) {
+            return $content['data'];
+        }
+
+        return [];
     }
 }
