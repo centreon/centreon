@@ -135,7 +135,7 @@ describe('Authentication', () => {
     cy.waitForRequest('@getMinLengthPasswordSecurityPolicyFromAPI');
   });
 
-  it('updates the retrieved form recommended values and reset the form to the inital values', () => {
+  it('updates the retrieved form recommended values and reset the form to the inital values when the "Reset" button is clicked', () => {
     cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
     cy.findByText(labelDefinePasswordPasswordSecurityPolicy).should(
@@ -235,7 +235,7 @@ describe('Authentication', () => {
       cy.findAllByLabelText(labelStrong).should('be.visible');
     });
 
-    it('changes the password minimum length value when "45" is typed in the input', () => {
+    it('updates the password minimum length value when the corresponding input is changed', () => {
       cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
       cy.findByLabelText(labelMinimumPasswordLength)
@@ -413,7 +413,7 @@ describe('Authentication', () => {
       );
     });
 
-    it('selects the "Can reuse passwords" field when clicking on the corresponding switch', () => {
+    it('selects the "Can reuse passwords" field when the corresponding switch is clicked', () => {
       cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
       cy.findByText(labelPasswordExpirationPolicy).should('be.visible');
