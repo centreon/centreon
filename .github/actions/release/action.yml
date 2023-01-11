@@ -7,6 +7,9 @@ inputs:
   jira_token:
     description: "Token to authenticate to Jira"
     required: true
+  jira_project_id:
+    description: "Jira project id to create release"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -49,7 +52,7 @@ runs:
           TYPE=Release
         fi
 
-        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":11789,\"released\":false}"
+        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
 
         curl --request POST \
           --url 'https://centreon.atlassian.net/rest/api/3/version' \
