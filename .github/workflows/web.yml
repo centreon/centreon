@@ -190,15 +190,12 @@ jobs:
           junit_files: "centreon/junit.xml"
 
   frontend-component-test:
-    runs-on: ubuntu-22.04
     needs: [changes]
-
-    steps:
-      - uses: ./.github/workflows/cypress-component-parallelization.yml
-        with:
-          name: component
-          module_name: centreon
-          specs_path: www/front_src/src/**
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/front_src/src/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04
