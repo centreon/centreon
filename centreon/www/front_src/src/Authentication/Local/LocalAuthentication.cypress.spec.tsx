@@ -83,9 +83,7 @@ const setComponentBeforeEach = (): void => {
   cy.mount({
     Component: (
       <Router>
-        <div style={{ backgroundColor: '#fff' }}>
-          <LocalAuthenticationTestWithJotai />
-        </div>
+        <LocalAuthenticationTestWithJotai />
       </Router>
     )
   });
@@ -94,7 +92,6 @@ const setComponentBeforeEach = (): void => {
 };
 
 before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
   const userData = renderHook(() => useAtomValue(userAtom));
 
   userData.result.current.timezone = 'Europe/Paris';

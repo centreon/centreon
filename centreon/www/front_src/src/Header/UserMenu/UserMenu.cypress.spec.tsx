@@ -6,10 +6,6 @@ import { centreonUi } from '../helpers';
 
 import UserMenu from '.';
 
-before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
-});
-
 describe('User Menu', () => {
   beforeEach(() => {
     cy.fixture('userMenu').as('user');
@@ -28,9 +24,7 @@ describe('User Menu', () => {
     cy.mount({
       Component: (
         <Router>
-          <div style={{ backgroundColor: '#000' }}>
-            <UserMenu />
-          </div>
+          <UserMenu />
         </Router>
       )
     });

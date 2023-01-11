@@ -11,7 +11,13 @@ import { ThemeProvider } from '@centreon/ui';
 window.React = React;
 
 Cypress.Commands.add('mount', ({ Component, options }) => {
-  const wrapped = <ThemeProvider>{Component}</ThemeProvider>;
+  const wrapped = (
+    <ThemeProvider>
+      <div style={{ backgroundColor: '#fff' }}>{Component}</div>
+    </ThemeProvider>
+  );
+
+  document.getElementsByTagName('body')[0].style = 'margin:0px';
 
   return mount(wrapped, options);
 });

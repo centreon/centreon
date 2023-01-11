@@ -81,8 +81,6 @@ const searchWords = filtersToBeDisplayedInSearchBar.reduce(
   { type: '' }
 );
 
-document.getElementById('cy-root').style = 'min-height:750px;display:flex';
-
 const customImageSnapshotProperty = {
   failureThreshold: 0.06
 };
