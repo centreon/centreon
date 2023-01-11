@@ -1172,11 +1172,11 @@ class OpenIdProvider implements OpenIdProviderInterface
             $configuredClaimValues = [$configuredClaimValues[0]];
         }
 
-        $this->rolesMappingFromProvider = $providerConditions;
-
         if (is_string($providerConditions)) {
             $providerConditions = explode(",", $providerConditions);
         }
+
+        $this->rolesMappingFromProvider = $providerConditions;
 
         $this->validateAclAttributeOrFail($providerConditions, $configuredClaimValues);
     }
