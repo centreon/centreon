@@ -1,5 +1,5 @@
 ---
-name: Sync Back to Dev branch
+name: Sync stable and dev version branches
 
 on:
   pull_request_target:
