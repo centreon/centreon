@@ -194,9 +194,6 @@ jobs:
     needs: [changes]
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
       - uses: ./.github/workflows/cypress-component-parallelization.yml
         with:
           name: component
