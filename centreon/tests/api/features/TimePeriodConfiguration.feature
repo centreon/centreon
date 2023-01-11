@@ -34,6 +34,7 @@ Feature:
         ]
     }
     """
+    Then the response code should be "201"
     When I send a GET request to '/api/latest/configuration/timeperiods?search={"name": "test_name"}'
     Then the response code should be "200"
     And the JSON should be equal to:
@@ -144,6 +145,36 @@ Feature:
     }
     """
     Then the response code should be 204
+
+    When I send a POST request to '/api/latest/configuration/timeperiods' with body:
+    """
+    {
+        "name": "already_exists",
+        "alias": "already_exists_alias",
+        "days": [],
+        "templates": [1],
+        "exceptions": []
+    }
+    """
+    Then the response code should be 201
+    When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
+    """
+    {
+        "name": "already_exists",
+        "alias": "already_exists_alias",
+        "days": [],
+        "templates": [1],
+        "exceptions": []
+    }
+    """
+    Then the response code should be 409
+    And the JSON should be equal to:
+    """
+    {
+        "code": 409,
+        "message": "The time period name 'already_exists' already exists"
+    }
+    """
 
     When I send a GET request to '/api/latest/configuration/timeperiods?search={"name": "test_name2"}'
     Then the response code should be "200"
