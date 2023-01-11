@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget tactical overview releases
+name: Create centreon widget graph monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-tactical-overview.yml"
-      - "widgets/centreon-widget-tactical-overview/**"
+      - ".github/workflows/release-widget-graph-monitoring.yml"
+      - "widgets/centreon-widget-graph-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-tactical-overview"
+  module: "widget-graph-monitoring"
 
 jobs:
   release:

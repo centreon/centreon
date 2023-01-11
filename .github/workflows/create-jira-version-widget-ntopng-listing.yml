@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget single metric releases
+name: Create centreon widget ntopng listing version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-single-metric.yml"
-      - "widgets/centreon-widget-single-metric/**"
+      - ".github/workflows/release-widget-ntopng-listing.yml"
+      - "widgets/centreon-widget-ntopng-listing/**"
   workflow_dispatch:
 
 env:
-  module: "widget-single-metric"
+  module: "widget-ntopng-listing"
 
 jobs:
   release:

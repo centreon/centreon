@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget service monitoring releases
+name: Create centreon widget hostgroup monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-service-monitoring.yml"
-      - "widgets/centreon-widget-service-monitoring/**"
+      - ".github/workflows/release-widget-hostgroup-monitoring.yml"
+      - "widgets/centreon-widget-hostgroup-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-service-monitoring"
+  module: "widget-hostgroup-monitoring"
 
 jobs:
   release:

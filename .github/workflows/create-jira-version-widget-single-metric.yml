@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget live top10 memory usage releases
+name: Create centreon widget single metric version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-live-top10-memory-usage.yml"
-      - "widgets/centreon-widget-live-top10-memory-usage/**"
+      - ".github/workflows/release-widget-single-metric.yml"
+      - "widgets/centreon-widget-single-metric/**"
   workflow_dispatch:
 
 env:
-  module: "widget-live-top10-memory-usage"
+  module: "widget-single-metric"
 
 jobs:
   release:

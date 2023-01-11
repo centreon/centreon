@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget httploader releases
+name: Create centreon widget tactical overview version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-httploader.yml"
-      - "widgets/centreon-widget-httploader/**"
+      - ".github/workflows/release-widget-tactical-overview.yml"
+      - "widgets/centreon-widget-tactical-overview/**"
   workflow_dispatch:
 
 env:
-  module: "widget-httploader"
+  module: "widget-tactical-overview"
 
 jobs:
   release:

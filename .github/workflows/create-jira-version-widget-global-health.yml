@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget engine status releases
+name: Create centreon widget global health version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-engine-status.yml"
-      - "widgets/centreon-widget-engine-status/**"
+      - ".github/workflows/release-widget-global-health.yml"
+      - "widgets/centreon-widget-global-health/**"
   workflow_dispatch:
 
 env:
-  module: "widget-engine-status"
+  module: "widget-global-health"
 
 jobs:
   release:

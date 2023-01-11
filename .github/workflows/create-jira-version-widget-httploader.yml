@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget servicegroup monitoring releases
+name: Create centreon widget httploader version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-servicegroup-monitoring.yml"
-      - "widgets/centreon-widget-servicegroup-monitoring/**"
+      - ".github/workflows/release-widget-httploader.yml"
+      - "widgets/centreon-widget-httploader/**"
   workflow_dispatch:
 
 env:
-  module: "widget-servicegroup-monitoring"
+  module: "widget-httploader"
 
 jobs:
   release:

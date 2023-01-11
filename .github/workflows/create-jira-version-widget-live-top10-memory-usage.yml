@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget hostgroup monitoring releases
+name: Create centreon widget live top10 memory usage version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-hostgroup-monitoring.yml"
-      - "widgets/centreon-widget-hostgroup-monitoring/**"
+      - ".github/workflows/release-widget-live-top10-memory-usage.yml"
+      - "widgets/centreon-widget-live-top10-memory-usage/**"
   workflow_dispatch:
 
 env:
-  module: "widget-hostgroup-monitoring"
+  module: "widget-live-top10-memory-usage"
 
 jobs:
   release:

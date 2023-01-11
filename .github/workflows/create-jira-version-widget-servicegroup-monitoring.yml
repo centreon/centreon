@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget global health releases
+name: Create centreon widget servicegroup monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-global-health.yml"
-      - "widgets/centreon-widget-global-health/**"
+      - ".github/workflows/release-widget-servicegroup-monitoring.yml"
+      - "widgets/centreon-widget-servicegroup-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-global-health"
+  module: "widget-servicegroup-monitoring"
 
 jobs:
   release:

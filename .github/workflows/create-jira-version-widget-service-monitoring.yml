@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget live top10 cpu usage releases
+name: Create centreon widget service monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-live-top10-cpu-usage.yml"
-      - "widgets/centreon-widget-live-top10-cpu-usage/**"
+      - ".github/workflows/release-widget-service-monitoring.yml"
+      - "widgets/centreon-widget-service-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-live-top10-cpu-usage"
+  module: "widget-service-monitoring"
 
 jobs:
   release:

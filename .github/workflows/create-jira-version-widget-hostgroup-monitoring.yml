@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget host monitoring releases
+name: Create centreon widget host monitoring version
 
 on:
   pull_request_target:
