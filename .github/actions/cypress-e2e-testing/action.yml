@@ -41,7 +41,7 @@ runs:
       shell: bash
 
     - name: Cypress end-to-end testing
-      uses: ./.github/actions/custom-cypress-action
+      uses: cypress-io/github-action@9a6135438395512a514854fe2136aa140b77860f
       with:
         browser: chrome
         install: false
