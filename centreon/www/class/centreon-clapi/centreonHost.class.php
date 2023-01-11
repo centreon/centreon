@@ -1418,10 +1418,26 @@ class CentreonHost extends CentreonObject
                         unset($tmpObj);
                     }
                     $value = CentreonUtils::convertLineBreak($value);
-                    if ($parameter === self::HOST_SNMP_COMMUNITY_FIELD && preg_match('/^secret::\d+::/', $value) && $this->getVaultConfiguration() !== null) {
+                    $vaultConfiguration = $this->getVaultConfiguration();
+                    if (
+                        $parameter === self::HOST_SNMP_COMMUNITY_FIELD
+                        && preg_match('/^secret::\d+::/', $value)
+                        && $vaultConfiguration !== null
+                    ) {
                         $logger = $this->getLogger();
                         $httpClient = new \CentreonRestHttp();
-                        $clientToken = $this->authenticateToVault($this->getVaultConfiguration(), $logger, $httpClient);
+                        $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+                        $resourceEndpoint = preg_replace("/^secret::\d+::/", "", $value);
+                        $hostSecrets = $this->getHostSecretsFromVault(
+                            $vaultConfiguration,
+                            $resourceEndpoint,
+                            $clientToken,
+                            $logger,
+                            $httpClient
+                        );
+                        if(array_key_exists('_HOSTSNMPCOMMUNITY', $hostSecrets) ) {
+                            $value = $hostSecrets['_HOSTSNMPCOMMUNITY'];
+                        }
                     }
                     echo $this->action . $this->delim
                         . "setparam" . $this->delim
@@ -1968,7 +1984,7 @@ class CentreonHost extends CentreonObject
         if (self::$repository === null) {
             $kernel = \App\Kernel::createForWeb();
             self::$repository = $kernel->getContainer()->get(
-                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+                \Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
             );
         }
 
@@ -2040,22 +2056,21 @@ class CentreonHost extends CentreonObject
      */
     private function getHostSecretsFromVault(
         VaultConfiguration $vaultConfiguration,
-        int $hostId,
+        string $resourceUrl,
         string $clientToken,
         LegacyLogger $logger,
         \CentreonRestHttp $httpClient
     ): array {
-        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-            . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
-            $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/' . $resourceUrl;
+        $logger->info(sprintf("Search host secrets at: %s", $url));
         try {
             $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
         } catch (\RestNotFoundException $ex) {
-            $logger->info(sprintf("Host %d not found in vault", $hostId));
+            $logger->info(sprintf("Host not found in vault"));
 
             return [];
         } catch (\Exception $ex) {
-            $logger->error(sprintf('Unable to get secrets for host : %d', $hostId));
+            $logger->error(sprintf('Unable to get secrets for host'));
             throw $ex;
         }
         if (array_key_exists('data', $content)) {

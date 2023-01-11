@@ -238,7 +238,7 @@ class Centreon_Object_Host extends Centreon_Object
         \CentreonDB $pearDB
     ): void {
         $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-            . "/centreon/hosts/" . $hostId;
+            . "/monitoring/hosts/" . $hostId;
 
         $statementUpdateHost = $pearDB->prepare(
             <<<SQL
