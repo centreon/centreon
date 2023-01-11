@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget single metric releases
+name: Create centreon widget engine status version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-single-metric.yml"
-      - "widgets/centreon-widget-single-metric/**"
+      - ".github/workflows/release-widget-engine-status.yml"
+      - "widgets/centreon-widget-engine-status/**"
   workflow_dispatch:
 
 env:
-  module: "widget-single-metric"
+  module: "widget-engine-status"
 
 jobs:
   release:
@@ -33,3 +33,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
