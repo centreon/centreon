@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget hostgroup monitoring releases
+name: Create centreon widget tactical overview version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-hostgroup-monitoring.yml"
-      - "widgets/centreon-widget-hostgroup-monitoring/**"
+      - ".github/workflows/release-widget-tactical-overview.yml"
+      - "widgets/centreon-widget-tactical-overview/**"
   workflow_dispatch:
 
 env:
-  module: "widget-hostgroup-monitoring"
+  module: "widget-tactical-overview"
 
 jobs:
   release:
@@ -34,3 +34,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

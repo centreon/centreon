@@ -1,18 +1,17 @@
 ---
-name: Sync Back to Dev branch
+name: Sync next major stable and dev version branches
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "*.x"
-      - "!dev*"
+      - "master"
   workflow_dispatch:
 
 jobs:
   main:
-    name: Sync Stable Branches
+    name: Create PR Release to Main
     runs-on: [self-hosted, common]
     if: github.event.pull_request.merged == true
     steps:
@@ -25,5 +24,5 @@ jobs:
         id: release
         uses: ./.github/actions/sync-branches
         with:
-          src_branch: ${{ github.ref_name }}
-          dest_branch: dev-${{ github.ref_name }}
+          src_branch: master
+          dest_branch: develop

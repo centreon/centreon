@@ -67,7 +67,7 @@ final class FindHostCategories
                 $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
                 || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
             ) {
-                $this->debug('User is not admin, use ACLs to retrieve host groups', ['user' => $this->user->getName()]);
+                $this->debug('User is not admin, use ACLs to retrieve host categories', ['user' => $this->user->getName()]);
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
                 $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups(
                     $accessGroups,

@@ -27,16 +27,15 @@ namespace Core\HostCategory\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Utility\SqlConcatenator;
 
-class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements ReadHostCategoryRepositoryInterface
+class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements ReadHostCategoryRepositoryInterface
 {
-    // TODO : update abstract with AbstractRepositoryRDB (cf. PR Laurent)
     use LoggerTrait;
 
     /**
@@ -116,7 +115,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
         $this->info('Check existence of host category with id #' . $hostCategoryId);
 
         $request = $this->translateDbName(
-            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId'
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_id = :hostCategoryId AND hc.level IS NULL'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
@@ -147,6 +146,13 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             $accessGroups
         );
 
+        // if host categories are not filtered in ACLs, then user has access to ALL host categories
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+            $this->info('Host categories access not filtered');
+
+            return $this->exists($hostCategoryId);
+        }
+
         $request = $this->translateDbName(
             'SELECT 1
             FROM `:db`.hostcategories hc
@@ -157,9 +163,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryDRB implements Read
             INNER JOIN `:db`.acl_res_group_relations argr
                 ON res.acl_res_id = argr.acl_res_id
             INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE hc.hc_id = :hostCategoryId'
+                ON argr.acl_group_id = ag.acl_group_id'
         );
+        $concat->appendWhere('hc.hc_id = :hostCategoryId');
+        $concat->appendWhere('hc.level IS NULL');
 
         $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
             ->appendWhere('ag.acl_group_id IN (:access_group_ids)');

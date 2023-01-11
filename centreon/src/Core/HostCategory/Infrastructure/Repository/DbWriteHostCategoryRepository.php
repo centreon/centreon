@@ -25,13 +25,12 @@ namespace Core\HostCategory\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 
-class DbWriteHostCategoryRepository extends AbstractRepositoryDRB implements WriteHostCategoryRepositoryInterface
+class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements WriteHostCategoryRepositoryInterface
 {
-    // TODO : update abstract with AbstractRepositoryRDB (cf. PR Laurent)
     use LoggerTrait;
 
     public function __construct(DatabaseConnection $db)

@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget tactical overview releases
+name: Create centreon widget service monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-tactical-overview.yml"
-      - "widgets/centreon-widget-tactical-overview/**"
+      - ".github/workflows/release-widget-service-monitoring.yml"
+      - "widgets/centreon-widget-service-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-tactical-overview"
+  module: "widget-service-monitoring"
 
 jobs:
   release:
@@ -34,3 +34,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
