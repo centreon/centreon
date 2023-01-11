@@ -153,7 +153,7 @@ Feature:
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
-    ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+    ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Categories
     ACLRESOURCE;add;ACL Resource test;my alias
     ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat1
     ACLGROUP;add;ACL Group test;my alias
@@ -181,7 +181,7 @@ Feature:
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
-    ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+    ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Categories
     ACLRESOURCE;add;ACL Resource test;my alias
     ACLGROUP;add;ACL Group test;my alias
     ACLGROUP;addmenu;ACL Group test;ACL Menu test
