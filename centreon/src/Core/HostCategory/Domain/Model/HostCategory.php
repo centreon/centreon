@@ -35,7 +35,6 @@ class HostCategory extends NewHostCategory
         string $name,
         string $alias
     ) {
-        $this->id = $id;
         parent::__construct($name, $alias);
     }
 
