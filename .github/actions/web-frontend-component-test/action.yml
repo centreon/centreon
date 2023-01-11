@@ -1,8 +1,10 @@
 name: "Web Cypress Component Testing"
 description: "Web Cypress Component Testing"
-inputs:
-  working_directory:
-    description: The frontend directory
+  module:
+    description: "Module on test will be run."
+    required: true
+  spec_file_path:
+    description: "Path of spec file."
     required: true
 
 runs:
@@ -12,25 +14,30 @@ runs:
       with:
         version: 7
 
+    - uses: mad9000/actions-find-and-replace-string@2
+      id: formatSpecFilePath
+      with:
+          source: ${{ inputs.spec_file_path }}
+          find: '/'
+          replace: '-'
+
     - name: Cypress web component testing
-      uses: cypress-io/github-action@v4
+      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
       with:
         browser: chrome
         component: true
         install-command: pnpm install
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.module }}
+        spec: www/front_src/src/**/${{ inputs.spec_file_path }}
+        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-videos
-        path: ${{ inputs.working_directory }}/cypress/results/videos
+        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/results/videos
 
-    - name: Publish tests report
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() }}
-      with:
-        check_name: web-frontend-component-tests-report
-        comment_mode: failures
-        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml
+    - name: Rename cypress report
+      run: mv ${{ inputs.module }}/cypress/results/reports/cypress-fe.xml ${{ inputs.working_directory }}/cypress/results/reports/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      shell: bash

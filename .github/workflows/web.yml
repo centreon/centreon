@@ -198,9 +198,12 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - uses: ./.github/actions/web-frontend-component-test
+      - uses: ./.github/workflows/cypress-component-parallelization.yml
         with:
-          working_directory: centreon
+          name: component
+          module_name: centreon
+          image_name: centreon-web
+          specs_path: www/front_src/src/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04

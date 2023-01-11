@@ -1,0 +1,71 @@
+on:
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      module_name:
+        required: true
+        type: string
+      specs_path:
+        required: true
+        type: string
+
+jobs:
+  cypress-component-test-list:
+    runs-on: ubuntu-22.04
+    outputs:
+      specs: ${{ steps.list-specs.outputs.specs }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: List of specs
+        id: list-specs
+        run: |
+          cd ${{ inputs.module_name }}
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  cypress-component-test-run:
+    needs: [cypress-component-test-list]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: true
+      matrix:
+        spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
+    name: ${{ matrix.spec }}
+
+    steps:
+      - name: Cypress component testing
+        uses: ./.github/actions/web-frontend-component-test
+        with:
+          module: centreon
+          spec_file_path: ${{matrix.spec}}
+
+      - name: Upload components tests Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: centreon/cypress/results/reports/*.xml
+
+  cypress-component-test-report:
+    needs: [cypress-component-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: ${{ inputs.name }}-xunit-reports
+
+      - name: Publish tests report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: ${{ always() }}
+        with:
+          check_name: ${{ inputs.name }}-tests-report
+          comment_mode: failures
+          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
