@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget engine status releases
+name: Create centreon widget live top10 memory usage version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-engine-status.yml"
-      - "widgets/centreon-widget-engine-status/**"
+      - ".github/workflows/release-widget-live-top10-memory-usage.yml"
+      - "widgets/centreon-widget-live-top10-memory-usage/**"
   workflow_dispatch:
 
 env:
-  module: "widget-engine-status"
+  module: "widget-live-top10-memory-usage"
 
 jobs:
   release:
@@ -34,3 +34,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

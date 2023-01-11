@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget servicegroup monitoring releases
+name: Create centreon widget graph monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-servicegroup-monitoring.yml"
-      - "widgets/centreon-widget-servicegroup-monitoring/**"
+      - ".github/workflows/release-widget-graph-monitoring.yml"
+      - "widgets/centreon-widget-graph-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-servicegroup-monitoring"
+  module: "widget-graph-monitoring"
 
 jobs:
   release:
@@ -34,3 +34,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

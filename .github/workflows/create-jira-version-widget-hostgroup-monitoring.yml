@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget httploader releases
+name: Create centreon widget host monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-httploader.yml"
-      - "widgets/centreon-widget-httploader/**"
+      - ".github/workflows/release-widget-host-monitoring.yml"
+      - "widgets/centreon-widget-host-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-httploader"
+  module: "widget-host-monitoring"
 
 jobs:
   release:
@@ -34,3 +34,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
