@@ -202,7 +202,6 @@ jobs:
         with:
           name: component
           module_name: centreon
-          image_name: centreon-web
           specs_path: www/front_src/src/**
 
   backend-unit-test:
