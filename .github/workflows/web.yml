@@ -191,6 +191,7 @@ jobs:
 
   frontend-component-test:
     needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
