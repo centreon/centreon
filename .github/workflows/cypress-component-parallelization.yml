@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: centreon/cypress/results/reports/*.xml
+          path: centreon/cypress/results/*.xml
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
