@@ -11,7 +11,13 @@ import { ThemeProvider } from '@centreon/ui';
 window.React = React;
 
 Cypress.Commands.add('mount', ({ Component, options }) => {
-  const wrapped = <ThemeProvider>{Component}</ThemeProvider>;
+  const wrapped = (
+    <ThemeProvider>
+      <div style={{ backgroundColor: '#fff' }}>{Component}</div>
+    </ThemeProvider>
+  );
+
+  document.getElementsByTagName('body')[0].style = 'margin:0px';
 
   return mount(wrapped, options);
 });
@@ -39,23 +45,23 @@ export enum Method {
   PUT = 'PUT'
 }
 
-export interface InterceptAPIRequestProps {
+export interface InterceptAPIRequestProps<T> {
   alias: string;
   method: Method;
   path: string;
-  response: object | Array<object>;
+  response: T | Array<T>;
   statusCode?: number;
 }
 
 Cypress.Commands.add(
   'interceptAPIRequest',
-  ({
+  <T extends object>({
     method,
     path,
     response,
     alias,
     statusCode = 200
-  }: InterceptAPIRequestProps): void => {
+  }: InterceptAPIRequestProps<T>): void => {
     cy.interceptRequest(
       method,
       path,
@@ -75,8 +81,8 @@ Cypress.Commands.add('waitFiltersAndListingRequests', () => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      interceptAPIRequest: (
-        props: InterceptAPIRequestProps
+      interceptAPIRequest: <T extends object>(
+        props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
