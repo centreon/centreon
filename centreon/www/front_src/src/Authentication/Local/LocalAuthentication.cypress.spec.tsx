@@ -133,6 +133,8 @@ describe('Authentication', () => {
     });
 
     cy.waitForRequest('@getMinLengthPasswordSecurityPolicyFromAPI');
+
+    cy.matchImageSnapshot();
   });
 
   it('updates the retrieved form recommended values and reset the form to the inital values when the "Reset" button is clicked', () => {
@@ -163,6 +165,8 @@ describe('Authentication', () => {
     cy.findAllByLabelText(labelReset).should('have.length', 2).eq(1).click();
 
     cy.findByLabelText(labelMinimumPasswordLength).should('have.value', 12);
+
+    cy.matchImageSnapshot();
   });
 
   it('updates the retrieved form values and send the data when the "Save" button is clicked', () => {
@@ -203,6 +207,8 @@ describe('Authentication', () => {
     });
 
     cy.waitForRequest('@getUpdatedAttemptsPasswordSecurityPolicyFromAPI');
+
+    cy.matchImageSnapshot();
   });
 
   describe('Password case policy', () => {
@@ -233,6 +239,8 @@ describe('Authentication', () => {
         .should('be.visible');
 
       cy.findAllByLabelText(labelStrong).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('updates the password minimum length value when the corresponding input is changed', () => {
@@ -243,6 +251,8 @@ describe('Authentication', () => {
         .type('{selectall}{backspace}45');
 
       cy.findByLabelText(labelMinimumPasswordLength).should('have.value', 45);
+
+      cy.matchImageSnapshot();
     });
 
     it('displays the efficiency level according to the selected cases when cases button are clicked', () => {
@@ -277,6 +287,8 @@ describe('Authentication', () => {
       cy.findAllByLabelText(labelPasswordMustContainNumbers).eq(0).click();
 
       cy.findByText(labelWeak).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
   });
 
@@ -335,6 +347,8 @@ describe('Authentication', () => {
         .should('have.text', '1');
 
       cy.findByLabelText(labelExcludedUsers).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('does not display any error message when the password expiration time is cleared', () => {
@@ -350,6 +364,8 @@ describe('Authentication', () => {
       cy.findByText(labelChooseADurationBetween7DaysAnd12Months).should(
         'not.exist'
       );
+
+      cy.matchImageSnapshot();
     });
 
     it('displays an error message when the delay before new password time is outside the bounds', () => {
@@ -394,6 +410,8 @@ describe('Authentication', () => {
       cy.findByText(labelChooseADurationBetween7DaysAnd12Months).should(
         'be.visible'
       );
+
+      cy.matchImageSnapshot();
     });
 
     it('does not display any error message when the delay before new password time is cleared', () => {
@@ -411,6 +429,8 @@ describe('Authentication', () => {
       cy.findByText(labelChooseADurationBetween1HourAnd1Week).should(
         'not.exist'
       );
+
+      cy.matchImageSnapshot();
     });
 
     it('selects the "Can reuse passwords" field when the corresponding switch is clicked', () => {
@@ -423,6 +443,8 @@ describe('Authentication', () => {
         .click();
 
       cy.findByLabelText(labelLast3PasswordsCanBeReused).should('be.checked');
+
+      cy.matchImageSnapshot();
     });
 
     it('updates the excluded users field when an user is selected from the retrieved options', () => {
@@ -462,6 +484,8 @@ describe('Authentication', () => {
       cy.findByText('admin').should('be.visible').type('{enter}').type('{esc}');
 
       cy.findAllByText('admin').should('have.length', 1);
+
+      cy.matchImageSnapshot();
     });
   });
 
@@ -490,6 +514,8 @@ describe('Authentication', () => {
         .and('have.text', '15');
 
       cy.findByText(labelWeak).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('displays an error message when the number of attempts is outside the bounds', () => {
@@ -512,6 +538,8 @@ describe('Authentication', () => {
       cy.findByLabelText(labelNumberOfAttemptsBeforeUserIsBlocked).type('11');
 
       cy.findByText(labelChooseAValueBetween1and10).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('displays an error message in the "Time blocking duration" field when the number of attempts is cleared', () => {
@@ -526,6 +554,8 @@ describe('Authentication', () => {
       cy.findByText(
         labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined
       ).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('displays an error message when the time blocking duration is 7 days and 1 hour', () => {
@@ -543,6 +573,8 @@ describe('Authentication', () => {
       cy.findByText(labelBlockingDurationMustBeLessThanOrEqualTo7Days).should(
         'be.visible'
       );
+
+      cy.matchImageSnapshot();
     });
 
     it('displays the efficiency level when the number of attempts changes', () => {
@@ -561,6 +593,8 @@ describe('Authentication', () => {
       );
 
       cy.findAllByText(labelGood).should('be.visible');
+
+      cy.matchImageSnapshot();
     });
 
     it('displays the efficiency level when the time blocking duration changes', () => {
@@ -595,6 +629,8 @@ describe('Authentication', () => {
       cy.findAllByText('0').eq(3).click();
 
       cy.findAllByText(labelGood).should('have.length', 2);
+
+      cy.matchImageSnapshot();
     });
   });
 });
