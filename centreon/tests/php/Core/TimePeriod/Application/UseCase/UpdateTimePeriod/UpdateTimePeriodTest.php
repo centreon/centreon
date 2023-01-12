@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Application\Common\UseCase\{ErrorResponse, NoContentResponse, NotFoundResponse};
+use Core\Application\Common\UseCase\{ConflictResponse, ErrorResponse, NoContentResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Domain\Model\TimePeriod;
@@ -102,7 +102,7 @@ it('should present an ErrorResponse when the time period name already exists', f
     $useCase($request, $presenter);
 
     expect($presenter->getResponseStatus())
-        ->toBeInstanceOf(ErrorResponse::class)
+        ->toBeInstanceOf(ConflictResponse::class)
         ->and($presenter->getResponseStatus()->getMessage())
         ->toBe(TimePeriodException::nameAlreadyExists($request->name)->getMessage());
 });

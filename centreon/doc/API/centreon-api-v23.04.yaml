@@ -329,6 +329,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/categories/{host_category_id}:
@@ -463,6 +465,8 @@ paths:
                 $ref: '#/components/schemas/Configuration.Host.Group'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups/{hostgroup_id}:
@@ -1004,6 +1008,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/timeperiods/{id}:
@@ -1081,6 +1087,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
@@ -3969,19 +3977,7 @@ paths:
         '201':
           description: "OK"
         '409':
-          description: "Conflict. More details are specified in the response"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    format: int64
-                    example: 409
-                  message:
-                    type: string
-                    example: "A platform using the name : 'myPoller' or address : '1.1.1.2' already exists"
+          $ref: '#/components/responses/Conflict'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -4854,6 +4850,20 @@ components:
               message:
                 type: string
                 example: "Property 'name' not found"
+    Conflict:
+      description: "Conflict. More details are specified in the response"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int64
+                example: 409
+              message:
+                type: string
+                example: "A platform using the name : 'myPoller' or address : '1.1.1.2' already exists"
     Forbidden:
       description: "Forbidden"
       content:

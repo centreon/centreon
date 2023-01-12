@@ -395,7 +395,7 @@ Feature:
     """
     {"name": "test-add2"}
     """
-    Then the response code should be "500"
+    Then the response code should be "409"
 
   Scenario: Host group add with a READ user is forbidden
     Given the following CLAPI import data:
