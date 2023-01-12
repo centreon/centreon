@@ -190,17 +190,13 @@ jobs:
           junit_files: "centreon/junit.xml"
 
   frontend-component-test:
-    runs-on: ubuntu-22.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - uses: ./.github/actions/web-frontend-component-test
-        with:
-          working_directory: centreon
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/front_src/src/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04
