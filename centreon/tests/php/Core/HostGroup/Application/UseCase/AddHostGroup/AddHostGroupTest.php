@@ -92,7 +92,7 @@ it(
         expect($this->presenter->getResponseStatus())
             ->toBeInstanceOf(ErrorResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::errorWhileDeleting()->getMessage());
+            ->toBe(HostGroupException::errorWhileAdding()->getMessage());
     }
 );
 
@@ -140,7 +140,7 @@ it(
 
 foreach (['iconId', 'iconMapId'] as $iconField) {
     it(
-        "should present an ErrorResponse if the {$iconField} does not exist",
+        "should present a ConflictResponse if the {$iconField} does not exist",
         function () use ($iconField): void {
             $this->contact
                 ->expects($this->once())
@@ -155,7 +155,7 @@ foreach (['iconId', 'iconMapId'] as $iconField) {
             ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
             expect($this->presenter->getResponseStatus())
-                ->toBeInstanceOf(ErrorResponse::class)
+                ->toBeInstanceOf(ConflictResponse::class)
                 ->and($this->presenter->getResponseStatus()?->getMessage())
                 ->toBe(HostGroupException::iconDoesNotExist($iconField, 666)->getMessage());
         }
@@ -212,7 +212,7 @@ it(
         expect($this->presenter->getResponseStatus())
             ->toBeInstanceOf(ForbiddenResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::accessNotAllowed()->getMessage());
+            ->toBe(HostGroupException::accessNotAllowedForWriting()->getMessage());
     }
 );
 

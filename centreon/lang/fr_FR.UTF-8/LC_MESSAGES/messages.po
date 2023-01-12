@@ -17260,11 +17260,17 @@ msgstr "Erreur durant la recherche de groupes d'hôtes"
 msgid "You are not allowed to access host groups"
 msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
 
+msgid "You are not allowed to perform write operations on host groups"
+msgstr "Vous n'êtes pas autorisé à de faire des opérations d'écriture sur les groupes d'hôtes"
+
 msgid "Host group not found"
 msgstr "Groupe d'hôtes non trouvé"
 
 msgid "Error while deleting a host group"
 msgstr "Erreur durant la suppression d'un groupe d'hôtes"
+
+msgid "Error while adding a host group"
+msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"

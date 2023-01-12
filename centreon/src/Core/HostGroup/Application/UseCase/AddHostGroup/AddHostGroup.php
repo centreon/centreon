@@ -71,7 +71,7 @@ final class AddHostGroup
             if ($this->contact->isAdmin()) {
                 $presenter->present($this->addHostGroupAsAdmin($request));
                 $this->info('Add host group', ['request' => $request]);
-            } elseif ($this->contactCanExecuteThisUseCase()) {
+            } elseif ($this->contactCanPerformWriteOperations()) {
                 $presenter->present($this->addHostGroupAsContact($request));
                 $this->info('Add host group', ['request' => $request]);
             } else {
@@ -80,7 +80,7 @@ final class AddHostGroup
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowed())
+                    new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting())
                 );
             }
         } catch (HostGroupException $ex) {
@@ -92,7 +92,7 @@ final class AddHostGroup
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileDeleting()));
+            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileAdding()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
@@ -202,7 +202,7 @@ final class AddHostGroup
     /**
      * @return bool
      */
-    private function contactCanExecuteThisUseCase(): bool
+    private function contactCanPerformWriteOperations(): bool
     {
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
     }
