@@ -3,23 +3,27 @@ module.exports = {
     {
       extends: [
         'plugin:@typescript-eslint/recommended',
-        'plugin:typescript-sort-keys/recommended',
+        'plugin:typescript-sort-keys/recommended'
       ],
       files: ['*.ts', '*.tsx'],
       parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module'
+      },
       plugins: ['@typescript-eslint', 'typescript-sort-keys'],
       rules: {
         '@typescript-eslint/array-type': [
           'error',
           {
             default: 'generic',
-            readonly: 'generic',
-          },
+            readonly: 'generic'
+          }
         ],
         '@typescript-eslint/camelcase': 'off',
         '@typescript-eslint/consistent-type-definitions': [
           'error',
-          'interface',
+          'interface'
         ],
         '@typescript-eslint/explicit-function-return-type': ['error'],
         '@typescript-eslint/explicit-member-accessibility': [
@@ -31,33 +35,33 @@ module.exports = {
               constructors: 'explicit',
               methods: 'explicit',
               parameterProperties: 'explicit',
-              properties: 'explicit',
-            },
-          },
+              properties: 'explicit'
+            }
+          }
         ],
         '@typescript-eslint/method-signature-style': ['error'],
         '@typescript-eslint/naming-convention': [
           'error',
           {
             format: ['camelCase', 'PascalCase'],
-            selector: 'variable',
+            selector: 'variable'
           },
           {
             filter: {
               match: false,
-              regex: '((__esModule|.+-.+)|^_$|^(/|&))',
+              regex: '((__esModule|.+-.+)|^_$|^(/|&))'
             },
             format: ['snake_case', 'camelCase', 'PascalCase'],
-            selector: 'property',
+            selector: 'property'
           },
           {
             filter: {
               match: false,
-              regex: '^_$|^(/|&)',
+              regex: '^_$|^(/|&)'
             },
             format: ['snake_case', 'camelCase', 'PascalCase'],
-            selector: 'parameter',
-          },
+            selector: 'parameter'
+          }
         ],
         '@typescript-eslint/no-shadow': ['error'],
         '@typescript-eslint/no-unused-expressions': ['error'],
@@ -68,21 +72,21 @@ module.exports = {
           {
             after: true,
             before: false,
-            overrides: { arrow: { after: true, before: true } },
-          },
+            overrides: { arrow: { after: true, before: true } }
+          }
         ],
         camelcase: 'off',
         'no-shadow': 'off',
-        'no-unused-expressions': 'off',
+        'no-unused-expressions': 'off'
       },
       settings: {
         'import/resolver': {
           alias: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx'],
-          },
-        },
-      },
-    },
+            extensions: ['.ts', '.tsx', '.js', '.jsx']
+          }
+        }
+      }
+    }
   ],
-  root: true,
+  root: true
 };

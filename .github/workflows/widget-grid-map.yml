@@ -13,6 +13,9 @@ on:
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - ".github/workflows/widget-grid-map.yml"
       - "widgets/centreon-widget-grid-map/**"
@@ -43,6 +46,8 @@ jobs:
     with:
       widget_name: grid-map
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USER }}

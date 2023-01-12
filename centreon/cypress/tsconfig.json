@@ -3,7 +3,7 @@
     "compilerOptions": {
       "target": "es5",
       "lib": ["es5", "dom"],
-      "types": ["cypress", "@testing-library/cypress"]
+      "types": ["cypress", "@testing-library/cypress", "./support"]
     },
     "include": ["../www/front_src/src/**/*.spec.tsx"],
     "exclude": []
