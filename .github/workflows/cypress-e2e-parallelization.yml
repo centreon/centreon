@@ -96,4 +96,6 @@ jobs:
         with:
           check_name: ${{ inputs.name }}-tests-report
           comment_mode: failures
+          ignore_runs: true
+          check_run_annotations: none
           junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml

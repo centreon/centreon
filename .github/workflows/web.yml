@@ -70,7 +70,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ''
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -151,15 +151,24 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o junit.xml -f junit --quiet
         working-directory: centreon
 
       - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
+          check_name: ${{ inputs.name }}-tests-report
+          comment_mode: failures
+          ignore_runs: true
+          check_run_annotations: none
+          junit_files: centreon/checkstyle.xml
+      #- name: Publish report
+      #  if: ${{ always() }}
+      #  uses: jwgmeligmeyling/checkstyle-github-action@master
+      #  with:
+      #    name: centreon-web-eslint-report
+      #    path: centreon/checkstyle.xml
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -187,6 +196,8 @@ jobs:
         with:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
+          ignore_runs: true
+          check_run_annotations: none
           junit_files: "centreon/junit.xml"
 
   frontend-component-test:
@@ -234,6 +245,8 @@ jobs:
         with:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
+          ignore_runs: true
+          check_run_annotations: none
           junit_files: "centreon/build/phpunit.xml"
 
   package:
