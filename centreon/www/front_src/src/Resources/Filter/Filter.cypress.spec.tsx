@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useAtomValue } from 'jotai';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import * as Ramda from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import {
+  TestQueryProvider,
+  Method,
+  setUrlQueryParameters,
+  getUrlQueryParameters
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
@@ -21,7 +27,8 @@ import {
   labelStateFilter,
   labelSoft,
   labelHostGroup,
-  labelServiceGroup
+  labelServiceGroup,
+  labelNewFilter
 } from '../translatedLabels';
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
@@ -29,10 +36,15 @@ import {
   defaultStatuses,
   getListingEndpoint,
   searchableFields,
-  EndpointParams
+  EndpointParams,
+  getFilterWithUpdatedCriteria,
+  getCriteriaValue
 } from '../testUtils';
 
+import { allFilter, Filter as FilterModel } from './models';
 import useFilter from './useFilter';
+import { filterKey } from './filterAtoms';
+import { defaultSortField, defaultSortOrder } from './Criterias/default';
 
 import Filter from '.';
 
@@ -96,6 +108,34 @@ const filterParams: Array<FilterParameter> = [
     }
   ]
 ];
+
+const filter = {
+  criterias: [
+    {
+      name: 'resource_types',
+      value: [{ id: 'host', name: labelHost }]
+    },
+    {
+      name: 'states',
+      value: [{ id: 'acknowledged', name: labelAcknowledged }]
+    },
+    { name: 'statuses', value: [{ id: 'OK', name: labelOk }] },
+    {
+      name: 'host_groups',
+      object_type: 'host_groups',
+      value: [linuxServersHostGroup]
+    },
+    {
+      name: 'service_groups',
+      object_type: 'service_groups',
+      value: [webAccessServiceGroup]
+    },
+    { name: 'search', value: 'Search me' },
+    { name: 'sort', value: [defaultSortField, defaultSortOrder] }
+  ],
+  id: 0,
+  name: 'My filter'
+};
 
 const customFilters = [
   [
@@ -362,6 +402,128 @@ describe('Custom filters', () => {
   });
 });
 
+describe('Filter storage', () => {
+  beforeEach(() => {
+    localStorage.setItem(filterKey, JSON.stringify(filter));
+
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: emptyListData
+    });
+
+    const getAllEndpoint = getListingEndpoint({
+      resourceTypes: [],
+      states: [],
+      statusTypes: [],
+      statuses: []
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getAllrequest',
+      method: Method.GET,
+      path: Ramda.replace('./api/latest/monitoring', '**', getAllEndpoint)
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'hostGroupsRequest',
+      method: Method.GET,
+      path: '**/hostgroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [linuxServersHostGroup]
+      }
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'serviceGroupsRequest',
+      method: Method.GET,
+      path: '**/servicegroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [webAccessServiceGroup]
+      }
+    });
+
+    cy.mount({
+      Component: <FilterWithProvider />
+    });
+
+    cy.viewport(1200, 1000);
+  });
+
+  it('populates filter with values from localStorage if available', () => {
+    cy.waitForRequest('@filterRequest');
+
+    cy.findByLabelText(labelUnhandledProblems).should('not.exist');
+
+    const searchField = cy.findByPlaceholderText(labelSearch);
+
+    searchField.should(
+      'have.value',
+      'type:host state:acknowledged status:ok host_group:Linux-servers service_group:Web-access Search me'
+    );
+
+    cy.findByLabelText(labelSearchOptions).click();
+
+    cy.findByText(labelType).click();
+    cy.findByText(labelHost).should('exist');
+    cy.findByText(labelType).click();
+
+    cy.findByText(labelState).click();
+    cy.findByText(labelAcknowledged).should('exist');
+    cy.findByText(labelState).click();
+
+    cy.findByText(labelStatus).click();
+    cy.findByText(labelOk).should('exist');
+    cy.findByText(labelStatus).click();
+
+    cy.findByText(labelHostGroup).click();
+    cy.waitForRequest('@hostGroupsRequest');
+    const linuxServerOption = cy.findByText(linuxServersHostGroup.name);
+    linuxServerOption.should('exist');
+    cy.findByText(labelHostGroup).click();
+
+    cy.findByText(labelServiceGroup).click();
+    cy.waitForRequest('@serviceGroupsRequest');
+    cy.findByText(webAccessServiceGroup.name).should('exist');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('stores filter values in localStorage when updated', () => {
+    cy.waitForRequest('@filterRequest');
+    cy.findByLabelText(labelStateFilter).click();
+
+    cy.findByText(labelAll).click();
+
+    cy.waitForRequest('@getAllrequest').then(() => {
+      expect(localStorage.getItem(filterKey)).to.deep.equal(
+        JSON.stringify(allFilter)
+      );
+    });
+
+    const searchField = cy.findByPlaceholderText(labelSearch);
+    searchField.clear();
+    searchField.type('searching...');
+
+    cy.waitForRequest('@getAllrequest').then(() => {
+      expect(localStorage.getItem(filterKey)).to.deep.equal(
+        JSON.stringify(
+          getFilterWithUpdatedCriteria({
+            criteriaName: 'search',
+            criteriaValue: 'searching...',
+            filter: { ...allFilter, id: '', name: labelNewFilter }
+          })
+        )
+      );
+    });
+
+    cy.matchImageSnapshot();
+  });
+});
+
 describe('Keyboard actions', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -444,5 +606,96 @@ describe('Keyboard actions', () => {
     cy.waitForRequest('@hostgroupsRequest');
 
     cy.matchImageSnapshot();
+  });
+});
+
+describe('Filter URL query parameters', () => {
+  beforeEach(() => {
+    setUrlQueryParameters([
+      {
+        name: 'filter',
+        value: filter
+      }
+    ]);
+
+    cy.interceptAPIRequest({
+      alias: 'hostgroupsRequest',
+      method: Method.GET,
+      path: '**/hostgroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [linuxServersHostGroup]
+      }
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'serviceGroupsRequest',
+      method: Method.GET,
+      path: '**/servicegroups?*',
+      response: {
+        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+        result: [webAccessServiceGroup]
+      }
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: emptyListData
+    });
+
+    cy.mount({
+      Component: <FilterWithProvider />
+    });
+
+    cy.viewport(1200, 1000);
+  });
+  it('sets the filter according to the filter URL query parameter when given', () => {
+    cy.waitForRequest('@filterRequest');
+
+    cy.findByText('New filter').should('exist');
+
+    cy.findByPlaceholderText(labelSearch).should(
+      'have.value',
+      'type:host state:acknowledged status:ok host_group:Linux-servers service_group:Web-access Search me'
+    );
+
+    cy.findByLabelText(labelSearchOptions).click();
+
+    cy.findByText(labelType).click();
+    cy.findByText(labelHost).should('exist');
+
+    cy.findByText(labelState).click();
+    cy.findByText(labelAcknowledged).should('exist');
+
+    cy.findByText(labelStatus).click();
+    cy.findByText(labelOk).should('exist');
+    cy.findByText(labelStatus).click();
+
+    cy.findByText(labelHostGroup).click();
+    cy.waitForRequest('@hostgroupsRequest');
+    cy.findByText(linuxServersHostGroup.name).should('exist');
+    cy.findByText(labelHostGroup).click();
+
+    cy.findByText(labelServiceGroup).click();
+    cy.waitForRequest('@serviceGroupsRequest');
+    cy.findByText(webAccessServiceGroup.name).should('exist');
+    cy.findByText(labelServiceGroup).click();
+
+    cy.findByPlaceholderText(labelSearch)
+      .clear()
+      .type('Search me two')
+      .then(() => {
+        const filterFromUrlQueryParameters = getUrlQueryParameters()
+          .filter as FilterModel;
+
+        expect(
+          getCriteriaValue({
+            filter: filterFromUrlQueryParameters,
+            name: 'search'
+          })
+        ).to.equal('Search me two');
+      });
   });
 });
