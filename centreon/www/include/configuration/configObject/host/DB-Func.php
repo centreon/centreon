@@ -1143,28 +1143,45 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
         );
     }
 
-    //@TODO: Check if Macro value are passwords
-
     //Check if a vault configuration exists
     $vaultConfiguration = getVaultConfiguration();
+
     //If there is a vault configuration and host snmp community is defined, write into vault
-    if ($vaultConfiguration !== null && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
+    if ($vaultConfiguration !== null) {
         try {
-            $logger = getLogger();
-            $passwordTypeData = [
-                '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
-            ];
-            $httpClient = new CentreonRestHttp();
-            $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-            writeSecretsInVault(
-                $vaultConfiguration,
-                $host_id['MAX(host_id)'],
-                $clientToken,
-                $passwordTypeData,
-                $logger,
-                $httpClient
-            );
-            updateHostTablesWithVaultPath($vaultConfiguration, $host_id['MAX(host_id)'], $pearDB);
+            $passwordTypeData = [];
+            if ($bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
+                $passwordTypeData['_HOSTSNMPCOMMUNITY'] = $bindParams[':host_snmp_community'][\PDO::PARAM_STR];
+            }
+            $macros = $hostObj->getFormattedMacros();
+            $macroPasswordIds = [];
+            foreach($macros as $macroId => $macroInfos) {
+                if ($macroInfos['macroPassword'] === '1') {
+                    $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
+                    $macroPasswordIds[] = $macroId;
+                }
+            }
+            if (!empty($passwordTypeData)) {
+                $logger = getLogger();
+                $httpClient = new CentreonRestHttp();
+                $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+                writeSecretsInVault(
+                    $vaultConfiguration,
+                    $host_id['MAX(host_id)'],
+                    $clientToken,
+                    $passwordTypeData,
+                    $logger,
+                    $httpClient
+                );
+                $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+                    . "/monitoring/hosts/" . $host_id['MAX(host_id)'];
+                if (array_key_exists('_HOSTSNMPCOMMUNITY', $passwordTypeData)){
+                    updateHostTableWithVaultPath($pearDB, $hostPath, $host_id['MAX(host_id)']);
+                }
+                if (! empty($macroPasswordIds)) {
+                    updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+                }
+            }
         } catch (\Throwable $ex) {
             $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             error_log((string) $ex);
@@ -3030,24 +3047,46 @@ function writeSecretsInVault(
 /**
  * Update host table with secrets path on vault.
  *
- * @param VaultConfiguration $vaultConfiguration
- * @param integer $hostId
  * @param \CentreonDB $pearDB
- * @throws \Throwable
+ * @param string $hostPath
+ * @param integer $hostId
  */
-function updateHostTablesWithVaultPath(VaultConfiguration $vaultConfiguration, int $hostId, \CentreonDB $pearDB): void
+function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int $hostId): void
 {
-    $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
-        . "/monitoring/hosts/" . $hostId;
-
     $statementUpdateHost = $pearDB->prepare(
         <<<SQL
             UPDATE `host` SET host_snmp_community = :path WHERE host_id = :hostId
         SQL
     );
-    $statementUpdateHost->bindValue(':path', $path, \PDO::PARAM_STR);
+    $statementUpdateHost->bindValue(':path', $hostPath, \PDO::PARAM_STR);
     $statementUpdateHost->bindValue(':hostId', (int) $hostId);
     $statementUpdateHost->execute();
+}
+
+/**
+ * Update on_demand_macro_host table with secrets path on vault.
+ *
+ * @param \CentreonDB $pearDB
+ * @param int[] $macroIds
+ * @param string $hostPath
+ */
+function updateOnDemandMacroHostTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $hostPath): void
+{
+    $bindMacroIds = [];
+    foreach($macroIds as $macroId) {
+        $bindMacroIds[':macro_' . $macroId] = $macroId;
+    }
+    $bindMacroString = implode(", ", array_keys($bindMacroIds));
+    $statementUpdateMacros = $pearDB->prepare(
+        <<<SQL
+            UPDATE `on_demand_macro_host` SET host_macro_value = :path WHERE host_macro_id IN ($bindMacroString)
+        SQL
+    );
+    $statementUpdateMacros->bindValue(':path', $hostPath, \PDO::PARAM_STR);
+    foreach($bindMacroIds as $bindToken => $bindValue) {
+        $statementUpdateMacros->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
+    }
+    $statementUpdateMacros->execute();
 }
 
 /**

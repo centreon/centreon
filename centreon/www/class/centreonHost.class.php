@@ -63,6 +63,24 @@ class CentreonHost
     protected $serviceObj;
 
     /**
+     * Macros formatted by id
+     * [
+     *  0 => [
+     *    "macroKey" => "KEY"
+     *    "macroValue" => "value"
+     *    "isPassword" => "1"
+     *  ],
+     *  1 => [
+     *    "macroKey" => "KEY_1"
+     *    "macroValue" => "value_1"
+     *    "macroPassword" => "1"
+     *  ]
+     * ]
+     * @var array
+     */
+    private array $formattedMacros = [];
+
+    /**
      * Constructor
      *
      * @param CentreonDB $db
@@ -851,6 +869,13 @@ class CentreonHost
                 }
                 $cnt++;
                 $stored[strtolower($value)] = true;
+                $dbResult = $this->db->query("SELECT MAX(host_macro_id) FROM on_demand_macro_host");
+                $macroId = $dbResult->fetch();
+                $this->formattedMacros[(int) $macroId['MAX(host_macro_id)']] = [
+                    "macroName" => '_HOST' . strtoupper($value),
+                    "macroValue" => $macrovalues[$key],
+                    "macroPassword" => $macroPassword[$key] ?? '0',
+                ];
             }
         }
     }
@@ -2551,5 +2576,15 @@ class CentreonHost
         if (!$dbResult) {
             throw new \Exception('Error while delete host ' . $hostName);
         }
+    }
+
+    /**
+     * Get Macros Information Unified by id
+     *
+     * @return array<array<string,string>>
+     */
+    public function getFormattedMacros(): array
+    {
+        return $this->formattedMacros;
     }
 }
