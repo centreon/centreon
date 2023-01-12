@@ -70,7 +70,6 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-          token: ''
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -247,8 +246,8 @@ jobs:
           comment_mode: failures
           compare_to_earlier_commit: false
           ignore_runs: true
-          check_run_annotations: none
-          job_summary: true
+          #check_run_annotations: none
+          job_summary: false
           junit_files: "centreon/build/phpunit.xml"
 
   package:
