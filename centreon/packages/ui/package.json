@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.12-MON-16373-modal-title-overide-title-text-box.2",
+  "version": "23.4.12",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
