@@ -62,37 +62,37 @@ class Centreon_Object_Host extends Centreon_Object
     {
         parent::update($hostId, $params);
         $vaultConfiguration = $this->getVaultConfiguration();
-        if ($vaultConfiguration !== null) {
-            try {
-                $httpClient = new CentreonRestHttp();
-                $logger = $this->getLogger();
-                $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
-                $hostSecrets = $this->getHostSecretsFromVault(
+        if ($vaultConfiguration === null) {
+            return;
+        }
+        try {
+            $httpClient = new CentreonRestHttp();
+            $logger = $this->getLogger();
+            $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+            $hostSecrets = $this->getHostSecretsFromVault(
+                $vaultConfiguration,
+                $hostId,
+                $clientToken,
+                $logger,
+                $httpClient
+            );
+
+            if (array_key_exists('host_snmp_community', $params)) {
+                //Replace olds vault values by the new ones
+                $hostSecrets['_HOSTSNMPCOMMUNITY'] = $params['host_snmp_community'];
+                $this->writeSecretsInVault(
                     $vaultConfiguration,
                     $hostId,
                     $clientToken,
+                    $hostSecrets,
                     $logger,
                     $httpClient
                 );
-
-                if (array_key_exists('host_snmp_community', $params)) {
-                    //Replace olds vault values by the new ones
-                    $hostSecrets['_HOSTSNMPCOMMUNITY'] = $params['host_snmp_community'];
-                    $this->writeSecretsInVault(
-                        $vaultConfiguration,
-                        $hostId,
-                        $clientToken,
-                        $hostSecrets,
-                        $logger,
-                        $httpClient
-                    );
-                    $this->updateHostTablesWithVaultPath($vaultConfiguration, $hostId, $this->db);
-                }
-            } catch (\Throwable $ex) {
-                error_log((string) $ex);
+                $this->updateHostTablesWithVaultPath($vaultConfiguration, $hostId, $this->db);
             }
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
         }
-
     }
 
     /**
