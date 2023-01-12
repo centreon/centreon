@@ -245,6 +245,7 @@ jobs:
         with:
           check_name: "centreon-web-backend-unit-tests-report"
           comment_mode: failures
+          compare_to_earlier_commit: false
           ignore_runs: true
           check_run_annotations: none
           junit_files: "centreon/build/phpunit.xml"
