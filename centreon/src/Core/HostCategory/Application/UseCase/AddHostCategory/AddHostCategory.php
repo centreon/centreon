@@ -26,10 +26,10 @@ namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -61,14 +61,14 @@ final class AddHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::addNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostCategoryException::addNotAllowed())
                 );
             } elseif ($this->readHostCategoryRepository->existsByName(trim($request->name))) {
                 $this->error('Host category name already exists', [
                     'hostcategory_name' => trim($request->name),
                 ]);
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(HostCategoryException::hostNameAlreadyExists()->getMessage())
+                    new ConflictResponse(HostCategoryException::hostNameAlreadyExists())
                 );
             } else {
                 $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
@@ -78,7 +78,7 @@ final class AddHostCategory
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
                 if (! $hostCategory) {
                     $presenter->setResponseStatus(
-                        new ErrorResponse(HostCategoryException::errorWhileRetrievingJustCreated()->getMessage())
+                        new ErrorResponse(HostCategoryException::errorWhileRetrievingJustCreated())
                     );
 
                     return;
@@ -90,7 +90,7 @@ final class AddHostCategory
             }
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostCategoryException::addHostCategory($ex)->getMessage())
+                new ErrorResponse(HostCategoryException::addHostCategory($ex))
             );
             $this->error($ex->getMessage());
         }

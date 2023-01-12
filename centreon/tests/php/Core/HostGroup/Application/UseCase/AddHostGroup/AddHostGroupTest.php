@@ -26,6 +26,7 @@ namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -131,7 +132,7 @@ it(
         ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
         expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ErrorResponse::class)
+            ->toBeInstanceOf(ConflictResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
             ->toBe(HostGroupException::nameAlreadyExists($this->testedAddHostGroupRequest->name)->getMessage());
     }

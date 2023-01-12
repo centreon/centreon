@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -79,14 +80,19 @@ final class AddHostGroup
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostGroupException::accessNotAllowed())
                 );
             }
         } catch (HostGroupException $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            $presenter->setResponseStatus(
+                match ($ex->getCode()) {
+                    HostGroupException::CODE_CONFLICT => new ConflictResponse($ex),
+                    default => new ErrorResponse($ex),
+                }
+            );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileDeleting()->getMessage()));
+            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileDeleting()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }

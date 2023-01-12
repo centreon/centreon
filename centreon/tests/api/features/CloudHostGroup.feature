@@ -112,7 +112,7 @@ Feature:
     """
     {"name": "test-add2"}
     """
-    Then the response code should be "500"
+    Then the response code should be "409"
 
   Scenario: Host group add with unknown fields for the cloud platform
     Given I am logged in

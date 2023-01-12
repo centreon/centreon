@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Tests\Core\HostCategory\Application\UseCase\AddHostCategory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -100,7 +100,7 @@ it('should present an InvalidArgumentResponse when name is already used', functi
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(HostCategoryException::hostNameAlreadyExists()->getMessage());
 });
