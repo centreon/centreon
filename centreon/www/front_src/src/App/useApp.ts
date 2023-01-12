@@ -1,12 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { useAtom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
+import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -16,10 +15,10 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import useNavigation from '../Navigation/useNavigation';
-import reactRoutes from '../reactRoutes/routeMap';
 import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
+import useNavigation from '../Navigation/useNavigation';
+import reactRoutes from '../reactRoutes/routeMap';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { DefaultParameters } from './models';
@@ -59,7 +58,7 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
-  const setUser = useSetAtom(userAtom);
+  const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);

@@ -8,8 +8,8 @@ const enableVisualTesting = (): void => {
       cy.log('Skipping snapshot');
     });
 
-    return;
-  }
+  //   return;
+  // }
 
   addMatchImageSnapshotCommand({
     capture: 'viewport',
