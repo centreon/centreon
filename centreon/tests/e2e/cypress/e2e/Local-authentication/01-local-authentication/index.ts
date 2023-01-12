@@ -54,16 +54,15 @@ beforeEach(() => {
 });
 
 Given('an administrator deploying a new Centreon platform', () =>
-  cy
-    .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@getNavigationList')
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
 );
 
 When('the administrator opens the authentication configuration menu', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.wait('@getNavigationList')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
     .get('div[role="tablist"] button')
     .eq(0)
     .contains('Password security policy');
@@ -147,7 +146,7 @@ Then(
       .find('#validForm input[name="submitC"]')
       .click();
 
-    cy.wait(1000)
+    cy.wait('@getTimeZone')
       .getIframeBody()
       .find('#Form')
       .find('#tab1')
@@ -163,16 +162,14 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account with password up to date',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList'
-    );
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
   }
 );
 
 When(
   'the administrator sets valid password expiration policy durations in password expiration policy configuration and the user password expires',
   () => {
-    cy.navigateTo({
+    cy.wait('@getNavigationList').navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
     });
@@ -221,16 +218,14 @@ Then('the existing user can not authenticate and is notified about it', () => {
 Given(
   'an administrator configuring a Centreon platform and an existing user account with a first password',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList'
-    );
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
   }
 );
 
 When(
   'the administrator enables the password reuseability and a user attempts to change its password multiple times in a row',
   () => {
-    cy.navigateTo({
+    cy.wait('@getNavigationList').navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
     });
@@ -293,7 +288,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait(1000)
+  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
@@ -326,7 +321,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     .find('#validForm input[name="submitC"]')
     .click();
 
-  cy.wait(1000)
+  cy.wait('@getTimeZone')
     .getIframeBody()
     .find('#Form')
     .find('#tab1')
@@ -350,15 +345,13 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-    '@getNavigationList'
-  );
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
 });
 
 When(
   'the administrator adds or remove a user from the excluded user list',
   () => {
-    cy.navigateTo({
+    cy.wait('@getNavigationList').navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
     });
@@ -427,16 +420,14 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account not blocked',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).wait(
-      '@getNavigationList'
-    );
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
   }
 );
 
 When(
   'the administrator sets valid password blocking policy and the user attempts to login multiple times',
   () => {
-    cy.navigateTo({
+    cy.wait('@getNavigationList').navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
     });

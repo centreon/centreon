@@ -1,0 +1,5 @@
+FindHostGroups:
+  methods: GET
+  path: /configuration/hosts/groups
+  controller: 'Core\HostGroup\Infrastructure\API\FindHostGroups\FindHostGroupsController'
+  condition: "request.attributes.get('version') >= 21.10"

@@ -4,8 +4,6 @@ import axios from 'axios';
 import * as yup from 'yup';
 import { useAtomValue } from 'jotai/utils';
 
-import { ClickAwayListener } from '@mui/material';
-
 import { MenuSkeleton } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
@@ -75,19 +73,7 @@ const RessourceStatusCounter = <
 
   const hasPending = data.pending > 0;
 
-  return (
-    <ClickAwayListener
-      onClickAway={(): void => {
-        if (!toggled) {
-          return;
-        }
-
-        toggleDetailedView();
-      }}
-    >
-      {children({ data, hasPending, toggleDetailedView, toggled })}
-    </ClickAwayListener>
-  );
+  return children({ data, hasPending, toggleDetailedView, toggled });
 };
 
 export default RessourceStatusCounter;

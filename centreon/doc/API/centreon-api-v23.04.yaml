@@ -4,6 +4,11 @@ info:
   description: |
     # New features
     + Added vault configuration endpoints
+    + Added time period configuration endpoints
+    + Added host categories endpoints (DELETE, POST)
+    +
+    # Updated features
+    + Updated host categories endpoint (GET)
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -58,8 +63,8 @@ tags:
   - name: Service
   - name: Service group
   - name: Service category
-  - name: Host category
   - name: Severity
+  - name: Time period
   - name: Topology
 security:
   - Token: []
@@ -272,9 +277,15 @@ paths:
     get:
       tags:
         - Host category
-      summary: "List all host categories"
+      summary: "List host categories"
       description: |
-        List of all host category configurations
+        List of host category configurations
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * alias
+        * is_activated
       responses:
         "200":
           description: "OK"
@@ -289,8 +300,53 @@ paths:
                       $ref: '#/components/schemas/Configuration.Host.Category'
                   meta:
                     $ref: '#/components/schemas/Meta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Host category
+      summary: "Create a host category"
+      description: |
+        Create a host category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: "string"
+                  example: "host-category-name"
+                alias:
+                  type: "string"
+                  example: "host-category-alias"
+      responses:
+        '201':
+          description: "OK"
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/categories/{host_category_id}:
+    delete:
+      tags:
+        - Host category
+      summary: "Delete a host category"
+      description: |
+        Delete a host category configuration
+      parameters:
+        - $ref: '#/components/parameters/HostCategoryId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/services/categories:
@@ -357,6 +413,11 @@ paths:
         * name
         * alias
         * is_activated
+
+        Changes in 23.04 :
+
+        * `icon` was renamed `icon_id` and is no longer an object but the image ID
+        * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
       responses:
         "200":
           description: "OK"
@@ -373,6 +434,57 @@ paths:
                     $ref: '#/components/schemas/Meta'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Host group
+      summary: "Add a host group"
+      description: |
+        Add a new host group configuration.
+
+        Mandatory body properties are:
+
+        * name
+
+        `Since Centreon web 23.04`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Host.Group.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Group'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/groups/{hostgroup_id}:
+    delete:
+      tags:
+        - Host group
+      summary: "Delete a host group"
+      description: |
+        `internal`
+
+        `Since Centreon web 23.04`
+
+        Delete host group.
+      parameters:
+        - $ref: '#/components/parameters/HostGroupId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
@@ -846,6 +958,131 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/timeperiods:
+    get:
+      tags:
+      - Time period
+      summary: "Get all time periods"
+      description: |
+        Get list of all time periods
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.TimePeriod'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+      - Time period
+      summary: "Create a new time period"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.NewTimePeriod'
+      responses:
+        '201':
+          description: "Time period created"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/timeperiods/{id}:
+    delete:
+      tags:
+      - Time period
+      summary: "Delete a time period"
+      parameters:
+      - in: path
+        name: id
+        description: "ID of the time period to be deleted"
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      responses:
+        '204':
+          description: "Time period deleted"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+      - Time period
+      summary: "Get a time period"
+      parameters:
+        - in: path
+          name: id
+          description: "Time period ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.TimePeriod'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+      - Time period
+      summary: "Update a time period"
+      parameters:
+      - in: path
+        name: id
+        description: "ID of the time period to be updated"
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.NewTimePeriod'
+      responses:
+        '204':
+          description: "Time period updated"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/users:
     get:
       tags:
@@ -942,9 +1179,9 @@ paths:
       summary: Update a user
       description: |
         Update a user
-        
+
         The available parameters to be updated are :
-        
+
         * theme
       requestBody:
         required: true
@@ -4459,6 +4696,15 @@ components:
         type: integer
         format: int64
         example: 12
+    HostGroupId:
+      in: path
+      name: hostgroup_id
+      description: "ID of the host group"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
     ServiceId:
       in: path
       name: service_id
@@ -4564,6 +4810,15 @@ components:
       in: path
       name: vault_configuration_id
       description: "ID of existing vault configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    HostCategoryId:
+      in: path
+      name: host_category_id
+      description: "ID of existing host category configuration"
       required: true
       schema:
         type: integer
@@ -4697,7 +4952,7 @@ components:
               type: string
               format: email
               description: "Contact email"
-              example: "admin@localhost"
+              example: "admin@localhost.com"
             is_admin:
               type: boolean
               description: "Indicates whether it is an admin user or not"
@@ -5225,6 +5480,108 @@ components:
                 type: string
                 description: "Comment to add to the monitored resource"
                 example: "Resource is not-OK but it is expected"
+    Configuration.NewTimePeriod:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the time period
+          example: 24x7
+        alias:
+          type: string
+          description: Alias of the time period
+          example: Always
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.days"
+        templates:
+          type: array
+          description: "IDs of the time periods used as a template"
+          items:
+            type: integer
+        exceptions:
+          type: array
+          description: "List of exceptions to the standard schedule"
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
+    Configuration.TimePeriod:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Time period ID"
+          example: 1
+        name:
+          type: string
+          description: "Name of the time period"
+          example: 24x7
+        alias:
+          type: string
+          description: "Alias of the time period"
+          example: Always
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/Configuration.TimePeriod.days"
+        templates:
+          type: array
+          description: "IDs of the time periods used as a template"
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: "ID of the time periods used as a template"
+                example: 1
+              alias:
+                type: string
+                description: "Alias of the time period"
+                example: "Always"
+        exceptions:
+          type: array
+          description: "List of exceptions to the standard schedule"
+          items:
+            allOf:
+            - type: object
+              properties:
+                id:
+                  type: integer
+                  description: ID of the extra period
+                  example: 1
+            - $ref: "#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod"
+    Configuration.TimePeriod.days:
+      type: object
+      properties:
+        day:
+          type: integer
+          description: Number of the day (1=monday)
+          example: 1
+          minimum: 1
+          maximum: 7
+        time_range:
+          type: string
+          description: "Time range for the day"
+          example: "00:00-06:00,07:00-08:00"
+    Configuration.TimePeriod.ExtraTimePeriod:
+      type: object
+      properties:
+        day_range:
+          type: string
+          description: |
+            Directives, including weekdays, days of the month, and calendar dates
+
+            * Calendar date (2008-01-01)
+            * Specific month date (January 1st)
+            * Generic month date (Day 15)
+            * Offset weekday of specific month (2nd Tuesday in December)
+            * Offset weekday (3rd Monday)
+            * Normal weekday (Tuesday)
+          example: "monday 1"
+        time_range:
+          type: string
+          description: "Time range for the day"
+          example: "00:00-06:00,07:00-08:00"
     Configuration.User:
       type: object
       properties:
@@ -5261,12 +5618,8 @@ components:
           example: "host-category"
         is_activated:
           type: boolean
-          description: "Indicates whether this host category is enabled or not"
-          example: "true"
-        comments:
-          type: string
-          description: "Host category comments"
-          nullable: true
+          description: is active or not (enable/disable)
+          example: true
     Configuration.Host.Severity:
       type: object
       properties:
@@ -5474,12 +5827,16 @@ components:
           items:
             type: integer
     Configuration.Host.Group:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Host.Group.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Host group ID"
+              example: 1
+    Configuration.Host.Group.Add:
       type: object
       properties:
-        id:
-          type: integer
-          description: "Host group id"
-          example: 1
         name:
           type: string
           maxLength: 200
@@ -5509,12 +5866,16 @@ components:
           maxLength: 255
           description: "Define an optional URL that can be used to provide more actions to be performed on the host group. You will see the link to the action URL in the host group details"
           example: "action url"
-        icon:
-          $ref: '#/components/schemas/Media.NullableImage'
-          description: "Define the image that should be associated with this host group"
-        icon_map:
-          $ref: '#/components/schemas/Media.NullableImage'
-          description: "Define an image that should be associated with this host group in the statusmap CGI in monitoring engine"
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host group"
+          example: 1
+        icon_map_id:
+          type: integer
+          nullable: true
+          description: "Define an image ID that should be associated with this host group in the statusmap CGI in monitoring engine"
+          example: 1
         geo_coords:
           type: string
           nullable: true
@@ -5591,26 +5952,6 @@ components:
         has_changed:
           type: boolean
           description: "Indicates whether the access group has changed or not"
-    Media.NullableImage:
-      type: object
-      nullable: true
-      properties:
-        id:
-          type: integer
-          description: "Image id"
-        name:
-          type: string
-          description: "Image name"
-          maxLength: 255
-        path:
-          type: string
-          maxLength: 255
-          description: "Image path"
-        comment:
-          type: string
-          nullable: true
-          maxLength: 65535
-          description: "Image comments"
     Media.Image:
       type: object
       properties:
@@ -6551,7 +6892,7 @@ components:
             name:
               type: string
               description: "Name of the severity"
-              example: "Priority 1" 
+              example: "Priority 1"
             icon:
               type: object
               properties:
