@@ -248,6 +248,7 @@ jobs:
           compare_to_earlier_commit: false
           ignore_runs: true
           check_run_annotations: none
+          job_summary: false
           junit_files: "centreon/build/phpunit.xml"
 
   package:
