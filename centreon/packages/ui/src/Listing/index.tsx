@@ -120,6 +120,7 @@ export interface Props<TRow> {
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
   currentPage?: number;
+  customPaginationClassName?: string;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
   getId?: (row: TRow) => RowId;
@@ -156,6 +157,7 @@ const Listing = <TRow extends { id: RowId }>({
   limit = 10,
   columns,
   columnConfiguration = defaultColumnConfiguration,
+  customPaginationClassName,
   onResetColumns,
   onSelectColumns,
   rows = [],
@@ -473,6 +475,7 @@ const Listing = <TRow extends { id: RowId }>({
             columnConfiguration={columnConfiguration}
             columns={columns}
             currentPage={currentPage}
+            customPaginationClassName={customPaginationClassName}
             limit={limit}
             moveTablePagination={moveTablePagination}
             paginated={paginated}
