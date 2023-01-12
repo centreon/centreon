@@ -83,7 +83,7 @@ const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
   const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
+  )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
 
   return cy
     .exec(command, { failOnNonZeroExit: true, log: true })
