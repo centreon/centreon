@@ -17,7 +17,7 @@ runs:
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
         check_name: "${{ inputs.check_name }}"
-        comment_mode: failures
+        comment_mode: off
         compare_to_earlier_commit: false
         ignore_runs: true
         check_run_annotations: none
