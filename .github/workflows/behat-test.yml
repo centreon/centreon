@@ -142,4 +142,4 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          junit_files: "${{ inputs.name }}-xunit-reports/**/*.xml"
+          path: "${{ inputs.name }}-xunit-reports/**/*.xml"

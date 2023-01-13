@@ -151,7 +151,8 @@ jobs:
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
+          format: "java-junit"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -176,7 +177,7 @@ jobs:
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
 
   frontend-component-test:
     runs-on: ubuntu-22.04
@@ -220,7 +221,8 @@ jobs:
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          junit_files: "centreon/build/phpunit.xml"
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
     needs: [

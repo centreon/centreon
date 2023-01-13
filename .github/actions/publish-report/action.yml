@@ -4,13 +4,16 @@ inputs:
   check_name:
     description: "Name of the check and comment"
     default: "${{ github.job }}-report"
-  junit_files:
-    description: "Path to the junit files"
+  path:
+    description: "Path to the report files"
     required: true
+  format:
+    description: "Path to the junit files"
+    default: "jest-junit"
 runs:
   using: "composite"
   steps:
-    - name: Publish report
+    - if: ${{ inputs.format == 'php-junit' }}
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
         check_name: "${{ inputs.check_name }}"
@@ -21,12 +24,12 @@ runs:
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
 
-    - uses: dorny/test-reporter@v1
+    - if: ${{ inputs.format != 'php-junit' }}
+      uses: dorny/test-reporter@v1
       with:
         name: "${{ inputs.check_name }}-dorny"                  # Name of the check run which will be created
-        #only-summary: 'true'
         path: "${{ inputs.junit_files }}"                     # Path to test results (inside artifact .zip)
-        reporter: jest-junit
+        reporter: java-junit
         max-annotations: '0'
         list-suites: 'failed'
         list-tests: 'failed'

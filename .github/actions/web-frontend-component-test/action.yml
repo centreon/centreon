@@ -30,4 +30,4 @@ runs:
     - if: failure()
       uses: ./.github/actions/publish-report
       with:
-        junit_files: "${{ inputs.working_directory }}/cypress/results/cypress-fe.xml"
+        path: "${{ inputs.working_directory }}/cypress/results/cypress-fe.xml"
