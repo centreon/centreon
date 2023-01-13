@@ -68,7 +68,7 @@ const PopoverMenu = ({
   };
 
   return (
-    <div>
+    <>
       <IconButton
         ariaLabel={title}
         className={cx(classes.popoverIconButton, className)}
@@ -91,7 +91,7 @@ const PopoverMenu = ({
           </Popper>
         </ClickAwayListener>
       )}
-    </div>
+    </>
   );
 };
 

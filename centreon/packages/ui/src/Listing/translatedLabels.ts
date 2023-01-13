@@ -10,3 +10,4 @@ export const labelAddColumns = 'Add columns';
 export const labelColumns = 'Columns';
 export const labelPredefinedRowsSelectionMenu =
   'Predefined rows selection menu';
+export const labelDragHandle = 'Drag handle';
