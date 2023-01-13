@@ -27,12 +27,7 @@ runs:
         name: cypress-videos
         path: ${{ inputs.working_directory }}/cypress/results/videos
 
-    - name: Publish tests report
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ failure() }}
+    - if: failure()
+      uses: ./.github/actions/publish-report
       with:
-        check_name: web-frontend-component-tests-report
-        comment_mode: failures
-        ignore_runs: true
-        check_run_annotations: none
-        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml
+        junit_files: "${{ inputs.working_directory }}/cypress/results/cypress-fe.xml"

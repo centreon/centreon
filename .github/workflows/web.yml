@@ -149,10 +149,6 @@ jobs:
         working-directory: centreon
 
       - if: failure()
-        run: cat "centreon/junit.xml"
-        #run: node -p "require('./centreon/node_modules/eslint/lib/cli-engine/formatters/unix.js')(require('./centreon/junit.xml'))"
-
-      - if: failure()
         uses: ./.github/actions/publish-report
         with:
           junit_files: "centreon/junit.xml"

@@ -80,7 +80,7 @@ jobs:
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
-    if: always()
+    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
@@ -90,12 +90,8 @@ jobs:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          comment_mode: failures
-          ignore_runs: true
-          check_run_annotations: none
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          junit_files: "${{ inputs.name }}-xunit-reports/**/*.xml"
