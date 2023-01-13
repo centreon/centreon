@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
@@ -142,7 +143,7 @@ it(
 );
 
 it(
-    'should present a ConflictResponse when a model field value is not valid',
+    'should present a InvalidArgumentResponse when a model field value is not valid',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -164,14 +165,14 @@ it(
         ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
         expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ConflictResponse::class)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
             ->toBe($expectedException->getMessage());
     }
 );
 
 it(
-    'should present a ConflictResponse when the "geoCoords" field value is not valid',
+    'should present a InvalidArgumentResponse when the "geoCoords" field value is not valid',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -187,7 +188,7 @@ it(
         ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
         expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ConflictResponse::class)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
             ->toBe(InvalidGeoCoordException::invalidFormat()->getMessage());
     }
