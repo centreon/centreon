@@ -33,6 +33,7 @@ const SaveMenuTest = (): JSX.Element => {
   return (
     <Context.Provider
       value={
+        // eslint-disable-next-line react/jsx-no-constructed-context-values
         {
           ...context
         } as ResourceContext
