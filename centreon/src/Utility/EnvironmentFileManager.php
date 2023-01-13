@@ -77,21 +77,19 @@ class EnvironmentFileManager
         if ($key[0] === '#') { // The commented line will be ignored
             return;
         }
+        if (is_string($value)) {
+            $value = trim($value);
+            if ($value === 'true' || $value === 'false') {
+                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            }
+        }
         if (is_numeric($value)) {
             if (str_starts_with($key, 'IS_') && ((string) $value === '0' || (string) $value === '1')) {
                 $value = (bool) $value;
-            } elseif (preg_match('/^-?\d+\.\d+/', trim((string) $value))) {
+            } elseif (preg_match('/^-?\d+\.\d+/', (string) $value)) {
                 $value = (float) $value;
             } else {
                 $value = (int) $value;
-            }
-        } elseif (is_string($value)) {
-            if ($value === 'true' || $value === 'false') {
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-            } elseif (preg_match('/^-?\d+\.\d+/', $value)) {
-                $value = (float) $value;
-            } else {
-                $value = trim($value);
             }
         }
         $this->variables[trim($key)] = $value;
@@ -187,7 +185,7 @@ class EnvironmentFileManager
      */
     private function addDirectorySeparatorIfNeeded(string $path): string
     {
-        if (mb_strlen($path) === 0 || $path[-1] !== DIRECTORY_SEPARATOR) {
+        if ($path === '' || $path[-1] !== DIRECTORY_SEPARATOR) {
             return $path . DIRECTORY_SEPARATOR;
         }
 

@@ -62,6 +62,8 @@ it('should add variable and format then correctly', function ($send, $expected):
     // Test with literal values
     [['key' => 'key', 'value' => 'test'], ['key' => 'key', 'value' => 'test']],
     [['key' => 'IS_VALID', 'value' => 'test'], ['key' => 'IS_VALID', 'value' => 'test']],
+    [['key' => 'key', 'value' => ''], ['key' => 'key', 'value' => '']],
+    [['key' => 'IS_VALID', 'value' => ''], ['key' => 'IS_VALID', 'value' => '']],
 
     // Test with no empty key and value
     [['key' => ' key ', 'value' => ' test '], ['key' => 'key', 'value' => 'test']],
