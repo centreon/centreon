@@ -7,6 +7,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { TableRowProps, TableRow, useTheme } from '@mui/material';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 import { useViewportIntersection } from '../utils/useViewportIntersection';
 import LoadingSkeleton from '../LoadingSkeleton';
 
@@ -49,6 +51,7 @@ type Props = {
   row;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
+  viewMode?: ListingVariant;
   visibleColumns: Array<Column>;
 } & TableRowProps;
 
@@ -113,7 +116,8 @@ const Row = memo<RowProps>(
       visibleColumns: previousVisibleColumns,
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
-      lastSelectionIndex: prevLastSelectionIndex
+      lastSelectionIndex: prevLastSelectionIndex,
+      viewMode: prevViewMode
     } = prevProps;
     const {
       row: nextRow,
@@ -123,7 +127,8 @@ const Row = memo<RowProps>(
       isShiftKeyDown: nextIsShiftKeyDown,
       shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
       lastSelectionIndex: nextLastSelectionIndex,
-      limit: nextLimit
+      limit: nextLimit,
+      viewMode: nextViewMode
     } = nextProps;
 
     if (
@@ -173,7 +178,8 @@ const Row = memo<RowProps>(
       equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
       equals(prevIsShiftKeyDown, nextIsShiftKeyDown) &&
       equals(prevShiftKeyDownRowPivot, nextShiftKeyDownRowPivot) &&
-      equals(prevLastSelectionIndex, nextLastSelectionIndex)
+      equals(prevLastSelectionIndex, nextLastSelectionIndex) &&
+      equals(prevViewMode, nextViewMode)
     );
   }
 );

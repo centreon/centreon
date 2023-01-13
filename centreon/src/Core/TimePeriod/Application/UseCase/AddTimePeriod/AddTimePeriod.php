@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{CreatedResponse, ErrorResponse, PresenterInterface};
+use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse, PresenterInterface};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
@@ -59,7 +59,7 @@ class AddTimePeriod
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
                 $this->error('A time period with this name already exists');
                 $presenter->setResponseStatus(
-                    new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
+                    new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))
                 );
 
                 return;
@@ -79,7 +79,7 @@ class AddTimePeriod
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod()->getMessage())
+                new ErrorResponse(TimePeriodException::errorWhenAddingTimePeriod())
             );
         }
     }

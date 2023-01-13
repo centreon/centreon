@@ -1,5 +1,7 @@
 import { KeyValuePair } from 'ramda';
 
+import { ListingVariant } from '@centreon/ui-context';
+
 export interface DefaultParameters {
   monitoring_default_acknowledgement_force_active_checks: boolean;
   monitoring_default_acknowledgement_notify: boolean;
@@ -10,6 +12,7 @@ export interface DefaultParameters {
   monitoring_default_downtime_fixed: boolean;
   monitoring_default_downtime_with_services: boolean;
   monitoring_default_refresh_interval: string;
+  resource_status_view_mode: ListingVariant;
 }
 
 type Translation = KeyValuePair<string, string>;

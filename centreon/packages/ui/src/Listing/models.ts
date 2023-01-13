@@ -1,6 +1,15 @@
+interface EllipsisTypography {
+  className?: string;
+  formattedString: string;
+}
+
 export interface ComponentColumnProps {
   isHovered: boolean;
   isSelected: boolean;
+  renderEllipsisTypography?: ({
+    className,
+    formattedString
+  }: EllipsisTypography) => JSX.Element;
   row;
 }
 
@@ -50,4 +59,18 @@ export type SortOrder = 'asc' | 'desc';
 export interface PredefinedRowSelection {
   label: string;
   rowCondition: (row) => boolean;
+}
+
+export interface TableStyleAtom {
+  body: {
+    fontSize: string;
+    height: number;
+  };
+  header: {
+    height: number;
+  };
+  statusColumnChip: {
+    height: number;
+    width: number;
+  };
 }

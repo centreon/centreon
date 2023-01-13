@@ -1,8 +1,7 @@
 import { FC } from 'react';
 
 import { path } from 'ramda';
-
-import { Grid } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 import { ComponentColumnProps } from '@centreon/ui';
 
@@ -21,6 +20,15 @@ interface StateChipProps {
   endpoint: string;
   label: string;
 }
+
+const useStyles = makeStyles()({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gridGap: 2,
+    marginLeft: 2
+  }
+});
 
 const StateHoverChip = ({
   endpoint,
@@ -73,19 +81,13 @@ const AcknowledgeHoverChip = ({
 };
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
+  const { classes } = useStyles();
+
   return (
-    <Grid container justifyContent="center" spacing={1}>
-      {row.in_downtime && (
-        <Grid item>
-          <DowntimeHoverChip resource={row} />
-        </Grid>
-      )}
-      {row.acknowledged && (
-        <Grid item>
-          <AcknowledgeHoverChip resource={row} />
-        </Grid>
-      )}
-    </Grid>
+    <div className={classes.container}>
+      {row.in_downtime && <DowntimeHoverChip resource={row} />}
+      {row.acknowledged && <AcknowledgeHoverChip resource={row} />}
+    </div>
   );
 };
 

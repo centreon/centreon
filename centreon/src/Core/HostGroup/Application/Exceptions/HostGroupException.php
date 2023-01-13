@@ -25,6 +25,8 @@ namespace Core\HostGroup\Application\Exceptions;
 
 class HostGroupException extends \Exception
 {
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
@@ -75,6 +77,6 @@ class HostGroupException extends \Exception
      */
     public static function nameAlreadyExists(string $hostGroupName): self
     {
-        return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName));
+        return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName), self::CODE_CONFLICT);
     }
 }
