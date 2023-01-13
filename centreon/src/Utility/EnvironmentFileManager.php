@@ -59,7 +59,7 @@ class EnvironmentFileManager
             while (($line = fgets($file, 1024)) !== false) {
                 $line = trim($line);
                 if (str_contains($line, '=')) {
-                    [$key, $value] = explode('=', $line);
+                    [$key, $value] = explode('=', $line, 2);
                     $this->add($key, $value);
                 }
             }
@@ -74,18 +74,32 @@ class EnvironmentFileManager
      */
     public function add(string $key, int|float|bool|string $value): void
     {
-        if ($value === 'true' || $value === 'false') {
-            $value = (bool) $value;
-        } elseif (preg_match('/^-?\d+\.\d+/', (string) $value)) {
-            $value = (float) $value;
-        } elseif (is_numeric($value)) {
-            if (str_starts_with($key, 'IS_') && $value === '1') {
+        if ($key[0] === '#') { // The commented line will be ignored
+            return;
+        }
+        if (is_numeric($value)) {
+            if (str_starts_with($key, 'IS_') && ((string) $value === '0' || (string) $value === '1')) {
                 $value = (bool) $value;
+            } elseif (preg_match('/^-?\d+\.\d+/', trim((string) $value))) {
+                $value = (float) $value;
             } else {
                 $value = (int) $value;
             }
+        } elseif (is_string($value)) {
+            if ($value === 'true' || $value === 'false') {
+                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            } elseif (preg_match('/^-?\d+\.\d+/', $value)) {
+                $value = (float) $value;
+            } else {
+                $value = trim($value);
+            }
         }
-        $this->variables[$key] = $value;
+        $this->variables[trim($key)] = $value;
+    }
+
+    public function clear(): void
+    {
+        $this->variables = [];
     }
 
     /**
@@ -173,7 +187,7 @@ class EnvironmentFileManager
      */
     private function addDirectorySeparatorIfNeeded(string $path): string
     {
-        if ($path[-1] !== DIRECTORY_SEPARATOR) {
+        if (mb_strlen($path) === 0 || $path[-1] !== DIRECTORY_SEPARATOR) {
             return $path . DIRECTORY_SEPARATOR;
         }
 
