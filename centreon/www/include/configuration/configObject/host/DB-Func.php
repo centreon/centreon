@@ -438,48 +438,6 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                 $dbResult = $pearDB->query("SELECT MAX(host_id) FROM host");
                 $maxId = $dbResult->fetch();
                 if (isset($maxId["MAX(host_id)"])) {
-                    /**
-                     * The value should be duplicated in vault if it's a password and is already in vault
-                     * The regex /^secret::\\d+::/ define that the value is store in vault.
-                     */
-                    if (
-                        ! empty($row['host_snmp_community'])
-                        && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
-                    ) {
-                        $vaultConfiguration = getVaultConfiguration();
-                        if ($vaultConfiguration !== null) {
-                            try {
-                                $httpClient = new CentreonRestHttp();
-                                $logger = getLogger();
-                                $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-                                $hostSecrets = getHostSecretsFromVault(
-                                    $vaultConfiguration,
-                                    $key, // The duplicated host id
-                                    $clientToken,
-                                    $logger,
-                                    $httpClient
-                                );
-
-                                if (! empty($hostSecrets)) {
-                                    writeSecretsInVault(
-                                        $vaultConfiguration,
-                                        (int) $maxId["MAX(host_id)"],
-                                        $clientToken,
-                                        $hostSecrets,
-                                        $logger,
-                                        $httpClient
-                                    );
-                                    updateHostTablesWithVaultPath(
-                                        $vaultConfiguration,
-                                        (int) $maxId["MAX(host_id)"],
-                                        $pearDB
-                                    );
-                                }
-                            } catch (\Throwable $ex) {
-                                error_log((string) $ex);
-                            }
-                        }
-                    }
                     $hostAcl[$maxId['MAX(host_id)']] = $key;
 
                     $dbResult = $pearDB->query("SELECT DISTINCT host_parent_hp_id
@@ -716,6 +674,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                    VALUES (:host_host_id, :host_macro_name, :host_macro_value,
                                            :is_password)";
                     $statement = $pearDB->prepare($mTpRq2);
+                    $macroPasswordIds = [];
                     while ($hst = $dbResult3->fetch()) {
                         $macName = str_replace("\$", "", $hst["host_macro_name"]);
                         $macVal = $hst['host_macro_value'];
@@ -728,6 +687,59 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         $statement->bindValue(':is_password', (int) $hst["is_password"], \PDO::PARAM_INT);
                         $statement->execute();
                         $fields["_" . strtoupper($macName) . "_"] = $macVal;
+                        if ($hst['is_password'] === 1) {
+                            $maxIdStatement = $pearDB->query("SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1");
+                            $resultMacro = $maxIdStatement->fetch();
+                            $macroPasswordIds[] = $resultMacro['MAX(host_macro_id)'];
+                        }
+                    }
+
+                    /**
+                     * The value should be duplicated in vault if it's a password and is already in vault
+                     * The regex /^secret::\\d+::/ define that the value is store in vault.
+                     */
+                    if (
+                        ! empty($row['host_snmp_community'])
+                        && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
+                        || ! empty($macroPasswordIds)
+                    ) {
+                        $vaultConfiguration = getVaultConfiguration();
+                        if ($vaultConfiguration !== null) {
+                            try {
+                                $httpClient = new CentreonRestHttp();
+                                $logger = getLogger();
+                                $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+                                $hostSecrets = getHostSecretsFromVault(
+                                    $vaultConfiguration,
+                                    $key, // The duplicated host id
+                                    $clientToken,
+                                    $logger,
+                                    $httpClient
+                                );
+
+                                if (! empty($hostSecrets)) {
+                                    writeSecretsInVault(
+                                        $vaultConfiguration,
+                                        (int) $maxId["MAX(host_id)"],
+                                        $clientToken,
+                                        $hostSecrets,
+                                        $logger,
+                                        $httpClient
+                                    );
+                                    $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
+                                        . $vaultConfiguration->getStorage()
+                                        . "/monitoring/hosts/" . $maxId['MAX(host_id)'];
+                                    if (array_key_exists('_HOSTSNMPCOMMUNITY', $hostSecrets)){
+                                        updateHostTableWithVaultPath($pearDB, $hostPath, $maxId['MAX(host_id)']);
+                                    }
+                                    if (! empty($macroPasswordIds)) {
+                                        updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+                                    }
+                                }
+                            } catch (\Throwable $ex) {
+                                error_log((string) $ex);
+                            }
+                        }
                     }
 
                     /*
