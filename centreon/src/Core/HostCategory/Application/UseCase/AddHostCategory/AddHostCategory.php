@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 
-use Assert\AssertionFailedException;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -32,6 +30,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -91,8 +90,8 @@ final class AddHostCategory
                     new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
                 );
             }
-        } catch (AssertionException|AssertionFailedException $ex) {
-            $presenter->setResponseStatus(new ConflictResponse($ex));
+        } catch (\Assert\AssertionFailedException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
