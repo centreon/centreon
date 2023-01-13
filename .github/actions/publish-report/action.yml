@@ -17,14 +17,10 @@ runs:
         check_name: "${{ inputs.check_name }}"
         comment_mode: failures
         compare_to_earlier_commit: false
-        #ignore_runs: true
+        ignore_runs: true
         check_run_annotations: none
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
-        report_suite_logs: error
-        json_suite_details: true
-        json_test_case_results: true
-        json_file: report.json
 
-    - run: cat report.json
+    - run: cat "${{ inputs.junit_files }}" | grep failure
       shell: bash
