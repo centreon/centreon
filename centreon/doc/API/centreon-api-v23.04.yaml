@@ -5630,6 +5630,7 @@ components:
           example: true
         comments:
           type: string
+          nullable: true
           description: "some comments"
     Configuration.Host.Category.Add:
       type: object
@@ -5648,6 +5649,7 @@ components:
           example: true
         comments:
           type: string
+          nullable: true
           description: "some comments"
     Configuration.Host.Severity:
       type: object
