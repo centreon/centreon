@@ -21,6 +21,7 @@ runs:
         check_run_annotations: none
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
+        report_suite_logs: error
 
     - run: cat ${{ steps.publish-report.outputs.json }}
       shell: bash
