@@ -113,14 +113,14 @@ jobs:
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs rm
 
       - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
+        if: failure()
         name: Upload acceptance test logs
         with:
           name: ${{ inputs.name }}-test-logs
           path: acceptance-logs
 
       - name: Upload Test Results
-        if: ${{ !cancelled() }}
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
