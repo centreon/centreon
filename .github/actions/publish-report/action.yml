@@ -1,5 +1,5 @@
-name: "tag version"
-description: "Tag package"
+name: "publish-report"
+description: "Publish report"
 inputs:
   check_name:
     description: "Name of the check and comment"
@@ -22,13 +22,13 @@ runs:
         ignore_runs: true
         check_run_annotations: none
         job_summary: false
-        junit_files: "${{ inputs.junit_files }}"
+        junit_files: "${{ inputs.path }}"
 
     - if: ${{ inputs.format != 'php-junit' }}
       uses: dorny/test-reporter@v1
       with:
         name: "${{ inputs.check_name }}-dorny"                  # Name of the check run which will be created
-        path: "${{ inputs.junit_files }}"                     # Path to test results (inside artifact .zip)
+        path: "${{ inputs.path }}"                     # Path to test results (inside artifact .zip)
         reporter: java-junit
         max-annotations: '0'
         list-suites: 'failed'
