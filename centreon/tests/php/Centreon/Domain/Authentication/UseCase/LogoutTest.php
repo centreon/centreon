@@ -65,7 +65,7 @@ class LogoutTest extends TestCase
         $this->authenticationRepository
             ->expects($this->once())
             ->method('deleteSecurityToken')
-            ->with('abc123aaaa  ');
+            ->with('abc123');
 
         $logout->execute($logoutRequest);
     }

@@ -302,7 +302,7 @@ describe('column sorting', () => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
       cy.waitForRequest('@filterRequest');
 
-      cy.findByLabelText(`aaaColumn ${label}`).click();
+      cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequest(`@dataToListingTableDesc${label}`);
 
