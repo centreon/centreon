@@ -116,7 +116,7 @@ class AuthenticateApiTest extends TestCase
             ->willThrowException(ProviderException::providerConfigurationNotFound(Provider::LOCAL));
 
         $this->expectException(ProviderException::class);
-        $this->expectExceptionMessage('Provider configuration (local) not found');
+        $this->expectExceptionMessage('Provider configuration (local) not foundaaaa');
 
         $authenticateApi->execute($authenticateApiRequest, $authenticateApiResponse);
     }
