@@ -90,8 +90,7 @@ jobs:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
+      - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
           path: "${{ inputs.name }}-xunit-reports/**/*.xml"
