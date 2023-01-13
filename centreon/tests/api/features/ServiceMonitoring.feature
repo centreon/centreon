@@ -31,4 +31,4 @@ Feature:
         When I send a request to have the details of service "test_service1" from host "test"
         Then the response code should be "200"
         And the response should be formatted like JSON format "monitoring/service/details.json"
-        And the JSON node "description" should be equal to the string "test_service1"
+        And the JSON node "description" should be equal to the string "test_service1aaa"

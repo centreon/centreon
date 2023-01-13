@@ -65,6 +65,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -145,7 +146,7 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
+        run: pnpm eslint -o junit.xml -f junit --quiet
         working-directory: centreon
 
       - if: failure()
@@ -171,7 +172,7 @@ jobs:
         working-directory: centreon
 
       - name: Unit test
-        run: pnpm t --reporter=jest-junit
+        run: pnpm t --silent --reporter=jest-junit
         working-directory: centreon
 
       - if: failure()
