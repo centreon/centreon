@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf63993b3306d01e026ae5dfb17acfc2",
+    "content-hash": "dbb0019c18c55d721e3b5354cf5f2e80",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6566,16 +6566,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-monorepo",
+            "version": "22.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "fb55016237baac05629bf1984ad769d1997de6dd"
+                "reference": "68568a51fca753e60c8522375de1ff496723abd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/fb55016237baac05629bf1984ad769d1997de6dd",
-                "reference": "fb55016237baac05629bf1984ad769d1997de6dd",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/68568a51fca753e60c8522375de1ff496723abd5",
+                "reference": "68568a51fca753e60c8522375de1ff496723abd5",
                 "shasum": ""
             },
             "require": {
@@ -6622,9 +6622,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/monorepo"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2022-10-18T13:26:42+00:00"
+            "time": "2023-01-04T14:09:24+00:00"
         },
         {
             "name": "composer/pcre",
