@@ -243,6 +243,7 @@ jobs:
           #ignore_runs: true
           #check_run_annotations: none
           #job_summary: false
+          report_suite_logs: error
           junit_files: "centreon/build/phpunit.xml"
 
   package:
