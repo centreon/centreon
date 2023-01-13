@@ -11,6 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: Publish report
+      id: publish-report
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
         check_name: "${{ inputs.check_name }}"
@@ -20,3 +21,5 @@ runs:
         check_run_annotations: none
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
+
+    - run: cat ${{ steps.publish-report.outputs.json }}
