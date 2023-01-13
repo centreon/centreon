@@ -17261,7 +17261,7 @@ msgid "You are not allowed to access host groups"
 msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
 
 msgid "You are not allowed to perform write operations on host groups"
-msgstr "Vous n'êtes pas autorisé à de faire des opérations d'écriture sur les groupes d'hôtes"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes d'hôtes"
 
 msgid "Host group not found"
 msgstr "Groupe d'hôtes non trouvé"
