@@ -22,5 +22,5 @@ runs:
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
 
-    - run: cat "${{ inputs.junit_files }}" | grep failure
+    - run: cat "${{ inputs.junit_files }}" | grep -E -i '<testsuite\s+.+failures="[1-9]|<failure\s+'
       shell: bash
