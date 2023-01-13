@@ -17,7 +17,7 @@ runs:
         check_name: "${{ inputs.check_name }}"
         comment_mode: failures
         compare_to_earlier_commit: false
-        ignore_runs: true
+        #ignore_runs: true
         check_run_annotations: none
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
