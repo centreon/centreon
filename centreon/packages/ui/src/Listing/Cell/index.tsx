@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { isNil, omit } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { CSSObject } from 'tss-react';
 
 import {
   alpha,
@@ -11,9 +12,13 @@ import {
   Theme
 } from '@mui/material';
 
+import { ListingVariant } from '@centreon/ui-context';
+
+import { getTextStyleByViewMode } from '../useStyleTable';
+
 import { Props as DataCellProps } from './DataCell';
 
-interface GetBackgroundColorProps extends Props {
+interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
 }
 
@@ -43,15 +48,41 @@ const getBackgroundColor = ({
   return 'unset';
 };
 
-const useStyles = makeStyles<Props>()(
+interface StylesProps extends Props {
+  isRowHighlighted?: boolean;
+  viewMode?: ListingVariant;
+}
+
+interface GetRowHighlightStyleProps {
+  isRowHighlighted?: boolean;
+  theme: Theme;
+}
+
+const getRowHighlightStyle = ({
+  isRowHighlighted,
+  theme
+}: GetRowHighlightStyleProps): CSSObject | undefined =>
+  isRowHighlighted
+    ? {
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightBold
+      }
+    : undefined;
+
+const useStyles = makeStyles<StylesProps>()(
   (
     theme,
-    { isRowHovered, row, rowColorConditions, disableRowCondition, compact }
+    {
+      isRowHovered,
+      row,
+      rowColorConditions,
+      disableRowCondition,
+      isRowHighlighted,
+      viewMode
+    }
   ) => ({
     root: {
-      '&:last-child': {
-        paddingRight: theme.spacing(compact ? 0 : 2)
-      },
+      alignItems: 'center',
       backgroundColor: getBackgroundColor({
         disableRowCondition,
         isRowHovered,
@@ -60,7 +91,17 @@ const useStyles = makeStyles<Props>()(
         theme
       }),
       borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5)
+      display: 'flex',
+      'div:nth-of-type(n)': {
+        alignItems: 'center',
+        display: 'flex'
+      },
+      height: '100%',
+      overflow: 'hidden',
+      ...getTextStyleByViewMode({ theme, viewMode }),
+      p: getRowHighlightStyle({ isRowHighlighted, theme }),
+      padding: 0,
+      whiteSpace: 'nowrap'
     }
   })
 );
@@ -71,25 +112,29 @@ interface Props
       'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
     >,
     TableCellProps {
-  compact?: boolean;
+  isRowHighlighted?: boolean;
+  viewMode?: ListingVariant;
 }
 
 const Cell = (props: Props): JSX.Element => {
-  const { classes } = useStyles(props);
+  const { classes, cx } = useStyles(props);
 
   const { children } = props;
 
   return (
     <TableCell
-      classes={{ root: classes.root }}
+      classes={{
+        root: cx(classes.root)
+      }}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',
           'row',
           'rowColorConditions',
-          'compact',
-          'disableRowCondition'
+          'disableRowCondition',
+          'isRowHighlighted',
+          'viewMode'
         ],
         props
       )}

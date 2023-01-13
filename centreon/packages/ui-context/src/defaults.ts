@@ -1,4 +1,4 @@
-import { User, ThemeMode } from './types';
+import { User, ThemeMode, ListingVariant } from './types';
 
 const defaultUser: User = {
   alias: '',
@@ -6,6 +6,7 @@ const defaultUser: User = {
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
+  resourceStatusViewMode: ListingVariant.compact,
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false
