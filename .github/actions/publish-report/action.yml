@@ -26,8 +26,10 @@ runs:
         name: "${{ inputs.check_name }}-dorny"                  # Name of the check run which will be created
         #only-summary: 'true'
         path: "${{ inputs.junit_files }}"                     # Path to test results (inside artifact .zip)
-        reporter: java-junit
+        reporter: jest-junit
         max-annotations: '0'
+        list-suites: 'failed'
+        list-tests: 'failed'
 
     - name: Display failures
       run: cat "${{ inputs.junit_files }}" | grep -E -i '<testsuite\s+.+failures="[1-9]|<failure\s+'
