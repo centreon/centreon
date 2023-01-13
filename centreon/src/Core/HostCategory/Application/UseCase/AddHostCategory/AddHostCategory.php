@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Application\UseCase\AddHostCategory;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -73,6 +75,7 @@ final class AddHostCategory
             } else {
                 $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
                 $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
+                $newHostCategory->setActivated($request->isActivated);
 
                 $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
@@ -88,6 +91,9 @@ final class AddHostCategory
                     new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
                 );
             }
+        } catch (AssertionException|AssertionFailedException $ex) {
+            $presenter->setResponseStatus(new ConflictResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(HostCategoryException::addHostCategory($ex))
