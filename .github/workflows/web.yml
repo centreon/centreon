@@ -148,7 +148,8 @@ jobs:
         run: pnpm eslint -o junit.xml -f junit
         working-directory: centreon
 
-      - run: node -p "require('./centreon/node_modules/eslint/lib/cli-engine/formatters/unix.js')(require('./centreon/junit.xml'))"
+      - if: failure()
+        run: node -p "require('./centreon/node_modules/eslint/lib/cli-engine/formatters/unix.js')(require('./centreon/junit.xml'))"
 
       - if: failure()
         uses: ./.github/actions/publish-report
