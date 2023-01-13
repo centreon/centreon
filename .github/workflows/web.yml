@@ -233,17 +233,23 @@ jobs:
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: always()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-backend-unit-tests-report"
-          comment_mode: failures
-          compare_to_earlier_commit: false
-          ignore_runs: true
-          check_run_annotations: none
-          job_summary: false
+          #check_name: centreon
           junit_files: "centreon/build/phpunit.xml"
+
+      #- name: Publish report
+      #  uses: EnricoMi/publish-unit-test-result-action@v2
+      #  if: always()
+      #  with:
+      #    check_name: "${{ github.job }}-report"
+      #    comment_mode: failures
+      #    compare_to_earlier_commit: false
+      #    ignore_runs: true
+      #    check_run_annotations: none
+      #    job_summary: false
+      #    junit_files: "centreon/build/phpunit.xml"
 
   package:
     needs: [
