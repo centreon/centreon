@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -33,6 +34,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Domain\Common\GeoCoords;
+use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -83,6 +85,9 @@ final class AddHostGroup
                     new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting())
                 );
             }
+        } catch (AssertionFailedException|InvalidGeoCoordException $ex) {
+            $presenter->setResponseStatus(new ConflictResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostGroupException $ex) {
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
@@ -100,8 +105,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Throwable
      * @throws HostGroupException
+     * @throws \Throwable
      *
      * @return CreatedResponse<AddHostGroupResponse>
      */
@@ -121,8 +126,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Throwable
      * @throws HostGroupException
+     * @throws \Throwable
      *
      * @return CreatedResponse<AddHostGroupResponse>
      */
@@ -210,8 +215,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Assert\AssertionFailedException
      * @throws \Core\Domain\Exception\InvalidGeoCoordException
+     * @throws \Assert\AssertionFailedException
      *
      * @return NewHostGroup
      */
