@@ -29,7 +29,7 @@ runs:
 
     - name: Publish tests report
       uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() }}
+      if: ${{ failure() }}
       with:
         check_name: web-frontend-component-tests-report
         comment_mode: failures
