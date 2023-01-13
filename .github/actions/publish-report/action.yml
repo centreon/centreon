@@ -22,6 +22,9 @@ runs:
         job_summary: false
         junit_files: "${{ inputs.junit_files }}"
         report_suite_logs: error
+        json_suite_details: true
+        json_test_case_results: true
+        json_file: report.json
 
-    - run: cat ${{ steps.publish-report.outputs.json }}
+    - run: cat report.json
       shell: bash
