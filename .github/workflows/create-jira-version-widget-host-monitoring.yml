@@ -11,7 +11,6 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
   workflow_dispatch:
 

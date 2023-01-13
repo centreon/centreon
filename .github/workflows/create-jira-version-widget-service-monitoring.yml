@@ -11,7 +11,6 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-service-monitoring.yml"
       - "widgets/centreon-widget-service-monitoring/**"
   workflow_dispatch:
 

@@ -11,7 +11,6 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
   workflow_dispatch:
 

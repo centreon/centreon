@@ -11,7 +11,6 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-global-health.yml"
       - "widgets/centreon-widget-global-health/**"
   workflow_dispatch:
 
