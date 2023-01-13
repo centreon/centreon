@@ -38,6 +38,14 @@ class HostGroupException extends \Exception
     /**
      * @return self
      */
+    public static function accessNotAllowedForWriting(): self
+    {
+        return new self(_('You are not allowed to perform write operations on host groups'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileSearching(): self
     {
         return new self(_('Error while searching for host groups'));
@@ -49,6 +57,14 @@ class HostGroupException extends \Exception
     public static function errorWhileDeleting(): self
     {
         return new self(_('Error while deleting a host group'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileAdding(): self
+    {
+        return new self(_('Error while adding a host group'));
     }
 
     /**
@@ -67,7 +83,14 @@ class HostGroupException extends \Exception
      */
     public static function iconDoesNotExist(string $iconName, int $iconId): self
     {
-        return new self(sprintf(_("The host group icon '%s' with id '%d' does not exist"), $iconName, $iconId));
+        return new self(
+            sprintf(
+                _("The host group icon '%s' with id '%d' does not exist"),
+                $iconName,
+                $iconId
+            ),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
