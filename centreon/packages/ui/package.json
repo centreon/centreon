@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.14",
+  "version": "23.4.15-MON-16563-prevent-workflow-file-changes-from-triggering-runs.0",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
