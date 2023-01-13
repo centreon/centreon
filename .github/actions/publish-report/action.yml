@@ -3,7 +3,7 @@ description: "Publish report"
 inputs:
   check_name:
     description: "Name of the check and comment"
-    default: "${{ github.job }}-report"
+    default: "${{ github.workflow }}-${{ github.job }}-report"
   path:
     description: "Path to the report files"
     required: true
@@ -33,6 +33,7 @@ runs:
         max-annotations: '0'
         list-suites: 'failed'
         list-tests: 'failed'
+        fail-on-error: 'false'
 
     #- name: Display failures
     #  run: cat "${{ inputs.junit_files }}" | grep -E -i '<testsuite\s+.+failures="[1-9]|<failure\s+'
