@@ -15392,10 +15392,16 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 
+#  msgid "You are not allowed to perform write operations on host groups"
+#  msgstr ""
+
 #  msgid "Host group not found"
 #  msgstr ""
 
 #  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "Error while adding a host group"
 #  msgstr ""
 
 #  msgid "The host group name '%s' already exists"

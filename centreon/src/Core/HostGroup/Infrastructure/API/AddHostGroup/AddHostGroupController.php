@@ -26,6 +26,7 @@ namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,9 +95,12 @@ final class AddHostGroupController extends AbstractController
             $dto->isActivated = $dataSent['is_activated'] ?? true;
 
             $useCase($dto, $saasPresenter);
+        } catch (\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $saasPresenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $saasPresenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            $saasPresenter->setResponseStatus(new ErrorResponse($ex));
         }
 
         return $saasPresenter->show();
@@ -145,9 +149,12 @@ final class AddHostGroupController extends AbstractController
             $dto->isActivated = $dataSent['is_activated'] ?? true;
 
             $useCase($dto, $onPremPresenter);
+        } catch (\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $onPremPresenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $onPremPresenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            $onPremPresenter->setResponseStatus(new ErrorResponse($ex));
         }
 
         return $onPremPresenter->show();
