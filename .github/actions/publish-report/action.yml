@@ -23,6 +23,7 @@ runs:
         check_run_annotations: none
         job_summary: false
         junit_files: "${{ inputs.path }}"
+        fail_on: nothing
 
     - if: ${{ inputs.format != 'php-junit' }}
       uses: dorny/test-reporter@v1
@@ -34,7 +35,3 @@ runs:
         list-suites: 'failed'
         list-tests: 'failed'
         fail-on-error: 'false'
-
-    #- name: Display failures
-    #  run: cat "${{ inputs.junit_files }}" | grep -E -i '<testsuite\s+.+failures="[1-9]|<failure\s+'
-    #  shell: bash
