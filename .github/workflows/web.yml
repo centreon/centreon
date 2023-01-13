@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -18,10 +17,8 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/docker/Dockerfile.centreon-web-*"
       - "centreon/**"
       - "!centreon/packages/**"
-
     tags:
       - centreon-*
 
@@ -149,15 +146,14 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o junit.xml -f junit --quiet
         working-directory: centreon
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
+          path: "centreon/junit.xml"
+          format: "java-junit"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -179,13 +175,10 @@ jobs:
         run: pnpm t --silent --reporter=jest-junit
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
 
   frontend-component-test:
     needs: [changes]
@@ -222,13 +215,11 @@ jobs:
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-backend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/build/phpunit.xml"
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
     needs: [
