@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { initializeWebSSOUserAndGetLoginPage } from '../common';
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -60,8 +62,14 @@ Then(
   'any user can authenticate using the 3rd party authentication service',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      initializeWebSSOUserAndGetLoginPage();
       cy.loginKeycloack('admin')
+        .wait('@getNavigationList')
+        .url()
+        .should('include', '/monitoring/resources')
+        .logout()
+        .reload();
+      cy.loginKeycloack('user-for-web-sso-authentication')
         .wait('@getNavigationList')
         .url()
         .should('include', '/monitoring/resources');
