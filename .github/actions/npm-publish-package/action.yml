@@ -53,7 +53,7 @@ runs:
 
     - name: Configure git
       run: |
-        git config pull.rebase true
+        git config pull.rebase false
         git config user.email "technique-ci@centreon.com"
         git config user.name "technique-ci"
       shell: bash
