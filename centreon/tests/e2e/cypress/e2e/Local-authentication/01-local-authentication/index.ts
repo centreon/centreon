@@ -54,16 +54,17 @@ beforeEach(() => {
 });
 
 Given('an administrator deploying a new Centreon platform', () =>
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-);
-
-When('the administrator opens the authentication configuration menu', () => {
-  cy.wait('@getNavigationList')
+  cy
+    .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
     })
-    .get('div[role="tablist"] button')
+);
+
+When('the administrator opens the authentication configuration menu', () => {
+  cy.get('div[role="tablist"] button')
     .eq(0)
     .contains('Password security policy');
 });
@@ -162,17 +163,18 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account with password up to date',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getNavigationList')
+      .navigateTo({
+        page: 'Authentication',
+        rootItemNumber: 4
+      });
   }
 );
 
 When(
   'the administrator sets valid password expiration policy durations in password expiration policy configuration and the user password expires',
   () => {
-    cy.wait('@getNavigationList').navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    });
     cy.reload()
       .get('div[role="tablist"] button')
       .eq(0)
@@ -200,6 +202,7 @@ When(
 
 Then('the existing user can not authenticate and is notified about it', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+    .wait('@getNavigationList')
     .url()
     .should('include', '/reset-password');
 
@@ -218,17 +221,18 @@ Then('the existing user can not authenticate and is notified about it', () => {
 Given(
   'an administrator configuring a Centreon platform and an existing user account with a first password',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getNavigationList')
+      .navigateTo({
+        page: 'Authentication',
+        rootItemNumber: 4
+      });
   }
 );
 
 When(
   'the administrator enables the password reuseability and a user attempts to change its password multiple times in a row',
   () => {
-    cy.wait('@getNavigationList').navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    });
     cy.reload()
       .get('div[role="tablist"] button')
       .eq(0)
@@ -345,16 +349,17 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    .wait('@getNavigationList')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    });
 });
 
 When(
   'the administrator adds or remove a user from the excluded user list',
   () => {
-    cy.wait('@getNavigationList').navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    });
     cy.reload()
       .get('div[role="tablist"] button')
       .eq(0)
@@ -397,6 +402,11 @@ When(
 
 Then('the password expiration policy is applied to the removed user', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+    .wait('@getNavigationList')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
     .url()
     .should('include', '/reset-password');
   cy.visit('/centreon/login');
@@ -420,17 +430,18 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account not blocked',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getNavigationList')
+      .navigateTo({
+        page: 'Authentication',
+        rootItemNumber: 4
+      });
   }
 );
 
 When(
   'the administrator sets valid password blocking policy and the user attempts to login multiple times',
   () => {
-    cy.wait('@getNavigationList').navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    });
     cy.reload()
       .get('div[role="tablist"] button')
       .eq(0)
