@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
   push:
     branches:

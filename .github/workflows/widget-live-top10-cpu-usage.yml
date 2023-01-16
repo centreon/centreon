@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
   push:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
     tags:
       - centreon-widget-live-top10-cpu-usage-*

@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/dsm.yml"
       - "dsm/**"
   push:
     branches:
       - develop
     paths:
-      - ".github/workflows/dsm.yml"
       - "dsm/**"
     tags:
       - centreon-dsm-*

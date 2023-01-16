@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
   push:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
     tags:
       - centreon-widget-single-metric-*

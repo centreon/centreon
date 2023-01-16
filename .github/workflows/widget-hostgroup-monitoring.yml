@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
   push:
     branches:
       - dev-22.04.x
     paths:
-      - ".github/workflows/widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
     tags:
       - centreon-widget-hostgroup-monitoring-*
