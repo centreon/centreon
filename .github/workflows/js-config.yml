@@ -6,8 +6,6 @@ on:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
       - "centreon/.github/actions/npm-publish-package/**"
-    branches:
-      - develop
 
 env:
   directory: "centreon/packages/js-config"
