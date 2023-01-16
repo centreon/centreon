@@ -68,8 +68,7 @@ Cypress.Commands.add(
         });
     }
 
-    return cy
-      .fixture(`users/${jsonName}.json`)
+    cy.fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
@@ -78,6 +77,14 @@ Cypress.Commands.add(
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
+
+    return cy
+      .get('.SnackbarContent-root > .MuiPaper-root')
+      .then(($snackbar) => {
+        if ($snackbar.text().includes('Login succeeded')) {
+          cy.wait('@getNavigationList');
+        }
+      });
   }
 );
 
