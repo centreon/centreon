@@ -23,15 +23,19 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Domain\Common\GeoCoords;
+use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -70,7 +74,7 @@ final class AddHostGroup
             if ($this->contact->isAdmin()) {
                 $presenter->present($this->addHostGroupAsAdmin($request));
                 $this->info('Add host group', ['request' => $request]);
-            } elseif ($this->contactCanExecuteThisUseCase()) {
+            } elseif ($this->contactCanPerformWriteOperations()) {
                 $presenter->present($this->addHostGroupAsContact($request));
                 $this->info('Add host group', ['request' => $request]);
             } else {
@@ -79,14 +83,22 @@ final class AddHostGroup
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting())
                 );
             }
+        } catch (AssertionFailedException|InvalidGeoCoordException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostGroupException $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            $presenter->setResponseStatus(
+                match ($ex->getCode()) {
+                    HostGroupException::CODE_CONFLICT => new ConflictResponse($ex),
+                    default => new ErrorResponse($ex),
+                }
+            );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileDeleting()->getMessage()));
+            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileAdding()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
@@ -94,8 +106,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Throwable
      * @throws HostGroupException
+     * @throws \Throwable
      *
      * @return CreatedResponse<AddHostGroupResponse>
      */
@@ -115,8 +127,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Throwable
      * @throws HostGroupException
+     * @throws \Throwable
      *
      * @return CreatedResponse<AddHostGroupResponse>
      */
@@ -196,7 +208,7 @@ final class AddHostGroup
     /**
      * @return bool
      */
-    private function contactCanExecuteThisUseCase(): bool
+    private function contactCanPerformWriteOperations(): bool
     {
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
     }
@@ -204,8 +216,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Assert\AssertionFailedException
      * @throws \Core\Domain\Exception\InvalidGeoCoordException
+     * @throws \Assert\AssertionFailedException
      *
      * @return NewHostGroup
      */

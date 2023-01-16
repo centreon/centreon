@@ -25,12 +25,22 @@ namespace Core\HostGroup\Application\Exceptions;
 
 class HostGroupException extends \Exception
 {
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access host groups'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowedForWriting(): self
+    {
+        return new self(_('You are not allowed to perform write operations on host groups'));
     }
 
     /**
@@ -52,6 +62,14 @@ class HostGroupException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileAdding(): self
+    {
+        return new self(_('Error while adding a host group'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileRetrievingJustCreated(): self
     {
         return new self(_('Error while retrieving newly created host group'));
@@ -65,7 +83,14 @@ class HostGroupException extends \Exception
      */
     public static function iconDoesNotExist(string $iconName, int $iconId): self
     {
-        return new self(sprintf(_("The host group icon '%s' with id '%d' does not exist"), $iconName, $iconId));
+        return new self(
+            sprintf(
+                _("The host group icon '%s' with id '%d' does not exist"),
+                $iconName,
+                $iconId
+            ),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
@@ -75,6 +100,6 @@ class HostGroupException extends \Exception
      */
     public static function nameAlreadyExists(string $hostGroupName): self
     {
-        return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName));
+        return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName), self::CODE_CONFLICT);
     }
 }

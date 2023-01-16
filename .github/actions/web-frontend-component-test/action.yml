@@ -1,7 +1,8 @@
 name: "Web Cypress Component Testing"
 description: "Web Cypress Component Testing"
+inputs:
   module:
-    description: "Module on test will be run."
+    description: "Module on which the test will be run"
     required: true
   spec_file_path:
     description: "Path of spec file."
@@ -18,8 +19,8 @@ runs:
       id: formatSpecFilePath
       with:
           source: ${{ inputs.spec_file_path }}
-          find: '/'
-          replace: '-'
+          find: '.cypress.spec.tsx'
+          replace: ''
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
@@ -39,5 +40,5 @@ runs:
         path: ${{ inputs.module }}/cypress/results/videos
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/reports/cypress-fe.xml ${{ inputs.working_directory }}/cypress/results/reports/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
       shell: bash

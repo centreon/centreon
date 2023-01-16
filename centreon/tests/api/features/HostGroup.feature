@@ -321,6 +321,16 @@ Feature:
     }
     """
 
+  Scenario: Host group add with an invalid payload as an Administrator
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
+    """
+    {
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+
   Scenario: Host group add with full payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
@@ -395,7 +405,7 @@ Feature:
     """
     {"name": "test-add2"}
     """
-    Then the response code should be "500"
+    Then the response code should be "409"
 
   Scenario: Host group add with a READ user is forbidden
     Given the following CLAPI import data:

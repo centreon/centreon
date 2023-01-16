@@ -62,6 +62,16 @@ Feature:
     }
     """
 
+  Scenario: Host group add with an invalid payload as an Administrator
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
+    """
+    {
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+
   Scenario: Host group add with full payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
@@ -112,7 +122,7 @@ Feature:
     """
     {"name": "test-add2"}
     """
-    Then the response code should be "500"
+    Then the response code should be "409"
 
   Scenario: Host group add with unknown fields for the cloud platform
     Given I am logged in
@@ -123,7 +133,7 @@ Feature:
         "notes": "test-notes"
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -131,7 +141,7 @@ Feature:
         "notes_url": "test-notes_url"
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -139,7 +149,7 @@ Feature:
         "action_url": "test-action_url"
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -147,7 +157,7 @@ Feature:
         "icon_map_id": 1
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -155,7 +165,7 @@ Feature:
         "rrd": 88
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -163,4 +173,4 @@ Feature:
         "comment": "test-comment"
     }
     """
-    Then the response code should be "500"
+    Then the response code should be "400"

@@ -25,9 +25,7 @@ namespace Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{
-    ErrorResponse, NoContentResponse, NotFoundResponse, PresenterInterface
-};
+use Core\Application\Common\UseCase\{ConflictResponse, ErrorResponse, NoContentResponse, NotFoundResponse, PresenterInterface};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
@@ -60,7 +58,7 @@ class UpdateTimePeriod
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name, $request->id)) {
                 $this->error('Time period name already exists');
                 $presenter->setResponseStatus(
-                    new ErrorResponse(TimePeriodException::nameAlreadyExists($request->name)->getMessage())
+                    new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))
                 );
 
                 return;
@@ -73,7 +71,7 @@ class UpdateTimePeriod
                 ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(
-                new ErrorResponse(TimePeriodException::errorOnUpdate($request->id)->getMessage())
+                new ErrorResponse(TimePeriodException::errorOnUpdate($request->id))
             );
         }
     }

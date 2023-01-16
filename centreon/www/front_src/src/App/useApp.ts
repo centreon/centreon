@@ -1,23 +1,24 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
+import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   Actions,
   downtimeAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
-import useNavigation from '../Navigation/useNavigation';
-import reactRoutes from '../reactRoutes/routeMap';
 import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
+import useNavigation from '../Navigation/useNavigation';
+import reactRoutes from '../reactRoutes/routeMap';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { DefaultParameters } from './models';
@@ -57,6 +58,7 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
+  const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
@@ -111,6 +113,10 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
+        setUser((currentUser) => ({
+          ...currentUser,
+          resourceStatusViewMode: retrievedParameters.resource_status_view_mode
+        }));
       })
       .catch((error) => {
         if (pathEq(['response', 'status'], 401)(error)) {

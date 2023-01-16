@@ -1,0 +1,37 @@
+name: "publish-report"
+description: "Publish report"
+inputs:
+  check_name:
+    description: "Name of the check and comment"
+    default: "${{ github.workflow }}-${{ github.job }}-report"
+  path:
+    description: "Path to the report files"
+    required: true
+  format:
+    description: "Path to the junit files"
+    default: "jest-junit"
+runs:
+  using: "composite"
+  steps:
+    - if: ${{ inputs.format == 'php-junit' }}
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        check_name: "${{ inputs.check_name }}"
+        comment_mode: off
+        compare_to_earlier_commit: false
+        ignore_runs: true
+        check_run_annotations: none
+        job_summary: false
+        junit_files: "${{ inputs.path }}"
+        fail_on: nothing
+
+    - if: ${{ inputs.format != 'php-junit' }}
+      uses: dorny/test-reporter@v1
+      with:
+        name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
+        path: "${{ inputs.path }}"                     # Path to test results (inside artifact .zip)
+        reporter: java-junit
+        max-annotations: '0'
+        list-suites: 'failed'
+        list-tests: 'failed'
+        fail-on-error: 'false'

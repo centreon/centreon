@@ -25,7 +25,7 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -37,6 +37,9 @@ jobs:
     name: ${{ matrix.spec }}
 
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
@@ -44,28 +47,26 @@ jobs:
           spec_file_path: ${{matrix.spec}}
 
       - name: Upload components tests Results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: centreon/cypress/results/reports/*.xml
+          path: centreon/cypress/results/*.xml
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+      - uses: ./.github/actions/publish-report
         with:
-          check_name: ${{ inputs.name }}-tests-report
-          comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          path: "${{ inputs.name }}-xunit-reports/**/*.xml"

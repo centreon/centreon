@@ -8,7 +8,7 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
 
 import { Column, Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';
 import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
@@ -29,8 +29,12 @@ const columns = getColumns({
   t: Ramda.identity
 }) as Array<Column>;
 
-const fillEntities = (): Array<Resource> => {
-  const entityCount = 31;
+const fillEntities = ({
+  entityCount = 31,
+  enableCriticalResource = false
+}): Array<Resource> => {
+  const defaultSeverityCode = enableCriticalResource ? 1 : 4;
+  const defaultSeverityName = enableCriticalResource ? 'CRITICAL' : 'PENDING';
 
   return new Array(entityCount).fill(0).map((_, index) => ({
     acknowledged: index % 2 === 0,
@@ -66,8 +70,8 @@ const fillEntities = (): Array<Resource> => {
     severity_level: index % 3 === 0 ? 1 : 2,
     short_type: index % 4 === 0 ? 's' : 'h',
     status: {
-      name: index % 2 === 0 ? 'OK' : 'PENDING',
-      severity_code: index % 2 === 0 ? 2 : 5
+      name: index % 2 === 0 ? 'OK' : defaultSeverityName,
+      severity_code: index % 2 === 0 ? 5 : defaultSeverityCode
     },
     tries: '1',
     type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
@@ -75,7 +79,7 @@ const fillEntities = (): Array<Resource> => {
   }));
 };
 
-const entities = fillEntities();
+const entities = fillEntities({});
 const retrievedListing = {
   meta: {
     limit: 10,
@@ -85,6 +89,21 @@ const retrievedListing = {
     total: entities.length
   },
   result: entities
+};
+
+const entitiesWithCriticalResources = fillEntities({
+  enableCriticalResource: true,
+  entityCount: 2
+});
+const retrievedListingWithCriticalResources = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: entitiesWithCriticalResources.length
+  },
+  result: entitiesWithCriticalResources
 };
 
 const ListingTest = (): JSX.Element => {
@@ -105,15 +124,24 @@ const fakeData = {
   result: []
 };
 
-before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
+const configureUserAtomViewMode = (
+  viewMode: ListingVariant = ListingVariant.compact
+): void => {
   const userData = renderHook(() => useAtomValue(userAtom));
 
   userData.result.current.timezone = 'Europe/Paris';
   userData.result.current.locale = 'en_US';
+  userData.result.current.resourceStatusViewMode = viewMode;
+};
+
+before(() => {
+  document.getElementsByTagName('body')[0].style = 'margin:0px';
+  configureUserAtomViewMode();
 });
 
-const interceptRequestsAndMountBeforeEach = (): void => {
+const interceptRequestsAndMountBeforeEach = (
+  interceptCriticalResources = false
+): void => {
   cy.interceptAPIRequest({
     alias: 'filterRequest',
     method: Method.GET,
@@ -124,7 +152,9 @@ const interceptRequestsAndMountBeforeEach = (): void => {
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: retrievedListing
+    response: interceptCriticalResources
+      ? retrievedListingWithCriticalResources
+      : retrievedListing
   });
   cy.mount({
     Component: (
@@ -142,6 +172,7 @@ const interceptRequestsAndMountBeforeEach = (): void => {
 describe('Resource Listing', () => {
   beforeEach(() => {
     interceptRequestsAndMountBeforeEach();
+    configureUserAtomViewMode();
   });
 
   it('displays first part of information when multiple (split by \n) are available', () => {
@@ -164,6 +195,43 @@ describe('Resource Listing', () => {
     );
     resourcesWithSingleLines.forEach(({ information }) => {
       cy.contains(information as string).should('exist');
+    });
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the listing in compact mode', () => {
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the listing in extended mode', () => {
+    configureUserAtomViewMode(ListingVariant.extended);
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays a highlighted row when a resource is in a critical state', () => {
+    interceptRequestsAndMountBeforeEach(true);
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+    cy.waitFiltersAndListingRequests();
+
+    cy.moveSortableElement({
+      ariaLabel: 'Parent Drag handle',
+      direction: 'right'
     });
 
     cy.matchImageSnapshot();
@@ -260,6 +328,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
@@ -270,6 +339,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -280,6 +350,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
@@ -290,6 +361,7 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
+    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -358,9 +430,13 @@ describe('Display additional columns', () => {
 
     const chipLabel = `${entityInDowntime?.name} ${labelInDowntime}`;
 
-    cy.findByLabelText(chipLabel, {
-      timeout: 10000
-    }).trigger('mouseover');
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains('State').click();
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.findByLabelText(chipLabel).trigger('mouseover');
 
     cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
@@ -386,6 +462,12 @@ describe('Display additional columns', () => {
     const acknowledgedEntity = entities.find(
       ({ acknowledged }) => acknowledged
     );
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains('State').click();
+
+    cy.findByLabelText('Add columns').click();
 
     const chipLabel = `${acknowledgedEntity?.name} ${labelAcknowledged}`;
 
@@ -414,7 +496,7 @@ describe('Display additional columns', () => {
   const columnIds = Ramda.map(Ramda.prop('id'), columns);
 
   const additionalIds = Ramda.reject(
-    Ramda.includes(Ramda.__, defaultSelectedColumnIds),
+    Ramda.includes(Ramda.__, [...defaultSelectedColumnIds, 'state']),
     columnIds
   );
 

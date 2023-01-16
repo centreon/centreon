@@ -30,6 +30,9 @@ import IconColumn from './IconColumn';
 const PerformanceGraph = lazy(() => import('../../Graph/Performance'));
 
 const useStyles = makeStyles()((theme) => ({
+  button: {
+    padding: 0
+  },
   graph: {
     display: 'block',
     overflow: 'auto',
@@ -86,12 +89,13 @@ const Graph = ({
 };
 
 const renderChip =
-  ({ onClick, label }) =>
+  ({ onClick, label, className }) =>
   (): JSX.Element =>
     (
       <IconButton
         ariaLabel={label}
-        size="large"
+        className={className}
+        size="small"
         title={label}
         onClick={onClick}
       >
@@ -128,7 +132,11 @@ const GraphColumn = ({
     return (
       <IconColumn>
         <HoverChip
-          Chip={renderChip({ label, onClick: () => onClick(row) })}
+          Chip={renderChip({
+            className: classes.button,
+            label,
+            onClick: () => onClick(row)
+          })}
           isHovered={isHovered}
           label={label}
         >
