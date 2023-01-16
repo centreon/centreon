@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget ntopng listing version
+name: release-web
 
 on:
   pull_request_target:
@@ -9,17 +9,18 @@ on:
       - "master"
       - "*.x"
       - "!dev*"
-    paths:
-      - "widgets/centreon-widget-ntopng-listing/**"
+    paths: 
+      - "centreon/**"
+      - "!centreon/packages/**"
   workflow_dispatch:
 
 env:
-  module: "widget-ntopng-listing"
+  module: "web"
 
 jobs:
   release:
-    runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -32,4 +33,3 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
-          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
