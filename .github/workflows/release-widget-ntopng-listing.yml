@@ -1,0 +1,36 @@
+---
+name: Tag centreon widget ntopng listing releases
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - "master"
+      - "*.x"
+      - "!dev*"
+    paths:
+      - ".github/actions/release/action.yml"
+      - ".github/workflows/release-widget-ntopng-listing.yml"
+      - "widgets/centreon-widget-ntopng-listing/**"
+  workflow_dispatch:
+
+env:
+  module: "widget-ntopng-listing"
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: ./.github/actions/release
+        with:
+          module_name: ${{ env.module }}
+          jira_token: ${{ secrets.JIRA_TOKEN }}
