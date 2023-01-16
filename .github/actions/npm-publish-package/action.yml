@@ -61,7 +61,7 @@ runs:
 
     - name: Moving to the ${{ inputs.release_branch }} branch
       uses: actions/checkout@v3
-      if: ${{ inputs.release_type == "stable" }}
+      if: ${{ inputs.release_type == stable }}
       with:
         ref: ${{ inputs.release_branch }}
         token: ${{ inputs.pat }}
