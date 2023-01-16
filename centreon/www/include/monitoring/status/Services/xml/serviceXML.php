@@ -154,7 +154,7 @@ $tabOrder["current_attempt"] = " ORDER BY s.check_attempt " . $order . ", h.name
 $tabOrder["output"] = " ORDER BY s.output " . $order . ", h.name, s.description";
 $tabOrder["default"] = $tabOrder['criticality_id'];
 
-$request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.host_id, s.description,
+$request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 as REALTIME, h.name, h.alias, h.address, h.host_id, s.description,
     s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
     s.icon_image, s.display_name, s.state, s.output as plugin_output,
     s.state_type, s.check_attempt as current_attempt, s.last_update as status_update_time, s.last_state_change,
@@ -280,7 +280,11 @@ try {
     }
     $dbResult->execute();
 
-    $numRows = $obj->DBC->numberRows();
+    $numRows = 0;
+    $foundRowsResult = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME");
+    if ($foundRowsResult !== false && ($total = $foundRowsResult->fetchColumn()) !== false) {
+        $numRows = (int) $total;
+    }
 } catch (\PDOException $e) {
     $sqlError = true;
     $numRows = 0;

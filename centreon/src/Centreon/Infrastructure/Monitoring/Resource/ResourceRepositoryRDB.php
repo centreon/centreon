@@ -162,7 +162,7 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
         }
 
         $collector = new StatementCollector();
-        $request = 'SELECT SQL_CALC_FOUND_ROWS '
+        $request = 'SELECT SQL_CALC_FOUND_ROWS 1 as REALTIME,'
             . 'resource.id, resource.type, resource.name, resource.alias, resource.fqdn, '
             . 'resource.host_id, resource.service_id, '
             . 'resource.status_code, resource.status_name, resource.status_severity_code, ' // status
@@ -289,7 +289,7 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
         $statement->execute();
 
         $this->sqlRequestTranslator->getRequestParameters()->setTotal(
-            (int)$this->db->query('SELECT FOUND_ROWS()')->fetchColumn()
+            (int)$this->db->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()
         );
 
         while ($result = $statement->fetch()) {

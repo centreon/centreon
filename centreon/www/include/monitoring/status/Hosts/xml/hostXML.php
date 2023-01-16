@@ -107,7 +107,7 @@ $queryValues = [];
 /*
  * Get Host status
  */
-$rq1 = " SELECT SQL_CALC_FOUND_ROWS DISTINCT h.state,
+$rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 as REALTIME, h.state,
     h.acknowledged,
     h.passive_checks,
     h.active_checks,
@@ -259,7 +259,11 @@ $dbResult->execute();
 
 $ct = 0;
 $flag = 0;
-$numRows = $obj->DBC->numberRows();
+$numRows = 0;
+$foundRowsResult = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME");
+if ($foundRowsResult !== false && ($total = $foundRowsResult->fetchColumn()) !== false) {
+    $numRows = (int) $total;
+}
 
 /**
  * Get criticality ids
