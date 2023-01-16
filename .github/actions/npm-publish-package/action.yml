@@ -71,7 +71,7 @@ runs:
       run: |
         git add .
         git commit -m "${{ steps.commit_message.outputs.commit_message }}"
-        git pull origin ${{ inputs.release_branch }} --allow-unrelated-histories
+        git pull origin ${{ inputs.release_branch }}
         git push origin ${{ inputs.release_branch }}
       shell: bash
 
