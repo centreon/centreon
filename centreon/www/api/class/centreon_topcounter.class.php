@@ -598,7 +598,7 @@ class CentreonTopCounter extends CentreonWebService
             return $_SESSION['topCounterHostStatus'];
         }
 
-        $query = 'SELECT
+        $query = 'SELECT 1 as REALTIME,
             COALESCE(SUM(CASE WHEN h.state = 0 THEN 1 ELSE 0 END), 0) AS up_total,
             COALESCE(SUM(CASE WHEN h.state = 1 THEN 1 ELSE 0 END), 0) AS down_total,
             COALESCE(SUM(CASE WHEN h.state = 2 THEN 1 ELSE 0 END), 0) AS unreachable_total,
@@ -666,7 +666,7 @@ class CentreonTopCounter extends CentreonWebService
             return $_SESSION['topCounterServiceStatus'];
         }
 
-        $query = 'SELECT
+        $query = 'SELECT 1 as REALTIME,
             COALESCE(SUM(CASE WHEN s.state = 0 THEN 1 ELSE 0 END), 0) AS ok_total,
             COALESCE(SUM(CASE WHEN s.state = 1 THEN 1 ELSE 0 END), 0) AS warning_total,
             COALESCE(SUM(CASE WHEN s.state = 2 THEN 1 ELSE 0 END), 0) AS critical_total,
