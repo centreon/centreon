@@ -69,7 +69,6 @@ runs:
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') }}
       run: |
-        git status
         git add .
         git commit -m "${{ steps.commit_message.outputs.commit_message }}"
         git pull origin ${{ inputs.release_branch }} --allow-unrelated-histories
