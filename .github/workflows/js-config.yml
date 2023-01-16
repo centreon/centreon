@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
+      - "centreon/.github/actions/npm-publish-package/**"
     branches:
       - develop
 
