@@ -1,0 +1,22 @@
+name: "Sync Branches"
+description: "Sync dev branch with develop"
+inputs:
+  src_branch:
+    description: "The source branch"
+    required: true
+  dest_branch:
+    description: "The destination branch"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Rebase branches
+      id: rebase
+      run: |
+        git config --global user.email "release@centreon.com"
+        git config --global user.name "Centreon"
+        git checkout ${{ inputs.dest_branch }}
+        git merge --strategy-option=theirs ${{ inputs.src_branch }}
+        git push origin ${{ inputs.dest_branch }}
+      shell: bash
