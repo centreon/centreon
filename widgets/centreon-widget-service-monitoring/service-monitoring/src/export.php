@@ -133,7 +133,7 @@ $stateLabels = array(
 );
 
 // Build Query
-$query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
+$query = "SELECT SQL_CALC_FOUND_ROWS 1 as REALTIME, h.host_id,
     h.name as hostname,
     h.alias as hostalias,
     s.latency,
@@ -409,7 +409,7 @@ while ($row = $res->fetch()) {
     }
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         $res2 = $dbb->prepare(
-            'SELECT data FROM comments
+            'SELECT 1 as REALTIME, data FROM comments
             WHERE host_id = :host_id
             AND service_id = :service_id
             ORDER BY entry_time DESC LIMIT 1'

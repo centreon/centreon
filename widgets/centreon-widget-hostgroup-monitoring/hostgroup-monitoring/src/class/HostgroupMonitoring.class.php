@@ -63,7 +63,7 @@ class HostgroupMonitoring
         if (!count($data)) {
             return array();
         }
-        $query = "SELECT h.host_id, h.state, h.name, h.alias, hhg.hostgroup_id, hg.name as hgname
+        $query = "SELECT 1 as REALTIME, h.host_id, h.state, h.name, h.alias, hhg.hostgroup_id, hg.name as hgname
             FROM hosts_hostgroups hhg, hosts h, hostgroups hg
             WHERE h.host_id = hhg.host_id
             AND h.enabled = 1
@@ -106,7 +106,7 @@ class HostgroupMonitoring
         if (!count($data)) {
             return array();
         }
-        $query = "SELECT DISTINCT
+        $query = "SELECT DISTINCT 1 as REALTIME,
                 h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname,
                 (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri
             FROM hosts_hostgroups hhg, hosts h, services s, hostgroups hg ";

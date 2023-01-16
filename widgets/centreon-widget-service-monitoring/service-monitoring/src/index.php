@@ -114,7 +114,7 @@ $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
-$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 as REALTIME, 
     h.host_id,
     h.name as hostname,
     h.alias as hostalias,

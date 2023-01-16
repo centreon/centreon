@@ -117,7 +117,7 @@ $inc = 0;
 
 if ($preferences['host_group']) {
     /* Query 1 */
-    $query1 = "SELECT DISTINCT T1.name, T2.host_id
+    $query1 = "SELECT DISTINCT 1 as REALTIME, T1.name, T2.host_id
         FROM hosts T1, hosts_hostgroups T2 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.host_id = T2.host_id
             AND T1.enabled = 1
@@ -130,7 +130,7 @@ if ($preferences['host_group']) {
         ORDER BY T1.name";
 
     /* Query 2 */
-    $query2 = "SELECT distinct T1.description
+    $query2 = "SELECT DISTINCT 1 as REALTIME, T1.description
         FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.enabled = 1 " . ($centreon->user->admin == 0
             ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
@@ -148,7 +148,7 @@ if ($preferences['host_group']) {
     $query2 .= ");";
 
     /* Query 3 */
-    $query3 = "SELECT DISTINCT T1.service_id, T1.description, T1.state, T1.host_id, T2.name, T2.host_id
+    $query3 = "SELECT DISTINCT 1 as REALTIME, T1.service_id, T1.description, T1.state, T1.host_id, T2.name, T2.host_id
         FROM services T1, hosts T2" . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
         WHERE T1.enabled = 1 AND T1.host_id = T2.host_id
             AND T1.description NOT LIKE 'ba_%' AND T1.description NOT LIKE 'meta_%' " .

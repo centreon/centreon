@@ -77,7 +77,7 @@ $deprecatedHostListingUri = '/' . $centreonWebPath . '/main.php?p=20202&search=&
 
 // query for DOWN status
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN h.state = 1
                 AND h.enabled = 1
@@ -134,7 +134,7 @@ while ($row = $res->fetch()) {
 
 // query for UNKNOWN status
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN h.state = 2
                 AND h.enabled = 1
@@ -191,7 +191,7 @@ while ($row = $res->fetch()) {
 
 // query for UP status
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN h.state = 0
                 AND h.enabled = 1
@@ -218,7 +218,7 @@ while ($row = $res->fetch()) {
 
 // query for PENDING status
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN h.state = 4
                 AND h.enabled = 1

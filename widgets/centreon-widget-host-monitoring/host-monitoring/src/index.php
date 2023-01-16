@@ -94,7 +94,7 @@ $stateLabels = getLabels();
 
 $aStateType = ['1' => 'H', '0' => 'S'];
 
-$query = 'SELECT SQL_CALC_FOUND_ROWS
+$query = 'SELECT SQL_CALC_FOUND_ROWS 1 as REALTIME,
     h.host_id,
     h.name AS host_name,
     h.alias,

@@ -101,7 +101,7 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $stateLabels = getLabels();
 
 // Request
-$query = 'SELECT SQL_CALC_FOUND_ROWS
+$query = 'SELECT SQL_CALC_FOUND_ROWS 1 as REALTIME,
     h.host_id,
     h.name,
     h.alias,

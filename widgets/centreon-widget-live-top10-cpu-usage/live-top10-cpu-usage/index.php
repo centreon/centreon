@@ -105,7 +105,7 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = array();
 
-$query = "SELECT
+$query = "SELECT 1 as REALTIME,
         i.host_name,
         i.service_description,
         i.service_id,

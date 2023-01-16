@@ -133,7 +133,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
             ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
-    $rq1 = ' SELECT count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, ' .
+    $rq1 = ' SELECT 1 as REALTIME, count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, ' .
         'SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime ' .
         'FROM `hosts` h ' .
         $innerJoinGroup .
@@ -169,7 +169,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
 } elseif (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'services') {
     $sgName = false;
     if (!empty($preferences['servicegroup'])) {
-        $sql = 'select sg.sg_name from servicegroup sg where sg.sg_id = ' . $dbb->escape($preferences['servicegroup']);
+        $sql = 'SELECT 1 as REALTIME, sg.sg_name from servicegroup sg where sg.sg_id = ' . $dbb->escape($preferences['servicegroup']);
         $dbResult = $db->query($sql);
         $row = $dbResult->fetchRow();
         $sgName = $row['sg_name'];
@@ -196,7 +196,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
      * Get DB informations for creating Flash
      */
     if (!$is_admin) {
-        $rq2 = ' SELECT count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
+        $rq2 = 'SELECT 1 as REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
             ' SUM(s.acknowledged) as acknowledged, ' .
             ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  ' .
             ' FROM services s ' .
@@ -209,7 +209,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
             ' AND acl.group_id IN (' . $grouplistStr . ') ' .
             ' GROUP BY s.state ORDER by s.state';
     } else {
-        $rq2 = ' SELECT count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
+        $rq2 = 'SELECT 1 as REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
             ' SUM(s.acknowledged) as acknowledged, ' .
             ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  ' .
             ' FROM services s' .

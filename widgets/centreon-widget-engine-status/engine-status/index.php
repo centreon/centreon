@@ -95,7 +95,7 @@ $db = new CentreonDB("centstorage");
 
 $idP = (int) $preferences['poller'];
 
-$sql = "SELECT
+$sql = "SELECT 1 as REALTIME,
     Max(T1.latency) as h_max,
     AVG(T1.latency) as h_moy,
     Max(T2.latency) as s_max,
@@ -114,7 +114,7 @@ while ($row = $res->fetch()) {
     $dataLat[] = $row;
 }
 
-$sql = "SELECT
+$sql = "SELECT 1 as REALTIME, 
     Max(T1.execution_time) as h_max,
     AVG(T1.execution_time) as h_moy,
     Max(T2.execution_time) as s_max,
@@ -133,7 +133,7 @@ while ($row = $res->fetch()) {
     $dataEx[] = $row;
 }
 
-$sql = "SELECT
+$sql = "SELECT 1 as REALTIME,
     SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Dow,
     SUM(CASE WHEN h.state = 2 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Un,
     SUM(CASE WHEN h.state = 0 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Up,
@@ -148,7 +148,7 @@ while ($row = $res->fetch()) {
     $dataSth[] = $row;
 }
 
-$sql = "SELECT
+$sql = "SELECT 1 as REALTIME,
     SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Cri,
     SUM(CASE WHEN s.state = 1 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Wa,
     SUM(CASE WHEN s.state = 0 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Ok,

@@ -78,7 +78,7 @@ $deprecatedServiceListingUri = '/' . $centreonWebPath . '/main.php?p=20201&searc
 
 // query for CRITICAL state
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN s.state = 2
                 AND s.enabled = 1
@@ -154,7 +154,7 @@ while ($row = $res->fetch()) {
 
 // query for WARNING state
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN s.state = 1
                 AND s.enabled = 1
@@ -230,7 +230,7 @@ while ($row = $res->fetch()) {
 
 // query for OK state
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN s.state = 0
                 AND s.enabled = 1
@@ -260,7 +260,7 @@ while ($row = $res->fetch()) {
 
 // query for PENDING state
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN s.state = 4
                 AND s.enabled = 1
@@ -289,7 +289,7 @@ while ($row = $res->fetch()) {
 
 // query for UNKNOWN state
 $res = $db->query(
-    "SELECT
+    "SELECT 1 as REALTIME,
         SUM(
             CASE WHEN s.state = 3
                 AND s.enabled = 1
