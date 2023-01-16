@@ -58,12 +58,18 @@ runs:
         git config user.name "technique-ci"
       shell: bash
 
+    - name: Defining commit message
+      id: commit_message
+      run: |
+        [[ ${{ inputs.release_type }} = "stable" ]] && echo "commit_message="THIS IS A TEST chore: release $VERSION"" >> $GITHUB_OUTPUT || echo "commit_message="THIS IS A TEST chore: pre-release $VERSION"" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') }}
       run: |
         git pull origin MON-improve-npm-publication-to-stable-state-test-push
         git add .
-        git commit -m "THIS IS A TEST chore: pre-release ${VERSION}"
+        git commit -m "${{ steps.commit_message.outputs.commit_message }}"
         git push origin MON-improve-npm-publication-to-stable-state-test-push
       shell: bash
 
