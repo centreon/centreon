@@ -7,7 +7,6 @@ on:
       - closed
     paths:
       - "centreon/packages/js-config/**"
-      - ".github/workflows/js-config-merge.yml"
 
 env:
   directory: "centreon/packages/js-config"
