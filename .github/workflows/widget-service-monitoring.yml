@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-service-monitoring.yml"
       - "widgets/centreon-widget-service-monitoring/**"
   push:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/widget-service-monitoring.yml"
       - "widgets/centreon-widget-service-monitoring/**"
     tags:
       - centreon-widget-service-monitoring-*

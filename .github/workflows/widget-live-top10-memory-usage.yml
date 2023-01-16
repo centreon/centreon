@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
   push:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
     tags:
       - centreon-widget-live-top10-memory-usage-*

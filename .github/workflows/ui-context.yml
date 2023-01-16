@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: centreon-ui-context
 
 on:
@@ -83,3 +84,78 @@ jobs:
           package: ${{ env.directory }}/package.json
           tag: ${{ github.head_ref || github.ref_name }}
           access: public
+=======
+name: centreon-ui-context
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "centreon/packages/ui-context/**"
+    branches:
+      - develop
+
+env:
+  directory: "centreon/packages/ui-context"
+  centreon_directory: "centreon"
+  package: 'ui-context'
+  base_branch: develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ${{ env.centreon_directory }}
+
+      - name: Lint
+        run: pnpm eslint -o checkstyle.xml -f checkstyle
+        working-directory: ${{ env.directory }}
+
+      - name: Publish report
+        if: ${{ always() }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-ui-context-eslint-report
+          path: ${{ env.directory }}/checkstyle.xml
+
+  deliver-npm:
+    runs-on: ubuntu-22.04
+    needs: [lint, check-package-version]
+    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/npm-publish-package
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
+          release_type: "beta"
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}
+>>>>>>> 9c8d8e63a1 (enh(ci): remove paths to workflow files in workflows for components (#689))
