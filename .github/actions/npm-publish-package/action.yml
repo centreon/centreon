@@ -53,7 +53,7 @@ runs:
 
     - name: Configure git
       run: |
-        git config pull.rebase true
+        git config pull.rebase false
         git config user.email "technique-ci@centreon.com"
         git config user.name "technique-ci"
       shell: bash
@@ -67,7 +67,7 @@ runs:
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') }}
       run: |
-        git pull origin MON-improve-npm-publication-to-stable-state-test-push
+        git pull origin MON-improve-npm-publication-to-stable-state-test-push --allow-unrelated-histories
         git add .
         git commit -m "${{ steps.commit_message.outputs.commit_message }}"
         git push origin MON-improve-npm-publication-to-stable-state-test-push
