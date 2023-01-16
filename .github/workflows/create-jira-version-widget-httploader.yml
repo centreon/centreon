@@ -10,7 +10,6 @@ on:
       - "*.x"
       - "!dev*"
     paths:
-      - ".github/actions/release/action.yml"
       - "widgets/centreon-widget-httploader/**"
   workflow_dispatch:
 
