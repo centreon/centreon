@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-httploader.yml"
       - "widgets/centreon-widget-httploader/**"
   push:
     branches:
@@ -17,7 +16,6 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/centreon-widget-httploader.yml"
       - "widgets/centreon-widget-httploader/**"
     tags:
       - centreon-widget-httploader-*

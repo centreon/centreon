@@ -4,16 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
   push:
     branches:
-      - dev-22.10.x
-    paths:
-      - ".github/workflows/ui.yml"
-      - "centreon/packages/ui/**"
-    tags-ignore:
-      - ui-*
+      - develop
+  workflow_dispatch:
 
 env:
   version: "22.10"

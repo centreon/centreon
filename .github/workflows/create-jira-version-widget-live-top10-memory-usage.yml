@@ -10,8 +10,6 @@ on:
       - "*.x"
       - "!dev*"
     paths:
-      - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
   workflow_dispatch:
 
