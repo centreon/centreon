@@ -18,7 +18,6 @@ jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
     needs: check-package-version
-    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
