@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - develop
-  workflow_dispatch:
 
 env:
   version: "22.10"
