@@ -27,11 +27,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.head_ref }}
-        token: ${{ inputs.pat }}
-
     - uses: actions/setup-node@v3
       with:
         node-version: 17
@@ -64,13 +59,20 @@ runs:
         [[ ${{ inputs.release_type }} = "stable" ]] && echo "commit_message="THIS IS A TEST chore: release $VERSION"" >> $GITHUB_OUTPUT || echo "commit_message="THIS IS A TEST chore: pre-release $VERSION"" >> $GITHUB_OUTPUT
       shell: bash
 
+    - name: Moving to the ${{ inputs.release_branch }} branch
+      uses: actions/checkout@v3
+      if: ${{ inputs.release_type == "stable" }}
+      with:
+        ref: ${{ inputs.release_branch }}
+        token: ${{ inputs.pat }}
+
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') }}
       run: |
         git add .
         git commit -m "${{ steps.commit_message.outputs.commit_message }}"
-        git pull origin MON-improve-npm-publication-to-stable-state-test-push --allow-unrelated-histories
-        git push origin MON-improve-npm-publication-to-stable-state-test-push
+        git pull origin ${{ inputs.release_branch }} --allow-unrelated-histories
+        git push origin ${{ inputs.release_branch }}
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})

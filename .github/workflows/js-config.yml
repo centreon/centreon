@@ -30,9 +30,9 @@ jobs:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
-          release_branch: ${{ env.base_branch }}
+          release_branch: MON-improve-npm-publication-to-stable-state-test-push
           package: ${{ env.package }}
-          release_type: "beta"
+          release_type: "stable"
 
   check-package-version:
     runs-on: ubuntu-22.04
