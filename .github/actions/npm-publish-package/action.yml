@@ -27,6 +27,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+        token: ${{ inputs.pat }}
+
     - uses: actions/setup-node@v3
       with:
         node-version: 17
@@ -48,7 +53,7 @@ runs:
 
     - name: Configure git
       run: |
-        git config pull.rebase false
+        git config pull.rebase true
         git config user.email "technique-ci@centreon.com"
         git config user.name "technique-ci"
       shell: bash
