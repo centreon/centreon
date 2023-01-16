@@ -232,3 +232,22 @@ Feature:
     }
     """
     Then the response code should be "409"
+
+  Scenario: Create host category with an invalid payload
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+    """
+    {
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+    """
+    {
+        "name": "",
+        "alias": "host-cat-alias"
+    }
+    """
+    Then the response code should be "400"

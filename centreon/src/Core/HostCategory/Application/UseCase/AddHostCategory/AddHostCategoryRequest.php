@@ -29,5 +29,7 @@ final class AddHostCategoryRequest
 
     public string $alias = '';
 
+    public bool $isActivated = true;
+
     public ?string $comment = null;
 }
