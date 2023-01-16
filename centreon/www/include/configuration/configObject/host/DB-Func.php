@@ -1460,13 +1460,13 @@ function deleteHostServiceMultiTemplate($hID, $scndHID, $host_list, $antiLoop = 
     $dbResult->closeCursor();
 }
 
-function updateHost($host_id = null, $from_MC = false, $cfg = null)
+function updateHost($hostId = null, $from_MC = false, $cfg = null)
 {
     global $form, $pearDB, $centreon;
 
     $hostObj = new CentreonHost($pearDB);
 
-    if (!$host_id) {
+    if (!$hostId) {
         return;
     }
 
@@ -1504,30 +1504,24 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
-    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
-        unset($ret['host_snmp_community']);
-    }
+    // if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+    //     unset($ret['host_snmp_community']);
+    // }
     $bindParams = sanitizeFormHostParameters($ret);
 
     $rq = "UPDATE host SET ";
     foreach (array_keys($bindParams) as $token) {
-        if ($token === ':host_snmp_community' && preg_match('/^secret::\d+::/',$bindParams[$token][\PDO::PARAM_STR])) {
-            continue;
-        }
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
     }
     $rq = rtrim($rq, ', ');
     $rq .= " WHERE host_id = :hostId";
     $stmt = $pearDB->prepare($rq);
     foreach ($bindParams as $token => $bindValues) {
-        if ($token === ':host_snmp_community' && preg_match('/^secret::\d+::/',$bindParams[$token][\PDO::PARAM_STR])) {
-            continue;
-        }
         foreach ($bindValues as $paramType => $value) {
             $stmt->bindValue($token, $value, $paramType);
         }
     }
-    $stmt->bindValue(':hostId', $host_id, \PDO::PARAM_INT);
+    $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
     $stmt->execute();
 
     /*
@@ -1542,25 +1536,25 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
 
         $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                     FROM `host_template_relation`
-                                    WHERE `host_host_id` = '" . $host_id . "'");
+                                    WHERE `host_host_id` = '" . $hostId . "'");
         while ($hst = $dbResult->fetch()) {
             if (!isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($host_id, $hst['host_tpl_id'], $newTp);
+                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
             }
         }
 
         /* Set template */
-        $hostObj->setTemplates($host_id, $_REQUEST['tpSelect']);
+        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
     } elseif (isset($ret["use"]) && $ret["use"]) {
         $already_stored = array();
         $tplTab = preg_split("/\,/", $ret["use"]);
         $j = 0;
-        $DBRES = $pearDB->query("DELETE FROM `host_template_relation` WHERE `host_host_id` = '" . $host_id . "'");
+        $DBRES = $pearDB->query("DELETE FROM `host_template_relation` WHERE `host_host_id` = '" . $hostId . "'");
         foreach ($tplTab as $val) {
             $tplId = getMyHostID($val);
             if (!isset($already_stored[$tplId]) && $tplId) {
                 $rq = "INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`)
-                        VALUES (" . $host_id . ", " . $tplId . ", " . $j . ")";
+                        VALUES (" . $hostId . ", " . $tplId . ", " . $j . ")";
                 $dbResult = $pearDB->query($rq);
                 $j++;
                 $already_stored[$tplId] = 1;
@@ -1572,15 +1566,15 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
 
         $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                     FROM `host_template_relation`
-                                    WHERE `host_host_id` = '" . $host_id . "'");
+                                    WHERE `host_host_id` = '" . $hostId . "'");
         while ($hst = $dbResult->fetch()) {
             if (!isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($host_id, $hst['host_tpl_id'], $newTp);
+                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
             }
         }
 
         /* Set template */
-        $hostObj->setTemplates($host_id, array());
+        $hostObj->setTemplates($hostId, array());
     }
 
     /*
@@ -1599,7 +1593,7 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
             }
         }
         $hostObj->insertMacro(
-            $host_id,
+            $hostId,
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
             $_REQUEST['macroPassword'] ?? [],
@@ -1608,11 +1602,11 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
             $ret["command_command_id"]
         );
     } else {
-        $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . CentreonDB::escape($host_id) . "'");
+        $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . CentreonDB::escape($hostId) . "'");
     }
 
     if (isset($ret['criticality_id'])) {
-        setHostCriticality($host_id, $ret['criticality_id']);
+        setHostCriticality($hostId, $ret['criticality_id']);
     }
     //@TODO: Check if Macro value are passwords
 
@@ -1621,40 +1615,81 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {
-            $passwordTypeData = addHostSNMPCommunityToPasswordType($bindParams);
             $httpClient = new CentreonRestHttp();
             $logger = getLogger();
             $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-            $hostSecrets = getHostSecretsFromVault(
+            $hostSecretsFromVault = getHostSecretsFromVault(
                 $vaultConfiguration,
-                (int) $host_id,
+                (int) $hostId,
                 $clientToken,
                 $logger,
                 $httpClient
             );
+            $macros = $hostObj->getFormattedMacros();
+            $macroPasswordIds = [];
+            $formPasswordValues = ['_HOSTSNMPCOMMUNITY' => $ret['host_snmp_community']];
+            foreach($macros as $macroId => $macroInfos) {
+                if (
+                    $macroInfos['macroPassword'] === '1'
+                    && ! preg_match('/^secret::\d+::/', $macroInfos['macroValue'])
+                ) {
+                    $formPasswordValues[$macroInfos['macroName']] = $macroInfos['macroValue'];
+                    $macroPasswordIds[] = $macroId;
+                }
+            }
+            foreach(array_keys($hostSecretsFromVault) as $secretKey) {
+                if ($secretKey !== '_HOSTNSMPCOMMUNITY') {
+                    $macroName = [];
+                    foreach($macros as $macroId => $macroInfos) {
+                        $macroName[] = $macroInfos['macroName'];
+                    }
+                    if (! array_key_exists($secretKey, $macroName)) {
+                        unset($hostSecretsFromVault[$secretKey]);
+                    }
+                }
+            }
+            if (array_key_exists('_HOSTNSMPCOMMUNITY', $hostSecretsFromVault) && $ret['host_snmp_community'] === '') {
+                unset($hostSecretsFromVault['_HOSTNSMPCOMMUNITY']);
+            }
+
+            if ($ret['host_snmp_community'] === '') {
+                unset($formPasswordValues['_HOSTSNMPCOMMUNITY']);
+                unset($ret['host_snmp_community']);
+            }
+            if (array_key_exists('host_snmp_community', $ret) && $ret['host_snmp_community'] !== PASSWORD_REPLACEMENT_VALUE) {
+                $formPasswordValues['_HOSTSNMPCOMMUNITY'] = $ret['host_snmp_community'];
+            }
+
+            $result = array_diff($formPasswordValues, $hostSecretsFromVault);
+
+            foreach ($result as $key => $value) {
+                if ($value === PASSWORD_REPLACEMENT_VALUE || $value === '') {
+                    unset($result[$key]);
+                }
+            }
+            $newHostSecrets = array_merge($hostSecretsFromVault, $result);
 
             // If no more fields are password types, we delete the host from the vault has it will not be read.
-            if (
-                ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
-                && empty($passwordTypeData)
-                && ! empty($hostSecrets)
-            ) {
-                deleteHostFromVault($vaultConfiguration, (int) $host_id, $clientToken, $logger, $httpClient);
-            } elseif (! empty($passwordTypeData)) {
-                //Replace olds vault values by the new ones
-                foreach($passwordTypeData as $keyName => $value) {
-                    $hostSecrets[$keyName] = $value;
-                }
+            if (empty($newHostSecrets)) {
+                deleteHostFromVault($vaultConfiguration, (int) $hostId, $clientToken, $logger, $httpClient);
+            } else {
                 writeSecretsInVault(
                     $vaultConfiguration,
-                    $host_id,
+                    $hostId,
                     $clientToken,
-                    $hostSecrets,
+                    $newHostSecrets,
                     $logger,
                     $httpClient
                 );
-
-                updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
+                $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
+                    . $vaultConfiguration->getStorage()
+                    . "/monitoring/hosts/" . $hostId;
+                if (array_key_exists('_HOSTSNMPCOMMUNITY', $result)){
+                    updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
+                }
+                if (! empty($macroPasswordIds)) {
+                    updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+                }
             }
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1666,8 +1701,8 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
      */
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $host_id, CentreonDB::escape($ret["host_name"]), "c", $fields);
-    $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $host_id, "action" => "UPDATE"));
+    $centreon->CentreonLogAction->insertLog("host", $hostId, CentreonDB::escape($ret["host_name"]), "c", $fields);
+    $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"));
 }
 
 function updateHost_MC($host_id = null)
@@ -3174,18 +3209,25 @@ function deleteHostFromVault(
  * @param array<string,mixed> $bindParams
  * @return array<string,string>
  */
-function addHostSNMPCommunityToPasswordType(array $bindParams): array
+function getSecretsValues(array $bindParams, array $macros): array
 {
     //If the SNMP Community is defined and is not a vault path it should be updated.
-    if (
-        array_key_exists(':host_snmp_community', $bindParams)
-        && ! preg_match('/^secret::\d+::/', $bindParams[':host_snmp_community'][\PDO::PARAM_STR])
-        && $bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null
-    ) {
-        return [
-            '_HOSTSNMPCOMMUNITY' => $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
-        ];
+    $passwordTypeData = [];
+    foreach ($bindParams as $token => $bindValue) {
+        foreach ($bindValue as $value) {
+            if (preg_match('/^secret::\d+::/', $value)) {
+                continue 2;
+            }
+        }
+        if ($token === ':host_snmp_community') {
+            $passwordTypeData['_HOSTSNMPCOMMUNITY'] = $bindParams[$token][\PDO::PARAM_STR];
+        }
     }
 
-    return [];
+    foreach($macros as $macroInfos) {
+        if ($macroInfos['macroPassword'] === '1' && ! preg_match('/^secret::\d+::/', $macroInfos['macroValue'])) {
+            $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
+    }
+    return $passwordTypeData;
 }
