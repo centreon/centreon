@@ -36,6 +36,13 @@ runs:
         [[ ${{ inputs.release_type }} = "stable" ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
+    - name: Moving to the ${{ inputs.release_branch }} branch
+      uses: actions/checkout@v3
+      if: ${{ inputs.release_type == 'stable' }}
+      with:
+        ref: ${{ inputs.release_branch }}
+        token: ${{ inputs.pat }}
+
     - name: Update JS config version
       run: |
         echo ${{ env.TAG }}
@@ -59,16 +66,10 @@ runs:
         [[ ${{ inputs.release_type }} = "stable" ]] && echo "commit_message="THIS IS A TEST chore: release $VERSION"" >> $GITHUB_OUTPUT || echo "commit_message="THIS IS A TEST chore: pre-release $VERSION"" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Moving to the ${{ inputs.release_branch }} branch
-      uses: actions/checkout@v3
-      if: ${{ inputs.release_type == 'stable' }}
-      with:
-        ref: ${{ inputs.release_branch }}
-        token: ${{ inputs.pat }}
-
     - name: Commit and push changes
       if: ${{ startsWith(github.head_ref, 'MON') }}
       run: |
+        git status
         git add .
         git commit -m "${{ steps.commit_message.outputs.commit_message }}"
         git pull origin ${{ inputs.release_branch }} --allow-unrelated-histories
