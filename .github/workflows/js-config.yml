@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
 
       - uses: ./.github/actions/npm-publish-package
         with:
