@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget httploader releases
+name: Create centreon widget global health version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-httploader.yml"
-      - "widgets/centreon-widget-httploader/**"
+      - ".github/workflows/release-widget-global-health.yml"
+      - "widgets/centreon-widget-global-health/**"
   workflow_dispatch:
 
 env:
-  module: "widget-httploader"
+  module: "widget-global-health"
 
 jobs:
   release:
@@ -33,3 +33,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

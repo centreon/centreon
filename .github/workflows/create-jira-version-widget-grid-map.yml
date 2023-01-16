@@ -1,5 +1,5 @@
 ---
-name: Tag centreon widget host monitoring releases
+name: Create centreon widget graph monitoring version
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-host-monitoring.yml"
-      - "widgets/centreon-widget-host-monitoring/**"
+      - ".github/workflows/release-widget-graph-monitoring.yml"
+      - "widgets/centreon-widget-graph-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "widget-host-monitoring"
+  module: "widget-graph-monitoring"
 
 jobs:
   release:
@@ -33,3 +33,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
