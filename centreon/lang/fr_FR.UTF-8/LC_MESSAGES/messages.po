@@ -17298,3 +17298,24 @@ msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
 
 msgid "Error while searching for host severities"
 msgstr "Erreur durant la recherche de sévérités d'hôtes"
+
+msgid "You are not allowed to delete host severities"
+msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+
+msgid "Error while deleting host severity"
+msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
+
+msgid "Error while creating host severity"
+msgstr "Erreur lors de la création d'une sévérité d'hôtes"
+
+msgid "You are not allowed to create host severities"
+msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+
+msgid "Error while retrieving recently created host severity"
+msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+
+msgid "Host severity name already exists"
+msgstr "Ce nom de sévérité d'hôtes existe déjà"
+
+msgid "The host severity icon with id '%d' does not exist"
+msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"

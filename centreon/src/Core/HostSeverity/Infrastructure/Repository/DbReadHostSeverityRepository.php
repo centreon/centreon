@@ -112,6 +112,146 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $hostSeverityId): bool
+    {
+        $this->info('Check existence of host severity with id #' . $hostSeverityId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.hostcategories hc
+                WHERE hc.hc_id = :hostSeverityId
+                  AND hc.level IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostSeverityId', $hostSeverityId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $hostSeverityId, array $accessGroups): bool
+    {
+        $this->info(
+            'Check existence of host severity by access groups',
+            ['id' => $hostSeverityId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('Access groups array empty');
+
+            return false;
+        }
+
+        $concat = new SqlConcatenator();
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        // if host severities are not filtered in ACLs, then user has access to ALL host severities
+        if (! $this->hasRestrictedAccessToHostSeverities($accessGroupIds)) {
+            $this->info('Host severities access not filtered');
+
+            return $this->exists($hostSeverityId);
+        }
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.hostcategories hc
+                INNER JOIN `:db`.acl_resources_hc_relations arhr
+                    ON hc.hc_id = arhr.hc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+        $concat->appendWhere(
+            <<<'SQL'
+                WHERE hc.hc_id = :hostSeverityId
+                  AND hc.level IS NOT NULL
+                SQL
+        );
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->bindValue(':hostSeverityId', $hostSeverityId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(string $hostSeverityName): bool
+    {
+        $this->info('Check existence of host severity with name ' . $hostSeverityName);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostSeverityName'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostSeverityName', $hostSeverityName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $hostSeverityId): ?HostSeverity
+    {
+        $this->info('Get a host severity with id #' . $hostSeverityId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment, hc.level, hc.icon_id
+                FROM `:db`.hostcategories hc
+                WHERE hc.hc_id = :hostSeverityId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostSeverityId', $hostSeverityId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /** @var array{
+         *     hc_id: int,
+         *     hc_name: string,
+         *     hc_alias: string,
+         *     hc_activate: '0'|'1',
+         *     level: int,
+         *     icon_id: positive-int,
+         *     hc_comment: string|null
+         * } $result
+         */
+        return $this->createHostSeverityFromArray($result);
+    }
+
+    /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
@@ -121,7 +261,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
         SqlConcatenator $concatenator,
         ?RequestParametersInterface $requestParameters
     ): array {
-        // Exclude categories from the results
+        // Exclude severities from the results
         $concatenator->appendWhere('hc.level IS NOT NULL');
 
         // Settup for search, pagination, order
@@ -146,8 +286,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
 
         $hostSeverities = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /**
-             * @var array{
+            /** @var array{
              *     hc_id: int,
              *     hc_name: string,
              *     hc_alias: string,
@@ -155,8 +294,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
              *     level: int,
              *     icon_id: positive-int,
              *     hc_comment: string|null
-             * } $result
-             */
+             * } $result */
             $hostSeverities[] = $this->createHostSeverityFromArray($result);
         }
 

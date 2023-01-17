@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add host severity",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "level": {
+            "type": "integer"
+        },
+        "icon_id": {
+            "type": "integer"
+        },
+        "comments": {
+            "type": ["string","null"]
+        }
+    }
+}
