@@ -91,7 +91,20 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
-    return cy.get('li').eq(rootItemNumber).trigger('mouseover');
+    return cy
+      .get('li')
+      .eq(rootItemNumber)
+      .within(($li) => {
+        if ($li) {
+          return $li;
+        }
+
+        return cy
+          .reload()
+          .wait('@getNavigationList')
+          .hoverRootMenuItem(rootItemNumber);
+      })
+      .trigger('mouseover');
   }
 );
 
