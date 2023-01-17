@@ -244,25 +244,6 @@ describe('column sorting', () => {
     .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
   beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: fakeData
-    });
-
-    cy.mount({
-      Component: (
-        <Router>
-          <div style={{ backgroundColor: '#fff' }}>
-            <ListingTestWithJotai />
-          </div>
-        </Router>
-      )
-    });
-
-    cy.viewport(1200, 1000);
-
     columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
@@ -296,17 +277,34 @@ describe('column sorting', () => {
         response: retrievedListing
       });
     });
+
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: fakeData
+    });
+
+    cy.mount({
+      Component: (
+        <Router>
+          <ListingTestWithJotai />
+        </Router>
+      )
+    });
+
+    cy.viewport(1200, 1000);
   });
 
   columnToSort.forEach(({ label }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
       cy.waitForRequest('@filterRequest');
 
-      cy.findByLabelText(`Column ${label}`).click();
+      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest(`@dataToListingTableDesc${label}`);
 
-      cy.findByLabelText(`Column ${label}`).click();
+      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
 
       cy.waitForRequest(`@dataToListingTableAsc${label}`);
 
