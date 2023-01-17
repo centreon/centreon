@@ -159,9 +159,7 @@ const interceptRequestsAndMountBeforeEach = (
   cy.mount({
     Component: (
       <Router>
-        <div style={{ backgroundColor: '#fff' }}>
-          <ListingTestWithJotai />
-        </div>
+        <ListingTestWithJotai />
       </Router>
     )
   });
@@ -326,7 +324,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
@@ -337,7 +334,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -348,7 +344,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
@@ -359,7 +354,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
