@@ -58,13 +58,6 @@ function minimalValue(int $value): bool
  */
 function checkLdapFilterSyntax(string $filterValue): bool
 {
-    if (! preg_match('/=%s\)/', $filterValue)) {
-        return false;
-    }
-
-    if (! preg_match('/^(\s*\((?:[&|](?1)+|(?:!(?1))|[a-zA-Z][a-zA-Z0-9-]*[<>~]?=[^()]*)\s*\)\s*)$/', $filterValue)) {
-        return false;
-    }
-
-    return true;
+    return preg_match('/=%s\)/', $filterValue)
+        && preg_match('/^(\s*\((?:[&|](?1)+|(?:!(?1))|[a-zA-Z][a-zA-Z0-9-]*[<>~]?=[^()]*)\s*\)\s*)$/', $filterValue);
 }
