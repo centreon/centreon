@@ -21,6 +21,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
@@ -52,10 +56,13 @@ beforeEach(() => {
 });
 
 Given('an administrator deploying a new Centreon platform', () =>
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy
+    .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    .wait('@getLastestUserFilters')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
 );
 
 When('the administrator opens the authentication configuration menu', () => {
@@ -81,6 +88,7 @@ Given(
   'an administrator configuring a Centreon platform and an existing user account',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+      .wait('@getLastestUserFilters')
       .isInProfileMenu('Edit profile')
       .logout()
       .reload();
@@ -91,6 +99,7 @@ When(
   'the administrator sets a valid password length and sets all the letter cases',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: false })
+      .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
         rootItemNumber: 4
@@ -125,6 +134,7 @@ Then(
   'the existing user can not define a password that does not match the password case policy defined by the administrator and is notified about it',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+      .wait('@getLastestUserFilters')
       .isInProfileMenu('Edit profile')
       .should('be.visible');
 
@@ -155,12 +165,12 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account with password up to date',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).navigateTo(
-      {
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getLastestUserFilters')
+      .navigateTo({
         page: 'Authentication',
         rootItemNumber: 4
-      }
-    );
+      });
   }
 );
 
@@ -212,12 +222,12 @@ Then('the existing user can not authenticate and is notified about it', () => {
 Given(
   'an administrator configuring a Centreon platform and an existing user account with a first password',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).navigateTo(
-      {
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getLastestUserFilters')
+      .navigateTo({
         page: 'Authentication',
         rootItemNumber: 4
-      }
-    );
+      });
   }
 );
 
@@ -251,6 +261,7 @@ When(
 
 Then('user can not change password unless the minimum time has passed', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
+    .wait('@getLastestUserFilters')
     .isInProfileMenu('Edit profile')
     .should('be.visible');
 
@@ -339,17 +350,18 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  });
+  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    .wait('@getLastestUserFilters')
+    .navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    });
 });
 
 When(
   'the administrator adds or remove a user from the excluded user list',
   () => {
-    cy.reload()
-      .get('div[role="tablist"] button')
+    cy.get('div[role="tablist"] button')
       .eq(0)
       .contains('Password security policy');
 
@@ -413,12 +425,12 @@ Then(
 Given(
   'an administrator configuring a Centreon platform and an existing user account not blocked',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true }).navigateTo(
-      {
+    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+      .wait('@getLastestUserFilters')
+      .navigateTo({
         page: 'Authentication',
         rootItemNumber: 4
-      }
-    );
+      });
   }
 );
 
