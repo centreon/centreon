@@ -315,16 +315,12 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                name:
-                  type: "string"
-                  example: "host-category-name"
-                alias:
-                  type: "string"
-                  example: "host-category-alias"
+              $ref: "#/components/schemas/Configuration.Host.Category.Add"
       responses:
         '201':
           description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -5632,6 +5628,29 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
+        comments:
+          type: string
+          nullable: true
+          description: "some comments"
+    Configuration.Host.Category.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Host category name"
+          example: "host-category"
+        alias:
+          type: string
+          description: "Host category alias"
+          example: "host-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enable/disable)
+          example: true
+        comments:
+          type: string
+          nullable: true
+          description: "some comments"
     Configuration.Host.Severity:
       type: object
       properties:
