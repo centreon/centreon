@@ -464,9 +464,7 @@ describe('Display additional columns', () => {
 
     const chipLabel = `${acknowledgedEntity?.name} ${labelAcknowledged}`;
 
-    cy.findByLabelText(chipLabel, {
-      timeout: 10000
-    }).trigger('mouseover');
+    cy.findByLabelText(chipLabel).trigger('mouseover');
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
