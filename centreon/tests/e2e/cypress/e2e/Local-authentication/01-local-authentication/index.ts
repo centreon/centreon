@@ -390,6 +390,7 @@ Then('the password expiration policy is applied to the removed user', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
     .url()
     .should('include', '/reset-password');
+
   cy.visit('/centreon/login');
 });
 
@@ -446,12 +447,12 @@ Then('the user is locked after reaching the number of allowed attempts', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
     preserveToken: false
+  }).reload();
+
+  cy.loginByTypeOfUser({
+    jsonName: 'user-non-admin-with-wrong-password',
+    preserveToken: false
   })
-    .reload()
-    .loginByTypeOfUser({
-      jsonName: 'user-non-admin-with-wrong-password',
-      preserveToken: false
-    })
     .get('.SnackbarContent-root > .MuiPaper-root')
     .contains('User is blocked');
 
