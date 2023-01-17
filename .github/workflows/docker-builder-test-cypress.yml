@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/docker-builder-test-cypress.yml"
       - ".github/docker/Dockerfile.cypress"
   push:
     branches:
       - dev-21.10.x
     paths:
-      - ".github/workflows/docker-builder-test-cypress.yml"
       - ".github/docker/Dockerfile.cypress"
 
 env:
