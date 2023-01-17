@@ -135,13 +135,16 @@ const configureUserAtomViewMode = (
 };
 
 before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
   configureUserAtomViewMode();
 });
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
 ): void => {
+  const responseForToListingTable = interceptCriticalResources
+    ? retrievedListingWithCriticalResources
+    : retrievedListing;
+
   cy.interceptAPIRequest({
     alias: 'filterRequest',
     method: Method.GET,
@@ -152,9 +155,7 @@ const interceptRequestsAndMountBeforeEach = (
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: interceptCriticalResources
-      ? retrievedListingWithCriticalResources
-      : retrievedListing
+    response: responseForToListingTable
   });
   cy.mount({
     Component: (
