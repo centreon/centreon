@@ -27,6 +27,7 @@ beforeEach(() => {
     method: 'GET',
     url: 'centreon/api/latest/configuration/users?page=1&sort_by=%7B%22alias%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%7B%22provider_name%22%3A%7B%22%24eq%22%3A%22local%22%7D%7D%5D%7D'
   }).as('getListContact');
+
   getUserContactId('user1')
     .as('user1Id')
     .then(() => {
@@ -37,6 +38,7 @@ beforeEach(() => {
         }).as('user1CreationPasswordDate');
       });
     });
+
   getUserContactId('user2')
     .as('user2Id')
     .then(() => {
