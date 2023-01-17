@@ -379,6 +379,18 @@ paths:
       summary: "List all host severities"
       description: |
         List of all host severity configurations
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * level
+        * is_activated
+
+        Changes in 23.04 :
+
+        * `icon` was renamed `icon_id` and is no longer an object but the image ID
       responses:
         "200":
           description: "OK"
@@ -5670,9 +5682,10 @@ components:
           type: integer
           description: "Host severity priority"
           example: 2
-        icon:
-          $ref: '#/components/schemas/Media.Image'
-          description: "Define the image associated with this severity"
+        icon_id:
+          type: integer
+          description: "Define the image ID associated with this severity"
+          example: 1
         comments:
           type: string
           description: "Host severity comments"
