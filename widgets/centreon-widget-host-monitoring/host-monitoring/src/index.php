@@ -255,7 +255,8 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter, $mainQueryParameters);
 $res->execute();
 
-$nbRows = $dbb->numberRows();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()
+
 $data = array();
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;

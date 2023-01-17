@@ -165,7 +165,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
-$nbRows = $dbb->numberRows();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 $kernel = \App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
