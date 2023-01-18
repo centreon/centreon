@@ -41,3 +41,4 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_type: "stable"
+          version: "dev-22.04.x"
