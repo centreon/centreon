@@ -2,11 +2,11 @@ import { RenderResult, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'jotai';
 
 import { render } from '../testRenderer';
-import CentreonLogoLight from '../../assets/centreon-logo-light.svg';
+import CentreonLogoLight from '../../assets/centreon-logo-one-line-light.svg';
 
 import Image from './Image';
 
-jest.mock('../../assets/centreon-logo-light.svg');
+jest.mock('../../assets/centreon-logo-one-line-light.svg');
 
 const renderImage = (): RenderResult =>
   render(

@@ -42,8 +42,6 @@ try {
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
 
-    $errorMessage = "Impossible to add column 'host_snmp_community_is_password' to host table";
-    addSNMPCommunityIsPasswordColumn($pearDB);
     // Transactional queries
     $pearDB->beginTransaction();
 
@@ -111,26 +109,5 @@ function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
         $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
         $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
         $statement->execute();
-    }
-}
-
-/**
- * Add host_snmp_community_is_password column to host table.
- * This column purpose is to save the SNMP Community has a password and avoid display of sensitive information in UI.
- * If Vault Configurations exists the SNMP Community will be added to the vault if it's a password.
- *
- * @param CentreonDB $pearDB
- * @return void
- */
-function addSNMPCommunityIsPasswordColumn(CentreonDB $pearDB): void
-{
-    if ($pearDB->isColumnExist('host', 'host_snmp_community_is_password') === 0) {
-        $pearDB->query(
-            <<<'SQL'
-                ALTER TABLE `host`
-                ADD COLUMN host_snmp_community_is_password enum('0','1') DEFAULT '0' NOT NULL
-                AFTER `host_snmp_community`
-            SQL
-        );
     }
 }
