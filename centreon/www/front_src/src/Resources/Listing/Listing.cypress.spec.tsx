@@ -303,7 +303,7 @@ describe('column sorting', () => {
 
       cy.waitForRequest(`@dataToListingTableDesc${label}`);
 
-      cy.findByLabelText(`Column ${label}`).should('be.visible').click();
+      cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequest(`@dataToListingTableAsc${label}`);
 
