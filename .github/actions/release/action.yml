@@ -10,6 +10,7 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+
 runs:
   using: "composite"
   steps:
