@@ -5,7 +5,7 @@
   "scripts": {
     "build:libs:swc:only": "(cd packages/ui-context && pnpm build:swc:only) && (cd packages/ui && pnpm build:swc:only)",
     "build:libs": "(cd packages/ui-context && pnpm build:lib) && (cd packages/ui && pnpm build:lib)",
-    "build:libs:watch": "pnpm build:libs:swc:only && pm2 start packages-ecosystem.config.js",
+    "build:libs:watch": "pnpm build:libs && pm2 start packages-ecosystem.config.js",
     "build": "pnpm build:libs && webpack --mode production --config ./webpack.config.prod.js",
     "build:analyze": "pnpm build:libs && webpack --mode production --config ./webpack.config.analyze.js",
     "build:dev": "pnpm build:libs:watch && cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
