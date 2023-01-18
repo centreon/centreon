@@ -15,6 +15,11 @@ runs:
       with:
         version: 7
 
+    - name: Build packages
+      run: pnpm build:libs
+      working-directory: ${{ inputs.module }}
+      shell: bash
+
     - uses: mad9000/actions-find-and-replace-string@2
       id: formatSpecFilePath
       with:
@@ -29,7 +34,6 @@ runs:
         component: true
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
-        command: pnpm cypress:cli
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
         publish-summary: false
 
