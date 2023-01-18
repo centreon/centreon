@@ -6,7 +6,12 @@ import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { makeStyles, withStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { TableCell, TableCellBaseProps, TableHead, TableRow } from '@mui/material';
+import {
+  TableCell,
+  TableCellBaseProps,
+  TableHead,
+  TableRow
+} from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -155,7 +160,12 @@ const ListingHeader = ({
     <TableHead className={cx(classes.row, 'listingHeader')} component="div">
       <TableRow className={classes.row} component="div">
         {checkable && (
-          <TableCell className={classes.checkboxHeaderCell} component={"div" as unknown as React.ElementType<TableCellBaseProps>}>
+          <TableCell
+            className={classes.checkboxHeaderCell}
+            component={
+              'div' as unknown as React.ElementType<TableCellBaseProps>
+            }
+          >
             <Checkbox
               checked={hasRows && selectedRowCount === rowCount}
               className={classes.checkbox}

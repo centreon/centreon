@@ -227,7 +227,10 @@ const AutocompleteField = ({
       renderInput={renderInput}
       renderOption={(props, option): JSX.Element => {
         return (
-          <li className={classes.options} {...props as React.HTMLAttributes<HTMLLIElement>}>
+          <li
+            className={classes.options}
+            {...(props as React.HTMLAttributes<HTMLLIElement>)}
+          >
             <Option
               thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
             >

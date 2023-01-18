@@ -16,7 +16,7 @@ runs:
         version: 7
 
     - name: Build packages
-      run: pnpm build:libs
+      run: pnpm i && pnpm build:libs
       working-directory: ${{ inputs.module }}
       shell: bash
 

@@ -84,11 +84,11 @@ const PopoverMenu = ({
           <Popper
             open
             anchorEl={anchorEl}
+            nonce={undefined}
             placement={popperPlacement}
             style={{ zIndex: theme.zIndex.tooltip }}
-            nonce={undefined}
-            onResize={() => undefined}
-            onResizeCapture={() => undefined}
+            onResize={(): undefined => undefined}
+            onResizeCapture={(): undefined => undefined}
           >
             <Paper>{children({ close })}</Paper>
           </Popper>
