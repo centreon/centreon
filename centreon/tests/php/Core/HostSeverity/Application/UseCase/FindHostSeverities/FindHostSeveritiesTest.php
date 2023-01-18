@@ -90,7 +90,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostSeverityException::findHostSeverities(new Exception())->getMessage());
 });
 
-it('should present a ForbiddenResponse when a non-admin user has unsufficient rights', function (): void {
+it('should present a ForbiddenResponse when a non-admin user has insufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
