@@ -264,8 +264,30 @@ Feature:
     }
     """
 
+    # conflict on name
+    When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
+    """
+    {
+        "name": "host-sev-name",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comments": "blablabla"
+    }
+    """
+    Then the response code should be "409"
+
+    # missing mandatory fields
     When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
     """
     { "not_exists": "foo-bar" }
     """
     Then the response code should be "400"
+    And the JSON should be equal to:
+    """
+    {
+        "code": 400,
+        "message": "[name] The property name is required\n[alias] The property alias is required\n[level] The property level is required\n[icon_id] The property icon_id is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
+    }
+    """

@@ -435,11 +435,13 @@ paths:
         '201':
           description: "OK"
         '400':
-          $ref: '#/components/responses/Conflict'
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/severities/{host_severity_id}:

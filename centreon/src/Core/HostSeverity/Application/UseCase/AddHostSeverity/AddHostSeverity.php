@@ -94,6 +94,7 @@ final class AddHostSeverity
                     $request->level,
                     $request->iconId,
                 );
+                $newHostSeverity->setActivated($request->isActivated);
                 $newHostSeverity->setComment($request->comment ? trim($request->comment) : null);
 
                 $hostSeverityId = $this->writeHostSeverityRepository->add($newHostSeverity);

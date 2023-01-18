@@ -55,11 +55,12 @@ final class AddHostSeverityController extends AbstractController
 
         try {
             /** @var array{
-             *     name:string,
-             *     alias:string,
-             *     level:int,
-             *     icon_id:positive-int,
-             *     comments:string|null
+             *     name: string,
+             *     alias: string,
+             *     level: int,
+             *     icon_id: positive-int,
+             *     is_activated?: bool,
+             *     comments?: string|null
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostSeveritySchema.json');
@@ -80,11 +81,12 @@ final class AddHostSeverityController extends AbstractController
 
     /**
      * @param array{
-     *     name:string,
-     *     alias:string,
-     *     level:int,
-     *     icon_id:positive-int,
-     *     comments:string|null
+     *     name: string,
+     *     alias: string,
+     *     level: int,
+     *     icon_id: positive-int,
+     *     is_activated?: bool,
+     *     comments?: string|null
      * } $data
      *
      * @return AddHostSeverityRequest
@@ -96,6 +98,7 @@ final class AddHostSeverityController extends AbstractController
         $hostSeverityRequest->alias = $data['alias'];
         $hostSeverityRequest->level = $data['level'];
         $hostSeverityRequest->iconId = $data['icon_id'];
+        $hostSeverityRequest->isActivated = $data['is_activated'] ?? true;
         $hostSeverityRequest->comment = $data['comments'] ?? null;
 
         return $hostSeverityRequest;

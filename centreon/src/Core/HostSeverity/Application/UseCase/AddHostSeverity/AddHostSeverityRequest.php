@@ -34,5 +34,7 @@ final class AddHostSeverityRequest
     /** @var int<0, max> */
     public int $iconId = 0;
 
+    public bool $isActivated = true;
+
     public ?string $comment = null;
 }

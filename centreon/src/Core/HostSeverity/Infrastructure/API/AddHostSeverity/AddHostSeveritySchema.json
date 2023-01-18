@@ -5,7 +5,9 @@
     "additionalProperties": false,
     "required": [
         "name",
-        "alias"
+        "alias",
+        "level",
+        "icon_id"
     ],
     "properties": {
         "name": {
@@ -19,6 +21,9 @@
         },
         "icon_id": {
             "type": "integer"
+        },
+        "is_activated": {
+            "type": "boolean"
         },
         "comments": {
             "type": ["string","null"]
