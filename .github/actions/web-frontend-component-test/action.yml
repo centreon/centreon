@@ -29,6 +29,7 @@ runs:
         component: true
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
+        command: pnpm cypress:cli
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
         publish-summary: false
 

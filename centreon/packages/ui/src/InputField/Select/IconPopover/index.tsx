@@ -102,6 +102,9 @@ const IconPopoverMultiAutocomplete = ({
           open={isOpen}
           placement={popperPlacement}
           style={{ zIndex: theme.zIndex.tooltip }}
+          nonce={undefined}
+          onResize={() => undefined}
+          onResizeCapture={() => undefined}
         >
           <Paper>
             {!isNil(onReset) && (
