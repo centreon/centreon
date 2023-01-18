@@ -89,6 +89,18 @@ try {
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
 
+    // check if entry ldap_connection_timeout exist
+    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout' and ari_value != ''");
+    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
+// insert entry ldap_connection_timeout  with default value
+    if (! $ldapResult) {
+        $errorMessage = "Unable to add default ldap connection timeout";
+        $pearDB->query(
+            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
+                        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
+        );
+    }
+
     // Transactional queries
     $pearDB->beginTransaction();
 

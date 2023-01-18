@@ -111,12 +111,6 @@ try {
     $errorMessage = "Unable to delete 'appKey' information from database";
     $pearDB->query("DELETE FROM `informations` WHERE `key` = 'appKey'");
 
-    $errorMessage = "Unable to add default ldap connection timeout";
-    $pearDB->query(
-        "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
-        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
-    );
-
     $errorMessage = "Impossible to add new BBDO streams";
     createBbdoStreamConfigurationForms($pearDB);
 

@@ -15823,6 +15823,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Confirm"
 #  msgstr "Confirme"
 
+#  msgid "Bad LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
 #  msgid "Vault configuration with these properties already exists"
 #  msgstr ""
 
