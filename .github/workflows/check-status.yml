@@ -1,0 +1,63 @@
+name: check-status
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+
+jobs:
+  check-status:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          sleep 30s
+
+          ITERATIONS=1
+          while [[ $ITERATIONS -le 60 ]]; do
+              CHECK_SUITES=$(gh api -H "Accept: application/vnd.github+json" /repos/centreon/centreon/commits/${{ github.event.pull_request.head.sha }}/check-suites | jq '. | .check_suites[] | select(.app.slug == "github-actions")' | jq -r '.conclusion // "pending"') || true
+
+              if [ $(echo $CHECK_SUITES | grep -o -i 'pending' | wc -l) -eq 0 ]; then
+                  echo "Cannot get pull request check status"
+                  exit 1
+              fi
+
+              if [ $(echo $CHECK_SUITES | wc -w) -eq 1 ]; then
+                  echo "this job is the only triggered one"
+                  exit 0
+              fi
+
+              if [ $(echo $CHECK_SUITES | grep -o -i 'failure' | wc -l) -gt 0 ]; then
+                  echo "some jobs have failed"
+                  exit 1
+              fi
+
+              # only remaining pending job should be check-status itself
+              if [ $(echo $CHECK_SUITES | grep -o -i 'pending' | wc -l) -eq 1 ]; then
+                  echo "all jobs have passed"
+                  exit 0
+              fi
+
+              if [ $ITERATIONS -lt 60 ]; then
+                  echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/60)"
+                  sleep 60s
+              fi
+
+              ITERATIONS=$((ITERATIONS+1))
+          done
+
+          echo "Timeout : some jobs are still in progress"
+          exit 1
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

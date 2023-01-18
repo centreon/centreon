@@ -1,5 +1,3 @@
-import { Typography } from '@mui/material';
-
 import { StatusChip } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
@@ -7,7 +5,8 @@ import { useColumnStyles } from '.';
 
 const ParentResourceColumn = ({
   row,
-  isHovered
+  isHovered,
+  renderEllipsisTypography
 }: ComponentColumnProps): JSX.Element | null => {
   const { classes } = useColumnStyles({ isHovered });
 
@@ -16,14 +15,19 @@ const ParentResourceColumn = ({
   }
 
   return (
-    <div className={classes.resourceDetailsCell}>
-      <StatusChip severityCode={row.parent?.status?.severity_code || 0} />
-      <div className={classes.resourceNameItem}>
-        <Typography className={classes.resourceNameText} variant="body2">
-          {row.parent.name}
-        </Typography>
+    <>
+      <div className={classes.resourceDetailsCell}>
+        <StatusChip
+          className={classes.extraSmallChip}
+          severityCode={row.parent?.status?.severity_code || 0}
+          size="small"
+        />
       </div>
-    </div>
+      {renderEllipsisTypography?.({
+        className: classes.resourceNameText,
+        formattedString: row.parent?.name || ''
+      })}
+    </>
   );
 };
 

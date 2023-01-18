@@ -3,40 +3,65 @@ import * as React from 'react';
 import { always, and, equals, ifElse, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { TableCellBaseProps, TableSortLabel, Tooltip } from '@mui/material';
-import DragIndicatorIcon from '@mui/icons-material/MoreVert';
+import {
+  TableCell,
+  TableCellBaseProps,
+  TableSortLabel,
+  Tooltip
+} from '@mui/material';
+
+import { ListingVariant } from '@centreon/ui-context';
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
 import HeaderLabel from '../Label';
-import { HeaderCell } from '..';
-import { useStyles as useCellStyles } from '../../Cell/DataCell';
+import { getTextStyleByViewMode } from '../../useStyleTable';
 
-type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay'>;
+import DraggableIcon from './DraggableIcon';
+
+type StylesProps = Pick<Props, 'isDragging' | 'isInDragOverlay' | 'viewMode'>;
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, isInDragOverlay }) => ({
+  (theme, { isDragging, isInDragOverlay, viewMode }) => ({
+    active: {
+      '&.Mui-active': {
+        '& .MuiTableSortLabel-icon': {
+          color: theme.palette.common.white
+        },
+        color: theme.palette.common.white
+      },
+      '&:hover': {
+        '& .MuiTableSortLabel-icon': {
+          opacity: 1
+        },
+        color: theme.palette.common.white
+      }
+    },
     content: {
       alignItems: 'center',
+      borderRadius: isDragging && isInDragOverlay ? theme.spacing(0.5) : 0,
+      color: theme.palette.common.white,
       display: 'flex',
-      minHeight: theme.spacing(3),
-      padding: theme.spacing(0, 1.5)
+      minHeight: theme.spacing(3)
     },
     dragHandle: {
-      alignSelf: 'flex-start',
+      alignSelf: 'center',
       cursor: isDragging ? 'grabbing' : 'grab',
       display: 'flex',
-      marginLeft: -theme.spacing(1),
       outline: 'none'
     },
-    item: {
-      background: isInDragOverlay
+    simpleHeaderCellContent: {
+      alignItems: 'center',
+      display: 'inline-flex',
+      marginRight: theme.spacing(2)
+    },
+    tableCell: {
+      backgroundColor: isInDragOverlay
         ? 'transparent'
-        : theme.palette.background.paper,
-      border: isInDragOverlay ? 'none' : undefined,
-      borderBottom: isInDragOverlay
-        ? 'none'
-        : `1px solid ${theme.palette.text.primary}`
+        : theme.palette.background.listingHeader,
+      borderBottom: 'none',
+      padding: 0,
+      ...getTextStyleByViewMode({ theme, viewMode })
     }
   })
 );
@@ -45,15 +70,17 @@ type Props = Pick<
   ListingProps<unknown>,
   'columnConfiguration' | 'sortField' | 'sortOrder' | 'onSort'
 > & {
+  areColumnsEditable: boolean;
+  className: string;
   column: Column;
   isDragging?: boolean;
   isInDragOverlay?: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   style;
+  viewMode?: ListingVariant;
 };
 
 const SortableHeaderCellContent = ({
-  isInDragOverlay,
   column,
   columnConfiguration,
   sortField,
@@ -62,10 +89,17 @@ const SortableHeaderCellContent = ({
   isDragging,
   itemRef,
   style,
+  isInDragOverlay,
+  areColumnsEditable,
+  viewMode,
   ...props
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ isDragging, isInDragOverlay });
-  const { classes: cellClasses } = useCellStyles();
+  const { classes, cx } = useStyles({
+    isDragging,
+    isInDragOverlay,
+    viewMode
+  });
+  const [cellHovered, setCellHovered] = React.useState(false);
 
   const columnLabel = column.shortLabel || column.label;
 
@@ -85,45 +119,55 @@ const SortableHeaderCellContent = ({
     });
   };
 
+  const mouseOver = (): void => {
+    setCellHovered(true);
+  };
+
+  const mouseOut = (): void => {
+    setCellHovered(false);
+  };
+
   const headerContent = (
     <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
-      <div>
-        <HeaderLabel>{columnLabel}</HeaderLabel>
-      </div>
+      <HeaderLabel>{columnLabel}</HeaderLabel>
     </Tooltip>
   );
 
   return (
-    <HeaderCell
-      className={cx([cellClasses.cell, classes.item])}
+    <TableCell
+      className={classes.tableCell}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
-      padding={column.compact ? 'none' : 'normal'}
+      ref={itemRef}
+      style={style}
+      onMouseOut={mouseOut}
+      onMouseOver={mouseOver}
     >
-      <div className={classes.content} ref={itemRef} style={style}>
-        {columnConfiguration?.sortable && (
-          <div
-            className={classes.dragHandle}
+      <div className={classes.content}>
+        {columnConfiguration?.sortable && areColumnsEditable && (
+          <DraggableIcon
+            visible={cellHovered}
             {...props}
-            aria-label={columnLabel}
-          >
-            <DragIndicatorIcon fontSize="small" />
-          </div>
+            isInteractive
+            className={cx({ [classes.dragHandle]: cellHovered })}
+            columnLabel={columnLabel}
+          />
         )}
 
         {column.sortable ? (
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
+            className={classes.active}
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
             {headerContent}
           </TableSortLabel>
         ) : (
-          headerContent
+          <div className={classes.simpleHeaderCellContent}>{headerContent}</div>
         )}
       </div>
-    </HeaderCell>
+    </TableCell>
   );
 };
 

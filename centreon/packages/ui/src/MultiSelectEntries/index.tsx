@@ -5,8 +5,8 @@ import { Ref } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { CxArg } from 'tss-react';
 
-import { Box, Chip, Grid, FormHelperText, Typography } from '@mui/material';
 import IconCreate from '@mui/icons-material/Create';
+import { Box, Chip, FormHelperText, Grid, Typography } from '@mui/material';
 
 import useHover from './useHover';
 
@@ -49,15 +49,25 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Entry = ({ label }): JSX.Element => {
+interface EntryProps {
+  gridWidth?: 'auto' | number;
+  label: string;
+  size?: 'small' | 'medium';
+}
+
+const EntryChip = ({
+  label,
+  size = 'small',
+  gridWidth = 6
+}: EntryProps): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <Grid item xs={6}>
+    <Grid item xs={gridWidth}>
       <Chip
         className={classes.chip}
         label={<div className={classes.labelChip}>{label}</div>}
-        size="small"
+        size={size}
       />
     </Grid>
   );
@@ -91,9 +101,11 @@ interface Value {
 interface Props {
   emptyLabel: string;
   error?;
+  gridWidth?: 'auto' | number;
   highlight?: boolean;
   label: string;
   onClick: () => void;
+  size?: 'small' | 'medium';
   values?: Array<Value>;
 }
 
@@ -103,7 +115,9 @@ const MultiSelectEntries = ({
   onClick,
   values = [],
   highlight = false,
-  error = undefined
+  error = undefined,
+  size,
+  gridWidth
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
@@ -141,9 +155,9 @@ const MultiSelectEntries = ({
       </Box>
       <Grid container justifyContent="flex-start">
         {values.slice(0, maxChips).map(({ id, name }) => (
-          <Entry key={id} label={name} />
+          <EntryChip gridWidth={gridWidth} key={id} label={name} size={size} />
         ))}
-        {count > maxChips && <Entry label="..." />}
+        {count > maxChips && <EntryChip label="..." />}
       </Grid>
       {count === 0 && <EmptyEntry label={emptyLabel} />}
       {error && <FormHelperText error>{error}</FormHelperText>}

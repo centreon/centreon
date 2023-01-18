@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import IconAcknowledge from '@mui/icons-material/Person';
@@ -25,7 +25,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexWrap: 'nowrap',
-    gridGap: theme.spacing(0.75),
+    gridGap: theme.spacing(0.25),
     justifyContent: 'center'
   },
   statusColumn: {
@@ -131,9 +131,9 @@ const StatusColumn = ({
           <StatusColumnOnHover actions={actions} row={row} />
         ) : (
           <StatusChip
+            statusColumn
             label={t(statusName)}
             severityCode={row.status.severity_code}
-            style={{ height: 20, width: '100%' }}
           />
         )}
       </div>

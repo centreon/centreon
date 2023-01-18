@@ -1,5 +1,6 @@
 name: js-config-automerge
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - labeled
@@ -11,7 +12,6 @@ on:
       - reopened
       - unlocked
     paths:
-      - ".github/workflows/js-config-automerge.yml"
       - "centreon/packages/js-config/**"
   check_suite:
     types:

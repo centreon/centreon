@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.10-MON-build-npm-packages.22",
+  "version": "23.4.14",
   "description": "Centreon UI Components",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "storybook": "pnpm build:ui-context && start-storybook -p 9001 -c .storybook",
     "build:storybook": "pnpm build:ui-context && build-storybook -c .storybook -o .out",
     "test": "pnpm build:ui-context && node testRunner.js",
-    "test:storyshot": "pnpm build:ui-context && node testRunner.js storyshots.test.js",
+    "test:storyshot": "pnpm build:ui-context && pnpm test storyshots.test.js",
     "test:ci": "pnpm build:ui-context && node testRunner.js --silent --reporter=jest-junit",
     "build:swc:only": "swc src --out-dir dist --sync --config-file ../js-config/swc/base.json",
     "build:lib": "pnpm build:swc:only && tsc",
@@ -19,7 +19,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/centreon-frontend.git"
+    "url": "git+https://github.com/centreon/centreon.git"
   },
   "keywords": [
     "centreon",
@@ -28,9 +28,9 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/centreon-frontend/issues"
+    "url": "https://github.com/centreon/centreon/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "homepage": "https://github.com/centreon/centreon#readme",
   "devDependencies": {
     "@mdx-js/react": "^2.1.4",
     "@storybook/addon-essentials": "^6.5.11",

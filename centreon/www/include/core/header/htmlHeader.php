@@ -284,7 +284,7 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
                 }
             }
             ?>
-            check_session(<?php $tM ?>);
+            check_session(<?php echo $tM ?>);
         });
     </script>
     <script src="./include/common/javascript/xslt.js" type="text/javascript"></script>

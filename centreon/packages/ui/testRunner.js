@@ -3,6 +3,7 @@
 const config = {
   story: null
 };
+
 const argv = process.argv.slice(0, 2);
 
 process.argv.reduce((cmd, arg) => {
@@ -27,6 +28,8 @@ process.argv.reduce((cmd, arg) => {
 
   argv.push(arg);
 });
+
+process.argv = argv;
 
 process.env.TEST_CONFIGURATION = JSON.stringify(config);
 

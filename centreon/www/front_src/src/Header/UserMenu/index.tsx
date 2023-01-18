@@ -113,7 +113,7 @@ const useStyles = makeStyles()((theme) => ({
     paddingLeft: theme.spacing(3)
   },
   listItem: {
-    '&:first-child': {
+    '&:first-of-type': {
       borderBottom: `1px solid ${theme.palette.divider}`
     },
     '&:hover': {
@@ -124,7 +124,7 @@ const useStyles = makeStyles()((theme) => ({
         ? theme.palette.common.white
         : theme.palette.primary.main
     },
-    '&:last-child': {
+    '&:last-of-type': {
       borderTop: `1px solid ${theme.palette.divider}`
     },
     padding: theme.spacing(1)

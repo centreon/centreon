@@ -41,24 +41,6 @@ interface HostGroupServiceInterface
     public function addGroup(HostGroup $group): void;
 
     /**
-     * Find all host groups (for non admin user).
-     *
-     * @return HostGroup[]
-     * @throws HostGroupException
-     * @throws RepositoryException
-     */
-    public function findAllWithAcl(): array;
-
-    /**
-     * Find all host groups (for admin user).
-     *
-     * @return HostGroup[]
-     * @throws HostGroupException
-     * @throws RepositoryException
-     */
-    public function findAllWithoutAcl(): array;
-
-    /**
      * Find host groups by name (for admin user).
      *
      * @param string[] $groupsName List of names of host groups to be found
