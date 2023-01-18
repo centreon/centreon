@@ -3,6 +3,7 @@ import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
+import AbcIcon from '@mui/icons-material/Abc';
 
 import TextField from '.';
 
@@ -93,4 +94,14 @@ const ControlledTextFieldWithAutoSize = (): JSX.Element => {
 
 export const AutoSizeControlled = (): JSX.Element => (
   <ControlledTextFieldWithAutoSize />
+);
+
+export const autoSizeWithEndAdornment = (): JSX.Element => (
+  <TextField
+    autoSize
+    EndAdornment={AbcIcon}
+    autoSizeCustomPadding={10}
+    autoSizeDefaultWidth={60}
+    placeholder="Auto size"
+  />
 );

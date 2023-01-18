@@ -59,15 +59,10 @@ const OptionalLabelInputAdornment = ({
   position,
   children
 }: OptionalLabelInputAdornmentProps): JSX.Element => {
-  const { classes } = useStyles({ displayAsBlock: false });
   const noMarginWhenNoLabel = !label && { style: { marginTop: 0 } };
 
   return (
-    <InputAdornment
-      {...noMarginWhenNoLabel}
-      className={classes.endAdornment}
-      position={position}
-    >
+    <InputAdornment {...noMarginWhenNoLabel} position={position}>
       {children}
     </InputAdornment>
   );
