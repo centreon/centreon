@@ -10,7 +10,7 @@ import WrenchIcon from '@mui/icons-material/Build';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   ContentWithCircularLoading,
@@ -54,7 +54,7 @@ interface Props {
   timeline?: Array<TimelineEvent>;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
@@ -72,7 +72,7 @@ const GraphActions = ({
   renderAdditionalGraphActions,
   getDisplayAdditionalLinesCondition
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const { t } = useTranslation();
   const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
