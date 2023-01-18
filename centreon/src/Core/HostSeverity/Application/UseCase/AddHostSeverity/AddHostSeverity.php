@@ -81,7 +81,7 @@ final class AddHostSeverity
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
                 $this->error(
-                    'Host severity icon does not exists',
+                    'Host severity icon does not exist',
                     ['hostseverity_name' => trim($request->name)]
                 );
                 $presenter->setResponseStatus(

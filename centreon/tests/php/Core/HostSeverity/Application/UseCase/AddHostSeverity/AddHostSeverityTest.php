@@ -100,7 +100,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostSeverityException::addNotAllowed()->getMessage());
 });
 
-it('should present an ConflictResponse when name is already used', function (): void {
+it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -146,7 +146,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->toBe($expectedException->getMessage());
 });
 
-it('should throw an ConflictResponse if the host severity icon does not exist', function (): void {
+it('should throw a ConflictResponse if the host severity icon does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
