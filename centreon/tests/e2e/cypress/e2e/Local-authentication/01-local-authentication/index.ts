@@ -98,7 +98,7 @@ Given(
 When(
   'the administrator sets a valid password length and sets all the letter cases',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: false })
+    cy.loginByTypeOfUser({ jsonName: 'admina', preserveToken: false })
       .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
