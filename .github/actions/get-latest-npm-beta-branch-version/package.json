@@ -9,6 +9,6 @@
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "node-fetch": "^3.3.0"
+    "node-fetch": "2"
   }
 }
