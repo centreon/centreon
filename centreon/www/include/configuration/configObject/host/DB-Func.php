@@ -3096,6 +3096,7 @@ function writeSecretsInVault(
  * @param \CentreonDB $pearDB
  * @param string $hostPath
  * @param integer $hostId
+ * @throws \Throwable
  */
 function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int $hostId): void
 {
@@ -3115,6 +3116,7 @@ function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int
  * @param \CentreonDB $pearDB
  * @param int[] $macroIds
  * @param string $hostPath
+ * @throws \Throwable
  */
 function updateOnDemandMacroHostTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $hostPath): void
 {
