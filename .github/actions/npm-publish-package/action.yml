@@ -31,6 +31,16 @@ runs:
       with:
         node-version: 18
 
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Install action dependencies
+      if: ${{ inputs.release_type == 'beta' }}
+      run: pnpm install
+      working-directory: ./.github/actions/npm-publish-package
+      shell: bash
+
     - uses: ./.github/actions/get-latest-npm-beta-branch-version
       if: ${{ inputs.release_type == 'beta' }}
       id: get-latest-npm-beta-branch-version
