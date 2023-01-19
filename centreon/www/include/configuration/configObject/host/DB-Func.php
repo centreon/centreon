@@ -1161,9 +1161,9 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     //Check if a vault configuration exists
     $vaultConfiguration = getVaultConfiguration();
 
-    //If there is a vault configuration and host snmp community is defined, write into vault
     if ($vaultConfiguration !== null) {
         try {
+            //store SNMP Community and password macros
             $passwordTypeData = [];
             if ($bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
                 $passwordTypeData[SNMP_COMMUNITY_MACRO_NAME] = $bindParams[':host_snmp_community'][\PDO::PARAM_STR];
@@ -1176,6 +1176,8 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
                     $macroPasswordIds[] = $macroId;
                 }
             }
+
+            //If there is some password values, write them in the vault
             if (!empty($passwordTypeData)) {
                 $logger = getLogger();
                 $httpClient = new CentreonRestHttp();
@@ -1190,9 +1192,13 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
                 );
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
                     . "/monitoring/hosts/" . $host_id['MAX(host_id)'];
+
+                //Store vault path for SNMP Community
                 if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $passwordTypeData)){
                     updateHostTableWithVaultPath($pearDB, $hostPath, $host_id['MAX(host_id)']);
                 }
+
+                //Store vault path for macros
                 if (! empty($macroPasswordIds)) {
                     updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
                 }
@@ -1482,7 +1488,7 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
         $ret = $cfg;
     }
 
-    //Override offuscation by clear value for treatment.
+    //Override offuscation by clear value for treatment
     if (isset($_REQUEST['host_snmp_community'])) {
         $ret['host_snmp_community'] = $_REQUEST['host_snmp_community'];
     }
@@ -1613,7 +1619,6 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
     if (isset($ret['criticality_id'])) {
         setHostCriticality($hostId, $ret['criticality_id']);
     }
-    //@TODO: Check if Macro value are passwords
 
     $vaultConfiguration = getVaultConfiguration();
 
@@ -1653,9 +1658,12 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
                     . $vaultConfiguration->getStorage()
                     . "/monitoring/hosts/" . $hostId;
+                //Store vault path for SNMP Community
                 if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
                     updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
                 }
+
+                //Store vault path for macros
                 if (! empty($macroPasswordIds)) {
                     updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
                 }
@@ -1685,6 +1693,8 @@ function updateHost_MC($hostId = null)
 
     $ret = array();
     $ret = $form->getSubmitValues();
+
+    //Override offuscation by clear value for treatment
     if (isset($_REQUEST['host_snmp_community'])) {
         $ret['host_snmp_community'] = $_REQUEST['host_snmp_community'];
     }
@@ -1774,9 +1784,8 @@ function updateHost_MC($hostId = null)
         setHostCriticality($hostId, $ret['criticality_id']);
     }
 
-    //@TODO: Check if Macro value are passwords
-
     $vaultConfiguration = getVaultConfiguration();
+
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {

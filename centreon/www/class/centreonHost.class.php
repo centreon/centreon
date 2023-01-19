@@ -869,6 +869,8 @@ class CentreonHost
                 }
                 $cnt++;
                 $stored[strtolower($value)] = true;
+
+                //Format macros to improve handling on form submit.
                 $dbResult = $this->db->query("SELECT MAX(host_macro_id) FROM on_demand_macro_host");
                 $macroId = $dbResult->fetch();
                 $this->formattedMacros[(int) $macroId['MAX(host_macro_id)']] = [
