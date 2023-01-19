@@ -44,7 +44,7 @@ runs:
 
     - name: Write beta NPM package version
       if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' }}
-      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }}
+      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }} --legacy-peer-deps
       working-directory: ${{ env.directory }}
       shell: bash
 
