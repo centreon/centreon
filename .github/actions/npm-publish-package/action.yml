@@ -39,12 +39,12 @@ runs:
         branch_name: ${{ github.head_ref }}
 
     - name: Log package version
-      run: echo "${{ steps.get-latest-npm-beta-branch-version.outputs.version }}"
+      run: echo "${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }}"
       shell: bash
 
     - name: Write beta NPM package version
-      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.version != '' }}
-      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.version }}
+      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' }}
+      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }}
       working-directory: ${{ env.directory }}
       shell: bash
 
