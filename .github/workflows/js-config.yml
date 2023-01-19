@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'centreon/packages/js-config/**'
+      - 'centreon/.github/workflows/js-config.yml'
     branches:
       - 'develop'
 
