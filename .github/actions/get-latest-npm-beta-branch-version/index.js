@@ -12,7 +12,7 @@ try {
   const branchName = core.getInput('branch_name');
 
   getPackageInformations().then((package) => {
-    core.setOutput("package_version", package['dist-tags'][branchName])
+    core.setOutput("package_version", package['dist-tags'][branchName] || '')
   });
 } catch (error) {
   core.setFailed(error.message);
