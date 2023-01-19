@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "centreon/packages/ui-context/**"
+      - '.github/workflows/ui-context.yml'
     branches:
       - develop
 

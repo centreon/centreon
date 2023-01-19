@@ -73,21 +73,6 @@ runs:
       working-directory: ${{ env.directory }}
       shell: bash
 
-    # - name: Configure git
-    #   run: |
-    #     git config user.email "technique-ci@centreon.com"
-    #     git config user.name "technique-ci"
-    #   shell: bash
-
-    # - name: Commit and push changes
-    #   if: ${{ inputs.release_type == 'beta' && startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
-    #   run: |
-    #     git pull origin ${{ github.head_ref }}
-    #     git add .
-    #     git commit -m "chore: pre-release ${VERSION}"
-    #     git push origin ${{ github.head_ref }}
-    #   shell: bash
-
     - name: Publish package to NPM (${{ env.TAG }})
       uses: JS-DevTools/npm-publish@v1
       with:
@@ -96,20 +81,18 @@ runs:
         tag: ${{ env.TAG }}
         token: ${{ inputs.npm_token }}
 
-    # - name: Create Pull Request
-    #   uses: peter-evans/create-pull-request@v4
-    #   if: ${{ inputs.release_type == 'stable' }}
-    #   with:
-    #     token: ${{ inputs.pat }}
-    #     committer: Technique CI <technique-ci@centreon.com>
-    #     author: technique-ci <technique-ci@centreon.com>
-    #     branch: MON-update-package-versions-${{ inputs.package }}-${{ env.VERSION }}
-    #     title: "chore(${{ inputs.package }} version): Update package ${{ inputs.package }} version to ${{ env.VERSION }}"
-    #     body: |
-    #       This updates the ${{ inputs.package }} package version to ${{ env.VERSION }}.
-    #       This is an automatic PR.
-    #     labels: |
-    #       automerge
-    #     draft: false
-    #     signoff: true
-    #     delete-branch: true
+    - name: Configure git
+      if: ${{ inputs.release_type == 'stable' }}
+      run: |
+        git config user.email "technique-ci@centreon.com"
+        git config user.name "technique-ci"
+      shell: bash
+
+    - name: Commit and push changes
+      if: ${{ inputs.release_type == 'stable' }}
+      run: |
+        git pull origin ${{ github.head_ref }}
+        git add .
+        git commit -m "chore: release ${VERSION} of @centreon/${{ inputs.package }}"
+        git push origin ${{ github.head_ref }}
+      shell: bash
