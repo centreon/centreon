@@ -1,3 +1,5 @@
+const toto = "toto";
+
 module.exports = {
   moduleNameMapper: {
     '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',

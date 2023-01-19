@@ -13,6 +13,7 @@ const getBaseConfiguration = ({
   moduleFederationConfig,
   jscTransformConfiguration
 }) => ({
+  cache: false,
   module: {
     rules: [
       {
