@@ -42,12 +42,18 @@ runs:
       run: echo "${{ steps.get-latest-npm-beta-branch-version.outputs.version }}"
       shell: bash
 
+    - name: Write beta NPM package version
+      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.version != "" }}
+      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.version }}
+      working-directory: ${{ env.directory }}
+      shell: bash
+
     - name: Configure tag
       run: |
         [[ ${{ inputs.release_type }} = "stable" ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
-    - name: Update JS config version
+    - name: Bump NPM package version
       run: |
         echo ${{ env.TAG }}
         [[ ${{ inputs.release_type }} = "stable" ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
