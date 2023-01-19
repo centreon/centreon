@@ -25,7 +25,6 @@ namespace Core\HostSeverity\Infrastructure\API\AddHostSeverity;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostSeverity\Application\UseCase\AddHostSeverity\AddHostSeverity;
 use Core\HostSeverity\Application\UseCase\AddHostSeverity\AddHostSeverityRequest;
@@ -64,17 +63,15 @@ final class AddHostSeverityController extends AbstractController
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostSeveritySchema.json');
-
-            $hostSeverityRequest = $this->createRequestDto($data);
-
-            $useCase($hostSeverityRequest, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex));
+
+            return $presenter->show();
         }
+
+        $hostSeverityRequest = $this->createRequestDto($data);
+        $useCase($hostSeverityRequest, $presenter);
 
         return $presenter->show();
     }
