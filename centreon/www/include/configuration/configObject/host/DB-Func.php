@@ -3194,35 +3194,6 @@ function deleteHostFromVault(
 }
 
 /**
- * Add SNMP Community to Password Type data sent to the vault.
- *
- * @param array<string,mixed> $bindParams
- * @return array<string,string>
- */
-function getSecretsValues(array $bindParams, array $macros): array
-{
-    //If the SNMP Community is defined and is not a vault path it should be updated.
-    $passwordTypeData = [];
-    foreach ($bindParams as $token => $bindValue) {
-        foreach ($bindValue as $value) {
-            if (preg_match(VAULT_PATH_REGEX, $value)) {
-                continue 2;
-            }
-        }
-        if ($token === ':host_snmp_community') {
-            $passwordTypeData['_HOSTSNMPCOMMUNITY'] = $bindParams[$token][\PDO::PARAM_STR];
-        }
-    }
-
-    foreach($macros as $macroInfos) {
-        if ($macroInfos['macroPassword'] === '1' && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])) {
-            $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
-        }
-    }
-    return $passwordTypeData;
-}
-
-/**
  * Prepare the write in vault payload while updating an host.
  *
  * This method will compare the secrets already stored in the vault with the secrets submitted by the form
@@ -3285,8 +3256,8 @@ function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $
  * Add new macros and SNMP Community to the write in vault payload
  *
  * @param string|null $hostSNMPCommunity
- * @param array $macros
- * @param array $hostSecretsFromVault
+ * @param array<int,array<string,string>> $macros
+ * @param array<string,string> $hostSecretsFromVault
  * @return array<string,string>
  */
 function prepareUpdateMCPayload(?string $hostSNMPCommunity, array $macros, array $hostSecretsFromVault)
@@ -3311,8 +3282,8 @@ function prepareUpdateMCPayload(?string $hostSNMPCommunity, array $macros, array
 /**
  * Store all the ids of password macros that have been updated
  *
- * @param array $macros
- * @return array
+ * @param array<int,array<string,string> $macros
+ * @return int[]
  */
 function getIdOfUpdatedPasswordMacros(array $macros): array
 {
