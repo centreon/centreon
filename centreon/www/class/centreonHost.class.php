@@ -2589,7 +2589,7 @@ class CentreonHost
     /**
      * Get Macros Information Unified by id
      *
-     * @return array<array<string,string>>
+     * @return array<int,array<string,string>>
      */
     public function getFormattedMacros(): array
     {
