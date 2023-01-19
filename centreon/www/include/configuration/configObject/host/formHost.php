@@ -103,7 +103,9 @@ if (($o === HOST_MODIFY || $o === HOST_WATCH) && isset($host_id)) {
     $host = array_map("myDecode", $host_list);
     $cmdId = $host['command_command_id'];
 
+    $clearHostSNMPCommunityValue = null;
     if (! empty($host['host_snmp_community'])) {
+        $clearHostSNMPCommunityValue = $host['host_snmp_community'];
         $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
     }
 
@@ -1215,6 +1217,10 @@ if ($form->validate() && $from_list_menu == false) {
     if ($form->getSubmitValue("submitA")) {
         $hostObj->setValue(insertHostInDB());
     } elseif ($form->getSubmitValue("submitC")) {
+        $snmpCommunity = $form->getSubmitValue("host_snmp_community");
+        if ($snmpCommunity === PASSWORD_REPLACEMENT_VALUE) {
+            $_REQUEST['host_snmp_community'] = $clearHostSNMPCommunityValue;
+        }
         /*
          * Before saving, we check if a password macro has changed its name to be able to give it the right password
          * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).

@@ -37,6 +37,9 @@
 use Centreon\Domain\Log\LegacyLogger;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
+const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
+const VAULT_PATH_REGEX = '/^secret::\d+::/';
+
 if (!isset($centreon)) {
     exit();
 }
@@ -700,7 +703,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                      */
                     if (
                         ! empty($row['host_snmp_community'])
-                        && preg_match('/^secret::\d+::/', $row['host_snmp_community'])
+                        && preg_match(VAULT_PATH_REGEX, $row['host_snmp_community'])
                         || ! empty($macroPasswordIds)
                     ) {
                         $vaultConfiguration = getVaultConfiguration();
@@ -729,7 +732,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                     $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
                                         . $vaultConfiguration->getStorage()
                                         . "/monitoring/hosts/" . $maxId['MAX(host_id)'];
-                                    if (array_key_exists('_HOSTSNMPCOMMUNITY', $hostSecrets)){
+                                    if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecrets)){
                                         updateHostTableWithVaultPath($pearDB, $hostPath, $maxId['MAX(host_id)']);
                                     }
                                     if (! empty($macroPasswordIds)) {
@@ -1163,7 +1166,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
         try {
             $passwordTypeData = [];
             if ($bindParams[':host_snmp_community'][\PDO::PARAM_STR] !== null) {
-                $passwordTypeData['_HOSTSNMPCOMMUNITY'] = $bindParams[':host_snmp_community'][\PDO::PARAM_STR];
+                $passwordTypeData[SNMP_COMMUNITY_MACRO_NAME] = $bindParams[':host_snmp_community'][\PDO::PARAM_STR];
             }
             $macros = $hostObj->getFormattedMacros();
             $macroPasswordIds = [];
@@ -1187,7 +1190,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
                 );
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
                     . "/monitoring/hosts/" . $host_id['MAX(host_id)'];
-                if (array_key_exists('_HOSTSNMPCOMMUNITY', $passwordTypeData)){
+                if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $passwordTypeData)){
                     updateHostTableWithVaultPath($pearDB, $hostPath, $host_id['MAX(host_id)']);
                 }
                 if (! empty($macroPasswordIds)) {
@@ -1479,6 +1482,11 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
         $ret = $cfg;
     }
 
+    //Override offuscation by clear value for treatment.
+    if (isset($_REQUEST['host_snmp_community'])) {
+        $ret['host_snmp_community'] = $_REQUEST['host_snmp_community'];
+    }
+
     if (!isset($ret["contact_additive_inheritance"])) {
         $ret["contact_additive_inheritance"] = "0";
     }
@@ -1504,9 +1512,6 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
         $ret["command_command_id_arg2"] = str_replace("\r", "#R#", $ret["command_command_id_arg2"]);
     }
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
-    // if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
-    //     unset($ret['host_snmp_community']);
-    // }
     $bindParams = sanitizeFormHostParameters($ret);
 
     $rq = "UPDATE host SET ";
@@ -1626,65 +1631,29 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
                 $httpClient
             );
             $macros = $hostObj->getFormattedMacros();
-            $macroPasswordIds = [];
-            $formPasswordValues = ['_HOSTSNMPCOMMUNITY' => $ret['host_snmp_community']];
-            foreach($macros as $macroId => $macroInfos) {
-                if (
-                    $macroInfos['macroPassword'] === '1'
-                    && ! preg_match('/^secret::\d+::/', $macroInfos['macroValue'])
-                ) {
-                    $formPasswordValues[$macroInfos['macroName']] = $macroInfos['macroValue'];
-                    $macroPasswordIds[] = $macroId;
-                }
-            }
-            foreach(array_keys($hostSecretsFromVault) as $secretKey) {
-                if ($secretKey !== '_HOSTNSMPCOMMUNITY') {
-                    $macroName = [];
-                    foreach($macros as $macroId => $macroInfos) {
-                        $macroName[] = $macroInfos['macroName'];
-                    }
-                    if (! array_key_exists($secretKey, $macroName)) {
-                        unset($hostSecretsFromVault[$secretKey]);
-                    }
-                }
-            }
-            if (array_key_exists('_HOSTNSMPCOMMUNITY', $hostSecretsFromVault) && $ret['host_snmp_community'] === '') {
-                unset($hostSecretsFromVault['_HOSTNSMPCOMMUNITY']);
-            }
-
-            if ($ret['host_snmp_community'] === '') {
-                unset($formPasswordValues['_HOSTSNMPCOMMUNITY']);
-                unset($ret['host_snmp_community']);
-            }
-            if (array_key_exists('host_snmp_community', $ret) && $ret['host_snmp_community'] !== PASSWORD_REPLACEMENT_VALUE) {
-                $formPasswordValues['_HOSTSNMPCOMMUNITY'] = $ret['host_snmp_community'];
-            }
-
-            $result = array_diff($formPasswordValues, $hostSecretsFromVault);
-
-            foreach ($result as $key => $value) {
-                if ($value === PASSWORD_REPLACEMENT_VALUE || $value === '') {
-                    unset($result[$key]);
-                }
-            }
-            $newHostSecrets = array_merge($hostSecretsFromVault, $result);
+            $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
+            $updateHostPayload = prepareUpdatePayload(
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR],
+                $macros,
+                $hostSecretsFromVault
+            );
 
             // If no more fields are password types, we delete the host from the vault has it will not be read.
-            if (empty($newHostSecrets)) {
+            if (empty($updateHostPayload)) {
                 deleteHostFromVault($vaultConfiguration, (int) $hostId, $clientToken, $logger, $httpClient);
             } else {
                 writeSecretsInVault(
                     $vaultConfiguration,
                     $hostId,
                     $clientToken,
-                    $newHostSecrets,
+                    $updateHostPayload,
                     $logger,
                     $httpClient
                 );
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
                     . $vaultConfiguration->getStorage()
                     . "/monitoring/hosts/" . $hostId;
-                if (array_key_exists('_HOSTSNMPCOMMUNITY', $result)){
+                if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
                     updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
                 }
                 if (! empty($macroPasswordIds)) {
@@ -3215,7 +3184,7 @@ function getSecretsValues(array $bindParams, array $macros): array
     $passwordTypeData = [];
     foreach ($bindParams as $token => $bindValue) {
         foreach ($bindValue as $value) {
-            if (preg_match('/^secret::\d+::/', $value)) {
+            if (preg_match(VAULT_PATH_REGEX, $value)) {
                 continue 2;
             }
         }
@@ -3225,9 +3194,89 @@ function getSecretsValues(array $bindParams, array $macros): array
     }
 
     foreach($macros as $macroInfos) {
-        if ($macroInfos['macroPassword'] === '1' && ! preg_match('/^secret::\d+::/', $macroInfos['macroValue'])) {
+        if ($macroInfos['macroPassword'] === '1' && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])) {
             $passwordTypeData[$macroInfos['macroName']] = $macroInfos['macroValue'];
         }
     }
     return $passwordTypeData;
+}
+
+/**
+ * Prepare the write payload while updating an host.
+ *
+ * This method will compare the secrets already stored in the vault with the secrets submitted by the form
+ * And update their value or delete them if they are no more setted.
+ *
+ * @param string|null $hostSNMPCommunity
+ * @param array<int,array<string,string>> $macros
+ * @param array<string,string> $hostSecretsFromVault
+ * @return array<string,string>
+ */
+function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $hostSecretsFromVault): array
+{
+    $formPasswordValues = [];
+
+    //Add macros to payload if they are password type and their values have changed
+    foreach($macros as $macroInfos) {
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])
+        ) {
+            $formPasswordValues[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
+    }
+
+    //Unset existing macros on vault if they no more exist while submitting the form
+    foreach(array_keys($hostSecretsFromVault) as $secretKey) {
+        if ($secretKey !== SNMP_COMMUNITY_MACRO_NAME) {
+            $macroName = [];
+            foreach($macros as $macroInfos) {
+                $macroName[] = $macroInfos['macroName'];
+                if (array_key_exists('originalName', $macroInfos) && $secretKey === $macroInfos['originalName']) {
+                    $hostSecretsFromVault[$macroInfos['macroName']] = $hostSecretsFromVault[$secretKey];
+                }
+            }
+            if (! in_array($secretKey, $macroName)) {
+                unset($hostSecretsFromVault[$secretKey]);
+            }
+        }
+    }
+
+    //Unset existing SNMP Community if it no more exists while submitting the form
+    if (
+        array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)
+        && $hostSNMPCommunity === null
+    ) {
+        unset($hostSecretsFromVault[SNMP_COMMUNITY_MACRO_NAME]);
+    }
+
+    //Add SNMP Community if a new value has been set
+    if ($hostSNMPCommunity !== null && ! preg_match(VAULT_PATH_REGEX, $hostSNMPCommunity)) {
+        $formPasswordValues[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
+    }
+
+    $result = array_diff($formPasswordValues, $hostSecretsFromVault);
+
+    return array_merge($hostSecretsFromVault, $result);
+}
+
+/**
+ * Store all the ids of password macros that have been updated
+ *
+ * @param array $macros
+ * @return array
+ */
+function getIdOfUpdatedPasswordMacros(array $macros): array
+{
+    $macroPasswordIds = [];
+    foreach($macros as $macroId => $macroInfos) {
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])
+        ) {
+            $macroPasswordIds[] = $macroId;
+        }
+    }
+
+    return $macroPasswordIds;
 }

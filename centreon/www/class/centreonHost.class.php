@@ -876,6 +876,10 @@ class CentreonHost
                     "macroValue" => $macrovalues[$key],
                     "macroPassword" => $macroPassword[$key] ?? '0',
                 ];
+                if (isset($_REQUEST['macroOriginalName_' . $key])) {
+                    $this->formattedMacros[(int) $macroId['MAX(host_macro_id)']]['originalName']
+                        = '_HOST' . $_REQUEST['macroOriginalName_' . $key];
+                }
             }
         }
     }
