@@ -691,7 +691,9 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         $statement->execute();
                         $fields["_" . strtoupper($macName) . "_"] = $macVal;
                         if ($hst['is_password'] === 1) {
-                            $maxIdStatement = $pearDB->query("SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1");
+                            $maxIdStatement = $pearDB->query(
+                                "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
+                            );
                             $resultMacro = $maxIdStatement->fetch();
                             $macroPasswordIds[] = $resultMacro['MAX(host_macro_id)'];
                         }
@@ -712,7 +714,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 $httpClient = new CentreonRestHttp();
                                 $logger = getLogger();
                                 $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-                                $hostSecrets = getHostSecretsFromVault(
+                                $hostSecretsFromVault = getHostSecretsFromVault(
                                     $vaultConfiguration,
                                     $key, // The duplicated host id
                                     $clientToken,
@@ -720,23 +722,30 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                     $httpClient
                                 );
 
-                                if (! empty($hostSecrets)) {
+                                if (! empty($hostSecretsFromVault)) {
                                     writeSecretsInVault(
                                         $vaultConfiguration,
                                         (int) $maxId["MAX(host_id)"],
                                         $clientToken,
-                                        $hostSecrets,
+                                        $hostSecretsFromVault,
                                         $logger,
                                         $httpClient
                                     );
                                     $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
                                         . $vaultConfiguration->getStorage()
                                         . "/monitoring/hosts/" . $maxId['MAX(host_id)'];
-                                    if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecrets)){
+                                    //Store vault path for SNMP Community
+                                    if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)){
                                         updateHostTableWithVaultPath($pearDB, $hostPath, $maxId['MAX(host_id)']);
                                     }
+
+                                    //Store vault path for macros
                                     if (! empty($macroPasswordIds)) {
-                                        updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+                                        updateOnDemandMacroHostTableWithVaultPath(
+                                            $pearDB,
+                                            $macroPasswordIds,
+                                            $hostPath
+                                        );
                                     }
                                 }
                             } catch (\Throwable $ex) {
