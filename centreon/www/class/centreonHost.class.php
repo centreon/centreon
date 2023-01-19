@@ -64,6 +64,7 @@ class CentreonHost
 
     /**
      * Macros formatted by id
+     * ex:
      * [
      *  0 => [
      *    "macroKey" => "KEY"
@@ -74,6 +75,7 @@ class CentreonHost
      *    "macroKey" => "KEY_1"
      *    "macroValue" => "value_1"
      *    "macroPassword" => "1"
+     *    "originalName" => "MACRO_1"
      *  ]
      * ]
      * @var array
