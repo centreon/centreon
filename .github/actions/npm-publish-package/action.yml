@@ -38,7 +38,7 @@ runs:
     - name: Install action dependencies
       if: ${{ inputs.release_type == 'beta' }}
       run: pnpm install
-      working-directory: ./.github/actions/npm-publish-package
+      working-directory: ./.github/actions/get-latest-npm-beta-branch-version
       shell: bash
 
     - uses: ./.github/actions/get-latest-npm-beta-branch-version
