@@ -11,7 +11,7 @@ xunit-reports
 **/.project
 
 # front development files
-**/node_modules/
+centreon/**/node_modules/
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache
