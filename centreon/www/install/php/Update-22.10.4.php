@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 22.10.2: ';
+$versionOfTheUpgrade = 'UPGRADE - 22.10.4: ';
 $errorMessage = '';
 
 /**
@@ -83,17 +83,17 @@ try {
         );
     }
 
+    // Transactional queries
+    $pearDB->beginTransaction();
+
     $errorMessage = "Impossible to delete color picker topology_js entries";
     $pearDB->query(
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
 
-    // Transactional queries
-    $pearDB->beginTransaction();
-
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
-    decodeIllegalCharactersNagios($pearDB);
+    $decodeIllegalCharactersNagios($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
