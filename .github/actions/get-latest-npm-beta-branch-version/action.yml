@@ -15,5 +15,5 @@ outputs:
     description: "The latest NPM version for the beta branch"
 
 runs:
-  using: 'node18'
+  using: 'node16'
   main: 'index.js'
