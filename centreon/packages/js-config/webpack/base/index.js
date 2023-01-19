@@ -6,6 +6,8 @@ const { ModuleFederationPlugin } = require('webpack').container;
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
 
+// a comment
+
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
