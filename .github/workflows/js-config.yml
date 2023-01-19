@@ -1,12 +1,11 @@
 name: centreon-js-config
 
 on:
-  workflow_dispatch:
   pull_request:
     paths:
-      - centreon/packages/js-config/**
+      - 'centreon/packages/js-config/**'
     branches:
-      - develop
+      - 'develop'
 
 env:
   directory: "centreon/packages/js-config"
