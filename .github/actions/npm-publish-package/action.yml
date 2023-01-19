@@ -43,7 +43,7 @@ runs:
       shell: bash
 
     - name: Write beta NPM package version
-      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.version != "" }}
+      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.version != '' }}
       run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.version }}
       working-directory: ${{ env.directory }}
       shell: bash
