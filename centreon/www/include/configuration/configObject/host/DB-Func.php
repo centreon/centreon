@@ -1674,19 +1674,19 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
     $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"));
 }
 
-function updateHost_MC($host_id = null)
+function updateHost_MC($hostId = null)
 {
     global $form, $pearDB, $centreon;
 
     $hostObj = new CentreonHost($pearDB);
-    if (!$host_id) {
+    if (!$hostId) {
         return;
     }
 
     $ret = array();
     $ret = $form->getSubmitValues();
-    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
-        unset($ret['host_snmp_community']);
+    if (isset($_REQUEST['host_snmp_community'])) {
+        $ret['host_snmp_community'] = $_REQUEST['host_snmp_community'];
     }
 
     if (isset($ret["command_command_id_arg1"]) && $ret["command_command_id_arg1"] != null) {
@@ -1728,7 +1728,7 @@ function updateHost_MC($host_id = null)
             $stmt->bindValue($token, $value, $paramType);
         }
     }
-    $stmt->bindValue(':hostId', $host_id, \PDO::PARAM_INT);
+    $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
     $stmt->execute();
 
     /*
@@ -1739,12 +1739,12 @@ function updateHost_MC($host_id = null)
         if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
             $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                         FROM `host_template_relation`
-                                        WHERE `host_host_id`='" . $host_id . "'");
+                                        WHERE `host_host_id`='" . $hostId . "'");
             while ($hst = $dbResult->fetch()) {
                 $oldTp[$hst["host_tpl_id"]] = $hst["host_tpl_id"];
             }
         }
-        $hostObj->setTemplates($host_id, $_REQUEST['tpSelect'], $oldTp);
+        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
     }
 
     /*
@@ -1761,7 +1761,7 @@ function updateHost_MC($host_id = null)
 
     if (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
         $hostObj->insertMacro(
-            $host_id,
+            $hostId,
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
             $_REQUEST['macroPassword'] ?? [],
@@ -1771,7 +1771,7 @@ function updateHost_MC($host_id = null)
     }
 
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
-        setHostCriticality($host_id, $ret['criticality_id']);
+        setHostCriticality($hostId, $ret['criticality_id']);
     }
 
     //@TODO: Check if Macro value are passwords
@@ -1780,45 +1780,57 @@ function updateHost_MC($host_id = null)
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
         try {
-            $passwordTypeData = addHostSNMPCommunityToPasswordType($bindParams);
             $httpClient = new CentreonRestHttp();
             $logger = getLogger();
             $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-            $hostSecrets = getHostSecretsFromVault(
+            $hostSecretsFromVault = getHostSecretsFromVault(
                 $vaultConfiguration,
-                (int) $host_id,
+                (int) $hostId,
                 $clientToken,
                 $logger,
                 $httpClient
             );
+            $macros = $hostObj->getFormattedMacros();
+            $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
+            $updateHostPayload = prepareUpdateMCPayload(
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR],
+                $macros,
+                $hostSecretsFromVault
+            );
 
-            if (! empty($passwordTypeData)) {
-                //Replace olds vault values by the new ones
-                foreach($passwordTypeData as $keyName => $value) {
-                    $hostSecrets[$keyName] = $value;
-                }
+            // If no more fields are password types, we delete the host from the vault has it will not be read.
+            if (empty($updateHostPayload)) {
+                deleteHostFromVault($vaultConfiguration, (int) $hostId, $clientToken, $logger, $httpClient);
+            } else {
                 writeSecretsInVault(
                     $vaultConfiguration,
-                    $host_id,
+                    $hostId,
                     $clientToken,
-                    $hostSecrets,
+                    $updateHostPayload,
                     $logger,
                     $httpClient
                 );
-
-                updateHostTablesWithVaultPath($vaultConfiguration, $host_id, $pearDB);
+                $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
+                    . $vaultConfiguration->getStorage()
+                    . "/monitoring/hosts/" . $hostId;
+                if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
+                    updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
+                }
+                if (! empty($macroPasswordIds)) {
+                    updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
+                }
             }
         } catch (\Throwable $ex) {
             error_log((string) $ex);
         }
     }
 
-    $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $host_id . "' LIMIT 1");
+    $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $hostId . "' LIMIT 1");
     $row = $dbResultX->fetch();
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $host_id, $row["host_name"], "mc", $fields);
+    $centreon->CentreonLogAction->insertLog("host", $hostId, $row["host_name"], "mc", $fields);
 }
 
 function updateHostHostParent($host_id = null, $ret = array())
@@ -3202,7 +3214,7 @@ function getSecretsValues(array $bindParams, array $macros): array
 }
 
 /**
- * Prepare the write payload while updating an host.
+ * Prepare the write in vault payload while updating an host.
  *
  * This method will compare the secrets already stored in the vault with the secrets submitted by the form
  * And update their value or delete them if they are no more setted.
@@ -3258,6 +3270,33 @@ function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $
     $result = array_diff($formPasswordValues, $hostSecretsFromVault);
 
     return array_merge($hostSecretsFromVault, $result);
+}
+
+/**
+ * Add new macros and SNMP Community to the write in vault payload
+ *
+ * @param string|null $hostSNMPCommunity
+ * @param array $macros
+ * @param array $hostSecretsFromVault
+ * @return array<string,string>
+ */
+function prepareUpdateMCPayload(?string $hostSNMPCommunity, array $macros, array $hostSecretsFromVault)
+{
+    foreach($macros as $macroInfos) {
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])
+        ) {
+            $hostSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
+    }
+
+    //Add SNMP Community if a new value has been set
+    if ($hostSNMPCommunity !== null && ! preg_match(VAULT_PATH_REGEX, $hostSNMPCommunity)) {
+        $hostSecretsFromVault[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
+    }
+
+    return $hostSecretsFromVault;
 }
 
 /**
