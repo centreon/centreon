@@ -21,16 +21,40 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Centreon\Domain\Entity\AclGroup;
+use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Domain\Entity\AclGroup;
-use PDO;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class AclGroupRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
+
+    /**
+     * @var int $resultCountForPagination
+     */
+    private int $resultCountForPagination = 0;
+
+    /**
+     * @var array $concordanceArray
+     */
+    private array $concordanceArray = [
+        'id' => 'acl_group_id',
+        'name' => 'acl_group_name',
+        'alias' => 'acl_group_alias',
+        'changed' => 'acl_group_changed',
+        'activate' => 'acl_group_activate'
+    ];
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * {@inheritdoc}
@@ -47,7 +71,7 @@ class AclGroupRepository extends ServiceEntityRepository implements PaginationRe
      */
     public function checkListOfIds(array $ids): bool
     {
-        return $this->checkListOfIdsTrait($ids);
+        return $this->checkListOfIdsTrait($ids, AclGroup::TABLE, AclGroup::ENTITY_IDENTIFICATOR_COLUMN);
     }
 
     /**
@@ -55,58 +79,84 @@ class AclGroupRepository extends ServiceEntityRepository implements PaginationRe
      */
     public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
     {
-        $sql = 'SELECT SQL_CALC_FOUND_ROWS t.* FROM `' . $this->getClassMetadata()->getTableName() . '` AS `t`';
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
+        SQL;
 
         $collector = new StatementCollector();
 
         $isWhere = false;
         if ($filters !== null) {
-            if (array_key_exists('search', $filters) && $filters['search']) {
-                $sql .= ' WHERE t.' . $this->getClassMetadata()->getColumn('name') . ' LIKE :search';
+            if (
+                array_key_exists('search', $filters)
+                && $filters['search']
+            ) {
+                $request .= ' WHERE t.' . $this->concordanceArray['name'] . ' LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
             }
 
-            if (array_key_exists('ids', $filters) && is_array($filters['ids'])) {
+            if (
+                array_key_exists('ids', $filters)
+                && is_array($filters['ids'])
+                && [] !== $filters['ids']
+            ) {
                 $idsListKey = [];
-                foreach ($filters['ids'] as $x => $id) {
-                    $key = ":id{$x}";
+                foreach ($filters['ids'] as $index => $id) {
+                    $key = ":id{$index}";
                     $idsListKey[] = $key;
-                    $collector->addValue($key, $id, PDO::PARAM_INT);
+                    $collector->addValue($key, $id, \PDO::PARAM_INT);
 
-                    unset($x, $id);
+                    unset($index, $id);
                 }
 
-                $sql .= $isWhere ? ' AND' : ' WHERE';
-                $sql .= ' t.' . $this->getClassMetadata()->getPrimaryKeyColumn()
-                    . ' IN (' . implode(',', $idsListKey) . ')';
+                $request .= $isWhere ? ' AND' : ' WHERE';
+                $request .= ' t.' . $this->concordanceArray['id'] . ' IN (' . implode(',', $idsListKey) . ')';
             }
         }
 
-        $sql .= ' ORDER BY t.' . $this->getClassMetadata()->getColumn('name') . ' ASC';
+        $request .= ' ORDER BY t.' . $this->concordanceArray['name'] . ' ASC';
 
         if ($limit !== null) {
-            $sql .= ' LIMIT :limit';
-            $collector->addValue(':limit', $limit, PDO::PARAM_INT);
+            $request .= ' LIMIT :limit';
+            $collector->addValue(':limit', $limit, \PDO::PARAM_INT);
 
             if ($offset !== null) {
-                $sql .= ' OFFSET :offset';
-                $collector->addValue(':offset', $offset, PDO::PARAM_INT);
+                $request .= ' OFFSET :offset';
+                $collector->addValue(':offset', $offset, \PDO::PARAM_INT);
             }
         }
 
-        $stmt = $this->db->prepare($sql);
-        $collector->bind($stmt);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $collector->bind($statement);
 
-        $stmt->execute();
+        $statement->execute();
 
-        $result = [];
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
 
-        while ($row = $stmt->fetch()) {
-            $result[] = $this->getEntityPersister()->load($row);
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
         }
 
-        return $result;
+        $aclGroups = [];
+
+        while ($record = $statement->fetch()) {
+            $aclGroups[] = $this->createAclGroupFromArray($record);
+        }
+
+        return $aclGroups;
+    }
+
+    private function createAclGroupFromArray(array $data): AclGroup
+    {
+        $aclGroup = new AclGroup();
+        $aclGroup->setId((int) $data['acl_group_id']);
+        $aclGroup->setName($data['acl_group_name']);
+        $aclGroup->setAlias($data['acl_group_alias']);
+        $aclGroup->setChanged((int) $data['acl_group_changed']);
+        $aclGroup->setActivate($data['acl_group_activate']);
+
+        return $aclGroup;
     }
 
     /**
@@ -114,6 +164,6 @@ class AclGroupRepository extends ServiceEntityRepository implements PaginationRe
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }

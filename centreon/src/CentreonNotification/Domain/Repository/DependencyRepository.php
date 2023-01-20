@@ -21,11 +21,19 @@
 
 namespace CentreonNotification\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class DependencyRepository extends ServiceEntityRepository
+class DependencyRepository extends AbstractRepositoryRDB
 {
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * Remove dependency by ID
@@ -35,14 +43,15 @@ class DependencyRepository extends ServiceEntityRepository
      */
     public function removeById(int $id): void
     {
-        $sql = "DELETE FROM `dependency`"
-            . " WHERE dep_id = :id";
+        $request = <<<SQL
+            DELETE FROM `:db`.`dependency` WHERE dep_id = :dependencyId
+        SQL;
 
         $collector = new StatementCollector();
-        $collector->addValue(':id', $id);
+        $collector->addValue(':dependencyId', $id);
 
-        $stmt = $this->db->prepare($sql);
-        $collector->bind($stmt);
-        $stmt->execute();
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $collector->bind($statement);
+        $statement->execute();
     }
 }

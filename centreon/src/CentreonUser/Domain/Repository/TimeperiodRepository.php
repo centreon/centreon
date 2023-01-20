@@ -21,16 +21,29 @@
 
 namespace CentreonUser\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
-use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
-use PDO;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use CentreonUser\Domain\Entity\Timeperiod;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 
-class TimeperiodRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
+
+    /**
+     * @var int $resultCountForPagination
+     */
+    private int $resultCountForPagination = 0;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * {@inheritdoc}
@@ -48,7 +61,25 @@ class TimeperiodRepository extends ServiceEntityRepository implements Pagination
      */
     public function checkListOfIds(array $ids): bool
     {
-        return $this->checkListOfIdsTrait($ids);
+        return $this->checkListOfIdsTrait(
+            $ids,
+            TimePeriod::TABLE,
+            TimePeriod::ENTITY_IDENTIFICATOR_COLUMN
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return Timeperiod
+     */
+    private function createTimeperiodFromArray(array $data): Timeperiod
+    {
+        $timeperiod = new Timeperiod();
+        $timeperiod->setId((int) $data['tp_id']);
+        $timeperiod->setName($data['tp_name']);
+        $timeperiod->setAlias($data['tp_alias']);
+
+        return $timeperiod;
     }
 
     /**
@@ -57,24 +88,30 @@ class TimeperiodRepository extends ServiceEntityRepository implements Pagination
     public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
     {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `tp_id`, `tp_name`, `tp_alias` '
-            . 'FROM `' . $this->getClassMetadata()->getTableName() . '`';
+            . 'FROM `:db`.`timeperiod`';
 
         $collector = new StatementCollector();
 
         $isWhere = false;
         if ($filters !== null) {
-            if (array_key_exists('search', $filters) && $filters['search']) {
+            if (
+                array_key_exists('search', $filters)
+                && $filters['search']
+            ) {
                 $sql .= ' WHERE (`tp_name` LIKE :search OR `tp_alias` LIKE :search)';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
             }
 
-            if (array_key_exists('ids', $filters) && is_array($filters['ids'])) {
+            if (
+                array_key_exists('ids', $filters)
+                && is_array($filters['ids'])
+            ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {
                     $key = ":id{$x}";
                     $idsListKey[] = $key;
-                    $collector->addValue($key, $id, PDO::PARAM_INT);
+                    $collector->addValue($key, $id, \PDO::PARAM_INT);
 
                     unset($x, $id);
                 }
@@ -84,29 +121,35 @@ class TimeperiodRepository extends ServiceEntityRepository implements Pagination
             }
         }
 
-        if (!empty($ordering['field'])) {
+        if (! empty($ordering['field'])) {
             $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
         }
 
         if ($limit !== null) {
             $sql .= ' LIMIT :limit';
-            $collector->addValue(':limit', $limit, PDO::PARAM_INT);
+            $collector->addValue(':limit', $limit, \PDO::PARAM_INT);
 
             if ($offset !== null) {
                 $sql .= ' OFFSET :offset';
-                $collector->addValue(':offset', $offset, PDO::PARAM_INT);
+                $collector->addValue(':offset', $offset, \PDO::PARAM_INT);
             }
         }
 
-        $stmt = $this->db->prepare($sql);
-        $collector->bind($stmt);
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        $collector->bind($statement);
 
-        $stmt->execute();
+        $statement->execute();
+
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
+        }
 
         $result = [];
 
-        while ($row = $stmt->fetch()) {
-            $result[] = $this->getEntityPersister()->load($row);
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $this->createTimeperiodFromArray($record);
         }
 
         return $result;
@@ -117,6 +160,6 @@ class TimeperiodRepository extends ServiceEntityRepository implements Pagination
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }
