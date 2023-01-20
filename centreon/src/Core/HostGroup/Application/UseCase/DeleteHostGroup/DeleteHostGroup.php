@@ -63,7 +63,7 @@ final class DeleteHostGroup
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting()->getMessage())
                 );
             }
         } catch (Throwable $ex) {

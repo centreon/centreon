@@ -6,7 +6,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Button, Grid } from '@mui/material';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { PopoverMenu, SelectEntry, useMemoComponent } from '@centreon/ui';
+import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import {
   labelClear,

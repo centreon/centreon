@@ -86,7 +86,10 @@ const useDropzone = ({
   };
 
   const handleChangeFiles = (event: ChangeEvent<HTMLInputElement>): void => {
-    const newFiles: FileList | undefined = path(['target', 'files'], event);
+    const newFiles: FileList | null | undefined = path(
+      ['target', 'files'],
+      event
+    );
 
     if (isNil(newFiles)) {
       return;

@@ -1,6 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { ThemeMode, User } from '@centreon/ui-context';
+import { ThemeMode } from '@centreon/ui-context';
+import type { User } from '@centreon/ui-context';
 
 import { PlatformInstallationStatus } from './models';
 

@@ -14,8 +14,10 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
 import ResizeObserver from 'resize-observer-polyfill';
 import fetchMock from 'jest-fetch-mock';
+import React from 'react';
 
 window.ResizeObserver = ResizeObserver;
+window.React = React;
 
 jest.setTimeout(15000);
 
@@ -60,8 +62,10 @@ i18n.use(initReactI18next).init({
 });
 
 jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('./packages/ui-context'),
+  ...jest.requireActual('./packages/ui-context/src'),
   ThemeMode: 'light',
 }));
+
+jest.mock('@centreon/ui', () => jest.requireActual('./packages/ui/src'));
 
 fetchMock.enableMocks();

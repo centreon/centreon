@@ -47,7 +47,7 @@ jobs:
           spec_file_path: ${{matrix.spec}}
 
       - name: Upload components tests Results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
@@ -55,20 +55,18 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+      - uses: ./.github/actions/publish-report
         with:
-          check_name: ${{ inputs.name }}-tests-report
-          comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          path: "${{ inputs.name }}-xunit-reports/**/*.xml"

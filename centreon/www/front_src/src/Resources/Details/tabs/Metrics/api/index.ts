@@ -1,6 +1,7 @@
 import { CancelToken } from 'axios';
 
-import { buildListingEndpoint, getData, ListingParameters } from '@centreon/ui';
+import { buildListingEndpoint, getData } from '@centreon/ui';
+import type { ListingParameters } from '@centreon/ui';
 
 import { MetaServiceMetricListing } from '../models';
 

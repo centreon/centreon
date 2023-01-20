@@ -4,7 +4,7 @@ import { LoadingSkeleton } from '../..';
 
 import { InputProps, InputType } from './models';
 
-const getSkeleton = cond<InputType, JSX.Element>([
+const getSkeleton = cond<Array<InputType>, JSX.Element>([
   [
     equals(InputType.Switch) as (b: InputType) => boolean,
     always(<LoadingSkeleton height={38} />)

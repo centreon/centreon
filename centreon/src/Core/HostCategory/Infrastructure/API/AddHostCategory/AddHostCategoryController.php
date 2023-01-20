@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\API\AddHostCategory;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategory;
 use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategoryRequest;
 use Core\HostCategory\Infrastructure\API\AddHostCategory\AddHostCategoryPresenter;
@@ -31,6 +34,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class AddHostCategoryController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * @param Request $request
      * @param AddHostCategory $useCase
@@ -45,18 +50,27 @@ final class AddHostCategoryController extends AbstractController
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        /** @var array{name:string,alias:string,comments:string|null} $data */
-        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostCategorySchema.json');
+        try {
+            /** @var array{name:string,alias:string,is_activated?:bool,comments?:string|null} $data */
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostCategorySchema.json');
 
-        $hostCategoryRequest = $this->createRequestDto($data);
+            $hostCategoryRequest = $this->createRequestDto($data);
 
-        $useCase($hostCategoryRequest, $presenter);
+            $useCase($hostCategoryRequest, $presenter);
+
+        } catch (\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $presenter->setResponseStatus(new ErrorResponse($ex));
+        }
 
         return $presenter->show();
     }
 
     /**
-     * @param array{name:string,alias:string,comments:string|null} $data
+     * @param array{name:string,alias:string,is_activated?:bool,comments:string|null} $data
      *
      * @return AddHostCategoryRequest
      */
@@ -65,6 +79,7 @@ final class AddHostCategoryController extends AbstractController
         $hostCategoryRequest = new AddHostCategoryRequest();
         $hostCategoryRequest->name = $data['name'];
         $hostCategoryRequest->alias = $data['alias'];
+        $hostCategoryRequest->isActivated = $data['is_activated'] ?? true;
         $hostCategoryRequest->comment = $data['comments'] ?? null;
 
         return $hostCategoryRequest;

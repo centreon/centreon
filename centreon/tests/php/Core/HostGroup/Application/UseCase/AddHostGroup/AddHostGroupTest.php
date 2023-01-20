@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -30,7 +31,9 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Domain\Common\GeoCoords;
+use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -38,6 +41,7 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -92,7 +96,7 @@ it(
         expect($this->presenter->getResponseStatus())
             ->toBeInstanceOf(ErrorResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::errorWhileDeleting()->getMessage());
+            ->toBe(HostGroupException::errorWhileAdding()->getMessage());
     }
 );
 
@@ -118,7 +122,7 @@ it(
 );
 
 it(
-    'should present an ErrorResponse if the name already exists',
+    'should present a ConflictResponse if the name already exists',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -138,9 +142,61 @@ it(
     }
 );
 
+it(
+    'should present a InvalidArgumentResponse when a model field value is not valid',
+    function (): void {
+        $this->contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('nameAlreadyExists')
+            ->willReturn(false);
+
+        $this->testedAddHostGroupRequest->name = '';
+        $expectedException = AssertionException::minLength(
+            $this->testedAddHostGroupRequest->name,
+            strlen($this->testedAddHostGroupRequest->name),
+            NewHostGroup::MIN_NAME_LENGTH,
+            'NewHostGroup::name'
+        );
+
+        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
+
+        expect($this->presenter->getResponseStatus())
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->toBe($expectedException->getMessage());
+    }
+);
+
+it(
+    'should present a InvalidArgumentResponse when the "geoCoords" field value is not valid',
+    function (): void {
+        $this->contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('nameAlreadyExists')
+            ->willReturn(false);
+
+        $this->testedAddHostGroupRequest->geoCoords = 'this,is,wrong';
+
+        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
+
+        expect($this->presenter->getResponseStatus())
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->toBe(InvalidGeoCoordException::invalidFormat()->getMessage());
+    }
+);
+
 foreach (['iconId', 'iconMapId'] as $iconField) {
     it(
-        "should present an ErrorResponse if the {$iconField} does not exist",
+        "should present a ConflictResponse if the {$iconField} does not exist",
         function () use ($iconField): void {
             $this->contact
                 ->expects($this->once())
@@ -155,7 +211,7 @@ foreach (['iconId', 'iconMapId'] as $iconField) {
             ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
             expect($this->presenter->getResponseStatus())
-                ->toBeInstanceOf(ErrorResponse::class)
+                ->toBeInstanceOf(ConflictResponse::class)
                 ->and($this->presenter->getResponseStatus()?->getMessage())
                 ->toBe(HostGroupException::iconDoesNotExist($iconField, 666)->getMessage());
         }
@@ -212,7 +268,7 @@ it(
         expect($this->presenter->getResponseStatus())
             ->toBeInstanceOf(ForbiddenResponse::class)
             ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::accessNotAllowed()->getMessage());
+            ->toBe(HostGroupException::accessNotAllowedForWriting()->getMessage());
     }
 );
 
