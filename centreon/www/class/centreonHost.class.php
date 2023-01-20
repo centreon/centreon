@@ -66,13 +66,13 @@ class CentreonHost
      * Macros formatted by id
      * ex:
      * [
-     *  0 => [
-     *    "macroKey" => "KEY"
+     *  1 => [
+     *    "macroName" => "KEY"
      *    "macroValue" => "value"
      *    "isPassword" => "1"
      *  ],
-     *  1 => [
-     *    "macroKey" => "KEY_1"
+     *  2 => [
+     *    "macroName" => "KEY_1"
      *    "macroValue" => "value_1"
      *    "macroPassword" => "1"
      *    "originalName" => "MACRO_1"
@@ -2589,7 +2589,12 @@ class CentreonHost
     /**
      * Get Macros Information Unified by id
      *
-     * @return array<int,array<string,string>>
+     * @return array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: string,
+     *  originalName?: string
+     * }>
      */
     public function getFormattedMacros(): array
     {

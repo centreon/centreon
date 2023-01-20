@@ -1816,10 +1816,7 @@ function updateHost_MC($hostId = null)
                 $hostSecretsFromVault
             );
 
-            // If no more fields are password types, we delete the host from the vault has it will not be read.
-            if (empty($updateHostPayload)) {
-                deleteHostFromVault($vaultConfiguration, (int) $hostId, $clientToken, $logger, $httpClient);
-            } else {
+            if (! empty($updateHostPayload)) {
                 writeSecretsInVault(
                     $vaultConfiguration,
                     $hostId,
@@ -1831,9 +1828,12 @@ function updateHost_MC($hostId = null)
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
                     . $vaultConfiguration->getStorage()
                     . "/monitoring/hosts/" . $hostId;
+                //Store vault path for SNMP Community
                 if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
                     updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
                 }
+
+                //Store vault path for macros
                 if (! empty($macroPasswordIds)) {
                     updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswordIds, $hostPath);
                 }
@@ -3114,7 +3114,7 @@ function updateHostTableWithVaultPath(\CentreonDB $pearDB, string $hostPath, int
  * Update on_demand_macro_host table with secrets path on vault.
  *
  * @param \CentreonDB $pearDB
- * @param int[] $macroIds
+ * @param non-empty-array<int> $macroIds
  * @param string $hostPath
  * @throws \Throwable
  */
@@ -3211,7 +3211,12 @@ function deleteHostFromVault(
  * And update their value or delete them if they are no more setted.
  *
  * @param string|null $hostSNMPCommunity
- * @param array<int,array<string,string>> $macros
+ * @param array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: string,
+     *  originalName?: string
+     * }> $macros
  * @param array<string,string> $hostSecretsFromVault
  * @return array<string,string>
  */
