@@ -15421,3 +15421,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Error while creating host category"
 #  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""

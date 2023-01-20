@@ -17292,3 +17292,9 @@ msgstr "Erreur lors de la création d'une catégorie d'hôtes"
 
 msgid "Error while retrieving recently created host category"
 msgstr "Error lors de la récupération de la catégorie d'hôtes nouvellement créée"
+
+msgid "You are not allowed to access host severities"
+msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
+
+msgid "Error while searching for host severities"
+msgstr "Erreur durant la recherche de sévérités d'hôtes"
