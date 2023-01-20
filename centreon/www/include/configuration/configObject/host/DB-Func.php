@@ -3268,7 +3268,12 @@ function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $
  * Add new macros and SNMP Community to the write in vault payload
  *
  * @param string|null $hostSNMPCommunity
- * @param array<int,array<string,string>> $macros
+ * @param array<int,array{
+ *      macroName: string,
+ *      macroValue: string,
+ *      macroPassword: '0'|'1',
+ *      originalName?: string
+ * }> $macros
  * @param array<string,string> $hostSecretsFromVault
  * @return array<string,string>
  */
