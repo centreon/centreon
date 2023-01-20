@@ -28,7 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
-    ForbiddenResponse
+    ForbiddenResponse,
     NotFoundResponse,
     PresenterInterface,
 };
