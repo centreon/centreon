@@ -93,7 +93,7 @@ try {
     $pearDB->beginTransaction();
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
-    decodeIllegalCharactersNagios($pearDB);
+    $decodeIllegalCharactersNagios($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
