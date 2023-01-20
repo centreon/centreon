@@ -99,6 +99,7 @@ final class AddHostSeverity
 
                 $hostSeverityId = $this->writeHostSeverityRepository->add($newHostSeverity);
                 $hostSeverity = $this->readHostSeverityRepository->findById($hostSeverityId);
+                $this->info('Add a new host severity', ['hostseverity_id' => $hostSeverityId]);
                 if (! $hostSeverity) {
                     $presenter->setResponseStatus(
                         new ErrorResponse(HostSeverityException::errorWhileRetrievingJustCreated())

@@ -72,6 +72,7 @@ final class DeleteHostSeverity
                 if ($this->readHostSeverityRepository->existsByAccessGroups($hostSeverityId, $accessGroups)) {
                     $this->writeHostSeverityRepository->deleteById($hostSeverityId);
                     $presenter->setResponseStatus(new NoContentResponse());
+                    $this->info('Delete a host severity', ['hostseverity_id' => $hostSeverityId]);
                 } else {
                     $this->error(
                         'Host severity not found',
