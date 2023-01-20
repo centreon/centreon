@@ -49,25 +49,28 @@ export const customFetch = <T>({
     : defaultOptions;
 
   return fetch(endpoint, options)
-    .then(async (response) => {
-      const data = await response.json();
+    .then((response) => {
+      return response.json().then((data) => {
+        if (!response.ok) {
+          const defaultError = { code: -1, message: defaultFailureMessage };
+          catchError({
+            data: data || defaultError,
+            statusCode: response.status
+          });
 
-      if (!response.ok) {
-        const defaultError = { code: -1, message: defaultFailureMessage };
-        catchError({ data: data || defaultError, statusCode: response.status });
+          return {
+            isError: true,
+            message: data.message || defaultFailureMessage,
+            statusCode: response.status
+          };
+        }
 
-        return {
-          isError: true,
-          message: data.message || defaultFailureMessage,
-          statusCode: response.status
-        };
-      }
+        if (decoder) {
+          return decoder.decodeToPromise(data);
+        }
 
-      if (decoder) {
-        return decoder.decodeToPromise(data);
-      }
-
-      return data;
+        return data;
+      });
     })
     .catch(() => {
       const defaultError = { code: -1, message: defaultFailureMessage };

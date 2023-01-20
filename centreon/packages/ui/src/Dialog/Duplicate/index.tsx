@@ -4,9 +4,9 @@ import TextField from '@mui/material/TextField';
 
 import Dialog, { Props as DialogProps } from '..';
 
-type Props = {
+type Props = DialogProps & {
   labelInput?: string;
-} & DialogProps;
+};
 
 const Duplicate = ({
   labelInput = 'Count',
