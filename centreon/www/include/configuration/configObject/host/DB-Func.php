@@ -3222,18 +3222,6 @@ function deleteHostFromVault(
  */
 function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $hostSecretsFromVault): array
 {
-    $formPasswordValues = [];
-
-    //Add macros to payload if they are password type and their values have changed
-    foreach($macros as $macroInfos) {
-        if (
-            $macroInfos['macroPassword'] === '1'
-            && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])
-        ) {
-            $formPasswordValues[$macroInfos['macroName']] = $macroInfos['macroValue'];
-        }
-    }
-
     //Unset existing macros on vault if they no more exist while submitting the form
     foreach(array_keys($hostSecretsFromVault) as $secretKey) {
         if ($secretKey !== SNMP_COMMUNITY_MACRO_NAME) {
@@ -3250,6 +3238,16 @@ function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $
         }
     }
 
+    //Add macros to payload if they are password type and their values have changed
+    foreach($macros as $macroInfos) {
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! preg_match(VAULT_PATH_REGEX, $macroInfos['macroValue'])
+        ) {
+            $hostSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
+    }
+
     //Unset existing SNMP Community if it no more exists while submitting the form
     if (
         array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)
@@ -3260,12 +3258,10 @@ function prepareUpdatePayload(?string $hostSNMPCommunity, array $macros, array $
 
     //Add SNMP Community if a new value has been set
     if ($hostSNMPCommunity !== null && ! preg_match(VAULT_PATH_REGEX, $hostSNMPCommunity)) {
-        $formPasswordValues[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
+        $hostSecretsFromVault[SNMP_COMMUNITY_MACRO_NAME] = $hostSNMPCommunity;
     }
 
-    $result = array_diff($formPasswordValues, $hostSecretsFromVault);
-
-    return array_merge($hostSecretsFromVault, $result);
+    return $hostSecretsFromVault;
 }
 
 /**
