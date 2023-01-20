@@ -15898,3 +15898,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "The host severity icon with id '%d' does not exist"
 #  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
+#  msgstr ""
