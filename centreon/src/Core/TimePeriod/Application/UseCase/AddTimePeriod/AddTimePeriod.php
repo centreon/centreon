@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse, PresenterInterface};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -40,10 +43,12 @@ class AddTimePeriod
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
      * @param WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+     * @param ContactInterface $user
      */
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -55,6 +60,17 @@ class AddTimePeriod
     {
         try {
             $this->info('Add a new time period', ['request' => $request]);
+
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE)) {
+                $this->error('User doesn\'t have sufficient rights to edit time periods', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                );
+
+                return;
+            }
 
             if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
                 $this->error('A time period with this name already exists');
