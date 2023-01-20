@@ -69,7 +69,7 @@ class CentreonHost
      *  1 => [
      *    "macroName" => "KEY"
      *    "macroValue" => "value"
-     *    "isPassword" => "1"
+     *    "macroPassword" => "1"
      *  ],
      *  2 => [
      *    "macroName" => "KEY_1"
