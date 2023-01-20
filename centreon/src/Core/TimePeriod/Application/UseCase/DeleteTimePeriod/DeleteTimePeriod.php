@@ -35,7 +35,7 @@ use Core\TimePeriod\Application\Repository\{
     ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface
 };
 
-class DeleteTimePeriod
+final class DeleteTimePeriod
 {
     use LoggerTrait;
 

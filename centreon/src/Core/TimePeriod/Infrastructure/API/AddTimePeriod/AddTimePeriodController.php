@@ -34,7 +34,7 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class AddTimePeriodController extends AbstractController
+final class AddTimePeriodController extends AbstractController
 {
     use LoggerTrait;
 
@@ -78,6 +78,7 @@ class AddTimePeriodController extends AbstractController
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new ErrorResponse($ex->getMessage())
             );

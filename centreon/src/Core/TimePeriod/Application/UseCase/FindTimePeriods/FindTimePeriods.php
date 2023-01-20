@@ -37,7 +37,7 @@ use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
-class FindTimePeriods
+final class FindTimePeriods
 {
     use LoggerTrait;
 

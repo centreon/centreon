@@ -33,7 +33,7 @@ use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriodRequest
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class UpdateTimePeriodController extends AbstractController
+final class UpdateTimePeriodController extends AbstractController
 {
     use LoggerTrait;
 
@@ -76,7 +76,8 @@ class UpdateTimePeriodController extends AbstractController
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        }  catch (\Throwable $ex) {
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new ErrorResponse($ex->getMessage())
             );
