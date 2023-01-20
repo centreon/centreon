@@ -99,7 +99,7 @@ it('should present a NotFoundResponse when the time period is not found', functi
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present an Forbiden response when user has insufficient rights', function () {
+it('should present an Forbidden response when user has insufficient rights', function () {
     $timePeriodId = 1;
 
     $this->user
