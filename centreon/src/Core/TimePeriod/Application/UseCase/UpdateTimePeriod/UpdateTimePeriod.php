@@ -29,11 +29,17 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\{
-    ConflictResponse, ErrorResponse, NoContentResponse, NotFoundResponse, PresenterInterface
+    ConflictResponse,
+    ErrorResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    PresenterInterface
 };
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 
 final class UpdateTimePeriod
@@ -81,6 +87,9 @@ final class UpdateTimePeriod
             }
             $this->updateTimePeriodAndSave($timePeriod, $request);
             $presenter->setResponseStatus(new NoContentResponse());
+        } catch (AssertionFailedException|TimeRangeException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when updating the time period',

@@ -19,7 +19,7 @@ Feature:
     When I send a POST request to '/api/latest/configuration/timeperiods' with body:
     """
     {
-        "name": "test_name",
+        "name": "test_name   ",
         "alias": "test_alias",
         "days": [
             {
@@ -176,7 +176,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
     """
     {
-        "name": "already_exists",
+        "name": "already_exists   ",
         "alias": "already_exists_alias",
         "days": [],
         "templates": [1],

@@ -23,14 +23,22 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse, PresenterInterface};
+use Core\Application\Common\UseCase\{
+    ConflictResponse,
+    CreatedResponse,
+    ErrorResponse,
+    PresenterInterface,
+    InvalidArgumentResponse
+};
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
@@ -89,6 +97,9 @@ final class AddTimePeriod
             $presenter->present(
                 new CreatedResponse($newTimePeriodId, $this->createResponse($timePeriod))
             );
+        } catch (AssertionFailedException|TimeRangeException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when adding the time period',

@@ -180,7 +180,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $statement = $this->db->prepare(
             $this->translateDbName('SELECT tp_id FROM `:db`.timeperiod WHERE tp_name = :name')
         );
-        $statement->bindValue(':name', $timePeriodName);
+        $statement->bindValue(':name', trim($timePeriodName));
         $statement->execute();
         /**
          * @var array{tp_id: int}|false $result

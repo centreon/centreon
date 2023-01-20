@@ -27,7 +27,10 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
-    ErrorResponse, NotFoundResponse, PresenterInterface, ForbiddenResponse
+    ErrorResponse,
+    ForbiddenResponse
+    NotFoundResponse,
+    PresenterInterface,
 };
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
