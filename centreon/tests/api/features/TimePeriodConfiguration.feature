@@ -188,7 +188,7 @@ Feature:
     """
     {
         "code": 409,
-        "message": "The time period name 'already_exists' already exists"
+        "message": "The time period name 'already_exists   ' already exists"
     }
     """
 
