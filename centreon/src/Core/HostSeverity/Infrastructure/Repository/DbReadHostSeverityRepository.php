@@ -203,6 +203,8 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
      */
     public function existsByName(string $hostSeverityName): bool
     {
+        $hostSeverityName = trim($hostSeverityName);
+
         $this->info('Check existence of host severity with name ' . $hostSeverityName);
 
         $request = $this->translateDbName(

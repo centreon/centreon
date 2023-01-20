@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,14 +26,14 @@ namespace Tests\Core\HostSeverity\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\HostSeverity\Domain\Model\HostSeverity;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->severityName = 'host-name';
     $this->severityAlias = 'host-alias';
     $this->level = 1;
     $this->iconId = 2;
 });
 
-it('should return properly set host severity instance', function () {
+it('should return properly set host severity instance', function (): void {
     $hostSeverity = new HostSeverity(1, $this->severityName, $this->severityAlias, $this->level, $this->iconId);
 
     expect($hostSeverity->getId())->toBe(1)
@@ -41,7 +41,20 @@ it('should return properly set host severity instance', function () {
         ->and($hostSeverity->getAlias())->toBe($this->severityAlias);
 });
 
-it('should throw an exception when host severity name is empty', function () {
+it('should trim the fields "name" and "alias"', function (): void {
+    $hostSeverity = new HostSeverity(
+        1,
+        $nameWithSpaces = '  my-name  ',
+        $aliasWithSpaces = '  my-alias  ',
+        $this->level,
+        $this->iconId
+    );
+
+    expect($hostSeverity->getName())->toBe(trim($nameWithSpaces))
+        ->and($hostSeverity->getAlias())->toBe(trim($aliasWithSpaces));
+});
+
+it('should throw an exception when host severity name is empty', function (): void {
     new HostSeverity(1, '', $this->severityAlias, $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -49,7 +62,7 @@ it('should throw an exception when host severity name is empty', function () {
         ->getMessage()
 );
 
-it('should throw an exception when host severity name is too long', function () {
+it('should throw an exception when host severity name is too long', function (): void {
     new HostSeverity(1, str_repeat('a', HostSeverity::MAX_NAME_LENGTH + 1), $this->severityAlias, $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -61,7 +74,7 @@ it('should throw an exception when host severity name is too long', function () 
     )->getMessage()
 );
 
-it('should throw an exception when host severity alias is empty', function () {
+it('should throw an exception when host severity alias is empty', function (): void {
     new HostSeverity(1, $this->severityName, '', $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -69,7 +82,7 @@ it('should throw an exception when host severity alias is empty', function () {
         ->getMessage()
 );
 
-it('should throw an exception when host severity alias is too long', function () {
+it('should throw an exception when host severity alias is too long', function (): void {
     new HostSeverity(1, $this->severityName, str_repeat('a', HostSeverity::MAX_ALIAS_LENGTH + 1), $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -81,7 +94,7 @@ it('should throw an exception when host severity alias is too long', function ()
     )->getMessage()
 );
 
-it('should throw an exception when host severity comment is too long', function () {
+it('should throw an exception when host severity comment is too long', function (): void {
     $hostSeverity = new HostSeverity(1, $this->severityName, $this->severityAlias, $this->level, $this->iconId);
     $hostSeverity->setComment(str_repeat('a', HostSeverity::MAX_COMMENT_LENGTH + 1));
 })->throws(
@@ -94,7 +107,7 @@ it('should throw an exception when host severity comment is too long', function 
     )->getMessage()
 );
 
-it('should throw an exception when host severity level is too high', function () {
+it('should throw an exception when host severity level is too high', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -104,11 +117,11 @@ it('should throw an exception when host severity level is too high', function ()
     );
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::max(HostSeverity::MAX_LEVEL_VALUE + 1, HostSeverity::MAX_LEVEL_VALUE, "HostSeverity::level")
+    AssertionException::max(HostSeverity::MAX_LEVEL_VALUE + 1, HostSeverity::MAX_LEVEL_VALUE, 'HostSeverity::level')
         ->getMessage()
 );
 
-it('should throw an exception when host severity level is too low', function () {
+it('should throw an exception when host severity level is too low', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -118,8 +131,7 @@ it('should throw an exception when host severity level is too low', function () 
     );
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::min(HostSeverity::MIN_LEVEL_VALUE - 1, HostSeverity::MIN_LEVEL_VALUE, "HostSeverity::level")
+    AssertionException::min(HostSeverity::MIN_LEVEL_VALUE - 1, HostSeverity::MIN_LEVEL_VALUE, 'HostSeverity::level')
         ->getMessage()
 );
-
 

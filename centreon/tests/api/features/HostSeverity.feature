@@ -243,8 +243,8 @@ Feature:
     When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
     """
     {
-        "name": "host-sev-name",
-        "alias": "host-sev-alias",
+        "name": "  host-sev-name  ",
+        "alias": "  host-sev-alias  ",
         "level": 2,
         "icon_id": 1,
         "comments": "blablabla"
@@ -269,6 +269,20 @@ Feature:
     """
     {
         "name": "host-sev-name",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comments": "blablabla"
+    }
+    """
+    Then the response code should be "409"
+
+    # conflict on name (should be trimmed by the repository
+    When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
+    """
+    {
+        "name": "   host-sev-name   ",
         "alias": "host-sev-alias",
         "level": 2,
         "icon_id": 1,

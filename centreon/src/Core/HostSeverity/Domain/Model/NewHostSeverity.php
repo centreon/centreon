@@ -52,6 +52,9 @@ class NewHostSeverity
         protected int $level,
         protected int $iconId
     ) {
+        $this->name = trim($name);
+        $this->alias = trim($alias);
+
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
         Assertion::notEmpty($name, $shortName . '::name');
@@ -124,6 +127,7 @@ class NewHostSeverity
     public function setComment(?string $comment): void
     {
         if ($comment !== null) {
+            $comment = trim($comment);
             Assertion::maxLength(
                 $comment,
                 self::MAX_COMMENT_LENGTH,

@@ -68,10 +68,10 @@ final class AddHostSeverity
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(HostSeverityException::addNotAllowed()->getMessage())
                 );
-            } elseif ($this->readHostSeverityRepository->existsByName(trim($request->name))) {
+            } elseif ($this->readHostSeverityRepository->existsByName($request->name)) {
                 $this->error(
                     'Host severity name already exists',
-                    ['hostseverity_name' => trim($request->name)]
+                    ['hostseverity_name' => $request->name]
                 );
                 $presenter->setResponseStatus(
                     new ConflictResponse(HostSeverityException::hostNameAlreadyExists())
@@ -82,20 +82,20 @@ final class AddHostSeverity
             ) {
                 $this->error(
                     'Host severity icon does not exist',
-                    ['hostseverity_name' => trim($request->name)]
+                    ['hostseverity_name' => $request->name]
                 );
                 $presenter->setResponseStatus(
                     new ConflictResponse(HostSeverityException::iconDoesNotExist($request->iconId))
                 );
             } else {
                 $newHostSeverity = new NewHostSeverity(
-                    trim($request->name),
-                    trim($request->alias),
+                    $request->name,
+                    $request->alias,
                     $request->level,
                     $request->iconId,
                 );
                 $newHostSeverity->setActivated($request->isActivated);
-                $newHostSeverity->setComment($request->comment ? trim($request->comment) : null);
+                $newHostSeverity->setComment($request->comment);
 
                 $hostSeverityId = $this->writeHostSeverityRepository->add($newHostSeverity);
                 $hostSeverity = $this->readHostSeverityRepository->findById($hostSeverityId);
