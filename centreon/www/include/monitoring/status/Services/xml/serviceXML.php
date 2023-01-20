@@ -165,35 +165,62 @@ $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.ho
     h.icon_image AS h_icon_images, h.display_name AS h_display_name, h.action_url AS h_action_url,
     h.notes_url AS h_notes_url, h.notes AS h_notes, h.address,
     h.passive_checks AS h_passive_checks, h.active_checks AS h_active_checks,
-    i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull
-    FROM hosts h, instances i ";
+    i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull,
+    m.index_id IS NOT NULL as hasGraph
+    FROM hosts h
+    INNER JOIN instances i
+      ON h.instance_id = i.instance_id
+    INNER JOIN services s
+      ON s.host_id = h.host_id
+    LEFT JOIN index_data idx
+      ON idx.host_id = h.host_id
+      AND idx.service_id = s.service_id
+      AND idx.hidden = '0'
+    LEFT JOIN metrics m
+      ON m.index_id = idx.id ";
+
 if (isset($hostgroups) && $hostgroups != 0) {
-    $request .= ", hosts_hostgroups hg, hostgroups hg2";
+    $request .= "INNER JOIN hosts_hostgroups hg
+        ON hg.host_id = h.host_id
+        AND hg.hostgroup_id = :hostGroup
+    INNER JOIN hostgroups hg2
+        ON hg2.hostgroup_id = hg.hostgroup_id";
+
+    $queryValues['hostGroup'] = [\PDO::PARAM_INT => $hostgroups];
 }
+
 if (isset($servicegroups) && $servicegroups != 0) {
-    $request .= ", services_servicegroups ssg, servicegroups sg";
+    $request .= "INNER JOIN services_servicegroups ssg
+        ON ssg.service_id = s.service_id
+        AND ssg.servicegroup_id = :serviceGroup
+    INNER JOIN servicegroups sg
+        ON sg.servicegroup_id = ssg.servicegroup_id";
+
+    $queryValues['serviceGroup'] = [\PDO::PARAM_INT => $servicegroups];
 }
+
 if ($criticalityId) {
-    $request .= ", customvariables cvs ";
+    $request .= "INNER JOIN customvariables cvs
+        ON cvs.service_id = s.service_id
+        AND cvs.host_id = h.host_id
+        AND cvs.name = 'CRITICALITY_ID'
+        AND cvs.value = :criticalityValue";
+
+    // the variable bounded to criticalityValue must be an integer. But is inserted in a DB's varchar column
+    $queryValues['criticalityValue'] = [\PDO::PARAM_STR => $criticalityId];
 }
 if (!$obj->is_admin) {
     $request .= ", centreon_acl ";
 }
-$request .= ", services s LEFT JOIN customvariables cv ON (s.service_id = cv.service_id
-    AND cv.host_id = s.host_id AND cv.name = 'CRITICALITY_LEVEL')
-    WHERE h.host_id = s.host_id
-    AND s.enabled = 1
+$request .= " LEFT JOIN customvariables cv
+    ON (
+        s.service_id = cv.service_id
+        AND cv.host_id = s.host_id
+        AND cv.name = 'CRITICALITY_LEVEL'
+    )
+    WHERE s.enabled = 1
     AND h.enabled = 1
-    AND h.instance_id = i.instance_id ";
-if ($criticalityId) {
-    $request .= " AND s.service_id = cvs. service_id
-        AND cvs.host_id = h.host_id
-        AND cvs.name = 'CRITICALITY_ID'
-        AND cvs.value = :criticalityValue";
-    // the variable bounded to criticalityValue must be an integer. But is inserted in a DB's varchar column
-    $queryValues['criticalityValue'] = [\PDO::PARAM_STR => $criticalityId];
-}
-$request .= " AND h.name NOT LIKE '\_Module\_BAM%' "
+    AND h.name NOT LIKE '\_Module\_BAM%' "
     . $searchHost
     . $searchService
     . $searchOutput
@@ -238,20 +265,6 @@ if ($statusService === 'svc_unhandled' || $statusService === 'svcpb') {
             $request .= " AND s.state = 4 ";
             break;
     }
-}
-
-// HostGroup Filter
-if (isset($hostgroups) && $hostgroups != 0) {
-    $request .= " AND hg.hostgroup_id = hg2.hostgroup_id
-        AND hg.host_id = h.host_id AND hg.hostgroup_id = :hostGroup ";
-    $queryValues['hostGroup'] = [\PDO::PARAM_INT => $hostgroups];
-}
-
-// ServiceGroup Filter
-if (isset($servicegroups) && $servicegroups != 0) {
-    $request .= " AND ssg.servicegroup_id = sg.servicegroup_id
-        AND ssg.service_id = s.service_id AND ssg.servicegroup_id = :serviceGroup ";
-    $queryValues['serviceGroup'] = [\PDO::PARAM_INT => $servicegroups];
 }
 
 // ACL activation
@@ -425,7 +438,7 @@ if (!$sqlError) {
             }
             $obj->XML->writeElement(
                 "hnu",
-                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["name"], $hostNotesUrl))
+                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["host_id"], $hostNotesUrl))
             );
 
             $hostActionUrl = "none";
@@ -444,7 +457,7 @@ if (!$sqlError) {
             }
             $obj->XML->writeElement(
                 "hau",
-                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["name"], $hostActionUrl))
+                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["host_id"], $hostActionUrl))
             );
 
             $obj->XML->writeElement("hnn", CentreonUtils::escapeSecure($data["h_notes"]));
@@ -631,35 +644,8 @@ if (!$sqlError) {
         $obj->XML->writeElement("rd", (time() - $data["last_state_change"]));
         $obj->XML->writeElement("last_hard_state_change", $hard_duration);
 
-        /**
-         * Get Service Graph index
-         */
-        if (!isset($graphs[$data["host_id"]]) || !isset($graphs[$data["host_id"]][$data["service_id"]])) {
-            $request2 = "SELECT DISTINCT service_id, id
-                FROM index_data, metrics
-                WHERE metrics.index_id = index_data.id
-                AND host_id = :hostId
-                AND service_id = :serviceId
-                AND index_data.hidden = '0'";
-            $dbResult2 = $obj->DBC->prepare($request2);
-            $dbResult2->bindValue(':hostId', $data["host_id"], \PDO::PARAM_INT);
-            $dbResult2->bindValue(':serviceId', $data["service_id"], \PDO::PARAM_INT);
-            $dbResult2->execute();
-
-            while ($dataG = $dbResult2->fetch()) {
-                if (!isset($graphs[$data["host_id"]])) {
-                    $graphs[$data["host_id"]] = [];
-                }
-                $graphs[$data["host_id"]][$dataG["service_id"]] = $dataG["id"];
-            }
-            if (!isset($graphs[$data["host_id"]])) {
-                $graphs[$data["host_id"]] = [];
-            }
-        }
-        $obj->XML->writeElement(
-            "svc_index",
-            (isset($graphs[$data["host_id"]][$data["service_id"]]) ? $graphs[$data["host_id"]][$data["service_id"]] : 0)
-        );
+        // Get Service Graph index
+        $obj->XML->writeElement("hasGraph", $data['hasGraph'] ? '1': '0');
         $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
         $obj->XML->endElement();
     }

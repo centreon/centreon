@@ -375,25 +375,15 @@ class CentreonHost
      */
     public function getHostName($hostId)
     {
-        static $hosts = null;
-
         if (!isset($hostId) || !$hostId) {
             return null;
         }
 
-        if (is_null($hosts)) {
-            $hosts = array();
-            $query = 'SELECT host_id, host_name FROM host';
-            $res = $this->db->query($query);
-            if (!$res) {
-                throw new \Exception("An error occured");
-            }
-            while ($row = $res->fetch()) {
-                $hosts[$row['host_id']] = $row['host_name'];
-            }
-        }
-        if (isset($hosts[$hostId])) {
-            return $hosts[$hostId];
+        $statement = $this->db->prepare('SELECT host_name FROM host WHERE host_id = :host_id');
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+        if ($hostName = $statement->fetchColumn()) {
+            return $hostName;
         }
         return null;
     }
@@ -683,6 +673,9 @@ class CentreonHost
      */
     public function replaceMacroInString($hostParam, $string, $antiLoop = null)
     {
+        if (! preg_match('/(?:\$[0-9a-zA-Z_-]+\$)/', $string)) {
+            return $string;
+        }
         if (is_numeric($hostParam)) {
             $hostId = $hostParam;
         } elseif (is_string($hostParam)) {
@@ -690,7 +683,12 @@ class CentreonHost
         } else {
             return $string;
         }
-        $query = 'SELECT host_register FROM host WHERE host_id = :hostId LIMIT 1';
+        $query = 'SELECT host_id, nagios_server_id, host_register, host_address, host_name, host_alias
+          FROM host
+          LEFT JOIN ns_host_relation ns
+            ON ns.host_host_id = host.host_id
+          WHERE host_id = :hostId 
+          LIMIT 1';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
@@ -707,25 +705,25 @@ class CentreonHost
          * replace if not template
          */
         if ($row['host_register'] == 1) {
-            if (strpos($string, "\$HOSTADDRESS$")) {
-                $string = str_replace("\$HOSTADDRESS\$", $this->getHostAddress($hostId), $string);
+            if (strpos($string, '$HOSTADDRESS$') !== false) {
+                $string = str_replace('$HOSTADDRESS$', $row['host_address'], $string);
             }
-            if (strpos($string, "\$HOSTNAME$")) {
-                $string = str_replace("\$HOSTNAME\$", $this->getHostName($hostId), $string);
+            if (strpos($string, '$HOSTNAME$') !== false) {
+                $string = str_replace('$HOSTNAME$', $row['host_name'], $string);
             }
-            if (strpos($string, "\$HOSTALIAS$")) {
-                $string = str_replace("\$HOSTALIAS\$", $this->getHostAlias($hostId), $string);
+            if (strpos($string, '$HOSTALIAS$') !== false) {
+                $string = str_replace('$HOSTALIAS$', $row['host_alias'], $string);
             }
-            if (preg_match("\$INSTANCENAME\$", $string)) {
+            if (strpos($string, '$INSTANCENAME$') !== false) {
                 $string = str_replace(
-                    "\$INSTANCENAME\$",
+                    '$INSTANCENAME$',
                     $this->instanceObj->getParam($this->getHostPollerId($hostId), 'name'),
                     $string
                 );
             }
-            if (preg_match("\$INSTANCEADDRESS\$", $string)) {
+            if (strpos($string, '$INSTANCEADDRESS$') !== false) {
                 $string = str_replace(
-                    "\$INSTANCEADDRESS\$",
+                    '$INSTANCEADDRESS$',
                     $this->instanceObj->getParam($this->getHostPollerId($hostId), 'ns_ip_address'),
                     $string
                 );
