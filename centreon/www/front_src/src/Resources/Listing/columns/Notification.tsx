@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import { Tooltip } from '@mui/material';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelNotificationDisabled } from '../../translatedLabels';
 

@@ -1,6 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { StatusChip, StatusChipProps } from '@centreon/ui';
+import { StatusChip } from '@centreon/ui';
+import type { StatusChipProps } from '@centreon/ui';
 
 const useStyles = makeStyles()((theme) => ({
   root: {

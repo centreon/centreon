@@ -20,6 +20,10 @@ declare module '@mui/material/styles' {
       listingHeader: string;
       paper: string;
     };
+    pending: {
+      contrastText: string;
+      main: string;
+    };
   }
   interface PaletteOptions {
     pending: {

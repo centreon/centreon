@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelInDowntime, labelAcknowledged } from '../../../translatedLabels';
 import { Resource } from '../../../models';

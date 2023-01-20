@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, Ref } from 'react';
 
 const useHover = (): Array<Ref<Node> | boolean> => {
-  const [value, setValue] = useState(false);
+  const [value, setValue] = useState<boolean>(false);
 
   const ref = useRef<Node>(null);
 

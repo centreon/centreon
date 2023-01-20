@@ -48,10 +48,6 @@ runs:
         package: ${{ inputs.package }}
         branch_name: ${{ github.head_ref }}
 
-    - name: Log package version
-      run: echo "${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }}"
-      shell: bash
-
     - name: Write beta NPM package version
       if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' }}
       run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }} --legacy-peer-deps
@@ -65,7 +61,6 @@ runs:
 
     - name: Bump NPM package version
       run: |
-        echo ${{ env.TAG }}
         [[ ${{ inputs.release_type }} = "stable" ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
@@ -73,13 +68,20 @@ runs:
       working-directory: ${{ env.directory }}
       shell: bash
 
-    - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@v1
+    - name: Build package
+      if: ${{ inputs.package != 'js-config' }}
+      uses: ./.github/actions/build-npm-package
       with:
-        access: public
-        package: ${{ env.directory }}/package.json
-        tag: ${{ env.TAG }}
-        token: ${{ inputs.npm_token }}
+        package: ${{ inputs.package }}
+
+    - name: Publish package to NPM (${{ env.TAG }})
+      run: |
+        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        npm publish --access public --tag ${{ env.TAG }}
+      working-directory: ${{ env.directory }}
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.npm_token }}
 
     - name: Configure git
       if: ${{ inputs.release_type == 'stable' }}

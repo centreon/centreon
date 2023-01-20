@@ -2,7 +2,7 @@ import { path } from 'ramda';
 
 import IconAction from '@mui/icons-material/FlashOn';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import UrlColumn from '.';
 

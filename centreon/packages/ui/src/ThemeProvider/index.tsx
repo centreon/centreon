@@ -28,6 +28,7 @@ declare module '@mui/styles/defaultTheme' {
 declare module '@mui/material/TextField' {
   interface TextFieldPropsSizeOverrides {
     compact: true;
+    large: true;
   }
 }
 

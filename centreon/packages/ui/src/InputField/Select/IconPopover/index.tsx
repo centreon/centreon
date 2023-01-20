@@ -99,9 +99,12 @@ const IconPopoverMultiAutocomplete = ({
         </IconButton>
         <Popper
           anchorEl={anchorEl}
+          nonce={undefined}
           open={isOpen}
           placement={popperPlacement}
           style={{ zIndex: theme.zIndex.tooltip }}
+          onResize={(): undefined => undefined}
+          onResizeCapture={(): undefined => undefined}
         >
           <Paper>
             {!isNil(onReset) && (
