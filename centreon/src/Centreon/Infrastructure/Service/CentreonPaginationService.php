@@ -36,14 +36,15 @@
 
 namespace Centreon\Infrastructure\Service;
 
-use Psr\Container\ContainerInterface;
-use Centreon\ServiceProvider;
-use Centreon\Application\DataRepresenter;
-use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Exception;
+use App\Kernel;
 use ReflectionClass;
 use JsonSerializable;
-use Exception;
 use RuntimeException;
+use Centreon\ServiceProvider;
+use Psr\Container\ContainerInterface;
+use Centreon\Application\DataRepresenter;
+use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 
 class CentreonPaginationService
 {
@@ -100,6 +101,11 @@ class CentreonPaginationService
     protected $context;
 
     /**
+     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    private $symfonyContainer;
+
+    /**
      * List of required services
      *
      * @return array
@@ -121,6 +127,7 @@ class CentreonPaginationService
     {
         $this->db = $container->get(ServiceProvider::CENTREON_DB_MANAGER);
         $this->serializer = $container->get(ServiceProvider::SERIALIZER);
+        $this->symfonyContainer = (Kernel::createForWeb())->getContainer();
     }
 
     /**
@@ -134,6 +141,22 @@ class CentreonPaginationService
         $this->filters = $filters;
 
         return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Serializer\Serializer
+     */
+    public function getSerializer(): \Symfony\Component\Serializer\Serializer
+    {
+        return $this->serializer;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataRepresenter(): string
+    {
+        return $this->dataRepresenter;
     }
 
     /**
@@ -273,7 +296,8 @@ class CentreonPaginationService
      */
     public function getListing(): DataRepresenter\Listing
     {
-        $repository = $this->db->getRepository($this->repository);
+        // $repository = $this->db->getRepository($this->repository);
+        $repository = $this->symfonyContainer->get($this->repository);
 
         $entities = $repository
             ->getPaginationList($this->filters, $this->limit, $this->offset, $this->ordering, $this->extras);

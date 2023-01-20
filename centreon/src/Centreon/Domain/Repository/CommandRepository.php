@@ -36,12 +36,21 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class CommandRepository extends ServiceEntityRepository
+class CommandRepository extends AbstractRepositoryRDB
 {
      use CheckListOfIdsTrait;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
      /**
      * Check list of IDs
@@ -62,7 +71,7 @@ class CommandRepository extends ServiceEntityRepository
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
@@ -182,13 +191,13 @@ SQL;
     public function truncate()
     {
         $sql = <<<SQL
-TRUNCATE TABLE `command`;
-TRUNCATE TABLE `connector`;
-TRUNCATE TABLE `command_arg_description`;
-TRUNCATE TABLE `command_categories_relation`;
-TRUNCATE TABLE `command_categories`;
-TRUNCATE TABLE `on_demand_macro_command`;
-SQL;
+            TRUNCATE TABLE `command`;
+            TRUNCATE TABLE `connector`;
+            TRUNCATE TABLE `command_arg_description`;
+            TRUNCATE TABLE `command_categories_relation`;
+            TRUNCATE TABLE `command_categories`;
+            TRUNCATE TABLE `on_demand_macro_command`;
+        SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }

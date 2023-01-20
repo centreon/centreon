@@ -442,3 +442,39 @@ services:
     Utility\Interfaces\UUIDGeneratorInterface:
         class: Utility\UUIDGenerator
         public: true
+
+    Centreon\Domain\Repository\ImagesRepository:
+        class: Centreon\Domain\Repository\ImagesRepository
+        public: true
+
+    CentreonUser\Domain\Repository\TimeperiodRepository:
+        class: CentreonUser\Domain\Repository\TimeperiodRepository
+        public: true
+
+    CentreonCommand\Domain\Repository\CommandRepository:
+        class: CentreonCommand\Domain\Repository\CommandRepository
+        public: true
+
+    Centreon\Domain\Repository\NagiosServerRepository:
+        class: Centreon\Domain\Repository\NagiosServerRepository
+        public: true
+
+    Centreon\Domain\Repository\AclGroupRepository:
+        class: Centreon\Domain\Repository\AclGroupRepository
+        public: true
+
+    Centreon\Domain\Repository\ContactGroupRepository:
+        class: Centreon\Domain\Repository\ContactGroupRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\EscalationRepository:
+        class: CentreonNotification\Domain\Repository\EscalationRepository
+        public: true
+
+    Centreon\Domain\Repository\ServiceRepository:
+        class: Centreon\Domain\Repository\ServiceRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\DependencyRepository:
+        class: CentreonNotification\Domain\Repository\DependencyRepository
+        public: true
