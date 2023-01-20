@@ -1592,7 +1592,6 @@ class CentreonHost
 
         $container[\CentreonLicense\ServiceProvider::LM_PRODUCT_NAME] = 'epp';
         $container[\CentreonLicense\ServiceProvider::LM_HOST_CHECK] = true;
-
         if (!$container[\CentreonLicense\ServiceProvider::LM_LICENSE]) {
             return false;
         }
@@ -2592,7 +2591,7 @@ class CentreonHost
      * @return array<int,array{
      *  macroName: string,
      *  macroValue: string,
-     *  macroPassword: string,
+     *  macroPassword: '0'|'1',
      *  originalName?: string
      * }>
      */

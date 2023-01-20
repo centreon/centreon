@@ -3214,7 +3214,7 @@ function deleteHostFromVault(
  * @param array<int,array{
      *  macroName: string,
      *  macroValue: string,
-     *  macroPassword: string,
+     *  macroPassword: '0'|'1',
      *  originalName?: string
      * }> $macros
  * @param array<string,string> $hostSecretsFromVault
