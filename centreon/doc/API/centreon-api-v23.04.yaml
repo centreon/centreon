@@ -304,8 +304,8 @@ paths:
                       $ref: '#/components/schemas/Configuration.Host.Category'
                   meta:
                     $ref: '#/components/schemas/Meta'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
@@ -1052,6 +1052,8 @@ paths:
                       $ref: '#/components/schemas/Configuration.TimePeriod'
                   meta:
                     $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
