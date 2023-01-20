@@ -56,7 +56,7 @@ const SERVICE_DELETION = 'd';
 /*
  * Check options
  */
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
+if (isset($_POST["o1"], $_POST["o2"])) {
     if ($_POST["o1"] != "") {
         $o = $_POST["o1"];
     }
