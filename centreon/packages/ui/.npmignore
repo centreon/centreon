@@ -1,2 +1,7 @@
-*.test.js
-src/__image_snapshots__
+.out
+.storybook
+src
+fonts
+jest.config.js
+setupTests.js
+testRunner.js

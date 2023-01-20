@@ -67,14 +67,15 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
 
         $request = $this->translateDbName(
             'INSERT INTO `:db`.hostcategories
-            (hc_name, hc_alias, hc_comment) VALUES
-            (:name, :alias, :comment)'
+            (hc_name, hc_alias, hc_comment, hc_activate) VALUES
+            (:name, :alias, :comment, :isActivated)'
         );
         $statement = $this->db->prepare($request);
 
         $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
         $statement->bindValue(':comment', $hostCategory->getComment(), \PDO::PARAM_STR);
+        $statement->bindValue(':isActivated', $hostCategory->isActivated() ? '1' : '0', \PDO::PARAM_STR);
 
         $statement->execute();
 

@@ -11,9 +11,9 @@ import {
   getData,
   postData,
   useRequest,
-  SelectEntry,
   MultiAutocompleteField
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import WizardButtons from '../forms/wizardButtons';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';

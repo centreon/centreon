@@ -13,7 +13,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Theme } from '@mui/material';
 
-import { ListingModel, useRequest } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import PerformanceGraph from '..';

@@ -7,12 +7,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Stack } from '@mui/material';
 
-import {
-  useRequest,
-  ListingModel,
-  MultiAutocompleteField,
-  SearchParameter
-} from '@centreon/ui';
+import { useRequest, MultiAutocompleteField } from '@centreon/ui';
+import type { ListingModel, SearchParameter } from '@centreon/ui';
 
 import { labelEvent } from '../../../translatedLabels';
 import { TabProps } from '..';

@@ -1,5 +1,6 @@
 name: ui-automerge
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - labeled
@@ -11,7 +12,6 @@ on:
       - reopened
       - unlocked
     paths:
-      - ".github/workflows/ui-automerge.yml"
       - "centreon/packages/ui/**"
   check_suite:
     types:

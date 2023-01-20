@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -73,6 +74,7 @@ final class AddHostCategory
             } else {
                 $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
                 $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
+                $newHostCategory->setActivated($request->isActivated);
 
                 $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
@@ -88,6 +90,9 @@ final class AddHostCategory
                     new CreatedResponse($hostCategoryId, $this->createResponse($hostCategory))
                 );
             }
+        } catch (\Assert\AssertionFailedException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(HostCategoryException::addHostCategory($ex))

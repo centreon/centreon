@@ -9,7 +9,7 @@ import { grey, lightGreen, red } from '@mui/material/colors';
 import { ThemeMode } from '@centreon/ui-context';
 
 import useStyleTable from '../Listing/useStyleTable';
-import { TableStyle } from '../Listing/models';
+import type { TableStyleAtom } from '../Listing/models';
 
 enum SeverityCode {
   High = 1,
@@ -75,7 +75,7 @@ export type Props = {
 } & ChipProps;
 
 interface StylesProps {
-  data: TableStyle['statusColumnChip'];
+  data: TableStyleAtom['statusColumnChip'];
   severityCode: SeverityCode;
 }
 

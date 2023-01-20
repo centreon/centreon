@@ -315,16 +315,12 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                name:
-                  type: "string"
-                  example: "host-category-name"
-                alias:
-                  type: "string"
-                  example: "host-category-alias"
+              $ref: "#/components/schemas/Configuration.Host.Category.Add"
       responses:
         '201':
           description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -383,6 +379,18 @@ paths:
       summary: "List all host severities"
       description: |
         List of all host severity configurations
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * level
+        * is_activated
+
+        Changes in 23.04 :
+
+        * `icon` was renamed `icon_id` and is no longer an object but the image ID
       responses:
         "200":
           description: "OK"
@@ -463,6 +471,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Configuration.Host.Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
@@ -5630,6 +5640,29 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
+        comments:
+          type: string
+          nullable: true
+          description: "some comments"
+    Configuration.Host.Category.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Host category name"
+          example: "host-category"
+        alias:
+          type: string
+          description: "Host category alias"
+          example: "host-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enable/disable)
+          example: true
+        comments:
+          type: string
+          nullable: true
+          description: "some comments"
     Configuration.Host.Severity:
       type: object
       properties:
@@ -5649,9 +5682,10 @@ components:
           type: integer
           description: "Host severity priority"
           example: 2
-        icon:
-          $ref: '#/components/schemas/Media.Image'
-          description: "Define the image associated with this severity"
+        icon_id:
+          type: integer
+          description: "Define the image ID associated with this severity"
+          example: 1
         comments:
           type: string
           description: "Host severity comments"

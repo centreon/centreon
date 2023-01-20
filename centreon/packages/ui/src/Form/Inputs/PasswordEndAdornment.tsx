@@ -26,7 +26,11 @@ const PasswordEndAdornment = ({
 
   return (
     <InputAdornment position="end">
-      <IconButton ariaLabel={t(label)} size="small" onClick={changeVisibility}>
+      <IconButton
+        ariaLabel={t(label) || ''}
+        size="small"
+        onClick={changeVisibility}
+      >
         {icon}
       </IconButton>
     </InputAdornment>

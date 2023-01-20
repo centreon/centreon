@@ -104,7 +104,7 @@ it('should present a ForbiddenResponse when the user does not have the correct r
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostGroupException::accessNotAllowed()->getMessage());
+        ->toBe(HostGroupException::accessNotAllowedForWriting()->getMessage());
 });
 
 it('should present a NoContentResponse as admin', function (): void {
