@@ -68,8 +68,7 @@ Cypress.Commands.add(
         });
     }
 
-    return cy
-      .fixture(`users/${jsonName}.json`)
+    cy.fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
@@ -78,13 +77,34 @@ Cypress.Commands.add(
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
+
+    return cy
+      .get('.SnackbarContent-root > .MuiPaper-root')
+      .then(($snackbar) => {
+        if ($snackbar.text().includes('Login succeeded')) {
+          cy.wait('@getNavigationList');
+        }
+      });
   }
 );
 
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
-    return cy.get('li').eq(rootItemNumber).trigger('mouseover');
+    return cy
+      .get('li')
+      .eq(rootItemNumber)
+      .within(($li) => {
+        if ($li) {
+          return $li;
+        }
+
+        return cy
+          .reload()
+          .wait('@getNavigationList')
+          .hoverRootMenuItem(rootItemNumber);
+      })
+      .trigger('mouseover');
   }
 );
 

@@ -135,13 +135,16 @@ const configureUserAtomViewMode = (
 };
 
 before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
   configureUserAtomViewMode();
 });
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
 ): void => {
+  const responseForToListingTable = interceptCriticalResources
+    ? retrievedListingWithCriticalResources
+    : retrievedListing;
+
   cy.interceptAPIRequest({
     alias: 'filterRequest',
     method: Method.GET,
@@ -152,16 +155,12 @@ const interceptRequestsAndMountBeforeEach = (
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: interceptCriticalResources
-      ? retrievedListingWithCriticalResources
-      : retrievedListing
+    response: responseForToListingTable
   });
   cy.mount({
     Component: (
       <Router>
-        <div style={{ backgroundColor: '#fff' }}>
-          <ListingTestWithJotai />
-        </div>
+        <ListingTestWithJotai />
       </Router>
     )
   });
@@ -244,25 +243,6 @@ describe('column sorting', () => {
     .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
   beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: fakeData
-    });
-
-    cy.mount({
-      Component: (
-        <Router>
-          <div style={{ backgroundColor: '#fff' }}>
-            <ListingTestWithJotai />
-          </div>
-        </Router>
-      )
-    });
-
-    cy.viewport(1200, 1000);
-
     columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
@@ -296,6 +276,23 @@ describe('column sorting', () => {
         response: retrievedListing
       });
     });
+
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: fakeData
+    });
+
+    cy.mount({
+      Component: (
+        <Router>
+          <ListingTestWithJotai />
+        </Router>
+      )
+    });
+
+    cy.viewport(1200, 1000);
   });
 
   columnToSort.forEach(({ label }) => {
@@ -328,7 +325,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
@@ -339,7 +335,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -350,7 +345,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
@@ -361,7 +355,6 @@ describe('Listing request', () => {
         expect(label).to.be.enabled;
       })
       .click();
-    cy.wait(150);
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
       expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
@@ -471,9 +464,7 @@ describe('Display additional columns', () => {
 
     const chipLabel = `${acknowledgedEntity?.name} ${labelAcknowledged}`;
 
-    cy.findByLabelText(chipLabel, {
-      timeout: 10000
-    }).trigger('mouseover');
+    cy.findByLabelText(chipLabel).trigger('mouseover');
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
