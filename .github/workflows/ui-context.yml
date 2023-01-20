@@ -41,7 +41,7 @@ jobs:
           name: centreon-ui-context-eslint-report
           path: ${{ env.directory }}/checkstyle.xml
 
-  deliver-npm:
+  publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: [lint, check-package-version]
     if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}

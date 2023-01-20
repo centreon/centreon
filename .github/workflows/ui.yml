@@ -69,7 +69,7 @@ jobs:
         run: pnpm test:ci
         working-directory: ${{ env.directory }}
 
-  deliver-npm:
+  publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: [lint, unit-test, check-package-version]
     if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}

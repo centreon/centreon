@@ -14,7 +14,7 @@ env:
   base_branch: develop
 
 jobs:
-  clean-up-npm-beta:
+  clean-up-npm-beta-tag:
     runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
 
@@ -26,7 +26,7 @@ jobs:
           package: ui-context
           npm_token: ${{ secrets.NPM_TOKEN }}
 
-  deliver-npm-beta:
+  publish-new-npm-version:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
 

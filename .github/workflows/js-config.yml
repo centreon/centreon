@@ -15,7 +15,7 @@ env:
   base_branch: develop
 
 jobs:
-  deliver-npm:
+  publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: check-package-version
     if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
