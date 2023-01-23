@@ -116,5 +116,7 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.NEXUS_USER }}
           nexus_password: ${{ secrets.NEXUS_PASSWD }}
+          arti_username: ${{ secrets.ARTI_APT_TESTUSER }}
+          arti_password: ${{ secrets.ARTI_APT_TESTPASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

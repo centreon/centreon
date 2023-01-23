@@ -86,7 +86,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x | tun-test-artifactory-upload-2210)
               STABILITY="unstable"
               ;;
             release* | hotfix*)
