@@ -22,6 +22,7 @@ security:
             pattern: ^(?!.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)/login)/.*
             security: true
             custom_authenticators:
+                - security.provider.websso
                 - security.provider.tokenapi
                 - security.provider.sessionapi
             entry_point: security.provider.tokenapi
