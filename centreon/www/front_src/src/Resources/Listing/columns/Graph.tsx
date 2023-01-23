@@ -7,11 +7,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Paper } from '@mui/material';
 import IconGraph from '@mui/icons-material/BarChart';
 
-import {
-  IconButton,
-  ComponentColumnProps,
-  LoadingSkeleton
-} from '@centreon/ui';
+import { IconButton, LoadingSkeleton } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 import { ResourceDetails } from '../../Details/models';
@@ -30,6 +27,9 @@ import IconColumn from './IconColumn';
 const PerformanceGraph = lazy(() => import('../../Graph/Performance'));
 
 const useStyles = makeStyles()((theme) => ({
+  button: {
+    padding: 0
+  },
   graph: {
     display: 'block',
     overflow: 'auto',
@@ -86,12 +86,13 @@ const Graph = ({
 };
 
 const renderChip =
-  ({ onClick, label }) =>
+  ({ onClick, label, className }) =>
   (): JSX.Element =>
     (
       <IconButton
         ariaLabel={label}
-        size="large"
+        className={className}
+        size="small"
         title={label}
         onClick={onClick}
       >
@@ -128,7 +129,11 @@ const GraphColumn = ({
     return (
       <IconColumn>
         <HoverChip
-          Chip={renderChip({ label, onClick: () => onClick(row) })}
+          Chip={renderChip({
+            className: classes.button,
+            label,
+            onClick: () => onClick(row)
+          })}
           isHovered={isHovered}
           label={label}
         >

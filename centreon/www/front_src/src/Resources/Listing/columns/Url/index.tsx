@@ -13,6 +13,9 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: theme.typography.body2.fontSize,
     height: theme.spacing(2),
     width: theme.spacing(2)
+  },
+  button: {
+    padding: 0
   }
 }));
 
@@ -58,6 +61,7 @@ const UrlColumn = ({
       >
         <IconButton
           ariaLabel={title}
+          className={classes.button}
           data-testid={title || endpoint}
           size="large"
           title={title || endpoint}

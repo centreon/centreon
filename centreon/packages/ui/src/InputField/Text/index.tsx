@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useMemo } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -48,6 +48,8 @@ const OptionalLabelInputAdornment = ({
   );
 };
 
+type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
+
 export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
@@ -57,7 +59,7 @@ export type Props = {
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'large' | 'medium' | 'small' | 'compact';
+  size?: SizeVariant;
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
@@ -82,6 +84,19 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
+    const baseProps = useMemo(
+      () => ({
+        'data-testid': dataTestId,
+        error: !isNil(error),
+        helperText: displayErrorInTooltip ? undefined : error,
+        id: getNormalizedId(dataTestId || ''),
+        label,
+        ref,
+        size: size || 'small'
+      }),
+      [label, ref, size, dataTestId, error, displayErrorInTooltip]
+    );
+
     return (
       <Tooltip placement="top" title={tooltipTitle}>
         <MuiTextField
@@ -93,7 +108,6 @@ const TextField = forwardRef(
               },
               className
             ),
-            disableUnderline: true,
             endAdornment: EndAdornment && (
               <OptionalLabelInputAdornment label={label} position="end">
                 <EndAdornment />
@@ -105,18 +119,13 @@ const TextField = forwardRef(
               </OptionalLabelInputAdornment>
             )
           }}
-          data-testid={dataTestId}
-          error={!isNil(error)}
-          helperText={displayErrorInTooltip ? undefined : error}
-          id={getNormalizedId(dataTestId || '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            'data-testid': dataTestId
+            'data-testid': dataTestId || ''
           }}
-          label={label}
-          ref={ref}
-          size={size || 'small'}
+          variant="outlined"
+          {...baseProps}
           {...rest}
         />
       </Tooltip>

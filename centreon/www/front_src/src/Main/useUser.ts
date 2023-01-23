@@ -3,7 +3,8 @@ import { useUpdateAtom } from 'jotai/utils';
 import { isNil } from 'ramda';
 
 import { useRequest, getData } from '@centreon/ui';
-import { User, userAtom } from '@centreon/ui-context';
+import { userAtom } from '@centreon/ui-context';
+import type { User } from '@centreon/ui';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';
@@ -13,7 +14,7 @@ export const areUserParametersLoadedAtom = atom<boolean | null>(null);
 const useUser = (): (() => null | Promise<void>) => {
   const { sendRequest: getUser } = useRequest<User>({
     decoder: userDecoder,
-    httpCodesBypassErrorSnackbar: [403, 401, 500],
+    httpCodesBypassErrorSnackbar: [403, 401],
     request: getData
   });
 

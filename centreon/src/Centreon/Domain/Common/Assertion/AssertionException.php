@@ -80,6 +80,19 @@ class AssertionException extends \InvalidArgumentException
     }
 
     /**
+     * Exception when the value of the integer is < 1.
+     *
+     * @param positive-int $value Tested value
+     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
+     *
+     * @return self
+     */
+    public static function positiveInt(int $value, ?string $propertyPath = null): self
+    {
+        return self::min($value, 1, $propertyPath);
+    }
+
+    /**
      * Exception when the value of the integer is less than the expected value.
      *
      * @param int $value Tested value

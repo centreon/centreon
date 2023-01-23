@@ -150,7 +150,7 @@ export const basicFormGroups: Array<Group> = [
     order: 1
   },
   {
-    EndIcon: HelpOutlineIcon,
+    EndIcon: () => <HelpOutlineIcon />,
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2

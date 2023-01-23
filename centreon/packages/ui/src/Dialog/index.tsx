@@ -18,6 +18,12 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { contentWidth }) => ({
   dialogContent: {
+    // We use both this additional class and the MUI one to increase specificity
+    // MUI override the padding of this element using a selector of type .title + .content
+    // so we need an higher specificity selector
+    '&.MuiDialogContent-root': {
+      paddingTop: theme.spacing(1)
+    },
     width: contentWidth
   }
 }));
@@ -32,12 +38,12 @@ export type Props = {
   dialogContentClassName?: string;
   dialogPaperClassName?: string;
   dialogTitleClassName?: string;
-  labelCancel?: string;
-  labelConfirm?: string;
-  labelTitle?: string;
+  labelCancel?: string | null;
+  labelConfirm?: string | null;
+  labelTitle?: string | null;
   onCancel?: () => void;
   onClose?: () => void;
-  onConfirm: (event) => void;
+  onConfirm: (event, value?) => void;
   open: boolean;
   submitting?: boolean;
 } & DialogProps;
@@ -90,7 +96,7 @@ const Dialog = ({
           </Button>
         )}
         <Button
-          aria-label={labelConfirm}
+          aria-label={labelConfirm || ''}
           color="primary"
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}

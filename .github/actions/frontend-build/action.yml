@@ -20,12 +20,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
     - uses: pnpm/action-setup@v2
       with:
         version: 7
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm i
       working-directory: ${{ env.base_directory }}
       shell: bash
 

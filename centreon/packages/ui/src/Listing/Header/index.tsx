@@ -1,56 +1,62 @@
 import * as React from 'react';
 
-import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { withStyles, makeStyles } from 'tss-react/mui';
+import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
+import { makeStyles, withStyles } from 'tss-react/mui';
 
-import {
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCellBaseProps
-} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import {
+  TableCell,
+  TableCellBaseProps,
+  TableHead,
+  TableRow
+} from '@mui/material';
 
-import Checkbox from '../Checkbox';
+import { ListingVariant } from '@centreon/ui-context';
+
 import { getVisibleColumns, Props as ListingProps } from '..';
-import { Column, PredefinedRowSelection } from '../models';
 import PopoverMenu from '../../PopoverMenu';
 import SortableItems from '../../SortableItems';
+import Checkbox from '../Checkbox';
+import { Column, PredefinedRowSelection } from '../models';
 import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
 
-import SortableHeaderCellContent from './SortableCell/Content';
 import PredefinedSelectionList from './PredefinedSelectionList';
+import SortableHeaderCellContent from './SortableCell/Content';
 
 const height = 28;
 
 const HeaderCell = withStyles(TableCell, (theme) => ({
   root: {
-    height,
     padding: theme.spacing(0)
   }
 }));
 
-const CheckboxHeaderCell = withStyles(TableCell, (theme) => ({
-  root: {
-    backgroundColor: theme.palette.background.paper,
-    borderBottom: `1px solid ${theme.palette.text.primary}`,
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, min-content)',
-    height,
-    padding: theme.spacing(0, 0, 0, 0.5)
-  }
-}));
-
 const useStyles = makeStyles()((theme) => ({
-  compactCell: {
-    paddingLeft: theme.spacing(0.5)
+  checkbox: {
+    '&.Mui-checked': {
+      color: theme.palette.common.white
+    },
+    '&.MuiCheckbox-indeterminate': {
+      color: theme.palette.common.white
+    },
+    color: theme.palette.common.white
+  },
+  checkboxHeaderCell: {
+    alignItems: 'center',
+    backgroundColor: theme.palette.background.listingHeader,
+    borderBottom: 'none',
+    display: 'flex',
+    justifyContent: 'end',
+    minWidth: theme.spacing(51 / 8),
+    padding: 0
   },
   headerLabelDragging: {
     cursor: 'grabbing'
   },
   predefinedRowsMenu: {
+    color: theme.palette.common.white,
     width: theme.spacing(2)
   },
   row: {
@@ -69,12 +75,14 @@ type Props = Pick<
   | 'columnConfiguration'
   | 'totalRows'
 > & {
+  areColumnsEditable: boolean;
   memoProps: Array<unknown>;
   onSelectAllClick: (event) => void;
   onSelectRowsWithCondition: (condition) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
+  viewMode?: ListingVariant;
 };
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
@@ -100,9 +108,11 @@ const ListingHeader = ({
   checkable,
   predefinedRowsSelection,
   onSelectRowsWithCondition,
-  memoProps
+  memoProps,
+  areColumnsEditable,
+  viewMode
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -125,6 +135,7 @@ const ListingHeader = ({
     }: ContentProps): JSX.Element => {
       return (
         <SortableHeaderCellContent
+          areColumnsEditable={areColumnsEditable}
           column={getColumnById(id)}
           columnConfiguration={columnConfiguration}
           isDragging={isDragging}
@@ -133,6 +144,7 @@ const ListingHeader = ({
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
+          viewMode={viewMode}
           onSort={onSort}
           {...listeners}
           {...attributes}
@@ -142,20 +154,23 @@ const ListingHeader = ({
     [columnConfiguration, columns, sortField, sortOrder]
   );
 
+  const hasRows = not(equals(rowCount, 0));
+
   return (
-    <TableHead className={classes.row} component="div" role={undefined}>
-      <TableRow className={classes.row} component="div" role={undefined}>
+    <TableHead className={cx(classes.row, 'listingHeader')} component="div">
+      <TableRow className={classes.row} component="div">
         {checkable && (
-          <CheckboxHeaderCell
+          <TableCell
+            className={classes.checkboxHeaderCell}
             component={
               'div' as unknown as React.ElementType<TableCellBaseProps>
             }
           >
             <Checkbox
-              checked={selectedRowCount === rowCount}
-              className={classes.compactCell}
+              checked={hasRows && selectedRowCount === rowCount}
+              className={classes.checkbox}
               indeterminate={
-                selectedRowCount > 0 && selectedRowCount < rowCount
+                hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
               }
               inputProps={{ 'aria-label': 'Select all' }}
               onChange={onSelectAllClick}
@@ -175,7 +190,7 @@ const ListingHeader = ({
                 )}
               </PopoverMenu>
             )}
-          </CheckboxHeaderCell>
+          </TableCell>
         )}
         <SortableItems
           updateSortableItemsOnItemsChange
@@ -217,7 +232,9 @@ const MemoizedListingHeader = React.memo<Props>(
     ) &&
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
-    equals(prevProps.memoProps, nextProps.memoProps)
+    equals(prevProps.memoProps, nextProps.memoProps) &&
+    equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable) &&
+    equals(prevProps.viewMode, nextProps.viewMode)
 );
 
 export default MemoizedListingHeader;

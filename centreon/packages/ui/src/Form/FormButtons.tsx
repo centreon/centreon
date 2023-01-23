@@ -58,7 +58,7 @@ const FormButtons = (): JSX.Element => {
     Component: (
       <div className={classes.buttons}>
         <Button
-          aria-label={t(labelReset)}
+          aria-label={t(labelReset) || ''}
           data-testid={labelReset}
           disabled={not(canReset)}
           id={getNormalizedId(labelReset)}

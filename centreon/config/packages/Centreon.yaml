@@ -34,6 +34,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
@@ -354,12 +356,6 @@ services:
     # Host group configuration
     Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadRepositoryInterface:
         class: Centreon\Infrastructure\HostConfiguration\Repository\HostGroupRepositoryRDB
-
-    Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups:
-        class: Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups
-        calls:
-            - method: setMediaPath
-              arguments: ["%media_path%"]
 
     # Service configuration
     Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface:

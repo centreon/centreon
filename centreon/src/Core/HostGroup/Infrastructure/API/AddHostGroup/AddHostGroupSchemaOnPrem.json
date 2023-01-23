@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Add a new host group",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "alias": {
+      "type": ["string", "null"]
+    },
+    "notes": {
+      "type": ["string", "null"]
+    },
+    "notes_url": {
+      "type": ["string", "null"]
+    },
+    "action_url": {
+      "type": ["string", "null"]
+    },
+    "icon_id": {
+      "type": ["integer", "null"]
+    },
+    "icon_map_id": {
+      "type": ["integer", "null"]
+    },
+    "rrd": {
+      "type": ["integer", "null"]
+    },
+    "geo_coords": {
+      "type": ["string", "null"]
+    },
+    "comment": {
+      "type": ["string", "null"]
+    },
+    "is_activated": {
+      "type": "boolean"
+    }
+  }
+}

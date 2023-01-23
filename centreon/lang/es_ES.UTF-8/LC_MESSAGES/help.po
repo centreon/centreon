@@ -650,6 +650,10 @@ msgstr "El tema CSS predeterminado que se aplicará a la interfaz web de Centreo
 msgid "Default sort in monitoring consoles."
 msgstr "Clasificación predeterminada para las páginas de monitoreo de host y servicio."
 
+#: centreon-web/www/include/Administration/parameters/general/help.php:254
+msgid "In compact mode, line height and font weight are reduced so as to take up less space and display more information."
+msgstr "En el modo compacto, la altura de línea y el tamaño de letra se reducen para ocupar menos espacio y mostrar más información"
+
 #: centreon-web/www/include/Administration/parameters/general/help.php:55
 msgid "Default order in monitoring consoles."
 msgstr "Orden de clasificación predeterminado para el servicio y las páginas de monitoreo del host."

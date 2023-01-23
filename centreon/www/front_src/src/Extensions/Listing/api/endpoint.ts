@@ -1,6 +1,6 @@
 import { find, propEq } from 'ramda';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { Criteria } from '../../Filter/Criterias/models';
 

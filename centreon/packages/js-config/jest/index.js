@@ -21,6 +21,6 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!centreon-frontend/packages/(centreon-ui|ui-context)).+\\.jsx?$',
+    '/node_modules/',
   ],
 };

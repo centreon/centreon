@@ -1,4 +1,4 @@
-import { Group } from '@centreon/ui';
+import type { Group } from '@centreon/ui';
 
 import { labelRolesMapping } from './Openid/translatedLabels';
 import {

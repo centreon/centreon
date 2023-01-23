@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   DndContext,
   DragOverlay,
+  MouseSensor,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -113,6 +114,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   const [sortableItemsIds, setSortableItemsIds] = React.useState(getItemsIds());
 
   const sensors = useSensors(
+    useSensor(MouseSensor),
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,

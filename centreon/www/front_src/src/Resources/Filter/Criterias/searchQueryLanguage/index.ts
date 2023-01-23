@@ -31,7 +31,7 @@ import {
 } from 'ramda';
 import pluralize from 'pluralize';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import {
   Criteria,

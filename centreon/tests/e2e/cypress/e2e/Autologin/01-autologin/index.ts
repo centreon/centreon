@@ -23,7 +23,6 @@ beforeEach(() => {
 
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@getNavigationList')
     .wait('@getLastestUserFilters')
     .navigateTo({
       page: 'Centreon UI',
@@ -85,7 +84,6 @@ Given(
     cy.logout()
       .reload()
       .loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
-      .wait('@getNavigationList')
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')

@@ -161,7 +161,7 @@ const Dropzone = ({
             )}
             <input
               accept={accept}
-              aria-label={t(labelSelectAFile)}
+              aria-label={t(labelSelectAFile) || ''}
               className={classes.input}
               multiple={multiple}
               ref={fileInputRef}
