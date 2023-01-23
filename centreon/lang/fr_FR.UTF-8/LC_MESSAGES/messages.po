@@ -5661,7 +5661,7 @@ msgstr "Toutes les sessions de ce contact seront supprimées. Êtes-vous sûr de
 msgid "Synchronize LDAP"
 msgstr "Synchroniser avec le LDAP"
 
-msgid "Bad LDAP filter syntax"
+msgid "Incorrect LDAP filter syntax"
 msgstr "Mauvaise syntaxe du filtre LDAP"
 
 msgid "LDAP connection timeout"
