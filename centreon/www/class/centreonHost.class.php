@@ -677,20 +677,26 @@ class CentreonHost
             return $string;
         }
         if (is_numeric($hostParam)) {
-            $hostId = $hostParam;
+            $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
+              FROM host
+              LEFT JOIN ns_host_relation ns
+                ON ns.host_host_id = host.host_id
+              WHERE host_id = :hostId 
+              LIMIT 1';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':hostId', (int) $hostParam, \PDO::PARAM_INT);
         } elseif (is_string($hostParam)) {
-            $hostId = $this->getHostId($hostParam);
+            $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
+              FROM host
+              LEFT JOIN ns_host_relation ns
+                ON ns.host_host_id = host.host_id
+              WHERE host_name = :hostName
+              LIMIT 1';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':hostName', $hostParam);
         } else {
             return $string;
         }
-        $query = 'SELECT host_id, nagios_server_id, host_register, host_address, host_name, host_alias
-          FROM host
-          LEFT JOIN ns_host_relation ns
-            ON ns.host_host_id = host.host_id
-          WHERE host_id = :hostId 
-          LIMIT 1';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
             throw new \Exception("An error occured");
@@ -700,6 +706,7 @@ class CentreonHost
             return $string;
         }
         $row = $stmt->fetch();
+        $hostId = (int) $row['host_id'];
 
         /*
          * replace if not template
@@ -715,16 +722,20 @@ class CentreonHost
                 $string = str_replace('$HOSTALIAS$', $row['host_alias'], $string);
             }
             if (strpos($string, '$INSTANCENAME$') !== false) {
+                $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
                 $string = str_replace(
                     '$INSTANCENAME$',
-                    $this->instanceObj->getParam($this->getHostPollerId($hostId), 'name'),
+                    $this->instanceObj->getParam((int) $pollerId, 'name'),
                     $string
                 );
             }
             if (strpos($string, '$INSTANCEADDRESS$') !== false) {
+                if (!isset($pollerId)) {
+                    $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
+                }
                 $string = str_replace(
                     '$INSTANCEADDRESS$',
-                    $this->instanceObj->getParam($this->getHostPollerId($hostId), 'ns_ip_address'),
+                    $this->instanceObj->getParam($pollerId, 'ns_ip_address'),
                     $string
                 );
             }

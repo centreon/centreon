@@ -438,7 +438,7 @@ if (!$sqlError) {
             }
             $obj->XML->writeElement(
                 "hnu",
-                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["host_id"], $hostNotesUrl))
+                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["name"], $hostNotesUrl))
             );
 
             $hostActionUrl = "none";
