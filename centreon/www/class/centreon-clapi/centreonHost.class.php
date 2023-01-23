@@ -1010,6 +1010,51 @@ class CentreonHost extends CentreonObject
                 )
             );
         }
+        // If the macro is password
+        if ((int) $params[3] === 1 && ($vaultConfiguration = $this->getVaultConfiguration()) !== null) {
+            $logger = $this->getLogger();
+            $httpClient = new \CentreonRestHttp();
+            $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+            $resourceEndpoint = $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+            $hostSecrets = $this->getHostSecretsFromVault(
+                $vaultConfiguration,
+                $resourceEndpoint,
+                $clientToken,
+                $logger,
+                $httpClient
+            );
+            $hostSecrets['_HOST' . strtoupper($params[1])] = $params[2];
+            $this->writeSecretsInVault(
+                $vaultConfiguration,
+                $hostId,
+                $clientToken,
+                $hostSecrets,
+                $logger,
+                $httpClient
+            );
+            $macroId = null;
+            // If the macro is update we already have its id, else we should retrieve it after insertion.
+            if (count($macroList)) {
+                $macroId = $macroList[0][$macroObj->getPrimaryKey()];
+            } else {
+                $statement = $this->db->prepare(
+                    "SELECT host_macro_id FROM on_demand_macro_host WHERE host_macro_name = :macroName AND host_host_id = :hostId"
+                );
+                $statement->bindValue(':macroName', $this->wrapMacro($params[1]), \PDO::PARAM_STR);
+                $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+                $statement->execute();
+                if (($result = $statement->fetch()) !== false) {
+                    $macroId = $result['host_macro_id'];
+                }
+            }
+            if ($macroId !== null) {
+                $this->updateOnDemandMacroHostTableWithVaultPath(
+                    $vaultConfiguration,
+                    $macroId,
+                    $hostId
+                );
+            }
+        }
 
         $this->addAuditLog(
             'c',
@@ -1050,6 +1095,39 @@ class CentreonHost extends CentreonObject
             "AND"
         );
         if (count($macroList)) {
+            $passwordParameter = $macroObj->getParameters($macroList[0][$macroObj->getPrimaryKey()], 'is_password');
+            if (
+                $passwordParameter['is_password'] === 1
+                && ($vaultConfiguration = $this->getVaultConfiguration()) !== null
+            ) {
+                $logger = $this->getLogger();
+                $httpClient = new \CentreonRestHttp();
+                $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+                $resourceEndpoint = $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+                $hostSecrets = $this->getHostSecretsFromVault(
+                    $vaultConfiguration,
+                    $resourceEndpoint,
+                    $clientToken,
+                    $logger,
+                    $httpClient
+                );
+                $formattedMacroName = "_HOST" . strtoupper($params[1]);
+                if (array_key_exists($formattedMacroName, $hostSecrets)) {
+                    unset($hostSecrets[$formattedMacroName]);
+                }
+                if (empty($hostSecrets)) {
+                    $this->deleteHostFromVault($vaultConfiguration, $hostId, $clientToken, $logger, $httpClient);
+                } else {
+                    $this->writeSecretsInVault(
+                        $vaultConfiguration,
+                        $hostId,
+                        $clientToken,
+                        $hostSecrets,
+                        $logger,
+                        $httpClient
+                    );
+                }
+            }
             $macroObj->delete($macroList[0][$macroObj->getPrimaryKey()]);
         }
         $this->addAuditLog(
@@ -2078,5 +2156,103 @@ class CentreonHost extends CentreonObject
         }
 
         return [];
+    }
+
+    /**
+     * Write Host secrets data in vault.
+     *
+     * @param VaultConfiguration $vaultConfiguration
+     * @param integer $hostId
+     * @param string $clientToken
+     * @param array<string,mixed> $passwordTypeData
+     * @param LegacyLogger $logger
+     * @param \CentreonRestHttp $httpClient
+     * @throws \Exception
+     */
+    private function writeSecretsInVault(
+        VaultConfiguration $vaultConfiguration,
+        int $hostId,
+        string $clientToken,
+        array $passwordTypeData,
+        LegacyLogger $logger,
+        \CentreonRestHttp $httpClient
+    ): void {
+        try {
+            $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+                . '/v1/' . $vaultConfiguration->getStorage()
+                . '/monitoring/hosts/' . $hostId;
+                $logger->info(
+                    "Writing Host Secrets at : " . $url,
+                    ["host_id" => $hostId, "secrets" => implode(", ", array_keys($passwordTypeData))]
+                );
+            $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
+        } catch(\Exception $ex) {
+            $logger->error(
+                "Unable to write host secrets into vault",
+                [
+                    "message" => $ex->getMessage(),
+                    "trace" => $ex->getTraceAsString(),
+                    "host_id" => $hostId,
+                    "secrets" => implode(", ", array_keys($passwordTypeData))
+                ]
+            );
+
+            throw $ex;
+        }
+
+        $logger->info(sprintf("Write successfully secrets in vault: %s", implode(', ', array_keys($passwordTypeData))));
+    }
+
+    /**
+     * Update on_demand_macro_host table with secrets path on vault.
+     *
+     * @param \CentreonDB $pearDB
+     * @param non-empty-array<int> $macroIds
+     * @param string $hostPath
+     * @throws \Throwable
+     */
+    private function updateOnDemandMacroHostTableWithVaultPath(
+        VaultConfiguration $vaultConfiguration,
+        int $macroId,
+        int $hostId
+    ): void {
+        $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+            . "/monitoring/hosts/" . $hostId;
+        $statementUpdateMacros = $this->db->prepare(
+            <<<SQL
+                UPDATE `on_demand_macro_host` SET host_macro_value = :path WHERE host_macro_id = :macroId
+            SQL
+        );
+        $statementUpdateMacros->bindValue(':path', $hostPath, \PDO::PARAM_STR);
+        $statementUpdateMacros->bindValue(':macroId', $macroId, \PDO::PARAM_INT);
+        $statementUpdateMacros->execute();
+    }
+
+    /**
+     * Delete host secrets data from vault
+     *
+     * @param VaultConfiguration $vaultConfiguration
+     * @param integer $hostId
+     * @param string $clientToken
+     * @param LegacyLogger $logger
+     * @param \CentreonRestHttp $httpClient
+     * @throws \Throwable
+     */
+    private function deleteHostFromVault(
+        VaultConfiguration $vaultConfiguration,
+        int $hostId,
+        string $clientToken,
+        LegacyLogger $logger,
+        \CentreonRestHttp $httpClient
+    ): void {
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+        $logger->info(sprintf("Deleting Host: %d", $hostId));
+        try {
+            $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
+        } catch (\Exception $ex) {
+            $logger->error(sprintf("Unable to delete Host: %d", $hostId));
+            throw $ex;
+        }
     }
 }
