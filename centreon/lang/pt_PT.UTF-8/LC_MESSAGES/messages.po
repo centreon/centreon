@@ -15811,7 +15811,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Confirm"
 #  msgstr "Confirme"
 
-#  msgid "Bad LDAP filter syntax"
+#  msgid "Incorrect LDAP filter syntax"
 #  msgstr ""
 
 #  msgid "LDAP connection timeout"
