@@ -31,6 +31,9 @@ inputs:
   arti_password:
     description: "test password for arti"
     required: true
+  arti_token:
+    description: "test token for arti"
+    required: true
 
 runs:
   using: "composite"
@@ -60,7 +63,7 @@ runs:
             curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/22.10/
           else
             #curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/22.10-${{ inputs.stability }}/
-            curl -v -u "${{ inputs.arti_username }}":"${{ inputs.arti_password }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-22.10-unstable/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
+            curl -v -u -H "Authorization: Bearer ${{ inputs.arti_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-22.10-unstable/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
           fi
 
         done

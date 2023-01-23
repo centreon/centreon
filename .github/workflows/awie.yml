@@ -118,5 +118,6 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_PASSWD }}
           arti_username: ${{ secrets.ARTI_APT_TESTUSER }}
           arti_password: ${{ secrets.ARTI_APT_TESTPASSWORD }}
+          arti_token: $${{ secrets.ARTI_APT_TEST_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
