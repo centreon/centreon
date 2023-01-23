@@ -42,4 +42,66 @@ class HostSeverityException extends \Exception
     {
         return new self(_('Error while searching for host severities'), 0, $ex);
     }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete host severities'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function deleteHostSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting host severity'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function addHostSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while creating host severity'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function addNotAllowed(): self
+    {
+        return new self(_('You are not allowed to create host severities'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving recently created host severity'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function hostNameAlreadyExists(): self
+    {
+        return new self(_('Host severity name already exists'));
+    }
+
+    /**
+     * @param int $iconId
+     *
+     * @return self
+     */
+    public static function iconDoesNotExist(int $iconId): self
+    {
+        return new self(sprintf(_("The host severity icon with id '%d' does not exist"), $iconId));
+    }
 }

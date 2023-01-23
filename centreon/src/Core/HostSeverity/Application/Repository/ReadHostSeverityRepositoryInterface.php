@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostSeverity\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostSeverity\Domain\Model\HostSeverity;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -51,4 +52,47 @@ interface ReadHostSeverityRepositoryInterface
      * @return HostSeverity[]
      */
     public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Check existence of a host severity.
+     *
+     * @param int $hostSeverityId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $hostSeverityId): bool;
+
+    /**
+     * Check existence of a host severity by access groups.
+     *
+     * @param int $hostSeverityId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $hostSeverityId, array $accessGroups): bool;
+
+    /**
+     * Check existence of a host severity by name.
+     *
+     * @param TrimmedString $hostSeverityName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByName(TrimmedString $hostSeverityName): bool;
+
+    /**
+     * Find one host severity.
+     *
+     * @param int $hostSeverityId
+     *
+     * @return HostSeverity|null
+     */
+    public function findById(int $hostSeverityId): ?HostSeverity;
 }
