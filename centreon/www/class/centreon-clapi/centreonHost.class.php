@@ -1116,6 +1116,7 @@ class CentreonHost extends CentreonObject
                 if (array_key_exists($formattedMacroName, $hostSecrets)) {
                     unset($hostSecrets[$formattedMacroName]);
                 }
+                //If no more data should be stored in the vault, delete the complete entry.
                 if (empty($hostSecrets)) {
                     $this->deleteHostFromVault($vaultConfiguration, $hostId, $clientToken, $logger, $httpClient);
                 } else {
