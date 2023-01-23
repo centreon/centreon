@@ -14,7 +14,7 @@ export const areUserParametersLoadedAtom = atom<boolean | null>(null);
 const useUser = (): (() => null | Promise<void>) => {
   const { sendRequest: getUser } = useRequest<User>({
     decoder: userDecoder,
-    httpCodesBypassErrorSnackbar: [403, 401, 500],
+    httpCodesBypassErrorSnackbar: [403, 401],
     request: getData
   });
 
