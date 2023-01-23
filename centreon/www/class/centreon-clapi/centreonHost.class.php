@@ -990,9 +990,11 @@ class CentreonHost extends CentreonObject
         ) {
             $description = null;
         }
+        $macroId = null;
         if (count($macroList)) {
+            $macroId = $macroList[0][$macroObj->getPrimaryKey()];
             $macroObj->update(
-                $macroList[0][$macroObj->getPrimaryKey()],
+                $macroId,
                 array(
                     'host_macro_value' => $params[2],
                     'is_password' => (strlen($params[3]) === 0) ? 0 : (int) $params[3],
@@ -1011,7 +1013,7 @@ class CentreonHost extends CentreonObject
                 )
             );
         }
-        // If the macro is password
+        // If the macro is password and a vault configuration exists
         if ((int) $params[3] === 1 && ($vaultConfiguration = $this->getVaultConfiguration()) !== null) {
             $logger = $this->getLogger();
             $httpClient = new \CentreonRestHttp();
@@ -1033,11 +1035,9 @@ class CentreonHost extends CentreonObject
                 $logger,
                 $httpClient
             );
-            $macroId = null;
-            // If the macro is update we already have its id, else we should retrieve it after insertion.
-            if (count($macroList)) {
-                $macroId = $macroList[0][$macroObj->getPrimaryKey()];
-            } else {
+
+            // If the macro is not set we should retrieve it after insertion
+            if (! isset($macroId)) {
                 $statement = $this->db->prepare(
                     "SELECT host_macro_id FROM on_demand_macro_host WHERE host_macro_name = :macroName AND host_host_id = :hostId"
                 );
@@ -1606,7 +1606,6 @@ class CentreonHost extends CentreonObject
                             $logger,
                             $httpClient
                         );
-                        var_dump($macro['host_macro_name']);
                         if(array_key_exists(trim($macro['host_macro_name'], "$"), $hostSecrets) ) {
                             $macro['host_macro_value'] = $hostSecrets[trim($macro['host_macro_name'], "$")];
                         }
@@ -2276,6 +2275,7 @@ class CentreonHost extends CentreonObject
             $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);
         } catch (\Exception $ex) {
             $logger->error(sprintf("Unable to delete Host: %d", $hostId));
+            
             throw $ex;
         }
     }
