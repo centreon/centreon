@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\{
     PresenterInterface,
     InvalidArgumentResponse
 };
+use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
@@ -80,7 +81,7 @@ final class AddTimePeriod
                 return;
             }
 
-            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
+            if ($this->readTimePeriodRepository->nameAlreadyExists(new TrimmedString($request->name))) {
                 $this->error('A time period with this name already exists');
                 $presenter->setResponseStatus(
                     new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))

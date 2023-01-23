@@ -36,6 +36,7 @@ use Core\Application\Common\UseCase\{
     NotFoundResponse,
     PresenterInterface
 };
+use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
@@ -77,7 +78,7 @@ final class UpdateTimePeriod
 
                 return;
             }
-            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name, $request->id)) {
+            if ($this->readTimePeriodRepository->nameAlreadyExists(new TrimmedString($request->name), $request->id)) {
                 $this->error('Time period name already exists');
                 $presenter->setResponseStatus(
                     new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))

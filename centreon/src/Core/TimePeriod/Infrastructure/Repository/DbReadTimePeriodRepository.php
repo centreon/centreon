@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
@@ -175,12 +176,12 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     /**
      * @inheritDoc
      */
-    public function nameAlreadyExists(string $timePeriodName, ?int $timePeriodId = null): bool
+    public function nameAlreadyExists(TrimmedString $timePeriodName, ?int $timePeriodId = null): bool
     {
         $statement = $this->db->prepare(
             $this->translateDbName('SELECT tp_id FROM `:db`.timeperiod WHERE tp_name = :name')
         );
-        $statement->bindValue(':name', trim($timePeriodName));
+        $statement->bindValue(':name', $timePeriodName->value);
         $statement->execute();
         /**
          * @var array{tp_id: int}|false $result
