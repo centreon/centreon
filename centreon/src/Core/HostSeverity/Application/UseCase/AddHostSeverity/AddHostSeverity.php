@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostSeverity\Application\Exception\HostSeverityException;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
@@ -68,7 +69,7 @@ final class AddHostSeverity
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(HostSeverityException::addNotAllowed()->getMessage())
                 );
-            } elseif ($this->readHostSeverityRepository->existsByName($request->name)) {
+            } elseif ($this->readHostSeverityRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error(
                     'Host severity name already exists',
                     ['hostseverity_name' => $request->name]

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostSeverity\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostSeverity\Domain\Model\HostSeverity;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -78,13 +79,13 @@ interface ReadHostSeverityRepositoryInterface
     /**
      * Check existence of a host severity by name.
      *
-     * @param string $hostSeverityName
+     * @param TrimmedString $hostSeverityName
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByName(string $hostSeverityName): bool;
+    public function existsByName(TrimmedString $hostSeverityName): bool;
 
     /**
      * Find one host severity.

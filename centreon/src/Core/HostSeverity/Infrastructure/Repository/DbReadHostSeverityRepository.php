@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
@@ -201,17 +202,15 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function existsByName(string $hostSeverityName): bool
+    public function existsByName(TrimmedString $hostSeverityName): bool
     {
-        $hostSeverityName = trim($hostSeverityName);
-
         $this->info('Check existence of host severity with name ' . $hostSeverityName);
 
         $request = $this->translateDbName(
             'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostSeverityName'
         );
         $statement = $this->db->prepare($request);
-        $statement->bindValue(':hostSeverityName', $hostSeverityName, \PDO::PARAM_STR);
+        $statement->bindValue(':hostSeverityName', $hostSeverityName->value, \PDO::PARAM_STR);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
