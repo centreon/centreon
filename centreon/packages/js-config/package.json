@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "23.4.16-MON-revert-changes-about-npm-builds.0",
+  "version": "23.4.16-MON-revert-changes-about-npm-builds.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
