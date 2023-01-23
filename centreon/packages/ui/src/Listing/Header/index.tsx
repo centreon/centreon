@@ -175,7 +175,6 @@ const ListingHeader = ({
               inputProps={{ 'aria-label': 'Select all' }}
               onChange={onSelectAllClick}
             />
-
             {not(isEmpty(predefinedRowsSelection)) ? (
               <PopoverMenu
                 className={classes.predefinedRowsMenu}
