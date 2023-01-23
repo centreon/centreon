@@ -3,7 +3,6 @@ name: ui
 on:
   pull_request:
     paths:
-      - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
     branches:
       - dev-22.10.x
