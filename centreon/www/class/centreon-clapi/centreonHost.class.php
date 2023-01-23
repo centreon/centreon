@@ -93,6 +93,7 @@ class CentreonHost extends CentreonObject
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
     public const HOST_SNMP_COMMUNITY_FIELD = "host_snmp_community";
+    public const VAULT_PATH_REGEX = '/^secret::\d+::/';
     private static ?ReadVaultConfigurationRepositoryInterface $repository = null;
 
     /**
@@ -1499,7 +1500,7 @@ class CentreonHost extends CentreonObject
                     $vaultConfiguration = $this->getVaultConfiguration();
                     if (
                         $parameter === self::HOST_SNMP_COMMUNITY_FIELD
-                        && preg_match('/^secret::\d+::/', $value)
+                        && preg_match(self::VAULT_PATH_REGEX, $value)
                         && $vaultConfiguration !== null
                     ) {
                         $logger = $this->getLogger();
@@ -1586,6 +1587,29 @@ class CentreonHost extends CentreonObject
                     && substr($description, -1, 1) !== "'"
                 ) {
                     $description = "'" . $description . "'";
+                }
+
+                // Retrieve raw value of the macro if it is recorded in vault.
+                if (
+                    $macro['is_password'] === 1
+                    && preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value'])
+                    && $this->getVaultConfiguration() !== null
+                ) {
+                    $logger = $this->getLogger();
+                        $httpClient = new \CentreonRestHttp();
+                        $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+                        $resourceEndpoint = preg_replace(self::VAULT_PATH_REGEX, "", $macro['host_macro_value']);
+                        $hostSecrets = $this->getHostSecretsFromVault(
+                            $vaultConfiguration,
+                            $resourceEndpoint,
+                            $clientToken,
+                            $logger,
+                            $httpClient
+                        );
+                        var_dump($macro['host_macro_name']);
+                        if(array_key_exists(trim($macro['host_macro_name'], "$"), $hostSecrets) ) {
+                            $macro['host_macro_value'] = $hostSecrets[trim($macro['host_macro_name'], "$")];
+                        }
                 }
 
                 echo $this->action . $this->delim
