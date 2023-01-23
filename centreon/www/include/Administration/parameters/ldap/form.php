@@ -182,7 +182,7 @@ $form->registerRule('checkLdapFilter', 'callback', 'checkLdapFilterSyntax');
 $form->addElement('text', 'user_base_search', _("Search user base DN"), $attrsText);
 $form->addElement('text', 'group_base_search', _("Search group base DN"), $attrsText);
 $form->addElement('text', 'user_filter', _("User filter"), $attrsText);
-$form->addRule('user_filter', _("Bad LDAP filter syntax"), 'checkLdapFilter');
+$form->addRule('user_filter', _("Incorrect LDAP filter syntax"), 'checkLdapFilter');
 $form->addElement('text', 'alias', _("Login attribute"), $attrsText);
 $form->addElement('text', 'user_group', _("User group attribute"), $attrsText);
 $form->addElement('text', 'user_name', _("User displayname attribute"), $attrsText);
@@ -191,7 +191,7 @@ $form->addElement('text', 'user_lastname', _("User lastname attribute"), $attrsT
 $form->addElement('text', 'user_email', _("User email attribute"), $attrsText);
 $form->addElement('text', 'user_pager', _("User pager attribute"), $attrsText);
 $form->addElement('text', 'group_filter', _("Group filter"), $attrsText);
-$form->addRule('group_filter', _("Bad LDAP filter syntax"), 'checkLdapFilter');
+$form->addRule('group_filter', _("Incorrect LDAP filter syntax"), 'checkLdapFilter');
 $form->addElement('text', 'group_name', _("Group attribute"), $attrsText);
 $form->addElement('text', 'group_member', _("Group member attribute"), $attrsText);
 
