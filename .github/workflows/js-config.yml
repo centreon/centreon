@@ -3,7 +3,6 @@ name: centreon-js-config
 on:
   pull_request:
     paths:
-      - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
     branches:
       - dev-22.04.x
