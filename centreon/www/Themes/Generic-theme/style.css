@@ -1210,7 +1210,8 @@ table-form-header-h3 {
 }
 
 .table .FormRowField {
-    padding: 0 6px;
+    width: 206px;
+    padding: 0px 32px 4px 6px;
     vertical-align: middle;
 }
 
