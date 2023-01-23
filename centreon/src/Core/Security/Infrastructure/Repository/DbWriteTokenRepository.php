@@ -26,6 +26,7 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Security\Application\Repository\WriteTokenRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteTokenRepositoryInterface
 {
@@ -33,8 +34,9 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
 
     /**
      * @param DatabaseConnection $db
+     * @param SessionInterface $session
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db, private SessionInterface $session)
     {
         $this->db = $db;
     }
@@ -89,5 +91,10 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 )"
             )
         );
+    }
+
+    public function invalidate()
+    {
+        $this->session->invalidate();
     }
 }

@@ -28,4 +28,6 @@ interface WriteTokenRepositoryInterface
      * Delete all expired tokens registered.
      */
     public function deleteExpiredSecurityTokens(): void;
+
+    public function invalidate();
 }
