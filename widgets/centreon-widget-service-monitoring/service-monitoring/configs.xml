@@ -4,7 +4,7 @@
   <email>contact@centreon.com</email>
   <website>http://www.centreon.com</website>
   <description>This interactive service event console widget displays the services status and allows to act on them (acknowledge, add dowtime, etc.). Multiple parameters allow to select which services to display (based on their name, hostgroup, status, etc.) or which columns (name, alias, status, duration, output, etc.).</description>
-  <version>22.04.0</version>
+  <version>22.04.1</version>
   <keywords>centreon, widget, service, monitoring</keywords>
   <screenshot></screenshot>
   <thumbnail>./widgets/service-monitoring/resources/centreon-logo.png</thumbnail>
@@ -71,7 +71,7 @@
       <option value="last_state_change" label="Duration"/>
       <option value="last_hard_state_change" label="Hard State Duration"/>
     </preference>
-    <preference label="Order By status (second sort)" name="order_by2" defaultValue="" type="sort">
+    <preference label="Order By status (second sort)&lt;br/&gt; &lt;span style=&quot;color:red&quot;&gt;(Be aware this might have impact on performances)&lt;/span&gt;" name="order_by2" defaultValue="" type="sort">
       <option value="h_state" label="Host Status"/>
       <option value="s_state" label="Service Status"/>
     </preference>

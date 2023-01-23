@@ -27,9 +27,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Security\SessionAPIAuthenticator;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -57,6 +59,19 @@ class SessionAPIAuthenticatorTest extends TestCase
         $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
         $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
+
+        $this->request = $this->createMock(Request::class);
+        $this->session = $this->createMock(SessionInterface::class);
+
+        $this->session
+            ->method('getId')
+            ->willReturn(uniqid());
+
+        $this->request
+            ->method('getSession')
+            ->willReturn($this->session);
+
+        $this->request->headers = new HeaderBag();
     }
 
     public function testSupports(): void
@@ -133,12 +148,9 @@ class SessionAPIAuthenticatorTest extends TestCase
             $this->sessionRepository
         );
 
-        $request = new Request();
-        $request->cookies->set('PHPSESSID', 'my_session_id');
-
         $this->assertInstanceOf(
             SelfValidatingPassport::class,
-            $authenticator->authenticate($request)
+            $authenticator->authenticate($this->request)
         );
     }
 }
