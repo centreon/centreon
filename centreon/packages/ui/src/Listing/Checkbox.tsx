@@ -1,19 +1,27 @@
-import {
-  useTheme,
-  Checkbox as MuiCheckbox,
-  CheckboxProps
-} from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
-const Checkbox = (
-  props: Omit<CheckboxProps, 'size' | 'color'>
-): JSX.Element => {
-  const theme = useTheme();
+import { Checkbox as MuiCheckbox, CheckboxProps } from '@mui/material';
+
+const useStyles = makeStyles()({
+  container: {
+    padding: 0
+  }
+});
+
+const Checkbox = ({
+  className,
+  ...props
+}: { className?: string } & Omit<
+  CheckboxProps,
+  'size' | 'color'
+>): JSX.Element => {
+  const { classes, cx } = useStyles();
 
   return (
     <MuiCheckbox
+      className={cx(classes.container, className)}
       color="primary"
       size="small"
-      style={{ padding: theme.spacing(0.5) }}
       {...props}
     />
   );

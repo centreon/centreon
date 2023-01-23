@@ -7,7 +7,6 @@ on:
       - closed
     paths:
       - "centreon/packages/ui-context/**"
-      - ".github/workflows/ui-context-merge.yml"
 
 env:
   directory: "centreon/packages/ui-context"

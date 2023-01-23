@@ -32,9 +32,9 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
     children
   ) : (
     <FallbackPage
-      contactAdmin={t(labelContactYourAdministrator)}
-      message={t(labelInvalidLicense)}
-      title={t(labelOops)}
+      contactAdmin={t(labelContactYourAdministrator) || ''}
+      message={t(labelInvalidLicense) || ''}
+      title={t(labelOops) || ''}
     />
   );
 };

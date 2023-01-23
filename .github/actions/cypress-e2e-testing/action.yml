@@ -1,6 +1,9 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
 inputs:
+  name:   
+    type: string
+    required: true
   image:
     description: "image"
     required: true
@@ -36,13 +39,15 @@ runs:
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
+
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@v4
+      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
       with:
         browser: chrome
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
+        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
@@ -51,10 +56,6 @@ runs:
         name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
 
-    - name: Publish tests report
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: ${{ always() }}
-      with:
-        check_name: e2e-tests-report-${{ steps.formatFeatureFilePath.outputs.value }}
-        comment_mode: failures
-        junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml
+    - name: Rename cypress report
+      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
+      shell: bash

@@ -28,7 +28,8 @@ interface PresenterFormatterInterface
 {
     /**
      * @param mixed $data
+     * @param array<string, mixed> $headers
      * @return Response
      */
-    public function format(mixed $data): Response;
+    public function format(mixed $data, array $headers): Response;
 }
