@@ -21,7 +21,7 @@ Feature:
     {
         "result": [
             {
-                "id": 62,
+                "id": 1,
                 "name": "Test Service Group",
                 "alias": "Alias Test service group",
                 "geo_coords": null,
@@ -56,7 +56,7 @@ Feature:
     {
         "result": [
             {
-                "id": 62,
+                "id": 1,
                 "name": "Test Host disabled",
                 "alias": "Alias Test host group",
                 "geo_coords": null,
@@ -103,7 +103,7 @@ Feature:
     {
         "result": [
             {
-                "id": 62,
+                "id": 1,
                 "name": "host-group1",
                 "alias": "host-group1-alias",
                 "geo_coords": null,
@@ -111,7 +111,7 @@ Feature:
                 "is_activated": true
             },
             {
-                "id": 63,
+                "id": 2,
                 "name": "host-group2",
                 "alias": "host-group2-alias",
                 "geo_coords": null,
@@ -158,7 +158,7 @@ Feature:
     {
         "result": [
             {
-                "id": 62,
+                "id": 1,
                 "name": "host-group1",
                 "alias": "host-group1-alias",
                 "geo_coords": null,
@@ -166,7 +166,7 @@ Feature:
                 "is_activated": true
             },
             {
-                "id": 63,
+                "id": 2,
                 "name": "host-group2",
                 "alias": "host-group2-alias",
                 "geo_coords": null,
@@ -270,7 +270,7 @@ Feature:
     And the JSON should be equal to:
     """
     {
-        "id": 62,
+        "id": 1,
         "name": "test-add",
         "alias": null,
         "geo_coords": null,
@@ -305,7 +305,7 @@ Feature:
     And the JSON should be equal to:
     """
     {
-        "id": 62,
+        "id": 1,
         "name": "test-add1",
         "alias": "test-alias",
         "geo_coords": "-2,+3",
@@ -327,7 +327,7 @@ Feature:
     And the JSON should be equal to:
     """
     {
-        "id": 63,
+        "id": 2,
         "name": "test-add2",
         "alias": null,
         "geo_coords": null,
