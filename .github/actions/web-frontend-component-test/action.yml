@@ -15,11 +15,6 @@ runs:
       with:
         version: 7
 
-    - name: Build packages
-      run: pnpm i && pnpm build:libs
-      working-directory: ${{ inputs.module }}
-      shell: bash
-
     - uses: mad9000/actions-find-and-replace-string@2
       id: formatSpecFilePath
       with:

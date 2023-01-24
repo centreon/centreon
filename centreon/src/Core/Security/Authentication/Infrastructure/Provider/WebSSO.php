@@ -34,6 +34,8 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Provider\WebSSOProvider;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration;
+use DateInterval;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\WebSSOProviderInterface as LegacyWebSSOProviderInterface;
@@ -176,7 +178,7 @@ class WebSSO implements ProviderAuthenticationInterface
         $this->info('searching for user', ['user' => $alias]);
         $user = $this->contactRepository->findByName($alias);
         if ($user === null) {
-            throw new NotFoundException("Contact $alias does not exist");
+            throw SSOAuthenticationException::aliasNotFound($alias);
         }
 
         return $user;
@@ -211,6 +213,7 @@ class WebSSO implements ProviderAuthenticationInterface
 
     /**
      * Validate that login attribute is defined in server environment variables
+     * @throws SSOAuthenticationException
      */
     public function validateLoginAttributeOrFail(): void
     {
@@ -221,7 +224,8 @@ class WebSSO implements ProviderAuthenticationInterface
             $this->error('login header attribute not found in server environment', [
                 'login_header_attribute' => $customConfiguration->getLoginHeaderAttribute()
             ]);
-            throw new InvalidArgumentException('Missing Login Attribute');
+
+            throw SSOAuthenticationException::missingRemoteLoginAttribute();
         }
     }
 
@@ -234,6 +238,8 @@ class WebSSO implements ProviderAuthenticationInterface
     public function extractUsernameFromLoginClaimOrFail(): string
     {
         $this->info('Retrieving username from login claim');
+
+        $this->validateLoginAttributeOrFail();
 
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->getConfiguration()->getCustomConfiguration();
@@ -282,7 +288,11 @@ class WebSSO implements ProviderAuthenticationInterface
      */
     public function getProviderToken(?string $token = null): NewProviderToken
     {
-        throw new \Exception("Feature not available for WebSSO provider");
+        return new NewProviderToken(
+            $token,
+            new DateTimeImmutable(),
+            (new DateTimeImmutable())->add(new DateInterval('PT28800M'))
+        );
     }
 
     /**
