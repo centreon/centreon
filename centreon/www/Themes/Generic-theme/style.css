@@ -1211,8 +1211,9 @@ table-form-header-h3 {
 
 .table .FormRowField {
     width: 11vw;
-    padding: 0px 32px 4px 6px;
+    padding: 0 32px 4px 6px;
     vertical-align: middle;
+    line-height: 1.5;
 }
 
 .table .FormRowValue {
