@@ -1811,7 +1811,7 @@ function updateHost_MC($hostId = null)
             $macros = $hostObj->getFormattedMacros();
             $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
             $updateHostPayload = prepareUpdateMCPayload(
-                $bindParams[':host_snmp_community'][\PDO::PARAM_STR],
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null,
                 $macros,
                 $hostSecretsFromVault
             );
