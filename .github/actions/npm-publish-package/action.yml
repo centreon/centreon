@@ -68,21 +68,6 @@ runs:
       working-directory: ${{ env.directory }}
       shell: bash
 
-    - name: Build package
-      if: ${{ inputs.package != 'js-config' }}
-      uses: ./.github/actions/build-npm-package
-      with:
-        package: ${{ inputs.package }}
-
-    - name: Publish package to NPM (${{ env.TAG }})
-      run: |
-        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-        npm publish --access public --tag ${{ env.TAG }}
-      working-directory: ${{ env.directory }}
-      shell: bash
-      env:
-        NPM_TOKEN: ${{ inputs.npm_token }}
-
     - name: Configure git
       if: ${{ inputs.release_type == 'stable' }}
       run: |

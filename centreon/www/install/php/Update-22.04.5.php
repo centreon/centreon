@@ -26,42 +26,12 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 22.04.5: ';
 $errorMessage = '';
 
-try {
-    if ($pearDB->isColumnExist('remote_servers', 'server_id') === 0) {
-        $errorMessage = "Unable to add 'server_id' column to remote_servers table";
-        $pearDB->query(
-            "ALTER TABLE remote_servers
-            ADD COLUMN `server_id` int(11) NOT NULL"
-        );
-
-        migrateRemoteServerRelations($pearDB);
-
-        $errorMessage = "Unable to add foreign key constraint of remote_servers.server_id";
-        $pearDB->query(
-            "ALTER TABLE remote_servers
-            ADD CONSTRAINT `remote_server_nagios_server_ibfk_1`
-            FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`)
-            ON DELETE CASCADE"
-        );
-    }
-} catch (\Exception $e) {
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
-    );
-
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
-
 /**
  * Manage relations between remote servers and nagios servers
  *
  * @param \CentreonDB $pearDB
  */
-function migrateRemoteServerRelations(\CentreonDB $pearDB): void
+$migrateRemoteServerRelations = function(\CentreonDB $pearDB): void
 {
     $processedIps = [];
 
@@ -99,4 +69,34 @@ function migrateRemoteServerRelations(\CentreonDB $pearDB): void
             $deleteRemoteStatement->execute();
         }
     }
+};
+
+try {
+    if ($pearDB->isColumnExist('remote_servers', 'server_id') === 0) {
+        $errorMessage = "Unable to add 'server_id' column to remote_servers table";
+        $pearDB->query(
+            "ALTER TABLE remote_servers
+            ADD COLUMN `server_id` int(11) NOT NULL"
+        );
+
+        $migrateRemoteServerRelations($pearDB);
+
+        $errorMessage = "Unable to add foreign key constraint of remote_servers.server_id";
+        $pearDB->query(
+            "ALTER TABLE remote_servers
+            ADD CONSTRAINT `remote_server_nagios_server_ibfk_1`
+            FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`)
+            ON DELETE CASCADE"
+        );
+    }
+} catch (\Exception $e) {
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage .
+        " - Code : " . (int)$e->getCode() .
+        " - Error : " . $e->getMessage() .
+        " - Trace : " . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
