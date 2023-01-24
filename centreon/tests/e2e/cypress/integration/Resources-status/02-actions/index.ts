@@ -9,7 +9,7 @@ import {
 } from '../common';
 import { refreshListing } from '../../../support/centreonData';
 
-const serviceName = 'service_test';
+const serviceName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
