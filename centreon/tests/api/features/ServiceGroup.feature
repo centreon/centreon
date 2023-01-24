@@ -79,8 +79,8 @@ Feature:
   Scenario: Service group listing with a READ user
     Given the following CLAPI import data:
     """
-    HG;ADD;service-group1;service-group1-alias
-    HG;ADD;service-group2;service-group2-alias
+    SG;ADD;service-group1;service-group1-alias
+    SG;ADD;service-group2;service-group2-alias
     CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;abu;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -134,8 +134,8 @@ Feature:
   Scenario: Service group listing with a READ_WRITE user
     Given the following CLAPI import data:
     """
-    HG;ADD;service-group1;service-group1-alias
-    HG;ADD;service-group2;service-group2-alias
+    SG;ADD;service-group1;service-group1-alias
+    SG;ADD;service-group2;service-group2-alias
     CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;abu;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
