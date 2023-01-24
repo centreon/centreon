@@ -36,26 +36,33 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 
   const colorMapping = {
     [SeverityCode.High]: {
-      backgroundColor:
-        red[equals(ThemeMode.dark, theme.palette.mode) ? 'A700' : 400],
+      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
+        ? '#D60101'
+        : '#FF6666',
       color: palette.error.contrastText
     },
     [SeverityCode.Medium]: {
-      backgroundColor: palette.warning.main,
+      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
+        ? '#C55400'
+        : '#FD9B27',
       color: palette.warning.contrastText
     },
     [SeverityCode.Low]: {
-      backgroundColor:
-        grey[equals(ThemeMode.dark, theme.palette.mode) ? 700 : 300],
+      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
+        ? '#666666'
+        : '#E3E3E3',
       color: palette.text.primary
     },
     [SeverityCode.Pending]: {
-      backgroundColor: palette.pending.main,
+      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
+        ? '#118077'
+        : '#1EBEB3',
       color: palette.text.primary
     },
     [SeverityCode.Ok]: {
-      backgroundColor:
-        lightGreen[equals(ThemeMode.dark, theme.palette.mode) ? 800 : 600],
+      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
+        ? '#5F8118'
+        : '#88B922',
       color: palette.text.primary
     },
     [SeverityCode.None]: {
