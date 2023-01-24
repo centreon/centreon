@@ -105,19 +105,19 @@ describe('parse', () => {
   it('parses the given search string into a Search model', () => {
     const result = parse({ search });
 
-    expect(result).toEqual(parsedSearch);
+    expect(result).to.deep.equal(parsedSearch);
   });
 });
 
-describe(build, () => {
+describe('build', () => {
   it('builds a search string from the given Search model', () => {
     const result = build(parsedSearch);
 
-    expect(result).toEqual(search);
+    expect(result).to.be.equal(search);
   });
 });
 
-describe(getAutocompleteSuggestions, () => {
+describe('Autocomplete Suggestions', () => {
   const testCases = [
     {
       cursorPosition: 3,
@@ -184,15 +184,14 @@ describe(getAutocompleteSuggestions, () => {
     }
   ];
 
-  it.each(testCases)(
-    'returns "$expectedResult" when "$inputSearch" is input at the $cursorPosition cursor position',
-    ({ inputSearch, cursorPosition, expectedResult }) => {
+  testCases.forEach(({ cursorPosition, expectedResult, inputSearch }) => {
+    it(`returns ${expectedResult} when ${inputSearch} is input at the ${cursorPosition} cursor position`, () => {
       expect(
         getAutocompleteSuggestions({
           cursorPosition,
           search: inputSearch
         })
-      ).toEqual(expectedResult);
-    }
-  );
+      ).to.deep.equal(expectedResult);
+    });
+  });
 });
