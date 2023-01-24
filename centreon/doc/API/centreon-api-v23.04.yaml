@@ -554,6 +554,38 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/services/groups:
+    get:
+      tags:
+        - Service group
+      summary: "List all service groups"
+      description: |
+        Return all service group configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * is_activated
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Service.Group'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
     get:
       tags:
@@ -6005,6 +6037,42 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the host group is activated or not"
+    Configuration.Service.Group:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Service.Group.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Service group ID"
+              example: 1
+    Configuration.Service.Group.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          description: "Service group name"
+          example: "MySQL-Servers"
+        alias:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: "Service group alias"
+          example: "All MySQL Servers"
+        geo_coords:
+          type: string
+          nullable: true
+          maxLength: 32
+          description: "Geographical coordinates use by Centreon Map module to position element on map"
+          example: "48.51,2.20"
+        comment:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Comments on this service group"
+        is_activated:
+          type: boolean
+          description: "Indicates whether the service group is activated or not"
     Configuration.ContactTemplate:
       type: object
       required:
