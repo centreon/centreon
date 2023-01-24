@@ -66,11 +66,11 @@ final class FindServiceGroups
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(ServiceGroupException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(ServiceGroupException::accessNotAllowed())
                 );
             }
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(ServiceGroupException::errorWhileSearching()->getMessage()));
+            $presenter->setResponseStatus(new ErrorResponse(ServiceGroupException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
