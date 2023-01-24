@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@
  */
 
 require_once __DIR__ . '/../../class/centreonLog.class.php';
-
 $centreonLog = new CentreonLog();
 
-// error specific content
-$versionOfTheUpgrade = 'UPGRADE - 22.04.8: ';
+//error specific content
+$versionOfTheUpgrade = 'UPGRADE - 22.10.4: ';
+$errorMessage = '';
 
 /**
  * Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
@@ -74,13 +74,18 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
 };
 
 try {
-    if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
-        $errorMessage = "Unable to remove app_key column";
-        $pearDB->query("ALTER TABLE `remote_servers` DROP COLUMN `app_key`");
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
+        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $pearDB->query(
+            "ALTER TABLE `cfg_centreonbroker`
+            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
+            AFTER `event_queue_max_size`"
+        );
     }
 
     // Transactional queries
     $pearDB->beginTransaction();
+
     $errorMessage = "Impossible to delete color picker topology_js entries";
     $pearDB->query(
         "DELETE FROM `topology_JS`
