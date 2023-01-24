@@ -25,9 +25,9 @@ namespace Core\ServiceGroup\Infrastructure\API\FindServiceGroups;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\ServiceGroup\Application\UseCase\FindServiceGroups\FindServiceGroupsResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
+use Core\ServiceGroup\Application\UseCase\FindServiceGroups\FindServiceGroupsResponse;
 
 class FindServiceGroupsPresenter extends AbstractPresenter
 {

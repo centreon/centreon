@@ -40,5 +40,4 @@ class ServiceGroupException extends \Exception
     {
         return new self(_('Error while searching for service groups'));
     }
-
 }

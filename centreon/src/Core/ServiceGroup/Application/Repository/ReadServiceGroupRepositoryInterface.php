@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\ServiceGroup\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
 
 interface ReadServiceGroupRepositoryInterface
 {
@@ -51,5 +51,4 @@ interface ReadServiceGroupRepositoryInterface
      * @return list<ServiceGroup>
      */
     public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array;
-
 }

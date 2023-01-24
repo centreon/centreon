@@ -32,9 +32,9 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
 /**
@@ -114,10 +114,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             $concatenator
                 ->appendJoins(
                     <<<'SQL'
-                        INNER JOIN `:db`.acl_resources_sg_relations arhr
-                            ON sg.sg_id = arhr.sg_id
+                        INNER JOIN `:db`.acl_resources_sg_relations arsr
+                            ON sg.sg_id = arsr.sg_id
                         INNER JOIN `:db`.acl_resources res
-                            ON arhr.acl_res_id = res.acl_res_id
+                            ON arsr.acl_res_id = res.acl_res_id
                         INNER JOIN `:db`.acl_res_group_relations argr
                             ON res.acl_res_id = argr.acl_res_id
                         INNER JOIN `:db`.acl_groups ag
