@@ -137,4 +137,4 @@ default:
     service_groups:
       paths: [ "%paths.base%/features/ServiceGroup.feature" ]
       contexts:
-        - Centreon\Test\Api\Context\ApiContext
+        - Centreon\Test\Behat\Api\Context\ApiContext
