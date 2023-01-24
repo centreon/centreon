@@ -1,9 +1,9 @@
-**/.github/     @centreon/centreon-devops
-**/.git*        @centreon/centreon-devops
-**/.project     @centreon/centreon-devops
-**/selinux/     @centreon/centreon-devops
-**/project/     @centreon/centreon-devops
-*.sh            @centreon/centreon-devops
+**/.github/     @centreon/automation-reviewers
+**/.git*        @centreon/automation-reviewers
+**/.project     @centreon/automation-reviewers
+**/selinux/     @centreon/automation-reviewers
+**/project/     @centreon/automation-reviewers
+*.sh            @centreon/automation-reviewers
 
 *.po            @centreon/centreon-documentation
 
