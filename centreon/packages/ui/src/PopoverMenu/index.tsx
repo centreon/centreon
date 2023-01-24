@@ -42,7 +42,7 @@ const PopoverMenu = ({
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes, cx } = useStyles();
-  const [anchorEl, setAnchorEl] = useState();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
 
   const isOpen = Boolean(anchorEl);
 
@@ -84,8 +84,11 @@ const PopoverMenu = ({
           <Popper
             open
             anchorEl={anchorEl}
+            nonce={undefined}
             placement={popperPlacement}
             style={{ zIndex: theme.zIndex.tooltip }}
+            onResize={(): undefined => undefined}
+            onResizeCapture={(): undefined => undefined}
           >
             <Paper>{children({ close })}</Paper>
           </Popper>

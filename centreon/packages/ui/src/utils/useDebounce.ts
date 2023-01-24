@@ -11,7 +11,7 @@ const useDebounce = ({
   wait,
   memoProps = []
 }: Props): ((...args) => void) => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   return useCallback((...args): void => {
     if (timeoutRef.current) {

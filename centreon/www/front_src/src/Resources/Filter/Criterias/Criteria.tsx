@@ -5,9 +5,9 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import {
   PopoverMultiAutocompleteField,
   PopoverMultiConnectedAutocompleteField,
-  SelectEntry,
   useMemoComponent
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import {
   filterWithParsedSearchDerivedAtom,

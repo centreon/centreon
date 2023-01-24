@@ -2,6 +2,7 @@ import 'ulog';
 import { useMutation } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
+import { includes } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
@@ -65,8 +66,9 @@ const useMutationQuery = <T extends object>({
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
       log.error(data.message);
-      const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
-        data?.statusCode || 0
+      const hasACorrespondingHttpCode = includes(
+        data?.statusCode || 0,
+        httpCodesBypassErrorSnackbar
       );
 
       if (!hasACorrespondingHttpCode) {

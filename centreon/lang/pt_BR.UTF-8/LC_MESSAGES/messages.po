@@ -15882,3 +15882,30 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while creating host category"
 #  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host severities"
+#  msgstr ""
+
+#  msgid "Error while deleting host severity"
+#  msgstr ""
+
+#  msgid "Error while creating host severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created host severity"
+#  msgstr ""
+
+#  msgid "Host severity name already exists"
+#  msgstr ""
+
+#  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""

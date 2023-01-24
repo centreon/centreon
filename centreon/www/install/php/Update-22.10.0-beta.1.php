@@ -26,6 +26,51 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 22.10.0-beta.1: ';
 $errorMessage = '';
 
+/**
+ * Manage relations between remote servers and nagios servers
+ *
+ * @param \CentreonDB $pearDB
+ */
+$migrateRemoteServerRelations = function(\CentreonDB $pearDB): void
+{
+    $processedIps = [];
+
+    $selectServerStatement = $pearDB->prepare(
+        "SELECT id FROM nagios_server WHERE ns_ip_address = :ip_address"
+    );
+    $deleteRemoteStatement = $pearDB->prepare(
+        "DELETE FROM remote_servers WHERE id = :id"
+    );
+    $updateRemoteStatement = $pearDB->prepare(
+        "UPDATE remote_servers SET server_id = :server_id WHERE id = :id"
+    );
+
+    $result = $pearDB->query(
+        "SELECT id, ip FROM remote_servers"
+    );
+    while ($remote = $result->fetch()) {
+        $remoteIp = $remote['ip'];
+        $remoteId = $remote['id'];
+        if (in_array($remoteIp, $processedIps)) {
+            $deleteRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
+            $deleteRemoteStatement->execute();
+        }
+
+        $processedIps[] = $remoteIp;
+
+        $selectServerStatement->bindValue(':ip_address', $remoteIp, \PDO::PARAM_STR);
+        $selectServerStatement->execute();
+        if ($server = $selectServerStatement->fetch()) {
+            $updateRemoteStatement->bindValue(':server_id', $server['id'], \PDO::PARAM_INT);
+            $updateRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
+            $updateRemoteStatement->execute();
+        } else {
+            $deleteRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
+            $deleteRemoteStatement->execute();
+        }
+    }
+}
+
 try {
     $errorMessage = "Impossible to update 'cb_field' table";
     $pearDB->query("ALTER TABLE cb_field MODIFY description VARCHAR(510) DEFAULT NULL");
@@ -88,7 +133,7 @@ try {
             ADD COLUMN `server_id` int(11) NOT NULL"
         );
 
-        migrateRemoteServerRelations($pearDB);
+        $migrateRemoteServerRelations($pearDB);
 
         $errorMessage = "Unable to add foreign key constraint of remote_servers.server_id";
         $pearDB->query(
@@ -116,51 +161,6 @@ try {
     );
 
     throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
-
-/**
- * Manage relations between remote servers and nagios servers
- *
- * @param \CentreonDB $pearDB
- */
-function migrateRemoteServerRelations(\CentreonDB $pearDB): void
-{
-    $processedIps = [];
-
-    $selectServerStatement = $pearDB->prepare(
-        "SELECT id FROM nagios_server WHERE ns_ip_address = :ip_address"
-    );
-    $deleteRemoteStatement = $pearDB->prepare(
-        "DELETE FROM remote_servers WHERE id = :id"
-    );
-    $updateRemoteStatement = $pearDB->prepare(
-        "UPDATE remote_servers SET server_id = :server_id WHERE id = :id"
-    );
-
-    $result = $pearDB->query(
-        "SELECT id, ip FROM remote_servers"
-    );
-    while ($remote = $result->fetch()) {
-        $remoteIp = $remote['ip'];
-        $remoteId = $remote['id'];
-        if (in_array($remoteIp, $processedIps)) {
-            $deleteRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
-            $deleteRemoteStatement->execute();
-        }
-
-        $processedIps[] = $remoteIp;
-
-        $selectServerStatement->bindValue(':ip_address', $remoteIp, \PDO::PARAM_STR);
-        $selectServerStatement->execute();
-        if ($server = $selectServerStatement->fetch()) {
-            $updateRemoteStatement->bindValue(':server_id', $server['id'], \PDO::PARAM_INT);
-            $updateRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
-            $updateRemoteStatement->execute();
-        } else {
-            $deleteRemoteStatement->bindValue(':id', $remoteId, \PDO::PARAM_INT);
-            $deleteRemoteStatement->execute();
-        }
-    }
 }
 
 /**

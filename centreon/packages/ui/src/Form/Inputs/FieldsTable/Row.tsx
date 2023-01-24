@@ -131,9 +131,9 @@ const Row = ({
       {not(isLastElement) && (
         <div className={classes.actions}>
           <IconButton
-            ariaLabel={deleteLabel && t(deleteLabel)}
+            ariaLabel={deleteLabel && (t(deleteLabel) || '')}
             className={classes.icon}
-            title={deleteLabel && t(deleteLabel)}
+            title={deleteLabel && (t(deleteLabel) || '')}
             onClick={deleteRow}
           >
             <DeleteIcon />

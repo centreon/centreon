@@ -39,7 +39,6 @@ const normalizeNewValues = ({
 };
 
 const Autocomplete = ({
-  dataTestId,
   fieldName,
   label,
   required,
@@ -124,10 +123,14 @@ const Autocomplete = ({
     | Array<SelectEntry>
     | undefined => {
     if (isMultiple && isCreatable) {
-      return selectedValues.map((value) => ({
-        id: value,
-        name: value
-      }));
+      return equals(type(selectedValues), 'Array')
+        ? (
+            selectedValues as Array<SelectEntry> | Array<string> | undefined
+          )?.map((value) => ({
+            id: value,
+            name: value
+          }))
+        : selectedValues;
     }
 
     return selectedValues;
@@ -150,7 +153,6 @@ const Autocomplete = ({
     Component: (
       <div>
         <AutocompleteField
-          dataTestId={dataTestId}
           disabled={disabled}
           freeSolo={isCreatable}
           inputValue={inputText}

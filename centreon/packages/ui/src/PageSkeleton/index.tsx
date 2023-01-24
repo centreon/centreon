@@ -43,7 +43,7 @@ const PageSkeleton = ({
   animate = true
 }: PageSkeletonProps): JSX.Element => {
   const { classes, cx } = useStyles();
-  const skeletonClasses = useSkeletonStyles();
+  const { classes: skeletonClasses } = useSkeletonStyles();
   const theme = useTheme();
 
   return (

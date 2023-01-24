@@ -14,12 +14,8 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import {
-  getData,
-  SelectEntry,
-  useRequest,
-  getUrlQueryParameters
-} from '@centreon/ui';
+import { getData, useRequest, getUrlQueryParameters } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { ResourceListing, SortOrder } from '../../models';

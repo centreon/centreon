@@ -62,12 +62,13 @@ runs:
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@v1
-      with:
-        access: public
-        package: ${{ env.directory }}/package.json
-        tag: ${{ env.TAG }}
-        token: ${{ inputs.npm_token }}
+      run: |
+        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        npm publish --access public --tag ${{ env.TAG }}
+      working-directory: ${{ env.directory }}
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.npm_token }}
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4

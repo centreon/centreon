@@ -1,4 +1,4 @@
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import ShortTypeChip from '../../ShortTypeChip';
 
