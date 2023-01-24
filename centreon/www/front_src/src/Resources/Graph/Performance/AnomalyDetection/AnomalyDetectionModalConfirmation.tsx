@@ -4,33 +4,31 @@ import { Typography } from '@mui/material';
 
 import { Dialog } from '@centreon/ui';
 
-import {
-  labelEditAnomalyDetectionConfirmation,
-  labelMenageEnvelope,
-  labelSave,
-  labelCancel
-} from '../../../translatedLabels';
+import { labelCancel, labelSave } from '../../../translatedLabels';
 
 interface Props {
   dataTestid: string;
-
+  message: string;
+  onCancel: (value: boolean) => void;
+  onConfirm: (value: boolean) => void;
   open: boolean;
-  sendCancel: (value: boolean) => void;
-  sendConfirm: (value: boolean) => void;
   setOpen: (value: boolean) => void;
+  title: string;
 }
 
 const AnomalyDetectionModalConfirmation = ({
   open,
   setOpen,
-  sendCancel,
-  sendConfirm,
-  dataTestid
+  onCancel,
+  onConfirm,
+  dataTestid,
+  message,
+  title
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const cancel = (): void => {
-    sendCancel(true);
+    onCancel(true);
     setOpen(false);
   };
 
@@ -39,13 +37,13 @@ const AnomalyDetectionModalConfirmation = ({
       data-testid={dataTestid}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSave)}
-      labelTitle={t(labelMenageEnvelope)}
+      labelTitle={title}
       open={open}
       onCancel={cancel}
       onClose={(): void => setOpen(false)}
-      onConfirm={(): void => sendConfirm(true)}
+      onConfirm={(): void => onConfirm(true)}
     >
-      <Typography>{t(labelEditAnomalyDetectionConfirmation)}</Typography>
+      <Typography>{message}</Typography>
     </Dialog>
   );
 };

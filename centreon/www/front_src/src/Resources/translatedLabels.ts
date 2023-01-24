@@ -279,3 +279,13 @@ export const labelSlider = 'Slider';
 export const labelCloseEditModal = 'Close edit modal';
 export const labelModalEditAnomalyDetection = 'Edit modal';
 export const labelModalConfirmation = 'Modal confirmation';
+export const labelExclusionOfPeriods = 'Exclusion of periods';
+export const labelExcludedPeriods = 'Excluded periods';
+export const labelSubTitleExclusionOfPeriods =
+  'Attention, the excluded periods will be applied immediately.';
+export const labelButtonExcludeAPeriod = 'Exclude a period';
+export const labelFromBeginning = 'From beginning';
+
+export const labelConfirmationExclusionPeriod =
+  'Are you sure you want to exclude the period?';
+export const titleExcludeAPeriod = 'Exclude a period';

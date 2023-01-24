@@ -1,8 +1,8 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useUpdateAtom } from 'jotai/utils';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
@@ -10,18 +10,19 @@ import { Button, Dialog, Paper } from '@mui/material';
 import {
   labelClose,
   labelCloseEditModal,
-  labelModalConfirmation,
+  labelEditAnomalyDetectionConfirmation,
+  labelMenageEnvelope,
   labelModalEditAnomalyDetection
 } from '../../../translatedLabels';
 import TimePeriodButtonGroup from '../TimePeriods';
 
-import AnomalyDetectionExclusionPeriod from './AnomalyDetectionExclusionPeriod';
-import AnomalyDetectionModalConfirmation from './AnomalyDetectionModalConfirmation';
-import { CustomFactorsData } from './models';
 import {
   countedRedCirclesAtom,
   showModalAnomalyDetectionAtom
 } from './anomalyDetectionAtom';
+import AnomalyDetectionModalConfirmation from './AnomalyDetectionModalConfirmation';
+import AnomalyDetectionExclusionPeriod from './ExclusionPeriods/index';
+import { CustomFactorsData } from './models';
 
 const useStyles = makeStyles()((theme) => ({
   close: {
@@ -30,7 +31,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   container: {
     '& .MuiDialog-paper': {
-      backgroundColor: theme.palette.background.default,
       maxWidth: '80%',
       padding: theme.spacing(2),
       width: '100%'
@@ -39,18 +39,21 @@ const useStyles = makeStyles()((theme) => ({
   editEnvelopeSize: {
     display: 'flex',
     justifyContent: 'space-between',
-    width: '30%'
+    width: '100%'
   },
   envelopeSize: {
     flex: 1,
     marginRight: theme.spacing(1)
   },
   exclusionPeriod: {
-    flex: 2,
-    height: theme.spacing(20),
-    marginLeft: theme.spacing(1)
+    backgroundColor: theme.palette.background.default,
+
+    flex: 2
   },
   spacing: {
+    '& .MuiPaper-root': {
+      backgroundColor: theme.palette.background.default
+    },
     paddingBottom: theme.spacing(1)
   }
 }));
@@ -136,13 +139,18 @@ const EditAnomalyDetectionDataDialog = ({
               setIsResizingEnvelope
             })}
           </Paper>
+          <Paper className={classes.exclusionPeriod}>
+            <EditAnomalyDetectionDataDialog.ExclusionPeriod />
+          </Paper>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation
-          dataTestid={labelModalConfirmation}
+          dataTestid="modalConfirmation"
+          message={t(labelEditAnomalyDetectionConfirmation)}
           open={isModalConfirmationOpened}
-          sendCancel={cancelResizeEnvelope}
-          sendConfirm={resizeEnvelope}
           setOpen={setIsModalConfirmationOpened}
+          title={t(labelMenageEnvelope)}
+          onCancel={cancelResizeEnvelope}
+          onConfirm={resizeEnvelope}
         />
         <div className={classes.close}>
           <Button data-testid={labelCloseEditModal} onClick={handleClose}>

@@ -1,7 +1,8 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai/utils';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
+import { exclusionPeriodsThresholdAtom } from '../anomalyDetectionAtom';
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import { ResourceDetails } from '../../../../Details/models';
 import { Resource, ResourceType } from '../../../../models';
@@ -13,6 +14,7 @@ import {
 import { CustomFactorsData } from '../models';
 
 import AnomalyDetectionEnvelopeThreshold from './AnomalyDetectionEnvelopeThreshold';
+import AnomalyDetectionExclusionPeriodThreshold from './AnomalyDetectionExclusionPeriodThreshold';
 import { displayAdditionalLines } from './helpers';
 
 interface LinesProps {
@@ -39,16 +41,23 @@ interface AdditionalLinesProps {
 const AdditionalLines = ({
   additionalLinesProps,
   data,
-  resource
+  resource,
+  displayThresholdExclusionPeriod = true
 }: AdditionalLinesProps): JSX.Element | null => {
   const details = useAtomValue(detailsAtom);
+  const { data: exclusionPeriodsThreshold } = useAtomValue(
+    exclusionPeriodsThresholdAtom
+  );
 
-  const { lines } = additionalLinesProps;
+  const { graphHeight, lines, xScale, leftScale, rightScale } =
+    additionalLinesProps;
 
   const displayThresholds = displayAdditionalLines({
     lines,
     resource: resource ?? (details as ResourceDetails)
   });
+
+  console.log('----------------------?', exclusionPeriodsThreshold);
 
   if (!displayThresholds) {
     return null;
@@ -61,6 +70,27 @@ const AdditionalLines = ({
         {...additionalLinesProps}
         data={data}
       />
+      {displayThresholdExclusionPeriod &&
+        !isNil(details) &&
+        exclusionPeriodsThreshold?.map((item) => {
+          const displayed =
+            item?.lines?.length > 0 && item?.timeSeries?.length > 0;
+          console.log('displayeeeeeeeeeed', displayed);
+
+          return (
+            displayed && (
+              <AnomalyDetectionExclusionPeriodThreshold
+                data={item}
+                graphHeight={graphHeight}
+                key={details.id}
+                leftScale={leftScale}
+                resource={details}
+                rightScale={rightScale}
+                xScale={xScale}
+              />
+            )
+          );
+        })}
     </>
   );
 };

@@ -43,6 +43,7 @@ const useStyles = makeStyles()((theme) => ({
     marginLeft: theme.spacing(2)
   },
   container: {
+    backgroundColor: theme.palette.background.default,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
@@ -57,7 +58,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'flex-end'
   },
   header: {
     display: 'flex',
@@ -80,8 +81,8 @@ const useStyles = makeStyles()((theme) => ({
     '& .MuiSlider-valueLabel': {
       backgroundColor: theme.palette.primary.main,
       borderRadius: '50%',
-      height: theme.spacing(2.25),
-      width: theme.spacing(1.25)
+      height: theme.spacing(3),
+      width: theme.spacing(3)
     },
     '& .MuiSlider-valueLabel:before': {
       width: 0
