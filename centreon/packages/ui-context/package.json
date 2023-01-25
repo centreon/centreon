@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui-context",
-  "version": "22.10.7-MON-fix-packages-version.0",
+  "version": "22.10.7",
   "description": "Centreon UI shared context",
   "main": "src",
   "keywords": [],
