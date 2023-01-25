@@ -1,5 +1,3 @@
-%define cpan_name Libssh-Session
-
 Name:		perl-Libssh-Session
 Version:	0.9
 Release:	1%{?dist}
@@ -8,7 +6,6 @@ Group:		Development/Libraries
 License:	Apache
 URL:		https://metacpan.org/release/QGARNIER/Libssh-Session-0.8
 Source0:    %{name}.tar.gz
-#Source0:	http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  libssh-devel
@@ -47,7 +44,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{perl_vendorarch}/
+%{perl_vendorarch}
 %{_mandir}/man3/*.3*
 
 %changelog
