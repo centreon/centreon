@@ -45,6 +45,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
+          yum install -y libssh-devel make gcc
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
           cp -rp dependencies/perl-libssh-session/src/* ~/rpmbuild/SOURCES/
           rpmbuild -ba dependencies/perl-libssh-session/packaging/rpm/perl-Libssh-Session.spec
