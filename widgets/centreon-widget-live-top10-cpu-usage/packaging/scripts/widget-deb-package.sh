@@ -10,8 +10,8 @@ fi
 
 echo "################################################## PACKAGING LIVE TOP 10 CPU USAGE ##################################################"
 
-AUTHOR="Luiz Costa"
-AUTHOR_EMAIL="me@luizgustavo.pro.br"
+AUTHOR="Centreon"
+AUTHOR_EMAIL="contact@centreon.com"
 
 if [ -d /build ]; then
   rm -rf /build
