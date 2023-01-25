@@ -3,8 +3,6 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 
-const excludeAllNodeModules = /node_modules/;
-
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
 
@@ -21,7 +19,7 @@ const getBaseConfiguration = ({
         test: /\.[cm]?(j|t)sx?$/
       },
       {
-        exclude: excludeAllNodeModules,
+        exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.[jt]sx?$/,
         use: {
           loader: 'swc-loader',

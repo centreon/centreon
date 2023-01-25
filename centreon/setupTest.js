@@ -62,10 +62,8 @@ i18n.use(initReactI18next).init({
 });
 
 jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('./packages/ui-context/src'),
+  ...jest.requireActual('./packages/ui-context'),
   ThemeMode: 'light',
 }));
-
-jest.mock('@centreon/ui', () => jest.requireActual('./packages/ui/src'));
 
 fetchMock.enableMocks();
