@@ -46,11 +46,17 @@ jobs:
 
       - run: |
           yum install -y libssh-devel make gcc
+
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          cp -rp dependencies/perl-libssh-session/src/* ~/rpmbuild/SOURCES/
+
+          cp -rp dependencies/perl-libssh-session/src perl-Libssh-Session/
+          tar czf ~/rpmbuild/SOURCES/perl-Libssh-Session.tar.gz perl-Libssh-Session
+
           rpmbuild -ba dependencies/perl-libssh-session/packaging/rpm/perl-Libssh-Session.spec
+
           cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
         shell: bash
+
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
