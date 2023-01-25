@@ -65,8 +65,8 @@ beforeEach(function (): void {
 
     $this->testedServiceGroup = new ServiceGroup(
         66,
-        'hg-name',
-        'hg-alias',
+        'sg-name',
+        'sg-alias',
         GeoCoords::fromString('-2,100'),
         '',
         true
