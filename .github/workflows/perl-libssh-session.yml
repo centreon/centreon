@@ -130,7 +130,9 @@ jobs:
       - run: |
           apt update
           apt install -y dh-make-perl
-          yes | DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --version 0.9-${{ matrix.distrib }} dependencies/perl-libssh-session/src/
+          mv dependencies/perl-libssh-session/src/ perl-libssh-session
+          tar czf perl-libssh-session.tar.gz perl-libssh-session
+          yes | DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
         shell: bash
 
       - uses: actions/cache@v3
