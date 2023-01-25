@@ -263,7 +263,8 @@ Scenario: Service group add with minimal payload as an Administrator
     When I send a POST request to '/api/latest/configuration/services/groups' with body:
     """
     {
-    "name": "test-add"
+    "name": "test-add",
+    "alias": "service-group1-alias"
     }
     """
     Then the response code should be "201"
@@ -272,7 +273,7 @@ Scenario: Service group add with minimal payload as an Administrator
     {
     "id": 1,
     "name": "test-add",
-    "alias": null,
+    "alias": "service-group1-alias",
     "geo_coords": null,
     "comment": null,
     "is_activated": true
@@ -317,7 +318,7 @@ Scenario: Service group add with full payload as an Administrator
     """
     {
     "name": "test-add2",
-    "alias": "",
+    "alias": "test-alias",
     "geo_coords": "",
     "comment": "",
     "is_activated": true
@@ -329,7 +330,7 @@ Scenario: Service group add with full payload as an Administrator
     {
     "id": 2,
     "name": "test-add2",
-    "alias": null,
+    "alias": "test-alias",
     "geo_coords": null,
     "comment": null,
     "is_activated": true
@@ -337,7 +338,10 @@ Scenario: Service group add with full payload as an Administrator
     """
     When I send a POST request to '/api/latest/configuration/services/groups' with body:
     """
-    {"name": "test-add2"}
+    {
+    "name": "test-add2",
+    "alias": "test-add-alias"
+    }
     """
     Then the response code should be "409"
 
@@ -363,7 +367,10 @@ Scenario: Service group add with a READ user is forbidden
 
     When I send a POST request to '/api/latest/configuration/services/groups' with body:
     """
-    { "name": "test-add" }
+    {
+    "name": "test-add",
+    "alias": "test-add-alias"
+    }
     """
     Then the response code should be "403"
 
@@ -389,7 +396,10 @@ Scenario: Service group add with a READ_WRITE user is allowed
 
     When I send a POST request to '/api/latest/configuration/services/groups' with body:
     """
-    { "name": "test-add" }
+    {
+        "name": "test-add",
+        "alias": "test-add-alias"
+    }
     """
     Then the response code should be "201"
     And the json node "name" should be equal to the string "test-add"
