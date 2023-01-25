@@ -133,7 +133,7 @@ jobs:
 
       - run: |
           apt update
-          apt install -y dh-make-perl perl perl-dev libssh-dev
+          apt install -y dh-make-perl perl libssh-dev
           wget -q -O perl-libssh-master.tar.gz https://github.com/garnier-quentin/perl-libssh/archive/refs/heads/master.tar.gz
           tar zxpf perl-libssh-master.tar.gz
           yes | DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --version 0.9-${DISTRIB} perl-libssh-master/
