@@ -113,7 +113,7 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  package-deba:
+  package-deb:
     needs: [get-version]
     runs-on: [self-hosted, common]
     strategy:
