@@ -312,7 +312,6 @@ if (!is_null($host_id)) {
             }
             $tab_status[$tab_status_service[$data["current_state"]]]++;
         }
-        $DBRESULT->closeCursor();
 
         if ($is_admin || isset($authorized_actions['service_display_command'])) {
             $commandLine = '';
