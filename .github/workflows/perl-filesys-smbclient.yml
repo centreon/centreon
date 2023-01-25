@@ -49,6 +49,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
+          config-manager --set-enabled crb
           yum install -y libsmbclient-devel make gcc perl perl-devel perl-ExtUtils-MakeMaker
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -138,7 +139,7 @@ jobs:
           mv dependencies/perl-filesys-smbclient/src/ perl-filesys-smbclient
           tar czf perl-filesys-smbclient.tar.gz perl-filesys-smbclient
 
-          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make --verbose --build --version 4.0-${{ matrix.distrib }} filesys-smbclient-perl/
+          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make --verbose --build --version 4.0-${{ matrix.distrib }} perl-filesys-smbclient/
         shell: bash
 
       - uses: actions/cache@v3
