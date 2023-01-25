@@ -7,7 +7,7 @@ Summary:	perl interface to the libssh library
 Group:		Development/Libraries
 License:	Apache
 URL:		https://metacpan.org/release/QGARNIER/Libssh-Session-0.8
-Source0:    %{name}-%{version}.tar.gz
+Source0:    %{name}.tar.gz
 #Source0:	http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -25,7 +25,7 @@ AutoReqProv:    no
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
