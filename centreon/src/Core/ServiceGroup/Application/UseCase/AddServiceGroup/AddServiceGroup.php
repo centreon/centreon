@@ -44,7 +44,6 @@ use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterfac
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Infrastructure\API\AddServiceGroup\AddServiceGroupPresenter;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 final class AddServiceGroup
 {
@@ -55,7 +54,6 @@ final class AddServiceGroup
         private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
-        private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $contact
     ) {
