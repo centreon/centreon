@@ -2,9 +2,9 @@ use 5.008005;
 use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME           => 'Libssh::Session',
-    VERSION_FROM   => 'Session.pm',
+    VERSION_FROM   => 'lib/Libssh/Session.pm',
     PREREQ_PM      => { 'Test::More' => 0 },
-    ABSTRACT_FROM  => 'Session.pm',
+    ABSTRACT_FROM  => 'lib/Libssh/Session.pm',
     AUTHOR         => 'Quentin Garnier',
     LIBS           => ['-lssh'],
     DEFINE         => '',
