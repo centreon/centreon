@@ -145,7 +145,7 @@ $request = <<<SQL
     INNER JOIN instances i
       ON h.instance_id = i.instance_id
     INNER JOIN services s
-      ON s.host_id = h.host_id
+      ON s.host_id = h.host_id 
     SQL;
 
 if (!$obj->is_admin) {
