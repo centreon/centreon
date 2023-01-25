@@ -22,17 +22,20 @@ interface Props {
   onChangeCheckedExclusionPeriod: (
     event: ChangeEvent<HTMLInputElement>
   ) => void;
+  onComment: (comment: string) => void;
 }
 
 const AnomalyDetectionCommentExclusionPeriod = ({
   onChangeCheckedExclusionPeriod,
-  isExclusionPeriodChecked
+  isExclusionPeriodChecked,
+  onComment
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const [comment, setComment] = useState(null);
 
   const changeComment = (event): void => {
     setComment(event.target.value);
+    onComment(event.target.value);
   };
 
   return (

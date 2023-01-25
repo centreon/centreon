@@ -208,7 +208,6 @@ const PopoverCustomTimePeriodPickers = ({
                   setDate={setStart}
                   setWithoutInitialValue={setPickerStartWithoutInitialValue}
                   withoutInitialValue={pickerStartWithoutInitialValue}
-                  // onViewChange={viewChangeStartPicker}
                   onClosePicker={onCloseStartPicker}
                 />
               </div>
@@ -226,7 +225,6 @@ const PopoverCustomTimePeriodPickers = ({
                   setDate={setEnd}
                   setWithoutInitialValue={setPickerEndWithoutInitialValue}
                   withoutInitialValue={pickerEndWithoutInitialValue}
-                  // onViewChange={viewChangeEndPicker}
                   onClosePicker={onCloseEndPicker}
                 />
               </div>

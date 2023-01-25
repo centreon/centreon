@@ -7,7 +7,7 @@ import { useAtomValue } from 'jotai/utils';
 import { equals, find, isNil, path, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { getData, useRequest } from '@centreon/ui';
+import { getData, useRequest, postData } from '@centreon/ui';
 
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import {
@@ -76,22 +76,25 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     useState(true);
   const [pickerEndWithoutInitialValue, setPickerEndWithoutInitialValue] =
     useState(true);
+  const [comment, setComment] = useState<string | null>(null);
 
   const [isConfirmedExclusion, setIsConfirmedExclusion] = useState(false);
-
-  const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
-    request: getData
-  });
-
   const [exclusionPeriodsThreshold, setExclusionPeriodsThreshold] = useAtom(
     exclusionPeriodsThresholdAtom
   );
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
+
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
   const details = useAtomValue(detailsAtom);
-
   const [exclusionTimePeriods, setExclusionTimePeriods] =
     useState(customTimePeriod);
+
+  const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
+    request: getData
+  });
+  const { sendRequest: sendExcludeAPeriod } = useRequest<any>({
+    request: postData
+  });
 
   const dateExisted = !!(startDate && endDate);
 
@@ -174,13 +177,21 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   // call api confirmation
-  const confirmExcluderPeriods = (): void => {
+  const confirmExcluderPeriods = async (): void => {
     const excludedData = data.map((item) => ({ ...item, isConfirmed: true }));
 
     setExclusionPeriodsThreshold({
       ...exclusionPeriodsThreshold,
       data: [...excludedData]
     });
+    // const resp = await sendExcludeAPeriod({
+    //   data: {
+    //     description: 'string',
+    //     endTime: '2023-01-25T10:39:47.710Z',
+    //     startTime: '2023-01-25T10:39:47.710Z'
+    //   },
+    //   endpoint: ''
+    // });
     setOpen(false);
     initializeData();
     setIsConfirmedExclusion(false);
@@ -190,6 +201,10 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     deleteCurrentData();
     setOpen(false);
     initializeData();
+  };
+
+  const onComment = (info: string): void => {
+    console.log({ info });
   };
 
   const onCloseStartPicker = (isClosed: boolean): void => {
@@ -222,27 +237,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     setStartDate(exclusionTimePeriods.start);
     setEndDate(exclusionTimePeriods.end);
   };
-
-  useEffect(() => {
-    if (!startDate || !endDate) {
-      return;
-    }
-    if (!isClosedEndPicker || !isClosedStartPicker) {
-      return;
-    }
-    console.log('call api');
-    getGraphData(graphEndpoint());
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    if (!isExclusionPeriodChecked) {
-      deleteCurrentData();
-    }
-    if (!startDate || !endDate) {
-      return;
-    }
-    getGraphData(graphEndpoint());
-  }, [isExclusionPeriodChecked]);
 
   const getGraphData = (api: string | undefined): void => {
     sendGetGraphDataRequest({
@@ -288,6 +282,26 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     );
   }, [customTimePeriod]);
 
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      return;
+    }
+    if (!isClosedEndPicker || !isClosedStartPicker) {
+      return;
+    }
+    getGraphData(graphEndpoint());
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (!isExclusionPeriodChecked) {
+      deleteCurrentData();
+    }
+    if (!startDate || !endDate) {
+      return;
+    }
+    getGraphData(graphEndpoint());
+  }, [isExclusionPeriodChecked]);
+
   return (
     <div className={classes.container}>
       <AnomalyDetectionManageExclusionPeriodInterface
@@ -315,6 +329,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
           <AnomalyDetectionCommentExclusionPeriod
             isExclusionPeriodChecked={isExclusionPeriodChecked}
             onChangeCheckedExclusionPeriod={handleCheckedExclusionPeriod}
+            onComment={onComment}
           />
         }
         renderFooter={
