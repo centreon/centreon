@@ -7,12 +7,13 @@ import {
   insertResourceFixtures,
   tearDownResource
 } from '../common';
+import { submitResultsViaClapi } from '../../../commons';
 
 const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  insertResourceFixtures();
+  insertResourceFixtures().then(() => submitResultsViaClapi());
 });
 
 beforeEach(() => {
