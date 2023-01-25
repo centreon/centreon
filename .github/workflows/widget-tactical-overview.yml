@@ -50,6 +50,7 @@ jobs:
     secrets:
       nexus_username: ${{ secrets.NEXUS_USER }}
       nexus_password: ${{ secrets.NEXUS_PASSWD }}
+      arti_token: ${{ secrets.ARTI_APT_TEST_TOKEN }}
       cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
       update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
