@@ -137,6 +137,7 @@ jobs:
 
           mv dependencies/perl-libssh-session/src/ perl-libssh-session
           tar czf perl-libssh-session.tar.gz perl-libssh-session
+
           yes | DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
         shell: bash
 
