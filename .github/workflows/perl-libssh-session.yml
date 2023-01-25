@@ -109,42 +109,37 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  # package-deb:
-  #   needs: [get-version]
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - image: packaging-bullseye
-  #           distrib: bullseye
-  #   name: package ${{ matrix.distrib }}
-  #   container:
-  #     image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-  #     credentials:
-  #       username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #       password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  package-deb:
+    needs: [get-version]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - image: packaging-bullseye
+            distrib: bullseye
+    name: package ${{ matrix.distrib }}
+    container:
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - run: |
-  #         mkdir -p perl-libssh-session-${{ needs.get-version.outputs.major_version }}/debian
-  #         cp -rp dependencies/perl-libssh-session/src/* perl-libssh-session-${{ needs.get-version.outputs.major_version }}/
-  #         cp -rp dependencies/perl-libssh-session/packaging/deb/* perl-libssh-session-${{ needs.get-version.outputs.major_version }}/debian/
-  #         tar czf perl-libssh-session-${{ needs.get-version.outputs.major_version }}.tar.gz perl-libssh-session-${{ needs.get-version.outputs.major_version }}
-  #         cd perl-libssh-session-${{ needs.get-version.outputs.major_version }}
-  #         debmake -f "centreon" -e "contact@centreon.com" -y -r ${{ matrix.distrib }}
-  #         debuild-pbuilder --no-lintian
-  #       shell: bash
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: ./*.deb
-  #         key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+      - run: |
+          yes | DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --version 0.9-${{ matrix.distrib }} dependencies/perl-libssh-session/src/
+        shell: bash
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: packages-${{ matrix.distrib }}
-  #         path: ./*.deb
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.distrib }}
+          path: ./*.deb
 
   # deliver-rpm:
   #   needs: [get-version, sign-rpm]
