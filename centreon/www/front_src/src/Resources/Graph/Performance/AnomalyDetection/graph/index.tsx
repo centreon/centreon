@@ -57,7 +57,8 @@ const AdditionalLines = ({
     resource: resource ?? (details as ResourceDetails)
   });
 
-  console.log('----------------------?', exclusionPeriodsThreshold);
+  const displayExclusionPeriod =
+    displayThresholdExclusionPeriod && !isNil(details);
 
   if (!displayThresholds) {
     return null;
@@ -70,12 +71,10 @@ const AdditionalLines = ({
         {...additionalLinesProps}
         data={data}
       />
-      {displayThresholdExclusionPeriod &&
-        !isNil(details) &&
+      {displayExclusionPeriod &&
         exclusionPeriodsThreshold?.map((item) => {
           const displayed =
             item?.lines?.length > 0 && item?.timeSeries?.length > 0;
-          console.log('displayeeeeeeeeeed', displayed);
 
           return (
             displayed && (

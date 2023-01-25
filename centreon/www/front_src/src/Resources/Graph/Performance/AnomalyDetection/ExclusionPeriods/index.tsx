@@ -4,28 +4,14 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
-import { equals, find, isEmpty, isNil, path, propEq } from 'ramda';
+import { equals, find, isNil, path, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import AddIcon from '@mui/icons-material/Add';
-import {
-  Button,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography
-} from '@mui/material';
 
 import { getData, useRequest } from '@centreon/ui';
 
 import { detailsAtom } from '../../../../Details/detailsAtoms';
 import {
-  labelButtonExcludeAPeriod,
   labelConfirmationExclusionPeriod,
-  labelExcludedPeriods,
-  labelExclusionOfPeriods,
-  labelSubTitleExclusionOfPeriods,
   titleExcludeAPeriod
 } from '../../../../translatedLabels';
 import { GraphData, Line, TimeValue } from '../../models';
@@ -40,41 +26,20 @@ import AnomalyDetectionModalConfirmation from '../AnomalyDetectionModalConfirmat
 
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriod';
 import AnomalyDetectionFooterExclusionPeriod from './AnomalyDetectionFooterExclusionPeriod';
-import AnomalyDetectionItemsExclusionPeriod from './AnomalyDetectionItemsExclusionPeriod';
+import AnomalyDetectionManageExclusionPeriodInterface from './AnomalyDetectionManageExclusionPeriodInterface';
 import AnomalyDetectionTitleExclusionPeriod from './AnomalyDetectionTitleExclusionPeriod';
 
 const useStyles = makeStyles()((theme) => ({
-  body: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: theme.spacing(5)
-  },
   container: {
     backgroundColor: theme.palette.background.default,
     display: 'flex',
     padding: theme.spacing(2)
   },
-  divider: {
-    margin: theme.spacing(0, 2)
-  },
   error: {
     textAlign: 'left'
   },
-
-  excludedPeriods: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '55%'
-  },
   exclusionButton: {
     width: theme.spacing(22.5)
-  },
-  list: {
-    backgroundColor: theme.palette.action.disabledBackground,
-    maxHeight: theme.spacing(150 / 8),
-    minHeight: theme.spacing(150 / 8),
-    overflow: 'auto',
-    padding: theme.spacing(1)
   },
   paper: {
     backgroundColor: theme.palette.background.default,
@@ -83,10 +48,6 @@ const useStyles = makeStyles()((theme) => ({
   picker: {
     flexDirection: 'row',
     padding: 0
-  },
-  subContainer: {
-    display: 'flex',
-    flexDirection: 'column'
   },
   title: {
     color: theme.palette.text.disabled
@@ -97,8 +58,8 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const { classes } = useStyles();
 
   const [open, setOpen] = useState(false);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | ''>('');
+  const [startDate, setStartDate] = useState<Date | ''>('');
   const [timeSeries, setTimeSeries] = useState<Array<TimeValue> | null>(null);
   const [lineData, setLineData] = useState<Array<Line> | null>(null);
   const [isErrorDatePicker, setIsErrorDatePicker] = useState(false);
@@ -147,7 +108,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     top: window.innerHeight / 2
   };
 
-  const exclude = (): void => {
+  const excludeAPeriod = (): void => {
     setOpen(true);
     setExclusionTimePeriods(customTimePeriod);
     setEndDate(null);
@@ -193,14 +154,9 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   const deleteCurrentData = (): void => {
-    const filteredData = data.map((item) => {
-      if (equals(item?.isConfirmed, false)) {
-        return null;
-      }
-
-      return item;
-    });
-    console.log({ filteredData });
+    const filteredData = data.filter(
+      (item) => !equals(item.isConfirmed, false)
+    );
 
     setExclusionPeriodsThreshold({
       data: filteredData
@@ -231,6 +187,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   };
 
   const cancelExclusionPeriod = (): void => {
+    deleteCurrentData();
     setOpen(false);
     initializeData();
   };
@@ -333,63 +290,11 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <div className={classes.subContainer}>
-        <Typography data-testid={labelExclusionOfPeriods} variant="h6">
-          {labelExclusionOfPeriods}
-        </Typography>
-        <Typography
-          data-testid={labelSubTitleExclusionOfPeriods}
-          variant="caption"
-        >
-          {labelSubTitleExclusionOfPeriods}
-        </Typography>
-        <div className={classes.body}>
-          <Button
-            className={classes.exclusionButton}
-            data-testid={labelButtonExcludeAPeriod}
-            disabled={enabledExclusionButton}
-            size="small"
-            startIcon={<AddIcon />}
-            variant="contained"
-            onClick={exclude}
-          >
-            {labelButtonExcludeAPeriod}
-          </Button>
-        </div>
-      </div>
-      <Divider flexItem className={classes.divider} orientation="vertical" />
-      <div className={classes.excludedPeriods}>
-        <Typography
-          className={classes.title}
-          data-testid={labelExcludedPeriods}
-          variant="h6"
-        >
-          {labelExcludedPeriods}
-        </Typography>
-        <List className={classes.list} data-testid="listExcludedPeriods">
-          {data.map((item) => {
-            const dateExist =
-              !isNil(item?.id?.start) &&
-              !isNil(item?.id?.end) &&
-              item.isConfirmed;
-
-            return (
-              dateExist && (
-                <ListItem
-                  disablePadding
-                  key={`${item?.id?.start}-${item?.id?.end}`}
-                >
-                  <ListItemText
-                    primary={
-                      <AnomalyDetectionItemsExclusionPeriod item={item?.id} />
-                    }
-                  />
-                </ListItem>
-              )
-            );
-          })}
-        </List>
-      </div>
+      <AnomalyDetectionManageExclusionPeriodInterface
+        data={data}
+        enabledExclusionButton={enabledExclusionButton}
+        excludeAPeriod={excludeAPeriod}
+      />
       <PopoverCustomTimePeriodPickers
         acceptDate={changeDate}
         anchorReference="anchorPosition"

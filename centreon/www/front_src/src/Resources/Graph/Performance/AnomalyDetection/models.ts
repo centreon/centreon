@@ -17,11 +17,11 @@ export interface ExclusionPeriodThresholdData {
 }
 
 export interface SelectedDateToDelete {
-  end: Date | null;
-  start: Date | null;
+  end: Date | '';
+  start: Date | '';
 }
 
 export interface ExclusionPeriodsThreshold {
   data: Array<ExclusionPeriodThresholdData>;
-  selectedDateToDelete: Array<SelectedDateToDelete>;
+  selectedDateToDelete?: Array<SelectedDateToDelete>;
 }

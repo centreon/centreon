@@ -53,8 +53,7 @@ const AnomalyDetectionItemsExclusionPeriod = ({ item }: Props): JSX.Element => {
       return item;
     });
     setExclusionPeriodsThreshold({
-      ...exclusionPeriodsThreshold,
-      data: [...newData]
+      data: newData
     });
   };
 

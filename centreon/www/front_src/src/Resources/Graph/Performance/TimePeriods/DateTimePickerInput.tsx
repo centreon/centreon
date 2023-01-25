@@ -82,7 +82,6 @@ const DateTimePickerInput = ({
   };
   const close = (): void => {
     setIsOpen(false);
-    console.log('cloooooooooooooooooooooooooosed');
     onClosePicker?.(true);
   };
 
@@ -101,7 +100,6 @@ const DateTimePickerInput = ({
       onChange={changeTime}
       onClose={close}
       onOpen={(): void => setIsOpen(true)}
-      // onViewChange={onViewChange}
     />
   );
 };
