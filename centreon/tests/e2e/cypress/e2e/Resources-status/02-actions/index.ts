@@ -40,8 +40,7 @@ Then('the problematic Resource is displayed as acknowledged', () => {
   cy.get(stateFilterContainer).click().get('[data-value="all"]').click();
   cy.waitUntil(() => {
     return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInAcknowledgementName))
+      .refreshListing(serviceInAcknowledgementName)
       .parent()
       .then((val) => {
         return (
@@ -67,8 +66,7 @@ When('I select the downtime action on a problematic Resource', () => {
 Then('the problematic Resource is displayed as in downtime', () => {
   cy.waitUntil(() => {
     return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInDowntimeName))
+      .refreshListing(serviceInDowntimeName)
       .parent()
       .then((val) => {
         return (

@@ -14,9 +14,17 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
-  return cy.get(refreshButton).click();
-});
+Cypress.Commands.add(
+  'refreshListing',
+  (serviceTarget: string): Cypress.Chainable => {
+    cy.get(refreshButton).click();
+    if (cy.get(`body:contains("${serviceTarget}")`)) {
+      return cy.contains(serviceTarget);
+    }
+
+    return cy.refreshListing(serviceTarget);
+  }
+);
 
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return executeActionViaClapi({
@@ -242,7 +250,7 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
-      refreshListing: () => Cypress.Chainable;
+      refreshListing: (serviceTarget: string) => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
       requestOnDatabase: ({
