@@ -25,12 +25,6 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
-  arti_username:
-    description: "test username for arti"
-    required: true
-  arti_password:
-    description: "test password for arti"
-    required: true
   arti_token:
     description: "test token for arti"
     required: true
