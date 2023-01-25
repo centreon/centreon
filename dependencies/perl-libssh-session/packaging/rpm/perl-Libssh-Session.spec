@@ -47,7 +47,6 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc Changes
 %{perl_vendorarch}/
 %{_mandir}/man3/*.3*
 
