@@ -11,6 +11,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  libssh-devel
 BuildRequires:  make
 BuildRequires:  gcc
+BuildRequires: perl-devel
 BuildRequires:  perl-ExtUtils-MakeMaker
 
 Provides:	    perl(Libssh::Session)
