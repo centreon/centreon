@@ -1,8 +1,8 @@
-#name: perl-libssh-session.yml
+name: perl-libssh-session
 
-#concurrency:
-#  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-#  cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
@@ -21,10 +21,10 @@ on:
       - perl-libssh-session-*
 
 jobs:
-#  get-version:
-#    uses: ./.github/workflows/get-version.yml
-#    with:
-#      version_file: centreon/www/install/insertBaseConf.sql
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
 
   # package-rpm:
   #   needs: [get-version]
@@ -114,7 +114,7 @@ jobs:
   #         path: ./*.rpm
 
   package-deba:
-    #needs: [get-version]
+    needs: [get-version]
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -123,8 +123,7 @@ jobs:
             distrib: bullseye
     name: package ${{ matrix.distrib }}
     container:
-      #image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      image: docker.centreon.com/${{ matrix.image }}:23.04
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
         password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
@@ -133,7 +132,6 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          set -ex
           apt update
           apt install -y dh-make-perl perl libssh-dev
 
@@ -153,56 +151,56 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.deb
 
-  # deliver-rpm:
-  #   needs: [get-version, sign-rpm]
-  #   if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       distrib: [el7, el8, el9]
+  deliver-rpm:
+    needs: [get-version, sign-rpm]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8, el9]
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: Delivery
-  #       uses: ./.github/actions/rpm-delivery
-  #       with:
-  #         module_name: perl-libssh-session
-  #         repository_name: standard
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         minor_version: 0
-  #         release: ${{ needs.get-version.outputs.release }}
-  #         nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #         nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-  #         update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-  #         cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-  #         yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-  #         yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: perl-libssh-session
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: 0
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
-  # deliver-deb:
-  #   needs: [get-version, package-deb]
-  #   if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       distrib: [bullseye]
+  deliver-deb:
+    needs: [get-version, package-deb]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [bullseye]
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: Delivery
-  #       uses: ./.github/actions/deb-delivery
-  #       with:
-  #         module_name: perl-libssh-session
-  #         repository_name: standard
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #         nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: perl-libssh-session
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
