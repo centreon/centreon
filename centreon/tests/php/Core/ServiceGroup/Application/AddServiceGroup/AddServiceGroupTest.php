@@ -55,7 +55,6 @@ beforeEach(function (): void {
         $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
-        $this->readViewImgRepository = $this->createMock(ReadViewImgRepositoryInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->contact = $this->createMock(ContactInterface::class)
     );
