@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,33 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\UseCase\UpdateTimePeriod;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ConflictResponse, ErrorResponse, NoContentResponse, NotFoundResponse, PresenterInterface};
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\{
+    ConflictResponse,
+    ErrorResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    PresenterInterface
+};
+use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 
-class UpdateTimePeriod
+final class UpdateTimePeriod
 {
     use LoggerTrait;
 
     public function __construct(
         readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        readonly WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+        readonly WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
+        readonly ContactInterface $user
     ) {
     }
 
@@ -49,13 +62,23 @@ class UpdateTimePeriod
     {
         $this->info('Updating the time period', ['request' => $request]);
         try {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE)) {
+                $this->error('User doesn\'t have sufficient rights to edit time periods', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                );
+
+                return;
+            }
             if (($timePeriod = $this->readTimePeriodRepository->findById($request->id)) === null) {
                 $this->error('Time period not found', ['id' => $request->id]);
                 $presenter->setResponseStatus(new NotFoundResponse('Time period'));
 
                 return;
             }
-            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name, $request->id)) {
+            if ($this->readTimePeriodRepository->nameAlreadyExists(new TrimmedString($request->name), $request->id)) {
                 $this->error('Time period name already exists');
                 $presenter->setResponseStatus(
                     new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))
@@ -65,6 +88,9 @@ class UpdateTimePeriod
             }
             $this->updateTimePeriodAndSave($timePeriod, $request);
             $presenter->setResponseStatus(new NoContentResponse());
+        } catch (AssertionFailedException|TimeRangeException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when updating the time period',

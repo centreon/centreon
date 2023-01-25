@@ -24,15 +24,19 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\UpdateTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriod;
 use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\UpdateTimePeriodRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class UpdateTimePeriodController extends AbstractController
+final class UpdateTimePeriodController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * @param Request $request
      * @param UpdateTimePeriod $useCase
@@ -69,10 +73,9 @@ class UpdateTimePeriodController extends AbstractController
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateTimePeriodSchema.json');
             $dtoRequest = $this->createDtoRequest($dataSent, $id);
             $useCase($dtoRequest, $presenter);
-        } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(
-                new ErrorResponse($ex->getMessage())
-            );
+        } catch (\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         }
 
         return $presenter->show();
