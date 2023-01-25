@@ -325,7 +325,7 @@ class CentreonService
      */
     public function replaceMacroInString($svc_id, $string, $antiLoop = null, $instanceId = null)
     {
-        if (! preg_match('/(?:\$[0-9a-zA-Z_-]+\$)/', $string)) {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
             return $string;
         }
         $query = <<<SQL
