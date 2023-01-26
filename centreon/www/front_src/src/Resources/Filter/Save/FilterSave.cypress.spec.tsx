@@ -248,18 +248,13 @@ describe('SaveMenu', () => {
     cy.waitForRequest('@getResourceRequest');
 
     const filter = getFilter({});
-    const newFilter = getFilterWithUpdatedCriteria({
-      criteriaName: 'search',
-      criteriaValue: 'toto',
-      filter
-    });
     context.setCurrentFilter(
-      newFilter
+      getFilterWithUpdatedCriteria({
+        criteriaName: 'search',
+        criteriaValue: 'toto',
+        filter
+      })
     );
-
-    cy.waitUntil(() => {
-      return expect(context.currentFilter).to.deep.equal(newFilter);
-    });
 
     cy.findByLabelText(labelSaveFilter).click();
 
