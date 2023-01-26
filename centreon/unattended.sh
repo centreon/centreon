@@ -267,7 +267,7 @@ function get_os_information() {
 	# Unattended install script only support Red Hat or compatible.
 	if ! detected_os_release=$(rpm -q --whatprovides /etc/redhat-release); then
 		log "ERROR" "Unsupported distribution $detected_os_release detected"
-		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
+		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 	fi
 
 	if [ "$(echo "${detected_os_release}" | wc -l)" -ne 1 ]; then
@@ -395,7 +395,7 @@ function set_required_prerequisite() {
         ;;
 
     *)
-        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v7 and v8). Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
+        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v7 and v8). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
         ;;
     esac
 }
@@ -729,7 +729,7 @@ function update_after_installation() {
 	if [ $? -ne 0 ]; then
 		log "ERROR" "Could not install Centreon SELinux packages"
 	else
-		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/administration/secure-platform.html for more details."
+		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
 	fi
 
 	#then change the SELinux mode
@@ -801,13 +801,13 @@ install)
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_central
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/web-and-post-installation.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_poller
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/monitoring/monitoring-servers/add-a-poller-to-configuration.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;
 	esac
 
