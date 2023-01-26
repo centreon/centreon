@@ -21,7 +21,7 @@ AutoReqProv:    no
 Provide interface to access routine defined in libsmbclient.so provided with Samba.
 
 %prep
-%setup -q -n %{cpan_name}
+%setup -q -n %{name}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
