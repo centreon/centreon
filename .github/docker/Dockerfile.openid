@@ -6,7 +6,7 @@ ENV KEYCLOAK_ADMIN_PASSWORD=Centreon!2021
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
-ENV KC_HOSTNAME=localhost:8080
+ENV KC_HOSTNAME=172.17.0.1:8080
 RUN /opt/keycloak/bin/kc.sh import --file /realms/openid-config.json
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
