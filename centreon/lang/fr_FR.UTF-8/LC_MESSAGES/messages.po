@@ -17352,3 +17352,9 @@ msgstr "Erreur durant la récupération d'un groupe de services venant d'être c
 
 msgid "The service group name '%s' already exists"
 msgstr "Le groupe de services '%s' existe déjà"
+
+msgid "You are not allowed to access service categories"
+msgstr "Vous n'êtes pas autorisé à accéder aux catégories de services"
+
+msgid "Error while searching for service categories"
+msgstr "Erreur lors de la recherche des catégories de services"
