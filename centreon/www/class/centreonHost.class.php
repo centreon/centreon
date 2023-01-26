@@ -63,15 +63,13 @@ class CentreonHost
     protected $serviceObj;
 
     /**
-     * Constructor
-     *
      * @param CentreonDB $db
-     * @return void
+     * @throws PDOException
      */
-    public function __construct($db)
+    public function __construct(CentreonDB $db)
     {
         $this->db = $db;
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db);
         $this->serviceObj = new CentreonService($db);
     }
 

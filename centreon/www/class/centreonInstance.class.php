@@ -42,6 +42,10 @@ class CentreonInstance
     protected $dbo;
     protected $params;
     protected $instances;
+    /**
+     * @var CentreonInstance|null $staticInstance
+     */
+    private static ?CentreonInstance $staticInstance = null;
 
     /**
      * Constructor
@@ -57,6 +61,20 @@ class CentreonInstance
         }
         $this->instances = array();
         $this->initParams();
+    }
+
+    /**
+     * @param CentreonDB $db
+     * @param CentreonDB|null $dbo
+     * @return CentreonInstance
+     * @throws PDOException
+     */
+    public static function getInstance(CentreonDB $db, ?CentreonDB $dbo = null): CentreonInstance
+    {
+        if (self::$staticInstance === null) {
+            self::$staticInstance = new CentreonInstance($db, $dbo);
+        }
+        return self::$staticInstance;
     }
 
     /**
