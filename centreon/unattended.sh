@@ -286,6 +286,9 @@ function get_os_information() {
 # then concat the string for $CENTREON_REPO
 #
 function set_centreon_repos() {
+	if ! [ -z $1 ]; then
+		repo=$1
+	fi
 
 	IFS=', ' read -r -a array_repos <<<"$repo"
 
