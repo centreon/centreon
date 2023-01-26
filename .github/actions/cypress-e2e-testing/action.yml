@@ -7,6 +7,9 @@ inputs:
   image:
     description: "image"
     required: true
+  openid_image:
+    description: "image"
+    required: true
   image_version:
     description: "image version"
     required: true
@@ -35,6 +38,10 @@ runs:
           source: ${{ inputs.feature_file_path }}
           find: '/'
           replace: '-'
+
+    - name: "Start Openid container"
+      run: docker run -p 8080:8080 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-openid-${{ inputs.module }} ${{ inputs.openid_image }}:${{ inputs.image_version }}
+      shell: bash
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
