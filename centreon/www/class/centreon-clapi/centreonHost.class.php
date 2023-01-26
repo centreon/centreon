@@ -1448,7 +1448,7 @@ class CentreonHost extends CentreonObject
                         && preg_match(self::VAULT_PATH_REGEX, $value)
                         && isset($clientToken)
                     ) {
-                        $resourceEndpoint = preg_replace("/^secret::\d+::/", "", $value);
+                        $resourceEndpoint = preg_replace(self::VAULT_PATH_REGEX, "", $value);
                         $hostSecrets = $this->getHostSecretsFromVault(
                             $vaultConfiguration,
                             $resourceEndpoint,
@@ -2256,6 +2256,14 @@ class CentreonHost extends CentreonObject
         );
     }
 
+    /**
+     * Delete macro in vault.
+     *
+     * @param VaultConfiguration $vaultConfiguration
+     * @param integer $hostId
+     * @param string $macroName
+     * @return void
+     */
     private function deleteMacroInVault(
         VaultConfiguration $vaultConfiguration,
         int $hostId,
