@@ -58,7 +58,7 @@ jobs:
 
           rpmbuild -ba dependencies/perl-keepass-reader/packaging/rpm/perl-KeePass-Reader.spec
 
-          cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
+          cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
         shell: bash
 
       - uses: actions/cache@v3
