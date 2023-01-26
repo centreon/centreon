@@ -2262,7 +2262,7 @@ class CentreonHost extends CentreonObject
      * @param VaultConfiguration $vaultConfiguration
      * @param integer $hostId
      * @param string $macroName
-     * @return void
+     * @throws \Throwable
      */
     private function deleteMacroInVault(
         VaultConfiguration $vaultConfiguration,
