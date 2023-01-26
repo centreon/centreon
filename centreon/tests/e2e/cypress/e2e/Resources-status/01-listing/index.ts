@@ -27,7 +27,7 @@ Then('only non-ok resources are displayed', () => {
     return cy
       .refreshListing()
       .then(() => cy.contains('service_test_dt'))
-      .parent()
+      .contains('service_test_dt')
       .then((element) => Boolean(element))
   }, {
     timeout: 15000
