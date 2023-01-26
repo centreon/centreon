@@ -46,7 +46,10 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+        run: | 
+          cd .github
+          ls
+          docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
         run: docker push docker.centreon.com/${{ matrix.project }}:${{ env.version }}
