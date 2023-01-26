@@ -26,7 +26,7 @@ Then('only non-ok resources are displayed', () => {
   cy.waitUntil(() => {
     return cy
       .refreshListing()
-      .contains('service_test_dt')
+      .then(() => cy.contains('service_test_dt').should('be.visible'))
   }, {
     timeout: 15000
   });
