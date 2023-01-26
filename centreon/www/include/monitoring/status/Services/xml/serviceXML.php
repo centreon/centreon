@@ -145,11 +145,12 @@ $request = <<<SQL
     INNER JOIN instances i
       ON h.instance_id = i.instance_id
     INNER JOIN services s
-      ON s.host_id = h.host_id 
+      ON s.host_id = h.host_id
     SQL;
 
 if (!$obj->is_admin) {
     $request .= <<<SQL
+        
         INNER JOIN centreon_acl
             ON centreon_acl.host_id = h.host_id
             AND centreon_acl.service_id = s.service_id
@@ -159,30 +160,33 @@ if (!$obj->is_admin) {
 
 if (isset($hostgroups) && $hostgroups != 0) {
     $request .= <<<SQL
+        
         INNER JOIN hosts_hostgroups hg
             ON hg.host_id = h.host_id
-            AND hg.hostgroup_id = :hostGroup
+            AND hg.hostgroup_id = :hostGroupId
         INNER JOIN hostgroups hg2
             ON hg2.hostgroup_id = hg.hostgroup_id
         SQL;
 
-    $queryValues['hostGroup'] = [\PDO::PARAM_INT => $hostgroups];
+    $queryValues['hostGroupId'] = [\PDO::PARAM_INT => $hostgroups];
 }
 
 if (isset($servicegroups) && $servicegroups != 0) {
     $request .= <<<SQL
+        
         INNER JOIN services_servicegroups ssg
             ON ssg.service_id = s.service_id
-            AND ssg.servicegroup_id = :serviceGroup
+            AND ssg.servicegroup_id = :serviceGroupId
         INNER JOIN servicegroups sg
             ON sg.servicegroup_id = ssg.servicegroup_id
         SQL;
 
-    $queryValues['serviceGroup'] = [\PDO::PARAM_INT => $servicegroups];
+    $queryValues['serviceGroupId'] = [\PDO::PARAM_INT => $servicegroups];
 }
 
 if ($criticalityId) {
     $request .= <<<SQL
+        
         INNER JOIN customvariables cvs
             ON cvs.service_id = s.service_id
             AND cvs.host_id = h.host_id
@@ -195,6 +199,7 @@ if ($criticalityId) {
 }
 
 $request .= <<<SQL
+
     LEFT JOIN index_data idx
         ON idx.host_id = h.host_id
         AND idx.service_id = s.service_id
@@ -214,6 +219,7 @@ $request .= <<<SQL
 
 if ($hostToSearch) {
     $request .= <<<SQL
+        
         AND (h.name LIKE :hostToSearch
         OR h.alias LIKE :hostToSearch
         OR h.address LIKE :hostToSearch)
@@ -229,12 +235,13 @@ if ($outputToSearch) {
     $queryValues['outputToSearch'] = [\PDO::PARAM_STR => '%' . $outputToSearch . '%'];
 }
 if (!empty($instance) && $instance != -1) {
-    $request .= " AND h.instance_id = :instance";
-    $queryValues['instance'] = [\PDO::PARAM_INT => $instance];
+    $request .= " AND h.instance_id = :instanceId";
+    $queryValues['instanceId'] = [\PDO::PARAM_INT => $instance];
 }
 
 if ($statusService == 'svc_unhandled') {
     $request .= <<<SQL
+        
         AND s.state_type = 1
         AND s.acknowledged = 0
         AND s.scheduled_downtime_depth = 0
