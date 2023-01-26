@@ -716,7 +716,7 @@ class CentreonAPI
      */
     public function launchAction($exit = true)
     {
-        $action = htmlspecialchars(strtoupper($this->action), ENT_QUOTES, 'UTF-8');
+        $action = strtoupper($this->action);
 
         /**
          * Debug
@@ -799,32 +799,32 @@ class CentreonAPI
         $handle = fopen($filename, 'r');
         if ($handle) {
             $i = 0;
-            while ($string = fgets($handle)) {
+            while (($string = fgets($handle)) !== false) {
                 $i++;
-                $tab = preg_split('/;/', $string);
-                if (strlen(trim($string)) != 0 && !preg_match('/^\{OBJECT_TYPE\}/', $string)) {
-                    $this->object = htmlspecialchars(trim($tab[0]), ENT_QUOTES, 'UTF-8');
-                    $this->action = htmlspecialchars(trim($tab[1]), ENT_QUOTES, 'UTF-8');
-                    $this->variables = htmlspecialchars(
-                        trim(substr($string, strlen($tab[0] . ";" . $tab[1] . ";"))),
-                        ENT_QUOTES,
-                        'UTF-8'
-                    );
-                    if ($this->debug == 1) {
-                        print "Object : " . $this->object . "\n";
-                        print "Action : " . $this->action . "\n";
-                        print "VARIABLES : " . $this->variables . "\n\n";
-                    }
-                    try {
-                        $this->launchActionForImport();
-                    } catch (CentreonClapiException $e) {
-                        echo "Line $i : " . $e->getMessage() . "\n";
-                    } catch (\Exception $e) {
-                        echo "Line $i : " . $e->getMessage() . "\n";
-                    }
-                    if ($this->return_code) {
-                        $globalReturn = 1;
-                    }
+                $string = trim($string);
+                if (strlen($string) == 0) continue;
+                if (substr($string, 0, 1)  === '#') continue;
+                if (substr($string, 0, 13) === '{OBJECT_TYPE}') continue;
+     
+                $tab = explode(';', $string, 3);
+                $this->object = trim($tab[0]);
+                $this->action = trim($tab[1]);
+                $this->variables = trim($tab[2]);
+       
+                if ($this->debug == 1) {
+                    print "Object : " . $this->object . "\n";
+                    print "Action : " . $this->action . "\n";
+                    print "VARIABLES : " . $this->variables . "\n\n";
+                }
+                try {
+                    $this->launchActionForImport();
+                } catch (CentreonClapiException $e) {
+                    echo "Line $i : " . $e->getMessage() . "\n";
+                } catch (\Exception $e) {
+                    echo "Line $i : " . $e->getMessage() . "\n";
+                }
+                if ($this->return_code) {
+                    $globalReturn = 1;
                 }
             }
             fclose($handle);
@@ -834,7 +834,7 @@ class CentreonAPI
 
     public function launchActionForImport()
     {
-        $action = htmlspecialchars(strtoupper($this->action), ENT_QUOTES, 'UTF-8');
+        $action = strtoupper($this->action);
         /**
          * Debug
          */
