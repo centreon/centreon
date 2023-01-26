@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS="ht:v:r:l:"
+OPTIONS="hst:v:r:l:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([23.04]=1)
@@ -96,7 +96,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
+	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)]"
 	echo
 	echo Example:
 	echo
@@ -196,6 +196,10 @@ function parse_subcommand_options() {
 			log "INFO" "Runtime log level set: $runtime_log_level"
 			;;
 
+        s)
+		    wizard_autoplay="true"
+			log "INFO" "The installation wizard wizard will be executed by the script"
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
