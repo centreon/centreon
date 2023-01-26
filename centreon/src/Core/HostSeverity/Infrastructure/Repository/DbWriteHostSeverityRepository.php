@@ -26,6 +26,7 @@ namespace Core\HostSeverity\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
 use Core\HostSeverity\Domain\Model\NewHostSeverity;
 
@@ -70,8 +71,8 @@ class DbWriteHostSeverityRepository extends AbstractRepositoryRDB implements Wri
         $request = $this->translateDbName(
             <<<'SQL'
                 INSERT INTO `:db`.hostcategories
-                (hc_name, hc_alias, hc_comment, level, icon_id) VALUES
-                (:name, :alias, :comment, :level, :icon_id)
+                (hc_name, hc_alias, hc_comment, level, icon_id, hc_activate) VALUES
+                (:name, :alias, :comment, :level, :icon_id, :activate)
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -81,6 +82,7 @@ class DbWriteHostSeverityRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':comment', $hostSeverity->getComment(), \PDO::PARAM_STR);
         $statement->bindValue(':level', $hostSeverity->getLevel(), \PDO::PARAM_INT);
         $statement->bindValue(':icon_id', $hostSeverity->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($hostSeverity->isActivated()));
 
         $statement->execute();
 
