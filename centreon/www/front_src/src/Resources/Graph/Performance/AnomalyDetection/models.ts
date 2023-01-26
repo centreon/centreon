@@ -10,6 +10,7 @@ export interface CustomFactorsData extends FactorsData {
 }
 
 export interface ExclusionPeriodThresholdData {
+  comment?: string;
   id: SelectedDateToDelete;
   isConfirmed: boolean;
   lines: Array<Line>;

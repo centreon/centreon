@@ -76,8 +76,6 @@ const AdditionalLines = ({
           const displayed =
             item?.lines?.length > 0 && item?.timeSeries?.length > 0;
 
-          console.log({ item });
-
           return (
             displayed && (
               <AnomalyDetectionExclusionPeriodThreshold

@@ -15,13 +15,13 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Props {
   cancelExclusionPeriod: () => void;
-  confirmExcluderPeriods: () => void;
+  confirmExcludePeriod: () => void;
   dateExisted: boolean;
   isError: boolean;
 }
 
 const AnomalyDetectionFooterExclusionPeriod = ({
-  confirmExcluderPeriods,
+  confirmExcludePeriod,
   isError,
   dateExisted,
   cancelExclusionPeriod
@@ -44,7 +44,7 @@ const AnomalyDetectionFooterExclusionPeriod = ({
         disabled={isError || !dateExisted}
         size="small"
         variant="contained"
-        onClick={confirmExcluderPeriods}
+        onClick={confirmExcludePeriod}
       >
         Confirm
       </Button>

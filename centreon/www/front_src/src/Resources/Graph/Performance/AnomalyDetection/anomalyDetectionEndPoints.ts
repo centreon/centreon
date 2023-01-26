@@ -1,17 +1,20 @@
 import { baseEndpoint } from '../../../../api/endpoint';
 
-interface DetailExclusionPeriodByAnomalyDetection {
+interface ExclusionPeriodByAnomalyDetection {
   anomalyDetectionServiceId: number;
   exclusionId: number;
 }
 
-export const excludePeriodEndPoint = (
-  anomalyDetectionServiceId: number
-): string =>
+export const getExcludePeriodEndPoint = ({
+  anomalyDetectionServiceId
+}: Pick<
+  ExclusionPeriodByAnomalyDetection,
+  'anomalyDetectionServiceId'
+>): string =>
   `${baseEndpoint}/anomaly-detection/service/${anomalyDetectionServiceId}/exclusion-Periods`;
 
-export const exclusionPeriodsByExclusionIdEndPoint = ({
+export const getExclusionPeriodsByExclusionIdEndPoint = ({
   anomalyDetectionServiceId,
   exclusionId
-}: DetailExclusionPeriodByAnomalyDetection): string =>
+}: ExclusionPeriodByAnomalyDetection): string =>
   `${baseEndpoint}/anomaly-detection/service/${anomalyDetectionServiceId}/exclusion-Periods/${exclusionId}`;

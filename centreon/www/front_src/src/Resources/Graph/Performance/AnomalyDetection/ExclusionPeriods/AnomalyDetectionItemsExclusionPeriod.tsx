@@ -29,9 +29,13 @@ const useStyles = makeStyles()(() => ({
 
 interface Props {
   item: SelectedDateToDelete;
+  onDeleteExcludePeriod?: () => void;
 }
 
-const AnomalyDetectionItemsExclusionPeriod = ({ item }: Props): JSX.Element => {
+const AnomalyDetectionItemsExclusionPeriod = ({
+  item,
+  onDeleteExcludePeriod
+}: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const [exclusionPeriodsThreshold, setExclusionPeriodsThreshold] = useAtom(
@@ -71,6 +75,7 @@ const AnomalyDetectionItemsExclusionPeriod = ({ item }: Props): JSX.Element => {
         aria-label="delete"
         className={classes.deleteIcon}
         onClick={deletePeriod}
+        // onClick={onDeleteExcludePeriod}
       >
         <DeleteIcon />
       </IconButton>

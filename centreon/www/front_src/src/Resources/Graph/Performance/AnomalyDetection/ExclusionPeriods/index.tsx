@@ -23,6 +23,7 @@ import {
 import { getLineData, getTimeSeries } from '../../timeSeries';
 import { exclusionPeriodsThresholdAtom } from '../anomalyDetectionAtom';
 import AnomalyDetectionModalConfirmation from '../AnomalyDetectionModalConfirmation';
+import { getExcludePeriodEndPoint } from '../anomalyDetectionEndPoints';
 
 import AnomalyDetectionCommentExclusionPeriod from './AnomalyDetectionCommentExclusionPeriod';
 import AnomalyDetectionFooterExclusionPeriod from './AnomalyDetectionFooterExclusionPeriod';
@@ -118,12 +119,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
     setStartDate(null);
   };
 
-  const close = (): void => {
-    setEndDate(null);
-    setStartDate(null);
-    setOpen(false);
-  };
-
   const changeDate = ({ property, date }): void => {
     if (equals(property, 'end')) {
       setEndDate(date);
@@ -144,6 +139,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
 
   const addCurrentData = (): void => {
     const newItem = {
+      comment,
       id: { end: endDate, start: startDate },
       isConfirmed: false,
       lines: lineData,
@@ -169,42 +165,35 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
   const initializeData = (): void => {
     setStartDate(null);
     setEndDate(null);
+    setComment(null);
     setPickerEndWithoutInitialValue(true);
     setPickerStartWithoutInitialValue(true);
     setIsExclusionPeriodChecked(false);
     setDisabledPickerEndInput(false);
     setDisabledPickerStartInput(false);
+    setOpen(false);
   };
 
   // call api confirmation
-  const confirmExcluderPeriods = async (): void => {
+  const excludePeriod = (): void => {
     const excludedData = data.map((item) => ({ ...item, isConfirmed: true }));
 
     setExclusionPeriodsThreshold({
       ...exclusionPeriodsThreshold,
       data: [...excludedData]
     });
-    // const resp = await sendExcludeAPeriod({
-    //   data: {
-    //     description: 'string',
-    //     endTime: '2023-01-25T10:39:47.710Z',
-    //     startTime: '2023-01-25T10:39:47.710Z'
-    //   },
-    //   endpoint: ''
-    // });
-    setOpen(false);
     initializeData();
     setIsConfirmedExclusion(false);
   };
 
   const cancelExclusionPeriod = (): void => {
     deleteCurrentData();
-    setOpen(false);
+    // setOpen(false);
     initializeData();
   };
 
   const onComment = (info: string): void => {
-    console.log({ info });
+    setComment(info);
   };
 
   const onCloseStartPicker = (isClosed: boolean): void => {
@@ -243,7 +232,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
       endpoint: api
     })
       .then((graphData) => {
-        console.log({ graphData });
         setIsClosedEndPicker(false);
         setIsClosedStartPicker(false);
         setTimeSeries(getTimeSeries(graphData));
@@ -335,7 +323,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         renderFooter={
           <AnomalyDetectionFooterExclusionPeriod
             cancelExclusionPeriod={cancelExclusionPeriod}
-            confirmExcluderPeriods={(): void => setIsConfirmedExclusion(true)}
+            confirmExcludePeriod={(): void => setIsConfirmedExclusion(true)}
             dateExisted={dateExisted}
             isError={isErrorDatePicker}
           />
@@ -343,7 +331,6 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         renderTitle={<AnomalyDetectionTitleExclusionPeriod />}
         setPickerEndWithoutInitialValue={setPickerStartWithoutInitialValue}
         setPickerStartWithoutInitialValue={setPickerEndWithoutInitialValue}
-        onClose={close}
         onCloseEndPicker={onCloseEndPicker}
         onCloseStartPicker={onCloseStartPicker}
       />
@@ -355,7 +342,7 @@ const AnomalyDetectionExclusionPeriod = (): JSX.Element => {
         setOpen={setIsConfirmedExclusion}
         title={titleExcludeAPeriod}
         onCancel={(value): void => setIsConfirmedExclusion(value)}
-        onConfirm={confirmExcluderPeriods}
+        onConfirm={excludePeriod}
       />
     </div>
   );

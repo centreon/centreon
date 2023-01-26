@@ -3,8 +3,11 @@ import { makeStyles } from 'tss-react/mui';
 
 import { List, ListItem, ListItemText, Typography } from '@mui/material';
 
+import { getData, useRequest, postData, deleteData } from '@centreon/ui';
+
 import { labelExcludedPeriods } from '../../../../translatedLabels';
 import { ExclusionPeriodsThreshold } from '../models';
+import { getExclusionPeriodsByExclusionIdEndPoint } from '../anomalyDetectionEndPoints';
 
 import AnomalyDetectionItemsExclusionPeriod from './AnomalyDetectionItemsExclusionPeriod';
 
@@ -32,6 +35,17 @@ interface Props {
 
 const AnomalyDetectionItemsToExclude = ({ data }: Props): JSX.Element => {
   const { classes } = useStyles();
+  const { sendRequest } = useRequest<any>({
+    request: deleteData
+  });
+
+  const deleteExclusionPeriod = (): void => {
+    const endPoint = getExclusionPeriodsByExclusionIdEndPoint({
+      anomalyDetectionServiceId: 1,
+      exclusionId: 1
+    });
+    sendRequest(endPoint);
+  };
 
   return (
     <div className={classes.excludedPeriods}>
@@ -57,7 +71,10 @@ const AnomalyDetectionItemsToExclude = ({ data }: Props): JSX.Element => {
               >
                 <ListItemText
                   primary={
-                    <AnomalyDetectionItemsExclusionPeriod item={item?.id} />
+                    <AnomalyDetectionItemsExclusionPeriod
+                      item={item?.id}
+                      onDeleteExcludePeriod={deleteExclusionPeriod}
+                    />
                   }
                 />
               </ListItem>
