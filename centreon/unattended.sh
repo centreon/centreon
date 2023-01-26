@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS=":t:v:r:l:"
+OPTIONS="ht:v:r:l:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([23.04]=1)
@@ -200,6 +200,11 @@ function parse_subcommand_options() {
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
 			exit 1
+			;;
+
+		h)
+			usage
+			exit 0
 			;;
 
 		:)
@@ -743,6 +748,11 @@ fi
 
 ## Process the provided arguments in line
 case "$1" in
+
+-h)
+    usage
+	exit 0
+	;;
 
 upgrade)
 	operation="upgrade"
