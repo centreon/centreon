@@ -8,12 +8,13 @@ import {
   tearDownResource,
 } from '../common';
 import { refreshListing } from '../../../support/centreonData';
+import { submitResultsViaClapi } from '../../../commons';
 
-const serviceName = 'service_test';
+const serviceName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  insertResourceFixtures();
+  insertResourceFixtures().then(() => submitResultsViaClapi());
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {

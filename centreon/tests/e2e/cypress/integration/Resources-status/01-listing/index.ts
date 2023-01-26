@@ -8,13 +8,14 @@ import {
   deleteUserFilter,
   tearDownResource,
 } from '../common';
+import { submitResultsViaClapi } from '../../../commons';
 
 before(() => {
   insertResourceFixtures().then(() =>
     cy
       .fixture('resources/filters.json')
       .then((filters) => setUserFilter(filters)),
-  );
+  ).then(() => submitResultsViaClapi());
 });
 
 Then('the unhandled problems filter is selected', (): void => {
@@ -23,7 +24,7 @@ Then('the unhandled problems filter is selected', (): void => {
 
 Then('only non-ok resources are displayed', () => {
   cy.contains('service_test_dt');
-  cy.contains('service_test');
+  cy.contains('service_test_ack');
   cy.contains('service_test_ok').should('not.exist');
   cy.contains('CRITICAL');
   cy.contains('OK').should('not.exist');
