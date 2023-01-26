@@ -203,7 +203,7 @@ const AutocompleteField = ({
         root: classes.textfield
       }}
       error={error}
-      externalValueForAutoSize={props?.value?.name}
+      externalValueForAutoSize={autocompleteProps?.value?.name}
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
