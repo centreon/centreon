@@ -1,7 +1,7 @@
 module.exports = {
   moduleNameMapper: {
     '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',
-    '^react($|/.+)': '<rootDir>/node_modules/react$1',
+    '^react($|/.+)': '<rootDir>/node_modules/react$1'
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   testEnvironment: 'jsdom',
@@ -13,14 +13,12 @@ module.exports = {
         jsc: {
           transform: {
             react: {
-              runtime: 'automatic',
-            },
-          },
-        },
-      },
-    ],
+              runtime: 'automatic'
+            }
+          }
+        }
+      }
+    ]
   },
-  transformIgnorePatterns: [
-    '/node_modules/',
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!@centreon/(ui|ui-context)).+\\']
 };
