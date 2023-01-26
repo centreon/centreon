@@ -34,6 +34,7 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodResponse;
 class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInterface
 {
     use LoggerTrait;
+
     private const ROUTE_NAME = 'FindTimePeriod';
 
     /**

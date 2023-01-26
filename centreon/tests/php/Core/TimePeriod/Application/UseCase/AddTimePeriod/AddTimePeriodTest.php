@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse, ForbiddenResponse};
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse};
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
@@ -36,15 +37,38 @@ beforeEach(function () {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
+    $this->user = $this->createMock(ContactInterface::class);
+});
+
+it('should present an ForbiddenResponse whenuser has insufficient rights', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
+
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
+    $presenter = new DefaultPresenter($this->formatter);
+    $useCase(new AddTimePeriodRequest(), $presenter);
+
+    expect($presenter->getResponseStatus())
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($presenter->getResponseStatus()?->getMessage())
+        ->toBe(TimePeriodException::editNotAllowed()->getMessage());
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->readRepository
         ->expects($this->once())
         ->method('nameAlreadyExists')
         ->willThrowException(new \Exception());
 
-    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
     $useCase(new AddTimePeriodRequest(), $presenter);
 
@@ -56,6 +80,12 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
 it('should present an ErrorResponse when the name already exists', function () {
     $nameToFind = 'fake_name';
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->readRepository
         ->expects($this->once())
         ->method('nameAlreadyExists')
@@ -64,7 +94,7 @@ it('should present an ErrorResponse when the name already exists', function () {
 
     $request = new AddTimePeriodRequest();
     $request->name = $nameToFind;
-    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
     $useCase($request, $presenter);
 
@@ -76,6 +106,12 @@ it('should present an ErrorResponse when the name already exists', function () {
 
 it('should present an ErrorResponse when the new time period cannot be found after creation', function () {
     $nameToFind = 'fake_name';
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->readRepository
         ->expects($this->once())
         ->method('nameAlreadyExists')
@@ -96,7 +132,7 @@ it('should present an ErrorResponse when the new time period cannot be found aft
     $request = new AddTimePeriodRequest();
     $request->name = $nameToFind;
     $request->alias = 'fake_alias';
-    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
     $useCase($request, $presenter);
 
@@ -108,6 +144,12 @@ it('should present an ErrorResponse when the new time period cannot be found aft
 
 it('should present a correct CreatedResponse object after creation', function () {
     $fakeName = 'fake_name';
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->readRepository
         ->expects($this->once())
         ->method('nameAlreadyExists')
@@ -135,7 +177,7 @@ it('should present a correct CreatedResponse object after creation', function ()
     $request = new AddTimePeriodRequest();
     $request->name = $fakeName;
     $request->alias = 'fake_alias';
-    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository);
+    $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new AddTimePeriodsPresenterStub($this->formatter);
     $useCase($request, $presenter);
 

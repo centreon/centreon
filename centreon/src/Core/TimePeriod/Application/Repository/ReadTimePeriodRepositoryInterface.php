@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
 interface ReadTimePeriodRepositoryInterface
@@ -58,10 +59,10 @@ interface ReadTimePeriodRepositoryInterface
     public function exists(int $timePeriodId): bool;
 
     /**
-     * @param string $timePeriodName
+     * @param TrimmedString $timePeriodName
      * @param int|null $timePeriodId
      *
      * @return bool
      */
-    public function nameAlreadyExists(string $timePeriodName, ?int $timePeriodId = null): bool;
+    public function nameAlreadyExists(TrimmedString $timePeriodName, ?int $timePeriodId = null): bool;
 }

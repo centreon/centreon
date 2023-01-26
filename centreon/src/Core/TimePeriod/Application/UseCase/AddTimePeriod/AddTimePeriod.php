@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,41 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ConflictResponse, CreatedResponse, ErrorResponse, PresenterInterface};
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\{
+    ConflictResponse,
+    CreatedResponse,
+    ErrorResponse,
+    PresenterInterface,
+    InvalidArgumentResponse
+};
+use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
+use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
-class AddTimePeriod
+final class AddTimePeriod
 {
     use LoggerTrait;
 
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
      * @param WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+     * @param ContactInterface $user
      */
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository
+        readonly private WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -56,7 +70,18 @@ class AddTimePeriod
         try {
             $this->info('Add a new time period', ['request' => $request]);
 
-            if ($this->readTimePeriodRepository->nameAlreadyExists($request->name)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE)) {
+                $this->error('User doesn\'t have sufficient rights to edit time periods', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                );
+
+                return;
+            }
+
+            if ($this->readTimePeriodRepository->nameAlreadyExists(new TrimmedString($request->name))) {
                 $this->error('A time period with this name already exists');
                 $presenter->setResponseStatus(
                     new ConflictResponse(TimePeriodException::nameAlreadyExists($request->name))
@@ -73,6 +98,9 @@ class AddTimePeriod
             $presenter->present(
                 new CreatedResponse($newTimePeriodId, $this->createResponse($timePeriod))
             );
+        } catch (AssertionFailedException|TimeRangeException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $this->error(
                 'Error when adding the time period',
