@@ -33,27 +33,27 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 
   const colorMapping = {
     [SeverityCode.High]: {
-      backgroundColor: theme.palette.statusChip.error,
+      backgroundColor: theme.palette.statusBackground.error,
       color: palette.error.contrastText
     },
     [SeverityCode.Medium]: {
-      backgroundColor: theme.palette.statusChip.warning,
+      backgroundColor: theme.palette.statusBackground.warning,
       color: palette.warning.contrastText
     },
     [SeverityCode.Low]: {
-      backgroundColor: theme.palette.statusChip.unknown,
+      backgroundColor: theme.palette.statusBackground.unknown,
       color: palette.text.primary
     },
     [SeverityCode.Pending]: {
-      backgroundColor: theme.palette.statusChip.pending,
+      backgroundColor: theme.palette.statusBackground.pending,
       color: palette.text.primary
     },
     [SeverityCode.Ok]: {
-      backgroundColor: theme.palette.statusChip.success,
+      backgroundColor: theme.palette.statusBackground.success,
       color: palette.text.primary
     },
     [SeverityCode.None]: {
-      backgroundColor: theme.palette.statusChip.none,
+      backgroundColor: theme.palette.statusBackground.none,
       color: palette.text.primary
     }
   };

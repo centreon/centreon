@@ -24,9 +24,9 @@ declare module '@mui/material/styles' {
       contrastText: string;
       main: string;
     };
-    statusChip: StatusChip;
+    statusBackground: StatusBackground;
   }
-  interface StatusChip {
+  interface StatusBackground {
     error: string;
     none: string;
     pending: string;
@@ -39,7 +39,7 @@ declare module '@mui/material/styles' {
       contrastText: string;
       main: string;
     };
-    statusChip: StatusChip;
+    statusBackground: StatusBackground;
   }
 
   interface TypeBackground {
@@ -105,7 +105,7 @@ export const lightPalette: PaletteOptions = {
     contrastText: '#fff',
     main: '#C772D6'
   },
-  statusChip: {
+  statusBackground: {
     error: '#FF6666',
     none: alpha('#2E68AA', 0.1),
     pending: '#1EBEB3',
@@ -174,7 +174,7 @@ export const darkPalette: PaletteOptions = {
     contrastText: '#fff',
     main: '#7C1FA2'
   },
-  statusChip: {
+  statusBackground: {
     error: '#D60101',
     none: alpha('#2E68AA', 0.1),
     pending: '#118077',
