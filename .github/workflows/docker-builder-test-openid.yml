@@ -9,13 +9,11 @@ on:
   pull_request:
     paths:
       - ".github/docker/Dockerfile.openid"
-      - ".github/docker/configs/openidrealm.json"
   push:
     branches:
       - develop
     paths:
       - ".github/docker/Dockerfile.openid"
-      - ".github/docker/configs/openidrealm.json"
 
 env:
   version: "23.04"
@@ -48,9 +46,7 @@ jobs:
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker ${{ matrix.project }}
-        run: |
-          ls .github/docker/configs
-          docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
         run: docker push docker.centreon.com/${{ matrix.project }}:${{ env.version }}
