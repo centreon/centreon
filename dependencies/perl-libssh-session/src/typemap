@@ -1,0 +1,9 @@
+ssh_session     T_PTROBJ
+ssh_key         T_PTROBJ
+ssh_channel     T_PTROBJ
+sftp_session    T_PTROBJ
+sftp_dir        T_PTROBJ
+sftp_file       T_PTROBJ
+socket_t        T_INT
+mode_t          T_INT
+size_t          T_INT

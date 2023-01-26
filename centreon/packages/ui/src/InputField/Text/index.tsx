@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useMemo } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -68,6 +68,8 @@ const OptionalLabelInputAdornment = ({
   );
 };
 
+type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
+
 export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
@@ -81,7 +83,7 @@ export type Props = {
   error?: string;
   externalValueForAutoSize?: string;
   open?: boolean;
-  size?: 'large' | 'medium' | 'small' | 'compact';
+  size?: SizeVariant;
   transparent?: boolean;
   value?: string;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
@@ -119,6 +121,19 @@ const TextField = forwardRef(
     });
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
+
+    const baseProps = useMemo(
+      () => ({
+        'data-testid': dataTestId,
+        error: !isNil(error),
+        helperText: displayErrorInTooltip ? undefined : error,
+        id: getNormalizedId(dataTestId || ''),
+        label,
+        ref,
+        size: size || 'small'
+      }),
+      [label, ref, size, dataTestId, error, displayErrorInTooltip]
+    );
 
     return (
       <>

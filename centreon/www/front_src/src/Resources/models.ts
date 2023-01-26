@@ -1,4 +1,4 @@
-import { ListingModel } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 export enum ResourceType {
   anomalyDetection = 'anomaly-detection',

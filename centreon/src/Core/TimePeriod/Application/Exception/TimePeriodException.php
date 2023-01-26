@@ -80,4 +80,20 @@ class TimePeriodException extends \Exception
     {
         return new self(sprintf(_("The time period name '%s' already exists"), $timePeriodName));
     }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access time periods'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to edit time periods'));
+    }
 }

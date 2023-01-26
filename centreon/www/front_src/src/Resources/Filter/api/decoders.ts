@@ -1,6 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { buildListingDecoder, SelectEntry } from '@centreon/ui';
+import { buildListingDecoder } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { Filter } from '../models';
 import { Criteria } from '../Criterias/models';

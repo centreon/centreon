@@ -13,9 +13,9 @@ import { Typography, LinearProgress, Stack } from '@mui/material';
 import {
   MemoizedSectionPanel as SectionPanel,
   useRequest,
-  RootComponentProps,
   SortableItems
 } from '@centreon/ui';
+import type { RootComponentProps } from '@centreon/ui';
 
 import { labelEditFilters } from '../../translatedLabels';
 import { patchFilter } from '../api';

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\TimePeriod\Application\UseCase\DeleteTimePeriod\DeleteTimePeriod;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class DeleteTimePeriodController extends AbstractController
+final class DeleteTimePeriodController extends AbstractController
 {
     /**
      * @param DeleteTimePeriod $useCase

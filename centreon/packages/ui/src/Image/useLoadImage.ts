@@ -54,10 +54,6 @@ export const useLoadImage = ({ imageSrc, alt }): Resource => {
   const image = prop(alt, images);
 
   if (!isNil(image) || isEmpty(image)) {
-    return prop(alt, images);
-  }
-
-  if (isEmpty(image)) {
     return {
       read: () => ''
     };

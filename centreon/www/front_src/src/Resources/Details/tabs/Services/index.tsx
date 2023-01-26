@@ -1,6 +1,7 @@
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
-import { ListingModel, useRequest } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';

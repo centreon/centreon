@@ -9,11 +9,11 @@ import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
-  Actions,
   downtimeAtom,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
+import type { Actions } from '@centreon/ui';
 
 import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';

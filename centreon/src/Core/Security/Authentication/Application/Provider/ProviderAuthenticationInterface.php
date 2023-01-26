@@ -25,6 +25,7 @@ namespace Core\Security\Authentication\Application\Provider;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
@@ -74,6 +75,7 @@ interface ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     * @throws SSOAuthenticationException
      */
     public function authenticateOrFail(LoginRequest $request): void;
 
