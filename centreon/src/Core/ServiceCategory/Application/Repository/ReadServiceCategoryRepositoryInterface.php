@@ -51,4 +51,47 @@ interface ReadServiceCategoryRepositoryInterface
      * @return ServiceCategory[]
      */
     public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Check existance of a service category.
+     *
+     * @param int $serviceCategoryId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $serviceCategoryId): bool;
+
+    /**
+     * Check existance of a service category by access groups.
+     *
+     * @param int $serviceCategoryId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $serviceCategoryId, array $accessGroups): bool;
+
+    /**
+     * Check existance of a service category by name.
+     *
+     * @param string $serviceCategoryName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByName(string $serviceCategoryName): bool;
+
+    /**
+     * Find one service category.
+     *
+     * @param int $serviceCategoryId
+     *
+     * @return ServiceCategory|null
+     */
+    public function findById(int $serviceCategoryId): ?ServiceCategory;
 }
