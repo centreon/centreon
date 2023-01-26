@@ -246,31 +246,30 @@ describe('SaveMenu', () => {
 
   it('sends a createFilter request when the "Save as new" command is clicked', () => {
     cy.waitForRequest('@getResourceRequest');
+
     const filter = getFilter({});
+    const newFilter = getFilterWithUpdatedCriteria({
+      criteriaName: 'search',
+      criteriaValue: 'toto',
+      filter
+    });
     context.setCurrentFilter(
-      getFilterWithUpdatedCriteria({
-        criteriaName: 'search',
-        criteriaValue: 'toto',
-        filter
-      })
+      newFilter
     );
+
+    cy.waitUntil(() => {
+      return expect(context.currentFilter).to.deep.equal(newFilter);
+    });
 
     cy.findByLabelText(labelSaveFilter).click();
 
-    cy.findByText(labelSave)?.parentElement?.parentElement.should(
-      'not.have.attr',
-      'aria-disabled'
-    );
-
     cy.findByText(labelSaveAsNew).click();
 
-    cy.get('button[aria-label="Save"]').should('exist');
-    cy.get('button[aria-label="Save"]').should('be.disabled');
+    cy.findByLabelText('Save').should('be.disabled');
 
     cy.findByLabelText(labelName).type('My new filter');
 
-    cy.get('button[aria-label="Save"]').should('not.be.disabled');
-    cy.get('button[aria-label="Save"]').click();
+    cy.findByLabelText('Save').click();
 
     cy.waitForRequest('@postFilterRequest');
     cy.waitForRequest('@getResourceRequest');
