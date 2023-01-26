@@ -171,11 +171,11 @@ const interceptRequestsAndMountBeforeEach = (
 
 describe('Resource Listing', () => {
   beforeEach(() => {
-    interceptRequestsAndMountBeforeEach();
     configureUserAtomViewMode();
   });
 
   it('displays first part of information when multiple (split by \n) are available', () => {
+    interceptRequestsAndMountBeforeEach();
     const [resourcesWithMultipleLines, resourcesWithSingleLines] =
       Ramda.partition(
         Ramda.where({ information: Ramda.includes('\n') }),
@@ -201,6 +201,7 @@ describe('Resource Listing', () => {
   });
 
   it('displays the listing in compact mode', () => {
+    interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
@@ -209,6 +210,7 @@ describe('Resource Listing', () => {
   });
 
   it('displays the listing in extended mode', () => {
+    interceptRequestsAndMountBeforeEach();
     configureUserAtomViewMode(ListingVariant.extended);
     cy.waitFiltersAndListingRequests();
 
@@ -226,6 +228,7 @@ describe('Resource Listing', () => {
   });
 
   it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+    interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 
     cy.moveSortableElement({
