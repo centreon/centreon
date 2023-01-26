@@ -1526,7 +1526,7 @@ class CentreonHost extends CentreonObject
             if (empty($hostSecrets) && isset($clientToken)) {
                 $hostSecrets = $this->getHostSecretsFromVault(
                     $vaultConfiguration,
-                    $$vaultConfiguration->getStorage() . '/monitoring/hosts/' .$element[$this->object->getPrimaryKey()],
+                    $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $element[$this->object->getPrimaryKey()],
                     $clientToken,
                     $logger,
                     $httpClient
