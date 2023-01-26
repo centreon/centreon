@@ -107,7 +107,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'status_severity_code',
     sortable: true,
     type: ColumnType.component,
-    width: 'minmax(100px, max-content)',
+    width: 'max-content',
   },
   {
     Component: ResourceColumn,
@@ -118,6 +118,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'name',
     sortable: true,
     type: ColumnType.component,
+    width: 'max-content'
   },
   {
     Component: ParentResourceColumn,
@@ -128,6 +129,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'parent_name',
     sortable: true,
     type: ColumnType.component,
+    width: 'max-content'
   },
   {
     Component: NotesUrlColumn,
@@ -165,6 +167,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'last_status_change',
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ tries }): string => tries,
@@ -172,6 +175,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelTries),
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ last_check }): string => last_check,
@@ -179,6 +183,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelLastCheck),
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: pipe(
@@ -191,7 +196,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelInformation),
     sortable: false,
     type: ColumnType.string,
-    width: 'minmax(50px, 1fr)',
+    width: 'minmax(100px, 1fr)',
   },
   {
     Component: StateColumn,
@@ -208,6 +213,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelAlias),
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     Component: ParentAliasColumn,
@@ -218,6 +224,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'parent_alias',
     sortable: true,
     type: ColumnType.component,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
@@ -225,6 +232,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelFqdn),
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ monitoring_server_name }): string =>
@@ -233,6 +241,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelMonitoringServer),
     sortable: true,
     type: ColumnType.string,
+    width: 'max-content'
   },
   {
     Component: NotificationColumn,
