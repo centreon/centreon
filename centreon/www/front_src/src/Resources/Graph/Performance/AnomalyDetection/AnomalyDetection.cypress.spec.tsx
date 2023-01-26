@@ -413,8 +413,6 @@ describe('Anomaly detection - Global', () => {
 
     cy.waitForRequest('@anomalyDetectionDetails');
     cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
-    cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
-    cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
   });
 
   it('displays the Anomaly detection criteria value when the type criteria chip is clicked and centreon-anomaly-detection is installed', () => {
