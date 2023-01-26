@@ -1,6 +1,5 @@
 FROM quay.io/keycloak/keycloak:17.0.0
-RUN ls
-COPY ./configs/Centreon_SSO-realm.json /realms/openid-config.json
+COPY .github/docker/configs/openidrealm.json /realms/openid-config.json
 # change these values to point to a running postgres instance
 ENV KEYCLOAK_ADMIN=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=Centreon!2021
