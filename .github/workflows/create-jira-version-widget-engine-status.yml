@@ -6,9 +6,12 @@ on:
     types:
       - closed
     branches:
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
+      - "master"
+      - "*.x"
+      - "!dev*"
     paths:
+      - ".github/actions/release/action.yml"
+      - ".github/workflows/release-widget-engine-status.yml"
       - "widgets/centreon-widget-engine-status/**"
   workflow_dispatch:
 
