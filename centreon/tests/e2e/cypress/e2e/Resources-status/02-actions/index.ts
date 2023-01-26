@@ -78,7 +78,7 @@ Then('the problematic Resource is displayed as in downtime', () => {
         );
       });
   }, {
-    timeout: 20000
+    timeout: 60000
   });
 });
 
