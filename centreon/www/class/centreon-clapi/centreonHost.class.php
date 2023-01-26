@@ -1419,6 +1419,7 @@ class CentreonHost extends CentreonObject
                 $httpClient = new \CentreonRestHttp();
                 $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
             }
+            $hostSecrets = [];
             foreach ($element as $parameter => $value) {
                 if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
                     $action_tmp = null;
@@ -1521,6 +1522,16 @@ class CentreonHost extends CentreonObject
                 array('host_host_id' => $element[$this->object->getPrimaryKey()]),
                 "AND"
             );
+
+            if (empty($hostSecrets) && isset($clientToken)) {
+                $hostSecrets = $this->getHostSecretsFromVault(
+                    $vaultConfiguration,
+                    $$vaultConfiguration->getStorage() . '/monitoring/hosts/' .$element[$this->object->getPrimaryKey()],
+                    $clientToken,
+                    $logger,
+                    $httpClient
+                );
+            }
             foreach ($macros as $macro) {
                 $description = $macro['description'];
                 if (
@@ -1534,22 +1545,9 @@ class CentreonHost extends CentreonObject
                 // Retrieve raw value of the macro if it is recorded in vault.
                 if (
                     $macro['is_password'] === 1
-                    && preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value'])
-                    && isset($clientToken)
+                    && array_key_exists(trim($macro['host_macro_name'], "$"), $hostSecrets)
                 ) {
-                    if (! isset($hostSecrets)) {
-                        $resourceEndpoint = preg_replace(self::VAULT_PATH_REGEX, "", $macro['host_macro_value']);
-                        $hostSecrets = $this->getHostSecretsFromVault(
-                            $vaultConfiguration,
-                            $resourceEndpoint,
-                            $clientToken,
-                            $logger,
-                            $httpClient
-                        );
-                    }
-                    if(array_key_exists(trim($macro['host_macro_name'], "$"), $hostSecrets) ) {
-                        $macro['host_macro_value'] = $hostSecrets[trim($macro['host_macro_name'], "$")];
-                    }
+                    $macro['host_macro_value'] = $hostSecrets[trim($macro['host_macro_name'], "$")];
                 }
 
                 echo $this->action . $this->delim
