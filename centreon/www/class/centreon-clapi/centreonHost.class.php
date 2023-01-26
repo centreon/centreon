@@ -1066,34 +1066,7 @@ class CentreonHost extends CentreonObject
                 $passwordParameter['is_password'] === 1
                 && ($vaultConfiguration = $this->getVaultConfiguration()) !== null
             ) {
-                $logger = $this->getLogger();
-                $httpClient = new \CentreonRestHttp();
-                $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
-                $resourceEndpoint = $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
-                $hostSecrets = $this->getHostSecretsFromVault(
-                    $vaultConfiguration,
-                    $resourceEndpoint,
-                    $clientToken,
-                    $logger,
-                    $httpClient
-                );
-                $formattedMacroName = "_HOST" . strtoupper($macroName);
-                if (array_key_exists($formattedMacroName, $hostSecrets)) {
-                    unset($hostSecrets[$formattedMacroName]);
-                }
-                //If no more data should be stored in the vault, delete the complete entry.
-                if (empty($hostSecrets)) {
-                    $this->deleteHostFromVault($vaultConfiguration, $hostId, $clientToken, $logger, $httpClient);
-                } else {
-                    $this->writeSecretsInVault(
-                        $vaultConfiguration,
-                        $hostId,
-                        $clientToken,
-                        $hostSecrets,
-                        $logger,
-                        $httpClient
-                    );
-                }
+                $this->deleteMacroInVault($vaultConfiguration, $hostId, $macroName);
             }
             $macroObj->delete($macroList[0][$macroObj->getPrimaryKey()]);
         }
@@ -2281,5 +2254,40 @@ class CentreonHost extends CentreonObject
             $logger,
             $httpClient
         );
+    }
+
+    private function deleteMacroInVault(
+        VaultConfiguration $vaultConfiguration,
+        int $hostId,
+        string $macroName,
+    ): void {
+        $logger = $this->getLogger();
+        $httpClient = new \CentreonRestHttp();
+        $clientToken = $this->authenticateToVault($vaultConfiguration, $logger, $httpClient);
+        $resourceEndpoint = $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+        $hostSecrets = $this->getHostSecretsFromVault(
+            $vaultConfiguration,
+            $resourceEndpoint,
+            $clientToken,
+            $logger,
+            $httpClient
+        );
+        $formattedMacroName = "_HOST" . strtoupper($macroName);
+        if (array_key_exists($formattedMacroName, $hostSecrets)) {
+            unset($hostSecrets[$formattedMacroName]);
+        }
+        //If no more data should be stored in the vault, delete the complete entry.
+        if (empty($hostSecrets)) {
+            $this->deleteHostFromVault($vaultConfiguration, $hostId, $clientToken, $logger, $httpClient);
+        } else {
+            $this->writeSecretsInVault(
+                $vaultConfiguration,
+                $hostId,
+                $clientToken,
+                $hostSecrets,
+                $logger,
+                $httpClient
+            );
+        }
     }
 }
