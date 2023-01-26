@@ -39,6 +39,13 @@ runs:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/results/videos
 
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/screenshots
+
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
       shell: bash
