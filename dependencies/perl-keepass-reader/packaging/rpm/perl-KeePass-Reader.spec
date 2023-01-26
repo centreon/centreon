@@ -16,7 +16,7 @@ BuildRequires:  perl(ExtUtils::MakeMaker)
 KeePass::Reader is a perl interface to read KeePass version 4.
 
 %prep
-%setup -q -n %{cpan_name}-%{version}
+%setup -q -n %{name}
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
