@@ -1,15 +1,12 @@
 import { ReactNode } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Chip, ChipProps, alpha } from '@mui/material';
-import { grey, lightGreen, red } from '@mui/material/colors';
+import { Chip, ChipProps, Theme } from '@mui/material';
 
-import { ThemeMode } from '@centreon/ui-context';
-
-import useStyleTable from '../Listing/useStyleTable';
 import type { TableStyleAtom } from '../Listing/models';
+import useStyleTable from '../Listing/useStyleTable';
 
 enum SeverityCode {
   High = 1,
@@ -36,37 +33,27 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 
   const colorMapping = {
     [SeverityCode.High]: {
-      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
-        ? '#D60101'
-        : '#FF6666',
+      backgroundColor: theme.palette.statusChip.error,
       color: palette.error.contrastText
     },
     [SeverityCode.Medium]: {
-      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
-        ? '#C55400'
-        : '#FD9B27',
+      backgroundColor: theme.palette.statusChip.warning,
       color: palette.warning.contrastText
     },
     [SeverityCode.Low]: {
-      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
-        ? '#666666'
-        : '#E3E3E3',
+      backgroundColor: theme.palette.statusChip.unknown,
       color: palette.text.primary
     },
     [SeverityCode.Pending]: {
-      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
-        ? '#118077'
-        : '#1EBEB3',
+      backgroundColor: theme.palette.statusChip.pending,
       color: palette.text.primary
     },
     [SeverityCode.Ok]: {
-      backgroundColor: equals(ThemeMode.dark, theme.palette.mode)
-        ? '#5F8118'
-        : '#88B922',
+      backgroundColor: theme.palette.statusChip.success,
       color: palette.text.primary
     },
     [SeverityCode.None]: {
-      backgroundColor: alpha(palette.primary.main, 0.1),
+      backgroundColor: theme.palette.statusChip.none,
       color: palette.text.primary
     }
   };
