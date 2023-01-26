@@ -50,7 +50,7 @@ jobs:
 
       - run: |
           yum install -y yum-utils
-          yum config-manager --set-enabled crb || true
+          yum config-manager --set-enabled crb --set-enabled 'PowerTools' || true
           yum install -y libsmbclient-devel make gcc perl perl-devel perl-ExtUtils-MakeMaker
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
