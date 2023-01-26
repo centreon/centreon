@@ -39,7 +39,7 @@ function genpasswd() {
   echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
 
   if [ $? -ne 0 ]; then
-    echo "ERROR : Cannot save the random password to [$tmp_passwords_file]"
+    echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
     exit 1
   fi
 
@@ -49,13 +49,13 @@ function genpasswd() {
 }
 
 # Set MariaDB password from ENV or random password if not defined
-mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user : root")"}
+mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
 
 if [ "$wizard_autoplay" == "true" ]; then
 	# Set from ENV or random MariaDB centreon password
-	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user : centreon")"}
+	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
 	# Set from ENV or random Centreon admin password
-	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user : admin")"}
+	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
 	# Set from ENV or Administrator first name
 	centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
 	# Set from ENV or Administrator last name
@@ -94,7 +94,7 @@ CENTREON_DOC_URL=
 function usage() {
 
 	echo
-	echo "Usage :"
+	echo "Usage:"
 	echo
 	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
 	echo
@@ -124,8 +124,8 @@ function log() {
 	TIMESTAMP=$(date --rfc-3339=seconds)
 
 	if [[ -z "${1}" || -z "${2}" ]]; then
-		echo "${TIMESTAMP} - ERROR : Missing argument"
-		echo "${TIMESTAMP} - ERROR : Usage log \"INFO\" \"Message log\" "
+		echo "${TIMESTAMP} - ERROR: Missing argument"
+		echo "${TIMESTAMP} - ERROR: Usage log \"INFO\" \"Message log\" "
 		exit 1
 	fi
 
@@ -163,25 +163,25 @@ function parse_subcommand_options() {
 		case ${opt} in
 		t)
 			requested_topology=$OPTARG
-			log "INFO" "Requested topology   : '$requested_topology'"
+			log "INFO" "Requested topology: '$requested_topology'"
 
 			[[ ! ${SUPPORTED_TOPOLOGY[$requested_topology]} ]] &&
-				log "ERROR" "Unsupported topology : $requested_topology" &&
+				log "ERROR" "Unsupported topology: $requested_topology" &&
 				usage
 			;;
 
 		v)
 			requested_version=$OPTARG
-			log "INFO" "Requested version    : '$requested_version'"
+			log "INFO" "Requested version: '$requested_version'"
 
 			[[ ! ${SUPPORTED_VERSION[$requested_version]} ]] &&
-				log "ERROR" "Unsupported version : $requested_version" &&
+				log "ERROR" "Unsupported version: $requested_version" &&
 				usage
 			;;
 
 		r)
 			requested_repo=$OPTARG
-			log "INFO" "Requested repository : '$requested_repo'"
+			log "INFO" "Requested repository: '$requested_repo'"
 
 			set_centreon_repos $requested_repo
 			;;
@@ -189,11 +189,11 @@ function parse_subcommand_options() {
 		l)
 			log_level=$OPTARG
 			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ]; then
-				log "ERROR" "Unsupported and ignored log level : $log_level"
+				log "ERROR" "Unsupported and ignored log level: $log_level"
 			else
 				runtime_log_level=$log_level
 			fi
-			log "INFO" "Runtime log level set : $runtime_log_level"
+			log "INFO" "Runtime log level set: $runtime_log_level"
 			;;
 
 		\?)
@@ -218,19 +218,19 @@ function parse_subcommand_options() {
 
 	## check the configuration parameters
 	if [ -z "${requested_topology}" ]; then
-		log "WARN" "No topology provided : default value [$topology] will be used"
+		log "WARN" "No topology provided: default value [$topology] will be used"
 	else
 		topology=$requested_topology
 	fi
 
 	if [ -z "${requested_version}" ]; then
-		log "WARN" "No version provided : default value [$version] will be used"
+		log "WARN" "No version provided: default value [$version] will be used"
 	else
 		version=$requested_version
 	fi
 
 	if [ -z "${requested_repo}" ]; then
-		log "WARN" "No repository provided : default value [$repo] will be used"
+		log "WARN" "No repository provided: default value [$repo] will be used"
 	else
 		repo=$requested_repo
 	fi
@@ -271,7 +271,7 @@ function get_os_information() {
 	fi
 
 	if [ "$(echo "${detected_os_release}" | wc -l)" -ne 1 ]; then
-		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release : $detected_os_release"
+		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release: $detected_os_release"
 	fi
 
 	detected_os_version=$(rpm -q "${detected_os_release}" --qf "%{version}")
@@ -293,7 +293,7 @@ function set_centreon_repos() {
 	for _repo in "${array_repos[@]}"; do
 
 		[[ ! ${SUPPORTED_REPOSITORY[$_repo]} ]] &&
-			log "ERROR" "Unsupported repository : $_repo" &&
+			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
 		CENTREON_REPO+="centreon-$_repo*"
@@ -302,7 +302,7 @@ function set_centreon_repos() {
 		fi
 	done
 
-	log "INFO" "Following Centreon repo will be used [$CENTREON_REPO]"
+	log "INFO" "Following Centreon repo will be used: [$CENTREON_REPO]"
 
 }
 #========= end of function set_centreon_repos()
@@ -417,7 +417,7 @@ function is_systemd_present() {
 #========= end of function is_systemd_present()
 
 #========= begin of function set_selinux_config()
-# change SELinux config : $1 (permissive | enforcing | disabled)
+# change SELinux config: $1 (permissive | enforcing | disabled)
 #
 function set_selinux_config() {
 
@@ -439,7 +439,7 @@ function set_selinux_config() {
 #========= end of function set_selinux_config()
 
 #========= begin of function set_runtime_selinux_mode ()
-# set runtime SELinux mode : $1 (permissive | enforcing)
+# set runtime SELinux mode: $1 (permissive | enforcing)
 #
 function set_runtime_selinux_mode() {
 
@@ -765,7 +765,7 @@ install)
 	;;
 
 *)
-	log "WARN" "No provided operation : default value [$operation] will be used"
+	log "WARN" "No provided operation: default value [$operation] will be used"
 	#usage
 	operation="install"
 	parse_subcommand_options "$@"
@@ -775,9 +775,9 @@ esac
 
 ## Display all configured parameters
 log "INFO" "Start to execute operation [$operation] with following configuration parameters:"
-log "INFO" " topology   : \t[$topology]"
-log "INFO" " version    : \t[$version]"
-log "INFO" " repository : \t[$repo]"
+log "INFO" " topology: \t[$topology]"
+log "INFO" " version: \t[$version]"
+log "INFO" " repository: [$repo]"
 
 log "WARN" "It will start in [$default_timeout_in_sec] seconds. If you don't want to wait, press any key to continue or Ctrl-C to exit"
 pause "" $default_timeout_in_sec
