@@ -3,28 +3,28 @@ import * as React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import { centreonUi } from '../helpers';
+import { Method } from '../../../../../cypress/support/commands';
 
 import UserMenu from '.';
-import { Method } from '../../../../../cypress/support/commands';
 
 describe('User Menu', () => {
   beforeEach(() => {
     cy.fixture('userMenu').as('user');
     cy.interceptAPIRequest({
+      alias: 'getUser',
       method: Method.GET,
       path: '**/internal.php',
       response: {
         autologinkey: null,
-        fullname: "admin admin",
+        fullname: 'admin admin',
         hasAccessToProfile: true,
-        locale: "en_US.UTF-8",
+        locale: 'en_US.UTF-8',
         password_remaining_time: 15369910,
         soundNotificationsEnabled: true,
-        timezone: "Europe/Paris",
-        userId: "1",
-        username: "admin"
-      },
-      alias: 'getUser'
+        timezone: 'Europe/Paris',
+        userId: '1',
+        username: 'admin'
+      }
     });
 
     cy.intercept('PATCH', 'parameters', {

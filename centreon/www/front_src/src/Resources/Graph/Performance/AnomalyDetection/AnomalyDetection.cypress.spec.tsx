@@ -33,16 +33,14 @@ import {
   labelPerformanceGraphAD,
   labelResetToDefaultValue,
   labelSave,
-  labelSearch,
   labelSearchBar,
   labelSlider
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
+import { Method } from '../../../../../../../cypress/support/commands';
 
 import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 import { getDisplayAdditionalLinesCondition } from './graph';
-import { Method } from '../../../../../../../cypress/support/commands';
-import test from '../../../../../../../cypress/fixtures/resources/resourceListingWithAnomalyDetectionType.json';
 
 const installedModules = {
   modules: {
@@ -139,16 +137,16 @@ describe('Anomaly detection - Graph', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
 
-    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
-      'graphAnomalyDetection'
-    ).then((data) => {
-      cy.interceptAPIRequest({
-        method: Method.GET,
-        path: '**/performance?*',
-        alias: 'getGraphDataAnomalyDetection',
-        response: data
-      })
-    });
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json')
+      .as('graphAnomalyDetection')
+      .then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'getGraphDataAnomalyDetection',
+          method: Method.GET,
+          path: '**/performance?*',
+          response: data
+        });
+      });
 
     const { result } = renderHook(() => useLoadDetails());
 
@@ -305,54 +303,56 @@ describe('Anomaly detection - Graph', () => {
   });
 });
 
-const mockResourceListingRequest = (fixture = 'resources/resourceListing.json') => {
+const mockResourceListingRequest = (
+  fixture = 'resources/resourceListing.json'
+): void => {
   cy.fixture(fixture).then((data) => {
     cy.interceptAPIRequest({
+      alias: 'getResourceList',
       method: Method.GET,
       path: '**/resources?*',
-      alias: 'getResourceList',
       response: data
-    })
-  })
-}
+    });
+  });
+};
 
 describe('Anomaly detection - Global', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
-    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
-      'graphAnomalyDetection'
-    ).then((data) => {
-      cy.interceptAPIRequest({
-        method: Method.GET,
-        path: '**/performance?*',
-        alias: 'getGraphDataAnomalyDetection',
-        response: data
-      })
-    });
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json')
+      .as('graphAnomalyDetection')
+      .then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'getGraphDataAnomalyDetection',
+          method: Method.GET,
+          path: '**/performance?*',
+          response: data
+        });
+      });
     cy.fixture('resources/userFilter.json').then((data) => {
       cy.interceptAPIRequest({
+        alias: 'filter',
         method: Method.GET,
         path: '**/events-view?*',
-        alias: 'filter',
         response: data
-      })
-    })
+      });
+    });
     cy.fixture('resources/anomalyDetectionDetails.json').then((data) => {
       cy.interceptAPIRequest({
+        alias: 'anomalyDetectionDetails',
         method: Method.GET,
         path: '**/resources/anomaly-detection/1',
-        alias: 'anomalyDetectionDetails',
         response: data
-      })
-    })
+      });
+    });
     cy.interceptAPIRequest({
+      alias: 'putSensitivity',
       method: Method.PUT,
       path: '**/sensitivity',
-      alias: 'putSensitivity',
       response: {
         sensitivity: 3.3
       }
-    })
+    });
     mockResourceListingRequest();
 
     const storedFilter = renderHook(() => useAtom(storedFilterAtom));
@@ -429,7 +429,9 @@ describe('Anomaly detection - Global', () => {
   });
 
   it('displays resources of type anomaly-detection', () => {
-    mockResourceListingRequest('resources/resourceListingWithAnomalyDetectionType.json')
+    mockResourceListingRequest(
+      'resources/resourceListingWithAnomalyDetectionType.json'
+    );
     cy.waitForRequest('@getResourceList');
     cy.matchImageSnapshot();
   });
