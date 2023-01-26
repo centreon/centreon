@@ -1537,14 +1537,16 @@ class CentreonHost extends CentreonObject
                     && preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value'])
                     && isset($clientToken)
                 ) {
-                    $resourceEndpoint = preg_replace(self::VAULT_PATH_REGEX, "", $macro['host_macro_value']);
-                    $hostSecrets = $this->getHostSecretsFromVault(
-                        $vaultConfiguration,
-                        $resourceEndpoint,
-                        $clientToken,
-                        $logger,
-                        $httpClient
-                    );
+                    if (! isset($hostSecrets)) {
+                        $resourceEndpoint = preg_replace(self::VAULT_PATH_REGEX, "", $macro['host_macro_value']);
+                        $hostSecrets = $this->getHostSecretsFromVault(
+                            $vaultConfiguration,
+                            $resourceEndpoint,
+                            $clientToken,
+                            $logger,
+                            $httpClient
+                        );
+                    }
                     if(array_key_exists(trim($macro['host_macro_name'], "$"), $hostSecrets) ) {
                         $macro['host_macro_value'] = $hostSecrets[trim($macro['host_macro_name'], "$")];
                     }
