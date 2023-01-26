@@ -20,5 +20,7 @@ module.exports = {
       }
     ]
   },
-  transformIgnorePatterns: ['/node_modules/(?!@centreon/(ui|ui-context)).+\\']
+  transformIgnorePatterns: [
+    '/node_modules/(?!@centreon/(ui|ui-context)).+\\.jsx?$'
+  ]
 };
