@@ -1594,7 +1594,7 @@ class CentreonHost extends CentreonObject
                 if (
                     $macro['is_password'] === 1
                     && preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value'])
-                    && $this->getVaultConfiguration() !== null
+                    && $vaultConfiguration() !== null
                 ) {
                     $logger = $this->getLogger();
                         $httpClient = new \CentreonRestHttp();
