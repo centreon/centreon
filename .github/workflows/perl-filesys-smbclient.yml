@@ -51,7 +51,8 @@ jobs:
       - run: |
           yum install -y yum-utils
           yum config-manager --set-enabled crb || true # alma 9
-          yum config-manager --set-enabled powertools || true # alma 9
+          yum config-manager --set-enabled powertools || true # alma 8
+
           yum install -y libsmbclient-devel make gcc perl perl-devel perl-ExtUtils-MakeMaker
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
@@ -111,11 +112,6 @@ jobs:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.rpm
-
   package-deb:
     needs: [get-version]
     runs-on: [self-hosted, common]
@@ -148,11 +144,6 @@ jobs:
         with:
           path: ./*.deb
           key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.deb
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
