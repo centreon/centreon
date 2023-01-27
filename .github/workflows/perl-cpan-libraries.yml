@@ -34,17 +34,17 @@ jobs:
       matrix:
         distrib: [el9]
         name: [
-          HTTP::ProxyPAC,
-          Crypt::Blowfish_PP,
-          Digest::SHA1,
-          JMX::Jmx4Perl,
-          Device::Modbus::RTU::Client,
-          Device::Modbus::TCP::Client,
-          Email::Send::SMTP::Gmail,
-          Net::Curl,
-          Crypt::Argon2,
-          Convert::EBCDIC,
-          Device::Modbus,
+          'HTTP::ProxyPAC',
+          'Crypt::Blowfish_PP',
+          'Digest::SHA1',
+          'JMX::Jmx4Perl',
+          'Device::Modbus::RTU::Client',
+          'Device::Modbus::TCP::Client',
+          'Email::Send::SMTP::Gmail',
+          'Net::Curl',
+          'Crypt::Argon2',
+          'Convert::EBCDIC',
+          'Device::Modbus',
         ]
         include:
           #- image: packaging-centos7
