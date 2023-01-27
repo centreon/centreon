@@ -44,6 +44,57 @@ try {
         );
     }
 
+    // Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
+    // The aim is to decode entities from them.
+    // We fix here in 22.04.10 the flag problem which changed between php 8.0 and php 8.1
+    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
+    (static function (CentreonDB $pearDB): void {
+        $configs = $pearDB->query(
+            <<<'SQL'
+                SELECT
+                    nagios_id,
+                    illegal_object_name_chars,
+                    illegal_macro_output_chars
+                FROM
+                    `cfg_nagios`
+                SQL
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        // We want to enforce the flags as if we are in PHP 8.1 and not let the current
+        // version 8.0 default flags which not enough for entities like &#039; (ENT_COMPAT)
+        $defaultPhp81Flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
+
+        $preparedUpdate = null;
+        foreach ($configs as $config) {
+            $modified = $config;
+            $modified['illegal_object_name_chars'] = html_entity_decode($config['illegal_object_name_chars'], $defaultPhp81Flags);
+            $modified['illegal_macro_output_chars'] = html_entity_decode($config['illegal_macro_output_chars'], $defaultPhp81Flags);
+
+            if ($config === $modified) {
+                // no need to update, we skip a useless query
+                continue;
+            }
+
+            $preparedUpdate ??= $pearDB->prepare(
+                <<<'SQL'
+                    UPDATE
+                        `cfg_nagios`
+                    SET
+                        illegal_object_name_chars = :illegal_object_name_chars,
+                        illegal_macro_output_chars = :illegal_macro_output_chars
+                    WHERE
+                        nagios_id = :nagios_id
+                    SQL
+            );
+
+            $preparedUpdate->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+            $preparedUpdate->execute();
+        }
+    })(
+        $pearDB
+    );
 
     $pearDB->commit();
 } catch (\Exception $e) {
