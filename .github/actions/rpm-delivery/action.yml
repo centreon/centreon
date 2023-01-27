@@ -46,6 +46,9 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
+  arti_token:
+    description: "test token for arti"
+    required: true
 
 runs:
   using: "composite"
@@ -95,10 +98,12 @@ runs:
           # Delivery with proper repository structure according to stability
           if [ "${{ inputs.stability }}" == stable ]; then
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
+            curl -v -H "Authorization: Bearer ${{ inputs.arti_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$FILE" -T "./$FILE"
           else
             FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
             PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+            curl -v -H "Authorization: Bearer ${{ inputs.arti_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/$FILE" -T "./$FILE"
           fi
 
           echo "[DEBUG] - Folder: $FOLDER"
