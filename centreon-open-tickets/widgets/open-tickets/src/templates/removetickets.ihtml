@@ -1,0 +1,58 @@
+<form id="Form">
+    <div align=center>
+        <div id="form_error" style="color: red"></div>
+
+        <div id="OTcontainer">
+        </div>
+        <div id="validForm">
+            <input type='hidden' id="rule_id" name='rule_id' value='{$rule_id}' />
+            <input type='hidden' id="provider_id" name='provider_id' value='{$provider_id}' />
+            <input type='hidden' name='selection' value='{$selection}' />
+        </div>
+
+        <!--<table class="table">
+        <tr>
+            <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$title}</td>
+        </tr>
+        <tr>
+            <td class="FormRowField" style="padding-left:15px;">Tickets removed.</td>
+        </tr>
+        </table>-->
+    </div>
+</form>
+
+{literal}
+<script type="text/javascript">
+var $callback_closeTicket = function(res) {
+    //jQuery("#form_error").html("Full response: " + res);
+    jQuery("#OTcontainer").html('');
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#form_error").html(data_ret['msg']);
+    } else {
+        jQuery("#OTcontainer").html(data_ret['msg']);
+    }
+};
+
+function closeTicket() {
+    jQuery("#form_error").html('');
+
+    var data = {
+        "action": "close-ticket",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#Form").serializeObject()
+    }
+
+    jQuery("#validForm").empty();
+    jQuery("#OTcontainer").html('<div style="margin-top: 50px; margin-bottom:10px">Please wait...</div><div><img src="./widgets/open-tickets/resources/ajax-waiting.gif" / ></div>');
+
+    call_ajax_async(data, $callback_closeTicket, './widgets/open-tickets/src/ajax/callforwardmodule.php');
+    return false;
+}
+
+jQuery(function() {
+    closeTicket();
+});
+</script>
+{/literal}

@@ -1,0 +1,47 @@
+name: frontend-build
+description: Build Frontend
+inputs:
+  base_directory:
+    description: The base directory
+    required: true
+  index_file:
+    description: The index.html file path
+    required: true
+  static_directory:
+    description: The static directory
+    required: true
+  index_cache_key:
+    description: "The index.html cache key"
+    required: true
+  static_cache_key:
+    description: "The frontend static directory cache key"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Install dependencies
+      run: pnpm install
+      working-directory: ${{ env.base_directory }}
+      shell: bash
+
+    - name: Build frontend
+      run: pnpm build
+      working-directory: ${{ inputs.base_directory }}
+      shell: bash
+
+    - name: Cache index.html file
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.index_file }}
+        key: ${{ inputs.index_cache_key }}
+
+    - name: Cache static directory
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.static_directory }}
+        key: ${{ inputs.static_cache_key }}

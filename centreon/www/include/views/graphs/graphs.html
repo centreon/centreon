@@ -1,0 +1,623 @@
+<script language='javascript' src='./include/common/javascript/tool.js'></script>
+<div id="div1" style="position:relative;">
+    <form {$form.attributes}>
+        <table class="ajaxOption table">
+            <tr>
+                <th><h5>{t}Chart Filters{/t}</h5></th>
+            </tr>
+            <tr>
+              <td><h4>{t}Chart{/t}</h4></td>
+              <td><h4>{t}Period{/t}</h4></td>
+              <td><h4>{t}From{/t}</h4></td>
+              <td><h4>{t}To{/t}</h4></td>
+            </tr>
+            <tr>
+                <td class="log-select">
+                    <select id="select-chart" multiple size="1"></select>
+                </td>
+                <td>{$form.period.html}</td>
+                <td>
+                    {$form.StartDate.html}
+                    {$form.StartTime.html}
+                </td>
+                <td>
+                    {$form.EndDate.html}
+                    {$form.EndTime.html}
+                </td>
+            </tr>
+            <tr>
+                <td class="divider" colspan="4"><hr></td>
+            </tr>
+            <tr>
+                <td><h4>{t}Filter by Host{/t}</h4></td>
+                <td><h4>{t}Filter by Hostgroup{/t}</h4></td>
+                <td><h4>{t}Filter by Servicegroup{/t}</h4></td>
+            </tr>
+            <tr>
+                <td class="log-select">
+                    <select id="host_filter" multiple size="1"></select>
+                </td>
+                <td class="log-select">
+                    <select id="host_group_filter" multiple size="1"></select>
+                </td>
+                <td class="log-select">
+                    <select id="service_group_filter" multiple size="1"></select>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="graph-options">
+        <div class="refresh" id="chart-refresh">
+            <div class="icon refresh-icon">
+                <span class="ico-14">
+                    {php}displaySvg("www/img/icons/refresh.svg", "var(--icons-fill-color)", 14, 14){/php}
+                </span>
+            </div>
+            <span class="time" style="display: none"></span>
+            <div class="icon">
+                <span class="ico-14 timer-icon">
+                    {php}displaySvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14){/php}
+                </span>
+            </div>
+            <ul class="refresh-list">
+                <li data-interval="0">{t}None{/t}</li>
+                <li data-interval="1m">{t}1 minute{/t}</li>
+                <li data-interval="5m">{t}5 minutes{/t}</li>
+                <li data-interval="15m">{t}15 minutes{/t}</li>
+                <li data-interval="30m">{t}30 minutes{/t}</li>
+            </ul>
+        </div>
+        <a onclick="javascript:switchCols(1)" class="ico-16 margin_right ico-col ico-col-1 active" alt="{t}One column{/t}" title="{t}One column{/t}">
+        </a>
+        <a onclick="javascript:switchCols(2)" class="ico-16 margin_right ico-col ico-col-2" alt="{t}Two columns{/t}" title="{t}Two columns{/t}">
+        </a>
+        <a onclick="javascript:switchCols(3)" class="ico-16 margin_right ico-col ico-col-3" alt="{t}Three columns{/t}" title="{t}Three columns{/t}">
+        </a>
+    </div>
+    <div id="graphs" class="graph_content">
+        <div class="graphZone"></div>
+    </div>
+    <div>
+        {$form.hidden}
+    </div>
+</div>
+
+<script src="./include/common/javascript/moment-with-locales.min.2.21.js"></script>
+<script src="./include/common/javascript/moment-timezone-with-data.min.js"></script>
+<script src="./include/common/javascript/centreon/centreon-select2.js"></script>
+<script src="./include/common/javascript/datepicker/localizedDatepicker.js"></script>
+<script>
+var defaultCharts = {$defaultCharts};
+var nbDisplayedCharts = {$nbDisplayedCharts};
+var tooManyChartMsg = "{t}You cannot add more charts. The maximum charts is {/t}" + nbDisplayedCharts;
+
+{literal}
+
+var charts = [];
+const templateGraph = ({ graphId, graphType, graphTitle, hostId, serviceId }) => {
+    var closeIcon = "{/literal}{$removeIcon}{literal}";
+    var csvIcon = "{/literal}{$csvIcon}{literal}";
+    var pictureIcon = "{/literal}{$pictureIcon}{literal}";
+    return `
+        <div id="graph_wrapper_${graphId}" data-graph-id="${graphId}" class="graph">
+            <div class="title">
+                <span class="remove ico-18 margin_right">
+                    ${closeIcon}
+                </span>
+                <span>${graphTitle}</span>
+                {/literal}
+                {if $topologyAccess.2040101 || $admin == 1}
+                <a class="btc bt_info actions-simple mr-1" data-href="./main.get.php?p=2040101">
+                    {t}Split chart{/t}
+                </a>
+                {/if}
+                {if $topologyAccess.2040102 || $admin == 1}
+                <a class="btc bt_info actions-simple" data-href="./main.get.php?p=2040102">
+                    {t}Display multiple periods{/t}
+                </a>
+                {/if}
+                {literal}
+                <a class="actions" data-href="./include/views/graphs/generateGraphs/generateImage.php">
+                    <span class="ico-18 margin_right">
+                        ${pictureIcon}
+                    </span>
+                </a>
+                <a class="actions download_graph_csv" data-hostid="${hostId}" data-serviceid="${serviceId}">
+                    <span class="ico-18 margin_right">
+                        ${csvIcon}
+                    </span>
+                </a>
+            </div>
+            <div class="content">
+                <button
+                    id="display-graph-${graphId}"
+                    data-graph-id="${graphId}"
+                    data-graph-type="${graphType}"
+                    class="btc bt_info performance_button"
+                >
+                    Display Chart
+                </button>
+                <div class="action left">
+                    <button class="bt_action">&lt;&lt;</button>
+                </div>
+                <div class="chart" id="graph-${graphId}" data-graph-id="${graphId}" data-graph-type="${graphType}">
+                </div>
+                <div class="action right">
+                    <button class="bt_action">&gt;&gt;</button>
+                </div>
+                <div
+                    class="chart chart-status"
+                    id="graph-status-${graphId}"
+                    data-graph-id="${graphId}"
+                    data-graph-type="status"
+                >
+                </div>
+            </div>
+        </div>
+    `;
+};
+var autoRefresh = false;
+
+// get timezone from localstorage
+// be careful, it seems that it's updated when user logout/login
+const timezone = localStorage.getItem('realTimezone')
+    ? localStorage.getItem('realTimezone')
+    : moment.tz.guess(true);
+
+function initRefresh() {
+    var $refresh = jQuery('#chart-refresh');
+    $refresh.data('interval', 0);
+    $refresh.on('click', function () {
+        $refresh.find('.refresh-list').toggleClass('show');
+    });
+
+    jQuery(document).on('click', function (e) {
+        var $elem = jQuery(e.target);
+        if ($refresh.has($elem).length === 0) {
+            $refresh.find('.refresh-list').removeClass('show');
+        }
+    });
+
+    $refresh.delegate('.refresh-icon', 'click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jQuery('.chart').centreonGraph('refreshData');
+    });
+
+  $refresh.delegate('.refresh-list > li', 'click', function () {
+      var $interval = jQuery(this);
+      var interval = $interval.data('interval');
+      var text = $interval.text();
+      var parseInterval;
+      if (interval == 0) {
+          $refresh.find('.time').hide().text('');
+          var timerDisabled = "{/literal}{$timerDisabled}{literal}";
+          $refresh.find('.timer-icon').empty().append(timerDisabled);
+          jQuery('.chart').centreonGraph('setRefresh', 0);
+      } else {
+          parseInterval = interval.match(/(\d+)([a-z]+)/i);
+          $refresh.find('.time').show().text(text);
+          var timerEnabled = "{/literal}{$timerEnabled}{literal}";
+          $refresh.find('.timer-icon').empty().append(timerEnabled);
+          jQuery('.chart').centreonGraph(
+              'setRefresh',
+              moment.duration(
+                  parseInt(parseInterval[1], 10),
+                  parseInterval[2]
+              ).asSeconds()
+          );
+      }
+      $refresh.data('interval', interval);
+  });
+}
+
+function addChart(id, name, times, hostId, serviceId) {
+    var refreshInterval;
+    var parseInterval;
+    var datepickerFormat = jQuery("#StartDate").datepicker("option", "dateFormat");
+
+    if (charts.indexOf(id) !== -1) {
+        return;
+    }
+    times.height = 240;
+    if (autoRefresh) {
+        times.refresh = 300;
+    }
+    /* Add zoom */
+    times.zoom = {
+        enabled: true,
+        onzoom: function (period) {
+            const start = moment.tz(period[0], timezone);
+            const end = moment.tz(period[1], timezone);
+
+            jQuery('input[name="alternativeDateStartDate"]').val(start.format('YYYY-MM-DD'));
+            jQuery('#StartDate').val(start.format(datepickerFormat.toUpperCase()));
+            jQuery('#StartTime').val(start.format('HH:mm'));
+            jQuery('input[name="alternativeDateEndDate"]').val(end.format('YYYY-MM-DD'));
+            jQuery('#EndDate').val(end.format(datepickerFormat.toUpperCase()));
+            jQuery('#EndTime').val(end.format('HH:mm'));
+            changePeriod();
+        }
+    };
+    /* Add auto refresh */
+    refreshInterval = jQuery('#chart-refresh').data('interval');
+    if (refreshInterval != 0) {
+        parseInterval = refreshInterval.match(/(\d+)([a-z]+)/i);
+        times.refresh = moment.duration(
+            parseInt(parseInterval[1], 10),
+            parseInterval[2]
+        ).asSeconds();
+    }
+
+    charts.push(id);
+    jQuery('.graphZone').append(
+        templateGraph({
+            graphId: id,
+            graphType: 'service',
+            graphTitle: name,
+            status: true,
+            hostId: hostId,
+            serviceId: serviceId,
+        })
+    );
+    jQuery('#graph-' + id).centreonGraph(times);
+    jQuery('#graph-status-' + id).centreonGraph(times);
+}
+
+function loadChart(chart, callback) {
+    var times = {};
+    var end;
+    chart = chart ? chart : [];
+
+    if (chart.length === 0) {
+        return;
+    }
+
+    if (jQuery('select[name="period"]').val() === '') {
+        times = {
+            period: {
+                startTime: jQuery('input[name="StartDate"]').val() + ' ' + jQuery('#StartTime').val(),
+                endTime: jQuery('input[name="EndDate"]').val() + ' ' + jQuery('#EndTime').val()
+            }
+        };
+        end = end;
+    } else {
+        times = {
+            interval: jQuery('select[name="period"]').val()
+        };
+        end = moment();
+    }
+
+    jQuery.ajax({
+        url: './include/views/graphs/getGraphAjax.php',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            service_selector: chart
+        },
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (charts.length >= nbDisplayedCharts) {
+                    alert(tooManyChartMsg);
+                    break;
+                }
+                addChart(data[i].id, data[i].title, times, data[i].hostId, data[i].serviceId);
+            }
+            displayNav(end);
+            if (typeof callback == 'function') {
+                callback();
+            }
+        }
+    });
+}
+
+function switchCols(number) {
+    jQuery('.graphZone').removeClass(function (index, css) {
+        return (css.match(/\bcol\S+/g) || []).join(' ');
+    });
+    if (number === 2 || number === 3) {
+        jQuery('.graphZone').addClass('col' + number);
+    }
+    jQuery('.graphZone .chart').centreonGraph('resize');
+    jQuery('.ico-col').removeClass('active');
+    jQuery('.ico-col-' + number).addClass('active');
+}
+
+function changePeriod() {
+    var start;
+    var end;
+
+    jQuery('select[name="period"]').val('');
+    start = jQuery('input[name="alternativeDateStartDate"]').val() + ' ' + jQuery('#StartTime').val();
+    end = jQuery('input[name="alternativeDateEndDate"]').val() + ' ' + jQuery('#EndTime').val();
+    /* Test If all period field are not empty */
+    if (start.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/) && end.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)) {
+        /* Test if date start is lower than date end */
+        if (moment(start).isBefore(end)) {
+            jQuery('.graphZone .chart').centreonGraph(
+                'setPeriod',
+                start,
+                end
+            );
+            displayNav(end);
+        } else {
+            // @todo change - the message isn't localized using getText
+            alert('The start date must be before the end date.');
+        }
+    }
+}
+
+function changeInterval() {
+    if (jQuery('select[name="period"]').val() === '') {
+        return;
+    }
+    /* reseting the datepicker choosen date when choosing an interval instead */
+    jQuery('.datepicker-iso').datepicker('setDate', null);
+    jQuery('.timepicker').val('');
+    jQuery('.graphZone .chart').centreonGraph(
+        'setInterval',
+        jQuery('select[name="period"]').val()
+    );
+
+    displayNav(moment());
+}
+
+function displayNav(end) {
+    var now = moment().subtract(10, 's');
+    if (now.isBefore(end)) {
+        jQuery('.action.right > .bt_action').prop('disabled', true);
+    } else {
+        jQuery('.action.right > .bt_action').prop('disabled', false);
+    }
+}
+
+jQuery(function () {
+    initRefresh();
+    loadChart(defaultCharts);
+
+    /* initializing datepicker and the alternative format field */
+    initDatepicker("datepicker-iso", "yy-mm-dd", null);
+
+    /* Add events */
+    jQuery('#select-chart').on('change', function () {
+        var charts = [];
+        jQuery('#select-chart > option').each(function() {
+            charts.push({
+                id: jQuery(this).val(),
+                text: jQuery(this).text()
+            });
+        });
+
+        if (charts !== null && charts.length > 0) {
+            loadChart(charts, function () {
+                jQuery('#select-chart > option').remove();
+                jQuery('#select-chart')
+                    .trigger('change')
+                    .select2('close');
+            });
+        }
+    });
+
+    function getGraphDates(periodValue, startDateValue, endDateValue) {
+        let start;
+        let end;
+
+        if (periodValue === '') {
+            start = moment.tz(startDateValue, timezone);
+            end = moment.tz(endDateValue, timezone);
+            duration = moment.duration(end.diff(start));
+        } else {
+            parseInterval = periodValue.match(/(\d+)([a-z]+)/i);
+            duration = moment.duration(parseInt(parseInterval[1], 10), parseInterval[2]);
+            start = moment().tz(timezone);
+            end = moment().tz(timezone);
+            start.subtract(parseInterval[1], parseInterval[2]);
+        }
+
+        return {'start': start, 'end': end};
+    }
+
+    function extractBaseUrlFromUrl(url) {
+        const scriptNamePos = url.indexOf('main.get.php');
+        if (scriptNamePos === -1) {
+            throw 'Unable to extract base url from URL';
+        }
+
+        const baseUrl = url.substring(0, scriptNamePos);
+        if (baseUrl.charAt(baseUrl.length - 1) !== '/') {
+            return baseUrl + '/';
+        }
+
+        return baseUrl;
+    }
+
+    function generateGraphCSVDownloadUrl(hostId, serviceId, startDate, endDate) {
+        const baseUrl = extractBaseUrlFromUrl(window.location.href);
+        let url = baseUrl + 'api/latest/monitoring';
+            url+= '/hosts/' + hostId;
+            url+= '/services/' + serviceId + '/metrics/performance/download?';
+            url+= 'start_date=' + startDate;
+            url+= '&end_date=' + endDate;
+
+        return url;
+    }
+
+    function generateChartActionURL(baseUrl, chartId, startDate, endDate) {
+        if (baseUrl.indexOf('?') !== -1) {
+            baseUrl += '&';
+        } else {
+            baseUrl += '?';
+        }
+
+        return baseUrl + 'chartId=' + chartId + '&start=' + startDate + '&end=' + endDate;
+    }
+
+    function generateActionURL(elmnt) {
+        const period = jQuery('select[name="period"]').val();
+        const startDate = jQuery('input[name="alternativeDateStartDate"]').val() + ' ' + jQuery('#StartTime').val();
+        const endDate = jQuery('input[name="alternativeDateEndDate"]').val() + ' ' + jQuery('#EndTime').val();
+
+        const dates = getGraphDates(period, startDate, endDate);
+
+        if (elmnt.hasClass('download_graph_csv')) {
+            const hostId = elmnt.data('hostid');
+            const serviceId = elmnt.data('serviceid');
+
+            return generateGraphCSVDownloadUrl(hostId, serviceId, dates.start.toISOString(), dates.end.toISOString())
+        }
+
+        const baseUrl = elmnt.data('href');
+        const chartId = elmnt.parents('.graph').data('graphId');
+
+        return generateChartActionURL(baseUrl, chartId, dates.start.unix(), dates.end.unix());
+    }
+
+    /* Add events on click on action download image/CSV */
+    jQuery('.graphZone').delegate('a.actions,a.actions-simple', 'click', function (e) {
+        e.preventDefault();
+        window.location = generateActionURL(jQuery(this));
+    });
+
+    /* Remove a chart */
+    jQuery('.graphZone').delegate('.graph > .title > .remove', 'click', function () {
+        var $elem = jQuery(this);
+        var parent = jQuery(this).parents('.graph');
+        var chartId = parent.attr('id').replace('graph_wrapper_', '');
+        var arrayIndex = charts.indexOf(chartId);
+        if (arrayIndex > -1) {
+            charts.splice(arrayIndex, 1);
+            parent.remove();
+        }
+    });
+
+    jQuery('.graphZone').delegate('.action > .bt_action', 'click', function () {
+        var $elem = jQuery(this);
+        var text = $elem.text();
+        var duration;
+        var parseInterval;
+        var start;
+        var end;
+        var datepickerFormat = jQuery("#StartDate").datepicker("option", "dateFormat");
+
+        if (jQuery('select[name="period"]').val() === '') {
+            start = moment(jQuery('input[name="alternativeDateStartDate"]').val() + ' ' + jQuery('#StartTime').val());
+            end = moment(jQuery('input[name="alternativeDateEndDate"]').val() + ' ' + jQuery('#EndTime').val());
+            duration = moment.duration(end.diff(start));
+        } else {
+            parseInterval = jQuery('select[name="period"]').val().match(/(\d+)([a-z]+)/i);
+            duration = moment.duration(
+                parseInt(parseInterval[1], 10),
+                parseInterval[2]
+            );
+            start = moment();
+            end = moment();
+            start.subtract(parseInterval[1], parseInterval[2]);
+        }
+
+        jQuery('select[name="period"]').val('');
+        if (text === '<<') {
+            end = start;
+            jQuery('input[name="alternativeDateEndDate"]').val(end.format('YYYY-MM-DD'));
+            jQuery('#EndDate').val(end.format(datepickerFormat.toUpperCase()));
+            jQuery('#EndTime').val(end.format('HH:mm'));
+            start.subtract(duration);
+            jQuery('input[name="alternativeDateStartDate"]').val(start.format('YYYY-MM-DD'));
+            jQuery('#StartDate').val(start.format(datepickerFormat.toUpperCase()));
+            jQuery('#StartTime').val(start.format('HH:mm'));
+        } else {
+            start = end;
+            jQuery('input[name="alternativeDateStartDate"]').val(start.format('YYYY-MM-DD'));
+            jQuery('#StartDate').val(start.format(datepickerFormat.toUpperCase()));
+            jQuery('#StartTime').val(start.format('HH:mm'));
+            end.add(duration);
+            jQuery('input[name="alternativeDateEndDate"]').val(end.format('YYYY-MM-DD'));
+            jQuery('#EndDate').val(end.format(datepickerFormat.toUpperCase()));
+            jQuery('#EndTime').val(end.format('HH:mm'));
+        }
+        changePeriod();
+    });
+
+    /* Initialize the select chart */
+
+    /* Define general options for select-chart */
+    var minimumInputLength = 3;
+    var selectChartOptions = {
+        select2: {
+            ajax: {
+                url: './include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list'
+            },
+            minimumInputLength: minimumInputLength
+        },
+        additionnalFilters: {
+            host: '#host_filter',
+            hostgroup: '#host_group_filter',
+            servicegroup: '#service_group_filter'
+        }
+    };
+
+    jQuery('#service_group_filter').centreonSelect2({
+        select2: {
+            ajax: {
+                url: './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup&action=list'
+            },
+            containerCssClass: 'filter-select'
+        },
+        allowClear: true
+    });
+
+    jQuery('#host_group_filter').centreonSelect2({
+        select2: {
+            ajax: {
+                url: './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list'
+            },
+            containerCssClass: 'filter-select'
+        },
+        allowClear: true
+    });
+
+    jQuery('#host_filter').centreonSelect2({
+        select2: {
+            ajax: {
+                url: './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list&h=all'
+            },
+            containerCssClass: 'filter-select'
+        },
+        allowClear: true,
+        additionnalFilters: {
+            hostgroup: '#host_group_filter'
+        }
+    });
+
+    jQuery('#select-chart').centreonSelect2(selectChartOptions);
+
+    /* Add event for change minimumInputLength */
+    function changeSelectChart() {
+        var newOptions = selectChartOptions;
+        var newInputLength = 3;
+
+        if (jQuery('#host_group_filter').val() !== null
+            || jQuery('#service_group_filter').val() !== null
+            || jQuery('#host_filter').val() !== null) {
+            newInputLength = 0;
+        }
+
+        if (newInputLength !== minimumInputLength) {
+            minimumInputLength = newInputLength;
+            jQuery('#select-chart').centreonSelect2('updateSettings', {
+                minimumInputLength: newInputLength
+            });
+        }
+    }
+
+    jQuery('#host_group_filter').on('change', changeSelectChart);
+    jQuery('#service_group_filter').on('change', changeSelectChart);
+    jQuery('#host_filter').on('change', changeSelectChart);
+
+    /* Active drag and drop */
+    jQuery('.graphZone').sortable({
+        handle: '.title',
+    });
+});
+</script>
+{/literal}
+

@@ -1,0 +1,9 @@
+parameters:
+  scanFiles:
+    - 'vendor/centreon/centreon/www/include/common/common-Func.php'
+  paths:
+    - 'ntopng-listing/'
+  ignoreErrors:
+    -
+      message: '#Variable \$dependencyInjector might not be defined.#'
+      path: ntopng-listing/index.php

@@ -1,0 +1,57 @@
+name: "deb-package"
+description: "Package deb Centreon"
+inputs:
+  module_name:
+    description: "The package module name"
+    required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
+  distrib:
+    description: "The distribution used for packaging"
+    required: true
+  nexus_username:
+    description: "Artifact Manager technical username"
+    required: true
+  nexus_password:
+    description: "Artifact Manager technical password"
+    required: true
+  version:
+    description: "Centreon packaged version"
+    required: true
+  cache_key:
+    description: "The cached package key"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use cache DEB files
+      uses: actions/cache@v3
+      with:
+        path: ./*.deb
+        key: ${{ inputs.cache_key }}
+
+    - name: Publish DEBS to Nexus
+      run: |
+        FILES="*.deb";
+        echo "[DEBUG] - Deb FILES: $FILES"
+
+        for FILE in $FILES
+        do
+          echo "[DEBUG] - File: $FILE"
+
+          VERSION=${{ inputs.version }}
+          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
+          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
+
+          echo "[DEBUG] - Version: $VERSION"
+
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/23.04-${{ inputs.stability }}/
+
+
+        done
+      shell: bash

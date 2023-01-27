@@ -1,0 +1,60 @@
+name: "Cypress E2E Testing"
+description: "Cypress E2E Testing"
+inputs:
+  image:
+    description: "image"
+    required: true
+  image_version:
+    description: "image version"
+    required: true
+  module:
+    description: "module"
+    required: true
+  feature_file_path:
+    description: "feature file"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Install dependencies
+      run: pnpm install
+      working-directory: ${{ inputs.module }}
+      shell: bash
+
+    - uses: mad9000/actions-find-and-replace-string@2
+      id: formatFeatureFilePath
+      with:
+          source: ${{ inputs.feature_file_path }}
+          find: '/'
+          replace: '-'
+
+    - name: "Start Centreon container"
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
+    - name: Cypress end-to-end testing
+      uses: cypress-io/github-action@v4
+      with:
+        browser: chrome
+        install: false
+        working-directory: ${{ inputs.module }}/tests/e2e
+        spec: cypress/e2e/**/${{ inputs.feature_file_path }}
+
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
+
+    - name: Publish tests report
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{ always() }}
+      with:
+        check_name: web-e2e-tests-report
+        comment_mode: failures
+        junit_files: ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml

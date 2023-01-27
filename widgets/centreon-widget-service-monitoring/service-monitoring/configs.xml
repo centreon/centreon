@@ -1,0 +1,82 @@
+<configs>
+  <title>Service Monitoring</title>
+  <author>Centreon</author>
+  <email>contact@centreon.com</email>
+  <website>http://www.centreon.com</website>
+  <description>This interactive service event console widget displays the services status and allows to act on them (acknowledge, add dowtime, etc.). Multiple parameters allow to select which services to display (based on their name, hostgroup, status, etc.) or which columns (name, alias, status, duration, output, etc.).</description>
+  <version>23.04.0</version>
+  <keywords>centreon, widget, service, monitoring</keywords>
+  <screenshot></screenshot>
+  <thumbnail>./widgets/service-monitoring/resources/centreon-logo.png</thumbnail>
+  <url>./widgets/service-monitoring/index.php</url>
+  <autoRefresh>10</autoRefresh>
+  <preferences>
+    <preference label="Host Name" name="host_name_search" defaultValue="" type="compare" header="Filters"/>
+    <preference label="Service Description" name="service_description_search" defaultValue="" type="compare"/>
+    <preference label="Display Ok" name="svc_ok" defaultValue="0" type="boolean"/>
+    <preference label="Hide services with DOWN host" name="hide_down_host" defaultValue="0" type="boolean"/>
+    <preference label="Hide services with UNREACHABLE host" name="hide_unreachable_host" defaultValue="0" type="boolean"/>
+    <preference label="Display Warning" name="svc_warning" defaultValue="1" type="boolean"/>
+    <preference label="Display Critical" name="svc_critical" defaultValue="1" type="boolean"/>
+    <preference label="Display Unknown" name="svc_unknown" defaultValue="0" type="boolean"/>
+    <preference label="Display Pending" name="svc_pending" defaultValue="1" type="boolean"/>
+    <preference label="Severity Filter" name="criticality_filter" defaultValue="" type="serviceSeverityMulti"/>
+    <preference label="Acknowledgement Filter" name="acknowledgement_filter" defaultValue="all" type="list">
+      <option value="ack" label="Acknowledged"/>
+      <option value="nack" label="Not Acknowleged"/>
+      <option value="ackByMe" label="Acknowleged By Me"/>
+    </preference>
+    <preference label="Notification Filter" name="notification_filter" defaultValue="all" type="list">
+      <option value="enabled" label="Notification Enabled"/>
+      <option value="disabled" label="Notification Disabled"/>
+    </preference>
+    <preference label="Downtime Filter" name="downtime_filter" defaultValue="all" type="list">
+      <option value="downtime" label="In downtime"/>
+      <option value="ndowntime" label="Not in downtime"/>
+    </preference>
+    <preference label="State Type" name="state_type_filter" type="list">
+      <option value="hardonly" label="Hard Only"/>
+      <option value="softonly" label="Soft Only"/>
+    </preference>
+    <preference label="Poller" name="poller" defaultValue="" type="poller"/>
+    <preference label="Hostgroup" name="hostgroup" defaultValue="" type="hostGroupMulti"/>
+    <preference label="Servicegroup" name="servicegroup" defaultValue="" type="serviceGroupMulti"/>
+    <preference label="Results" name="entries" defaultValue="10" type="range" min="10" max="100" step="10"/>
+    <preference label="Output" name="output_search" defaultValue="" type="compare" />
+    <preference label="Display Severities" name="display_severities" defaultValue="1" type="boolean" header="Columns"/>
+    <preference label="Display Host Name" name="display_host_name" defaultValue="1" type="boolean" />
+    <preference label="Display Host Alias" name="display_host_alias" defaultValue="0" type="boolean" />
+    <preference label="Display Chart Link/Icon" name="display_chart_icon" defaultValue="1" type="boolean"/>
+    <preference label="Display Service Description" name="display_svc_description" defaultValue="1" type="boolean"/>
+    <preference label="Display Output" name="display_output" defaultValue="1" type="boolean"/>
+    <preference label="Output Length" name="output_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
+    <preference label="Display Status" name="display_status" defaultValue="1" type="boolean"/>
+    <preference label="Display Last Check" name="display_last_check" defaultValue="1" type="boolean"/>
+    <preference label="Display Duration" name="display_duration" defaultValue="1" type="boolean"/>
+    <preference label="Display Hard State Duration" name="display_hard_state_duration" defaultValue="1" type="boolean"/>
+    <preference label="Display Tries" name="display_tries" defaultValue="1" type="boolean"/>
+    <preference label="Display Last Comment" name="display_last_comment" defaultValue="0" type="boolean"/>
+    <preference label="Display Latency" name="display_latency" defaultValue="0" type="boolean"/>
+    <preference label="Display Execution Time" name="display_execution_time" defaultValue="0" type="boolean"/>
+    <preference label="Comment Length" name="comment_length" defaultValue="50" type="range" min="50" max="500" step="50"/>
+    <preference label="Order By" name="order_by" defaultValue="" type="sort">
+      <option value="hostname" label="Host Name"/>
+      <option value="hostalias" label="Host Alias"/>
+      <option value="h_state" label="Host Status"/>
+      <option value="description" label="Service Description"/>
+      <option value="s_state" label="Service Status"/>
+      <option value="criticality_level" label="Severity"/>
+      <option value="output" label="Service Output"/>
+      <option value="check_attempt" label="Check attempt"/>
+      <option value="last_check" label="Last Check"/>
+      <option value="last_state_change" label="Duration"/>
+      <option value="last_hard_state_change" label="Hard State Duration"/>
+    </preference>
+    <preference label="Order By status (second sort)&lt;br/&gt; &lt;span style=&quot;color:red&quot;&gt;(Be aware this might have impact on performances)&lt;/span&gt;" name="order_by2" defaultValue="" type="sort">
+      <option value="h_state" label="Host Status"/>
+      <option value="s_state" label="Service Status"/>
+    </preference>
+    <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+    <preference label="Enable pagination and more actions" name="more_views" defaultValue="0" type="boolean"/>
+  </preferences>
+</configs>

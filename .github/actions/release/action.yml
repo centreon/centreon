@@ -1,0 +1,61 @@
+name: "tag version"
+description: "Tag package"
+inputs:
+  module_name:
+    description: "The package module name"
+    required: true
+  jira_token:
+    description: "Token to authenticate to Jira"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Publish RPMS to Repositories
+      run: |
+        NEW_VERSION=""
+        MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
+        echo "Major version: $MAJOR_VERSION"
+        HOTFIX=$(echo $GITHUB_REF_NAME | grep -oP '(hotfix|)')
+        echo "Hotfix: $HOTFIX"
+        BETA=$(echo $GITHUB_REF_NAME | grep -oP '(beta|)')
+        echo "Beta: $BETA"
+        RELEASE_ID=$(git log -1 --pretty=%B | grep -oP '(#[0-9]{4,}#)' | grep -oP '([0-9]+)')
+        echo "Release Id: $RELEASE_ID"
+
+        OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION.*" | head -n 1)
+        echo "Old version: $OLDV"
+
+        git config --global user.email "release@centreon.com"
+        git config --global user.name "Centreon"
+
+        if [ -z "$OLDV" ]; then
+          echo "No existing version, starting at $MAJOR_VERSION.0"
+          NEW_VERSION="$MAJOR_VERSION.0"
+          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
+          git push --follow-tags
+        else
+          OLD_MINOR_VERSION=$(echo $OLDV | grep -oP '([0-9]+$)')
+          NEW_MINOR_VERSION=$(echo $((OLD_MINOR_VERSION + 1)))
+          NEW_VERSION=$MAJOR_VERSION.$NEW_MINOR_VERSION
+          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
+          git push --follow-tags
+        fi
+
+        if [ "$HOTFIX" == "hotfix" ]; then
+          TYPE=Hotfix
+        elif [ "$BETA" == "beta" ]; then
+          TYPE=Beta
+        else
+          TYPE=Release
+        fi
+
+        VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":11789,\"released\":false}"
+
+        curl --request POST \
+          --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data ''$VERSION_DATA''
+
+      shell: bash

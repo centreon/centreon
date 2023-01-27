@@ -1,0 +1,4 @@
+# central broker daemon for centreon-ha command line options
+# customize only if cbd central broker configuration file is different from the default value below
+OPTIONS="/etc/centreon-broker/central-broker.json"
+

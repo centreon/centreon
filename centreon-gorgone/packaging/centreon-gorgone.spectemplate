@@ -1,0 +1,157 @@
+Name:       centreon-gorgone
+Version:    23.04.0
+Release:    %{PACKAGE_RELEASE}%{?dist}
+Summary:    Perl daemon task handlers
+Group:      Applications/System
+License:    Apache2
+URL:        http://www.centreon.com
+Source0:    %{name}-%{version}.tar.gz
+BuildArch:  noarch
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+BuildRequires: perl-devel
+
+Requires:   bzip2
+Requires:   perl-Libssh-Session >= 0.8
+Requires:   perl-CryptX
+Requires:   perl(Archive::Tar)
+Requires:   perl(Schedule::Cron)
+Requires:   perl(ZMQ::LibZMQ4)
+Requires:   perl(ZMQ::Constants)
+Requires:   perl(JSON::XS)
+Requires:   perl(JSON::PP)
+Requires:   perl(XML::Simple)
+Requires:   perl(XML::LibXML::Simple)
+Requires:   perl(Net::SMTP)
+Requires:   perl(YAML::XS)
+Requires:   perl(DBD::SQLite)
+Requires:   perl(DBD::mysql)
+Requires:   perl(DBI)
+Requires:   perl(UUID)
+Requires:   perl(HTTP::Daemon)
+Requires:   perl(HTTP::Status)
+Requires:   perl(MIME::Base64)
+Requires:   perl(Digest::MD5::File)
+Requires:   perl(Net::Curl::Easy)
+Requires:   perl(HTTP::Daemon::SSL)
+Requires:   perl(NetAddr::IP)
+Requires:   perl(Hash::Merge)
+Requires:   perl(Clone)
+Requires:   perl(Sys::Syslog)
+Requires:   perl(DateTime)
+Requires:   perl(Try::Tiny)
+Requires:   tar
+AutoReqProv: no
+
+%description
+
+%package centreon-config
+Summary:    Configure Centreon Gorgone for use with Centreon Web
+Group:      Networking/Other
+Requires:   centreon-common
+Requires:   centreon-gorgone
+
+%description centreon-config
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
+%{__install} -d %{buildroot}%{_bindir}
+%{__install} -d %{buildroot}%{_usr}/local/bin/
+%{__install} -d %{buildroot}%{_sysconfdir}/systemd/system/
+%{__install} -d %buildroot%{_localstatedir}/lib/centreon-gorgone
+%{__install} -d %buildroot%{_localstatedir}/log/centreon-gorgone
+%{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone
+%{__cp} centreon-gorgone/config/systemd/gorgoned-service %{buildroot}%{_sysconfdir}/systemd/system/gorgoned.service
+%{__install} -d %{buildroot}%{_sysconfdir}/sysconfig
+%{__cp} centreon-gorgone/config/systemd/gorgoned-sysconfig %{buildroot}%{_sysconfdir}/sysconfig/gorgoned
+%{__install} -d %{buildroot}%{_sysconfdir}/logrotate.d
+%{__cp} centreon-gorgone/config/logrotate/gorgoned %{buildroot}%{_sysconfdir}/logrotate.d/gorgoned
+
+%{__cp} -R centreon-gorgone/gorgone/* %{buildroot}/%{perl_vendorlib}/gorgone/
+%{__cp} centreon-gorgone/gorgoned %{buildroot}%{_bindir}/
+%{__cp} centreon-gorgone/contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} centreon-gorgone/contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} centreon-gorgone/contrib/gorgone_install_plugins.pl %{buildroot}%{_usr}/local/bin/
+
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/cron.d/
+%{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone/autodiscovery
+%{__cp} centreon-gorgone/packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
+%{__cp} centreon-gorgone/packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
+%{__cp} centreon-gorgone/packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%{__cp} centreon-gorgone/packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+%{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
+%{__cp} centreon-gorgone/packaging/sudoers.d/centreon-gorgone %buildroot%{_sysconfdir}/sudoers.d/centreon-gorgone
+
+%{_fixperms} $RPM_BUILD_ROOT/*
+
+%check
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-, root, root, -)
+%{perl_vendorlib}/gorgone/
+%attr(755, root, root) %{_bindir}/gorgoned
+%attr(755, root, root) %{_usr}/local/bin/gorgone_config_init.pl
+%attr(755, root, root) %{_usr}/local/bin/gorgone_audit.pl
+%attr(750, root, root) %{_usr}/local/bin/gorgone_install_plugins.pl
+%attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
+%config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
+%config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
+
+%defattr(0664, centreon-gorgone, centreon-gorgone, 0775)
+%dir %{_sysconfdir}/centreon-gorgone
+%dir %{_sysconfdir}/centreon-gorgone/config.d
+%dir %{_sysconfdir}/centreon-gorgone/config.d/cron.d
+%{_sysconfdir}/centreon-gorgone/config.yaml
+%defattr(-, centreon-gorgone, centreon-gorgone, -)
+%{_localstatedir}/lib/centreon-gorgone
+%{_localstatedir}/log/centreon-gorgone
+%{_localstatedir}/cache/centreon-gorgone
+
+%pre
+%{_bindir}/getent group centreon-gorgone &>/dev/null || %{_sbindir}/groupadd -r centreon-gorgone
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null || %{_sbindir}/useradd -g centreon-gorgone -m -d %{_localstatedir}/lib/centreon-gorgone -r centreon-gorgone 2> /dev/null
+
+%files centreon-config
+%defattr(0664, centreon-gorgone, centreon-gorgone, 0775)
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+
+%attr(0600, root, root) %{_sysconfdir}/sudoers.d/centreon-gorgone
+
+%defattr(-, centreon-gorgone, centreon-gorgone, -)
+%{_localstatedir}/cache/centreon-gorgone/autodiscovery
+
+%post centreon-config
+%{_bindir}/getent passwd centreon &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone centreon 2> /dev/null
+%{_bindir}/getent passwd centreon-engine &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone centreon-engine 2> /dev/null
+%{_bindir}/getent passwd centreon-broker &>/dev/null && %{_sbindir}/usermod -a -G centreon-gorgone centreon-broker 2> /dev/null
+%{_bindir}/getent passwd centreon-gorgone &>/dev/null && %{_sbindir}/usermod -a -G centreon centreon-gorgone 2> /dev/null
+if [ \( \! -d %{_localstatedir}/lib/centreon-gorgone/.ssh \) -a \( -d %{_localstatedir}/spool/centreon/.ssh \) ] ; then
+  %{__cp} -r %{_localstatedir}/spool/centreon/.ssh %{_localstatedir}/lib/centreon-gorgone/.ssh
+  %{__chown} -R centreon-gorgone:centreon-gorgone %{_localstatedir}/lib/centreon-gorgone/.ssh
+  %{__chmod} 600 %{_localstatedir}/lib/centreon-gorgone/.ssh/id_rsa
+fi
+
+%post
+%systemd_post gorgoned.service || :
+
+%preun
+%systemd_preun gorgoned.service || :
+
+%postun
+%systemd_postun_with_restart gorgoned.service || :
+
+%changelog

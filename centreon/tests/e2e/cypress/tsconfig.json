@@ -1,0 +1,11 @@
+{
+  "extends": "../../../packages/js-config/tsconfig/index",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "esModuleInterop": true,
+    "types": ["cypress", "node"]
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

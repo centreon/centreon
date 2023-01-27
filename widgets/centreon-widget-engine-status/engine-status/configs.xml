@@ -1,0 +1,20 @@
+<configs>
+    <title>Engine-status</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description>This widget displays operational metrics of a monitoring engine (latency and execution time of the checks) as well as the number of hosts and services per status.</description>
+    <version>23.04.0</version>
+    <keywords>centreon, widget, status, engine</keywords>
+    <screenshot></screenshot>
+    <thumbnail>./widgets/engine-status/resources/logo1.png</thumbnail>
+    <url>./widgets/engine-status/index.php</url>
+    <autoRefresh>10</autoRefresh>
+	<preferences>
+        <preference label="Name of Poller" name="poller" type="pollerMulti" defaultValue="" header="Ressource"/>
+        <preference label="Threshold for average latency (in second)" name="avg-l" type="text" defaultValue="1"/>
+        <preference label="Threshold for max value latency (in second)" name="max-e" type="text" defaultValue="30"/>
+        <preference label="Threshold for average execution time (in second)" name="avg-e" type="text" defaultValue="10"/>
+        <preference label="Auto Refresh" name="autoRefresh" defaultValue="30" type="text"/>
+	</preferences>
+</configs>

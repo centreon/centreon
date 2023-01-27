@@ -1,0 +1,46 @@
+version: "2"
+services:
+  web:
+    image: "@WEB_IMAGE@"
+    ports: ["80", "3306"]
+    profiles: ["web"]
+    links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
+
+  web-fresh:
+    image: "@WEB_FRESH_IMAGE@"
+    ports: ["80", "3306"]
+    profiles: ["web-fresh"]
+    links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
+
+  web-widgets:
+    image: "@WEB_WIDGETS_IMAGE@"
+    ports: ["80", "3306"]
+    profiles: ["web-widgets"]
+    links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
+
+  webdriver:
+    image: "@SELENIUM_IMAGE@"
+    environment: ["SCREEN_WIDTH=1600", "SCREEN_HEIGHT=2000"]
+    ports: ["4444", "5900"]
+    profiles: ["webdriver"]
+    shm_size: "2g"
+
+  openldap:
+    image: docker.centreon.com/mon-openldap:latest
+    ports: ["389"]
+    profiles: ["openldap"]
+
+  squid-simple:
+    image: docker.centreon.com/mon-squid-simple:latest
+    ports: ["3128"]
+    profiles: ["squid-simple"]
+
+  squid-basic-auth:
+    image: docker.centreon.com/mon-squid-basic-auth:latest
+    ports: ["3128"]
+    profiles: ["squid-basic-auth"]
+
+  mediawiki:
+    image: docker.centreon.com/mon-mediawiki-22.10:latest
+    ports: ["80"]
+    profiles: ["mediawiki"]

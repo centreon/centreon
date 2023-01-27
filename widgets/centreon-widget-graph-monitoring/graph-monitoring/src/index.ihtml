@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Graph Monitoring</title>
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/{$theme}/variables.css" rel="stylesheet" type="text/css"/>
+        <link href="../../include/common/javascript/charts/c3.min.css" rel="stylesheet">
+    </head>
+    <body>
+        {$servicePreferences}
+        <!--<div id='graphMonitoringTable'></div>-->
+        <div class="chart" data-graph-id="{$graphId}" data-graph-type="service"></div>
+
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="data.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.21.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
+
+        <script type="text/javascript" src="../../include/common/javascript/charts/d3.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/charts/c3.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/charts/d3-timeline.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/numeral.min.js"></script>
+        <script type="text/javascript" src="../../include/views/graphs/javascript/centreon-graph.js"></script>
+        <script type="text/javascript" src="../../include/views/graphs/javascript/centreon-c3.js"></script>
+
+
+        <script type="text/javascript">
+            var widgetId = {$widgetId};
+            var autoRefresh = {$autoRefresh};
+            var interval = '{$interval}s';
+            {literal}
+            var parameters = {
+                interval: interval,
+                refresh: autoRefresh,
+                url: '../../api/internal.php?object=centreon_metric',
+                buttonToggleCurves: false,
+                extraLegend: false
+            };
+            {/literal}
+
+            jQuery(".chart").centreonGraph(parameters);
+            parent.iResize(window.name, 250);
+        </script>
+    </body>

@@ -1,0 +1,43 @@
+{
+  "name": "@centreon/js-config",
+  "description": "Centreon Frontend shared build configuration",
+  "version": "23.4.10",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/centreon/centreon-frontend.git"
+  },
+  "keywords": [
+    "centreon",
+    "eslint"
+  ],
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/centreon/centreon-frontend/issues"
+  },
+  "devDependencies": {
+    "eslint": "^8.17.0",
+    "eslint-config-airbnb": "19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-hooks": "^0.4.3",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prefer-arrow-functions": "^3.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.2",
+    "eslint-plugin-typescript-sort-keys": "^2.1.0"
+  },
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "files": [
+    "eslint",
+    "jest",
+    "tsconfig",
+    "webpack"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "centreon/centreon-widget-single-metric",
+  "description": "single metric widget",
+  "version": "23.04.0",
+  "type": "project",
+  "license": "GPL-2.0-only",
+  "scripts": {
+    "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
+    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
+    "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
+    "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.5",
+    "centreon/centreon": "dev-master",
+    "phpstan/phpstan": "^1.4",
+    "squizlabs/php_codesniffer": "^3.6"
+  },
+  "config": {
+    "secure-http": false,
+    "platform": {
+      "php": "8.0"
+    }
+  }
+}

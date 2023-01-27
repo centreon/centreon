@@ -1,0 +1,151 @@
+<html>
+<head>
+	<title>engine-status</title>
+    <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/{$theme}/variables.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    {if $preferences.poller != ''}
+    <div id="engine-status">
+        <table class="styleTable ListTable">
+            <h4>Status</h4>
+            <tr class="ListHeader">
+                <td></td>
+                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=50502" target="_blank">Services</a></td>
+                <td></td>
+                <td class="ListColHeaderLeft"><a href="/centreon/main.php?p=50502" target="_blank">Hosts</a></td>
+            </tr>
+            <tr class="list_one">
+                <td class="ListColLeft">Ok</td>
+                <td class="ListColLeft"><span class="badge service_ok">{$dataSts[0].Ok}</span></td>
+                <td class="ListColLeft">Up</td>
+                <td class="ListColLeft"><span class="badge host_up">{$dataSth[0].Up}</span></td>
+            </tr>
+            <tr class="list_two">
+                <td class="ListColLeft">Warning</td>
+                <td class="ListColLeft"><span class="badge service_warning">{$dataSts[0].Wa}</span></td>
+                <td class="ListColLeft">Down</td>
+                <td class="ListColLeft"><span class="badge host_down">{$dataSth[0].Dow}</span></td>
+            </tr>
+            <tr class="list_one">
+                <td class="ListColLeft">Critical</td>
+                <td class="ListColLeft"><span class="badge service_critical">{$dataSts[0].Cri}</span></td>
+                <td class="ListColLeft">Unreachable</td>
+                <td class="ListColLeft"><span class="badge host_unreachable">{$dataSth[0].Un}</span></td>
+            </tr>
+            <tr class="list_two">
+                <td class="ListColLeft">Unknown</td>
+                <td class="ListColLeft"><span class="badge service_unknown">{$dataSts[0].Unk}</span></td>
+                <td class="ListColLeft">Pending</td>
+                <td class="ListColLeft"><span class="badge pending">{$dataSth[0].Pend}</span></td>
+            </tr>
+            <tr class="list_one">
+                <td class="ListColLeft">Pending</td>
+                <td class="ListColLeft"><span class="badge pending">{$dataSts[0].Pend}</span></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+
+        <table class="ListTable">
+            <br>
+            <tr>
+                <td>
+                    <table class="styleTable ListTable">
+                        <a href="/centreon/main.php?p=50502" target="_blank"><h4>Check Latency</h4></a>
+                        <tr class="ListHeader">
+                            <td class="ListColHeaderLeft">type</td>
+                            <td class="ListColHeaderCenter">AVG</td>
+                        </tr>
+                        {if $dataLat[0].h_moy > $avg_l}
+                        <tr class="list_down">
+                            <td class="ListColLeft">hosts</td>
+                            <td class="ListColCenter">{$dataLat[0].h_moy}s
+                            {if $dataLat[0].h_max > $max_e}
+                                <span style="background-color: #ffaec1;">(Max : {$dataLat[0].h_max}s)</span></td>
+                            {else}
+                                (Max : {$dataLat[0].h_max}s)</td>
+                            {/if}
+                            </tr>
+                        {else}
+                        <tr class="list_one">
+                            <td class="ListColLeft">hosts</td>
+                            <td class="ListColCenter">{$dataLat[0].h_moy}s
+                            {if $dataLat[0].h_max > $max_e}
+                                <span style="background-color: #ffaec1;">(Max : {$dataLat[0].h_max}s)</span></td>
+                            {else}
+                                (Max : {$dataLat[0].h_max}s)</td>
+                            {/if}
+                        </tr>
+                        {/if}
+                        {if $dataLat[0].s_moy > $avg_l}
+                        <tr class="list_down">
+                            <td class="ListColLeft">services</td>
+                            <td class="ListColCenter">{$dataLat[0].s_moy}s
+                            {if $dataLat[0].s_max > $max_e}
+                                <span style="background-color: #ffaec1;">(Max : {$dataLat[0].s_max}s)</span></td>
+                            {else}
+                                (Max : {$dataLat[0].s_max}s)</td>
+                            {/if}
+                            </tr>
+                        {else}
+                        <tr class="list_two">
+                            <td class="ListColLeft">services</td>
+                            <td class="ListColCenter">{$dataLat[0].s_moy}s
+                            {if $dataLat[0].s_max > $max_e}
+                                <span style="background-color: #ffaec1;">(Max : {$dataLat[0].s_max}s)</span></td>
+                            {else}
+                                (Max : {$dataLat[0].s_max}s)</td>
+                            {/if}
+                        </tr>
+                        {/if}
+                    </table>
+                </td>
+                <td>
+                    <table class="styleTable ListTable">
+                        <a href="/centreon/main.php?p=50502" target="_blank"><h4>Check the execution time</h4></a>
+                        <tr class="ListHeader">
+                            <td class="ListColHeaderLeft">type</td>
+                            <td class="ListColHeaderCenter">AVG</td>
+                        </tr>
+                        {if $dataEx[0].h_moy > $avg_e}
+                        <tr class="list_down">
+                            <td class="ListColLeft">hosts</td>
+                            <td class="ListColCenter">{$dataEx[0].h_moy}s (Max : {$dataEx[0].h_max}s)</td>
+                        </tr>
+                        {else}
+                        <tr class="list_one">
+                            <td class="ListColLeft">hosts</td>
+                            <td class="ListColCenter">{$dataEx[0].h_moy}s (Max : {$dataEx[0].h_max}s) </td>
+                        </tr>
+                        {/if}
+                        {if $dataEx[0].s_moy > $avg_e}
+                        <tr class="list_down">
+                            <td class="ListColLeft">services</td>
+                            <td class="ListColCenter">{$dataEx[0].s_moy}s (Max : {$dataEx[0].s_max}s)</td>
+                        </tr>
+                        {else}
+                        <tr class="list_two">
+                            <td class="ListColLeft">services</td>
+                            <td class="ListColCenter">{$dataEx[0].s_moy}s (Max : {$dataEx[0].s_max}s)</td>
+                        </tr>
+                        {/if}
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+	{else if !isset($preferences["engine-status"]) || $preferences["engine-status"] == ''}
+	<div class="update" style="text-align:center;width:350px;">Please select a poller</div>
+	{/if}
+    <script>
+        var widgetId = "{$widgetId}";
+        var autoRefresh = "{$autoRefresh}";
+    </script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+    <script type="text/javascript" src="src/data_js.js"></script>
+</body>
+</html>

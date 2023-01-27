@@ -1,0 +1,31 @@
+<configs>
+  <title>Single Metric</title>
+  <author>Centreon</author>
+  <email>contact@centreon.com</email>
+  <website>http://www.centreon.com</website>
+  <description>This widget permits to display a perfdata value from any service and custom the tile.</description>
+  <version>23.04.0</version>
+  <keywords>centreon, widget, service, perfdata</keywords>
+  <screenshot></screenshot>
+  <thumbnail>./widgets/single-metric/resources/logo1.png</thumbnail>
+  <url>./widgets/single-metric/index.php</url>
+  <autoRefresh>10</autoRefresh>
+    <preferences>
+        <preference label="Service" name="service" defaultValue="" type="service" header="Resource"/>
+        <preference label="Metric Name" name="metric_name" defaultValue="metric" type="text"/>
+        <preference label="Coloring" name="coloring" defaultValue="p_state"  type="list" header="Display">
+          <option value="black" label="Black"/>
+          <option value="p_state" label="Perfdata Status"/>
+          <option value="s_state" label="Service Status"/>
+        </preference>
+        <preference label="Font size" name="font_size" defaultValue="80" type="text"/>
+        <preference label="Format" name="display_number" defaultValue="1000"  type="list">
+          <option value="1000" label="Human readable (Base 10)"/>
+          <option value="1024" label="Human readable (Base 2)"/>
+          <option value="raw" label="Raw value"/>
+        </preference>
+        <preference label="Display the metric's path (Host > Service > Metric)" name="display_path" defaultValue="1" type="boolean"/>
+        <preference label="Display thresholds" name="display_threshold" defaultValue="1" type="boolean"/>
+        <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="60" type="text" header="Misc"/>
+    </preferences>
+</configs>

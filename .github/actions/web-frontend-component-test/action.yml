@@ -1,0 +1,36 @@
+name: "Web Cypress Component Testing"
+description: "Web Cypress Component Testing"
+inputs:
+  working_directory:
+    description: The frontend directory
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Cypress web component testing
+      uses: cypress-io/github-action@v4
+      with:
+        browser: chrome
+        component: true
+        install-command: pnpm install
+        working-directory: ${{ inputs.working_directory }}
+
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos
+        path: ${{ inputs.working_directory }}/cypress/results/videos
+
+    - name: Publish tests report
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{ always() }}
+      with:
+        check_name: web-frontend-component-tests-report
+        comment_mode: failures
+        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml

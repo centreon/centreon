@@ -1,0 +1,31 @@
+name: "Lighthouse Performance Testing"
+description: "Lighthouse Performance Testing"
+inputs:
+  module:
+    description: "module"
+    required: true
+  image:
+    description: "image"
+    required: true
+  image_version:
+    description: "image version"
+    required: true
+  image_lighthouse_version:
+    description: "image lighthouse version"
+    required: true
+  path:
+    description: "path"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: "Start Centreon container"
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
+    - name: "Run Lighthouse"
+      run: docker run --shm-size 2gb -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --net="host" --entrypoint "/tmp/.github/scripts/lighthouse-performance-testing.sh" docker.centreon.com/lighthouse:${{ inputs.image_lighthouse_version }}
+      shell: bash

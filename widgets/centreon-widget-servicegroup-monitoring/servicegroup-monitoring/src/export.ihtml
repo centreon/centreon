@@ -1,0 +1,16 @@
+{if $preferences.enable_detailed_mode == 0}
+Servicegroup;{foreach item=label from=$hostStateLabels} Host {$label};{/foreach}{foreach item=label from=$serviceStateLabels}Services {$label};{/foreach}
+
+{foreach item=elem from=$data}
+{$elem.name};{foreach key=state item=label from=$hostStateLabels} {$elem.host_state[$state]};{/foreach}{foreach key=state item=label from=$serviceStateLabels} {$elem.service_state[$state]};{/foreach}
+
+{/foreach}
+{/if}
+{if $preferences.enable_detailed_mode == 1}
+Servicegroup;Host;Host status; Service status;
+{foreach item=elem from=$data}
+{$elem.name};
+{foreach item=elem2 from=$elem.host_state};{$elem2.name};{$hostStateLabels[$elem2.state]};{foreach item=elem3 from=$elem.service_state[$elem2.host_id]}{$elem3.description} {$serviceStateLabels[$elem3.state]}, {/foreach};
+{/foreach}
+{/foreach}
+{/if}

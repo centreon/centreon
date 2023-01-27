@@ -1,0 +1,16 @@
+{
+  "name": "centreon-lighthouse-report",
+  "version": "22.4.0",
+  "description": "This is handle Lighthouse report",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node ./build/lighthouseReport.js",
+    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "eslint:fix": "pnpm eslint --fix"
+  },
+  "devDependencies": {
+    "lighthouse": "9.6.8",
+    "open": "^8.4.0",
+    "puppeteer": "^13.2.0"
+  }
+}

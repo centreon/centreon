@@ -1,0 +1,113 @@
+import { Meta } from '@storybook/addon-docs'
+import { Typography, Box, Paper, Accordion, AccordionSummary, AccordionDetails, Link, Stack } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+
+import { MdxThemeProvider } from './StoryBookThemeProvider'
+
+<Meta title="Home" />
+
+<Typography variant="h4">Welcome to Centreon UI</Typography>
+<br />
+
+<Typography>This project contains design system's component used in every Centreon projects using ReactJS</Typography>
+<br />
+
+<Typography>Discover older versions of the Centreon UI's storybook</Typography>
+<Stack>
+  <Link href="https://storybook.centreon.com/22.04/" target="__blank" rel="noopener noreferrer">
+    <Typography>22.04</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/21.10/" target="__blank" rel="noopener noreferrer">
+    <Typography>21.10</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/21.04/" target="__blank" rel="noopener noreferrer">
+    <Typography>21.04</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/20.10/" target="__blank" rel="noopener noreferrer">
+    <Typography>20.10</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/20.04/" target="__blank" rel="noopener noreferrer">
+    <Typography>20.04</Typography>
+  </Link>
+</Stack>
+<br />
+
+<Accordion>
+  <AccordionSummary
+    expandIcon={<ExpandMoreIcon />}
+  >
+    <Typography variant="h5">Add stories</Typography>
+  </AccordionSummary>
+  <AccordionDetails>
+    <ul>
+      <li><Typography>Create a file named `index.stories.tsx` along side your component</Typography></li>
+      <li>
+        <Typography>Add a title, the component and argTypes</Typography>
+        <Typography>Example: </Typography>
+
+        ```typescript
+        export default {
+          title: 'MyComponent',
+          Component: MyComponent,
+          argTypes: {
+            propA: { control: 'text' },
+            propB: { control: 'number' },
+          },
+        };
+        ```
+
+      </li>
+      <li>
+        <Typography>Create a playground for your component</Typography>
+
+        ```typescript
+          const Template: ComponentStory<typeof MyComponent> = (args) => (
+            <MyComponent {...args} />
+          );
+
+          export const Playground = Template.bind({});
+        ```
+
+      </li> 
+      <li>
+        <Typography>Then add your story</Typography>
+
+        ```typescript
+          export const basic = Template.bind({});
+          basic.args = { propA: 'test', propB: 0 };
+        ```
+
+      </li>
+    </ul>
+  </AccordionDetails>
+</Accordion>
+<Accordion>
+  <AccordionSummary
+    expandIcon={<ExpandMoreIcon />}
+  >
+    <Typography variant="h5">Run tests</Typography>
+  </AccordionSummary>
+  <AccordionDetails>
+    <Typography>There are two kinds of tests in Centreon UI.</Typography>
+    <Typography>Jest + RTL: Component testing</Typography>
+    <Typography>Storyshots: When running them, storybook will capture a snapshot for each and compares them with the older ones</Typography>
+    <br />
+
+    <Typography>Run all the test (Jest + Storyshots)</Typography>
+    `npm run build:storybook && npm t`
+    <br />
+
+    <Typography>Run storyshots following one or more story title</Typography>
+    `npm run build:storybook && npm run test:storyshot -- "MyComponent"`
+    <Typography>Or</Typography>
+    `npm run build:storybook && npm run test:storyshot -- "MyComponent|MyOtherComponent"`
+    <br />
+
+    <Typography>Update snapshots</Typography>
+    `npm run build:storybook && npm t -- -u`
+    <Typography>Or</Typography>
+    `npm run build:storybook && npm run test:storyshot -- "MyComponent" -u`
+    <Typography>Or</Typography>
+    `npm run build:storybook && npm run test:storyshot -- "MyComponent|MyOtherComponent" -u`
+  </AccordionDetails>
+</Accordion>

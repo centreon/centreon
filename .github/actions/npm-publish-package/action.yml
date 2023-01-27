@@ -1,0 +1,88 @@
+name: NPM publish
+description: This publishes a package to NPM and creates a PR to update the package version
+
+inputs:
+  directory:
+    description: The package directory
+    required: true
+  pat:
+    description: The Github PAT
+    required: true
+  npm_token:
+    description: The NPM token
+    required: true
+  package:
+    description: The frontend package
+    required: true
+  version:
+    description: The version
+    default: latest
+  release_branch:
+    description: The release branch
+    required: true
+  release_type:
+    description: Is this a stable release?
+    default: "stable"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+
+    - name: Configure tag
+      run: |
+        [[ ${{ inputs.release_type }} = "stable" ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Update JS config version
+      run: |
+        echo ${{ env.TAG }}
+        [[ ${{ inputs.release_type }} = "stable" ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        VERSION=$(node -p "require('./package.json').version")
+        rm ../../package-lock.json
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      working-directory: ${{ env.directory }}
+      shell: bash
+
+    - name: Configure git
+      run: |
+        git config user.email "technique-ci@centreon.com"
+        git config user.name "technique-ci"
+      shell: bash
+
+    - name: Commit and push changes
+      if: ${{ inputs.release_type == 'beta' && startsWith(github.head_ref, 'MON') && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+      run: |
+        git pull origin ${{ github.head_ref }}
+        git add .
+        git commit -m "chore: pre-release ${VERSION}"
+        git push origin ${{ github.head_ref }}
+      shell: bash
+
+    - name: Publish package to NPM (${{ env.TAG }})
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        access: public
+        package: ${{ env.directory }}/package.json
+        tag: ${{ env.TAG }}
+        token: ${{ inputs.npm_token }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v4
+      if: ${{ inputs.release_type == 'stable' }}
+      with:
+        token: ${{ inputs.pat }}
+        committer: Technique CI <technique-ci@centreon.com>
+        author: technique-ci <technique-ci@centreon.com>
+        branch: MON-update-package-versions-${{ inputs.package }}-${{ env.VERSION }}
+        title: "chore(${{ inputs.package }} version): Update package ${{ inputs.package }} version to ${{ env.VERSION }}"
+        body: |
+          This updates the ${{ inputs.package }} package version to ${{ env.VERSION }}.
+          This is an automatic PR.
+        labels: |
+          automerge
+        draft: false
+        signoff: true
+        delete-branch: true

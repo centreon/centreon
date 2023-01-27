@@ -1,0 +1,20 @@
+<configs>
+    <title>Live Top 10 Memory Usage</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description>This widget lists hosts ordered by memory usage (percentage). It is possible to select the number of lines in the table or to select a subset of resources.</description>
+    <version>23.04.0</version>
+    <keywords>centreon, widget, memory</keywords>
+    <screenshot></screenshot>
+    <thumbnail>./widgets/live-top10-memory-usage/resources/logo1.png</thumbnail>
+    <url>./widgets/live-top10-memory-usage/index.php</url>
+    <autoRefresh>10</autoRefresh>
+    <preferences>
+        <preference label="Host Group Name" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+        <preference label="Service Description" name="service_description" defaultValue="memory" type="text"/>
+        <preference label="Metric Name" name="metric_name" defaultValue="used" type="text" header="Filter"/>
+        <preference label="Results" name="nb_lin" defaultValue="10" type="text"/>
+        <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+    </preferences>
+</configs>

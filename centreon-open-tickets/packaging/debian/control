@@ -1,0 +1,18 @@
+Source: centreon-open-tickets
+Section: net
+Priority: optional
+Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Build-Depends: 
+  debhelper-compat (=12),
+  lsb-base,
+  perl:native
+Standards-Version: 4.5.0
+Homepage: https://wwww.centreon.com
+
+Package: centreon-open-tickets
+Architecture: any
+Description: The module allows to open tickets on ITSM providers.
+Depends:
+  ${misc:Depends}, 
+  ${shlibs:Depends},
+  centreon-web (>= ${centreon:version}~)

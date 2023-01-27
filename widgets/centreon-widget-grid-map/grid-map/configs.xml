@@ -1,0 +1,18 @@
+<configs>
+    <title>Grid-map</title>
+    <author>Centreon</author>
+    <email>contact@centreon.com</email>
+    <website>http://www.centreon.com</website>
+    <description>This grid map widget displays the status of services for a set of hosts. It is possible to select which services to display.</description>
+        <version>23.04.0</version>
+        <keywords>centreon, widget, Grid-map</keywords>
+        <screenshot></screenshot>
+        <thumbnail>./widgets/Grid-map/resources/logo1.png</thumbnail>
+        <url>./widgets/grid-map/index.php</url>
+        <autoRefresh>10</autoRefresh>
+  	<preferences>
+  	    <preference label="Name Host Group" name="host_group" defaultValue="" type="hostgroup" header="Resource"/>
+  	    <preference label="Name Services" name="service" defaultValue="" type="text"/>
+        <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
+  	</preferences>
+</configs>
