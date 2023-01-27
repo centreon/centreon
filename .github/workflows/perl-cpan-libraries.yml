@@ -30,7 +30,22 @@ jobs:
     needs: [get-version]
     runs-on: [self-hosted, common]
     strategy:
+      fail-fast: false
       matrix:
+        distrib: [el9]
+        name: [
+          HTTP::ProxyPAC,
+          Crypt::Blowfish_PP,
+          Digest::SHA1,
+          JMX::Jmx4Perl,
+          Device::Modbus::RTU::Client,
+          Device::Modbus::TCP::Client,
+          Email::Send::SMTP::Gmail,
+          Net::Curl,
+          Crypt::Argon2,
+          Convert::EBCDIC,
+          Device::Modbus,
+        ]
         include:
           #- image: packaging-centos7
           #  distrib: el7
@@ -38,7 +53,7 @@ jobs:
           #  distrib: el8
           - image: packaging-alma9
             distrib: el9
-    name: package ${{ matrix.distrib }}
+    name: package ${{ matrix.name }} (${{ matrix.distrib }})
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
@@ -57,10 +72,10 @@ jobs:
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          cpanspec --packager centreon -f HTTP::ProxyPAC
-          mv HTTP-ProxyPAC-*.tar.gz ~/rpmbuild/SOURCES/
+          cpanspec --packager "Centreon <contact@centreon.com>" -f ${{ matrix.name }}
+          mv *.tar.gz ~/rpmbuild/SOURCES/
 
-          rpmbuild --nocheck -ba perl-HTTP-ProxyPAC.spec
+          rpmbuild --nocheck -ba perl-*.spec
 
           cp ~/rpmbuild/RPMS/**/*.rpm .
         shell: bash
