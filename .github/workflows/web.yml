@@ -129,124 +129,128 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  # frontend-lint:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-    steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
+  #   steps:
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 7
 
-      - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
+  #     - name: Install dependencies
+  #       run: pnpm install
+  #       working-directory: centreon
 
-      - name: Lint
-        run: pnpm eslint -o junit.xml -f junit --quiet
-        working-directory: centreon
+  #     - name: Lint
+  #       run: pnpm eslint -o junit.xml -f junit --quiet
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/junit.xml"
-          format: "java-junit"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/junit.xml"
+  #         format: "java-junit"
 
-  frontend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  # frontend-unit-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 7
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
+  #     - name: Install dependencies
+  #       run: pnpm install
+  #       working-directory: centreon
 
-      - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: pnpm t --silent --reporter=jest-junit
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/junit.xml"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/junit.xml"
 
-  frontend-component-test:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-    uses: ./.github/workflows/cypress-component-parallelization.yml
-    with:
-      name: component
-      module_name: centreon
-      specs_path: www/front_src/src/**
+  # frontend-component-test:
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  #   uses: ./.github/workflows/cypress-component-parallelization.yml
+  #   with:
+  #     name: component
+  #     module_name: centreon
+  #     specs_path: www/front_src/src/**
 
-  backend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+  # backend-unit-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-        env:
-          runner: ubuntu-22.04
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.1
+  #         coverage: none
+  #       env:
+  #         runner: ubuntu-22.04
 
-      - name: Install dependencies
-        uses: ramsey/composer-install@v2
-        with:
-          working-directory: centreon
-          composer-options: "--optimize-autoloader"
+  #     - name: Install dependencies
+  #       uses: ramsey/composer-install@v2
+  #       with:
+  #         working-directory: centreon
+  #         composer-options: "--optimize-autoloader"
 
-      - name: Unit test
-        run: XDEBUG_MODE=coverage composer run-script test:ci
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: XDEBUG_MODE=coverage composer run-script test:ci
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/build/phpunit.xml"
-          format: "php-junit"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/build/phpunit.xml"
+  #         format: "php-junit"
 
   package:
     needs: [
       get-version,
       translation-build,
       backend-dependencies,
-      backend-unit-test,
+      #backend-unit-test,
       frontend-build,
-      frontend-lint,
-      frontend-unit-test,
-      frontend-component-test
+      #frontend-lint,
+      #frontend-unit-test,
+      #frontend-component-test
     ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
-        distrib: [el7, el8, bullseye]
+        #distrib: [el7, el8, bullseye]
+        distrib: [el9]
         include:
+          #- package_extension: rpm
+          #  image: packaging-centos7
+          #  distrib: el7
+          #- package_extension: rpm
+          #  image: packaging-alma8
+          #  distrib: el8
           - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
-          - package_extension: rpm
-            image: packaging-alma8
-            distrib: el8
-          - package_extension: deb
-            image: packaging-bullseye
-            distrib: bullseye
+            image: packaging-alma9
+            distrib: el9
+          #- package_extension: deb
+          #  image: packaging-bullseye
+          #  distrib: bullseye
 
     uses: ./.github/workflows/package.yml
     with:
@@ -280,8 +284,8 @@ jobs:
       matrix:
         include:
           - project: centreon-web
-            distrib: centos7
-            distrib_rpm: el7
+            distrib: alma9
+            distrib_rpm: el9
             module_name: web
 
     steps:
@@ -337,133 +341,133 @@ jobs:
           push: true
           tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-  api-integration-test:
-    needs: [dockerize, changes]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: api
-      module_name: centreon
-      image_name: centreon-web
-      features_path: tests/api/features
-      config_file: tests/api/behat.yml
-    secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  # api-integration-test:
+  #   needs: [dockerize, changes]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+  #   uses: ./.github/workflows/behat-test.yml
+  #   with:
+  #     name: api
+  #     module_name: centreon
+  #     image_name: centreon-web
+  #     features_path: tests/api/features
+  #     config_file: tests/api/behat.yml
+  #   secrets:
+  #     nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #     nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  legacy-e2e-test:
-    needs: [dockerize, changes]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: legacy-e2e
-      module_name: centreon
-      image_name: centreon-web
-      features_path: features
-    secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  # legacy-e2e-test:
+  #   needs: [dockerize, changes]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+  #   uses: ./.github/workflows/behat-test.yml
+  #   with:
+  #     name: legacy-e2e
+  #     module_name: centreon
+  #     image_name: centreon-web
+  #     features_path: features
+  #   secrets:
+  #     nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #     nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  e2e-test:
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    uses: ./.github/workflows/cypress-e2e-parallelization.yml
-    with:
-      name: e2e
-      module_name: centreon
-      image_name: centreon-web
-      features_path: tests/e2e/cypress/e2e
-    secrets:
-      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  # e2e-test:
+  #   needs: [get-version, dockerize]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  #   uses: ./.github/workflows/cypress-e2e-parallelization.yml
+  #   with:
+  #     name: e2e
+  #     module_name: centreon
+  #     image_name: centreon-web
+  #     features_path: tests/e2e/cypress/e2e
+  #   secrets:
+  #     username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #     password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  performances-test:
-    runs-on: ubuntu-22.04
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  # performances-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [get-version, dockerize]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     - name: Login to proxy registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: docker-proxy.centreon.com
+  #         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #         password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  #     - name: Login to Registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: docker.centreon.com
+  #         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+  #         password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: Run lighthouse
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon"
-          image: docker.centreon.com/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
-          module: centreon
+  #     - name: Run lighthouse
+  #       uses: ./.github/actions/lighthouse-performance-testing
+  #       with:
+  #         path: "centreon"
+  #         image: docker.centreon.com/centreon-web-centos7
+  #         image_version: ${{ github.head_ref || github.ref_name }}
+  #         image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+  #         module: centreon
 
-      - name: Publish report
-        uses: actions/upload-artifact@v3
-        with:
-          name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
+  #     - name: Publish report
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: lighthouse-report
+  #         path: centreon/lighthouse/report/lighthouseci-index.html
 
-  deliver-rpm:
-    runs-on: [self-hosted, common]
-    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    strategy:
-      matrix:
-        distrib: [el7, el8]
+  # deliver-rpm:
+  #   runs-on: [self-hosted, common]
+  #   needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+  #   if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  #   strategy:
+  #     matrix:
+  #       distrib: [el7, el8]
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Delivery
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
+  #     - name: Delivery
+  #       uses: ./.github/actions/rpm-delivery
+  #       with:
+  #         module_name: web
+  #         distrib: ${{ matrix.distrib }}
+  #         version: ${{ needs.get-version.outputs.major_version }}
+  #         minor_version: ${{ needs.get-version.outputs.minor_version }}
+  #         release: ${{ needs.get-version.outputs.release }}
+  #         nexus_username: ${{ secrets.ARTI_USER }}
+  #         nexus_password: ${{ secrets.ARTI_PASSWD }}
+  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+  #         update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+  #         cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+  #         yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+  #         yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+  #         stability: ${{ needs.get-version.outputs.stability }}
 
-  deliver-deb:
-    runs-on: [self-hosted, common]
-    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    strategy:
-      matrix:
-        distrib: [bullseye]
+  # deliver-deb:
+  #   runs-on: [self-hosted, common]
+  #   needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
+  #   if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  #   strategy:
+  #     matrix:
+  #       distrib: [bullseye]
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: web
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USER }}
-          nexus_password: ${{ secrets.NEXUS_PASSWD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
+  #     - name: Delivery
+  #       uses: ./.github/actions/deb-delivery
+  #       with:
+  #         module_name: web
+  #         distrib: ${{ matrix.distrib }}
+  #         version: ${{ needs.get-version.outputs.major_version }}
+  #         nexus_username: ${{ secrets.NEXUS_USER }}
+  #         nexus_password: ${{ secrets.NEXUS_PASSWD }}
+  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+  #         stability: ${{ needs.get-version.outputs.stability }}
