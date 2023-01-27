@@ -5661,6 +5661,12 @@ msgstr "Toutes les sessions de ce contact seront supprimées. Êtes-vous sûr de
 msgid "Synchronize LDAP"
 msgstr "Synchroniser avec le LDAP"
 
+msgid "Incorrect LDAP filter syntax"
+msgstr "Mauvaise syntaxe du filtre LDAP"
+
+msgid "LDAP connection timeout"
+msgstr "Délai d'attente de connexion LDAP"
+
 msgid "No LDAP configuration enabled !"
 msgstr "Aucune configuration LDAP active !"
 
@@ -17319,3 +17325,9 @@ msgstr "Ce nom de sévérité d'hôtes existe déjà"
 
 msgid "The host severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"
+
+msgid "You are not allowed to access time periods"
+msgstr "Vous n'êtes pas autorisé à accéder aux périodes de temps"
+
+msgid "You are not allowed to edit time periods"
+msgstr "Vous n'êtes pas autorisé à éditer des périodes de temps"

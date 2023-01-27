@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\TimePeriod\Application\UseCase\FindTimePeriods\FindTimePeriods;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class FindTimePeriodsController extends AbstractController
+final class FindTimePeriodsController extends AbstractController
 {
     /**
      * @param FindTimePeriods $useCase

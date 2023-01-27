@@ -11,7 +11,15 @@ Feature:
     When I send a POST request to '/api/latest/configuration/timeperiods' with body:
     """
     {
-        "name": "test_name",
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+
+    When I send a POST request to '/api/latest/configuration/timeperiods' with body:
+    """
+    {
+        "name": "test_name   ",
         "alias": "test_alias",
         "days": [
             {
@@ -121,6 +129,14 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
     """
     {
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+
+    When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
+    """
+    {
         "name": "test_name2",
         "alias": "test_alias2",
         "days": [
@@ -160,7 +176,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/timeperiods/5' with body:
     """
     {
-        "name": "already_exists",
+        "name": "already_exists   ",
         "alias": "already_exists_alias",
         "days": [],
         "templates": [1],
@@ -172,7 +188,7 @@ Feature:
     """
     {
         "code": 409,
-        "message": "The time period name 'already_exists' already exists"
+        "message": "The time period name 'already_exists   ' already exists"
     }
     """
 

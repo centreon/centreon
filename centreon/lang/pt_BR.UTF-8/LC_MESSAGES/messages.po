@@ -15823,6 +15823,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Confirm"
 #  msgstr "Confirme"
 
+#  msgid "Incorrect LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
 #  msgid "Vault configuration with these properties already exists"
 #  msgstr ""
 
@@ -15908,4 +15914,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
 #  msgstr ""

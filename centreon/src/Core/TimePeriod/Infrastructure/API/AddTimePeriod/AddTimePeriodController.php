@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\Router;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
     AddTimePeriod, AddTimePeriodRequest
@@ -32,8 +34,10 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class AddTimePeriodController extends AbstractController
+final class AddTimePeriodController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * @param Request $request
      * @param AddTimePeriod $useCase
@@ -70,10 +74,9 @@ class AddTimePeriodController extends AbstractController
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddTimePeriodSchema.json');
             $dtoRequest = $this->createDtoRequest($dataSent);
             $useCase($dtoRequest, $presenter);
-        } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(
-                new ErrorResponse($ex->getMessage())
-            );
+        } catch (\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         }
 
         return $presenter->show();

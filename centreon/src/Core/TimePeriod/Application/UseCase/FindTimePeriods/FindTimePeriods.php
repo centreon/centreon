@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\FindTimePeriods;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -34,17 +37,19 @@ use Core\TimePeriod\Domain\Model\ExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\Template;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
-class FindTimePeriods
+final class FindTimePeriods
 {
     use LoggerTrait;
 
     /**
      * @param ReadTimePeriodRepositoryInterface $readTimePeriodRepository
      * @param RequestParametersInterface $requestParameters
+     * @param ContactInterface $user
      */
     public function __construct(
         readonly private ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         readonly private RequestParametersInterface $requestParameters,
+        readonly private ContactInterface $user
     ) {
     }
 
@@ -54,6 +59,19 @@ class FindTimePeriods
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
+            if (
+                ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE)
+                && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ)
+            ) {
+                $this->error('User doesn\'t have sufficient rights to see time periods', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse(TimeperiodException::accessNotAllowed()->getMessage())
+                );
+
+                return;
+            }
             $this->info('Find the time periods', ['parameters' => $this->requestParameters->getSearch()]);
             $timePeriods = $this->readTimePeriodRepository->findByRequestParameter($this->requestParameters);
             $presenter->present($this->createResponse($timePeriods));
