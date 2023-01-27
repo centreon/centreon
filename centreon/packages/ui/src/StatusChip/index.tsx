@@ -1,15 +1,12 @@
 import { ReactNode } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Chip, ChipProps, alpha } from '@mui/material';
-import { grey, lightGreen, red } from '@mui/material/colors';
+import { Chip, ChipProps, Theme } from '@mui/material';
 
-import { ThemeMode } from '@centreon/ui-context';
-
-import useStyleTable from '../Listing/useStyleTable';
 import type { TableStyleAtom } from '../Listing/models';
+import useStyleTable from '../Listing/useStyleTable';
 
 enum SeverityCode {
   High = 1,
@@ -36,30 +33,27 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
 
   const colorMapping = {
     [SeverityCode.High]: {
-      backgroundColor:
-        red[equals(ThemeMode.dark, theme.palette.mode) ? 'A700' : 400],
+      backgroundColor: theme.palette.statusBackground.error,
       color: palette.error.contrastText
     },
     [SeverityCode.Medium]: {
-      backgroundColor: palette.warning.main,
+      backgroundColor: theme.palette.statusBackground.warning,
       color: palette.warning.contrastText
     },
     [SeverityCode.Low]: {
-      backgroundColor:
-        grey[equals(ThemeMode.dark, theme.palette.mode) ? 700 : 300],
+      backgroundColor: theme.palette.statusBackground.unknown,
       color: palette.text.primary
     },
     [SeverityCode.Pending]: {
-      backgroundColor: palette.pending.main,
+      backgroundColor: theme.palette.statusBackground.pending,
       color: palette.text.primary
     },
     [SeverityCode.Ok]: {
-      backgroundColor:
-        lightGreen[equals(ThemeMode.dark, theme.palette.mode) ? 800 : 600],
+      backgroundColor: theme.palette.statusBackground.success,
       color: palette.text.primary
     },
     [SeverityCode.None]: {
-      backgroundColor: alpha(palette.primary.main, 0.1),
+      backgroundColor: theme.palette.statusBackground.none,
       color: palette.text.primary
     }
   };
