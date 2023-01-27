@@ -68,7 +68,7 @@ jobs:
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
 
-          yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-ExtUtils-MakeMaker
+          yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker
 
           cpanm ExtUtils::PkgConfig
           cpanm Authen::SASL
