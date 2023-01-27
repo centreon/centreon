@@ -6,6 +6,8 @@ dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
 dnf module reset php
 dnf module install php:remi-8.1
 
+dnf install -y dnf-plugins-core
+
 dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
