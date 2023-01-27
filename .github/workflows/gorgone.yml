@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el7, el8, el9, bullseye]
         include:
           - package_extension: rpm
             image: packaging-centos7
@@ -43,6 +43,9 @@ jobs:
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -65,10 +68,10 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    #if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el7, el8, el9]
 
     steps:
       - name: Checkout sources
@@ -90,7 +93,8 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          stability: unstable
+          #stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
