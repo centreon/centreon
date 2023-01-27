@@ -20,9 +20,6 @@ inputs:
   release_branch:
     description: The release branch
     required: true
-  release_type:
-    description: Is this a stable release?
-    default: "stable"
 
 runs:
   using: "composite"
@@ -36,13 +33,11 @@ runs:
         version: 7
 
     - name: Install action dependencies
-      if: ${{ inputs.release_type == 'beta' }}
       run: pnpm install
       working-directory: ./.github/actions/get-latest-npm-beta-branch-version
       shell: bash
 
     - uses: ./.github/actions/get-latest-npm-beta-branch-version
-      if: ${{ inputs.release_type == 'beta' }}
       id: get-latest-npm-beta-branch-version
       with:
         package: ${{ inputs.package }}
@@ -56,45 +51,22 @@ runs:
 
     - name: Configure tag
       run: |
-        [[ ${{ inputs.release_type }} = "stable" ]] && echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV || echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
+        echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Bump NPM package version
       run: |
-        [[ ${{ inputs.release_type }} = "stable" ]] && npm version patch --legacy-peer-deps || npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
       working-directory: ${{ env.directory }}
       shell: bash
 
-    - name: Build package
-      if: ${{ inputs.package != 'js-config' }}
-      uses: ./.github/actions/build-npm-package
-      with:
-        package: ${{ inputs.package }}
-
     - name: Publish package to NPM (${{ env.TAG }})
-      run: |
-        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-        npm publish --access public --tag ${{ env.TAG }}
-      working-directory: ${{ env.directory }}
-      shell: bash
-      env:
-        NPM_TOKEN: ${{ inputs.npm_token }}
-
-    - name: Configure git
-      if: ${{ inputs.release_type == 'stable' }}
-      run: |
-        git config user.email "technique-ci@centreon.com"
-        git config user.name "technique-ci"
-      shell: bash
-
-    - name: Commit and push changes
-      if: ${{ inputs.release_type == 'stable' }}
-      run: |
-        git pull origin ${{ github.head_ref }}
-        git add .
-        git commit -m "chore: release ${VERSION} of @centreon/${{ inputs.package }}"
-        git push origin ${{ github.head_ref }}
-      shell: bash
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        access: public
+        package: ${{ env.directory }}/package.json
+        tag: ${{ env.TAG }}
+        token: ${{ inputs.npm_token }}
