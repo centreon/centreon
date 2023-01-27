@@ -326,5 +326,3 @@ VALUES ('contact_template', 'contact_template', '1', 'local', 0);
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_timeout';
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'queries_per_transaction';
 UPDATE cfg_centreonbroker_info SET config_value = '5' WHERE config_key = 'retry_interval';
-
-UPDATE cfg_centreonbroker_log SET id_level = 7 WHERE id_log = 3;

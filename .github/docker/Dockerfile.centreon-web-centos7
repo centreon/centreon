@@ -91,7 +91,7 @@ echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
 rm -f /usr/share/centreon/.env.local.php
 echo "APP_DEBUG=true" >> /usr/share/centreon/.env
-echo "DEBUG_LEVEL=300" >> /usr/share/centreon/.env
+echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
