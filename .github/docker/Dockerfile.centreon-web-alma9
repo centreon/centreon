@@ -3,18 +3,15 @@ FROM docker-proxy.centreon.com/almalinux:9 AS web_fresh
 RUN <<EOF
 
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
-dnf module reset php
-dnf module install php:remi-8.1
+dnf module reset -y php
+dnf module install -y php:remi-8.1
 
 dnf install -y dnf-plugins-core
 
 dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
-#curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version=7 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
-#rpm -e --nodeps galera-4
-#rm -f /var/lib/mysql/ib_logfile0
 echo "[server]
 log_output=FILE
 general_log_file=/var/lib/mysql/queries.log
