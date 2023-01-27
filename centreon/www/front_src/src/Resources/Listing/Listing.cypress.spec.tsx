@@ -316,9 +316,9 @@ describe('column sorting', () => {
 });
 
 const pageNavigationCalls = [
-  { param: 'page=2&limit=30', expectedCall: 1 },
-  { param: 'page=1&limit=30', expectedCall: 4 }, 
-  { param: 'page=4&limit=30', expectedCall: 1 }
+  { expectedCall: 1, param: 'page=2&limit=30' },
+  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
 describe('Listing request', () => {
@@ -364,9 +364,14 @@ describe('Listing request', () => {
     cy.getRequestCalls('@dataToListingTable').then((calls) => {
       expect(calls).to.have.length(6);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
-        expect(Ramda.filter((call) => Ramda.includes(param, call.request.url.search), calls)).to.have.length(expectedCall);
+        expect(
+          Ramda.filter(
+            (call) => Ramda.includes(param, call.request.url.search),
+            calls
+          )
+        ).to.have.length(expectedCall);
       });
-    })
+    });
 
     cy.matchImageSnapshot();
   });
