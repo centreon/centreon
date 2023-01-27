@@ -64,15 +64,15 @@ final class AddServiceCategory
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(ServiceCategoryException::addNotAllowed())
                 );
-            } elseif ($this->readServiceCategoryRepository->existsByName(trim($request->name))) {
+            } elseif ($this->readServiceCategoryRepository->existsByName($request->name)) {
                 $this->error('Service category name already exists', [
-                    'servicecategory_name' => trim($request->name),
+                    'servicecategory_name' => $request->name,
                 ]);
                 $presenter->setResponseStatus(
                     new ConflictResponse(ServiceCategoryException::serviceNameAlreadyExists())
                 );
             } else {
-                $newServiceCategory = new NewServiceCategory(trim($request->name), trim($request->alias));
+                $newServiceCategory = new NewServiceCategory($request->name, $request->alias);
                 $newServiceCategory->setActivated($request->isActivated);
 
                 $serviceCategoryId = $this->writeServiceCategoryRepository->add($newServiceCategory);
