@@ -1,7 +1,7 @@
 Source: centreon
 Section: net
 Priority: optional
-Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Maintainer: Centreon <contact@centreon.com>
 Standards-Version: 4.5.0
 Homepage: https://www.centreon.com
 Build-Depends:
