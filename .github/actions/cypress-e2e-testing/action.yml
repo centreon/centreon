@@ -1,8 +1,8 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
 inputs:
-  name:   
-    type: string
+  name:
+    description: "test name"
     required: true
   image:
     description: "image"
@@ -48,6 +48,16 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
+
+    - if: ${{ failure() }}
+      run: docker logs e2e-tests-${{ inputs.module }} >> docker-logs
+      shell: bash
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: docker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: docker-logs
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
