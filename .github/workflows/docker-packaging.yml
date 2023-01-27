@@ -9,17 +9,12 @@ on:
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
     paths:
-      - ".github/workflows/docker-packaging.yml"
-      - ".github/docker/Dockerfile.packaging-centos7"
-      - ".github/docker/Dockerfile.packaging-alma8"
-      - ".github/docker/Dockerfile.packaging-bullseye"
+      - ".github/docker/Dockerfile.packaging-*"
   pull_request:
     paths:
-      - ".github/workflows/docker-packaging.yml"
-      - ".github/docker/Dockerfile.packaging-centos7"
-      - ".github/docker/Dockerfile.packaging-alma8"
-      - ".github/docker/Dockerfile.packaging-bullseye"
+      - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
   get-version:
@@ -33,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [centos7, alma8, bullseye]
+        distrib: [centos7, alma8, alma9, bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3

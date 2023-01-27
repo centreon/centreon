@@ -16,18 +16,18 @@ module.exports = (jscTransformConfiguration) =>
         crossOriginLoading: 'anonymous',
         library: ['name'],
         path: path.resolve(`${__dirname}/www/static`),
-        publicPath: './static/',
+        publicPath: './static/'
       },
       plugins: [
         new webpack.ProvidePlugin({
-          process: 'process/browser',
+          process: 'process/browser'
         }),
         new HtmlWebpackPlugin({
           alwaysWriteToDisk: true,
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),
-          template: './www/front_src/public/index.html',
+          template: './www/front_src/public/index.html'
         }),
-        new HtmlWebpackHarddiskPlugin(),
-      ],
-    },
+        new HtmlWebpackHarddiskPlugin()
+      ]
+    }
   );

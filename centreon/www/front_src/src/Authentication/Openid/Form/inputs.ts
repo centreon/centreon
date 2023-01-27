@@ -1,7 +1,8 @@
 import { equals, not, pathEq, prop } from 'ramda';
 import { FormikValues } from 'formik';
 
-import { InputProps, InputType } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
+import type { InputProps } from '@centreon/ui';
 
 import {
   labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,

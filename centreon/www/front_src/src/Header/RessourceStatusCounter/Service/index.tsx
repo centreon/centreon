@@ -6,7 +6,8 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 import ServiceIcon from '@mui/icons-material/Grain';
 
-import { SubmenuHeader, SeverityCode, SelectEntry } from '@centreon/ui';
+import { SubmenuHeader, SeverityCode } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
@@ -118,7 +119,7 @@ const ServiceStatusCounter = (): JSX.Element => {
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
   const pendingServicesLink = use_deprecated_pages
-    ? '/main.php?p=20201&o=svc&statusFilter=&search='
+    ? '/main.php?p=20201&o=svc&statusFilter=pending&search='
     : getServiceResourcesUrl({
         statusCriterias: pendingCriterias
       });

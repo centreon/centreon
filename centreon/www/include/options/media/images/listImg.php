@@ -148,6 +148,20 @@ for ($i = 0; $elem = $res->fetchRow(); $i++) {
 }
 
 $tpl->assign("elemArr", $elemArr);
+
+/*
+ * Calculate availiable disk's space
+ */
+
+$diskStmnt = $pearDB->query("SELECT value FROM options AS o WHERE  o.key = 'nagios_path_img'")->fetch();
+
+$bytes = disk_free_space($diskStmnt["value"]);
+$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+$class = min((int)log($bytes, 1024), count($units) - 1);
+$availiableSpace = sprintf('%1.2f', $bytes / pow(1024, $class)) . ' ' . $units[$class];
+$tpl->assign("availiableSpace", $availiableSpace);
+$tpl->assign("Available", _("Available"));
+
 /*
  * Different messages we put in the template
  */

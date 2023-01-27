@@ -79,11 +79,4 @@ interface ReadVaultConfigurationRepositoryInterface
      * @return VaultConfiguration[]
      */
     public function findVaultConfigurationsByVault(int $vaultId): array;
-
-    /**
-     * Get first vault configuration
-     *
-     * @return VaultConfiguration|null
-     */
-    public function findDefaultVaultConfiguration(): ?VaultConfiguration;
 }

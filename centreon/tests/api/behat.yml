@@ -105,7 +105,11 @@ default:
     host_groups:
       paths: [ "%paths.base%/features/HostGroup.feature" ]
       contexts:
-        - Centreon\Test\Api\Context\HostGroupContext
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_host_groups:
+      paths: [ "%paths.base%/features/CloudHostGroup.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
     monitoring_server_configuration:
       paths: [ "%paths.base%/features/MonitoringServerConfiguration.feature" ]
       contexts:
@@ -124,5 +128,13 @@ default:
         - Centreon\Test\Behat\Api\Context\ApiContext
     access_groups_configuration:
       paths: [ "%paths.base%/features/ConfigurationAccessGroups.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    time_periods:
+      paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\TimePeriodConfigurationContext
+    service_groups:
+      paths: [ "%paths.base%/features/ServiceGroup.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext

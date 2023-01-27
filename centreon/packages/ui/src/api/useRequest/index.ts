@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import 'ulog';
 import axios from 'axios';
-import { pathOr, defaultTo, path } from 'ramda';
+import { pathOr, defaultTo, path, includes } from 'ramda';
 import anylogger from 'anylogger';
 import { JsonDecoder } from 'ts.data.json';
 
@@ -55,6 +55,7 @@ const useRequest = <TResult>({
 
     return request(token)(params)
       .then((data) => {
+        setSending(false);
         if (decoder) {
           return decoder.decodeToPromise(data);
         }
@@ -62,14 +63,16 @@ const useRequest = <TResult>({
         return data;
       })
       .catch((error) => {
+        setSending(false);
         if (axios.isCancel(error)) {
           log.warn(error);
 
           throw error;
         }
 
-        const hasACorrespondingHttpCode = httpCodesBypassErrorSnackbar.includes(
-          path<number>(['response', 'status'], error) as number
+        const hasACorrespondingHttpCode = includes(
+          path<number>(['response', 'status'], error) as number,
+          httpCodesBypassErrorSnackbar
         );
 
         if (hasACorrespondingHttpCode) {
@@ -79,8 +82,7 @@ const useRequest = <TResult>({
         showRequestErrorMessage(error);
 
         throw error;
-      })
-      .finally(() => setSending(false));
+      });
   };
 
   return { sendRequest, sending };

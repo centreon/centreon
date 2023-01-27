@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,24 +18,24 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
-use Symfony\Component\HttpFoundation\Response;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var ResponseStatusInterface|null
-     */
+    /** @var ResponseStatusInterface|null */
     private ?ResponseStatusInterface $responseStatus = null;
 
-    /**
-     * @var mixed
-     */
-    private mixed $presentedData;
+    /** @var array<string, mixed> */
+    private array $responseHeaders = [];
+
+    /** @var mixed */
+    private mixed $presentedData = null;
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -66,8 +66,8 @@ abstract class AbstractPresenter implements PresenterInterface
     public function show(): Response
     {
         return ($this->responseStatus !== null)
-            ? $this->presenterFormatter->format($this->responseStatus)
-            : $this->presenterFormatter->format($this->presentedData);
+            ? $this->presenterFormatter->format($this->responseStatus, $this->responseHeaders)
+            : $this->presenterFormatter->format($this->presentedData, $this->responseHeaders);
     }
 
     /**
@@ -91,7 +91,7 @@ abstract class AbstractPresenter implements PresenterInterface
      */
     public function setResponseHeaders(array $responseHeaders): void
     {
-        $this->presenterFormatter->setResponseHeaders($responseHeaders);
+        $this->responseHeaders = $responseHeaders;
     }
 
     /**
@@ -99,6 +99,6 @@ abstract class AbstractPresenter implements PresenterInterface
      */
     public function getResponseHeaders(): array
     {
-        return $this->presenterFormatter->getResponseHeaders();
+        return $this->responseHeaders;
     }
 }

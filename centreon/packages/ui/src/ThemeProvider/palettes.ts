@@ -15,6 +15,11 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Palette {
+    background: {
+      default: string;
+      listingHeader: string;
+      paper: string;
+    };
     pending: {
       contrastText: string;
       main: string;
@@ -25,6 +30,10 @@ declare module '@mui/material/styles' {
       contrastText: string;
       main: string;
     };
+  }
+
+  interface TypeBackground {
+    listingHeader: string;
   }
 }
 
@@ -59,6 +68,7 @@ export const lightPalette: PaletteOptions = {
   },
   background: {
     default: '#F4F4F4',
+    listingHeader: '#666666',
     paper: '#FFFFFF'
   },
   divider: '#E3E3E3',
@@ -119,6 +129,7 @@ export const darkPalette: PaletteOptions = {
   },
   background: {
     default: '#4a4a4a',
+    listingHeader: '#666666',
     paper: '#212121'
   },
   divider: '#666666',

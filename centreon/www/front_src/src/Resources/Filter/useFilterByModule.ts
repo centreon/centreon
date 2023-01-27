@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai/utils';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
 

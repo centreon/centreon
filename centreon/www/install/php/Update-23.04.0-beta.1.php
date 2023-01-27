@@ -26,54 +26,13 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.04.0-beta.1: ';
 $errorMessage = '';
 
-try {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-        $errorMessage = "Impossible to update cfg_centreonbroker table";
-        $pearDB->query(
-            "ALTER TABLE `cfg_centreonbroker`
-            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-            AFTER `event_queue_max_size`"
-        );
-    }
-
-    $errorMessage = "Impossible to delete color picker topology_js entries";
-    $pearDB->query(
-        "DELETE FROM `topology_JS`
-        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
-    );
-
-    $errorMessage = "Impossible to add column 'host_snmp_community_is_password' to host table";
-    addSNMPCommunityIsPasswordColumn($pearDB);
-    // Transactional queries
-    $pearDB->beginTransaction();
-
-    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
-    decodeIllegalCharactersNagios($pearDB);
-
-    $pearDB->commit();
-} catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
-
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
-    );
-
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
-
 /**
  * Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
  * The aim is to decode entities from them.
  *
  * @param CentreonDB $pearDB
  */
-function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
+$decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
 {
     $configs = $pearDB->query(
         <<<'SQL'
@@ -112,25 +71,56 @@ function decodeIllegalCharactersNagios(CentreonDB $pearDB): void
         $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
         $statement->execute();
     }
-}
+};
 
-/**
- * Add host_snmp_community_is_password column to host table.
- * This column purpose is to save the SNMP Community has a password and avoid display of sensitive information in UI.
- * If Vault Configurations exists the SNMP Community will be added to the vault if it's a password.
- *
- * @param CentreonDB $pearDB
- * @return void
- */
-function addSNMPCommunityIsPasswordColumn(CentreonDB $pearDB): void
-{
-    if ($pearDB->isColumnExist('host', 'host_snmp_community_is_password') === 0) {
+try {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
+        $errorMessage = "Impossible to update cfg_centreonbroker table";
         $pearDB->query(
-            <<<'SQL'
-                ALTER TABLE `host`
-                ADD COLUMN host_snmp_community_is_password enum('0','1') DEFAULT '0' NOT NULL
-                AFTER `host_snmp_community`
-            SQL
+            "ALTER TABLE `cfg_centreonbroker`
+            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
+            AFTER `event_queue_max_size`"
         );
     }
+
+    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $pearDB->query(
+        "DELETE FROM `topology_JS`
+        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
+    );
+
+
+    // Transactional queries
+    $pearDB->beginTransaction();
+
+    // check if entry ldap_connection_timeout exist
+    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
+    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
+    // insert entry ldap_connection_timeout  with default value
+    if (! $ldapResult) {
+        $errorMessage = "Unable to add default ldap connection timeout";
+        $pearDB->query(
+            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
+                        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
+        );
+    }
+
+    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
+    $decodeIllegalCharactersNagios($pearDB);
+
+    $pearDB->commit();
+} catch (\Exception $e) {
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
