@@ -70,14 +70,7 @@ jobs:
 
           yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker
 
-          cpanm ExtUtils::PkgConfig
-          cpanm Authen::SASL
-          cpanm Email::Date::Format
-          cpanm Net::SMTP_auth
-          cpanm Device::Modbus
-          cpanm Net::Server
-          cpanm Device::SerialPort
-          cpanm Config::General
+          yum install perl-ExtUtils-PkgConfig perl-Authen-SASL perl-Email-Date::Format perl-Net-SMTP_auth perl-Device-Modbus perl-Net-Server perl-Device-SerialPort perl-Config-General
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
