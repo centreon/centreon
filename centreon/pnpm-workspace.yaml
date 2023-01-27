@@ -1,4 +1,0 @@
-packages:
-  - 'packages/*'
-  - 'lighthouse'
-  - 'tests/e2e'

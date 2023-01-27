@@ -1,9 +1,0 @@
-gorgone:
-  tpapi:
-    - name: centreonv2
-      base_url: "http://127.0.0.1/centreon/api/latest/"
-      username: admin
-      password: Centreon!2021
-    - name: clapi
-      username: admin
-      password: Centreon!2021

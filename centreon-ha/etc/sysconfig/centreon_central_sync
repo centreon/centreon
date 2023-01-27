@@ -1,3 +1,0 @@
-# centreon_central_sync command line options
-# NOTE: if you change the logfile path or name, you should consider changing the /etc/logrotate.d/centreon-ha file as well
-OPTIONS="--logfile=/var/log/centreon-ha/centreon-central-sync.log --severity=error --config-extra=/etc/centreon-ha/centreon_central_sync.pm"

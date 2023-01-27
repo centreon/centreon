@@ -1,8 +1,0 @@
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td>
-            <div id="toolbar_container"></div>
-        </td>
-    </tr>
-</table>
-{* <a href='./src/export.php?widgetId={$widgetId}'>Export</a> *}

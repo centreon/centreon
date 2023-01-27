@@ -1,7 +1,0 @@
-- id: centreon_statistics
-  timespec: "15 6 * * *"
-  action: COMMAND
-  parameters:
-    - command: "/usr/bin/php -q /usr/share/centreon/cron/centreon-send-stats.php >> /var/log/centreon-gorgone/statistics.log 2>&1"
-      timeout: 60
-  keep_token: true

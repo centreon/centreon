@@ -1,8 +1,0 @@
-Centreon\Domain\Contact\Contact:
-    properties:
-        id:
-            type: int
-            groups: [Default, contact_main]
-        name:
-            type: string
-            groups: [Default, contact_main]
