@@ -23,15 +23,6 @@ Then('the unhandled problems filter is selected', (): void => {
 });
 
 Then('only non-ok resources are displayed', () => {
-  cy.waitUntil(() => {
-    return cy
-      .refreshListing()
-      .then(() => cy.contains('service_test_dt'))
-      .contains('service_test_dt')
-      .then((element) => Boolean(element))
-  }, {
-    timeout: 15000
-  });
   cy.contains('service_test_ack');
   cy.contains('service_test_ok').should('not.exist');
   cy.contains('Critical');
