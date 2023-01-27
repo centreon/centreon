@@ -51,8 +51,8 @@ beforeEach(function () {
         $this->user
     );
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
-    $this->serviceCategoryName = 'hc-name';
-    $this->serviceCategoryAlias = 'hc-alias';
+    $this->serviceCategoryName = 'sc-name';
+    $this->serviceCategoryAlias = 'sc-alias';
     $this->serviceCategory = new ServiceCategory(1, $this->serviceCategoryName, $this->serviceCategoryAlias);
     $this->responseArray = [
         'id' => 1,

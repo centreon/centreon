@@ -5841,7 +5841,7 @@ components:
       properties:
         id:
           type: integer
-          description: "Service category id"
+          description: "Service category ID"
           example: 1
         name:
           type: string

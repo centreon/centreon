@@ -40,10 +40,11 @@ class NewServiceCategory
         protected string $name,
         protected string $alias
     ) {
-        Assertion::maxLength($name, self::MAX_NAME_LENGTH, (new \ReflectionClass($this))->getShortName() . '::name');
-        Assertion::notEmpty($name, (new \ReflectionClass($this))->getShortName() . '::name');
-        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, (new \ReflectionClass($this))->getShortName() . '::alias');
-        Assertion::notEmpty($alias, (new \ReflectionClass($this))->getShortName() . '::alias');
+        $classShortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, $classShortName . '::name');
+        Assertion::notEmpty($name, $classShortName . '::name');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $classShortName . '::alias');
+        Assertion::notEmpty($alias, $classShortName . '::alias');
     }
 
     /**
