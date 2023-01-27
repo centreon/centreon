@@ -9,7 +9,6 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
-      - ".github/**"
   push:
     branches:
       - develop
@@ -69,7 +68,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    #if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
         distrib: [el7, el8, el9]
@@ -94,8 +93,7 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: unstable
-          #stability: ${{ needs.get-version.outputs.stability }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
