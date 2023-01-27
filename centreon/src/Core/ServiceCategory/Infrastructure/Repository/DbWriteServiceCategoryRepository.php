@@ -67,7 +67,7 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
         $this->debug('Add service category', ['serviceCategory' => $serviceCategory]);
 
         $request = $this->translateDbName(
-            'INSERT INTO `:db`.servicecategories
+            'INSERT INTO `:db`.service_categories
             (sc_name, sc_description, sc_activate) VALUES
             (:name, :alias, :isActivated)'
         );
