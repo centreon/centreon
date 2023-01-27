@@ -67,6 +67,7 @@ runs:
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
 
     - name: Retrieve broker logs
+      if: ${{ failure() }}
       run: docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > broker.log
       shell: bash
     
