@@ -315,6 +315,12 @@ describe('column sorting', () => {
   });
 });
 
+const pageNavigationCalls = [
+  { param: 'page=2&limit=30', expectedCall: 1 },
+  { param: 'page=1&limit=30', expectedCall: 4 }, 
+  { param: 'page=4&limit=30', expectedCall: 1 }
+];
+
 describe('Listing request', () => {
   beforeEach(() => {
     interceptRequestsAndMountBeforeEach();
@@ -329,9 +335,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Previous page`)
       .should((label) => {
@@ -339,9 +343,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Last page`)
       .should((label) => {
@@ -349,9 +351,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`First page`)
       .should((label) => {
@@ -359,9 +359,14 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.getRequestCalls('@dataToListingTable').then((calls) => {
+      expect(calls).to.have.length(6);
+      pageNavigationCalls.forEach(({ param, expectedCall }) => {
+        expect(Ramda.filter((call) => Ramda.includes(param, call.request.url.search), calls)).to.have.length(expectedCall);
+      });
+    })
 
     cy.matchImageSnapshot();
   });
