@@ -80,7 +80,7 @@ jobs:
 
           mv *.tar.gz ~/rpmbuild/SOURCES/
 
-          dnf builddep perl-*.spec
+          dnf builddep perl-*.spec || true
           rpmbuild --nodeps --nocheck -ba perl-*.spec
 
           cp ~/rpmbuild/RPMS/**/*.rpm .
