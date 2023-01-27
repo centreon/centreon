@@ -314,6 +314,8 @@ paths:
       summary: "Create a host category"
       description: |
         Create a host category
+
+        This endpoint do NOT update the ACLs rights with the new host category
       requestBody:
         required: true
         content:
@@ -388,6 +390,8 @@ paths:
       summary: "Create a service category"
       description: |
         Create a service category
+
+        This endpoint do NOT update the ACLs rights with the new service category
       requestBody:
         required: true
         content:
