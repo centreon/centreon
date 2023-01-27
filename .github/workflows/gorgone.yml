@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
+      - ".github/**"
   push:
     branches:
       - develop
