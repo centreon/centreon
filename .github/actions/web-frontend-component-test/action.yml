@@ -30,7 +30,6 @@ runs:
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
-        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
