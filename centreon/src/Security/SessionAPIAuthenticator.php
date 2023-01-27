@@ -84,7 +84,8 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): bool
     {
-        return $request->headers->has('Cookie') && $request->cookies->has('PHPSESSID');
+        return $request->headers->has('Cookie') && $request->cookies->has('PHPSESSID') &&
+            !$request->headers->has('X-Auth-Token');
     }
 
     /**
@@ -111,15 +112,14 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
      * {@inheritdoc}
      *
      * @return SelfValidatingPassport
-     * @throws CustomUserMessageAuthenticationException
-     * @throws TokenNotFoundException
+:q!     * @throws TokenNotFoundException
      */
     public function authenticate(Request $request): SelfValidatingPassport
     {
         /**
          * @var string|null $sessionId
          */
-        $sessionId = $request->cookies->get('PHPSESSID');
+        $sessionId = $request->getSession()->getId();
         if (null === $sessionId) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"

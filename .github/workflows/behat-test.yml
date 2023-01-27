@@ -109,18 +109,18 @@ jobs:
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
-        if: always()
+        if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs rm
 
       - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
+        if: failure()
         name: Upload acceptance test logs
         with:
           name: ${{ inputs.name }}-test-logs
           path: acceptance-logs
 
       - name: Upload Test Results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
@@ -128,20 +128,19 @@ jobs:
 
   behat-test-report:
     needs: [behat-test-run]
-    if: always()
+    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+      - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          path: "${{ inputs.name }}-xunit-reports/**/*.xml"

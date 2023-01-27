@@ -116,6 +116,7 @@ const applyConfigurationViaClapi = (): Cypress.Chainable => {
 };
 
 const updateFixturesResult = (): Cypress.Chainable => {
+  cy.log('Submitting resources results...');
   return cy
     .fixture('resources/clapi/submit-results.json')
     .then(({ results }) => {
