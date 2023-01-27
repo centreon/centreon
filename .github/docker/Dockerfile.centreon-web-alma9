@@ -26,37 +26,38 @@ innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
 # Add temporary artifactory repo for collect 23.04 rpms
-echo "[centreon-stable-noarch]
-name=Centreon open source software repository.
-baseurl=https://yum.centreon.com/standard/23.04/el9/stable/noarch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
+echo "
+#[centreon-stable-noarch]
+#name=Centreon open source software repository.
+#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/noarch/
+#enabled=1
+#gpgcheck=1
+#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+#module_hotfixes=1
 
-[centreon-stable]
-name=Centreon open source software repository.
-baseurl=https://yum.centreon.com/standard/23.04/el9/stable/\$basearch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
+#[centreon-stable]
+#name=Centreon open source software repository.
+#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/\$basearch/
+#enabled=1
+#gpgcheck=1
+#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+#module_hotfixes=1
 
-[centreon-testing-noarch]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/testing/noarch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
+#[centreon-testing-noarch]
+#name=Centreon open source software repository. (UNSUPPORTED)
+#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/noarch/
+#enabled=1
+#gpgcheck=1
+#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+#module_hotfixes=1
 
-[centreon-testing]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/testing/\$basearch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
+#[centreon-testing]
+#name=Centreon open source software repository. (UNSUPPORTED)
+#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/\$basearch/
+#enabled=1
+#gpgcheck=1
+#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+#module_hotfixes=1
 
 [centreon-unstable-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
