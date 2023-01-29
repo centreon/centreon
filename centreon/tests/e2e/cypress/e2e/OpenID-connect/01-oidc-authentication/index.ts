@@ -42,8 +42,9 @@ When(
       rootItemNumber: 4
     })
       .get('div[role="tablist"] button:nth-child(2)')
-      .click()
-      .wait('@getOIDCResponse');
+      .click();
+
+    cy.wait('@getOIDCResponse');
     cy.getByLabel({ label: 'Identity provider' }).click();
     configureOpenIDConnect();
   }
@@ -79,19 +80,22 @@ Then(
       tag: 'input'
     })
       .should('be.checked')
-      .and('have.value', 'false')
-      .logout()
-      .reload()
-      .loginByTypeOfUser({
-        jsonName: 'user-non-admin-for-OIDC-authentication',
-        preserveToken: true
-      })
-      .wait('@localAuthentification')
+      .and('have.value', 'false');
+
+    cy.logout().reload();
+
+    cy.loginByTypeOfUser({
+      jsonName: 'user-non-admin-for-OIDC-authentication',
+      preserveToken: true
+    });
+
+    cy.wait('@localAuthentification')
       .its('response.statusCode')
-      .should('eq', 200)
-      .wait('@getNavigationList')
-      .logout()
-      .reload();
+      .should('eq', 200);
+
+    cy.wait('@getNavigationList');
+
+    cy.logout().reload();
   }
 );
 
