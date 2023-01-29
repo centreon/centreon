@@ -1,7 +1,7 @@
 @defaultCommandTimeout(10000)
 Feature: OpenID Connect authentication
     As an admin of Centreon Platform
-    I want to be able to make use of an external authentication provider
+    I want to be able to use an external authentication provider
     So that Platform users can use existing authentication services to authenticate
 
 Scenario: Import users from 3rd party authentication service upon their first login
