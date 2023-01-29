@@ -2,8 +2,7 @@ import { executeActionViaClapi } from '../../commons';
 
 const oidcConfigValues = {
   authEndpoint: '/auth',
-  baseUrl:
-    'http://10.25.11.254:8080/auth/realms/Centreon_SSO/protocol/openid-connect',
+  baseUrl: 'http://172.17.0.2:8080/realms/Centreon_SSO/protocol/openid-connect',
   clientID: 'centreon-oidc-frontend',
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',

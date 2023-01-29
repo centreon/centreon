@@ -37,11 +37,10 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
-    cy.wait('@getNavigationList')
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      })
+    cy.navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
       .get('div[role="tablist"] button:nth-child(2)')
       .click()
       .wait('@getOIDCResponse');
@@ -99,7 +98,6 @@ Then(
 Given('an administrator is relogged on the platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
