@@ -114,7 +114,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: unsigned-packages-rpm
-          path: ./*.rpm
+          path: ./
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
         shell: bash
