@@ -68,22 +68,27 @@ jobs:
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
 
-          yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker libcurl-devel
+          #yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker libcurl-devel
 
           #yum install perl-ExtUtils-PkgConfig perl-Authen-SASL perl-Email-Date::Format perl-Net-SMTP_auth perl-Device-Modbus perl-Net-Server perl-Device-SerialPort perl-Config-General
 
-          cpanm ${{ matrix.name }}
+          #cpanm ${{ matrix.name }}
 
-          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          #mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          cpanspec --packager "Centreon <contact@centreon.com>" -f ${{ matrix.name }}
+          #cpanspec --packager "Centreon <contact@centreon.com>" -f ${{ matrix.name }}
 
-          mv *.tar.gz ~/rpmbuild/SOURCES/
+          #mv *.tar.gz ~/rpmbuild/SOURCES/
 
-          dnf builddep perl-*.spec || true
-          rpmbuild --nodeps --nocheck -ba perl-*.spec
+          #dnf builddep perl-*.spec || true
+          #rpmbuild --nodeps --nocheck -ba perl-*.spec
 
-          cp ~/rpmbuild/RPMS/**/*.rpm .
+          #cp ~/rpmbuild/RPMS/**/*.rpm .
+
+          yum install -y cpanminus ruby rpm-build
+          gem install fpm
+
+          fpm -s cpan -t rpm --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
