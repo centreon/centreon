@@ -17281,7 +17281,7 @@ msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 
-msgid "Error while retrieving just created host group"
+msgid "Error while retrieving newly created host group"
 msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être créé"
 
 msgid "The host group icon '%s' with id '%d' does not exist"
@@ -17331,3 +17331,24 @@ msgstr "Vous n'êtes pas autorisé à accéder aux périodes de temps"
 
 msgid "You are not allowed to edit time periods"
 msgstr "Vous n'êtes pas autorisé à éditer des périodes de temps"
+
+msgid "You are not allowed to access service groups"
+msgstr "Vous n'êtes pas autorisé à accéder aux groupes de services"
+
+msgid "You are not allowed to perform write operations on service groups"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes de services"
+
+msgid "Error while searching for service groups"
+msgstr "Erreur durant la recherche de groupes de services"
+
+msgid "Error while deleting a service group"
+msgstr "Erreur durant la suppression d'un groupe de services"
+
+msgid "Error while adding a service group"
+msgstr "Erreur durant l'ajout d'un groupe de services"
+
+msgid "Error while retrieving newly created service group"
+msgstr "Erreur durant la récupération d'un groupe de services venant d'être créé"
+
+msgid "The service group name '%s' already exists"
+msgstr "Le groupe de services '%s' existe déjà"
