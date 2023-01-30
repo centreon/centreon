@@ -222,6 +222,8 @@ describe('Resource Listing', () => {
   it('displays a highlighted row when a resource is in a critical state', () => {
     interceptRequestsAndMountBeforeEach(true);
 
+    cy.waitFiltersAndListingRequests();
+
     cy.contains('E0').should('be.visible');
 
     cy.matchImageSnapshot();
