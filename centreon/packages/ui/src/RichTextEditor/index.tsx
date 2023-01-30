@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
 
 import ContentEditable from './ContentEditable';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+import ToolbarPlugin from './plugin/ToolbarPlugin';
 
 export interface RichTextEditorProps {
   getEditorState?: (editorState: EditorState) => void;
@@ -25,6 +25,12 @@ const onError = (error: Error): void => {
 };
 
 const useStyles = makeStyles()((theme) => ({
+  bold: {
+    fontWeight: theme.typography.fontWeightBold
+  },
+  italic: {
+    fontStyle: 'italic'
+  },
   strikethough: {
     textDecoration: 'line-through'
   },
@@ -33,12 +39,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   underlineStrikethrough: {
     textDecoration: 'underline line-through'
-  },
-  bold: {
-    fontWeight: theme.typography.fontWeightBold
-  },
-  italic: {
-    fontStyle: 'italic',
   }
 }));
 
@@ -52,9 +52,9 @@ const RichTextEditor = ({
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const hasInitialTextContent =
-    initialEditorState ?
-    JSON.parse(initialEditorState).root?.children.length > 0 : false;
+  const hasInitialTextContent = initialEditorState
+    ? JSON.parse(initialEditorState).root?.children.length > 0
+    : false;
 
   const initialConfig = {
     editorState: initialEditorState,
@@ -62,11 +62,11 @@ const RichTextEditor = ({
     onError,
     theme: {
       text: {
+        bold: classes.bold,
+        italic: classes.italic,
         strikethrough: classes.strikethough,
         underline: classes.underline,
-        underlineStrikethrough: classes.underlineStrikethrough,
-        bold: classes.bold,
-        italic: classes.italic
+        underlineStrikethrough: classes.underlineStrikethrough
       }
     }
   };

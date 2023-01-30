@@ -21,14 +21,14 @@ import { Box, Button, ButtonGroup, alpha } from '@mui/material';
 const LowPriority = 1;
 
 const useStyles = makeStyles()((theme) => ({
-  buttonSelected: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-  },
   button: {
     '&:hover': {
-      color: theme.palette.primary.main,
+      color: theme.palette.primary.main
     }
+  },
+  buttonSelected: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText
   },
   container: {
     marginBottom: theme.spacing(1)
