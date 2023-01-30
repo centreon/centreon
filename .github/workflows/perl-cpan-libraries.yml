@@ -84,7 +84,7 @@ jobs:
           fi
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test $PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
@@ -99,7 +99,7 @@ jobs:
           fi
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME $PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
