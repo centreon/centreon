@@ -96,7 +96,7 @@ $ldapUseDns[] = $form->createElement(
 );
 $form->addGroup($ldapUseDns, 'ldap_srv_dns', _("Use service DNS"), '&nbsp;');
 
-$form->addElement('text', 'ldap_dns_use_domain', _("Alternative domain for ldap"), $attrsText);
+$form->addElement('text', 'ldap_dns_use_domain', _("Alternative domain for LDAP"), $attrsText);
 
 $form->addElement('text', 'ldap_connection_timeout', _('LDAP connection timeout'), $attrsText2);
 $form->addElement('text', 'ldap_search_limit', _('LDAP search size limit'), $attrsText2);
