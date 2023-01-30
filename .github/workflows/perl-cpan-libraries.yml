@@ -67,17 +67,22 @@ jobs:
           yum config-manager --set-enabled crb
 
           yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
+
+          gem install fpm
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' }}
         run: |
           apt update
-          apt install -y cpanminus ruby libcurl4-openssl-dev
+          apt install -y cpanminus ruby libcurl4-openssl-dev dh-make-perl
+
+          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
         shell: bash
 
       - run: |
-          gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --no-cpan-test ${{ matrix.name }}
+          #gem install fpm
+          #fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
@@ -122,94 +127,57 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  package-deb:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+  deliver-rpm:
+    needs: [get-version, sign-rpm]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
     strategy:
       matrix:
-        include:
-          - image: packaging-bullseye
-            distrib: bullseye
-    name: package ${{ matrix.distrib }}
-    container:
-      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        distrib: [el9]
+        #distrib: [el7, el8, el9]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-      - run: |
-          apt update
-          apt install -y dh-make-perl perl libssh-dev
-
-          mv dependencies/perl-libssh-session/src/ perl-libssh-session
-          tar czf perl-libssh-session.tar.gz perl-libssh-session
-
-          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make -p libssh-session-perl --desc libssh-session-perl --verbose --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
-        shell: bash
-
-      - uses: actions/cache@v3
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
         with:
-          path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          module_name: perl-cpan-libraries
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: 0
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
-      - uses: actions/upload-artifact@v3
+  deliver-deb:
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
         with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.deb
-
-  # deliver-rpm:
-  #   needs: [get-version, sign-rpm]
-  #   if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       distrib: [el7, el8, el9]
-
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
-
-  #     - name: Delivery
-  #       uses: ./.github/actions/rpm-delivery
-  #       with:
-  #         module_name: perl-libssh-session
-  #         repository_name: standard
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         minor_version: 0
-  #         release: ${{ needs.get-version.outputs.release }}
-  #         nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #         nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-  #         update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-  #         cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-  #         yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-  #         yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
-
-  # deliver-deb:
-  #   needs: [get-version, package-deb]
-  #   if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       distrib: [bullseye]
-
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
-
-  #     - name: Delivery
-  #       uses: ./.github/actions/deb-delivery
-  #       with:
-  #         module_name: perl-libssh-session
-  #         repository_name: standard
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #         nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+          module_name: perl-cpan-libraries
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb
+          stability: ${{ needs.get-version.outputs.stability }}
