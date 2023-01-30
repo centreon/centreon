@@ -54,13 +54,13 @@ jobs:
           'Net::TFTP',
         ]
         include:
-          - use_dh_make_perl: false
+          - version: ''
           - package_extension: rpm
             image: packaging-alma9
           - package_extension: deb
             image: packaging-bullseye
-          - name: 'Crypt::Blowfish_PP'
-            use_dh_make_perl: true
+          - name: 'JSON::Path'
+            version: '1.0.3'
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -78,8 +78,13 @@ jobs:
 
           yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
 
+          PACKAGE_VERSION=""
+          if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION="-v ${{ matrix.version }}"
+          fi
+
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test $PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
@@ -88,9 +93,13 @@ jobs:
           apt install -y cpanminus ruby libcurl4-openssl-dev
 
           PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
+          PACKAGE_VERSION=""
+          if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION="-v ${{ matrix.version }}"
+          fi
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME $PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
