@@ -87,6 +87,7 @@ jobs:
           #yum install -y rh-ruby30-ruby || yum install -y ruby
           #scl enable rh-ruby30 bash || true
 
+          yum install -y ruby
           gem install fpm
 
           fpm -s cpan -t rpm --no-cpan-test ${{ matrix.name }}
