@@ -95,6 +95,8 @@ jobs:
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
+          cpanm Module::Build::Tiny
+
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
@@ -110,6 +112,8 @@ jobs:
           else
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
+
+          cpanm Module::Build::Tiny
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_VERSION ${{ matrix.name }}
