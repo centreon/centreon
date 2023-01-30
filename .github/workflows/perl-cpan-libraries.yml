@@ -26,13 +26,13 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  package-rpm:
+  package:
     needs: [get-version]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9]
+        distrib: [el9, bullseye]
         name: [
           'HTTP::ProxyPAC',
           'Crypt::Blowfish_PP',
@@ -48,8 +48,10 @@ jobs:
         ]
         include:
           - image: packaging-alma9
-            distrib: el9
-    name: package ${{ matrix.name }} (${{ matrix.distrib }})
+            package_extension: rpm
+          - image: packaging-bullseye
+            package_extension: deb
+    name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
@@ -59,58 +61,33 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
+      - if: ${{ matrix.package_extension == 'rpm' }}
+        run: |
           yum install -y yum-utils epel-release git
-          yum config-manager --set-enabled crb || true # alma 9
-          #yum config-manager --set-enabled powertools || true # alma 8
-          #yum install -y centos-release-scl || true # centos 7
+          yum config-manager --set-enabled crb
 
-          #yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker libcurl-devel
+          yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
+        shell: bash
 
-          #yum install perl-ExtUtils-PkgConfig perl-Authen-SASL perl-Email-Date::Format perl-Net-SMTP_auth perl-Device-Modbus perl-Net-Server perl-Device-SerialPort perl-Config-General
+      - if: ${{ matrix.package_extension == 'deb' }}
+        run: |
+          apt update
+          apt install -y cpanminus ruby libcurl4-openssl-dev
+        shell: bash
 
-          #cpanm ${{ matrix.name }}
-
-          #mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-
-          #cpanspec --packager "Centreon <contact@centreon.com>" -f ${{ matrix.name }}
-
-          #mv *.tar.gz ~/rpmbuild/SOURCES/
-
-          #dnf builddep perl-*.spec || true
-          #rpmbuild --nodeps --nocheck -ba perl-*.spec
-
-          #cp ~/rpmbuild/RPMS/**/*.rpm .
-
-          yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc
-
-          #yum install -y rh-ruby30-ruby || yum install -y ruby
-          #scl enable rh-ruby30 bash || true
-
-          yum install -y ruby
+      - run: |
           gem install fpm
-
-          fpm -s cpan -t rpm --no-cpan-test ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
         with:
-          path: ./*.rpm
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm
+          path: ./*.${{ matrix.package_extension }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}
 
   sign-rpm:
-    needs: [package-rpm]
+    needs: [package]
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        include:
-          - image: packaging-centos7
-            distrib: el7
-          - image: packaging-alma8
-            distrib: el8
-          - image: packaging-alma9
-            distrib: el9
-    name: sign rpm ${{ matrix.distrib }}
     container:
       image: docker.centreon.com/rpm-signing:ubuntu
       options: -t
@@ -127,7 +104,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
         shell: bash
@@ -145,43 +122,43 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  # package-deb:
-  #   needs: [get-version]
-  #   runs-on: [self-hosted, common]
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - image: packaging-bullseye
-  #           distrib: bullseye
-  #   name: package ${{ matrix.distrib }}
-  #   container:
-  #     image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-  #     credentials:
-  #       username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #       password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+  package-deb:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - image: packaging-bullseye
+            distrib: bullseye
+    name: package ${{ matrix.distrib }}
+    container:
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - run: |
-  #         apt update
-  #         apt install -y dh-make-perl perl libssh-dev
+      - run: |
+          apt update
+          apt install -y dh-make-perl perl libssh-dev
 
-  #         mv dependencies/perl-libssh-session/src/ perl-libssh-session
-  #         tar czf perl-libssh-session.tar.gz perl-libssh-session
+          mv dependencies/perl-libssh-session/src/ perl-libssh-session
+          tar czf perl-libssh-session.tar.gz perl-libssh-session
 
-  #         DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make -p libssh-session-perl --desc libssh-session-perl --verbose --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
-  #       shell: bash
+          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make -p libssh-session-perl --desc libssh-session-perl --verbose --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
+        shell: bash
 
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: ./*.deb
-  #         key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: packages-${{ matrix.distrib }}
-  #         path: ./*.deb
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.distrib }}
+          path: ./*.deb
 
   # deliver-rpm:
   #   needs: [get-version, sign-rpm]
