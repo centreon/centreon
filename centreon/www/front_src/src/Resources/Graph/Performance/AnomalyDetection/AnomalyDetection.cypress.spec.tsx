@@ -417,6 +417,10 @@ describe('Anomaly detection - Global', () => {
 
   it('displays the Anomaly detection criteria value when the type criteria chip is clicked and centreon-anomaly-detection is installed', () => {
     cy.displayFilterMenu();
+
+    cy.waitForRequest('@filter');
+    cy.waitForRequest('@anomalyDetectionDetails');
+
     cy.matchImageSnapshot();
   });
 
