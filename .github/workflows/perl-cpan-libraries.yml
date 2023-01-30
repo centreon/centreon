@@ -52,6 +52,7 @@ jobs:
           'Net::SMTP_auth',
           'Net::Subnet',
           'Net::TFTP',
+          'XML::LibXML::Simple',
         ]
         include:
           - version: ''
@@ -90,7 +91,6 @@ jobs:
 
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
         run: |
-          set -x
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev
 
