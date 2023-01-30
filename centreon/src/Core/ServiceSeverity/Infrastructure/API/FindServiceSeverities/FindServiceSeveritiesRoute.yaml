@@ -1,0 +1,5 @@
+FindServiceSeverities:
+  methods: GET
+  path: /configuration/services/severities
+  controller: 'Core\ServiceSeverity\Infrastructure\API\FindServiceSeverities\FindServiceSeveritiesController'
+  condition: "request.attributes.get('version') >= 23.04"
