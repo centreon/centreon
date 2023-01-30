@@ -5665,7 +5665,7 @@ msgid "Incorrect LDAP filter syntax"
 msgstr "Syntaxe du filtre LDAP incorrecte"
 
 msgid "LDAP connection timeout"
-msgstr "Délai d'attente de connexion LDAP"
+msgstr "Délai d'expiration de connexion LDAP"
 
 msgid "No LDAP configuration enabled !"
 msgstr "Aucune configuration LDAP active !"
