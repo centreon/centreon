@@ -85,7 +85,7 @@ jobs:
 
           #cp ~/rpmbuild/RPMS/**/*.rpm .
 
-          yum install -y cpanminus ruby rpm-build
+          yum install -y cpanminus ruby rpm-build libcurl-devel expat-devel
           gem install fpm
 
           fpm -s cpan -t rpm --no-cpan-test ${{ matrix.name }}
