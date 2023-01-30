@@ -122,7 +122,7 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
 
-          INVALIDATION_PATHS="$INVALIDATION_PATHS '/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*'"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         done
 
         # Cleanup is done on unstable repository only
@@ -137,18 +137,20 @@ runs:
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
         echo "$INVALIDATION_PATHS"
-        #INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
-        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}'`
+        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        #INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}'`
         echo "$INVALIDATION_PATHS"
         #exit 2
         ITERATIONS=1
 
-        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATHS"; do
-          if [ ${ITERATIONS} -eq 2 ]; then
-            return 0
-          fi
-          echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
-          sleep 30s
-          ITERATIONS=$((ITERATIONS+1))
+        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
+          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
+            if [ ${ITERATIONS} -eq 10 ]; then
+              return 0
+            fi
+            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+            sleep 30s
+            ITERATIONS=$((ITERATIONS+1))
+          done
         done
       shell: bash
