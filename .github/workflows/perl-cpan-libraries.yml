@@ -37,6 +37,7 @@ jobs:
           'HTTP::ProxyPAC',
           'Digest::SHA1',
           'JMX::Jmx4Perl',
+          'Crypt::Blowfish_PP',
           'Device::Modbus::RTU::Client',
           'Device::Modbus::TCP::Client',
           'Email::Send::SMTP::Gmail',
