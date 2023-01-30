@@ -78,8 +78,9 @@ jobs:
 
           yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
 
-          PACKAGE_VERSION=""
           if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION=""
+          else
             PACKAGE_VERSION="-v ${{ matrix.version }}"
           fi
 
@@ -94,8 +95,9 @@ jobs:
           apt install -y cpanminus ruby libcurl4-openssl-dev
 
           PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
-          PACKAGE_VERSION=""
           if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION=""
+          else
             PACKAGE_VERSION="-v ${{ matrix.version }}"
           fi
 
