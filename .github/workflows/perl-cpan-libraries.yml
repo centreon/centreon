@@ -64,9 +64,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          yum install -y yum-utils epel-release
+          yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
+          yum install -y centos-release-scl || true # centos 7
 
           #yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker libcurl-devel
 
@@ -85,7 +86,15 @@ jobs:
 
           #cp ~/rpmbuild/RPMS/**/*.rpm .
 
-          yum install -y cpanminus ruby rpm-build libcurl-devel expat-devel
+          yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc zlib openssl
+
+          git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+          echo 'eval "$(~/.rbenv/bin/rbenv init - bash)"' >> ~/.bashrc
+          source ~/.bashrc
+
+          yum install -y rh-ruby30-ruby || yum install -y ruby
+          scl enable rh-ruby30 bash || true
+
           gem install fpm
 
           fpm -s cpan -t rpm --no-cpan-test ${{ matrix.name }}
