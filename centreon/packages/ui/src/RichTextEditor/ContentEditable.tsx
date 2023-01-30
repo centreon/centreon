@@ -4,7 +4,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { makeStyles } from 'tss-react/mui';
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { $getTextContent, createEditor } from 'lexical';
 
 import { Typography } from '@mui/material';
 

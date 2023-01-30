@@ -16,7 +16,7 @@ import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
-import { Box, Button, ButtonGroup, alpha } from '@mui/material';
+import { Box, Button, ButtonGroup } from '@mui/material';
 
 const LowPriority = 1;
 
