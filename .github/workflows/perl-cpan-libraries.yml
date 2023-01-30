@@ -50,24 +50,6 @@ jobs:
             package_extension: rpm
           - image: packaging-bullseye
             package_extension: deb
-          - name: 'HTTP::ProxyPAC'
-            deb_package_name: 'libhttp-proxypac-perl'
-          - name: 'Digest::SHA1'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
-          - name: 'Net::Curl'
-            deb_package_name: 'libnet-curl-perl'
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
