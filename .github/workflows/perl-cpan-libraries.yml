@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9, bullseye]
+        package_extension: [rpm, deb]
         name: [
           'HTTP::ProxyPAC',
           'Crypt::Blowfish_PP',
