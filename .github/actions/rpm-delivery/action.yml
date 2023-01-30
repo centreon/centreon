@@ -136,7 +136,10 @@ runs:
 
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
+        echo "$INVALIDATION_PATHS"
         INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        echo "$INVALIDATION_PATHS"
+        exit 2
         ITERATIONS=1
 
         until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATHS"; do
