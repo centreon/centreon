@@ -34,17 +34,24 @@ jobs:
       matrix:
         package_extension: [rpm, deb]
         name: [
-          'HTTP::ProxyPAC',
-          'Digest::SHA1',
-          'JMX::Jmx4Perl',
+          'Convert::EBCDIC',
+          'Crypt::Argon2',
           'Crypt::Blowfish_PP',
+          'Device::Modbus',
           'Device::Modbus::RTU::Client',
           'Device::Modbus::TCP::Client',
+          'Digest::SHA1',
           'Email::Send::SMTP::Gmail',
+          'HTTP::ProxyPAC',
+          'JMX::Jmx4Perl',
+          'JSON::Path',
+          'JSON::WebToken',
           'Net::Curl',
-          'Crypt::Argon2',
-          'Convert::EBCDIC',
-          'Device::Modbus',
+          'Net::NTP',
+          'Net::SMTPS',
+          'Net::SMTP_auth',
+          'Net::Subnet',
+          'Net::TFTP',
         ]
         include:
           - use_dh_make_perl: false
