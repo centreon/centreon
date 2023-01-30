@@ -46,10 +46,10 @@ jobs:
           'Device::Modbus',
         ]
         include:
-          - image: packaging-alma9
-            package_extension: rpm
-          - image: packaging-bullseye
-            package_extension: deb
+          - package_extension: rpm
+            image: packaging-alma9
+          - package_extension: deb
+            image: packaging-bullseye
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
