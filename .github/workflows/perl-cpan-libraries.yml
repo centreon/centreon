@@ -34,6 +34,7 @@ jobs:
       matrix:
         package_extension: [rpm, deb]
         name: [
+          'Boolean',
           'Convert::EBCDIC',
           'Crypt::Argon2',
           'Crypt::Blowfish_PP',
@@ -42,6 +43,8 @@ jobs:
           'Device::Modbus::TCP::Client',
           'Digest::SHA1',
           'Email::Send::SMTP::Gmail',
+          'HTTP::Daemon',
+          'HTTP::Daemon::SSL',
           'HTTP::ProxyPAC',
           'JMX::Jmx4Perl',
           'JSON::Path',
@@ -52,7 +55,14 @@ jobs:
           'Net::SMTP_auth',
           'Net::Subnet',
           'Net::TFTP',
+          'URI::Encode',
+          'URI::Template',
+          'URL::Encode',
+          'UUID::URandom',
+          'XML::Filter::BufferText',
           'XML::LibXML::Simple',
+          'XMl::SAX::Writer',
+          'ZMQ::Constants'
         ]
         include:
           - version: ''
