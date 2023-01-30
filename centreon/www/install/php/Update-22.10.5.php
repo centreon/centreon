@@ -34,7 +34,7 @@ try {
     $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
     // insert entry ldap_connection_timeout  with default value
     if (! $ldapResult) {
-        $errorMessage = "Unable to add default ldap connection timeout";
+        $errorMessage = "Unable to add default LDAP connection timeout";
         $pearDB->query(
             "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
                         (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
