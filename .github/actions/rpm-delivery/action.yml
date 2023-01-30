@@ -137,7 +137,8 @@ runs:
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
         echo "$INVALIDATION_PATHS"
-        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        #INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}'"
         echo "$INVALIDATION_PATHS"
         #exit 2
         ITERATIONS=1
