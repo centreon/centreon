@@ -65,7 +65,9 @@ runs:
 
     - name: Publish RPMS to Nexus
       run: |
-        FILES="*.rpm";
+        INVALIDATION_PATHS=""
+
+        FILES="*.rpm"
         echo "[DEBUG] - Rpm FILES: $FILES"
 
         eval `ssh-agent`
@@ -119,6 +121,8 @@ runs:
 
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
+
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         done
 
         # Cleanup is done on unstable repository only
@@ -132,10 +136,10 @@ runs:
 
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
-        PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        INVALIDATION_PATHS=`echo $INVALIDATION_PATHS | xargs -n1 | sort -u | xargs`
         ITERATIONS=1
 
-        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
+        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATHS"; do
           if [ ${ITERATIONS} -eq 10 ]; then
             return 0
           fi
