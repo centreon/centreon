@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el9]
         name: [
           'HTTP::ProxyPAC',
           'Crypt::Blowfish_PP',
@@ -47,10 +47,6 @@ jobs:
           'Device::Modbus',
         ]
         include:
-          - image: packaging-centos7
-            distrib: el7
-          - image: packaging-alma8
-            distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: package ${{ matrix.name }} (${{ matrix.distrib }})
@@ -66,8 +62,8 @@ jobs:
       - run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
-          yum config-manager --set-enabled powertools || true # alma 8
-          yum install -y centos-release-scl || true # centos 7
+          #yum config-manager --set-enabled powertools || true # alma 8
+          #yum install -y centos-release-scl || true # centos 7
 
           #yum install -y perl-App-cpanminus cpanspec make gcc perl perl-devel perl-generators perl-interpreter perl-ExtUtils-MakeMaker libcurl-devel
 
@@ -86,14 +82,10 @@ jobs:
 
           #cp ~/rpmbuild/RPMS/**/*.rpm .
 
-          yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc zlib openssl
+          yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc
 
-          git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-          echo 'eval "$(~/.rbenv/bin/rbenv init - bash)"' >> ~/.bashrc
-          source ~/.bashrc
-
-          yum install -y rh-ruby30-ruby || yum install -y ruby
-          scl enable rh-ruby30 bash || true
+          #yum install -y rh-ruby30-ruby || yum install -y ruby
+          #scl enable rh-ruby30 bash || true
 
           gem install fpm
 
@@ -103,7 +95,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm
 
   sign-rpm:
     needs: [package-rpm]
@@ -145,7 +137,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
-          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm
 
       - uses: actions/upload-artifact@v3
         with:
