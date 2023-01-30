@@ -108,6 +108,43 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * If the ACLs are not properly set for the contact, it is possible to create
+     * a service group in the GUI you cannot see just after creation.
+     *
+     * This behaviour is kept here if the `$aclResourceIds` is an empty array.
+     */
+    public function addLinksBetweenServiceGroupAndAccessGroups(int $serviceGroupId, array $accessGroups): void
+    {
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
+        if ([] === $aclResourceIds) {
+            return;
+        }
+
+        // We build a multi-values INSERT query.
+        $insert = 'INSERT INTO `:db`.`acl_resources_sg_relations` (acl_res_id, sg_id) VALUES';
+        foreach ($aclResourceIds as $index => $aclResourceId) {
+            $insert .= $index === 0
+                ? " (:acl_res_id_{$index}, :sg_id)"
+                : ", (:acl_res_id_{$index}, :sg_id)";
+        }
+
+        // Insert in bulk
+        $statement = $this->db->prepare($this->translateDbName($insert));
+        $statement->bindValue(':sg_id', $serviceGroupId, \PDO::PARAM_INT);
+        foreach ($aclResourceIds as $index => $aclResourceId) {
+            $statement->bindValue(":acl_res_id_{$index}", $aclResourceId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+    }
+
+    /**
      * Find all `acl_resources` from an `acl_groups` list.
      *
      * @param list<int> $accessGroupIds

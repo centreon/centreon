@@ -51,4 +51,62 @@ interface ReadServiceGroupRepositoryInterface
      * @return list<ServiceGroup>
      */
     public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array;
+
+    /**
+     * Find one service group without acl.
+     *
+     * @param int $serviceGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceGroup|null
+     */
+    public function findOne(int $serviceGroupId): ?ServiceGroup;
+
+    /**
+     * Find one service group with access groups.
+     *
+     * @param int $serviceGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceGroup|null
+     */
+    public function findOneByAccessGroups(int $serviceGroupId, array $accessGroups): ?ServiceGroup;
+
+    /**
+     * Tells whether the service group exists.
+     *
+     * @param int $serviceGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOne(int $serviceGroupId): bool;
+
+    /**
+     * Tells whether the service group exists but with access groups.
+     *
+     * @param int $serviceGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOneByAccessGroups(int $serviceGroupId, array $accessGroups): bool;
+
+    /**
+     * Tells whether the service group name already exists.
+     * This method does not need an acl version of it.
+     *
+     * @param string $serviceGroupName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function nameAlreadyExists(string $serviceGroupName): bool;
 }
