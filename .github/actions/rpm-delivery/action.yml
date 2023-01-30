@@ -122,7 +122,7 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
 
-          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS '/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*'"
         done
 
         # Cleanup is done on unstable repository only
@@ -139,11 +139,11 @@ runs:
         echo "$INVALIDATION_PATHS"
         INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
         echo "$INVALIDATION_PATHS"
-        exit 2
+        #exit 2
         ITERATIONS=1
 
         until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATHS"; do
-          if [ ${ITERATIONS} -eq 10 ]; then
+          if [ ${ITERATIONS} -eq 2 ]; then
             return 0
           fi
           echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
