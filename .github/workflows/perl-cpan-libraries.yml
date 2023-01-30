@@ -47,10 +47,13 @@ jobs:
           'Device::Modbus',
         ]
         include:
+          - use_dh_make_perl: false
           - package_extension: rpm
             image: packaging-alma9
           - package_extension: deb
             image: packaging-bullseye
+          - name: 'Crypt::Blowfish_PP'
+            use_dh_make_perl: true
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -72,17 +75,23 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' }}
+      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
-          apt install -y cpanminus ruby libcurl4-openssl-dev dh-make-perl
-
-          #DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
+          apt install -y cpanminus ruby libcurl4-openssl-dev
 
           PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME ${{ matrix.name }}
+        shell: bash
+
+      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
+        run: |
+          apt update
+          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl
+
+          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
