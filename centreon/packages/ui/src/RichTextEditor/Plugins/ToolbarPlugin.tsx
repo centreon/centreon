@@ -22,7 +22,16 @@ const LowPriority = 1;
 
 const useStyles = makeStyles()((theme) => ({
   buttonSelected: {
-    backgroundColor: alpha(theme.palette.primary.main, 0.2)
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+  },
+  button: {
+    '&:hover': {
+      color: theme.palette.primary.main,
+    }
+  },
+  container: {
+    marginBottom: theme.spacing(1)
   }
 }));
 
@@ -71,7 +80,7 @@ const ToolbarPlugin = ({ getEditorState }: Props): JSX.Element => {
     );
   }, [editor, updateToolbar]);
 
-  const toggleTextFormat = (textFormat: TextFormatType): void => {
+  const toggleTextFormat = (textFormat: TextFormatType) => (): void => {
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, textFormat);
   };
 
@@ -80,35 +89,35 @@ const ToolbarPlugin = ({ getEditorState }: Props): JSX.Element => {
       {
         Icon: FormatBoldIcon,
         format: 'bold',
-        state: isBold
+        isSelected: isBold
       },
       {
         Icon: FormatItalicIcon,
         format: 'italic',
-        state: isItalic
+        isSelected: isItalic
       },
       {
         Icon: FormatUnderlinedIcon,
         format: 'underline',
-        state: isUnderline
+        isSelected: isUnderline
       },
       {
         Icon: StrikethroughSIcon,
         format: 'strikethrough',
-        state: isStrikeThrough
+        isSelected: isStrikeThrough
       }
     ],
     [isBold, isItalic, isUnderline, isStrikeThrough]
   );
 
   return (
-    <Box>
+    <Box className={classes.container}>
       <ButtonGroup size="small">
-        {formatButtons.map(({ Icon, format, state }) => (
+        {formatButtons.map(({ Icon, format, isSelected }) => (
           <Button
-            className={cx(state && classes.buttonSelected)}
+            className={cx(isSelected && classes.buttonSelected, classes.button)}
             key={format}
-            onClick={(): void => toggleTextFormat(format)}
+            onClick={toggleTextFormat(format)}
           >
             <Icon fontSize="small" />
           </Button>
