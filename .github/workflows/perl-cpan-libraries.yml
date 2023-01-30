@@ -98,7 +98,7 @@ jobs:
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
           else
-            PACKAGE_VERSION="-v ${{ matrix.version }}"
+            PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
           gem install fpm
