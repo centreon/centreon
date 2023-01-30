@@ -66,6 +66,7 @@ jobs:
 
       - if: ${{ matrix.package_extension == 'rpm' }}
         run: |
+          echo ${{ matrix.use_dh_make_perl }}
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb
 
@@ -75,7 +76,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
+      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == false }}
         run: |
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev
@@ -86,7 +87,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
+      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == true }}
         run: |
           apt update
           apt install -y cpanminus libcurl4-openssl-dev dh-make-perl
