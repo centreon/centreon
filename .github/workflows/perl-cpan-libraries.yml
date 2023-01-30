@@ -35,7 +35,7 @@ jobs:
         package_extension: [rpm, deb]
         name: [
           'HTTP::ProxyPAC',
-          'Crypt::Blowfish_PP',
+          #'Crypt::Blowfish_PP',
           'Digest::SHA1',
           'JMX::Jmx4Perl',
           'Device::Modbus::RTU::Client',
@@ -68,8 +68,8 @@ jobs:
 
           yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
 
-          gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
+          #gem install fpm
+          #fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' }}
@@ -77,12 +77,14 @@ jobs:
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev dh-make-perl
 
-          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
+          # cannot use fpm until https://github.com/jordansissel/fpm/pull/1865 is not merged
+          # packaging is broken for Crypt::Blowfish_PP
+          #DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
         shell: bash
 
       - run: |
-          #gem install fpm
-          #fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
+          gem install fpm
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
