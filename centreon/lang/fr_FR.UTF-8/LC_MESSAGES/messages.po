@@ -5662,7 +5662,7 @@ msgid "Synchronize LDAP"
 msgstr "Synchroniser avec le LDAP"
 
 msgid "Incorrect LDAP filter syntax"
-msgstr "Mauvaise syntaxe du filtre LDAP"
+msgstr "Syntaxe du filtre LDAP incorrecte"
 
 msgid "LDAP connection timeout"
 msgstr "Délai d'attente de connexion LDAP"
