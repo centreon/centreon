@@ -36,15 +36,15 @@ jobs:
         name: [
           'HTTP::ProxyPAC',
           'Digest::SHA1',
-          #'JMX::Jmx4Perl',
+          'JMX::Jmx4Perl',
           'Crypt::Blowfish_PP',
           'Device::Modbus::RTU::Client',
-          #'Device::Modbus::TCP::Client',
+          'Device::Modbus::TCP::Client',
           'Email::Send::SMTP::Gmail',
           'Net::Curl',
-          #'Crypt::Argon2',
+          'Crypt::Argon2',
           'Convert::EBCDIC',
-          #'Device::Modbus',
+          'Device::Modbus',
         ]
         include:
           - use_dh_make_perl: false
