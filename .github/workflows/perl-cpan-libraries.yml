@@ -28,7 +28,7 @@ jobs:
 
   package-rpm:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -47,10 +47,10 @@ jobs:
           'Device::Modbus',
         ]
         include:
-          #- image: packaging-centos7
-          #  distrib: el7
-          #- image: packaging-alma8
-          #  distrib: el8
+          - image: packaging-centos7
+            distrib: el7
+          - image: packaging-alma8
+            distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: package ${{ matrix.name }} (${{ matrix.distrib }})
@@ -98,14 +98,14 @@ jobs:
 
   sign-rpm:
     needs: [package-rpm]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          #- image: packaging-centos7
-          #  distrib: el7
-          #- image: packaging-alma8
-          #  distrib: el8
+          - image: packaging-centos7
+            distrib: el7
+          - image: packaging-alma8
+            distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: sign rpm ${{ matrix.distrib }}
