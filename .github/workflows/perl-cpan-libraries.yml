@@ -35,7 +35,6 @@ jobs:
         package_extension: [rpm, deb]
         name: [
           'HTTP::ProxyPAC',
-          #'Crypt::Blowfish_PP',
           'Digest::SHA1',
           'JMX::Jmx4Perl',
           'Device::Modbus::RTU::Client',
@@ -51,6 +50,24 @@ jobs:
             package_extension: rpm
           - image: packaging-bullseye
             package_extension: deb
+          - name: 'HTTP::ProxyPAC'
+            deb_package_name: 'libhttp-proxypac-perl'
+          - name: 'Digest::SHA1'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
+          - name: 'Net::Curl'
+            deb_package_name: 'libnet-curl-perl'
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -68,8 +85,8 @@ jobs:
 
           yum install -y cpanminus rpm-build libcurl-devel expat-devel gcc ruby
 
-          #gem install fpm
-          #fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
+          gem install fpm
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' }}
@@ -77,14 +94,12 @@ jobs:
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev dh-make-perl
 
-          # cannot use fpm until https://github.com/jordansissel/fpm/pull/1865 is not merged
-          # packaging is broken for Crypt::Blowfish_PP
           #DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
-        shell: bash
 
-      - run: |
+          PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
+
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME ${{ matrix.name }}
         shell: bash
 
       - uses: actions/cache@v3
