@@ -97,7 +97,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb
 
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby uuid-devel zeromq-devel
 
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
@@ -115,7 +115,7 @@ jobs:
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
         run: |
           apt update
-          apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev
+          apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
 
           PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
           if [ -z "${{ matrix.version }}" ]; then
