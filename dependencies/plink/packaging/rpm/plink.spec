@@ -23,11 +23,8 @@ It is mostly used for automated operations, such as making CVS access a reposito
 %build
 
 %install
+%{__install} -d -m 0755 %buildroot%{_bindir}
 %{__install} -m 0755 %SOURCE0 %buildroot%{_bindir}/plink
-%{__install} -d $RPM_BUILD_ROOT%{_libdir}/php/modules/
-%{__cp} %SOURCE0 $RPM_BUILD_ROOT%{_libdir}/php/modules/ixed.8.1.lin
-%{__install} -d $RPM_BUILD_ROOT%{_sysconfdir}/php.d/
-%{__cp} %SOURCE1 $RPM_BUILD_ROOT%{_sysconfdir}/php.d/10-sourceguardian_loader.ini
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
