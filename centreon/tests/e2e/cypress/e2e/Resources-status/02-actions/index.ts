@@ -21,6 +21,11 @@ beforeEach(() => {
   cy.contains('State').click();
 
   cy.get('[aria-label="Add columns"]').click();
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {
