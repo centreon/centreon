@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip } from '@mui/material';
+import { Tooltip, useTheme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -68,6 +68,7 @@ const DataCell = ({
   getHighlightRowCondition,
   areColumnsEditable
 }: Props): JSX.Element | null => {
+  const theme = useTheme();
   const { dataStyle } = useStyleTable({ viewMode });
   const { classes } = useStyles();
 
@@ -103,7 +104,10 @@ const DataCell = ({
       return (
         <Cell
           isRowHighlighted={isRowHighlighted}
-          style={{ gridColumn }}
+          style={{
+            gridColumn,
+            paddingLeft: theme.spacing(1.5)
+          }}
           viewMode={viewMode}
           {...commonCellProps}
         >
@@ -132,6 +136,9 @@ const DataCell = ({
       return (
         <Cell
           isRowHighlighted={isRowHighlighted}
+          style={{
+            paddingLeft: theme.spacing(1.5)
+          }}
           viewMode={viewMode}
           onClick={(e): void => {
             if (!clickable) {
