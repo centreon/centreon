@@ -65,7 +65,6 @@ runs:
 
     - name: Publish RPMS to Nexus
       run: |
-        set -x
         INVALIDATION_PATHS=""
         METADATAS=""
 
@@ -134,10 +133,8 @@ runs:
         fi
 
         # Update repository metadata
-        echo $METADATAS
         METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
-        for $METADATA in `echo $METADATAS`; do
-          echo $METADATA
+        for METADATA in `echo $METADATAS`; do
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
         done
 
