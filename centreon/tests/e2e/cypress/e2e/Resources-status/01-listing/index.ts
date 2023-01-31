@@ -23,6 +23,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('getLoginResponse');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
 });
 
 Then('the unhandled problems filter is selected', (): void => {
