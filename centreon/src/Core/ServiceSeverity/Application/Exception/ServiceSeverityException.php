@@ -42,4 +42,66 @@ class ServiceSeverityException extends \Exception
     {
         return new self(_('Error while searching for service severities'), 0, $ex);
     }
+
+     /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete service severities'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function deleteServiceSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting service severity'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function addServiceSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while creating service severity'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function addNotAllowed(): self
+    {
+        return new self(_('You are not allowed to create service severities'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving recently created service severity'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function serviceNameAlreadyExists(): self
+    {
+        return new self(_('Service severity name already exists'));
+    }
+
+    /**
+     * @param int $iconId
+     *
+     * @return self
+     */
+    public static function iconDoesNotExist(int $iconId): self
+    {
+        return new self(sprintf(_("The service severity icon with id '%d' does not exist"), $iconId));
+    }
 }

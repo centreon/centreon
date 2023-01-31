@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
@@ -110,6 +111,146 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
 
         return $this->retrieveServiceSeverities($concatenator, $requestParameters);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceSeverityId): bool
+    {
+        $this->info('Check existence of service severity with id #' . $serviceSeverityId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service_categories sc
+                WHERE sc.sc_id = :serviceSeverityId
+                  AND sc.level IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceSeverityId', $serviceSeverityId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $serviceSeverityId, array $accessGroups): bool
+    {
+        $this->info(
+            'Check existence of service severity by access groups',
+            ['id' => $serviceSeverityId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('Access groups array empty');
+
+            return false;
+        }
+
+        $concat = new SqlConcatenator();
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        // if service severities are not filtered in ACLs, then user has access to ALL service severities
+        if (! $this->hasRestrictedAccessToServiceSeverities($accessGroupIds)) {
+            $this->info('Service severities access not filtered');
+
+            return $this->exists($serviceSeverityId);
+        }
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service_categories sc
+                INNER JOIN `:db`.acl_resources_sc_relations arsr
+                    ON sc.sc_id = arsr.sc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arsr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+        $concat->appendWhere(
+            <<<'SQL'
+                WHERE sc.sc_id = :serviceSeverityId
+                  AND sc.level IS NOT NULL
+                SQL
+        );
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->bindValue(':serviceSeverityId', $serviceSeverityId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(TrimmedString $serviceSeverityName): bool
+    {
+        $this->info('Check existence of service severity with name ' . $serviceSeverityName);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.service_categories sc WHERE sc.sc_name = :serviceSeverityName'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceSeverityName', $serviceSeverityName->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $serviceSeverityId): ?ServiceSeverity
+    {
+        $this->info('Get a service severity with id #' . $serviceSeverityId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate, sc.level, sc.icon_id
+                FROM `:db`.service_categories sc
+                WHERE sc.sc_id = :serviceSeverityId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceSeverityId', $serviceSeverityId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /** @var array{
+         *     sc_id: int,
+         *     sc_name: string,
+         *     sc_description: string,
+         *     sc_activate: '0'|'1',
+         *     level: int,
+         *     icon_id: positive-int
+         * } $result
+         */
+        return $this->createServiceSeverityFromArray($result);
+    }
+
 
     /**
      * @param SqlConcatenator $concatenator
