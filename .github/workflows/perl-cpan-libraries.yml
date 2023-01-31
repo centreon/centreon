@@ -55,6 +55,7 @@ jobs:
           'Net::Curl',
           'Net::Curl::Easy',
           'Net::FTPSSL',
+          'Net::HTTPTunnel',
           'Net::NTP',
           'Net::SMTPS',
           'Net::SMTP_auth',
