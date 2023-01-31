@@ -7,6 +7,7 @@ on:
       - closed
     paths:
       - "centreon/packages/js-config/**"
+      - ".github/actions/npm-publish-package-stable/**"
 
 env:
   directory: "centreon/packages/js-config"
