@@ -49,6 +49,7 @@ jobs:
           'JMX::Jmx4Perl',
           'JSON::Path',
           'JSON::WebToken',
+          'Libssh::Session',
           'Net::Curl',
           'Net::FTPSSL',
           'Net::NTP',
