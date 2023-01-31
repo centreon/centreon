@@ -32,12 +32,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
-          - image: packaging-alma9
-            distrib: el9
     name: package ${{ matrix.distrib }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -49,16 +45,18 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          yum install y wget unzip
-          wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
-          unzip plink_linux_x86_64_20230116.zip
-          ls
-          exit 2
+          #yum install y wget unzip
+          #wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
+          #unzip plink_linux_x86_64_20230116.zip
+          #ls
+          #exit 2
+          yum install -y https://yum.centreon.com/standard/23.04/el8/stable/x86_64/RPMS/plink-0.74-1.el8.x86_64.rpm
+
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          cp -rp dependencies/sourceguardian-loader/src/* ~/rpmbuild/SOURCES/
+          cp -p /usr/bin/plink ~/rpmbuild/SOURCES/
 
-          rpmbuild -ba dependencies/sourceguardian-loader/packaging/rpm/sourceguardian-loader.spec
+          rpmbuild -ba dependencies/plink/packaging/rpm/plink.spec
 
           cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
         shell: bash
