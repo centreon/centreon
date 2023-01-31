@@ -59,12 +59,12 @@ runs:
         git config user.name "technique-ci"
       shell: bash
 
-    - name: Commit and push changes on ${{ github.head_ref }}
+    - name: Commit and push changes on ${{ github.ref_name }}
       run: |
         git add .
         git commit -m "chore: release ${VERSION} of ${{ inputs.package }}"
-        git pull origin ${{ github.head_ref }}
-        git push origin ${{ github.head_ref }}
+        git pull origin ${{ github.ref_name }}
+        git push origin ${{ github.ref_name }}
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})
