@@ -13,6 +13,7 @@ dnf install -y epel-release
 
 dnf install -y mariadb-server mariadb
 echo "[server]
+skip-grant-tables
 log_output=FILE
 general_log_file=/var/lib/mysql/queries.log
 general_log=0
