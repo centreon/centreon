@@ -219,8 +219,8 @@ Feature:
     When I send a POST request to '/api/latest/configuration/services/categories' with body:
         """
         {
-        "name": "service-cat-name",
-        "alias": "service-cat-alias"
+        "name": "   service-cat-name   ",
+        "alias": "   service-cat-alias   "
         }
         """
     Then the response code should be "201"

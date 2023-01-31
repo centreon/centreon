@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
@@ -209,7 +210,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
-    public function existsByName(string $serviceCategoryName): bool
+    public function existsByName(TrimmedString $serviceCategoryName): bool
     {
         $this->info('Check existence of service category with name ' . $serviceCategoryName);
 

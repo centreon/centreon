@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceCategory\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 
@@ -78,13 +79,13 @@ interface ReadServiceCategoryRepositoryInterface
     /**
      * Check existance of a service category by name.
      *
-     * @param string $serviceCategoryName
+     * @param TrimmedString $serviceCategoryName
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByName(string $serviceCategoryName): bool;
+    public function existsByName(TrimmedString $serviceCategoryName): bool;
 
     /**
      * Find one service category.

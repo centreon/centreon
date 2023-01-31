@@ -64,7 +64,7 @@ final class AddServiceCategory
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(ServiceCategoryException::addNotAllowed())
                 );
-            } elseif ($this->readServiceCategoryRepository->existsByName($request->name)) {
+            } elseif ($this->readServiceCategoryRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error('Service category name already exists', [
                     'servicecategory_name' => $request->name,
                 ]);
