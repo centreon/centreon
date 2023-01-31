@@ -1,0 +1,211 @@
+name: plink
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/plink.yml"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - ".github/workflows/plink.yml"
+    tags:
+      - plink-*
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  package-rpm:
+    needs: [get-version]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - image: packaging-centos7
+            distrib: el7
+          - image: packaging-alma8
+            distrib: el8
+          - image: packaging-alma9
+            distrib: el9
+    name: package ${{ matrix.distrib }}
+    container:
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
+          unzip plink_linux_x86_64_20230116.zip
+          ls
+          exit 2
+          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+          cp -rp dependencies/sourceguardian-loader/src/* ~/rpmbuild/SOURCES/
+
+          rpmbuild -ba dependencies/sourceguardian-loader/packaging/rpm/sourceguardian-loader.spec
+
+          cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+  sign-rpm:
+    needs: [package-rpm]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - image: packaging-centos7
+            distrib: el7
+          - image: packaging-alma8
+            distrib: el8
+          - image: packaging-alma9
+            distrib: el9
+    name: sign rpm ${{ matrix.distrib }}
+    container:
+      image: docker.centreon.com/rpm-signing:ubuntu
+      options: -t
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+    steps:
+      - run: apt-get install -y zstd
+        shell: bash
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+        shell: bash
+
+      - run: rpmsign --addsign ./*.rpm
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.distrib }}
+          path: ./*.rpm
+
+  package-deb:
+    needs: [get-version]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - image: packaging-bullseye
+            distrib: bullseye
+    name: package ${{ matrix.distrib }}
+    container:
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
+          unzip plink_linux_x86_64_20230116.zip
+          ls
+          exit 2
+          mkdir -p sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/debian
+
+          cp -rp dependencies/sourceguardian-loader/src/* sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/
+          cp -rp dependencies/sourceguardian-loader/packaging/deb/* sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/debian/
+
+          tar czf sourceguardian-loader-${{ needs.get-version.outputs.major_version }}.tar.gz sourceguardian-loader-${{ needs.get-version.outputs.major_version }}
+
+          cd sourceguardian-loader-${{ needs.get-version.outputs.major_version }}
+
+          debmake -f "centreon" -e "contact@centreon.com" -y -r ${{ matrix.distrib }}
+          debuild-pbuilder --no-lintian
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.distrib }}
+          path: ./*.deb
+
+  deliver-rpm:
+    needs: [get-version, sign-rpm]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8, el9]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: php-sourceguardian-loader
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: 0
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  deliver-deb:
+    needs: [get-version, package-deb]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: php-sourceguardian-loader
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
