@@ -97,6 +97,7 @@ jobs:
           fi
 
           cpanm Module::Build::Tiny
+          cpanm Module::Install
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_VERSION ${{ matrix.name }}
