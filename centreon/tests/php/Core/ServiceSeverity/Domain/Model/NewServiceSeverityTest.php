@@ -40,17 +40,17 @@ it('should return properly set service severity instance', function (): void {
         ->and($serviceSeverity->getAlias())->toBe($this->severityAlias);
 });
 
-// it('should trim the fields "name" and "alias"', function (): void {
-//     $serviceSeverity = new NewServiceSeverity(
-//         $nameWithSpaces = '  my-name  ',
-//         $aliasWithSpaces = '  my-alias  ',
-//         $this->level,
-//         $this->iconId
-//     );
+it('should trim the fields "name" and "alias"', function (): void {
+    $serviceSeverity = new NewServiceSeverity(
+        $nameWithSpaces = '  my-name  ',
+        $aliasWithSpaces = '  my-alias  ',
+        $this->level,
+        $this->iconId
+    );
 
-//     expect($serviceSeverity->getName())->toBe(trim($nameWithSpaces))
-//         ->and($serviceSeverity->getAlias())->toBe(trim($aliasWithSpaces));
-// });
+    expect($serviceSeverity->getName())->toBe(trim($nameWithSpaces))
+        ->and($serviceSeverity->getAlias())->toBe(trim($aliasWithSpaces));
+});
 
 it('should throw an exception when service severity name is empty', function (): void {
     new NewServiceSeverity('', $this->severityAlias, $this->level, $this->iconId);
