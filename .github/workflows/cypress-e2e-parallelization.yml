@@ -60,7 +60,7 @@ jobs:
         with:
           name: ${{ inputs.name }}
           image: centreon.jfrog.io/docker/centreon-web-alma9
-          openid_image: docker.centreon.com/openid
+          image_openid_version: ${{ needs.get-version.outputs.major_version }}
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
