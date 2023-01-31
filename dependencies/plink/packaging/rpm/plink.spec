@@ -1,7 +1,7 @@
 %define archive_name putty
 
 Name:       plink
-Version:    0.78
+Version:    0.74
 Release:    1%{?dist}
 Summary:    Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
 
