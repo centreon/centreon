@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-#  pull_request:
-#    paths:
-#      - ".github/workflows/perl-cpan-libraries.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/perl-cpan-libraries.yml"
   push:
     branches:
       - develop
@@ -41,8 +41,10 @@ jobs:
           'Device::Modbus',
           'Device::Modbus::RTU::Client',
           'Device::Modbus::TCP::Client',
+          'Digest::MD5::File',
           'Digest::SHA1',
           'Email::Send::SMTP::Gmail',
+          'File::SearchPath',
           'HTTP::Daemon',
           'HTTP::Daemon::SSL',
           'HTTP::ProxyPAC',
@@ -51,20 +53,26 @@ jobs:
           'JSON::WebToken',
           'Libssh::Session',
           'Net::Curl',
+          'Net::Curl::Easy',
           'Net::FTPSSL',
           'Net::NTP',
           'Net::SMTPS',
           'Net::SMTP_auth',
           'Net::Subnet',
           'Net::TFTP',
+          'Sys::SigAction',
+          'Term::Clui',
+          'Term::ShellUI',
           'URI::Encode',
           'URI::Template',
           'URL::Encode',
+          'UUID',
           'UUID::URandom',
           'XML::Filter::BufferText',
           'XML::LibXML::Simple',
           'XML::SAX::Writer',
-          'ZMQ::Constants'
+          'ZMQ::Constants',
+          'ZMQ::LibZMQ4',
         ]
         include:
           - version: ''
