@@ -48,6 +48,7 @@ jobs:
               - '**/tsconfig.json'
               - '**/cypress/**|**/pnpm-*'
             has_backend_changes:
+              - '.github/docker/**'
               - '**/*.php'
               - '**/phpstan*.neon'
               - 'centreon/codingstyle.xml'
