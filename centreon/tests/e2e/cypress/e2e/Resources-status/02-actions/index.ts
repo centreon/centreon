@@ -7,25 +7,31 @@ import {
   insertResourceFixtures,
   tearDownResource
 } from '../common';
+import { submitResultsViaClapi } from '../../../commons';
 
 const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  insertResourceFixtures();
+  insertResourceFixtures().then(submitResultsViaClapi);
 });
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+
+  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
+
   cy.get('[aria-label="Add columns"]').click();
 
   cy.contains('State').click();
 
   cy.get('[aria-label="Add columns"]').click();
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
 });
 
 When('I select the acknowledge action on a problematic Resource', () => {
@@ -59,10 +65,7 @@ Then('the problematic Resource is displayed as acknowledged', () => {
 });
 
 When('I select the downtime action on a problematic Resource', () => {
-  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
-    jsonName: 'admin',
-    preserveToken: true
-  });
+  
   cy.contains(serviceInDowntimeName)
     .parent()
     .parent()
