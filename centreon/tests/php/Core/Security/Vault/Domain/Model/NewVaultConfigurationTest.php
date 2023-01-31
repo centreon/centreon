@@ -34,7 +34,10 @@ $invalidMaxLengthString = '';
 for ($index = 0; $index <= NewVaultConfiguration::MAX_LENGTH; $index++) {
     $invalidMaxLengthString .= 'a';
 }
-
+$invalidNameMaxLengthString = '';
+for ($index = 0; $index <= NewVaultConfiguration::NAME_MAX_LENGTH; $index++) {
+    $invalidNameMaxLengthString .= 'a';
+}
 beforeEach(function (): void {
     $this->vault = new Vault(1, 'myVaultProvider');
     $this->encryption = new Encryption();
@@ -67,10 +70,10 @@ it(
 
 it(
     'should throw InvalidArgumentException when vault configuration name exceeds allowed max length',
-    function () use ($invalidMaxLengthString): void {
+    function () use ($invalidNameMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
-            $invalidMaxLengthString,
+            $invalidNameMaxLengthString,
             $this->vault,
             '127.0.0.1',
             8200,
@@ -82,8 +85,8 @@ it(
 )->throws(
     InvalidArgumentException::class,
     AssertionException::maxLength(
-        $invalidMaxLengthString,
-        strlen($invalidMaxLengthString),
+        $invalidNameMaxLengthString,
+        strlen($invalidNameMaxLengthString),
         NewVaultConfiguration::MAX_LENGTH,
         'NewVaultConfiguration::name'
     )->getMessage()
@@ -197,15 +200,15 @@ it(
 );
 
 it(
-    'should throw InvalidArgumentException when vault configuration storage exeeds allowed max length',
-    function () use ($invalidMaxLengthString): void {
+    'should throw InvalidArgumentException when vault configuration storage exceeds allowed max length',
+    function () use ($invalidNameMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
             'myVault',
             $this->vault,
             '127.0.0.1',
             8200,
-            $invalidMaxLengthString,
+            $invalidNameMaxLengthString,
             'myRoleId',
             'mySecretId'
         );
@@ -213,8 +216,8 @@ it(
 )->throws(
     InvalidArgumentException::class,
     AssertionException::maxLength(
-        $invalidMaxLengthString,
-        strlen($invalidMaxLengthString),
+        $invalidNameMaxLengthString,
+        strlen($invalidNameMaxLengthString),
         NewVaultConfiguration::MAX_LENGTH,
         'NewVaultConfiguration::storage'
     )->getMessage()
@@ -245,7 +248,7 @@ it(
 );
 
 it(
-    'should throw InvalidArgumentException when vault configuration role id exeeds allowed max length',
+    'should throw InvalidArgumentException when vault configuration role id exceeds allowed max length',
     function () use ($invalidMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
@@ -293,7 +296,7 @@ it(
 );
 
 it(
-    'should throw InvalidArgumentException when vault configuration secret id exeeds allowed max length',
+    'should throw InvalidArgumentException when vault configuration secret id exceeds allowed max length',
     function () use ($invalidMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
