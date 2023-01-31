@@ -1,4 +1,4 @@
-name: centreon-ui-context-merge
+name: centreon-ui-merge
 
 on:
   workflow_dispatch:
@@ -6,15 +6,15 @@ on:
     types:
       - closed
     paths:
-      - "centreon/packages/ui-context/**"
+      - "centreon/packages/ui/**"
 
 env:
-  directory: "centreon/packages/ui-context"
-  package: "ui-context"
+  directory: "centreon/packages/ui"
+  package: "ui"
   base_branch: develop
 
 jobs:
-  clean-up-npm-beta:
+  clean-up-npm-beta-tag:
     runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
 
@@ -23,21 +23,20 @@ jobs:
 
       - uses: ./.github/actions/clean-up-npm-tag
         with:
-          package: ui-context
+          package: ui
           npm_token: ${{ secrets.NPM_TOKEN }}
 
-  deliver-npm-beta:
+  publish-new-npm-version:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+    if: ${{ github.event.pull_request.merged == true }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/npm-publish-package
+      - uses: ./.github/actions/npm-publish-package-stable
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
-          release_type: "stable"

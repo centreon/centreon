@@ -586,6 +586,62 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Service group
+      summary: "Add a service group"
+      description: |
+        Add a new service group configuration.
+
+        Mandatory body properties are:
+
+        * name
+        * alias
+
+        `Since Centreon web 23.04`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Service.Group.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Service.Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/groups/{servicegroup_id}:
+    delete:
+      tags:
+        - Service group
+      summary: "Delete a host group"
+      description: |
+        `internal`
+
+        `Since Centreon web 23.04`
+
+        Delete service group.
+      parameters:
+        - $ref: '#/components/parameters/ServiceGroupId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
     get:
       tags:
@@ -4793,6 +4849,15 @@ components:
       in: path
       name: hostgroup_id
       description: "ID of the host group"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
+    ServiceGroupId:
+      in: path
+      name: servicegroup_id
+      description: "ID of the service group"
       required: true
       schema:
         type: integer
