@@ -34,7 +34,7 @@ jobs:
       matrix:
         package_extension: [rpm, deb]
         name: [
-          'Boolean',
+          'boolean',
           'Convert::EBCDIC',
           'Crypt::Argon2',
           'Crypt::Blowfish_PP',
@@ -50,6 +50,7 @@ jobs:
           'JSON::Path',
           'JSON::WebToken',
           'Net::Curl',
+          'Net::FTPSSL',
           'Net::NTP',
           'Net::SMTPS',
           'Net::SMTP_auth',
@@ -61,7 +62,7 @@ jobs:
           'UUID::URandom',
           'XML::Filter::BufferText',
           'XML::LibXML::Simple',
-          'XMl::SAX::Writer',
+          'XML::SAX::Writer',
           'ZMQ::Constants'
         ]
         include:
@@ -114,6 +115,7 @@ jobs:
           fi
 
           cpanm Module::Build::Tiny
+          cpanm Module::Install
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_VERSION ${{ matrix.name }}
