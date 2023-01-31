@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: packaging-cento7
+          - image: packaging-centos7
             distrib: el7
           - image: packaging-alma8
             distrib: el8
