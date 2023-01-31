@@ -438,3 +438,7 @@ services:
     Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
         class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
         public: true
+
+    Utility\Interfaces\UUIDGeneratorInterface:
+        class: Utility\UUIDGenerator
+        public: true
