@@ -1,7 +1,7 @@
 %define archive_name putty
 
 Name:       plink
-Version:    0.74
+Version:    0.78
 Release:    1%{?dist}
 Summary:    Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
 
@@ -20,18 +20,26 @@ Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
 It is mostly used for automated operations, such as making CVS access a repository on a remote server.
 
 %prep
+%setup -q -n %{archive_name}-%{version}
 
 %build
+%configure --without-gtk
+make %{?_smp_mflags}
 
 %install
-%{__install} -d -m 0755 %buildroot%{_bindir}
-%{__install} -m 0755 %SOURCE0 %buildroot%{_bindir}/plink
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
+rm -rf $RPM_BUILD_ROOT%{_bindir}/pscp
+rm -rf $RPM_BUILD_ROOT%{_bindir}/psftp
+rm -rf $RPM_BUILD_ROOT%{_bindir}/puttygen
+rm -rf $RPM_BUILD_ROOT%{_mandir}/
 
 %clean
-%{__rm} -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%doc
 %{_bindir}/plink
 
 %changelog
