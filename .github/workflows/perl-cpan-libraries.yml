@@ -101,7 +101,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb
 
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
 
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
