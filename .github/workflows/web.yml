@@ -342,34 +342,34 @@ jobs:
           push: true
           tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-  # api-integration-test:
-  #   needs: [dockerize, changes]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: api
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     features_path: tests/api/features
-  #     config_file: tests/api/behat.yml
-  #   secrets:
-  #     nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #     nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  api-integration-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # legacy-e2e-test:
-  #   needs: [dockerize, changes]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: legacy-e2e
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     features_path: features
-  #   secrets:
-  #     nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-  #     nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  legacy-e2e-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   # e2e-test:
   #   needs: [get-version, dockerize]
