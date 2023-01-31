@@ -39,6 +39,17 @@ it('should return properly set service category instance', function () {
         ->and($serviceCategory->getAlias())->toBe($this->categoryAlias);
 });
 
+it('should trim the fields "name" and "alias"', function (): void {
+    $serviceCategory = new ServiceCategory(
+        1,
+        $nameWithSpaces = '  my-name  ',
+        $aliasWithSpaces = '  my-alias  '
+    );
+
+    expect($serviceCategory->getName())->toBe(trim($nameWithSpaces))
+        ->and($serviceCategory->getAlias())->toBe(trim($aliasWithSpaces));
+});
+
 it('should throw an exception when service category name is empty', function () {
     new ServiceCategory(1, '', $this->categoryAlias);
 })->throws(

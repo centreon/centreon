@@ -40,6 +40,9 @@ class NewServiceCategory
         protected string $name,
         protected string $alias
     ) {
+        $this->name = trim($name);
+        $this->alias = trim($alias);
+
         $classShortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $classShortName . '::name');
         Assertion::notEmpty($name, $classShortName . '::name');
