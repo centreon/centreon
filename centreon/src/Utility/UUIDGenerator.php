@@ -31,7 +31,7 @@ class UUIDGenerator implements UUIDGeneratorInterface
     /**
      * @inheritDoc
      */
-    public static function generateUUID4(): string
+    public static function generateUUIDV4(): string
     {
         return (string) Uuid::v4();
     }

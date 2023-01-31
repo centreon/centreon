@@ -26,10 +26,10 @@ namespace Utility\Interfaces;
 interface UUIDGeneratorInterface
 {
     /**
-     * Generate a UUID4
+     * Generate a UUID Version 4
      *
      * @return string
      */
-    public static function generateUUID4(): string;
+    public static function generateUUIDV4(): string;
 }
 
