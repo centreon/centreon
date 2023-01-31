@@ -7994,6 +7994,25 @@ components:
         secret_id:
           type: string
           description: "Vault secret id"
+    Administration.Vault.Configuration.Update:
+      type: object
+      required: [address, port, role_id, secret_id]
+      description: "Vault configuration"
+      properties:
+        address:
+          type: string
+          description: "Vault URL or IP"
+          example: "127.0.0.1"
+        port:
+          type: integer
+          description: "Vault Port"
+          example: 8200
+        role_id:
+          type: string
+          description: "Vault role id"
+        secret_id:
+          type: string
+          description: "Vault secret id"
     Administration.Vault.Configuration.Read:
       type: object
       description: "Vault configuration"
