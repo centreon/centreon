@@ -35,7 +35,6 @@ Given('an administrator is relogged on the platform', () => {
     .wait('@localAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
@@ -48,7 +47,6 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.getByLabel({ label: 'Identity provider' }).click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
@@ -69,13 +67,10 @@ When(
       .wait('@updateOIDCResponse')
       .its('response.statusCode')
       .should('eq', 204);
-    cy.wait('@updateOIDCResponse')
-      .its('response.statusCode')
-      .should('eq', 204)
-      .getByLabel({
-        label: 'OpenID Connect only',
-        tag: 'input'
-      })
+    cy.getByLabel({
+      label: 'OpenID Connect only',
+      tag: 'input'
+    })
       .should('be.checked')
       .and('have.value', 'true')
       .logout();

@@ -63,11 +63,10 @@ Then('the configuration is saved and secrets are not visible', () => {
 });
 
 When('the administrator configures the authentication mode', () => {
-  cy.wait('@getNavigationList')
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+  cy.navigateTo({
+    page: 'Authentication',
+    rootItemNumber: 4
+  })
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 });
@@ -92,8 +91,6 @@ Then(
     cy.wait('@localAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
-
-    cy.wait('@getNavigationList');
 
     cy.logout().reload();
   }

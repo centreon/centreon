@@ -44,7 +44,6 @@ Given('an administrator is logged in the platform', () => {
     .wait('@localAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
@@ -122,7 +121,6 @@ Then(
       cy.visit(`${Cypress.config().baseUrl}`);
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .wait('@getNavigationList')
         .url()
         .should('include', '/monitoring/resources')
         .logout()
@@ -132,8 +130,7 @@ Then(
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
       .wait('@localAuthentification')
       .its('response.statusCode')
-      .should('eq', 200)
-      .wait('@getNavigationList');
+      .should('eq', 200);
     getAccessGroupId('ALL').then((groupId) => {
       cy.visit(`/centreon/main.php?p=50203&o=c&acl_group_id=${groupId}`)
         .wait('@getTimeZone')

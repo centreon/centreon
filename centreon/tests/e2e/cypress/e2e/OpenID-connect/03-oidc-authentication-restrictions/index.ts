@@ -35,7 +35,6 @@ Given('an administrator is logged on the platform', () => {
     .wait('@localAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .wait('@getNavigationList')
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
