@@ -70,13 +70,13 @@ class NewVaultConfiguration
         string $unencryptedSecretId
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
-        Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'NewVaultConfiguration::name');
+        Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');
         Assertion::minLength($address, self::MIN_LENGTH, 'NewVaultConfiguration::address');
         Assertion::ipOrDomain($address, 'NewVaultConfiguration::address');
         Assertion::max($port, self::MAX_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::min($port, self::MIN_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::minLength($storage, self::MIN_LENGTH, 'NewVaultConfiguration::storage');
-        Assertion::maxLength($storage, self::MAX_NAME_LENGTH, 'NewVaultConfiguration::storage');
+        Assertion::maxLength($storage, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::storage');
         Assertion::minLength($unencryptedRoleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
         Assertion::maxLength($unencryptedRoleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
         Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
