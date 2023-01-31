@@ -1,18 +1,19 @@
-Name:           plink
-Version:        0.74
-Release:        1
-Summary:        Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
+%define archive_name putty
 
-Group:          Applications/System
-License:        GPLv2
-URL:            https://www.centreon.com
-Packager:       Centreon <contact@centreon.com>
-Vendor:         Centreon Entreprise Server (CES) Repository, http://yum.centreon.com/standard/
+Name:       plink
+Version:    0.74
+Release:    1%{?dist}
+Summary:    Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
 
-Source0:        plink
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+Group:      Development/Tools
+License:    MIT licence
+URL:        http://www.chiark.greenend.org.uk/~sgtatham/putty/
 
-Requires:       glibc
+Source0:    %{archive_name}-%{version}.tar.gz
+BuildRoot:  %(mktemp -ud %{_tmppath}/%{archive_name}-%{version}-%{release}-XXXXXX)
+
+BuildRequires:  make
+BuildRequires:  gcc
 
 %description
 Plink (PuTTY Link) is a command-line connection tool similar to UNIX ssh.
