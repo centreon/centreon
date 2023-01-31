@@ -8,14 +8,17 @@ import {
   deleteUserFilter,
   tearDownResource
 } from '../common';
-import { submitResultsViaClapi } from '../../../commons';
+import { loginAsAdminViaApiV2, logout, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
-  insertResourceFixtures().then(() =>
+  insertResourceFixtures()
+  .then(submitResultsViaClapi)
+  .then(loginAsAdminViaApiV2)
+  .then(() =>
     cy
       .fixture('resources/filters.json')
       .then((filters) => setUserFilter(filters))
-  ).then(submitResultsViaClapi);
+  );
 });
 
 beforeEach(() => {
@@ -27,9 +30,14 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('filters');
 });
 
 Then('the unhandled problems filter is selected', (): void => {
+  cy.visit(`${Cypress.config().baseUrl}`);
   cy.contains('Unhandled problems');
 });
 
@@ -67,7 +75,11 @@ Given('a saved custom filter', () => {
       preserveToken: true
     })
     .wait('@getLoginResponse');
+  
+  cy.wait('@filters');
+
   cy.get(stateFilterContainer).click();
+
   cy.contains('OK services').should('exist');
 });
 

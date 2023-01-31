@@ -65,7 +65,6 @@ Then('the problematic Resource is displayed as acknowledged', () => {
 });
 
 When('I select the downtime action on a problematic Resource', () => {
-  
   cy.contains(serviceInDowntimeName)
     .parent()
     .parent()
