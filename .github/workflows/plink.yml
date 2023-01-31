@@ -53,7 +53,7 @@ jobs:
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          wget -P ~/rpmbuild/SOURCES/ https://the.earth.li/~sgtatham/putty/0.78/putty-0.78.tar.gz
+          wget -P ~/rpmbuild/SOURCES/ https://the.earth.li/~sgtatham/putty/0.74/putty-0.74.tar.gz
 
           rpmbuild -ba dependencies/plink/packaging/rpm/plink.spec
 
