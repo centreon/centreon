@@ -35,6 +35,7 @@ jobs:
         package_extension: [rpm, deb]
         name: [
           'boolean',
+          'Carp::Assert',
           'Convert::EBCDIC',
           'Crypt::Argon2',
           'Crypt::Blowfish_PP',
@@ -49,9 +50,11 @@ jobs:
           'HTTP::Daemon::SSL',
           'HTTP::ProxyPAC',
           'JMX::Jmx4Perl',
+          'JSON::Parse',
           'JSON::Path',
           'JSON::WebToken',
           'Libssh::Session',
+          'LV',
           'Net::Curl',
           'Net::Curl::Easy',
           'Net::FTPSSL',
