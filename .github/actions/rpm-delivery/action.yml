@@ -66,6 +66,7 @@ runs:
     - name: Publish RPMS to Nexus
       run: |
         INVALIDATION_PATHS=""
+        METADATAS=""
 
         FILES="*.rpm"
         echo "[DEBUG] - Rpm FILES: $FILES"
@@ -122,6 +123,7 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
 
+          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
           INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         done
 
@@ -131,8 +133,9 @@ runs:
         fi
 
         # Update repository metadata
-        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
-        ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
+        for $METADATA in `echo $METADATAS`; do
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
+        done
 
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
