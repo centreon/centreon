@@ -28,6 +28,9 @@ use Symfony\Component\Uid\Uuid;
 
 class UUIDGenerator implements UUIDGeneratorInterface
 {
+    /**
+     * @inheritDoc
+     */
     public static function generateUUID4(): string
     {
         return (string) Uuid::v4();
