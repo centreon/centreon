@@ -45,6 +45,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
+          yum install y wget unzip
           wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
           unzip plink_linux_x86_64_20230116.zip
           ls
@@ -110,52 +111,6 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  package-deb:
-    needs: [get-version]
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        include:
-          - image: packaging-bullseye
-            distrib: bullseye
-    name: package ${{ matrix.distrib }}
-    container:
-      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - run: |
-          wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20230116.zip
-          unzip plink_linux_x86_64_20230116.zip
-          ls
-          exit 2
-          mkdir -p sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/debian
-
-          cp -rp dependencies/sourceguardian-loader/src/* sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/
-          cp -rp dependencies/sourceguardian-loader/packaging/deb/* sourceguardian-loader-${{ needs.get-version.outputs.major_version }}/debian/
-
-          tar czf sourceguardian-loader-${{ needs.get-version.outputs.major_version }}.tar.gz sourceguardian-loader-${{ needs.get-version.outputs.major_version }}
-
-          cd sourceguardian-loader-${{ needs.get-version.outputs.major_version }}
-
-          debmake -f "centreon" -e "contact@centreon.com" -y -r ${{ matrix.distrib }}
-          debuild-pbuilder --no-lintian
-        shell: bash
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.deb
-
   deliver-rpm:
     needs: [get-version, sign-rpm]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
@@ -184,28 +139,4 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
-
-  deliver-deb:
-    needs: [get-version, package-deb]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        distrib: [bullseye]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: php-sourceguardian-loader
-          repository_name: standard
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
