@@ -370,8 +370,8 @@ jobs:
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
     secrets:
-      username: ${{ secrets.AUTOMATION_USERNAME }}
-      password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
