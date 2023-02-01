@@ -32,8 +32,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
@@ -71,8 +69,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
@@ -118,7 +114,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
