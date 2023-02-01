@@ -113,6 +113,14 @@ jobs:
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
+          if [ -z "${{ matrix.dependencies }}" ]; then
+            PACKAGE_DEPENDENCIES=""
+          else
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+              PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCY --depends $PACKAGE_DEPENDENCY"
+            done
+          fi
+
           cpanm Module::Build::Tiny
           cpanm Module::Install
 
@@ -131,10 +139,11 @@ jobs:
           else
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
+
           if [ -z "${{ matrix.dependencies }}" ]; then
             PACKAGE_DEPENDENCIES=""
           else
-            for PACKAGE_DEPENDENCY in `echo $PACKAGE_DEPENDENCIES`; do
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
               PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCY --depends $PACKAGE_DEPENDENCY"
             done
           fi
