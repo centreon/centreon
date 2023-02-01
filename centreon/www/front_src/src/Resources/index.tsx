@@ -21,8 +21,8 @@ import useFilter from './Filter/useFilter';
 
 const EditFiltersPanel = lazy(() => import('./Filter/Edit'));
 
-const Filter = lazy(() => import('./Filter'));
 const Listing = lazy(() => import('./Listing'));
+const Filter = lazy(() => import('./Filter'));
 
 const ResourcesPage = (): JSX.Element => {
   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
