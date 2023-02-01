@@ -129,6 +129,7 @@ runs:
 
         # Cleanup is done on unstable repository only
         if [ "${{ inputs.stability }}" == unstable ]; then
+          echo "clean $PROJECT_LOCATION"
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
         fi
 

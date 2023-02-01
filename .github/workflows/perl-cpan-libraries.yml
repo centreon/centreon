@@ -80,7 +80,6 @@ jobs:
           'XML::Filter::BufferText',
           'XML::LibXML::Simple',
           'XML::SAX::Writer',
-          'XSLoader',
           'YAML::LibYAML',
           'ZMQ::Constants',
           'ZMQ::LibZMQ4',
@@ -97,7 +96,7 @@ jobs:
           - name: 'ZMQ::LibZMQ4'
             dependencies: 'zeromq'
           - name: 'Libssh::Session'
-            dependencies: 'perl(XSLoader)'
+            dependencies: 'libssh'
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
