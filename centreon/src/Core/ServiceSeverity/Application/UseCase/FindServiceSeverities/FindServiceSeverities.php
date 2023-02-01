@@ -89,7 +89,7 @@ final class FindServiceSeverities
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceSeverityException::findServiceSeverities($ex))
             );
-            $this->error($ex->getMessage());
+            $this->error((string) $ex);
         }
     }
 
