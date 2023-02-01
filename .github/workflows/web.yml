@@ -410,7 +410,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon"
-          image: docker.centreon.com/centreon-web-centos7
+          image: docker.centreon.com/centreon-web-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
