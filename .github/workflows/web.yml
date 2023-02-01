@@ -370,8 +370,8 @@ jobs:
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
     secrets:
-      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      registry_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   performances-test:
     runs-on: ubuntu-22.04
