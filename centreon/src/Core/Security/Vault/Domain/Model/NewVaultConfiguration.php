@@ -38,7 +38,7 @@ class NewVaultConfiguration
     public const MIN_PORT_VALUE = 1;
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
-    public const NAME_VALIDATION_REGEX = '/^[\w+\-_\/]*$/';
+    public const NAME_VALIDATION_REGEX = '/^[\w+\-\/]+$/';
 
     protected string $encryptedSecretId;
 
