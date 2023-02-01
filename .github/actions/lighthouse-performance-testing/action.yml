@@ -27,5 +27,5 @@ runs:
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
     - name: "Run Lighthouse"
-      run: docker run --shm-size 2gb -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --net="host" --entrypoint "/tmp/.github/scripts/lighthouse-performance-testing.sh" docker.centreon.com/lighthouse:${{ inputs.image_lighthouse_version }}
+      run: docker run --shm-size 2gb -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --net="host" --entrypoint "/tmp/.github/scripts/lighthouse-performance-testing.sh" centreon.jfrog.io/docker/lighthouse:${{ inputs.image_lighthouse_version }}
       shell: bash
