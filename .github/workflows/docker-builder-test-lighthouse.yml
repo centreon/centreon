@@ -35,7 +35,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: centreon.jfrog.io/docker
-          username: ${{ vars.AUTOMATION_USER }}
+          username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: build docker ${{ matrix.project }}
