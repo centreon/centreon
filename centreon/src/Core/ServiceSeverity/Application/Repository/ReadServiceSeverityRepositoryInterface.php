@@ -51,7 +51,7 @@ interface ReadServiceSeverityRepositoryInterface
      *
      * @return ServiceSeverity[]
      */
-    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameterAndAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
 
     /**
      * Check existence of a service severity.
