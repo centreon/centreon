@@ -179,4 +179,4 @@ const DataCell = ({
   return cellByColumnType[column.type]();
 };
 
-export default DataCell
+export default DataCell;

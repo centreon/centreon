@@ -108,7 +108,7 @@ const Row = memo<RowProps>(
       </TableRow>
     );
   },
-  (prevProps: RowProps, nextProps: RowProps) => false,
+  () => false
 );
 
 const IntersectionRow = (props: Props): JSX.Element => {
