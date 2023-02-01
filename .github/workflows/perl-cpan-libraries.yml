@@ -36,6 +36,9 @@ jobs:
         name: [
           'boolean',
           'Carp::Assert',
+          'Clone',
+          'Clone::Choose',
+          'common::sense',
           'Convert::EBCDIC',
           'Crypt::Argon2',
           'Crypt::Blowfish_PP',
@@ -46,6 +49,7 @@ jobs:
           'Digest::SHA1',
           'Email::Send::SMTP::Gmail',
           'File::SearchPath',
+          'Hash::Merge',
           'HTTP::Daemon',
           'HTTP::Daemon::SSL',
           'HTTP::ProxyPAC',
@@ -64,6 +68,7 @@ jobs:
           'Net::SMTP_auth',
           'Net::Subnet',
           'Net::TFTP',
+          'Schedule::Cron',
           'Sys::SigAction',
           'Term::Clui',
           'Term::ShellUI',
@@ -76,6 +81,7 @@ jobs:
           'XML::LibXML::Simple',
           'XML::SAX::Writer',
           'XSLoader',
+          'YAML::LibYAML',
           'ZMQ::Constants',
           'ZMQ::LibZMQ4',
         ]
@@ -90,6 +96,8 @@ jobs:
             version: '1.0.3'
           - name: 'ZMQ::LibZMQ4'
             dependencies: 'zeromq'
+          - name: 'Libssh::Session'
+            dependencies: 'perl(XSLoader)'
     name: package ${{ matrix.package_extension }} ${{ matrix.name }}
     container:
       image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
