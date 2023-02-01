@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { ThemeContext } from '@emotion/react';
 
 import { Paper } from '@mui/material';
 
