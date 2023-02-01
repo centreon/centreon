@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".github/workflows/perl-filesys-smbclient.yml"
       - "dependencies/perl-filesys-smbclient/**"
   push:
     branches:
@@ -160,7 +161,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
@@ -190,7 +191,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
