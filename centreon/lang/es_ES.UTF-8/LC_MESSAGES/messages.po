@@ -15460,3 +15460,24 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "You are not allowed to edit time periods"
 #  msgstr ""
+
+#  msgid "You are not allowed to access service groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on service groups"
+#  msgstr ""
+
+#  msgid "Error while searching for service groups"
+#  msgstr ""
+
+#  msgid "Error while deleting a service group"
+#  msgstr ""
+
+#  msgid "Error while adding a service group"
+#  msgstr ""
+
+#  msgid "Error while retrieving newly created service group"
+#  msgstr ""
+
+#  msgid "The service group name '%s' already exists"
+#  msgstr ""

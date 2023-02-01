@@ -23,14 +23,13 @@ runs:
           replace: ''
 
     - name: Cypress web component testing
-      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
+      uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
-        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
@@ -38,6 +37,13 @@ runs:
       with:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/results/videos
+
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/screenshots
 
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
