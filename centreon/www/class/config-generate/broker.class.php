@@ -204,6 +204,8 @@ class Broker extends AbstractObjectJSON
             $logs = $this->cacheLogValue[$object['broker_id']];
             $object['log']['loggers'] = $logs;
 
+            $reindexedObjectKeys = [];
+
             // Flow parameters
             foreach ($resultParameters as $key => $value) {
                 // We search the BlockId
@@ -307,7 +309,8 @@ class Broker extends AbstractObjectJSON
                             array_values($object[$key][$configGroupId][$subValue]);
                     }
                 }
-                $object[$key] = array_values($object[$key]);
+
+                $reindexedObjectKeys[] = $key;
             }
 
             // Stats parameters
@@ -337,6 +340,12 @@ class Broker extends AbstractObjectJSON
                 'port' => 51000 + (int) $row['config_id']
             ];
 
+            // Force as list-array eventually wrong indexed object keys (input, output)
+            foreach ($reindexedObjectKeys as $key) {
+                if (is_array($object[$key])) {
+                    $object[$key] = array_values($object[$key]);
+                }
+            }
 
             // Generate file
             $this->generateFile($object);
