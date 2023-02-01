@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "centreon/packages/ui-context/**"
+      - '.github/workflows/ui-context.yml'
     branches:
       - develop
 
@@ -40,24 +41,22 @@ jobs:
           name: centreon-ui-context-eslint-report
           path: ${{ env.directory }}/checkstyle.xml
 
-  deliver-npm:
+  publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: [lint, check-package-version]
-    if: ${{ !startsWith(github.head_ref, 'MON-update-package-versions') }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
 
-      - uses: ./.github/actions/npm-publish-package
+      - uses: ./.github/actions/npm-publish-package-beta
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}
-          release_type: "beta"
 
   check-package-version:
     runs-on: ubuntu-22.04
