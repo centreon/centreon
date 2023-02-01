@@ -49,8 +49,22 @@
           <h4>{$Folders}</h4>
         </td>
       </tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="cfg_dir" />&nbsp;{$form.cfg_dir.label}</td><td class="FormRowValue">{$form.cfg_dir.html}</td></tr>
-      <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="cfg_file" />&nbsp;{$form.cfg_file.label}</td><td class="FormRowValue">{$form.cfg_file.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="cfg_dir"/>
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.cfg_dir.label}
+                        </p>
+
+                    </div>
+                </div></td>
+                <td class="FormRowValue">{$form.cfg_dir.html}</td>
+            </tr>
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="cfg_file" />&nbsp;{$form.cfg_file.label}</td><td class="FormRowValue">{$form.cfg_file.html}</td></tr>
 
 			<tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
@@ -66,9 +80,41 @@
           <h4>{$ExternalCommandes}</h4>
         </td>
       </tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_external_commands" />&nbsp;{$form.check_external_commands.label}</td><td class="FormRowValue">{$form.check_external_commands.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="command_check_interval" />&nbsp;{$form.command_check_interval.label}</td><td class="FormRowValue">{$form.command_check_interval.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="command_file" />&nbsp;{$form.command_file.label}</td><td class="FormRowValue">{$form.command_file.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_external_commands"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                &nbsp;{$form.check_external_commands.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.check_external_commands.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="command_check_interval"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.command_check_interval.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.command_check_interval.html}</td>
+            </tr>
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="command_file" />&nbsp;{$form.command_file.label}</td><td class="FormRowValue">{$form.command_file.html}</td></tr>
 			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="external_command_buffer_slots" />&nbsp;{$form.external_command_buffer_slots.label}</td><td class="FormRowValue">{$form.external_command_buffer_slots.html}</td></tr>
 
 		 	<tr class="list_lvl_1">
