@@ -47,6 +47,9 @@ const useStyles = makeStyles()((theme) => ({
   headerCell: {
     padding: theme.spacing(0, 0, 0, 1)
   },
+  item: {
+    paddingLeft: theme.spacing(1.5)
+  },
   rowNotHovered: {
     color: theme.palette.text.secondary
   },
@@ -102,8 +105,11 @@ const DataCell = ({
 
       return (
         <Cell
+          className={classes.item}
           isRowHighlighted={isRowHighlighted}
-          style={{ gridColumn }}
+          style={{
+            gridColumn
+          }}
           viewMode={viewMode}
           {...commonCellProps}
         >
@@ -131,6 +137,7 @@ const DataCell = ({
 
       return (
         <Cell
+          className={classes.item}
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {
