@@ -34,10 +34,7 @@ $invalidMaxLengthString = '';
 for ($index = 0; $index <= NewVaultConfiguration::MAX_LENGTH; $index++) {
     $invalidMaxLengthString .= 'a';
 }
-$invalidNameMaxLengthString = '';
-for ($index = 0; $index <= NewVaultConfiguration::NAME_MAX_LENGTH; $index++) {
-    $invalidNameMaxLengthString .= 'a';
-}
+$invalidNameMaxLengthString = str_repeat('a', NewVaultConfiguration::NAME_MAX_LENGTH + 1);
 beforeEach(function (): void {
     $this->vault = new Vault(1, 'myVaultProvider');
     $this->encryption = new Encryption();
