@@ -25,7 +25,7 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
-  arti_token:
+  artifactory_token:
     description: "token for artifactory"
     required: true
 
