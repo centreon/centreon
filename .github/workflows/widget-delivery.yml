@@ -22,7 +22,7 @@ on:
         required: true
       nexus_password:
         required: true
-      arti_token:
+      artifactory_token:
         required: true
       update_repo_path:
         description: "The update repo script path"
@@ -91,6 +91,6 @@ jobs:
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
-          arti_token: ${{ secrets.arti_token }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
