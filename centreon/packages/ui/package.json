@@ -48,8 +48,11 @@
     "storybook-dark-mode": "^1.1.0"
   },
   "dependencies": {
+    "@lexical/react": "^0.7.6",
+    "@lexical/utils": "^0.7.6",
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.27.3",
+    "lexical": "^0.7.6",
     "notistack": "^2.0.8",
     "react-transition-group": "^4.4.5",
     "ulog": "^2.0.0-beta.19"
