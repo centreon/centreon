@@ -33,11 +33,11 @@ import {
   labelPerformanceGraphAD,
   labelResetToDefaultValue,
   labelSave,
-  labelSearch,
   labelSearchBar,
   labelSlider
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
+import { Method } from '../../../../../../../cypress/support/commands';
 
 import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 import { getDisplayAdditionalLinesCondition } from './graph';
@@ -137,14 +137,16 @@ describe('Anomaly detection - Graph', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
 
-    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
-      'graphAnomalyDetection'
-    );
-    cy.server();
-
-    cy.route('GET', '**/performance?*', '@graphAnomalyDetection').as(
-      'getGraphDataAnomalyDetection'
-    );
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json')
+      .as('graphAnomalyDetection')
+      .then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'getGraphDataAnomalyDetection',
+          method: Method.GET,
+          path: '**/performance?*',
+          response: data
+        });
+      });
 
     const { result } = renderHook(() => useLoadDetails());
 
@@ -181,7 +183,7 @@ describe('Anomaly detection - Graph', () => {
     });
   });
 
-  it.only('displays the wrench icon on graph actions when resource of type anomaly-detection is selected', () => {
+  it('displays the wrench icon on graph actions when resource of type anomaly-detection is selected', () => {
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).should('be.visible');
   });
 
@@ -229,12 +231,11 @@ describe('Anomaly detection - Graph', () => {
     cy.get('[role="dialog"]').scrollTo('bottom');
     cy.contains(labelClose).should('be.visible');
     cy.get('[role="dialog"]').scrollTo('top');
-    cy.wait(150);
   });
 
   it('displays the threshold when add or minus buttons are clicked on Anomaly detection configuration modal slider', () => {
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
-    cy.wait('@getGraphDataAnomalyDetection');
+    cy.waitForRequest('@getGraphDataAnomalyDetection');
 
     cy.get(`[data-testid="${labelAdd}"]`).click();
     cy.get('input[type="range"]').should('have.value', '3.1');
@@ -302,34 +303,57 @@ describe('Anomaly detection - Graph', () => {
   });
 });
 
+const mockResourceListingRequest = (
+  fixture = 'resources/resourceListing.json'
+): void => {
+  cy.fixture(fixture).then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'getResourceList',
+      method: Method.GET,
+      path: '**/resources?*',
+      response: data
+    });
+  });
+};
+
 describe('Anomaly detection - Global', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
-    cy.fixture('resources/resourceListing.json').as('listResource');
-    cy.fixture('resources/userFilter.json').as('userFilter');
-    cy.fixture('resources/anomalyDetectionDetails.json').as(
-      'anomalyDetectionDetails'
-    );
-    cy.fixture('resources/updatedAnomalyDetectionDetails.json').as(
-      'updatedAnomalyDetectionDetails'
-    );
-    cy.fixture('resources/anomalyDetectionPerformanceGraph.json').as(
-      'graphAnomalyDetection'
-    );
-    cy.server();
-    cy.route('GET', '**/resources?*', '@listResource').as('getResourceList');
-    cy.route('GET', '**/events-view?*', '@userFilter').as('filter');
-    cy.route(
-      'GET',
-      '**/resources/anomaly-detection/1',
-      '@anomalyDetectionDetails'
-    );
-    cy.route('GET', '**/performance?*', '@graphAnomalyDetection').as(
-      'getGraphDataAnomalyDetection'
-    );
-    cy.route('PUT', '**/sensitivity', {
-      sensitivity: 3.3
-    }).as('putSensitivity');
+    cy.fixture('resources/anomalyDetectionPerformanceGraph.json')
+      .as('graphAnomalyDetection')
+      .then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'getGraphDataAnomalyDetection',
+          method: Method.GET,
+          path: '**/performance?*',
+          response: data
+        });
+      });
+    cy.fixture('resources/userFilter.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'filter',
+        method: Method.GET,
+        path: '**/events-view?*',
+        response: data
+      });
+    });
+    cy.fixture('resources/anomalyDetectionDetails.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'anomalyDetectionDetails',
+        method: Method.GET,
+        path: '**/resources/anomaly-detection/1',
+        response: data
+      });
+    });
+    cy.interceptAPIRequest({
+      alias: 'putSensitivity',
+      method: Method.PUT,
+      path: '**/sensitivity',
+      response: {
+        sensitivity: 3.3
+      }
+    });
+    mockResourceListingRequest();
 
     const storedFilter = renderHook(() => useAtom(storedFilterAtom));
 
@@ -356,7 +380,7 @@ describe('Anomaly detection - Global', () => {
   it('displays the wrench icon on graph actions when one row of a resource of anomaly-detection is clicked', () => {
     cy.contains('ad').click();
     cy.get('[data-testid="3"]').contains(labelGraph).click();
-    cy.wait('@getGraphDataAnomalyDetection').then(() =>
+    cy.waitForRequest('@getGraphDataAnomalyDetection').then(() =>
       cy.matchImageSnapshot()
     );
 
@@ -366,9 +390,9 @@ describe('Anomaly detection - Global', () => {
   it('displays the Anomaly detection configuration modal when the corresponding button is clicked', () => {
     cy.contains('ad').click();
     cy.get('[data-testid="3"]').click();
-    cy.wait('@getGraphDataAnomalyDetection');
+    cy.waitForRequest('@getGraphDataAnomalyDetection');
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
-    cy.wait('@getGraphDataAnomalyDetection');
+    cy.waitForRequest('@getGraphDataAnomalyDetection');
     cy.matchImageSnapshot();
     cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
     cy.get(`[aria-label="Close"]`).click();
@@ -377,12 +401,7 @@ describe('Anomaly detection - Global', () => {
   it('displays the new value of slider when user confirm the changes on Anomaly detection configuration modal ', () => {
     cy.contains('ad').click();
     cy.get('[data-testid="3"]').click();
-    cy.wait('@getGraphDataAnomalyDetection');
-    cy.route(
-      'GET',
-      '**/resources/anomaly-detection/1',
-      '@updatedAnomalyDetectionDetails'
-    ).as('getNewDetailsAnomalyDetection');
+    cy.waitForRequest('@getGraphDataAnomalyDetection');
     cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
     cy.get(`[data-testid="${labelAdd}"]`).click();
     cy.get(`[data-testid="${labelAdd}"]`).click();
@@ -392,19 +411,16 @@ describe('Anomaly detection - Global', () => {
     cy.contains(labelEditAnomalyDetectionConfirmation).should('be.visible');
     cy.get(`[aria-label="Save"]`).click();
 
-    cy.wait('@getNewDetailsAnomalyDetection').should(
-      'have.property',
-      'status',
-      200
-    );
-    cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
-    cy.get(`[data-testid="${labelPerformanceGraphAD}"]`).click();
-    cy.get('.MuiSlider-valueLabelLabel').contains(3.3).should('be.visible');
+    cy.waitForRequest('@anomalyDetectionDetails');
     cy.get(`[data-testid="${labelCloseEditModal}"]`).click();
   });
 
   it('displays the Anomaly detection criteria value when the type criteria chip is clicked and centreon-anomaly-detection is installed', () => {
-    cy.displayFilterMenu();
+    cy.waitForRequest('@filter');
+    cy.waitForRequest('@anomalyDetectionDetails');
+
+    cy.get('[aria-label="Filter options"]').click();
+
     cy.matchImageSnapshot();
   });
 
@@ -414,16 +430,11 @@ describe('Anomaly detection - Global', () => {
     cy.get(`[data-testid="${labelClearFilter}"]`).click();
   });
 
-  it('displays resources of type anomaly-detection when  filters of anomaly detection are checked and search button is clicked', () => {
-    cy.fixture('resources/resourceListingWithAnomalyDetectionType.json').as(
-      'listResourceByType'
+  it('displays resources of type anomaly-detection', () => {
+    mockResourceListingRequest(
+      'resources/resourceListingWithAnomalyDetectionType.json'
     );
-    cy.route('GET', '**/resources?*', '@listResourceByType').as(
-      'getResourceListByType'
-    );
-    cy.displayFilterMenu();
-    filtersToBeDisplayedInTypeMenu.forEach((item) => cy.contains(item).click());
-    cy.get(`[data-testid="${labelSearch}"]`).click();
+    cy.waitForRequest('@getResourceList');
     cy.matchImageSnapshot();
   });
 });

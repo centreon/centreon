@@ -171,11 +171,11 @@ const interceptRequestsAndMountBeforeEach = (
 
 describe('Resource Listing', () => {
   beforeEach(() => {
-    interceptRequestsAndMountBeforeEach();
     configureUserAtomViewMode();
   });
 
   it('displays first part of information when multiple (split by \n) are available', () => {
+    interceptRequestsAndMountBeforeEach();
     const [resourcesWithMultipleLines, resourcesWithSingleLines] =
       Ramda.partition(
         Ramda.where({ information: Ramda.includes('\n') }),
@@ -201,6 +201,7 @@ describe('Resource Listing', () => {
   });
 
   it('displays the listing in compact mode', () => {
+    interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
@@ -209,6 +210,7 @@ describe('Resource Listing', () => {
   });
 
   it('displays the listing in extended mode', () => {
+    interceptRequestsAndMountBeforeEach();
     configureUserAtomViewMode(ListingVariant.extended);
     cy.waitFiltersAndListingRequests();
 
@@ -219,6 +221,7 @@ describe('Resource Listing', () => {
 
   it('displays a highlighted row when a resource is in a critical state', () => {
     interceptRequestsAndMountBeforeEach(true);
+
     cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
@@ -227,6 +230,7 @@ describe('Resource Listing', () => {
   });
 
   it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+    interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 
     cy.moveSortableElement({
@@ -313,6 +317,12 @@ describe('column sorting', () => {
   });
 });
 
+const pageNavigationCalls = [
+  { expectedCall: 1, param: 'page=2&limit=30' },
+  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 1, param: 'page=4&limit=30' }
+];
+
 describe('Listing request', () => {
   beforeEach(() => {
     interceptRequestsAndMountBeforeEach();
@@ -327,9 +337,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Previous page`)
       .should((label) => {
@@ -337,9 +345,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Last page`)
       .should((label) => {
@@ -347,9 +353,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`First page`)
       .should((label) => {
@@ -357,8 +361,18 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.getRequestCalls('@dataToListingTable').then((calls) => {
+      expect(calls).to.have.length(6);
+      pageNavigationCalls.forEach(({ param, expectedCall }) => {
+        expect(
+          Ramda.filter(
+            (call) => Ramda.includes(param, call.request.url.search),
+            calls
+          )
+        ).to.have.length(expectedCall);
+      });
     });
 
     cy.matchImageSnapshot();
