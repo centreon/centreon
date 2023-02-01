@@ -28,12 +28,10 @@ jobs:
 
   package-rpm:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
@@ -72,12 +70,10 @@ jobs:
 
   sign-rpm:
     needs: [package-rpm]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
@@ -114,7 +110,7 @@ jobs:
 
   package-deb:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
@@ -151,7 +147,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -160,7 +156,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
@@ -190,7 +186,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
