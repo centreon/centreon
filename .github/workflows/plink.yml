@@ -1,4 +1,4 @@
-name: perl-libssh-session
+name: plink
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "dependencies/perl-libssh-session/**"
+      - ".github/workflows/plink.yml"
   push:
     branches:
       - develop
@@ -16,9 +16,9 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "dependencies/perl-libssh-session/**"
+      - ".github/workflows/plink.yml"
     tags:
-      - perl-libssh-session-*
+      - plink-*
 
 jobs:
   get-version:
@@ -28,19 +28,17 @@ jobs:
 
   package-rpm:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: package ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
         password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
@@ -49,14 +47,13 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          yum install -y libssh-devel make gcc perl perl-devel perl-ExtUtils-MakeMaker
+          yum install -y wget gcc make
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          cp -rp dependencies/perl-libssh-session/src perl-Libssh-Session/
-          tar czf ~/rpmbuild/SOURCES/perl-Libssh-Session.tar.gz perl-Libssh-Session
+          wget -P ~/rpmbuild/SOURCES/ https://the.earth.li/~sgtatham/putty/0.74/putty-0.74.tar.gz
 
-          rpmbuild -ba dependencies/perl-libssh-session/packaging/rpm/perl-Libssh-Session.spec
+          rpmbuild -ba dependencies/plink/packaging/rpm/plink.spec
 
           cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
         shell: bash
@@ -68,19 +65,17 @@ jobs:
 
   sign-rpm:
     needs: [package-rpm]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: sign rpm ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
+      image: docker.centreon.com/rpm-signing:ubuntu
       options: -t
       credentials:
         username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
@@ -113,51 +108,13 @@ jobs:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
 
-  package-deb:
-    needs: [get-version]
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        include:
-          - image: packaging-bullseye
-            distrib: bullseye
-    name: package ${{ matrix.distrib }}
-    container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - run: |
-          apt update
-          apt install -y dh-make-perl perl libssh-dev
-
-          mv dependencies/perl-libssh-session/src/ perl-libssh-session
-          tar czf perl-libssh-session.tar.gz perl-libssh-session
-
-          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make -p libssh-session-perl --desc libssh-session-perl --verbose --build --version 0.9-${{ matrix.distrib }} perl-libssh-session/
-        shell: bash
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.deb
-
   deliver-rpm:
     needs: [get-version, sign-rpm]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -166,7 +123,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: plink
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
@@ -179,28 +136,4 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
-
-  deliver-deb:
-    needs: [get-version, package-deb]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        distrib: [bullseye]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: perl-libssh-session
-          repository_name: standard
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
