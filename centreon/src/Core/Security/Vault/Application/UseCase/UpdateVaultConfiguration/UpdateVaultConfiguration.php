@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\InvalidArgumentException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
@@ -122,7 +123,7 @@ final class UpdateVaultConfiguration
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (InvalidArgumentException $ex) {
+        } catch (InvalidArgumentException | AssertionException $ex) {
             $this->error('Some parameters are not valid', ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new InvalidArgumentResponse($ex->getMessage())

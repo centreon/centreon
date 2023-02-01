@@ -197,12 +197,11 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         $this->user
     );
 
-    $invalidName = '';
-
+    $invalidAddress = '._@';
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
     $updateVaultConfigurationRequest->typeId = 1;
-    $updateVaultConfigurationRequest->address = '127.0.0.1';
+    $updateVaultConfigurationRequest->address = $invalidAddress;
     $updateVaultConfigurationRequest->port = 8200;
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
@@ -211,11 +210,9 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        AssertionException::minLength(
-            $invalidName,
-            strlen($invalidName),
-            VaultConfiguration::MIN_LENGTH,
-            'VaultConfiguration::name'
+        AssertionException::ipOrDomain(
+            $invalidAddress,
+            'VaultConfiguration::address'
         )->getMessage()
     );
 });

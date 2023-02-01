@@ -87,7 +87,7 @@ it(
     AssertionException::maxLength(
         $invalidNameMaxLengthString,
         strlen($invalidNameMaxLengthString),
-        NewVaultConfiguration::MAX_LENGTH,
+        NewVaultConfiguration::NAME_MAX_LENGTH,
         'NewVaultConfiguration::name'
     )->getMessage()
 );
@@ -218,7 +218,7 @@ it(
     AssertionException::maxLength(
         $invalidNameMaxLengthString,
         strlen($invalidNameMaxLengthString),
-        NewVaultConfiguration::MAX_LENGTH,
+        NewVaultConfiguration::NAME_MAX_LENGTH,
         'NewVaultConfiguration::storage'
     )->getMessage()
 );

@@ -37,7 +37,7 @@ class VaultConfiguration
     public const MIN_PORT_VALUE = 1;
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;
-    public const NAME_VALIDATION_REGEX = '^[a-zA-Z0-9_-/]$';
+    public const NAME_VALIDATION_REGEX = '/^[\w+\-_\/]*$/';
 
     private ?string $secretId;
     private ?string $roleId;
@@ -198,6 +198,7 @@ class VaultConfiguration
     {
         Assertion::minLength($storage, self::MIN_LENGTH, 'VaultConfiguration::storage');
         Assertion::maxLength($storage, self::NAME_MAX_LENGTH, 'VaultConfiguration::storage');
+        Assertion::regex($storage, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
         $this->storage = $storage;
     }
 
