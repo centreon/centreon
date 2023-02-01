@@ -195,7 +195,7 @@ Feature: Vault Configuration API
     When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
     """
       {
-        "address": "127.0.0.3",
+        "address": "127.0.0.2",
         "port": 8201,
         "role_id": "myRoleId",
         "secret_id": "mySecretId"
