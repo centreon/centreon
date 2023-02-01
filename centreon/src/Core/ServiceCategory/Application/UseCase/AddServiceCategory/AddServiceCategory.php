@@ -96,7 +96,7 @@ final class AddServiceCategory
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceCategoryException::addServiceCategory($ex))
             );
-            $this->error($ex->getMessage());
+            $this->error((string) $ex);
         }
     }
 

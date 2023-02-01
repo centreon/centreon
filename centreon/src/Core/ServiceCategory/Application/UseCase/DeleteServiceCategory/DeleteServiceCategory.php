@@ -90,7 +90,7 @@ final class DeleteServiceCategory
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceCategoryException::deleteServiceCategory($ex))
             );
-            $this->error($ex->getMessage());
+            $this->error((string) $ex);
         }
     }
 }
