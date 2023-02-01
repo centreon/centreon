@@ -57,7 +57,7 @@
                     </div>
                     <div>
                         <p class="fieldLabel">
-                            {$form.cfg_dir.label}
+                           {$form.cfg_dir.label}
                         </p>
 
                     </div>
@@ -89,7 +89,7 @@
                         </div>
                         <div>
                             <p class="fieldLabel">
-                                &nbsp;{$form.check_external_commands.label}
+                              {$form.check_external_commands.label}
                             </p>
 
                         </div>
@@ -115,9 +115,25 @@
                 <td class="FormRowValue">{$form.command_check_interval.html}</td>
             </tr>
             <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="command_file" />&nbsp;{$form.command_file.label}</td><td class="FormRowValue">{$form.command_file.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="external_command_buffer_slots" />&nbsp;{$form.external_command_buffer_slots.label}</td><td class="FormRowValue">{$form.external_command_buffer_slots.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
 
-		 	<tr class="list_lvl_1">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip"
+                                 name="external_command_buffer_slots"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.external_command_buffer_slots.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.external_command_buffer_slots.html}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$form.header.information}</h4>
         </td>
@@ -145,36 +161,190 @@
           <h4>{$HostCheckOptions}</h4>
         </td>
       </tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="enable_predictive_host_dependency_checks" />&nbsp;{$form.enable_predictive_host_dependency_checks.label}</td><td class="FormRowValue">{$form.enable_predictive_host_dependency_checks.html}</td></tr>
-			<tr class="list_lvl_1">
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="enable_predictive_host_dependency_checks"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.enable_predictive_host_dependency_checks.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.enable_predictive_host_dependency_checks.html}</td>
+            </tr>
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$ServiceCheckOptions}</h4>
         </td>
       </tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_for_orphaned_services" />&nbsp;{$form.check_for_orphaned_services.label}</td><td class="FormRowValue">{$form.check_for_orphaned_services.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="check_for_orphaned_hosts" />&nbsp;{$form.check_for_orphaned_hosts.label}</td><td class="FormRowValue">{$form.check_for_orphaned_hosts.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="soft_state_dependencies" />&nbsp;{$form.soft_state_dependencies.label}</td><td class="FormRowValue">{$form.soft_state_dependencies.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="enable_predictive_service_dependency_checks" />&nbsp;{$form.enable_predictive_service_dependency_checks.label}</td><td class="FormRowValue">{$form.enable_predictive_service_dependency_checks.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
 
-			<tr class="list_lvl_1">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_for_orphaned_services"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.check_for_orphaned_services.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.check_for_orphaned_services.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_for_orphaned_hosts"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.check_for_orphaned_hosts.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.check_for_orphaned_hosts.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="soft_state_dependencies"/>
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.soft_state_dependencies.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.soft_state_dependencies.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="enable_predictive_service_dependency_checks"/>
+
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.enable_predictive_service_dependency_checks.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.enable_predictive_service_dependency_checks.html}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$EventHandler}</h4>
         </td>
       </tr>
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="global_host_event_handler" />&nbsp;{$form.global_host_event_handler.label}</td><td class="FormRowValue">{$form.global_host_event_handler.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="global_service_event_handler">&nbsp;{$form.global_service_event_handler.label}</td><td class="FormRowValue">{$form.global_service_event_handler.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="global_service_event_handler">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.global_service_event_handler.label}
+                            </p>
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.global_service_event_handler.html}</td>
+            </tr>
 
-		 	<tr class="list_lvl_1">
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$Freshness}</h4>
         </td>
       </tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_service_freshness">&nbsp;{$form.check_service_freshness.label}</td><td class="FormRowValue">{$form.check_service_freshness.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="service_freshness_check_interval">&nbsp;{$form.service_freshness_check_interval.label}</td><td class="FormRowValue">{$form.service_freshness_check_interval.html}&nbsp;&nbsp;{$Seconds}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_host_freshness">&nbsp;{$form.check_host_freshness.label}</td><td class="FormRowValue">{$form.check_host_freshness.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="host_freshness_check_interval">&nbsp;{$form.host_freshness_check_interval.label}</td><td class="FormRowValue">{$form.host_freshness_check_interval.html}&nbsp;&nbsp;{$Seconds}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
 
-		 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="additional_freshness_latency">&nbsp;{$form.additional_freshness_latency.label}</td><td class="FormRowValue">{$form.additional_freshness_latency.html}&nbsp;&nbsp;{$Seconds}</td></tr>
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_service_freshness">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.check_service_freshness.label}
+                            </p>
+
+                        </div>
+                    </div> </td>
+                <td class="FormRowValue">{$form.check_service_freshness.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="service_freshness_check_interval">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.service_freshness_check_interval.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.service_freshness_check_interval.html}&nbsp;&nbsp;{$Seconds}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_host_freshness">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.check_host_freshness.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.check_host_freshness.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="host_freshness_check_interval">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.host_freshness_check_interval.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.host_freshness_check_interval.html}&nbsp;&nbsp;{$Seconds}</td>
+            </tr>
+
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="additional_freshness_latency">&nbsp;{$form.additional_freshness_latency.label}</td><td class="FormRowValue">{$form.additional_freshness_latency.html}&nbsp;&nbsp;{$Seconds}</td></tr>
 
 		 	<tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
@@ -193,13 +363,73 @@
         </td>
       </tr>
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="enable_notifications">&nbsp;{$form.enable_notifications.label}</td><td class="FormRowValue">{$form.enable_notifications.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="execute_service_checks">&nbsp;{$form.execute_service_checks.label}</td><td class="FormRowValue">{$form.execute_service_checks.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="accept_passive_service_checks">&nbsp;{$form.accept_passive_service_checks.label}</td><td class="FormRowValue">{$form.accept_passive_service_checks.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="enable_event_handlers">&nbsp;{$form.enable_event_handlers.label}</td><td class="FormRowValue">{$form.enable_event_handlers.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="execute_host_checks">&nbsp;{$form.execute_host_checks.label}</td><td class="FormRowValue">{$form.execute_host_checks.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="accept_passive_host_checks">&nbsp;{$form.accept_passive_host_checks.label}</td><td class="FormRowValue">{$form.accept_passive_host_checks.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="execute_service_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.execute_service_checks.label}
+                            </p>
 
-      {if $o == "a" || $o == "c"}
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.execute_service_checks.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="accept_passive_service_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.accept_passive_service_checks.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.accept_passive_service_checks.html}</td>
+            </tr>
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="enable_event_handlers">&nbsp;{$form.enable_event_handlers.label}</td><td class="FormRowValue">{$form.enable_event_handlers.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="execute_host_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.execute_host_checks.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.execute_host_checks.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="accept_passive_host_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.accept_passive_host_checks.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.accept_passive_host_checks.html}</td>
+            </tr>
+
+            {if $o == "a" || $o == "c"}
           <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
           {if isset($form.required)}
               {$form.required._note}
@@ -227,14 +457,90 @@
       </tr>
       <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="use_syslog">&nbsp;{$form.use_syslog.label}</td><td class="FormRowValue">{$form.use_syslog.html}</td></tr>
       <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="log_notifications">&nbsp;{$form.log_notifications.label}</td><td class="FormRowValue">{$form.log_notifications.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="log_service_retries">&nbsp;{$form.log_service_retries.label}</td><td class="FormRowValue">{$form.log_service_retries.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="log_host_retries">&nbsp;{$form.log_host_retries.label}</td><td class="FormRowValue">{$form.log_host_retries.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="log_event_handlers">&nbsp;{$form.log_event_handlers.label}</td><td class="FormRowValue">{$form.log_event_handlers.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="log_external_commands">&nbsp;{$form.log_external_commands.label}</td><td class="FormRowValue">{$form.log_external_commands.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="log_passive_checks">&nbsp;{$form.log_passive_checks.label}</td><td class="FormRowValue">{$form.log_passive_checks.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="log_pid">&nbsp;{$form.log_pid.label}</td><td class="FormRowValue">{$form.log_pid.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip"
+                                 name="log_service_retries">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.log_service_retries.label}
+                            </p>
 
-      <tr class="list_lvl_1">
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.log_service_retries.html}</td>
+            </tr>
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="log_host_retries">&nbsp;{$form.log_host_retries.label}</td><td class="FormRowValue">{$form.log_host_retries.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="log_event_handlers">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.log_event_handlers.label}
+                            </p>
+
+                        </div>
+                    </div>
+                    </td>
+                <td class="FormRowValue">{$form.log_event_handlers.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="log_external_commands">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.log_external_commands.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.log_external_commands.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="log_passive_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+
+                                {$form.log_passive_checks.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.log_passive_checks.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="log_pid">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.log_pid.label}
+                            </p>
+
+                        </div>
+                    </div>
+
+                </td>
+                <td class="FormRowValue">{$form.log_pid.html}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$DebugConfiguration}</h4>
         </td>
@@ -333,11 +639,56 @@
       </tr>
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="retain_state_information">&nbsp;{$form.retain_state_information.label}</td><td class="FormRowValue">{$form.retain_state_information.html}</td></tr>
 			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="state_retention_file">&nbsp;{$form.state_retention_file.label}</td><td class="FormRowValue">{$form.state_retention_file.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="retention_update_interval">&nbsp;{$form.retention_update_interval.label}</td><td class="FormRowValue">{$form.retention_update_interval.html}&nbsp;{$Minutes}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="use_retained_program_state">&nbsp;{$form.use_retained_program_state.label}</td><td class="FormRowValue">{$form.use_retained_program_state.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="use_retained_scheduling_info">&nbsp;{$form.use_retained_scheduling_info.label}</td><td class="FormRowValue">{$form.use_retained_scheduling_info.html}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="retention_update_interval">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.retention_update_interval.label}
+                            </p>
 
-      {if $o == "a" || $o == "c"}
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.retention_update_interval.html}&nbsp;{$Minutes}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_retained_program_state">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.use_retained_program_state.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.use_retained_program_state.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_retained_scheduling_info">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.use_retained_scheduling_info.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.use_retained_scheduling_info.html}</td>
+            </tr>
+
+            {if $o == "a" || $o == "c"}
           <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
           {if isset($form.required)}
               {$form.required._note}
@@ -422,21 +773,111 @@
           <h4>{$HostCheckSchedulingOptions}</h4>
         </td>
       </tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="host_inter_check_delay_method">&nbsp;{$form.host_inter_check_delay_method.label}</td><td class="FormRowValue">{$form.host_inter_check_delay_method.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="max_host_check_spread">&nbsp;{$form.max_host_check_spread.label}</td><td class="FormRowValue">{$form.max_host_check_spread.html}&nbsp;{$Minutes}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip"
+                                 name="host_inter_check_delay_method">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.host_inter_check_delay_method.label}
+                            </p>
 
-			<tr class="list_lvl_1">
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.host_inter_check_delay_method.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip"
+                                 name="max_host_check_spread">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.max_host_check_spread.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.max_host_check_spread.html}&nbsp;{$Minutes}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
           <td class="ListColLvl1_name" colspan="2">
             <h4>{$ServiceCheckSchedulingOptions}</h4>
           </td>
       </tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_inter_check_delay_method">&nbsp;{$form.service_inter_check_delay_method.label}</td><td class="FormRowValue">{$form.service_inter_check_delay_method.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="max_service_check_spread">&nbsp;{$form.max_service_check_spread.label}</td><td class="FormRowValue">{$form.max_service_check_spread.html}&nbsp;{$Minutes}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_interleave_factor">&nbsp;{$form.service_interleave_factor.label}</td><td class="FormRowValue">{$form.service_interleave_factor.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="max_concurrent_checks">&nbsp;{$form.max_concurrent_checks.label}</td><td class="FormRowValue">{$form.max_concurrent_checks.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_result_reaper_frequency">&nbsp;{$form.check_result_reaper_frequency.label}</td><td class="FormRowValue">{$form.check_result_reaper_frequency.html}&nbsp;{$Seconds}</td></tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="service_inter_check_delay_method">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.service_inter_check_delay_method.label}
+                            </p>
 
-			<tr class="list_lvl_1">
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.service_inter_check_delay_method.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="max_service_check_spread">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.max_service_check_spread.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.max_service_check_spread.html}&nbsp;{$Minutes}</td>
+            </tr>
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_interleave_factor">&nbsp;{$form.service_interleave_factor.label}</td><td class="FormRowValue">{$form.service_interleave_factor.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="max_concurrent_checks">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.max_concurrent_checks.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.max_concurrent_checks.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="check_result_reaper_frequency">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.check_result_reaper_frequency.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.check_result_reaper_frequency.html}&nbsp;{$Seconds}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
           <h4>{$CachedCheck}</h4>
         </td>
@@ -479,12 +920,70 @@
       <td class="ListColLvl1_name" colspan="2"><h4>{$Advanced}</h4></td></tr>
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="date_format">&nbsp;{$form.date_format.label}</td><td class="FormRowValue">{$form.date_format.html}</td></tr>
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="instance_heartbeat_interval">&nbsp;{$form.instance_heartbeat_interval.label}</td><td class="FormRowValue">{$form.instance_heartbeat_interval.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="illegal_object_name_chars">&nbsp;{$form.illegal_object_name_chars.label}</td><td class="FormRowValue">{$form.illegal_object_name_chars.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="illegal_macro_output_chars">&nbsp;{$form.illegal_macro_output_chars.label}</td><td class="FormRowValue">{$form.illegal_macro_output_chars.html}</td></tr>
-			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="use_regexp_matching">&nbsp;{$form.use_regexp_matching.label}</td><td class="FormRowValue">{$form.use_regexp_matching.html}</td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="use_true_regexp_matching">&nbsp;{$form.use_true_regexp_matching.label}</td><td class="FormRowValue">{$form.use_true_regexp_matching.html}</td></tr>
-			<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><h4>{$AdminInfo}</h4></td></tr>
-			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="admin_email">&nbsp;{$form.admin_email.label}</td><td class="FormRowValue">{$form.admin_email.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="illegal_object_name_chars">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.illegal_object_name_chars.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.illegal_object_name_chars.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="illegal_macro_output_chars">;
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.illegal_macro_output_chars.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.illegal_macro_output_chars.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_regexp_matching">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.use_regexp_matching.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.use_regexp_matching.html}</td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_true_regexp_matching">;
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.use_true_regexp_matching.label}
+                            </p>
+
+                        </div>
+                    </div></td>
+                <td class="FormRowValue">{$form.use_true_regexp_matching.html}</td>
+            </tr>
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2"><h4>{$AdminInfo}</h4></td>
+            </tr>
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="admin_email">&nbsp;{$form.admin_email.label}</td><td class="FormRowValue">{$form.admin_email.html}</td></tr>
 			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="admin_pager">&nbsp;{$form.admin_pager.label}</td><td class="FormRowValue">{$form.admin_pager.html}</td></tr>
       {if $o == "a" || $o == "c"}
           <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
