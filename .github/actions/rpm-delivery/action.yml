@@ -131,6 +131,7 @@ runs:
         if [ "${{ inputs.stability }}" == unstable ]; then
           PROJECT_LOCATIONS=`echo "$PROJECT_LOCATIONS" | xargs -n1 | sort -u | xargs`
           for PROJECT_LOCATION in `echo $PROJECT_LOCATIONS`; do
+            echo "clean $PROJECT_LOCATION"
             ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
           done
         fi
