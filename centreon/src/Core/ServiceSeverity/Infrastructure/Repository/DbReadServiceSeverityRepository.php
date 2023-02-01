@@ -48,7 +48,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all service severities');
 
@@ -67,7 +67,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array
+    public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all service severities by access groups');
 
@@ -86,7 +86,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
         if (! $this->hasRestrictedAccessToServiceSeverities($accessGroupIds)) {
             $this->info('Service severities access not filtered');
 
-            return $this->findAll($requestParameters);
+            return $this->findByRequestParameter($requestParameters);
         }
 
         $concatenator = new SqlConcatenator();
@@ -113,19 +113,19 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
 
     /**
      * @param SqlConcatenator $concatenator
-     * @param RequestParametersInterface|null $requestParameters
+     * @param RequestParametersInterface $requestParameters
      *
      * @return ServiceSeverity[]
      */
     private function retrieveServiceSeverities(
         SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters
     ): array {
         // Exclude severities from the results
         $concatenator->appendWhere('sc.level IS NOT NULL');
 
         // Settup for search, pagination, order
-        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator?->setConcordanceArray([
             'id' => 'sc.sc_id',
             'name' => 'sc.sc_name',
@@ -133,16 +133,16 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
             'level' => 'sc.level',
             'is_activated' => 'sc.sc_activate',
         ]);
-        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
-        $sqlTranslator?->translateForConcatenator($concatenator);
+        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+        $sqlTranslator->translateForConcatenator($concatenator);
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
-        $sqlTranslator?->bindSearchValues($statement);
+        $sqlTranslator->bindSearchValues($statement);
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
 
-        $sqlTranslator?->calculateNumberOfRows($this->db);
+        $sqlTranslator->calculateNumberOfRows($this->db);
 
         $serviceSeverities = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {

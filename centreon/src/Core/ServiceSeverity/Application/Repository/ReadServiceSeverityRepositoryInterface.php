@@ -32,23 +32,23 @@ interface ReadServiceSeverityRepositoryInterface
     /**
      * Find all service severities.
      *
-     * @param RequestParametersInterface|null $requestParameters
+     * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
      *
      * @return ServiceSeverity[]
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 
     /**
      * Find all service severities by access groups.
      *
      * @param AccessGroup[] $accessGroups
-     * @param RequestParametersInterface|null $requestParameters
+     * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
      *
      * @return ServiceSeverity[]
      */
-    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array;
 }

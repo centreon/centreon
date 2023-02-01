@@ -60,7 +60,7 @@ final class FindServiceSeverities
     {
         try {
             if ($this->user->isAdmin()) {
-                $serviceSeverities = $this->readServiceSeverityRepository->findAll($this->requestParameters);
+                $serviceSeverities = $this->readServiceSeverityRepository->findByRequestParameter($this->requestParameters);
                 $presenter->present($this->createResponse($serviceSeverities));
             } elseif (
                 $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ)
@@ -71,7 +71,7 @@ final class FindServiceSeverities
                     ['user' => $this->user->getName()]
                 );
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $serviceSeverities = $this->readServiceSeverityRepository->findAllByAccessGroups(
+                $serviceSeverities = $this->readServiceSeverityRepository->findByRequestParameterAndAccessGroups(
                     $accessGroups,
                     $this->requestParameters
                 );
