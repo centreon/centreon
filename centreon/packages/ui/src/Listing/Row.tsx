@@ -2,7 +2,7 @@
 
 import { memo, useRef, useEffect } from 'react';
 
-import { equals, gte, lt, not, pluck } from 'ramda';
+import { gte, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { TableRowProps, TableRow, useTheme } from '@mui/material';
@@ -108,80 +108,7 @@ const Row = memo<RowProps>(
       </TableRow>
     );
   },
-  (prevProps: RowProps, nextProps: RowProps) => {
-    const {
-      row: previousRow,
-      rowColorConditions: previousRowColorConditions,
-      isInViewport: prevIsInViewport,
-      visibleColumns: previousVisibleColumns,
-      isShiftKeyDown: prevIsShiftKeyDown,
-      shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
-      lastSelectionIndex: prevLastSelectionIndex,
-      viewMode: prevViewMode
-    } = prevProps;
-    const {
-      row: nextRow,
-      rowColorConditions: nextRowColorConditions,
-      isInViewport: nextIsInViewport,
-      visibleColumns: nextVisibleColumns,
-      isShiftKeyDown: nextIsShiftKeyDown,
-      shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
-      lastSelectionIndex: nextLastSelectionIndex,
-      limit: nextLimit,
-      viewMode: nextViewMode
-    } = nextProps;
-
-    if (
-      not(
-        equals(
-          pluck('id', previousVisibleColumns),
-          pluck('id', nextVisibleColumns)
-        )
-      )
-    ) {
-      return false;
-    }
-
-    if (not(equals(prevProps.isHovered, nextProps.isHovered))) {
-      return false;
-    }
-
-    const isNoLongerInViewport = not(prevIsInViewport) && not(nextIsInViewport);
-
-    if (isNoLongerInViewport && gte(nextLimit, performanceRowsLimit)) {
-      return true;
-    }
-
-    const isBackInViewport = not(prevIsInViewport) && nextIsInViewport;
-
-    if (isBackInViewport && gte(nextLimit, performanceRowsLimit)) {
-      return false;
-    }
-
-    if (not(nextIsInViewport) && lt(nextLimit, 60)) {
-      return equals(prevProps.isSelected, nextProps.isSelected);
-    }
-
-    const previousRowColors = previousRowColorConditions?.map(({ condition }) =>
-      condition(previousRow)
-    );
-    const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
-      condition(nextRow)
-    );
-
-    return (
-      equals(prevProps.isSelected, nextProps.isSelected) &&
-      equals(prevProps.row, nextProps.row) &&
-      equals(prevProps.className, nextProps.className) &&
-      equals(previousRowColors, nextRowColors) &&
-      equals(prevProps.columnIds, nextProps.columnIds) &&
-      equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
-      equals(prevIsShiftKeyDown, nextIsShiftKeyDown) &&
-      equals(prevShiftKeyDownRowPivot, nextShiftKeyDownRowPivot) &&
-      equals(prevLastSelectionIndex, nextLastSelectionIndex) &&
-      equals(prevViewMode, nextViewMode)
-    );
-  }
+  (prevProps: RowProps, nextProps: RowProps) => false,
 );
 
 const IntersectionRow = (props: Props): JSX.Element => {
