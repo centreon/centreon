@@ -119,7 +119,7 @@ final class AddServiceSeverity
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceSeverityException::addServiceSeverity($ex))
             );
-            $this->error($ex->getMessage());
+            $this->error((string) $ex);
         }
     }
 
