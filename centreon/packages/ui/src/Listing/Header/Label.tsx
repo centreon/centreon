@@ -4,9 +4,10 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography, TypographyProps } from '@mui/material';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    paddingLeft: theme.spacing(1.5)
   }
 }));
 
