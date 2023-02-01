@@ -32,18 +32,6 @@ try {
     // Transactional queries
     $pearDB->beginTransaction();
 
-    // check if entry ldap_connection_timeout exist
-    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
-    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
-    // insert entry ldap_connection_timeout  with default value
-    if (! $ldapResult) {
-        $errorMessage = "Unable to add default ldap connection timeout";
-        $pearDB->query(
-            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
-                        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
-        );
-    }
-
     // Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
     // The aim is to decode entities from them.
     // We fix here in 22.04.10 the flag problem which changed between php 8.0 and php 8.1
