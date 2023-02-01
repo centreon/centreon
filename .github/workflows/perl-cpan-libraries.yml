@@ -75,6 +75,7 @@ jobs:
           'XML::Filter::BufferText',
           'XML::LibXML::Simple',
           'XML::SAX::Writer',
+          'XSLoader',
           'ZMQ::Constants',
           'ZMQ::LibZMQ4',
         ]
