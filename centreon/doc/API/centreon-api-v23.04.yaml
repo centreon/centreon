@@ -7969,7 +7969,7 @@ components:
           example: "0"
     Administration.Vault.Configuration.Write:
       type: object
-      required: [name, address, port, storage, role_id, secret_id]
+      required: [name, address, port, root_path, role_id, secret_id]
       description: "Vault configuration"
       properties:
         name:
@@ -7984,9 +7984,9 @@ components:
           type: integer
           description: "Vault Port"
           example: 8200
-        storage:
+        root_path:
           type: string
-          description: "Vault storage name"
+          description: "Vault root storage path"
           example: "centreon"
         role_id:
           type: string
@@ -8037,9 +8037,9 @@ components:
           type: integer
           description: "Vault Port"
           example: 8200
-        storage:
+        root_path:
           type: string
-          description: "Vault storage name"
+          description: "Vault root storage path"
           example: "centreon"
         role_id:
           type: string

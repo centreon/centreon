@@ -47,7 +47,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @inheritDoc
      */
-    public function findByAddressAndPortAndStorage(
+    public function findByAddressAndPortAndRootPath(
         string $address,
         int $port,
         string $rootPath

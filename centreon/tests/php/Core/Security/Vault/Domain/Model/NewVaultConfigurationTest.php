@@ -176,7 +176,7 @@ it('should throw InvalidArgumentException when vault configuration port exceeds 
 );
 
 it(
-    'should throw InvalidArgumentException when vault configuration storage is empty',
+    'should throw InvalidArgumentException when vault configuration rootPath is empty',
     function () use ($invalidMinLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
@@ -195,12 +195,12 @@ it(
         $invalidMinLengthString,
         strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
-        'NewVaultConfiguration::storage'
+        'NewVaultConfiguration::rootPath'
     )->getMessage()
 );
 
 it(
-    'should throw InvalidArgumentException when vault configuration storage exceeds allowed max length',
+    'should throw InvalidArgumentException when vault configuration rootPath exceeds allowed max length',
     function () use ($invalidNameMaxLengthString): void {
         new NewVaultConfiguration(
             $this->encryption,
@@ -219,7 +219,7 @@ it(
         $invalidNameMaxLengthString,
         strlen($invalidNameMaxLengthString),
         NewVaultConfiguration::NAME_MAX_LENGTH,
-        'NewVaultConfiguration::storage'
+        'NewVaultConfiguration::rootPath'
     )->getMessage()
 );
 

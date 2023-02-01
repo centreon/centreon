@@ -152,7 +152,7 @@ final class UpdateVaultConfiguration
      */
     private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $rootPath): bool
     {
-        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
+        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndRootPath(
             $request->address,
             $request->port,
             $rootPath

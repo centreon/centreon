@@ -56,7 +56,7 @@ interface ReadVaultConfigurationRepositoryInterface
      *
      * @return VaultConfiguration|null
      */
-    public function findByAddressAndPortAndStorage(
+    public function findByAddressAndPortAndRootPath(
         string $address,
         int $port,
         string $rootPath

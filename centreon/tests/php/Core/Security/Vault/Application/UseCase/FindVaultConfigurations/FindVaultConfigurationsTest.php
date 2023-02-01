@@ -171,7 +171,7 @@ it('should present FindVaultConfigurationsResponse', function () {
             'vault_id' => $vault->getId(),
             'url' => $vaultConfiguration->getAddress(),
             'port' => $vaultConfiguration->getPort(),
-            'storage' => $vaultConfiguration->getRootPath()
+            'root_path' => $vaultConfiguration->getRootPath()
         ]
     ];
 

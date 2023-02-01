@@ -272,7 +272,7 @@ it(
 
         $this->readVaultConfigurationRepository
             ->expects($this->once())
-            ->method('findByAddressAndPortAndStorage')
+            ->method('findByAddressAndPortAndRootPath')
             ->willReturn($existingVaultConfiguration);
 
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
@@ -363,7 +363,7 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
+        ->method('findByAddressAndPortAndRootPath')
         ->willReturn(null);
 
     $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -384,7 +384,7 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
+        ->method('findByAddressAndPortAndRootPath')
         ->willReturn(null);
 
     $useCase($presenter, $updateVaultConfigurationRequest);
