@@ -64,7 +64,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement->bindValue(':vault_id', $vaultConfiguration->getVault()->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);
         $statement->bindValue(':port', $vaultConfiguration->getPort(), \PDO::PARAM_INT);
-        $statement->bindValue(':storage', $vaultConfiguration->getStorage(), \PDO::PARAM_STR);
+        $statement->bindValue(':storage', $vaultConfiguration->getRootPath(), \PDO::PARAM_STR);
         $statement->bindValue(':role_id', $vaultConfiguration->getEncryptedRoleId(), \PDO::PARAM_STR);
         $statement->bindValue(':secret_id', $vaultConfiguration->getEncryptedSecretId(), \PDO::PARAM_STR);
         $statement->bindValue(':salt', $vaultConfiguration->getSalt(), \PDO::PARAM_STR);
@@ -100,7 +100,7 @@ class DbWriteVaultConfigurationRepository extends AbstractRepositoryDRB implemen
         $statement->bindValue(':vault_id', $vaultConfiguration->getVault()->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':url', $vaultConfiguration->getAddress(), \PDO::PARAM_STR);
         $statement->bindValue(':port', $vaultConfiguration->getPort(), \PDO::PARAM_INT);
-        $statement->bindValue(':storage', $vaultConfiguration->getStorage(), \PDO::PARAM_STR);
+        $statement->bindValue(':storage', $vaultConfiguration->getRootPath(), \PDO::PARAM_STR);
         $statement->bindValue(':role_id', $vaultConfiguration->getEncryptedRoleId(), \PDO::PARAM_STR);
         $statement->bindValue(':secret_id', $vaultConfiguration->getEncryptedSecretId(), \PDO::PARAM_STR);
 

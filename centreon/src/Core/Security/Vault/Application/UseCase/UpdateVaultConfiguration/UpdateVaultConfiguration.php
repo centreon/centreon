@@ -103,13 +103,13 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if ($this->isVaultConfigurationAlreadyExists($request, $vaultConfiguration->getStorage())) {
+            if ($this->isVaultConfigurationAlreadyExists($request, $vaultConfiguration->getRootPath())) {
                 $this->error(
                     'Vault configuration with these properties already exists for same provider',
                     [
                         'address' => $request->address,
                         'port' => $request->port,
-                        'storage' => $vaultConfiguration->getStorage()
+                        'root_path' => $vaultConfiguration->getRootPath()
                     ]
                 );
                 $presenter->setResponseStatus(
@@ -145,17 +145,17 @@ final class UpdateVaultConfiguration
 
     /**
      * @param UpdateVaultConfigurationRequest $request
-     *
+     * @param string $rootPath
      * @throws \Throwable
      *
      * @return boolean
      */
-    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $storage): bool
+    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $rootPath): bool
     {
         $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
             $request->address,
             $request->port,
-            $storage
+            $rootPath
         );
 
         return $existingVaultConfiguration !== null

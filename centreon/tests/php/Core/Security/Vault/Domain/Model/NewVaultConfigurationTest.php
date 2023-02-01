@@ -337,6 +337,6 @@ it(
         expect($newVaultConfiguration->getVault())->toBeInstanceOf(Vault::class);
         expect($newVaultConfiguration->getAddress())->toBe('127.0.0.1');
         expect($newVaultConfiguration->getPort())->toBe(8200);
-        expect($newVaultConfiguration->getStorage())->toBe('myStorage');
+        expect($newVaultConfiguration->getRootPath())->toBe('myStorage');
     }
 );

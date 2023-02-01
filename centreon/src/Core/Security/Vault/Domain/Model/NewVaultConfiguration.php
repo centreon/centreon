@@ -52,7 +52,7 @@ class NewVaultConfiguration
      * @param Vault $vault
      * @param string $address
      * @param int $port
-     * @param string $storage
+     * @param string $rootPath
      * @param string $unencryptedRoleId
      * @param string $unencryptedSecretId
      *
@@ -65,7 +65,7 @@ class NewVaultConfiguration
         protected Vault $vault,
         protected string $address,
         protected int $port,
-        protected string $storage,
+        protected string $rootPath,
         string $unencryptedRoleId,
         string $unencryptedSecretId
     ) {
@@ -76,9 +76,9 @@ class NewVaultConfiguration
         Assertion::ipOrDomain($address, 'NewVaultConfiguration::address');
         Assertion::max($port, self::MAX_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::min($port, self::MIN_PORT_VALUE, 'NewVaultConfiguration::port');
-        Assertion::minLength($storage, self::MIN_LENGTH, 'NewVaultConfiguration::storage');
-        Assertion::maxLength($storage, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::storage');
-        Assertion::regex($storage, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
+        Assertion::minLength($rootPath, self::MIN_LENGTH, 'NewVaultConfiguration::rootPath');
+        Assertion::maxLength($rootPath, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::rootPath');
+        Assertion::regex($rootPath, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
         Assertion::minLength($unencryptedRoleId, self::MIN_LENGTH, 'NewVaultConfiguration::roleId');
         Assertion::maxLength($unencryptedRoleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
         Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
@@ -123,9 +123,9 @@ class NewVaultConfiguration
     /**
      * @return string
      */
-    public function getStorage(): string
+    public function getRootPath(): string
     {
-        return $this->storage;
+        return $this->rootPath;
     }
 
     /**

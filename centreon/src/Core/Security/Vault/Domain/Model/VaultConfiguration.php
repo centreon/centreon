@@ -49,7 +49,7 @@ class VaultConfiguration
      * @param Vault $vault
      * @param string $address
      * @param integer $port
-     * @param string $storage
+     * @param string $rootPath
      * @param string $encryptedRoleId
      * @param string $encryptedSecretId
      * @param string $salt
@@ -63,7 +63,7 @@ class VaultConfiguration
         private Vault $vault,
         private string $address,
         private int $port,
-        private string $storage,
+        private string $rootPath,
         private string $encryptedRoleId,
         private string $encryptedSecretId,
         private string $salt
@@ -71,7 +71,7 @@ class VaultConfiguration
         $this->setName($name);
         $this->setAddress($address);
         $this->setPort($port);
-        $this->setStorage($storage);
+        $this->setRootPath($rootPath);
     }
 
     /**
@@ -117,9 +117,9 @@ class VaultConfiguration
     /**
      * @return string
      */
-    public function getStorage(): string
+    public function getRootPath(): string
     {
-        return $this->storage;
+        return $this->rootPath;
     }
 
     /**
@@ -192,14 +192,14 @@ class VaultConfiguration
     }
 
     /**
-     * @param string $storage
+     * @param string $rootPath
      */
-    public function setStorage(string $storage): void
+    public function setRootPath(string $rootPath): void
     {
-        Assertion::minLength($storage, self::MIN_LENGTH, 'VaultConfiguration::storage');
-        Assertion::maxLength($storage, self::NAME_MAX_LENGTH, 'VaultConfiguration::storage');
-        Assertion::regex($storage, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
-        $this->storage = $storage;
+        Assertion::minLength($rootPath, self::MIN_LENGTH, 'VaultConfiguration::rootPath');
+        Assertion::maxLength($rootPath, self::NAME_MAX_LENGTH, 'VaultConfiguration::rootPath');
+        Assertion::regex($rootPath, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::rootPath');
+        $this->rootPath = $rootPath;
     }
 
     /**

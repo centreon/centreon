@@ -732,7 +732,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                         $httpClient
                                     );
                                     $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
-                                        . $vaultConfiguration->getStorage()
+                                        . $vaultConfiguration->getRootPath()
                                         . "/monitoring/hosts/" . $maxId['MAX(host_id)'];
                                     //Store vault path for SNMP Community
                                     if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)){
@@ -1199,7 +1199,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
                     $logger,
                     $httpClient
                 );
-                $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+                $hostPath = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getRootPath()
                     . "/monitoring/hosts/" . $host_id['MAX(host_id)'];
 
                 //Store vault path for SNMP Community
@@ -1665,7 +1665,7 @@ function updateHost($hostId = null, $from_MC = false, $cfg = null)
                     $httpClient
                 );
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
-                    . $vaultConfiguration->getStorage()
+                    . $vaultConfiguration->getRootPath()
                     . "/monitoring/hosts/" . $hostId;
                 //Store vault path for SNMP Community
                 if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
@@ -1826,7 +1826,7 @@ function updateHost_MC($hostId = null)
                     $httpClient
                 );
                 $hostPath = "secret::" . $vaultConfiguration->getId() . "::"
-                    . $vaultConfiguration->getStorage()
+                    . $vaultConfiguration->getRootPath()
                     . "/monitoring/hosts/" . $hostId;
                 //Store vault path for SNMP Community
                 if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
@@ -3066,7 +3066,7 @@ function writeSecretsInVault(
 ): void {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-            . '/v1/' . $vaultConfiguration->getStorage()
+            . '/v1/' . $vaultConfiguration->getRootPath()
             . '/monitoring/hosts/' . $hostId;
         $logger->info(
             "Writing Host Secrets at : " . $url,
@@ -3156,7 +3156,7 @@ function getHostSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+        . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
     $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $hostSecrets = [];
     try {
@@ -3194,7 +3194,7 @@ function deleteHostFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+        . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
     $logger->info(sprintf("Deleting Host: %d", $hostId));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);

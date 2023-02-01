@@ -215,7 +215,7 @@ it('should present FindVaultConfigurationResponse', function () {
         'vault_id' => $vaultConfiguration->getVault()->getId(),
         'url' => $vaultConfiguration->getAddress(),
         'port' => $vaultConfiguration->getPort(),
-        'storage' => $vaultConfiguration->getStorage()
+        'storage' => $vaultConfiguration->getRootPath()
     ];
 
     $useCase($presenter, $findVaultConfigurationRequest);
