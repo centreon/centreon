@@ -54,7 +54,7 @@ final class FindServiceCategories
     {
         try {
             if ($this->user->isAdmin()) {
-                $serviceCategories = $this->readServiceCategoryRepository->findAll($this->requestParameters);
+                $serviceCategories = $this->readServiceCategoryRepository->findByRequestParameter($this->requestParameters);
                 $presenter->present($this->createResponse($serviceCategories));
             } elseif (
                 $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ)
@@ -62,7 +62,7 @@ final class FindServiceCategories
             ) {
                 $this->debug('User is not admin, use ACLs to retrieve service categories', ['user' => $this->user->getName()]);
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $serviceCategories = $this->readServiceCategoryRepository->findAllByAccessGroups(
+                $serviceCategories = $this->readServiceCategoryRepository->findByRequestParameterAndAccessGroups(
                     $accessGroups,
                     $this->requestParameters
                 );
@@ -76,7 +76,7 @@ final class FindServiceCategories
                 );
             }
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage());
+            $this->error((string) $ex);
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceCategoryException::findServiceCategories($ex))
             );

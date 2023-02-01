@@ -69,7 +69,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->willReturn(true);
     $this->serviceCategoryRepository
         ->expects($this->once())
-        ->method('findAll')
+        ->method('findByRequestParameter')
         ->willThrowException(new \Exception());
 
     ($this->usecase)($this->presenter);
@@ -119,7 +119,7 @@ it('should present a FindServiceGroupsResponse when a non-admin user has read on
         );
     $this->serviceCategoryRepository
         ->expects($this->once())
-        ->method('findAllByAccessGroups')
+        ->method('findByRequestParameterAndAccessGroups')
         ->willReturn([$this->serviceCategory]);
 
     ($this->usecase)($this->presenter);
@@ -146,7 +146,7 @@ it('should present a FindServiceGroupsResponse when a non-admin user has read/wr
         );
     $this->serviceCategoryRepository
         ->expects($this->once())
-        ->method('findAllByAccessGroups')
+        ->method('findByRequestParameterAndAccessGroups')
         ->willReturn([$this->serviceCategory]);
 
     ($this->usecase)($this->presenter);
@@ -165,7 +165,7 @@ it('should present a FindServiceCategoriesResponse with admin user', function ()
         ->willReturn(true);
     $this->serviceCategoryRepository
         ->expects($this->once())
-        ->method('findAll')
+        ->method('findByRequestParameter')
         ->willReturn([$this->serviceCategory]);
 
     ($this->usecase)($this->presenter);
