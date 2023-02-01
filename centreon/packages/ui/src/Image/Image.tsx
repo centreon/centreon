@@ -50,7 +50,7 @@ const ImageContent: FC<Omit<Props, 'fallback'>> = ({
   );
 };
 
-const SuspendedImage: FC<Props> = ({ fallback, ...props }) => {
+const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element => {
   return (
     <Suspense fallback={fallback}>
       <ImageContent {...props} />
