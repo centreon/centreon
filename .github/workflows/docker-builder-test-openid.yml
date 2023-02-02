@@ -33,24 +33,17 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to proxy registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.AUTOMATION_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: build docker ${{ matrix.project }}
         run: |
           ls .github/docker/configs
-          docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+          docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+        run: docker push centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}

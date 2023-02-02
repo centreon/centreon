@@ -41,7 +41,7 @@ runs:
 
     - name: "Start Openid container"
       if: ${{ contains(steps.formatFeatureFilePath.outputs.value, 'OpenID') || contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO') }}
-      run: docker run -p 8080:8080 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-openid-${{ inputs.module }} docker.centreon.com/openid:${{ inputs.image_openid_version }}
+      run: docker run -p 8080:8080 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-openid-${{ inputs.module }} centreon.jfrog.io/docker/openid:${{ inputs.image_openid_version }}
       shell: bash
 
     - name: "Start Centreon container"
