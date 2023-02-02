@@ -34,41 +34,41 @@ runs:
 
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
-      run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} -t registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
+      run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} -t registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib_debian }}
       if: ${{ inputs.distrib_debian }}
-      run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} -t registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
+      run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} -t registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: run docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
-      run: docker run -it -d --privileged --name ${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
+      run: docker run -it -d --privileged --name ${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: run docker ${{ inputs.project }} ${{ inputs.distrib_debian }}
       if: ${{ inputs.distrib_debian }}
-      run: docker run -it -d --privileged --name ${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
+      run: docker run -it -d --privileged --name ${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: commit docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
-      run: docker commit ${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
+      run: docker commit ${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: commit docker ${{ inputs.project }} ${{ inputs.distrib_debian }}
       if: ${{ inputs.distrib_debian }}
-      run: docker commit ${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
+      run: docker commit ${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: push docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
-      run: docker push registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
+      run: docker push registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
     - name: push docker ${{ inputs.project }} ${{ inputs.distrib_debian }}
       if: ${{ inputs.distrib_debian }}
-      run: docker push registry-docker.centreon.com/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
+      run: docker push registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
 
