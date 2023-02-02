@@ -256,7 +256,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
-    needs: [get-version, package]
+    needs: [get-version, download-and-cache-deb]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
