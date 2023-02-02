@@ -939,7 +939,7 @@
                 <td class="FormRowField">
                     <div class="formRowLabel">
                         <div>
-                            <img class="helpTooltip" name="illegal_macro_output_chars">;
+                            <img class="helpTooltip" name="illegal_macro_output_chars">
                         </div>
                         <div>
                             <p class="fieldLabel">
@@ -969,7 +969,7 @@
                 <td class="FormRowField">
                     <div class="formRowLabel">
                         <div>
-                            <img class="helpTooltip" name="use_true_regexp_matching">;
+                            <img class="helpTooltip" name="use_true_regexp_matching">
                         </div>
                         <div>
                             <p class="fieldLabel">

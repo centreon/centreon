@@ -1220,7 +1220,7 @@ table-form-header-h3 {
     max-width:   200px;;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
 }
 .table .FormRowValue {
     padding: 4px 6px;
