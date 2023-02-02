@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/docker/**"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -48,7 +47,6 @@ jobs:
               - '**/tsconfig.json'
               - '**/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '.github/docker/**'
               - '**/*.php'
               - '**/phpstan*.neon'
               - 'centreon/codingstyle.xml'
