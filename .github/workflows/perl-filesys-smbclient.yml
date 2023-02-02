@@ -40,8 +40,8 @@ jobs:
     container:
       image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -83,8 +83,8 @@ jobs:
       image: centreon.jfrog.io/docker/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - run: apt-get install -y zstd
@@ -120,8 +120,8 @@ jobs:
     container:
       image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -162,8 +162,8 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: 0
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
+          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
@@ -190,7 +190,7 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
+          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
