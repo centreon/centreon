@@ -35,8 +35,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_PASSWORD }}
+      registry_username: ${{ secrets.NEXUS_USERNAME }}
+      registry_password: ${{ secrets.NEXUS_PASSWORD }}
 
   delivery:
     needs: [get-version, package]
@@ -46,8 +46,8 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_PASSWORD }}
+      nexus_username: ${{ secrets.NEXUS_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_PASSWORD }}
       cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
       update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
