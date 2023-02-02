@@ -58,7 +58,7 @@ if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id,
 }
 
 $criticality = new CentreonCriticality($obj->DB);
-$instanceObj = CentreonInstance::getInstance($obj->DB, $this->DBC);
+$instanceObj = CentreonInstance::getInstance($obj->DB, $obj->DBC);
 $media = new CentreonMedia($obj->DB);
 $hostObj = new CentreonHost($obj->DB);
 
