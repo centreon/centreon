@@ -1,0 +1,72 @@
+name: NPM publish
+description: This publishes a package to NPM and creates a PR to update the package version
+
+inputs:
+  directory:
+    description: The package directory
+    required: true
+  pat:
+    description: The Github PAT
+    required: true
+  npm_token:
+    description: The NPM token
+    required: true
+  package:
+    description: The frontend package
+    required: true
+  version:
+    description: The version
+    default: latest
+  release_branch:
+    description: The release branch
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Install action dependencies
+      run: pnpm install
+      working-directory: ./.github/actions/get-latest-npm-beta-branch-version
+      shell: bash
+
+    - uses: ./.github/actions/get-latest-npm-beta-branch-version
+      id: get-latest-npm-beta-branch-version
+      with:
+        package: ${{ inputs.package }}
+        branch_name: ${{ github.head_ref }}
+
+    - name: Write beta NPM package version
+      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' }}
+      run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }} --legacy-peer-deps
+      working-directory: ${{ env.directory }}
+      shell: bash
+
+    - name: Configure tag
+      run: |
+        echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Bump NPM package version
+      run: |
+        npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        VERSION=$(node -p "require('./package.json').version")
+        rm ../../package-lock.json
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      working-directory: ${{ env.directory }}
+      shell: bash
+
+    - name: Publish package to NPM (${{ env.TAG }})
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        access: public
+        package: ${{ env.directory }}/package.json
+        tag: ${{ env.TAG }}
+        token: ${{ inputs.npm_token }}

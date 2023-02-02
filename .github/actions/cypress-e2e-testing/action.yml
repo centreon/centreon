@@ -1,8 +1,8 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
 inputs:
-  name:   
-    type: string
+  name:
+    description: "test name"
     required: true
   image:
     description: "image"
@@ -49,12 +49,22 @@ runs:
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
 
-    - name: Archive videos
+    - if: ${{ failure() }}
+      run: |
+        mkdir -p logs/${{ steps.formatFeatureFilePath.outputs.value }}
+        docker logs e2e-tests-${{ inputs.module }} > logs/${{ steps.formatFeatureFilePath.outputs.value }}/docker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/broker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-engine/centengine.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/engine.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-gorgone/gorgoned.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/gorgoned.log
+        mv ${{ inputs.module }}/tests/e2e/cypress/results/videos/* logs/${{ steps.formatFeatureFilePath.outputs.value }}/
+      shell: bash
+
+    - if: ${{ failure() }}
+      name: Archive videos
       uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
       with:
-        name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
+        name: e2e-test-logs
+        path: logs/
 
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml

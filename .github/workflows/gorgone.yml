@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el7, el8, el9, bullseye]
         include:
           - package_extension: rpm
             image: packaging-centos7
@@ -43,6 +43,9 @@ jobs:
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -68,7 +71,7 @@ jobs:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el7, el8, el9]
 
     steps:
       - name: Checkout sources
@@ -85,6 +88,7 @@ jobs:
           release: ${{ needs.get-version.outputs.release }}
           nexus_username: ${{ secrets.REPOS_USERNAME }}
           nexus_password: ${{ secrets.REPOS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
@@ -110,7 +114,8 @@ jobs:
           module_name: centreon-gorgone
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USER }}
-          nexus_password: ${{ secrets.NEXUS_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

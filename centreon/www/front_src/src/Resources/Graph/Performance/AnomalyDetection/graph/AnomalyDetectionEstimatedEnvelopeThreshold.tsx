@@ -58,10 +58,14 @@ const AnomalyDetectionEstimatedEnvelopeThreshold = ({
     item,
     factors
   }: EnvelopeVariation): number => {
+    const upperRealValue = prop(metricUpper, item) as number;
+    const lowerRealValue = prop(metricLower, item) as number;
+    const currentMultiplicationFactor = factors.currentFactor;
+    const simulatedMultiplicationFactor = factors.simulatedFactor;
+
     return (
-      ((prop(metricUpper, item) as number) -
-        (prop(metricLower, item) as number)) *
-      (1 - factors.simulatedFactor / factors.currentFactor)
+      ((upperRealValue - lowerRealValue) / 2) *
+      (1 - simulatedMultiplicationFactor / currentMultiplicationFactor)
     );
   };
 

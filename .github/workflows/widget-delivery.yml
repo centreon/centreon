@@ -22,6 +22,8 @@ on:
         required: true
       nexus_password:
         required: true
+      artifactory_token:
+        required: true
       update_repo_path:
         description: "The update repo script path"
         required: true
@@ -44,7 +46,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el7, el8, el9]
 
     steps:
       - name: Checkout sources
@@ -57,7 +59,7 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          minor_version: ${{ inputs.minor_version }}          
+          minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username}}
           nexus_password: ${{ secrets.nexus_password }}
@@ -89,5 +91,6 @@ jobs:
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
