@@ -71,7 +71,7 @@ jobs:
   package:
     runs-on: ubuntu-22.04
     container:
-      image: docker.centreon.com/${{ inputs.image_name }}:${{ inputs.major_version }}
+      image: centreon.jfrog.io/docker/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
         username: ${{ secrets.artifactory_username }}
         password: ${{ secrets.artifactory_password }}
@@ -109,7 +109,7 @@ jobs:
     needs: [package]
     runs-on: ubuntu-22.04
     container:
-      image: docker.centreon.com/rpm-signing:ubuntu
+      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
       options: -t
       credentials:
         username: ${{ secrets.artifactory_username }}
