@@ -174,11 +174,10 @@ jobs:
           path: ./*.${{ matrix.package_extension }}
           key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}
 
-      - if: ${{ matrix.package_extension == 'rpm' }}
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
-          name: unsigned-packages-rpm
-          path: ./*.rpm
+          name: packages-${{ matrix.package_extension }}
+          path: ./*.${{ matrix.package_extension }}
 
   sign-rpm:
     needs: [package]
@@ -198,7 +197,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: unsigned-packages-rpm
+          name: packages-rpm
           path: ./
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
@@ -211,6 +210,20 @@ jobs:
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm
+
+  download-and-cache-deb:
+    needs: [package]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: packages-deb
+          path: ./
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
@@ -243,7 +256,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
-    needs: [get-version, package]
+    needs: [get-version, download-and-cache-deb]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
