@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.17-MON-11878-fix-header-listing.0",
+  "version": "23.4.20",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
