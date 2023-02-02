@@ -1,0 +1,280 @@
+name: perl-cpan-libraries
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/perl-cpan-libraries.yml"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - ".github/workflows/perl-cpan-libraries.yml"
+    tags:
+      - perl-cpan-libraries-*
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  package:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package_extension: [rpm, deb]
+        name: [
+          'boolean',
+          'Carp::Assert',
+          'Clone',
+          'Clone::Choose',
+          'common::sense',
+          'Convert::EBCDIC',
+          'Crypt::Argon2',
+          'Crypt::Blowfish_PP',
+          'Device::Modbus',
+          'Device::Modbus::RTU::Client',
+          'Device::Modbus::TCP::Client',
+          'Digest::MD5::File',
+          'Digest::SHA1',
+          'Email::Send::SMTP::Gmail',
+          'File::SearchPath',
+          'Hash::Merge',
+          'HTTP::Daemon',
+          'HTTP::Daemon::SSL',
+          'HTTP::ProxyPAC',
+          'JMX::Jmx4Perl',
+          'JSON::Parse',
+          'JSON::Path',
+          'JSON::WebToken',
+          'Libssh::Session',
+          'LV',
+          'Net::Curl::Easy',
+          'Net::FTPSSL',
+          'Net::HTTPTunnel',
+          'Net::NTP',
+          'Net::SMTPS',
+          'Net::SMTP_auth',
+          'Net::Subnet',
+          'Net::TFTP',
+          'Schedule::Cron',
+          'Sys::SigAction',
+          'Term::Clui',
+          'Term::ShellUI',
+          'URI::Encode',
+          'URI::Template',
+          'URL::Encode',
+          'UUID',
+          'UUID::URandom',
+          'XML::Filter::BufferText',
+          'XML::LibXML::Simple',
+          'XML::SAX::Writer',
+          'YAML::LibYAML',
+          'ZMQ::Constants',
+          'ZMQ::LibZMQ4',
+        ]
+        include:
+          - dependencies: ''
+          - version: ''
+          - package_extension: rpm
+            image: packaging-alma9
+          - package_extension: deb
+            image: packaging-bullseye
+          - name: 'JSON::Path'
+            version: '1.0.3'
+          - name: 'ZMQ::LibZMQ4'
+            dependencies: 'zeromq'
+          - name: 'Libssh::Session'
+            dependencies: 'libssh'
+    name: package ${{ matrix.package_extension }} ${{ matrix.name }}
+    container:
+      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - if: ${{ matrix.package_extension == 'rpm' }}
+        run: |
+          yum install -y yum-utils epel-release git
+          yum config-manager --set-enabled crb
+
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
+
+          if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION=""
+          else
+            PACKAGE_VERSION=" -v ${{ matrix.version }}"
+          fi
+
+          if [ -z "${{ matrix.dependencies }}" ]; then
+            PACKAGE_DEPENDENCIES=""
+          else
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+              PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
+            done
+          fi
+
+          cpanm Module::Build::Tiny
+          cpanm Module::Install
+
+          gem install fpm
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+        shell: bash
+
+      - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
+        run: |
+          apt update
+          apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
+
+          PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
+          if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION=""
+          else
+            PACKAGE_VERSION=" -v ${{ matrix.version }}"
+          fi
+
+          if [ -z "${{ matrix.dependencies }}" ]; then
+            PACKAGE_DEPENDENCIES=""
+          else
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+              PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
+            done
+          fi
+
+          cpanm Module::Build::Tiny
+          cpanm Module::Install
+
+          gem install fpm
+          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+        shell: bash
+
+      - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
+        run: |
+          apt update
+          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl
+
+          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.${{ matrix.package_extension }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.package_extension }}
+          path: ./*.${{ matrix.package_extension }}
+
+  sign-rpm:
+    needs: [package]
+    runs-on: ubuntu-22.04
+    container:
+      image: docker.centreon.com/rpm-signing:ubuntu
+      options: -t
+      credentials:
+        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+    steps:
+      - run: apt-get install -y zstd
+        shell: bash
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: packages-rpm
+          path: ./
+
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+        shell: bash
+
+      - run: rpmsign --addsign ./*.rpm
+        shell: bash
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm
+
+  download-and-cache-deb:
+    needs: [package]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: packages-deb
+          path: ./
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb
+
+  deliver-rpm:
+    needs: [get-version, sign-rpm]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: perl-cpan-libraries
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: 0
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  deliver-deb:
+    needs: [get-version, download-and-cache-deb]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: perl-cpan-libraries
+          repository_name: standard
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb
+          stability: ${{ needs.get-version.outputs.stability }}

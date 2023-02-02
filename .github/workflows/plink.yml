@@ -1,4 +1,4 @@
-name: perl-filesys-smbclient
+name: plink
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "dependencies/perl-filesys-smbclient/**"
+      - ".github/workflows/plink.yml"
   push:
     branches:
       - develop
@@ -16,9 +16,9 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "dependencies/perl-filesys-smbclient/**"
+      - ".github/workflows/plink.yml"
     tags:
-      - perl-filesys-smbclient-*
+      - plink-*
 
 jobs:
   get-version:
@@ -40,25 +40,20 @@ jobs:
     container:
       image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
 
       - run: |
-          yum install -y yum-utils
-          yum config-manager --set-enabled crb || true # alma 9
-          yum config-manager --set-enabled powertools || true # alma 8
-
-          yum install -y libsmbclient-devel make gcc perl perl-devel perl-ExtUtils-MakeMaker
+          yum install -y wget gcc make
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          cp -rp dependencies/perl-filesys-smbclient/src perl-Filesys-SmbClient/
-          tar czf ~/rpmbuild/SOURCES/perl-Filesys-SmbClient.tar.gz perl-Filesys-SmbClient
+          wget -P ~/rpmbuild/SOURCES/ https://the.earth.li/~sgtatham/putty/0.74/putty-0.74.tar.gz
 
-          rpmbuild -ba dependencies/perl-filesys-smbclient/packaging/rpm/perl-Filesys-SmbClient.spec
+          rpmbuild -ba dependencies/plink/packaging/rpm/plink.spec
 
           cp -r ~/rpmbuild/RPMS/x86_64/*.rpm .
         shell: bash
@@ -83,8 +78,8 @@ jobs:
       image: centreon.jfrog.io/docker/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - run: apt-get install -y zstd
@@ -108,38 +103,10 @@ jobs:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
-  package-deb:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        include:
-          - image: packaging-bullseye
-            distrib: bullseye
-    name: package ${{ matrix.distrib }}
-    container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - run: |
-          apt update
-          apt install -y dh-make-perl perl libsmbclient-dev
-
-          mv dependencies/perl-filesys-smbclient/src/ perl-filesys-smbclient
-          tar czf perl-filesys-smbclient.tar.gz perl-filesys-smbclient
-
-          DEB_BUILD_OPTIONS="nocheck nodocs notest noautodbgsym" dh-make-perl make --verbose --build --version 4.0-${{ matrix.distrib }} perl-filesys-smbclient/
-        shell: bash
-
-      - uses: actions/cache@v3
+      - uses: actions/upload-artifact@v3
         with:
-          path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          name: packages-${{ matrix.distrib }}
+          path: ./*.rpm
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
@@ -156,7 +123,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-filesys-smbclient
+          module_name: plink
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
@@ -169,28 +136,4 @@ jobs:
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
-
-  deliver-deb:
-    needs: [get-version, package-deb]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        distrib: [bullseye]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: perl-filesys-smbclient
-          repository_name: standard
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
