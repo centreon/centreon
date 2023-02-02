@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
 
 import ContentEditable from './ContentEditable';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+import ToolbarPlugin from './plugins/ToolbarPlugin/index';
 
 export interface RichTextEditorProps {
   getEditorState?: (editorState: EditorState) => void;

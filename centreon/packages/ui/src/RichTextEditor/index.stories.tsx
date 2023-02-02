@@ -5,9 +5,9 @@ import { EditorState } from 'lexical';
 
 import { Box } from '@mui/material';
 
+import RichTextEditor from './RichTextEditor';
+import type { RichTextEditorProps } from './RichTextEditor';
 import initialEditorState from './initialEditorState.json';
-
-import RichTextEditor, { RichTextEditorProps } from '.';
 
 export default {
   component: RichTextEditor,
