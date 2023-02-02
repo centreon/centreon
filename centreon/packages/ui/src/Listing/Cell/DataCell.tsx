@@ -1,3 +1,6 @@
+import { memo } from 'react';
+
+import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
@@ -179,4 +182,105 @@ const DataCell = ({
   return cellByColumnType[column.type]();
 };
 
-export default DataCell;
+const MemoizedDataCell = memo<Props>(
+  DataCell,
+  (prevProps: Props, nextProps: Props): boolean => {
+    const previousHasHoverableComponent =
+      prevProps.column.hasHoverableComponent;
+    const previousRenderComponentOnRowUpdate =
+      prevProps.column.getRenderComponentOnRowUpdateCondition?.(prevProps.row);
+    const previousRenderComponentCondition =
+      prevProps.column.getRenderComponentCondition?.(prevProps.row);
+    const previousRowMemoProps = prevProps.column.rowMemoProps;
+    const previousIsComponentHovered =
+      previousHasHoverableComponent && prevProps.isRowHovered;
+    const previousFormattedString = prevProps.column.getFormattedString?.(
+      prevProps.row
+    );
+    const previousIsTruncated = prevProps.column.isTruncated;
+    const previousColSpan = prevProps.column.getColSpan?.(
+      prevProps.isRowSelected
+    );
+    const previousHiddenCondition = prevProps.column.getHiddenCondition?.(
+      prevProps.isRowSelected
+    );
+    const previousIsRowHighlighted = prevProps.getHighlightRowCondition?.(
+      prevProps.row
+    );
+
+    const nextHasHoverableComponent = nextProps.column.hasHoverableComponent;
+    const nextRenderComponentOnRowUpdate =
+      nextProps.column.getRenderComponentOnRowUpdateCondition?.(nextProps.row);
+    const nextRenderComponentCondition =
+      nextProps.column.getRenderComponentCondition?.(nextProps.row);
+    const nextRowMemoProps = nextProps.column.rowMemoProps;
+    const nextIsComponentHovered =
+      nextHasHoverableComponent && nextProps.isRowHovered;
+
+    const nextFormattedString = nextProps.column.getFormattedString?.(
+      nextProps.row
+    );
+
+    const nextColSpan = nextProps.column.getColSpan?.(nextProps.isRowSelected);
+
+    const nextHiddenCondition = nextProps.column.getHiddenCondition?.(
+      nextProps.isRowSelected
+    );
+    const nextIsTruncated = nextProps.column.isTruncated;
+
+    const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
+      condition(prevProps.row)
+    );
+    const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
+      condition(nextProps.row)
+    );
+    const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
+      nextProps.row
+    );
+
+    // Explicitely render the Component.
+    if (previousRenderComponentCondition && nextRenderComponentCondition) {
+      return false;
+    }
+
+    // Explicitely prevent the component from rendering.
+    if (nextRenderComponentCondition === false) {
+      return equals(prevProps.viewMode, nextProps.viewMode);
+    }
+
+    const previousRowProps = previousRowMemoProps
+      ? props(previousRowMemoProps, prevProps.row)
+      : prevProps.row;
+    const nextRowProps = nextRowMemoProps
+      ? props(nextRowMemoProps, nextProps.row)
+      : nextProps.row;
+
+    return (
+      equals(previousIsComponentHovered, nextIsComponentHovered) &&
+      equals(prevProps.isRowHovered, nextProps.isRowHovered) &&
+      equals(previousFormattedString, nextFormattedString) &&
+      equals(previousColSpan, nextColSpan) &&
+      equals(previousIsTruncated, nextIsTruncated) &&
+      equals(previousHiddenCondition, nextHiddenCondition) &&
+      equals(
+        previousRenderComponentOnRowUpdate && previousRowProps,
+        nextRenderComponentOnRowUpdate && nextRowProps
+      ) &&
+      equals(
+        previousFormattedString ?? previousRowProps,
+        nextFormattedString ?? nextRowProps
+      ) &&
+      equals(prevRowColors, nextRowColors) &&
+      equals(
+        prevProps.disableRowCondition(prevProps.row),
+        nextProps.disableRowCondition(nextProps.row)
+      ) &&
+      equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
+      equals(prevProps.viewMode, nextProps.viewMode) &&
+      equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
+    );
+  }
+);
+
+export default MemoizedDataCell;
+export { useStyles, Props };

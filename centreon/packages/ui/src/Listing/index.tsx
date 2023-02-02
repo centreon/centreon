@@ -689,8 +689,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   widthToMoveTablePagination,
   viewMode,
   ...props
-}: MemoizedListingProps<TRow>): JSX.Element =>
-  useMemoComponent({
+}: MemoizedListingProps<TRow>): JSX.Element => {
+  return useMemoComponent({
     Component: (
       <Listing
         checkable={checkable}
@@ -735,6 +735,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       viewMode
     ]
   });
+};
 
 export default Listing;
 export { getVisibleColumns };
