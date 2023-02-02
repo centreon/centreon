@@ -296,8 +296,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -309,8 +309,8 @@ jobs:
       image_name: centreon-web
       features_path: features
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:

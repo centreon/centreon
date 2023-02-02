@@ -18,9 +18,9 @@ on:
         type: string
         default: behat.yml
     secrets:
-      nexus_username:
+      registry_username:
         required: true
-      nexus_password:
+      registry_password:
         required: true
       composer_token:
         required: true
@@ -57,16 +57,16 @@ jobs:
       - name: Login to proxy registry
         uses: docker/login-action@v2
         with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.nexus_username }}
-          password: ${{ secrets.nexus_password }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
-          username: ${{ secrets.nexus_username }}
-          password: ${{ secrets.nexus_password }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
