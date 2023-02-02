@@ -88,14 +88,14 @@ jobs:
       - name: Behat acceptance testing
         run: |
           SELENIUM_IMAGE="centreon.jfrog.io/docker/selenium/standalone-chrome:106.0"
-          WEB_IMAGE="centreon.jfrog.io/docker/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
+          WEB_IMAGE="centreon.jfrog.io/docker/${{ inputs.image_name }}-alma9:${{ github.head_ref || github.ref_name }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
-            -e "s#@WEB_WIDGETS_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-fresh-alma9:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_WIDGETS_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-widgets-alma9:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=`pwd`
           cd ${{ inputs.module_name }}

@@ -237,7 +237,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el7, el8, el9, bullseye]
         include:
           - package_extension: rpm
             image: packaging-centos7
@@ -245,6 +245,9 @@ jobs:
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -281,8 +284,8 @@ jobs:
       matrix:
         include:
           - project: centreon-web
-            distrib: centos7
-            distrib_rpm: el7
+            distrib: alma9
+            distrib_rpm: el9
             module_name: web
 
     steps:
@@ -392,7 +395,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon"
-          image: centreon.jfrog.io/docker/centreon-web-centos7
+          image: centreon.jfrog.io/docker/centreon-web-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon

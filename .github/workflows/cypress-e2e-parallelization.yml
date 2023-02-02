@@ -59,7 +59,7 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
-          image: centreon.jfrog.io/docker/centreon-web-centos7
+          image: centreon.jfrog.io/docker/centreon-web-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}

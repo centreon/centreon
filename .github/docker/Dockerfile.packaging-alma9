@@ -2,7 +2,7 @@ FROM centreon.jfrog.io/docker/almalinux:9
 
 RUN <<EOF
 
-dnf install -y rpm-build rpm-sign zstd perl-devel
+dnf install -y rpm-build rpm-sign zstd perl perl-devel
 dnf clean all
 
 EOF
