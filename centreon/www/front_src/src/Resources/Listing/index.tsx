@@ -51,6 +51,7 @@ export const okStatuses = ['OK', 'UP'];
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
+
   const { showWarningMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
