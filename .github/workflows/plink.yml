@@ -129,8 +129,8 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: 0
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
+          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}

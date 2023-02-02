@@ -103,8 +103,8 @@ jobs:
     container:
       image: centreon.jfrog.io/docker/translation:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.REPOS_USERNAME }}
-        password: ${{ secrets.REPOS_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -269,8 +269,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      artifactory_username: ${{ secrets.AUTOMATION_USERNAME }}
+      artifactory_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -342,8 +342,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      registry_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      registry_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -356,8 +356,8 @@ jobs:
       image_name: centreon-web
       features_path: features
     secrets:
-      registry_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      registry_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
@@ -370,8 +370,8 @@ jobs:
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
     secrets:
-      username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
