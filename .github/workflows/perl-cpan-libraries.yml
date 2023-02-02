@@ -211,6 +211,20 @@ jobs:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm
 
+  download-and-cache-deb:
+    needs: [package]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: packages-deb
+          path: ./
+
+      - uses: actions/cache@v3
+        with:
+          path: ./*.deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb
+
   deliver-rpm:
     needs: [get-version, sign-rpm]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
@@ -252,16 +266,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: packages-deb
-          path: ./
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
