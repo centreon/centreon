@@ -49,8 +49,8 @@ runs:
       shell: bash
 
     - name: "Injecting web sso scripts"
-      if: ${{ contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-enabled') | contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-enabled') }}
-      run: docker exec -i e2e-tests-${{ inputs.module }} sh /src/.github/scripts/web-sso-container.sh
+      if: ${{ contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-enabled') || contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-only') }}
+      run: docker exec -i e2e-tests-${{ inputs.module }} sh /src/.github/scripts/centreon-web-sso.sh
       shell: bash
 
     - name: Cypress end-to-end testing
