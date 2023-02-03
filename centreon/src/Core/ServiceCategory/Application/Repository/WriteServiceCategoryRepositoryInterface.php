@@ -28,21 +28,21 @@ use Core\ServiceCategory\Domain\Model\NewServiceCategory;
 interface WriteServiceCategoryRepositoryInterface
 {
     /**
-     * Delete host category by id.
+     * Delete service category by id.
      *
-     * @param int $hostCategoryId
+     * @param int $serviceCategoryId
      */
-    public function deleteById(int $hostCategoryId): void;
+    public function deleteById(int $serviceCategoryId): void;
 
     /**
-     * Add a host category
-     * Return the id of the host category.
+     * Add a service category
+     * Return the id of the service category.
      *
-     * @param NewServiceCategory $hostCategory
-     *
-     * @throws \Throwable
+     * @param NewServiceCategory $serviceCategory
      *
      * @return int
+     *@throws \Throwable
+     *
      */
-    public function add(NewServiceCategory $hostCategory): int;
+    public function add(NewServiceCategory $serviceCategory): int;
 }
