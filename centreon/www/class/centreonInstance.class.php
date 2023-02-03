@@ -71,10 +71,7 @@ class CentreonInstance
      */
     public static function getInstance(CentreonDB $db, ?CentreonDB $dbo = null): CentreonInstance
     {
-        if (self::$staticInstance === null) {
-            self::$staticInstance = new CentreonInstance($db, $dbo);
-        }
-        return self::$staticInstance;
+        return self::$staticInstance ??= new self($db, $dbo);
     }
 
     /**
