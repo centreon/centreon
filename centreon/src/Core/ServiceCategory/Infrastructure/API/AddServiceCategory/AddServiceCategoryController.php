@@ -52,9 +52,6 @@ final class AddServiceCategoryController extends AbstractController
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex));
         }
 
         return $presenter->show();
