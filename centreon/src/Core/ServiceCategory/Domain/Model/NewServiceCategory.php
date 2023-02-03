@@ -28,7 +28,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class NewServiceCategory
 {
     public const MAX_NAME_LENGTH = 200,
-        MAX_ALIAS_LENGTH = 200;
+        MAX_ALIAS_LENGTH = 200,
+        MIN_NAME_LENGTH = 1,
+        MIN_ALIAS_LENGTH = 1;
 
     protected bool $isActivated = true;
 
@@ -45,8 +47,10 @@ class NewServiceCategory
 
         $classShortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $classShortName . '::name');
+        Assertion::minLength($name, self::MIN_NAME_LENGTH, $classShortName . '::name');
         Assertion::notEmpty($name, $classShortName . '::name');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $classShortName . '::alias');
+        Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, $classShortName . '::alias');
         Assertion::notEmpty($alias, $classShortName . '::alias');
     }
 

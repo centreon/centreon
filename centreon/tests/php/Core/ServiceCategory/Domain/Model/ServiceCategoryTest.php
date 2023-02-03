@@ -54,7 +54,7 @@ it('should throw an exception when service category name is empty', function () 
     new ServiceCategory(1, '', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('ServiceCategory::name')
+        AssertionException::minLength('', 0, ServiceCategory::MIN_NAME_LENGTH, 'ServiceCategory::name')
         ->getMessage()
 );
 
@@ -74,7 +74,7 @@ it('should throw an exception when service category alias is empty', function ()
     new ServiceCategory(1, $this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('ServiceCategory::alias')
+        AssertionException::minLength('', 0, ServiceCategory::MIN_ALIAS_LENGTH, 'ServiceCategory::alias')
         ->getMessage()
 );
 
