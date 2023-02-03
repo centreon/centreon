@@ -419,7 +419,7 @@ jobs:
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el7, el8, el9]
 
     steps:
       - name: Checkout sources
