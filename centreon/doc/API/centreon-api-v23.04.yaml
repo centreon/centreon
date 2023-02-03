@@ -315,7 +315,7 @@ paths:
       description: |
         Create a host category
 
-        This endpoint do NOT update the ACLs rights with the new host category
+        This endpoint does NOT update the ACL rights with the new host category
       requestBody:
         required: true
         content:
@@ -391,7 +391,7 @@ paths:
       description: |
         Create a service category
 
-        This endpoint do NOT update the ACLs rights with the new service category
+        This endpoint does NOT update the ACL rights with the new service category
       requestBody:
         required: true
         content:
@@ -5976,7 +5976,7 @@ components:
           example: "service-category"
         is_activated:
           type: boolean
-          description: is active or not (enable/disable)
+          description: is active or not (enabled/disabled)
           example: true
     Configuration.Host.Severity:
       type: object
