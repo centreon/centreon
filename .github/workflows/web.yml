@@ -333,15 +333,6 @@ jobs:
           push: true
           tags: centreon.jfrog.io/docker/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-sso-${{ matrix.distrib }}
-          target: web_sso
-          context: .
-          pull: true
-          push: true
-          tags: centreon.jfrog.io/docker/${{ matrix.project }}-sso-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
-
   api-integration-test:
     needs: [dockerize, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
