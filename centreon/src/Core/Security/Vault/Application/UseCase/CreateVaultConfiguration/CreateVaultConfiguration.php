@@ -81,7 +81,7 @@ final class CreateVaultConfiguration
                 $this->readVaultConfigurationRepository->existsSameConfiguration(
                     $createVaultConfigurationRequest->address,
                     $createVaultConfigurationRequest->port,
-                    $createVaultConfigurationRequest->storage,
+                    $createVaultConfigurationRequest->rootPath,
                 )
             ) {
                 $this->error(
@@ -89,7 +89,7 @@ final class CreateVaultConfiguration
                     [
                         'address' => $createVaultConfigurationRequest->address,
                         'port' => $createVaultConfigurationRequest->port,
-                        'storage' => $createVaultConfigurationRequest->storage,
+                        'rootPath' => $createVaultConfigurationRequest->rootPath,
                     ]
                 );
                 $presenter->setResponseStatus(

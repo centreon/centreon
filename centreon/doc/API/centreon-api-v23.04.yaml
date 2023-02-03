@@ -4447,7 +4447,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Administration.Vault.Configuration.Write'
+              $ref: '#/components/schemas/Administration.Vault.Configuration.Update'
       responses:
         '204':
           description: "OK"
@@ -7969,7 +7969,7 @@ components:
           example: "0"
     Administration.Vault.Configuration.Write:
       type: object
-      required: [name, address, port, storage, role_id, secret_id]
+      required: [name, address, port, root_path, role_id, secret_id]
       description: "Vault configuration"
       properties:
         name:
@@ -7984,10 +7984,29 @@ components:
           type: integer
           description: "Vault Port"
           example: 8200
-        storage:
+        root_path:
           type: string
-          description: "Vault storage name"
+          description: "Vault root storage path"
           example: "centreon"
+        role_id:
+          type: string
+          description: "Vault role id"
+        secret_id:
+          type: string
+          description: "Vault secret id"
+    Administration.Vault.Configuration.Update:
+      type: object
+      required: [address, port, role_id, secret_id]
+      description: "Vault configuration"
+      properties:
+        address:
+          type: string
+          description: "Vault URL or IP"
+          example: "127.0.0.1"
+        port:
+          type: integer
+          description: "Vault Port"
+          example: 8200
         role_id:
           type: string
           description: "Vault role id"
@@ -8018,9 +8037,9 @@ components:
           type: integer
           description: "Vault Port"
           example: 8200
-        storage:
+        root_path:
           type: string
-          description: "Vault storage name"
+          description: "Vault root storage path"
           example: "centreon"
         role_id:
           type: string

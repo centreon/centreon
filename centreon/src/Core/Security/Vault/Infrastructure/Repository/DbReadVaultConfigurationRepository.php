@@ -47,12 +47,12 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @inheritDoc
      */
-    public function findByAddressAndPortAndStorage(
+    public function findByAddressAndPortAndRootPath(
         string $address,
         int $port,
-        string $storage
+        string $rootPath
     ): ?VaultConfiguration {
-        $this->info('Getting existing vault configuration by address, port and storage');
+        $this->info('Getting existing vault configuration by address, port and rootPath');
 
         $statement = $this->db->prepare(
             $this->translateDbName(
@@ -61,13 +61,13 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     FROM `:db`.`vault_configuration` conf
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
-                    WHERE `url`=:address AND `port`=:port AND `storage`=:storage
+                    WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
                 SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
         $statement->bindValue(':port', $port, \PDO::PARAM_INT);
-        $statement->bindValue(':storage', $storage, \PDO::PARAM_STR);
+        $statement->bindValue(':rootPath', $rootPath, \PDO::PARAM_STR);
         $statement->execute();
 
         if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
@@ -81,7 +81,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
          *  vault_name: string,
          *  url: string,
          *  port: int,
-         *  storage: string,
+         *  root_path: string,
          *  role_id: string,
          *  secret_id: string,
          *  salt: string
@@ -108,20 +108,20 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     /**
      * @param string $address
      * @param integer $port
-     * @param string $storage
+     * @param string $rootPath
      *
      * @throws \Throwable
      *
      * @return boolean
      */
-    public function existsSameConfiguration(string $address, int $port, string $storage): bool
+    public function existsSameConfiguration(string $address, int $port, string $rootPath): bool
     {
         $this->info(
             'Check if same vault configuration exists',
             [
                 'address' => $address,
                 'port' => $port,
-                'storage' => $storage
+                'root_path' => $rootPath
             ]
         );
 
@@ -132,13 +132,13 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                     FROM `:db`.`vault_configuration` conf
                     INNER JOIN `:db`.`vault`
                       ON vault.id = conf.vault_id
-                    WHERE `url`=:address AND `port`=:port AND `storage`=:storage
+                    WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
                 SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
         $statement->bindValue(':port', $port, \PDO::PARAM_INT);
-        $statement->bindValue(':storage', $storage, \PDO::PARAM_STR);
+        $statement->bindValue(':rootPath', $rootPath, \PDO::PARAM_STR);
         $statement->execute();
 
         return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
@@ -176,7 +176,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
          *  vault_name: string,
          *  url: string,
          *  port: int,
-         *  storage: string,
+         *  root_path: string,
          *  role_id: string,
          *  secret_id: string,
          *  salt: string
@@ -216,7 +216,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
              *  vault_name: string,
              *  url: string,
              *  port: int,
-             *  storage: string,
+             *  root_path: string,
              *  role_id: string,
              *  secret_id: string,
              *  salt: string
@@ -257,7 +257,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
          *  vault_name: string,
          *  url: string,
          *  port: int,
-         *  storage: string,
+         *  root_path: string,
          *  role_id: string,
          *  secret_id: string,
          *  salt: string

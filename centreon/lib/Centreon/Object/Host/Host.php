@@ -160,7 +160,7 @@ class Centreon_Object_Host extends Centreon_Object
         CentreonRestHttp $httpClient
     ): array {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-            . $vaultConfiguration->getStorage() . '/monitoring/hosts/' . $hostId;
+            . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
             $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
         try {
             $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
@@ -200,7 +200,7 @@ class Centreon_Object_Host extends Centreon_Object
     ): void {
         try {
             $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
-                . '/v1/' . $vaultConfiguration->getStorage()
+                . '/v1/' . $vaultConfiguration->getRootPath()
                 . '/monitoring/hosts/' . $hostId;
                 $logger->info(
                     "Writing Host Secrets at : " . $url,
@@ -237,7 +237,7 @@ class Centreon_Object_Host extends Centreon_Object
         int $hostId,
         \CentreonDB $pearDB
     ): void {
-        $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getStorage()
+        $path = "secret::" . $vaultConfiguration->getId() . "::" . $vaultConfiguration->getRootPath()
             . "/monitoring/hosts/" . $hostId;
 
         $statementUpdateHost = $pearDB->prepare(
