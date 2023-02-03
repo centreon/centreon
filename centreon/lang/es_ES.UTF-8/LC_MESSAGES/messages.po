@@ -15481,3 +15481,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "The service group name '%s' already exists"
 #  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""

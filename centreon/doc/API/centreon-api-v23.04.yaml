@@ -351,6 +351,37 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/services/categories:
+    get:
+      tags:
+        - Service category
+      summary: "List service categories"
+      description: |
+        List of service category configurations
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * alias
+        * is_activated
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Host.Category'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /monitoring/services/categories:
     get:
       tags:
@@ -5805,6 +5836,25 @@ components:
           type: string
           nullable: true
           description: "some comments"
+    Configuration.Service.Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Service category ID"
+          example: 1
+        name:
+          type: string
+          description: "Service category name"
+          example: "service-category"
+        alias:
+          type: string
+          description: "Service category alias"
+          example: "service-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enable/disable)
+          example: true
     Configuration.Host.Category.Add:
       type: object
       properties:
