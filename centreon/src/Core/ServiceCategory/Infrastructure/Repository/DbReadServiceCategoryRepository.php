@@ -74,7 +74,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn ($accessGroup) => $accessGroup->getId(),
+            static fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -123,7 +123,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
         if ($result === false) {
-
             return null;
         }
 
@@ -167,7 +166,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $concat = new SqlConcatenator();
 
         $accessGroupIds = array_map(
-            static fn ($accessGroup) => $accessGroup->getId(),
+            static fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

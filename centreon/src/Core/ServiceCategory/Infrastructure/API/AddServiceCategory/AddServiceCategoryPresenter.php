@@ -55,7 +55,6 @@ class AddServiceCategoryPresenter extends AbstractPresenter
                 'alias' => $payload->alias,
                 'is_activated' => $payload->isActivated,
             ]);
-
             // NOT setting location as required route does not currently exist
         }
         parent::present($data);
