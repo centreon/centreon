@@ -24,8 +24,7 @@ Given('an administrator logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@localAuthentification')
     .its('response.statusCode')
-    .should('eq', 200)
-    .wait('@getNavigationList');
+    .should('eq', 200);
 });
 
 When('the administrator first configures the authentication mode', () => {
