@@ -1217,11 +1217,12 @@ table-form-header-h3 {
 }
 
 .formRowLabel {
-    max-width:   200px;;
+    max-width: 200px;
     display: flex;
     align-items: center;
     gap: 2px;
 }
+
 .table .FormRowValue {
     padding: 4px 6px;
 }
