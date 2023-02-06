@@ -1,22 +1,19 @@
-import { useRef, useState, useEffect } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
-
-import { centreonUi } from '../helpers/index';
+import { useRef, useState, useEffect } from "react";
+import { makeStyles } from "tss-react/mui";
+import { Typography } from "@mui/material";
+import { useLocaleDateTimeFormat } from "@centreon/ui";
 
 const useStyles = makeStyles()((theme) => ({
   dateTime: {
     color: theme.palette.common.white,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    justifyContent: 'space-between'
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    justifyContent: "space-between",
   },
   nowrap: {
-    whiteSpace: 'nowrap'
-  }
+    whiteSpace: "nowrap",
+  },
 }));
 
 const Clock = (): JSX.Element => {
@@ -24,16 +21,16 @@ const Clock = (): JSX.Element => {
 
   const refreshIntervalRef = useRef<number>();
   const [dateTime, setDateTime] = useState({
-    date: '',
-    time: ''
+    date: "",
+    time: "",
   });
 
-  const { format, toTime } = centreonUi.useLocaleDateTimeFormat();
+  const { format, toTime } = useLocaleDateTimeFormat();
 
   const updateDateTime = (): void => {
     const now = new Date();
 
-    const date = format({ date: now, formatString: 'LL' });
+    const date = format({ date: now, formatString: "LL" });
     const time = toTime(now);
 
     setDateTime({ date, time });

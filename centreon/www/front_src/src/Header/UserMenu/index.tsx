@@ -34,7 +34,7 @@ import {
 } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import SwitchMode from '../SwitchThemeMode/index';
+import SwitchMode from './SwitchThemeMode';
 import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
 import { areUserParametersLoadedAtom } from '../../Main/useUser';
