@@ -3,7 +3,7 @@ Version:    22.04.1
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
-License:    Apache2
+License:    Apache-2.0
 URL:        http://www.centreon.com
 Source0:    %{name}-%{version}.tar.gz
 BuildArch:  noarch
@@ -48,6 +48,7 @@ AutoReqProv: no
 %package centreon-config
 Summary:    Configure Centreon Gorgone for use with Centreon Web
 Group:      Networking/Other
+License:    Apache-2.0
 Requires:   centreon-common
 Requires:   centreon-gorgone
 
