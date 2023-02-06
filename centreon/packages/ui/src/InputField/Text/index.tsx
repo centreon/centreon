@@ -1,4 +1,4 @@
-import { forwardRef, useMemo } from 'react';
+import { forwardRef } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
