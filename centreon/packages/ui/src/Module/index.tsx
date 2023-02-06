@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Provider as JotaiProvider } from 'jotai';
+import { Provider as JotaiProvider, createStore } from 'jotai';
 
 import { createGenerateClassName, StylesProvider } from '@mui/styles';
 
@@ -13,6 +13,8 @@ export interface ModuleProps {
   seedName: string;
 }
 
+const centreonUIStore = createStore();
+
 const Module = ({
   children,
   seedName,
@@ -23,7 +25,7 @@ const Module = ({
   });
 
   return (
-    <JotaiProvider>
+    <JotaiProvider store={centreonUIStore}>
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider>
           <SnackbarProvider maxSnackbars={maxSnackbars}>

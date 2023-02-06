@@ -1,5 +1,4 @@
 import { atom } from 'jotai';
-import { atomWithDefault, atomWithStorage } from 'jotai/utils';
 import {
   find,
   findIndex,
@@ -18,7 +17,7 @@ import {
 } from 'ramda';
 import { TFunction } from 'react-i18next';
 
-import { getUrlQueryParameters } from '@centreon/ui';
+import { getUrlQueryParameters, atomWithLocalStorage } from '@centreon/ui';
 
 import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
@@ -37,12 +36,12 @@ import { getStoredOrDefaultFilter } from './storedFilter';
 
 export const filterKey = `${baseKey}filter`;
 
-export const storedFilterAtom = atomWithStorage<Filter>(
+export const storedFilterAtom = atomWithLocalStorage<Filter>(
   filterKey,
   unhandledProblemsFilter
 );
 
-export const getDefaultFilterDerivedAtom = atom(() => (): Filter => {
+export const getDefaultFilterDerivedAtom = (): Filter => {
   const storedFilter = getStoredOrDefaultFilter(unhandledProblemsFilter);
   const urlQueryParameters = getUrlQueryParameters();
   const filterQueryParameter = urlQueryParameters.filter as Filter | undefined;
@@ -65,15 +64,11 @@ export const getDefaultFilterDerivedAtom = atom(() => (): Filter => {
   }
 
   return storedFilter;
-});
+};
 
 export const customFiltersAtom = atom<Array<Filter>>([]);
-export const currentFilterAtom = atomWithDefault<Filter>((get) =>
-  get(getDefaultFilterDerivedAtom)()
-);
-export const appliedFilterAtom = atomWithDefault<Filter>((get) =>
-  get(getDefaultFilterDerivedAtom)()
-);
+export const currentFilterAtom = atom<Filter>(getDefaultFilterDerivedAtom());
+export const appliedFilterAtom = atom<Filter>(getDefaultFilterDerivedAtom());
 export const editPanelOpenAtom = atom(false);
 export const searchAtom = atom('');
 export const sendingFilterAtom = atom(false);

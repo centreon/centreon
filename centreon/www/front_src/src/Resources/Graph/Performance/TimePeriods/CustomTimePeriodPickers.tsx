@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { and, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, Typography, Button, Popover } from '@mui/material';

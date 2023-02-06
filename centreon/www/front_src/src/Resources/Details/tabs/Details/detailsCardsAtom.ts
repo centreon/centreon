@@ -1,6 +1,6 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithLocalStorage } from '@centreon/ui';
 
-export const detailsCardsAtom = atomWithStorage<Array<string>>(
+export const detailsCardsAtom = atomWithLocalStorage<Array<string>>(
   'centreon-resource-status-details-card-21.10',
   []
 );

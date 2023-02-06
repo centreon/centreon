@@ -1,7 +1,6 @@
 import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
 
-import { useAtomValue } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -91,7 +90,7 @@ const GraphActions = ({
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const [start, end] = getIntervalDates(selectedTimePeriod);
   const details = useAtomValue(detailsAtom);
-  const setShowModalAnomalyDetection = useUpdateAtom(
+  const setShowModalAnomalyDetection = useSetAtom(
     showModalAnomalyDetectionAtom
   );
   const graphToCsvEndpoint = `${details?.links.endpoints.performance_graph}/download?start_date=${start}&end_date=${end}`;

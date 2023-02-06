@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import axios from 'axios';
 import * as yup from 'yup';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { MenuSkeleton } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';

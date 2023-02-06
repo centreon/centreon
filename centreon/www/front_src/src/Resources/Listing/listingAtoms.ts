@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+
+import { atomWithLocalStorage } from '@centreon/ui';
 
 import { ResourceListing } from '../models';
 import { baseKey } from '../storage';
@@ -7,10 +8,10 @@ import { baseKey } from '../storage';
 import { defaultSelectedColumnIds } from './columns';
 
 export const listingAtom = atom<ResourceListing | undefined>(undefined);
-export const limitAtom = atomWithStorage(`${baseKey}limit`, 30);
+export const limitAtom = atomWithLocalStorage(`${baseKey}limit`, 30);
 export const pageAtom = atom<number | undefined>(undefined);
 export const enabledAutorefreshAtom = atom<boolean>(true);
-export const selectedColumnIdsAtom = atomWithStorage(
+export const selectedColumnIdsAtom = atomWithLocalStorage(
   `${baseKey}column-ids`,
   defaultSelectedColumnIds
 );

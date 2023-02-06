@@ -6,8 +6,7 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import { render, RenderResult } from '@testing-library/react';
-import { Provider } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { Provider, useSetAtom } from 'jotai';
 
 import { userAtom, ThemeMode } from '@centreon/ui-context';
 
@@ -21,7 +20,7 @@ let context;
 
 const TestComponent = (): JSX.Element => {
   const localeDateTimeFormat = useLocaleDateTimeFormat();
-  const setUser = useUpdateAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
 
   useEffect(() => {
     setUser({

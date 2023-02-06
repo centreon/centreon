@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { equals, isNil, not, pipe } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';

@@ -118,7 +118,7 @@
     "formik": "^2.2.9",
     "html-react-parser": "^3.0.4",
     "i18next": "^22.0.4",
-    "jotai": "1.9.2",
+    "jotai": "2",
     "jotai-suspense": "^0.1.0",
     "notistack": "^2.0.8",
     "numeral": "^2.0.6",

@@ -1,10 +1,11 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
 import { isNil, keys, omit } from 'ramda';
+
+import { atomWithLocalStorage } from '@centreon/ui';
 
 import { Page } from '../models';
 
-export const selectedNavigationItemsAtom = atomWithStorage<Record<
+export const selectedNavigationItemsAtom = atomWithLocalStorage<Record<
   string,
   Page
 > | null>('selectedNavigationItems', null);

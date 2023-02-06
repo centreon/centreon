@@ -1,5 +1,5 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
 import { detailsAtom } from '../../../../Details/detailsAtoms';

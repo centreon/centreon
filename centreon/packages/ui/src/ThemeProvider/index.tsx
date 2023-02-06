@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
 

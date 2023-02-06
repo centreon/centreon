@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
 import { isNil } from 'ramda';
+
+import { atomWithLocalStorage } from '@centreon/ui';
 
 import { resourcesEndpoint } from '../api/endpoint';
 import { replaceBasename } from '../helpers';
@@ -17,7 +18,7 @@ import { detailsTabId } from './tabs';
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 import { TabId } from './tabs/models';
 
-export const panelWidthStorageAtom = atomWithStorage(
+export const panelWidthStorageAtom = atomWithLocalStorage(
   'centreon-resource-status-details-21.10',
   550
 );
@@ -66,7 +67,7 @@ export const setGraphTabParametersDerivedAtom = atom(
 );
 
 export const selectedResourcesDetailsAtom =
-  atomWithStorage<ResourceDetailsAtom | null>('resource_details', null);
+  atomWithLocalStorage<ResourceDetailsAtom | null>('resource_details', null);
 
 export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
   const selectedResourceDetails = get(selectedResourcesDetailsAtom);

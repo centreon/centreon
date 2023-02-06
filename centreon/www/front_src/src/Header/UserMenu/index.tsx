@@ -2,8 +2,7 @@ import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtom, useSetAtom } from 'jotai';
 import { equals, gt, isNil, not, __ } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -202,12 +201,12 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
 
   const [user, setUser] = useAtom(userAtom);
 
-  const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
-  const setPasswordResetInformationsAtom = useUpdateAtom(
+  const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
+  const setPasswordResetInformationsAtom = useSetAtom(
     passwordResetInformationsAtom
   );
-  const setSelectedNavigationItems = useUpdateAtom(selectedNavigationItemsAtom);
-  const setHoveredNavigationItems = useUpdateAtom(hoveredNavigationItemsAtom);
+  const setSelectedNavigationItems = useSetAtom(selectedNavigationItemsAtom);
+  const setHoveredNavigationItems = useSetAtom(hoveredNavigationItemsAtom);
 
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })

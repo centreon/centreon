@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 
 import { gte, isNil, not } from 'ramda';
-import { atomWithStorage } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
-import { getData, useRequest } from '@centreon/ui';
+import { getData, useRequest, atomWithLocalStorage } from '@centreon/ui';
 
 import initPendo from './initPendo';
 import { CeipData } from './models';
 
 const oneDayInMs = 24 * 60 * 60 * 1000;
 
-const centreonPlatformDataAtom = atomWithStorage<CeipData | null>(
+const centreonPlatformDataAtom = atomWithLocalStorage<CeipData | null>(
   'centreonPlatformData',
   null
 );

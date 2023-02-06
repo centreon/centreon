@@ -1,7 +1,6 @@
 import { equals, includes, not, isNil, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
 
@@ -75,12 +74,12 @@ const ResourceListing = (): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const { resourceStatusViewMode } = useAtomValue(userAtom);
 
-  const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
-  const setLimit = useUpdateAtom(limitAtom);
-  const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
-  const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
-  const setResourcesToCheck = useUpdateAtom(resourcesToCheckAtom);
-  const setCriteriaAndNewFilter = useUpdateAtom(
+  const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
+  const setLimit = useSetAtom(limitAtom);
+  const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
+  const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
+  const setResourcesToCheck = useSetAtom(resourcesToCheckAtom);
+  const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
 

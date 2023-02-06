@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Box, Container, Paper, Tab } from '@mui/material';
@@ -87,7 +86,7 @@ const Authentication = (): JSX.Element => {
 
   const appliedTab = useAtomValue(appliedTabAtom);
   const { themeMode } = useAtomValue(userAtom);
-  const setTab = useUpdateAtom(tabAtom);
+  const setTab = useSetAtom(tabAtom);
 
   const changeTab = (_, newTab: Provider): void => {
     setTab(newTab);

@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { Responsive } from '@visx/visx';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import {
   add,
   equals,

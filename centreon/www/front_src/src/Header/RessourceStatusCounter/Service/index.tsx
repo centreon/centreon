@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import numeral from 'numeral';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import ServiceIcon from '@mui/icons-material/Grain';
 
@@ -61,7 +61,7 @@ const ServiceStatusCounter = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { use_deprecated_pages } = useAtomValue(userAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
     resourceTypes: serviceCriteria.value,

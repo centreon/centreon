@@ -1,8 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
@@ -91,7 +90,7 @@ const EditAnomalyDetectionDataDialog = ({
   const [showModalAnomalyDetection, setShowModalAnomalyDetection] = useAtom(
     showModalAnomalyDetectionAtom
   );
-  const setCountedRedCircles = useUpdateAtom(countedRedCirclesAtom);
+  const setCountedRedCircles = useSetAtom(countedRedCirclesAtom);
 
   const handleClose = (): void => {
     setShowModalAnomalyDetection(false);

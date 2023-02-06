@@ -3,7 +3,7 @@ import { memo, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { AddSVGProps } from '@visx/shape/lib/types';
 import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, gte, identity, isNil, lt, not, pick, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -253,12 +253,12 @@ const GraphContent = <T,>({
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
   const { canComment } = useAclQuery();
   const mousePosition = useAtomValue(mousePositionAtom);
-  const changeMousePositionAndTimeValue = useUpdateAtom(
+  const changeMousePositionAndTimeValue = useSetAtom(
     changeMousePositionAndTimeValueDerivedAtom
   );
-  const changeTimeValue = useUpdateAtom(changeTimeValueDerivedAtom);
-  const setAnnotationHovered = useUpdateAtom(annotationHoveredAtom);
-  const changeAnnotationHovered = useUpdateAtom(
+  const changeTimeValue = useSetAtom(changeTimeValueDerivedAtom);
+  const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
+  const changeAnnotationHovered = useSetAtom(
     changeAnnotationHoveredDerivedAtom
   );
 

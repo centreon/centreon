@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';

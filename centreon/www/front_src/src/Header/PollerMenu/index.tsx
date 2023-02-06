@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
