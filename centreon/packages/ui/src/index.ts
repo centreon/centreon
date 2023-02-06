@@ -158,4 +158,4 @@ export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
 export { default as Image, ImageVariant } from './Image/Image';
 export { default as WallpaperPage } from './WallpaperPage';
-export { default as RichTextEditor } from './RichTextEditor';
+export { RichTextEditor } from './RichTextEditor';

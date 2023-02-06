@@ -1,37 +1,42 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 
 import { ComponentMeta } from '@storybook/react';
 import { EditorState } from 'lexical';
 
-import { Box } from '@mui/material';
-
+import RichTextEditor from './RichTextEditor';
+import type { RichTextEditorProps } from './RichTextEditor';
 import initialEditorState from './initialEditorState.json';
 
-import RichTextEditor, { RichTextEditorProps } from '.';
-
 export default {
+  argTypes: {
+    editable: { control: false },
+    initialEditorState: { control: 'text' },
+    inputClassname: { control: 'text' },
+    minInputHeight: { control: 'number' },
+    namespace: { control: 'text' },
+    placeholder: { control: 'text' }
+  },
   component: RichTextEditor,
   title: 'RichTextEditor'
 } as ComponentMeta<typeof RichTextEditor>;
 
-const Story = (props: RichTextEditorProps): JSX.Element => (
-  <Box sx={{ backgroundColor: 'background.default', padding: 2 }}>
-    <RichTextEditor {...props} />
-  </Box>
+const Template = (props: RichTextEditorProps): JSX.Element => (
+  <RichTextEditor {...props} />
 );
 
-export const normal = (): JSX.Element => <Story />;
+export const normal = Template.bind({});
 
-export const withCustomEditorMinHeight = (): JSX.Element => (
-  <Story minInputHeight={300} />
-);
+export const withCustomEditorMinHeight = Template.bind({});
+withCustomEditorMinHeight.args = {
+  minInputHeight: 300
+};
 
 const StoryWithUpdateListener = (): JSX.Element => {
   const [editorState, setEditorState] = useState<EditorState>();
 
   return (
     <div>
-      <Story getEditorState={setEditorState} />
+      <Template getEditorState={setEditorState} />
       <pre>{JSON.stringify(editorState, null, 2)}</pre>
     </div>
   );
@@ -41,6 +46,18 @@ export const withUpdateListener = (): JSX.Element => (
   <StoryWithUpdateListener />
 );
 
-export const withInitialEditorState = (): JSX.Element => (
-  <Story initialEditorState={JSON.stringify(initialEditorState)} />
-);
+export const withInitialEditorState = Template.bind({});
+withInitialEditorState.args = {
+  initialEditorState: JSON.stringify(initialEditorState)
+};
+
+export const withCustomPlaceholder = Template.bind({});
+withCustomPlaceholder.args = {
+  placeholder: 'Custom placeholder...'
+};
+
+export const withEditableFalse = Template.bind({});
+withEditableFalse.args = {
+  editable: false,
+  initialEditorState: JSON.stringify(initialEditorState)
+};

@@ -7,9 +7,10 @@ import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
 
 import ContentEditable from './ContentEditable';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+import ToolbarPlugin from './plugins/ToolbarPlugin/index';
 
 export interface RichTextEditorProps {
+  editable: boolean;
   getEditorState?: (editorState: EditorState) => void;
   initialEditorState?: string;
   inputClassname?: string;
@@ -48,7 +49,8 @@ const RichTextEditor = ({
   inputClassname,
   placeholder = 'Type here...',
   getEditorState,
-  initialEditorState
+  initialEditorState,
+  editable = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles();
 
@@ -57,6 +59,7 @@ const RichTextEditor = ({
     : false;
 
   const initialConfig = {
+    editable,
     editorState: initialEditorState,
     namespace,
     onError,
@@ -73,7 +76,7 @@ const RichTextEditor = ({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <ToolbarPlugin getEditorState={getEditorState} />
+      <ToolbarPlugin editable={editable} getEditorState={getEditorState} />
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
@@ -90,5 +93,4 @@ const RichTextEditor = ({
     </LexicalComposer>
   );
 };
-
 export default RichTextEditor;

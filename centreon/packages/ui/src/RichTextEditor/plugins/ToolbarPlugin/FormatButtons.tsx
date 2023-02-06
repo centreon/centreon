@@ -16,21 +16,22 @@ import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
-import { Box, Button, ButtonGroup } from '@mui/material';
+import { alpha } from '@mui/material';
+
+import { IconButton } from '../../..';
 
 const LowPriority = 1;
 
 const useStyles = makeStyles()((theme) => ({
-  button: {
-    '&:hover': {
-      color: theme.palette.primary.main
-    }
-  },
   buttonSelected: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.activatedOpacity
+    )
   },
   container: {
+    columnGap: theme.spacing(1),
+    display: 'flex',
     marginBottom: theme.spacing(1)
   }
 }));
@@ -39,7 +40,7 @@ interface Props {
   getEditorState?: (editorState: EditorState) => void;
 }
 
-const ToolbarPlugin = ({ getEditorState }: Props): JSX.Element => {
+const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const [isBold, setIsBold] = useState(false);
@@ -111,20 +112,22 @@ const ToolbarPlugin = ({ getEditorState }: Props): JSX.Element => {
   );
 
   return (
-    <Box className={classes.container}>
-      <ButtonGroup size="small">
-        {formatButtons.map(({ Icon, format, isSelected }) => (
-          <Button
-            className={cx(isSelected && classes.buttonSelected, classes.button)}
-            key={format}
-            onClick={toggleTextFormat(format)}
-          >
-            <Icon fontSize="small" />
-          </Button>
-        ))}
-      </ButtonGroup>
-    </Box>
+    <>
+      {formatButtons.map(({ Icon, format, isSelected }) => (
+        <IconButton
+          ariaLabel={format}
+          className={cx(isSelected && classes.buttonSelected)}
+          key={format}
+          size="medium"
+          title={format}
+          tooltipPlacement="top"
+          onClick={toggleTextFormat(format)}
+        >
+          <Icon />
+        </IconButton>
+      ))}
+    </>
   );
 };
 
-export default ToolbarPlugin;
+export default FormatButtons;
