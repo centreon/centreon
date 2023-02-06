@@ -23,7 +23,7 @@ const Module = ({
   });
 
   return (
-    <JotaiProvider scope="ui-context">
+    <JotaiProvider>
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider>
           <SnackbarProvider maxSnackbars={maxSnackbars}>
