@@ -17363,4 +17363,4 @@ msgid "You are not allowed to access service severities"
 msgstr "Vous n'êtes pas autorisé à accéder aux sévérités de services"
 
 msgid "Error while searching for service severities"
-msgstr "Erreur durant la recherche de sévérités de services"
+msgstr "Erreur lors de la recherche de sévérités de services"

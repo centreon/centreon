@@ -68,7 +68,7 @@ beforeEach(function () {
     ];
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -163,7 +163,7 @@ it('should present a FindServiceGroupsResponse when a non-admin user has read/wr
         ->toBe($this->responseArray);
 });
 
-it('should present a FindServiceSeveritiesResponse with admin user', function () {
+it('should present a FindServiceSeveritiesResponse with admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
