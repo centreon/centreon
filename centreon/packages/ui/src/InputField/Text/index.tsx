@@ -122,19 +122,6 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
-    const baseProps = useMemo(
-      () => ({
-        'data-testid': dataTestId,
-        error: !isNil(error),
-        helperText: displayErrorInTooltip ? undefined : error,
-        id: getNormalizedId(dataTestId || ''),
-        label,
-        ref,
-        size: size || 'small'
-      }),
-      [label, ref, size, dataTestId, error, displayErrorInTooltip]
-    );
-
     return (
       <>
         <Tooltip placement="top" title={tooltipTitle}>
