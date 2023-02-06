@@ -31,7 +31,7 @@ jobs:
         working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
+        run: npm run eslint -o junit.xml -f junit
         working-directory: ${{ env.directory }}
 
       - if: failure()
