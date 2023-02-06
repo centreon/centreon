@@ -17,3 +17,5 @@ export type {
   Acknowledgement,
   Acl
 } from './types';
+
+const hey = 'hey';
