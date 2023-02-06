@@ -68,6 +68,8 @@ jobs:
           'Net::Subnet',
           'Net::TFTP',
           'Schedule::Cron',
+          'Statistics::Descriptive',
+          'Statistics::Regression',
           'Sys::SigAction',
           'Term::Clui',
           'Term::ShellUI',
