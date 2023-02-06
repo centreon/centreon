@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 
 import { ComponentMeta } from '@storybook/react';
 import { EditorState } from 'lexical';
@@ -9,6 +9,7 @@ import initialEditorState from './initialEditorState.json';
 
 export default {
   argTypes: {
+    editable: { control: false },
     initialEditorState: { control: 'text' },
     inputClassname: { control: 'text' },
     minInputHeight: { control: 'number' },
@@ -53,4 +54,10 @@ withInitialEditorState.args = {
 export const withCustomPlaceholder = Template.bind({});
 withCustomPlaceholder.args = {
   placeholder: 'Custom placeholder...'
+};
+
+export const withEditableFalse = Template.bind({});
+withEditableFalse.args = {
+  editable: false,
+  initialEditorState: JSON.stringify(initialEditorState)
 };

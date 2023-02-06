@@ -7,6 +7,7 @@ import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 
 interface Props {
+  editable: boolean;
   getEditorState?: (editorState: EditorState) => void;
 }
 
@@ -18,16 +19,19 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ToolbarPlugin = ({ getEditorState }: Props): JSX.Element => {
+const ToolbarPlugin = ({
+  getEditorState,
+  editable
+}: Props): JSX.Element | null => {
   const { classes } = useStyles();
 
-  return (
+  return editable ? (
     <div className={classes.container}>
       <UndoRedoButtons />
       <Divider flexItem orientation="vertical" />
       <FormatButtons getEditorState={getEditorState} />
     </div>
-  );
+  ) : null;
 };
 
 export default ToolbarPlugin;
