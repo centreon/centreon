@@ -38,30 +38,32 @@ if (!isset($centreon)) {
     exit();
 }
 
-function deleteDowntimeFromDb($centreon, $select = array())
+function deleteDowntimeFromDb($centreon, $select = [])
 {
-    if (isset($select)) {
-        $pearDBO = new CentreonDB("centstorage");
+    if (empty($select)) {
+        return;
+    }
 
-        $dIds = array();
-        foreach ($select as $key => $val) {
-            $tmp = explode(";", $key);
-            if (isset($tmp[1])) {
-                $dIds[] = $tmp[1];
-            }
-        }
+    $pearDBO = new CentreonDB("centstorage");
 
-        if (count($dIds)) {
-            $request = "DELETE FROM downtimes WHERE internal_id IN (" . implode(', ', $dIds) . ")";
-            $pearDBO->query($request);
+    $internalIDs = [];
+    foreach (array_keys($select) as $key) {
+        $tmp = explode(';', $key);
+        if (isset($tmp[1])) {
+            $internalIDs[] = (int) $tmp[1];
         }
+    }
+
+    if (count($internalIDs)) {
+        $request = "DELETE FROM downtimes WHERE internal_id IN (" . implode(', ', $internalIDs) . ")";
+        $pearDBO->query($request);
     }
 }
 
 function getDowntimes($internalId)
 {
     $pearDBO = new CentreonDB("centstorage");
-    $request = "Select host_id,service_id from downtimes WHERE internal_id = " . CentreonDB::escape($internalId) .
+    $request = "Select host_id,service_id from downtimes WHERE internal_id = " . (int) $internalId .
         " ORDER BY downtime_id DESC LIMIT 0,1";
     $res = $pearDBO->query($request);
     $row = $res->fetchRow();
