@@ -29,7 +29,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class NewServiceSeverity
 {
     public const MAX_NAME_LENGTH = 200,
+        MIN_NAME_LENGTH = 1,
         MAX_ALIAS_LENGTH = 200,
+        MIN_ALIAS_LENGTH = 1,
         MIN_LEVEL_VALUE = -128,
         MAX_LEVEL_VALUE = 127;
 
@@ -56,9 +58,9 @@ class NewServiceSeverity
 
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
-        Assertion::notEmpty($name, $shortName . '::name');
+        Assertion::minLength($name, self::MIN_NAME_LENGTH, $shortName . '::name');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $shortName . '::alias');
-        Assertion::notEmpty($alias, $shortName . '::alias');
+        Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, $shortName . '::alias');
         Assertion::min($level, self::MIN_LEVEL_VALUE, $shortName . '::level');
         Assertion::max($level, self::MAX_LEVEL_VALUE, $shortName . '::level');
         Assertion::positiveInt($iconId, "{$shortName}::iconId");

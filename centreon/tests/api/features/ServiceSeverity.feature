@@ -41,7 +41,7 @@ Feature:
     }
     """
 
-  Scenario: Service categories listing as non-admin with ACL filters
+  Scenario: Service severities listing as non-admin with ACL filters
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
@@ -86,7 +86,7 @@ Feature:
     }
     """
 
-  Scenario: Service categories listing as non-admin without ACL filters
+  Scenario: Service severities listing as non-admin without ACL filters
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias

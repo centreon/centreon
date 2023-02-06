@@ -58,7 +58,7 @@ it('should throw an exception when service severity name is empty', function ():
     new ServiceSeverity(1, '', $this->severityAlias, $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('ServiceSeverity::name')
+    AssertionException::minLength('', 0, ServiceSeverity::MIN_NAME_LENGTH, 'ServiceSeverity::name')
         ->getMessage()
 );
 
@@ -78,7 +78,7 @@ it('should throw an exception when service severity alias is empty', function ()
     new ServiceSeverity(1, $this->severityName, '', $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('ServiceSeverity::alias')
+    AssertionException::minLength('', 0, ServiceSeverity::MIN_ALIAS_LENGTH, 'ServiceSeverity::alias')
         ->getMessage()
 );
 
