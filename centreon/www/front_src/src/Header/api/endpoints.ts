@@ -1,0 +1,6 @@
+export const serviceStatusEndpoint =
+    "./api/internal.php?object=centreon_topcounter&action=servicesStatus";
+export const hostStatusEndpoint =
+    "./api/internal.php?object=centreon_topcounter&action=hosts_status";
+export const pollerListIssuesEndPoint =
+    "./api/internal.php?object=centreon_topcounter&action=pollersListIssues";
