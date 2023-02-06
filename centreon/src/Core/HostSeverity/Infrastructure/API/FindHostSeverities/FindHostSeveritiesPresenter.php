@@ -56,7 +56,7 @@ class FindHostSeveritiesPresenter extends AbstractPresenter
                 'level' => $hostSeverity['level'],
                 'icon_id' => $hostSeverity['iconId'],
                 'is_activated' => $hostSeverity['isActivated'],
-                'comments' => $hostSeverity['comment'],
+                'comment' => $hostSeverity['comment'],
             ];
         }
 
