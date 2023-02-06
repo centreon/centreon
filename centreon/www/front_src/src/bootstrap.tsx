@@ -11,5 +11,3 @@ const createApp = async (): Promise<void> => {
 };
 
 createApp();
-
-const hey = 'hey';
