@@ -58,15 +58,15 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: centreon.jfrog.io/docker
-          username: ${{ secrets.nexus_username }}
-          password: ${{ secrets.nexus_password }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
           registry: centreon.jfrog.io/docker
-          username: ${{ secrets.nexus_username }}
-          password: ${{ secrets.nexus_password }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
