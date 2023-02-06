@@ -1,18 +1,15 @@
-import { useRef } from 'react';
+import { useRef } from "react";
+import { equals } from "ramda";
+import { makeStyles } from "tss-react/mui";
+import { Theme } from "@mui/material";
+import { ThemeMode } from "@centreon/ui-context";
 
-import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
+import FederatedComponent from "../components/FederatedComponents";
 
-import { Theme } from '@mui/material';
-
-import { ThemeMode } from '@centreon/ui-context';
-
-import FederatedComponent from '../components/FederatedComponents';
-
-import PollerMenu from './PollerMenu';
-import HostStatusCounter from './RessourceStatusCounter/Host';
-import ServiceStatusCounter from './RessourceStatusCounter/Service';
-import UserMenu from './UserMenu';
+import Poller from "./Poller";
+import HostStatusCounter from "./Ressources/Host";
+import ServiceStatusCounter from "./Ressources/Service";
+import UserMenu from "./UserMenu";
 
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
@@ -21,28 +18,33 @@ export const headerHeight = 7;
 
 const useStyles = makeStyles()((theme) => ({
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: isDarkMode(theme)
       ? theme.palette.common.black
       : theme.palette.primary.dark,
-    display: 'flex',
+    display: "flex",
     height: theme.spacing(headerHeight),
-    padding: `0 ${theme.spacing(3)}`
+    padding: `0 ${theme.spacing(3)}`,
   },
   item: {
-    flex: '1 0 120px'
+    flex: "initial",
+    marginRight: "52px",
+    [theme.breakpoints.down(768)]: {
+      marginRight: "44px",
+    },
+    ["&:first-of-type"]: {
+      marginRight: "26px",
+      paddingRight: "26px",
+      borderRight: "solid 1px #FFF",
+    },
   },
   leftContainer: {
-    alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(2),
-    [theme.breakpoints.up(768)]: {
-      gap: theme.spacing(3)
-    }
+    alignItems: "center",
+    display: "flex",
   },
   userMenuContainer: {
-    marginLeft: 'auto'
-  }
+    marginLeft: "auto",
+  },
 }));
 
 const Header = (): JSX.Element => {
@@ -53,18 +55,22 @@ const Header = (): JSX.Element => {
     <header className={classes.header} ref={headerRef}>
       <div className={classes.leftContainer}>
         <div className={classes.item}>
-          <PollerMenu />
+          <Poller />
         </div>
+
         <div className={classes.item}>
           <ServiceStatusCounter />
         </div>
+
         <div className={classes.item}>
           <HostStatusCounter />
         </div>
+
         <div className={classes.item}>
           <FederatedComponent path="/bam/header/topCounter" />
         </div>
       </div>
+
       <div className={classes.userMenuContainer}>
         <UserMenu headerRef={headerRef} />
       </div>
