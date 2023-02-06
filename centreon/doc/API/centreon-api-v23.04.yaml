@@ -6226,7 +6226,7 @@ components:
       properties:
         id:
           type: integer
-          description: "Service severity id"
+          description: "Service severity ID"
           example: 1
         name:
           type: string
