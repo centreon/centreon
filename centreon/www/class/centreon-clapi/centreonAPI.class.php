@@ -803,7 +803,7 @@ class CentreonAPI
                 $i++;
                 $tab = preg_split('/;/', $string);
                 if (strlen(trim($string)) != 0 && !preg_match('/^\{OBJECT_TYPE\}/', $string)) {
-                    $this->object = $tab[0];
+                    $this->object = trim($tab[0]);
                     $this->action = trim($tab[1]);
                     $this->variables = trim(substr($string, strlen($tab[0] . ";" . $tab[1] . ";")));
                     if ($this->debug == 1) {
