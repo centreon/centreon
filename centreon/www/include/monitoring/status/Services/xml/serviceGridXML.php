@@ -46,7 +46,6 @@ include_once _CENTREON_PATH_ . "www/class/centreonService.class.php";
 // Create XML Request Objects
 CentreonSession::start(1);
 $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
-$svcObj = new CentreonService($obj->DB);
 
 if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
     print "Bad Session ID";
@@ -80,6 +79,9 @@ $order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
 $obj->setInstanceHistory($instance);
 
 $kernel = \App\Kernel::createForWeb();
+/**
+ * @var Centreon\Application\Controller\MonitoringResourceController $resourceController
+ */
 $resourceController = $kernel->getContainer()->get(
     \Centreon\Application\Controller\MonitoringResourceController::class
 );
@@ -90,59 +92,84 @@ $queryValues = [];
 /**
  * Get Host status
  */
-$rq1 = " SELECT SQL_CALC_FOUND_ROWS DISTINCT hosts.name, hosts.state, hosts.icon_image, hosts.host_id FROM hosts ";
+$request = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+      hosts.name, hosts.state, hosts.icon_image, hosts.host_id
+    FROM hosts
+    SQL;
+
 if ($hostgroups) {
-    $rq1 .= ", hosts_hostgroups hg, hostgroups hg2 ";
-}
-if (!$obj->is_admin) {
-    $rq1 .= ", centreon_acl ";
-}
-$rq1 .= " WHERE hosts.name NOT LIKE '\_Module\_%' ";
-if (!$obj->is_admin) {
-    $rq1 .= " AND hosts.host_id = centreon_acl.host_id " .
-        $obj->access->queryBuilder("AND", "group_id", $obj->grouplistStr);
-}
-if ($o == "svcgrid_pb" || $o == "svcOV_pb" || $o == "svcgrid_ack_0" || $o == "svcOV_ack_0") {
-    $rq1 .= " AND hosts.host_id IN (" .
-        " SELECT s.host_id FROM services s " .
-        " WHERE s.state != 0 AND s.state != 4 AND s.enabled = 1)";
-}
-if ($o == "svcgrid_ack_1" || $o == "svcOV_ack_1") {
-    $rq1 .= " AND hosts.host_id IN (" .
-        " SELECT s.host_id FROM services s " .
-        " WHERE s.acknowledged = '1' AND s.enabled = 1)";
-}
-if ($search != "") {
-    $rq1 .= " AND hosts.name like :search ";
-    $queryValues['search'] = [\PDO::PARAM_STR => '%' . $search . '%'];
-}
-if ($instance != -1) {
-    $rq1 .= " AND hosts.instance_id = :instance ";
-    $queryValues['instance'] = [\PDO::PARAM_INT =>  $instance];
-}
-if ($hostgroups) {
-    $rq1 .= " AND hosts.host_id = hg.host_id
-        AND hg.hostgroup_id = :hostgroup
-        AND hg.hostgroup_id = hg2.hostgroup_id ";
+    $request .= <<<SQL
+    
+    INNER JOIN hosts_hostgroups hhg
+        ON hhg.host_id = hosts.host_id
+        AND hhg.hostgroup_id = :hostgroup
+    INNER JOIN hostgroups hg
+        ON hg.hostgroup_id = hhg.hostgroup_id
+    SQL;
     // only one value is returned from the current "select" filter
     $queryValues['hostgroup'] = [\PDO::PARAM_INT =>  $hostgroups];
 }
-$rq1 .= " AND hosts.enabled = 1 ";
+
+if (!$obj->is_admin) {
+    $request .= <<<SQL
+        
+        INNER JOIN centreon_acl
+            ON centreon_acl.host_id = hosts.host_id
+            AND centreon_acl.group_id IN ({$obj->grouplistStr})
+    SQL;
+}
+
+
+$request .= " WHERE hosts.name NOT LIKE '\_Module\_%' ";
+if ($o == "svcgrid_pb" || $o == "svcOV_pb" || $o == "svcgrid_ack_0" || $o == "svcOV_ack_0") {
+    $request .= <<<SQL
+        
+        AND hosts.host_id IN (
+          SELECT s.host_id
+          FROM services s
+          WHERE s.state != 0
+            AND s.state != 4
+            AND s.enabled = 1
+        )
+        SQL;
+}
+if ($o == "svcgrid_ack_1" || $o == "svcOV_ack_1") {
+    $request .= <<<SQL
+        
+        AND hosts.host_id IN (
+            SELECT s.host_id
+            FROM services s
+            WHERE s.acknowledged = '1'
+            AND s.enabled = 1
+        )
+        SQL;
+}
+if ($search != "") {
+    $request .= " AND hosts.name like :search ";
+    $queryValues['search'] = [\PDO::PARAM_STR => '%' . $search . '%'];
+}
+if ($instance != -1) {
+    $request .= " AND hosts.instance_id = :instance ";
+    $queryValues['instance'] = [\PDO::PARAM_INT =>  $instance];
+}
+
+$request .= " AND hosts.enabled = 1 ";
 
 switch ($sortType) {
     case 'current_state':
-        $rq1 .= " ORDER BY hosts.state " . $order . ",hosts.name ";
+        $request .= " ORDER BY hosts.state " . $order . ",hosts.name ";
         break;
     default:
-        $rq1 .= " ORDER BY hosts.name " . $order;
+        $request .= " ORDER BY hosts.name " . $order;
         break;
 }
-$rq1 .= " LIMIT :numLimit, :limit";
+$request .= " LIMIT :numLimit, :limit";
 $queryValues['numLimit'] = [\PDO::PARAM_INT => ($num * $limit)];
 $queryValues['limit'] = [\PDO::PARAM_INT => $limit];
 
 // Execute request
-$dbResult = $obj->DBC->prepare($rq1);
+$dbResult = $obj->DBC->prepare($request);
 foreach ($queryValues as $bindId => $bindData) {
     foreach ($bindData as $bindType => $bindValue) {
         $dbResult->bindValue($bindId, $bindValue, $bindType);
@@ -194,8 +221,9 @@ if (isset($tab_svc)) {
         $obj->XML->startElement("l");
         $obj->XML->writeAttribute("class", $obj->getNextLineClass());
         if (isset($tab["tab_svc"])) {
-            foreach ($tab["tab_svc"] as $svc => $state) {
-                $serviceId = $svcObj->getServiceId($svc, $host_name);
+            foreach ($tab["tab_svc"] as $svc => $details) {
+                $state = $details['state'];
+                $serviceId = $details['service_id'];
                 $obj->XML->startElement("svc");
                 $obj->XML->writeElement("sn", CentreonUtils::escapeSecure($svc), false);
                 $obj->XML->writeElement("snl", CentreonUtils::escapeSecure(urlencode($svc)));
