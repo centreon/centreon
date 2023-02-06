@@ -118,13 +118,11 @@ class CentreonMonitoring
     }
 
     /**
-     *
-     * Proxy function
-     * @param unknown_type $hostList
-     * @param unknown_type $objXMLBG
-     * @param unknown_type $o
-     * @param unknown_type $instance
-     * @param unknown_type $hostgroups
+     * @param string $hostList
+     * @param CentreonXMLBGRequest $objXMLBG
+     * @param string $o
+     * @param false|int $instance
+     * @param false|int $hostgroups
      */
     public function getServiceStatus($hostList, $objXMLBG, $o, $instance, $hostgroups)
     {
@@ -138,7 +136,6 @@ class CentreonMonitoring
                 (CASE s.state
                     WHEN 0 THEN 3
                     WHEN 2 THEN 0
-                    WHEN 3 THEN 2
                     WHEN 3 THEN 2
                     ELSE s.state
                 END) AS tri
