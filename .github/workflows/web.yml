@@ -146,7 +146,7 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -o junit.xml -f junit --quiet
+        run: pnpm eslint -o junit.xml -f junit
         working-directory: centreon
 
       - if: failure()
