@@ -11,21 +11,23 @@ export interface ModuleProps {
   children: React.ReactElement;
   maxSnackbars: number;
   seedName: string;
+  store;
 }
 
-const centreonUIStore = createStore();
+export const centreonUIStore = createStore();
 
 const Module = ({
   children,
   seedName,
-  maxSnackbars
+  maxSnackbars,
+  store
 }: ModuleProps): JSX.Element => {
   const generateClassName = createGenerateClassName({
     seed: seedName
   });
 
   return (
-    <JotaiProvider store={centreonUIStore}>
+    <JotaiProvider store={store}>
       <StylesProvider generateClassName={generateClassName}>
         <ThemeProvider>
           <SnackbarProvider maxSnackbars={maxSnackbars}>

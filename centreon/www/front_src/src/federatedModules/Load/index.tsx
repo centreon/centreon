@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { atom, useAtom } from 'jotai';
 import { isEmpty } from 'ramda';
 
-import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
+import { centreonUIStore, MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import NotFoundPage from '../../FallbackPages/NotFoundPage';
 import memoizeComponent from '../../Resources/memoizedComponent';
@@ -134,6 +134,7 @@ export const Remote = ({
       component={component}
       isFederatedModule={isFederatedModule}
       moduleFederationName={moduleFederationName}
+      store={centreonUIStore}
       {...props}
     />
   );
