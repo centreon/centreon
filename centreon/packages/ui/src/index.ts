@@ -74,8 +74,6 @@ export { default as Tab } from './Panel/Tab';
 export { default as StatusChip } from './StatusChip';
 export type { Props as StatusChipProps } from './StatusChip';
 
-export { SeverityCode, getStatusColors } from './StatusChip';
-
 export type { Listing as ListingModel } from './api/models';
 
 export { default as useCancelTokenSource } from './api/useCancelTokenSource';
@@ -159,3 +157,4 @@ export * from './Logo/CentreonLogo';
 export { default as Image, ImageVariant } from './Image/Image';
 
 export { default as ActionsList } from './ActionsList';
+export { getStatusColors, SeverityCode } from './utils/statuses';
