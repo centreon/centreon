@@ -8,7 +8,7 @@
 
 <h2> Introduction </h2>
 
-Centreon is one of the most flexible and powerful monitoring softwares
+Centreon is one of the most flexible and powerful monitoring softwares 
 on the market; it is absolutely free and Open Source.
 
 <h2> Getting Started </h2>
