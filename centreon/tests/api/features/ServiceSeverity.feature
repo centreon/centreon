@@ -159,14 +159,14 @@ Feature:
 
     Given the following CLAPI import data:
     """
-    SC;ADD;service-sev1;service-sev1-alias
+    SC;ADD;service-cat1;service-cat1-alias
     """
 
     When I send a GET request to '/api/latest/configuration/services/severities'
     Then the response code should be "200"
     And the json node "result" should have 0 elements
 
-    When I send a GET request to '/api/latest/configuration/services/categories'
+    When I send a GET request to '/api/latest/configuration/services/categories?search={"name":{"$lk":"service-cat%"}}'
     Then the response code should be "200"
     And I store response values in:
       | name      | path              |
