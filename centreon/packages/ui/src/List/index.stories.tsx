@@ -9,7 +9,7 @@ import List from '.';
 const actions = [
   {
     Icon: CopyIcon,
-    label: 'duplicate',
+    label: 'Duplicate',
     onClick: (): void => undefined
   },
   {
