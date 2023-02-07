@@ -15487,3 +15487,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Error while searching for service categories"
 #  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""

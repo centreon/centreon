@@ -673,6 +673,39 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/services/severities:
+    get:
+      tags:
+        - Service severity
+      summary: "List all service severities"
+      description: |
+        List of all service severity configurations
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * level
+        * is_activated
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Service.Severity'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
     get:
       tags:
@@ -6188,6 +6221,32 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the service group is activated or not"
+    Configuration.Service.Severity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Service severity ID"
+          example: 1
+        name:
+          type: string
+          description: "Service severity name"
+          example: "service-severity"
+        alias:
+          type: string
+          description: "Service severity alias"
+          example: "service-severity"
+        level:
+          type: integer
+          description: "Service severity priority"
+          example: 2
+        icon_id:
+          type: integer
+          description: "Define the image ID associated with this severity"
+          example: 1
+        is_activated:
+          type: boolean
+          description: "Indicates whether this service severity is enabled or not"
     Configuration.ContactTemplate:
       type: object
       required:
