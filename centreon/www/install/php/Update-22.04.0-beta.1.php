@@ -103,7 +103,7 @@ try {
         $pearDB->query(
             <<<'SQL'
             DROP INDEX token_index
-                ON security_token;
+                ON security_token
             SQL
         );
     }
@@ -165,7 +165,7 @@ try {
         WHERE type_shortname = 'sql'"
     );
 
-    $errorMessage = "Unable to add 'unifed_sql' broker configuration output";
+    $errorMessage = "Unable to add 'unified_sql' broker configuration output";
     addNewUnifiedSqlOutput($pearDB);
     $errorMessage = "Unable to migrate broker config to unified_sql";
     migrateBrokerConfigOutputsToUnifiedSql($pearDB);
@@ -428,7 +428,7 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
     // Add form fields for 'unified_sql' output
     $inputs = [];
     $statement = $pearDB->query(
-        "SELECT DISTINCT(tfr.cb_field_id), tfr.is_required FROM cb_type_field_relation tfr, cb_type t, cb_field f
+        "SELECT DISTINCT(tfr.cb_field_id), tfr.order_display tfr.is_required FROM cb_type_field_relation tfr, cb_type t, cb_field f
         WHERE tfr.cb_type_id = t.cb_type_id
         AND t.type_shortname in ('sql', 'storage')
         AND tfr.cb_field_id = f.cb_field_id
