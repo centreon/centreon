@@ -3,11 +3,13 @@ import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 
-import { SvgIconProps } from '@mui/material';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import {
+  SvgIconProps,
+  MenuList,
+  MenuItem,
+  ListItemText,
+  ListItemIcon
+} from '@mui/material';
 
 interface ActionsType {
   Icon: (props: SvgIconProps) => JSX.Element;
