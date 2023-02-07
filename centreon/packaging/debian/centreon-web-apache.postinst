@@ -8,7 +8,7 @@ if [ "$1" = "configure" ] ; then
     a2enmod proxy_fcgi setenvif proxy rewrite
     a2enmod alias proxy proxy_fcgi
     a2enconf php8.1-fpm
-    a2dismod php8.1
+    a2dismod php8.0
     # Remove default Debian Apache configuration (if exists)
     if [ -L /etc/apache2/sites-enabled/000-default.conf ]; then
       echo "Removing Apache default configuration file ..."
