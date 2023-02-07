@@ -158,6 +158,15 @@ Feature:
     Then the response code should be "200"
     And the json node "result" should have 0 elements
 
+    When I send a GET request to '/api/latest/configuration/services/severities'
+    Then the response code should be "200"
+    And I store response values in:
+      | name       | path         |
+      | severityId | result[0].id |
+
+    When I send a DELETE request to '/api/latest/configuration/services/categories/<severityId>'
+    Then the response code should be "404"
+
   Scenario: Delete a service category as non-admin user with ACL filter
     Given the following CLAPI import data:
         """
