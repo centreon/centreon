@@ -8,36 +8,40 @@ import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
 
 interface StyleProps {
+  editable: boolean;
   minInputHeight: number;
 }
 
-const useStyles = makeStyles<StyleProps>()((theme, { minInputHeight }) => ({
-  container: {
-    '& p': {
-      margin: 0
+const useStyles = makeStyles<StyleProps>()(
+  (theme, { minInputHeight, editable }) => ({
+    container: {
+      '& p': {
+        margin: 0
+      },
+      backgroundColor: theme.palette.background.paper,
+      border: '1px solid transparent',
+      borderRadius: theme.shape.borderRadius,
+      padding: theme.spacing(0.5, 1)
     },
-    backgroundColor: theme.palette.background.paper,
-    border: '1px solid transparent',
-    borderRadius: theme.shape.borderRadius,
-    padding: theme.spacing(0.5, 1)
-  },
-  emptyInput: {
-    marginTop: '-22px'
-  },
-  input: {
-    minHeight: minInputHeight,
-    outline: '0px solid transparent'
-  },
-  inputFocused: {
-    border: `1px solid ${theme.palette.primary.main}`
-  },
-  placeholder: {
-    color: theme.palette.grey[500],
-    pointerEvents: 'none'
-  }
-}));
+    emptyInput: {
+      marginTop: '-22px'
+    },
+    input: {
+      minHeight: editable ? minInputHeight : 'min-content',
+      outline: '0px solid transparent'
+    },
+    inputFocused: {
+      border: `1px solid ${theme.palette.primary.main}`
+    },
+    placeholder: {
+      color: theme.palette.grey[500],
+      pointerEvents: 'none'
+    }
+  })
+);
 
 interface Props {
+  editable: boolean;
   hasInitialTextContent?: boolean;
   inputClassname?: string;
   minInputHeight: number;
@@ -48,9 +52,10 @@ const ContentEditable = ({
   minInputHeight,
   inputClassname,
   placeholder,
-  hasInitialTextContent
+  hasInitialTextContent,
+  editable
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ minInputHeight });
+  const { classes, cx } = useStyles({ editable, minInputHeight });
   const { t } = useTranslation();
 
   const [editor] = useLexicalComposerContext();

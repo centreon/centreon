@@ -81,6 +81,7 @@ const RichTextEditor = ({
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
           <ContentEditable
+            editable={editable}
             hasInitialTextContent={hasInitialTextContent}
             inputClassname={inputClassname}
             minInputHeight={minInputHeight}
