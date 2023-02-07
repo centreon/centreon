@@ -434,6 +434,8 @@
     "totp" : false,
     "emailVerified" : true,
     "email" : "oidc@localhost",
+    "firstName": "OpenId Connect",
+    "lastName": "OIDC",
     "credentials" : [ {
       "id" : "5e87156a-93dd-4cc0-8ef6-0d1c33b9c77d",
       "type" : "password",
