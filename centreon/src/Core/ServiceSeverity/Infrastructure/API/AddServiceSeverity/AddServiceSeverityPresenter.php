@@ -33,14 +33,6 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 class AddServiceSeverityPresenter extends AbstractPresenter
 {
     use LoggerTrait;
-    private const ROUTE_NAME = 'FindServiceSeverity';
-
-    public function __construct(
-        PresenterFormatterInterface $presenterFormatter,
-        readonly private Router $router
-    ) {
-        parent::__construct($presenterFormatter);
-    }
 
     /**
      * @inheritDoc
