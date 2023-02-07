@@ -22,5 +22,5 @@ runs:
       shell: bash
 
     - name: "Run Cypress"
-      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/.github/scripts/cypress-e2e-testing.sh" --net="host" docker.centreon.com/cypress:${{ inputs.image_cypress_version }}
+      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/.github/scripts/cypress-e2e-testing.sh" --net="host" centreon.jfrog.io/docker/cypress:${{ inputs.image_cypress_version }}
       shell: bash
