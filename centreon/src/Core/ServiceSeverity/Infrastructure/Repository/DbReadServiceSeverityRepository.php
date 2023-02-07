@@ -221,7 +221,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
      */
     public function findById(int $serviceSeverityId): ?ServiceSeverity
     {
-        $this->info('Get a service severity with id #' . $serviceSeverityId);
+        $this->info('Get a service severity with ID #' . $serviceSeverityId);
 
         $request = $this->translateDbName(
             <<<'SQL'
