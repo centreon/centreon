@@ -1,65 +1,64 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { makeStyles } from "tss-react/mui";
-import { Link } from "react-router-dom";
-import { equals } from "ramda";
+import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
+import { Link } from 'react-router-dom';
 
-import { ThemeMode } from "@centreon/ui-context";
-
-import { SeverityCode, getStatusColors } from "@centreon/ui";
+import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { ThemeMode } from '@centreon/ui-context';
 
 const useStyles = makeStyles()((theme) => ({
+  count: {
+    marginLeft: 'auto'
+  },
+  link: {
+    alignItems: 'center',
+    color: 'inherit',
+    display: 'flex',
+    padding: theme.spacing(1),
+    textDecoration: 'none'
+  },
+  status: {
+    alignItems: 'center',
+    display: 'flex'
+  },
+  statusCounter: {
+    borderRadius: '50%',
+    height: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: theme.spacing(1)
+  },
   submenu: {
     color: theme.palette.text.primary,
     fontSize: theme.typography.body2.fontSize,
-    listStyle: "none",
+    listStyle: 'none',
     margin: 0,
-    padding: 0,
-  },
-  count: {
-    marginLeft: "auto",
-  },
-  link: {
-    alignItems: "center",
-    color: "inherit",
-    display: "flex",
-    padding: theme.spacing(1),
-    textDecoration: "none",
-  },
-  status: {
-    alignItems: "center",
-    display: "flex",
-  },
-  statusCounter: {
-    borderRadius: "50%",
-    height: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: theme.spacing(1),
+    padding: 0
   },
   submenuItem: {
-    "&:hover": {
+    '&:hover': {
       background: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.primary.dark
         : theme.palette.primary.light,
       color: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.common.white
-        : theme.palette.primary.main,
+        : theme.palette.primary.main
     },
-    "&:not(:last-child)": {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-    },
-  },
+    '&:not(:last-child)': {
+      borderBottom: `1px solid ${theme.palette.divider}`
+    }
+  }
 }));
 
 export interface SubMenuProps {
-  items: {
+  items: Array<{
+    countTestId?: string;
     onClick: (e: React.MouseEvent) => void;
     severityCode: SeverityCode;
     submenuCount: string | number;
     submenuTitle: string;
     to: string;
-    countTestId?: string;
-  }[];
+  }>;
 }
 
 const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
@@ -74,7 +73,7 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
           submenuTitle,
           submenuCount,
           countTestId,
-          to,
+          to
         }) => (
           <li className={classes.submenuItem} key={to}>
             <Link className={classes.link} to={to} onClick={onClick}>
@@ -83,7 +82,7 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
                   className={classes.statusCounter}
                   style={{
                     backgroundColor: getStatusColors({ severityCode, theme })
-                      ?.backgroundColor,
+                      ?.backgroundColor
                   }}
                 />
                 <span>{submenuTitle}</span>

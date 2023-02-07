@@ -1,15 +1,13 @@
-import { useTranslation } from "react-i18next";
-import { isNil } from "ramda";
-import { makeStyles } from "tss-react/mui";
-import { CSSObject } from "tss-react";
+import { makeStyles } from 'tss-react/mui';
+import { CSSObject } from 'tss-react';
 
-import StorageIcon from "@mui/icons-material/Storage";
-import LatencyIcon from "@mui/icons-material/Speed";
-import { Avatar } from "@mui/material";
+import StorageIcon from '@mui/icons-material/Storage';
+import LatencyIcon from '@mui/icons-material/Speed';
+import { Avatar } from '@mui/material';
 
-import { getStatusColors, SeverityCode } from "@centreon/ui";
+import { getStatusColors, SeverityCode } from '@centreon/ui';
 
-interface PollerStatusIconProps {
+export interface PollerStatusIconProps {
   iconSeverities: {
     database: {
       label: string;
@@ -32,52 +30,52 @@ const useStatusStyles = makeStyles<StyleProps>()(
     const getSeverityColor = (severityCode): CSSObject => ({
       background: getStatusColors({
         severityCode,
-        theme,
+        theme
       }).backgroundColor,
       color: getStatusColors({
         severityCode,
-        theme,
-      }).color,
+        theme
+      }).color
     });
 
     return {
+      avatar: {
+        fontSize: theme.typography.body1.fontSize,
+        height: theme.spacing(2.125),
+        width: theme.spacing(2.125)
+      },
       container: {
-        display: "flex",
+        display: 'flex',
         gap: theme.spacing(0.5),
         [theme.breakpoints.up(768)]: {
-          minHeight: theme.spacing(0.3),
+          minHeight: theme.spacing(0.3)
         },
 
         [theme.breakpoints.down(768)]: {
           bottom: 0,
-          right: theme.spacing(1),
-          flexFlow: "column wrap",
+          flexFlow: 'column wrap',
           gap: theme.spacing(0.3),
-        },
-      },
-      avatar: {
-        fontSize: theme.typography.body1.fontSize,
-        height: theme.spacing(2.125),
-        width: theme.spacing(2.125),
+          right: theme.spacing(1)
+        }
       },
       database: getSeverityColor(databaseSeverity),
       icon: {
         height: theme.spacing(1.75),
-        width: theme.spacing(1.75),
+        width: theme.spacing(1.75)
       },
-      latency: getSeverityColor(latencySeverity),
+      latency: getSeverityColor(latencySeverity)
     };
   }
 );
 
 const PollerStatusIcon = ({
-  iconSeverities,
+  iconSeverities
 }: PollerStatusIconProps): JSX.Element => {
   const { database, latency } = iconSeverities;
 
   const { classes, cx } = useStatusStyles({
     databaseSeverity: database.severity,
-    latencySeverity: latency.severity,
+    latencySeverity: latency.severity
   });
 
   return (

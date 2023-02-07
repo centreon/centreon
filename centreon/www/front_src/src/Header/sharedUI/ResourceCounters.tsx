@@ -1,44 +1,45 @@
-import StatusCounter from "./StatusCounter";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
 
-import { makeStyles } from "tss-react/mui";
-import { SeverityCode } from "@centreon/ui";
+import { SeverityCode } from '@centreon/ui';
+
+import StatusCounter from './StatusCounter';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-    display: "inline-block",
+    display: 'inline-block',
     lineHeight: 1,
+    listStyle: 'none',
+    margin: 0,
+    padding: 0,
     [theme.breakpoints.down(768)]: {
-      flexFlow: "row wrap",
-    },
+      flexFlow: 'row wrap'
+    }
   },
   item: {
-    display: "inline-block",
-    paddingRight: theme.spacing(0.25),
-  },
-  splitter: {
-    display: "none",
-    [theme.breakpoints.down(768)]: {
-      display: "block",
-      marginBottom: "2px",
-    },
+    display: 'inline-block',
+    paddingRight: theme.spacing(0.25)
   },
   link: {
-    textDecoration: "none",
+    textDecoration: 'none'
   },
+  splitter: {
+    display: 'none',
+    [theme.breakpoints.down(768)]: {
+      display: 'block',
+      marginBottom: theme.spacing(0.25)
+    }
+  }
 }));
 
 export interface CounterProps {
-  counters: {
+  counters: Array<{
+    ariaLabel: string;
+    count: string | number;
     onClick: (e: React.MouseEvent) => void;
     severityCode: SeverityCode;
-    count: string | number;
-    ariaLabel: string;
     to: string;
-  }[];
+  }>;
 }
 
 export default ({ counters }: CounterProps): JSX.Element => {
@@ -51,15 +52,16 @@ export default ({ counters }: CounterProps): JSX.Element => {
           <>
             {index === 2 && (
               <li
-                key={`${to}-splitter`}
-                className={classes.splitter}
                 aria-hidden="true"
+                className={classes.splitter}
+                key={`${to}-splitter`}
               />
             )}
-            <li key={to} className={classes.item}>
+            <li className={classes.item} key={to}>
               <Link
-                className={classes.link}
                 aria-label={ariaLabel}
+                className={classes.link}
+                key={to}
                 to={to}
                 onClick={onClick}
               >

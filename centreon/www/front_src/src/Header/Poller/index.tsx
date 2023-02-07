@@ -1,11 +1,14 @@
-import { withTranslation } from "react-i18next";
-import PollerIcon from "@mui/icons-material/DeviceHub";
-import { MenuSkeleton } from "@centreon/ui";
-import ItemLayout from "../sharedUI/ItemLayout";
-import PollerStatusIcon from "./PollerStatusIcon";
-import { PollerSubMenu } from "./PollerSubMenu/PollerSubMenu";
+import { withTranslation } from 'react-i18next';
 
-import { usePollerDatas } from "./usePollerDatas";
+import PollerIcon from '@mui/icons-material/DeviceHub';
+
+import { MenuSkeleton } from '@centreon/ui';
+
+import ItemLayout from '../sharedUI/ItemLayout';
+
+import PollerStatusIcon from './PollerStatusIcon';
+import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';
+import { usePollerDatas } from './usePollerDatas';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = usePollerDatas();
@@ -22,15 +25,14 @@ const ServiceStatusCounter = (): JSX.Element | null => {
     data && (
       <ItemLayout
         Icon={PollerIcon}
-        title="Pollers"
-        testId="Pollers"
-        triggerToggle={(callback) => callback()}
-        renderIndicators={() => (
+        renderIndicators={(): JSX.Element => (
           <PollerStatusIcon iconSeverities={data.iconSeverities} />
         )}
-        renderSubMenu={({ closeSubMenu }) => (
+        renderSubMenu={({ closeSubMenu }): JSX.Element => (
           <PollerSubMenu {...data.subMenu} closeSubMenu={closeSubMenu} />
         )}
+        testId="Pollers"
+        title="Pollers"
       />
     )
   );

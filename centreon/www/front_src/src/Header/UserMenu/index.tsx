@@ -34,7 +34,6 @@ import {
 } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import SwitchMode from './SwitchThemeMode';
 import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
 import { areUserParametersLoadedAtom } from '../../Main/useUser';
@@ -46,6 +45,7 @@ import {
   hoveredNavigationItemsAtom
 } from '../../Navigation/Sidebar/sideBarAtoms';
 
+import SwitchMode from './SwitchThemeMode';
 import { userEndpoint } from './api/endpoint';
 import {
   labelCopyAutologinLink,

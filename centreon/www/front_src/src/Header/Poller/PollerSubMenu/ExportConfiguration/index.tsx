@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from 'react';
 
-import { useTranslation } from "react-i18next";
-import { equals, not } from "ramda";
-import { useAtomValue } from "jotai/utils";
-import { makeStyles } from "tss-react/mui";
-import { baseEndpoint } from "../../../../api/endpoint";
-import { Button, Typography } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 
-import { getData, useRequest, useSnackbar, Dialog } from "@centreon/ui";
-import { ThemeMode } from "@centreon/ui-context";
+import { Button, Typography } from '@mui/material';
+
+import { getData, useRequest, useSnackbar, Dialog } from '@centreon/ui';
 
 import {
   labelCancel,
@@ -18,10 +14,9 @@ import {
   labelExportConfiguration,
   labelExportingAndReloadingTheConfiguration,
   labelFailedToExportAndReloadConfiguration,
-  labelThisWillExportAndReloadOnAllOfYourPlatform,
-} from "../../translatedLabels";
-
-export const exportAndReloadConfigurationEndpoint = `${baseEndpoint}/configuration/monitoring-servers/generate-and-reload`;
+  labelThisWillExportAndReloadOnAllOfYourPlatform
+} from '../../translatedLabels';
+import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
 
 interface Props {
   closeSubMenu: () => void;
@@ -33,7 +28,7 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
     useState(false);
   const { sendRequest, sending } = useRequest({
     defaultFailureMessage: t(labelFailedToExportAndReloadConfiguration),
-    request: getData,
+    request: getData
   });
   const { showInfoMessage, showSuccessMessage } = useSnackbar();
 
@@ -48,7 +43,7 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
     closeSubMenu();
     showInfoMessage(t(labelExportingAndReloadingTheConfiguration));
     sendRequest({
-      endpoint: exportAndReloadConfigurationEndpoint,
+      endpoint: exportAndReloadConfigurationEndpoint
     }).then(() => {
       showSuccessMessage(t(labelConfigurationExportedAndReloaded));
     });
@@ -61,10 +56,10 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
     <>
       <Button
         fullWidth
-        variant="outlined"
         data-testid={labelExportConfiguration}
         disabled={disableButton}
         size="small"
+        variant="outlined"
         onClick={askBeforeExportConfiguration}
       >
         {t(labelExportConfiguration)}
