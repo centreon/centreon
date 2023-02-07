@@ -90,8 +90,18 @@ try {
         $pearDB->query("ALTER TABLE `security_token` DROP INDEX `unique_token`");
     }
 
-    $errorMessage = "Unable to alter table security_token";
-    $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
+    $errorMessage = "Unable to find key token_index from security_token";
+    $tokenIndexKeyExistsStatement = $pearDB->query(
+        <<<'SQL'
+        SHOW indexes
+            FROM security_token
+            WHERE Key_name='token_index'
+        SQL
+    );
+    if ($tokenIndexKeyExistsStatement->fetch() !== false) {
+        $errorMessage = "Unable to alter table security_token";
+        $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
+    }
 
     if ($pearDB->isColumnExist('provider_configuration', 'custom_configuration') !== 1) {
         // Add custom_configuration to provider configurations
