@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { useTranslation } from 'react-i18next';
 
 import { SvgIconProps } from '@mui/material';
 import MenuList from '@mui/material/MenuList';
@@ -19,14 +20,15 @@ interface Props {
   className?: string;
 }
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()({
   list: {
     maxWidth: '100%'
   }
-}));
+});
 
 const ActionsList = ({ className, actions }: Props): JSX.Element => {
   const { cx, classes } = useStyles();
+  const { t } = useTranslation();
 
   return (
     <MenuList className={cx(classes.list, className)}>
@@ -36,7 +38,7 @@ const ActionsList = ({ className, actions }: Props): JSX.Element => {
             <ListItemIcon>
               <Icon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>{label}</ListItemText>
+            <ListItemText>{t(label)}</ListItemText>
           </MenuItem>
         );
       })}
