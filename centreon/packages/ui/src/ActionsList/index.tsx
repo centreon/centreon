@@ -24,7 +24,7 @@ const useStyles = makeStyles()((theme) => ({
   list: { maxWidth: '100%', width: theme.spacing(25) }
 }));
 
-const List = ({ className, actions }: Props): JSX.Element => {
+const ActionsList = ({ className, actions }: Props): JSX.Element => {
   const { cx, classes } = useStyles();
 
   return (
@@ -45,4 +45,4 @@ const List = ({ className, actions }: Props): JSX.Element => {
   );
 };
 
-export default List;
+export default ActionsList;

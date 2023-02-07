@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 
-import List from '.';
+import ActionsList from '.';
 
 const actions = [
   {
@@ -26,11 +26,13 @@ const actions = [
 
 export default {
   argTypes: {},
-  component: List,
-  title: 'List'
-} as ComponentMeta<typeof List>;
+  component: ActionsList,
+  title: 'ActionsList'
+} as ComponentMeta<typeof ActionsList>;
 
-const Template: ComponentStory<typeof List> = (args) => <List {...args} />;
+const Template: ComponentStory<typeof ActionsList> = (args) => (
+  <ActionsList {...args} />
+);
 
 export const Playground = Template.bind({});
 
