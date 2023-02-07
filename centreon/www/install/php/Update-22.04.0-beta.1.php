@@ -99,9 +99,17 @@ try {
         SQL
     );
     if ($tokenIndexKeyExistsStatement->fetch() !== false) {
-        $errorMessage = "Unable to alter table security_token";
-        $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
+        $errorMessage = "Unable to remove key token_index from security_token";
+        $pearDB->query(
+            <<<'SQL'
+            DROP INDEX token_index
+                ON security_token;
+            SQL
+        );
     }
+
+    $errorMessage = "Unable to alter table security_token";
+    $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
 
     if ($pearDB->isColumnExist('provider_configuration', 'custom_configuration') !== 1) {
         // Add custom_configuration to provider configurations
