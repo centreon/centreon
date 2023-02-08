@@ -428,12 +428,11 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
     // Add form fields for 'unified_sql' output
     $inputs = [];
     $statement = $pearDB->query(
-        "SELECT DISTINCT(tfr.cb_field_id), tfr.order_display tfr.is_required FROM cb_type_field_relation tfr, cb_type t, cb_field f
+        "SELECT DISTINCT(tfr.cb_field_id), tfr.is_required FROM cb_type_field_relation tfr, cb_type t, cb_field f
         WHERE tfr.cb_type_id = t.cb_type_id
         AND t.type_shortname in ('sql', 'storage')
         AND tfr.cb_field_id = f.cb_field_id
-        AND f.fieldname NOT LIKE 'db_type'
-        ORDER BY tfr.order_display"
+        AND f.fieldname NOT LIKE 'db_type'"
     );
     $inputs = $statement->fetchAll();
     if (empty($inputs)) {
