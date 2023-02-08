@@ -49,11 +49,12 @@ When('the administrator sets authentication mode to Web SSO only', () => {
     .click()
     .wait('@updateWebSSOResponse')
     .its('response.statusCode')
-    .should('eq', 204);
+    .should('eq', 204)
+    .logout();
+  injectingWebSSOScriptsIntoContainer();
 });
 
 Then('users and local admin user must not be able to authenticate', () => {
-  injectingWebSSOScriptsIntoContainer();
   cy.session('AUTH_SESSION_ID_LEGACY', () => {
     cy.visit(`${Cypress.config().baseUrl}`);
     cy.loginKeycloack('admin')

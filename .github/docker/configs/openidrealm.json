@@ -445,9 +445,9 @@
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-centreon_sso" ],
+    "realmRoles" : [ "default-roles-centreon_sso", "centreon-editor" ],
     "notBefore" : 0,
-    "groups" : [ "/Notification" ]
+    "groups" : [ "/Notification", "/Supervisors" ]
   }, {
     "id" : "948c59ec-46ed-4d99-aa43-02900029b930",
     "createdTimestamp" : 1554245880023,

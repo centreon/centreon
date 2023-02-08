@@ -57,15 +57,16 @@ When(
       .click()
       .wait('@updateWebSSOResponse')
       .its('response.statusCode')
-      .should('eq', 204);
+      .should('eq', 204)
+      .logout();
+    injectingWebSSOScriptsIntoContainer();
   }
 );
 
 Then(
   'any user can authenticate using the 3rd party authentication service',
   () => {
-    injectingWebSSOScriptsIntoContainer();
-    cy.session('AUTH_SESSION_ID_LEGACY_2', () => {
+    cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit(`${Cypress.config().baseUrl}`);
       cy.loginKeycloack('user-for-web-sso-authentication')
         .wait('@getNavigationList')
