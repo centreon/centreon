@@ -7,6 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Button, Dialog, Paper } from '@mui/material';
 
+import FederatedComponent from '../../../../components/FederatedComponents';
 import {
   labelClose,
   labelCloseEditModal,
@@ -52,6 +53,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   spacing: {
     paddingBottom: theme.spacing(1)
+  },
+  test: {
+    color: 'red',
+    fontWeight: 'bold'
   }
 }));
 
@@ -136,6 +141,9 @@ const EditAnomalyDetectionDataDialog = ({
               setIsResizingEnvelope
             })}
           </Paper>
+          <div className={classes.test}>
+            <FederatedComponent path="/exclusion/periods/test" />
+          </div>
         </div>
         <EditAnomalyDetectionDataDialog.ModalConfirmation
           dataTestid={labelModalConfirmation}
