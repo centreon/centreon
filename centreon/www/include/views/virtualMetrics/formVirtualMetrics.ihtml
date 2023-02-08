@@ -117,7 +117,7 @@
 							style="padding: 0px; border-width: 0px;">{$form.rpn_function.html}</td>
 						{if $o == "a" || $o == "c"}
 							<td id="td_list_metrics" style="padding: 0px; border-width: 0px;">
-								&nbsp;<img src="./img/icons/arrow-left.png" style="margin-top: 1px" class="ico-14"
+								<img src="./img/icons/arrow-left.png" style="margin-top: 1px" class="ico-14"
 										   onclick="insertValueQuery()"/>&nbsp;
 							</td>
 							<td id="td_list_metrics" style="padding: 0px; border-width: 0px;">
