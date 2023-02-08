@@ -62,19 +62,19 @@ on:
         description: The package files cache key
         required: true
     secrets:
-      artifactory_username:
+      registry_username:
         required: true
-      artifactory_password:
+      registry_password:
         required: true
 
 jobs:
   package:
     runs-on: ubuntu-22.04
     container:
-      image: docker.centreon.com/${{ inputs.image_name }}:${{ inputs.major_version }}
+      image: centreon.jfrog.io/docker/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
-        username: ${{ secrets.artifactory_username }}
-        password: ${{ secrets.artifactory_password }}
+        username: ${{ secrets.registry_username }}
+        password: ${{ secrets.registry_password }}
 
     steps:
       - uses: actions/checkout@v3
@@ -109,11 +109,11 @@ jobs:
     needs: [package]
     runs-on: ubuntu-22.04
     container:
-      image: docker.centreon.com/rpm-signing:ubuntu
+      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.artifactory_username }}
-        password: ${{ secrets.artifactory_password }}
+        username: ${{ secrets.registry_username }}
+        password: ${{ secrets.registry_password }}
 
     steps:
       - run: apt-get install -y zstd

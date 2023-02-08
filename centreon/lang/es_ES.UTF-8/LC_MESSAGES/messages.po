@@ -15166,3 +15166,225 @@ msgstr ""
 # msgid "Parent alias"
 # msgstr ""
 
+msgid "Service severity"
+msgstr "Criticidad del servicio"
+
+msgid "Service severity level"
+msgstr "Nivel de criticidad del servicio"
+
+msgid "Host severity"
+msgstr "Criticidad del host"
+
+msgid "Host severity level"
+msgstr "Nivel de criticidad del host"
+
+#  msgid "Listening address (optional)"
+#  msgstr ""
+
+#  msgid "Listening port"
+#  msgstr ""
+
+#  msgid "Transport protocol"
+#  msgstr ""
+
+#  msgid "Authorization token (optional)"
+#  msgstr ""
+
+#  msgid "Private key path"
+#  msgstr ""
+
+#  msgid "Certificate path"
+#  msgstr ""
+
+#  msgid "Compression"
+#  msgstr ""
+
+#  msgid "Enable retention"
+#  msgstr ""
+
+#  msgid "Filter on event categories"
+#  msgstr ""
+
+#  msgid "Server address"
+#  msgstr ""
+
+#  msgid "Server port"
+#  msgstr ""
+
+#  msgid "Retry interval (in seconds)"
+#  msgstr ""
+
+#  msgid "Trusted CA's certificate path (optional)"
+#  msgstr ""
+
+#  msgid "Certificate Common Name (optional)"
+#  msgstr ""
+
+# msgid "CSV"
+# msgstr ""
+
+#  msgid "Poller Configuration Actions / Poller Management"
+#  msgstr ""
+
+#  msgid "Create and edit pollers"
+#  msgstr ""
+
+#  msgid "Delete pollers"
+#  msgstr ""
+
+#  msgid "Deploy configuration"
+#  msgstr ""
+
+msgid "Are you sure you want to change the size of the envelope? Please note that the new envelope size will only be applied from now on. The old envelope will stay the same."
+msgstr "¿Está seguro de que desea cambiar el tamaño del sobre? El nuevo tamaño de sobre se aplicará inmediatamente."
+
+msgid "Changes to the envelope size will be applied only from now on."
+msgstr "Los cambios en el tamaño del sobre se aplicarán inmediatamente."
+
+msgid "Manage envelope size"
+msgstr "Administrar el tamaño del sobre"
+
+msgid "Reset to default value"
+msgstr "Establecer en el valor predeterminado"
+
+msgid "points outside of the envelope"
+msgstr "puntos fuera del sobre"
+
+msgid "Edit anomaly detection data"
+msgstr "Editar datos de detección de anomalías"
+
+#  msgid "Enable/disable resource"
+#  msgstr ""
+
+#  msgid "Note"
+#  msgstr ""
+
+#  msgid "Note URL"
+#  msgstr ""
+
+#  msgid "Geographic coordinates"
+#  msgstr ""
+
+#  msgid "Members"
+#  msgstr ""
+
+#  msgid "Monitoring settings"
+#  msgstr ""
+
+#  msgid "Classification"
+#  msgstr ""
+
+#  msgid "Hosts (simplified)"
+#  msgstr ""
+
+#  msgid "Templates (simplified)"
+#  msgstr ""
+
+#  msgid "Host Groups (simplified)"
+#  msgstr ""
+
+msgid "You have unsaved changes, do you want to proceed?"
+msgstr "No ha guardado los cambios, ¿quiere continuar?"
+
+#  msgid "Confirm"
+#  msgstr "Confirmar"
+
+#  msgid "Incorrect LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
+#  msgid "Vault configuration with these properties already exists"
+#  msgstr ""
+
+#  msgid "Impossible to create vault configuration"
+#  msgstr ""
+
+#  msgid "Vault provider does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host categories"
+#  msgstr ""
+
+#  msgid "Error while searching for host categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host categories"
+#  msgstr ""
+
+#  msgid "Host category not found"
+#  msgstr ""
+
+#  msgid "Error while deleting host category"
+#  msgstr ""
+
+#  msgid "Error while searching for host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on host groups"
+#  msgstr ""
+
+#  msgid "Host group not found"
+#  msgstr ""
+
+#  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "The host group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving just created host group"
+#  msgstr ""
+
+#  msgid "The host group icon '%s' with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host categories"
+#  msgstr ""
+
+#  msgid "Host category name already exists"
+#  msgstr ""
+
+#  msgid "Error while creating host category"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host severities"
+#  msgstr ""
+
+#  msgid "Error while deleting host severity"
+#  msgstr ""
+
+#  msgid "Error while creating host severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created host severity"
+#  msgstr ""
+
+#  msgid "Host severity name already exists"
+#  msgstr ""
+
+#  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
+#  msgstr ""
+
