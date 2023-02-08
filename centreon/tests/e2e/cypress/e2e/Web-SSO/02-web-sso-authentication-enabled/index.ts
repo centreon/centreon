@@ -1,6 +1,14 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { initializeWebSSOUserAndGetLoginPage } from '../common';
+import {
+  initializeWebSSOUserAndGetLoginPage,
+  removeWebSSOContact,
+  injectingWebSSOScriptsIntoContainer
+} from '../common';
+
+before(() => {
+  initializeWebSSOUserAndGetLoginPage();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -22,10 +30,6 @@ beforeEach(() => {
 });
 
 Given('an administrator logged in the platform', () => {
-  cy.session('AUTH_SESSION_ID_LEGACY', () => {
-    cy.visit(`${Cypress.config().baseUrl}`);
-    cy.loginKeycloack('user-for-web-sso-authentication');
-  });
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@localAuthentification')
     .its('response.statusCode')
@@ -60,14 +64,9 @@ When(
 Then(
   'any user can authenticate using the 3rd party authentication service',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      initializeWebSSOUserAndGetLoginPage();
-      cy.loginKeycloack('admin')
-        .wait('@getNavigationList')
-        .url()
-        .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+    injectingWebSSOScriptsIntoContainer();
+    cy.session('AUTH_SESSION_ID_LEGACY_2', () => {
+      cy.visit(`${Cypress.config().baseUrl}`);
       cy.loginKeycloack('user-for-web-sso-authentication')
         .wait('@getNavigationList')
         .url()
@@ -75,3 +74,7 @@ Then(
     });
   }
 );
+
+after(() => {
+  removeWebSSOContact();
+});

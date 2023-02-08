@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { injectingWebSSOScriptsIntoContainer } from '../common';
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -20,10 +22,7 @@ beforeEach(() => {
 });
 
 Given('an administrator logged in the platform', () => {
-  cy.session('AUTH_SESSION_ID_LEGACY', () => {
-    cy.visit(`${Cypress.config().baseUrl}`);
-    cy.loginKeycloack('user-for-web-sso-authentication');
-  });
+  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@localAuthentification')
     .its('response.statusCode')
@@ -54,7 +53,9 @@ When('the administrator sets authentication mode to Web SSO only', () => {
 });
 
 Then('users and local admin user must not be able to authenticate', () => {
+  injectingWebSSOScriptsIntoContainer();
   cy.session('AUTH_SESSION_ID_LEGACY', () => {
+    cy.visit(`${Cypress.config().baseUrl}`);
     cy.loginKeycloack('admin')
       .get('#input-error')
       .should('be.visible')
