@@ -38,6 +38,10 @@ const modules = [
   { getDirectoryPath: getStaticDirectoryPath, name: 'centreon-bam-server' },
   {
     getDirectoryPath: getStaticDirectoryPath,
+    name: 'centreon-anomaly-detection'
+  },
+  {
+    getDirectoryPath: getStaticDirectoryPath,
     name: 'centreon-augmented-services'
   },
   {
