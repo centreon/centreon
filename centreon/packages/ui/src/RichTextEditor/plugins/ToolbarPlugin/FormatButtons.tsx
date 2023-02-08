@@ -7,15 +7,21 @@ import {
   $isRangeSelection,
   EditorState,
   FORMAT_TEXT_COMMAND,
+  RangeSelection,
   SELECTION_CHANGE_COMMAND,
-  TextFormatType
+  TextFormatType,
+  ElementNode,
+  TextNode
 } from 'lexical';
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
+import LinkIcon from '@mui/icons-material/Link';
 import { alpha } from '@mui/material';
 
 import { IconButton } from '../../..';
@@ -36,6 +42,22 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+const getSelectedNode = (selection: RangeSelection): ElementNode | TextNode => {
+  const { anchor } = selection;
+  const { focus } = selection;
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+  if (anchorNode === focusNode) {
+    return anchorNode;
+  }
+  const isBackward = selection.isBackward();
+  if (isBackward) {
+    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+  }
+
+  return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
+};
+
 interface Props {
   getEditorState?: (editorState: EditorState) => void;
 }
@@ -47,26 +69,44 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikeThrough, setIsStrikeThrough] = useState(false);
+  const [isLink, setIsLink] = useState(false);
 
   const [editor] = useLexicalComposerContext();
 
   const updateToolbar = useCallback((): void => {
     const selection = $getSelection();
-
     if (!$isRangeSelection(selection)) {
       return;
     }
-
     setIsBold(selection.hasFormat('bold'));
     setIsItalic(selection.hasFormat('italic'));
     setIsUnderline(selection.hasFormat('underline'));
     setIsStrikeThrough(selection.hasFormat('strikethrough'));
+
+    const node = getSelectedNode(selection);
+    const parent = node.getParent();
+    if ($isLinkNode(parent) || $isLinkNode(node)) {
+      setIsLink(true);
+    } else {
+      setIsLink(false);
+    }
   }, [editor]);
+
+  const insertLink = useCallback(() => {
+    if (!isLink) {
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
+    } else {
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+    }
+  }, [editor, isLink]);
 
   useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(updateToolbar);
+        editorState.read(() => {
+          updateToolbar();
+        });
+
         getEditorState?.(editorState);
       }),
       editor.registerCommand(
@@ -89,39 +129,49 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
     () => [
       {
         Icon: FormatBoldIcon,
-        format: 'bold',
-        isSelected: isBold
+        isSelected: isBold,
+        onClickFunction: toggleTextFormat('bold'),
+        type: 'bold'
       },
       {
         Icon: FormatItalicIcon,
-        format: 'italic',
-        isSelected: isItalic
+        isSelected: isItalic,
+        onClickFunction: toggleTextFormat('italic'),
+        type: 'italic'
       },
       {
         Icon: FormatUnderlinedIcon,
-        format: 'underline',
-        isSelected: isUnderline
+        isSelected: isUnderline,
+        onClickFunction: toggleTextFormat('underline'),
+        type: 'underline'
       },
       {
         Icon: StrikethroughSIcon,
-        format: 'strikethrough',
-        isSelected: isStrikeThrough
+        isSelected: isStrikeThrough,
+        onClickFunction: toggleTextFormat('strikethrough'),
+        type: 'strikethrough'
+      },
+      {
+        Icon: LinkIcon,
+        isSelected: isLink,
+        onClickFunction: insertLink,
+        type: 'link'
       }
     ],
-    [isBold, isItalic, isUnderline, isStrikeThrough]
+    [isBold, isItalic, isUnderline, isStrikeThrough, isLink]
   );
 
   return (
     <>
-      {formatButtons.map(({ Icon, format, isSelected }) => (
+      {formatButtons.map(({ Icon, onClickFunction, isSelected, type }) => (
         <IconButton
-          ariaLabel={format}
+          ariaLabel={type}
           className={cx(isSelected && classes.buttonSelected)}
-          key={format}
+          key={type}
           size="medium"
-          title={format}
+          title={type}
           tooltipPlacement="top"
-          onClick={toggleTextFormat(format)}
+          onClick={onClickFunction}
         >
           <Icon />
         </IconButton>

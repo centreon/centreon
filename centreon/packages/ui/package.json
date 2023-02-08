@@ -48,8 +48,10 @@
     "storybook-dark-mode": "^1.1.0"
   },
   "dependencies": {
-    "@lexical/react": "^0.7.6",
-    "@lexical/utils": "^0.7.6",
+    "@lexical/link": "^0.7.7",
+    "@lexical/react": "0.7.7",
+    "@lexical/selection": "^0.7.7",
+    "@lexical/utils": "0.7.7",
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.27.3",
     "lexical": "^0.7.6",

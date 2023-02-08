@@ -45,6 +45,7 @@ interface Props {
   hasInitialTextContent?: boolean;
   inputClassname?: string;
   minInputHeight: number;
+  onRef: (rootElement: HTMLElement) => void;
   placeholder: string;
 }
 
@@ -53,7 +54,8 @@ const ContentEditable = ({
   inputClassname,
   placeholder,
   hasInitialTextContent,
-  editable
+  editable,
+  onRef
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, minInputHeight });
   const { t } = useTranslation();
@@ -66,6 +68,9 @@ const ContentEditable = ({
   const ref = useCallback(
     (rootElement: null | HTMLElement) => {
       editor.setRootElement(rootElement);
+      if (rootElement) {
+        onRef(rootElement);
+      }
     },
     [editor]
   );

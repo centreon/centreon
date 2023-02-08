@@ -1,13 +1,19 @@
+import { useState } from 'react';
+
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { AutoLinkNode, LinkNode } from '@lexical/link';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 
 import ContentEditable from './ContentEditable';
 import ToolbarPlugin from './plugins/ToolbarPlugin/index';
+import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
+import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
   editable: boolean;
@@ -32,6 +38,9 @@ const useStyles = makeStyles()((theme) => ({
   italic: {
     fontStyle: 'italic'
   },
+  link: {
+    color: theme.palette.primary.main
+  },
   strikethough: {
     textDecoration: 'line-through'
   },
@@ -54,6 +63,16 @@ const RichTextEditor = ({
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles();
 
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<
+    HTMLElement | undefined
+  >();
+
+  const onRef = (_floatingAnchorElem: HTMLElement): void => {
+    if (_floatingAnchorElem !== undefined) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
+  };
+
   const hasInitialTextContent = initialEditorState
     ? JSON.parse(initialEditorState).root?.children.length > 0
     : false;
@@ -62,8 +81,10 @@ const RichTextEditor = ({
     editable,
     editorState: initialEditorState,
     namespace,
+    nodes: [AutoLinkNode, LinkNode],
     onError,
     theme: {
+      link: classes.link,
       text: {
         bold: classes.bold,
         italic: classes.italic,
@@ -86,11 +107,15 @@ const RichTextEditor = ({
             inputClassname={inputClassname}
             minInputHeight={minInputHeight}
             placeholder={placeholder}
+            onRef={onRef}
           />
         }
         placeholder={null}
       />
       <HistoryPlugin />
+      <LinkPlugin />
+      <AutoCompleteLinkPlugin />
+      <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
     </LexicalComposer>
   );
 };
