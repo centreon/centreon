@@ -12,8 +12,8 @@ apt update
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
 
-echo "deb https://centreon.jfrog.io/artifactory/apt-23.04/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
-echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
+#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-stable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
+#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
 echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
 wget -O- https://centreon.jfrog.io/artifactory/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
