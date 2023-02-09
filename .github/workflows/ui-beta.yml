@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "centreon/packages/ui/**"
-      - '.github/workflows/ui.yml'
+      - '.github/workflows/ui-beta.yml'
     branches:
       - develop
   workflow_dispatch:
@@ -98,3 +98,14 @@ jobs:
         with:
           base_branch: ${{ env.base_branch }}
           directory: ${{ env.directory }}
+
+  publish-storybook:
+    runs-on: ubuntu-22.04
+    needs: [lint, unit-test, check-package-version]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/publish-storybook

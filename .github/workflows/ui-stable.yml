@@ -8,6 +8,7 @@ on:
     paths:
       - "centreon/packages/ui/**"
       - ".github/actions/npm-publish-package-stable/**"
+      - '.github/workflows/ui-stable.yml'
 
 env:
   directory: "centreon/packages/ui"
