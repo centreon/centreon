@@ -15,7 +15,7 @@ curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- -
 echo "deb https://centreon.jfrog.io/artifactory/apt-23.04/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
 echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
 echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon.list
-wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+wget -O- https://centreon.jfrog.io/artifactory/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
 
 apt install -y mariadb-server mariadb
