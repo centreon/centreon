@@ -124,7 +124,7 @@ Then('the key is properly generated and displayed', () => {
 
 Given('a user with an autologin key generated', () => {
   cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: 'user',
     preserveToken: true
   });
   cy.isInProfileMenu('Copy autologin link').should('be.exist');
@@ -158,9 +158,10 @@ Given(
   'a platform with autologin enabled and a user with both autologin key and link generated',
   () => {
     cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
-      jsonName: 'admin',
+      jsonName: 'user',
       preserveToken: true
     });
+    cy.visit('/centreon/main.php?p=50104&p=50104&o=c');
     cy.isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
       .invoke('text')
@@ -182,7 +183,7 @@ When('the user opens the autologin link in a browser', () => {
 
 Then('the page is reached without manual login', () => {
   cy.url()
-    .should('include', '/main.php?p=60103')
+    .should('include', '/main.php?p=50104&p=50104&o=c')
     .wait('@getTimeZone')
     .getIframeBody()
     .find('form')
