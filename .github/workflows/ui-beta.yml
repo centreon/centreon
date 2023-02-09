@@ -16,6 +16,11 @@ env:
   base_branch: develop
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   lint:
     runs-on: ubuntu-22.04
 
@@ -101,6 +106,7 @@ jobs:
 
   publish-storybook:
     runs-on: ubuntu-22.04
+    needs: [get-version]
 
     steps:
       - uses: actions/checkout@v3
