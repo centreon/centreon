@@ -2,9 +2,11 @@ FROM centreon.jfrog.io/docker/debian:bullseye AS web_fresh
 
 RUN <<EOF
 
+set -e
+
 apt update
 
-apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2
+apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
 
 echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
@@ -18,7 +20,7 @@ echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $(lsb_releas
 wget -O- https://centreon.jfrog.io/artifactory/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
 
-apt install -y mariadb-server mariadb
+apt install -y mariadb-server mariadb-client
 
 echo "[server]
 skip-grant-tables
@@ -31,7 +33,7 @@ innodb_file_per_table
 innodb_flush_method=O_DIRECT
 innodb_log_file_size=4M
 innodb_fast_shutdown=0
-" > /etc/my.cnf.d/container.cnf
+" > /etc/mysql/conf.d/container.cnf
 
 apt clean
 
