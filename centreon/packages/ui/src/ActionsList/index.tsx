@@ -29,19 +29,15 @@ const useStyles = makeStyles()({
   }
 });
 
-const ActionsList = ({
-  className,
-  actions,
-  onClick: onMenuListClick
-}: Props): JSX.Element => {
+const ActionsList = ({ className, actions, onClick }: Props): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
   return (
-    <MenuList className={cx(classes.list, className)} onClick={onMenuListClick}>
-      {actions?.map(({ Icon, label, onClick }) => {
+    <MenuList className={cx(classes.list, className)} onClick={onClick}>
+      {actions?.map(({ Icon, label, onClick: onActionClick }) => {
         return (
-          <MenuItem key={label} onClick={onClick}>
+          <MenuItem key={label} onClick={onActionClick}>
             <ListItemIcon>
               <Icon fontSize="small" />
             </ListItemIcon>
