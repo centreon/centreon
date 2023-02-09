@@ -48,7 +48,7 @@ RUN <<EOF
 apt update
 
 rm -f /tmp/debs-centreon/centreon-23.04*.deb /tmp/debs-centreon/centreon-central-23.04*.deb
-apt install -y /tmp/debs-centreon/centreon-*.deb centreon-broker-cbd centreon-broker-influxdb libfaketime
+apt install -y /tmp/debs-centreon/centreon-*.deb
 
 rm -f /usr/share/centreon/.env.local.php
 echo "APP_DEBUG=true" >> /usr/share/centreon/.env
