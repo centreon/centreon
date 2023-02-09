@@ -314,6 +314,8 @@ paths:
       summary: "Create a host category"
       description: |
         Create a host category
+
+        This endpoint does NOT update the ACL rights with the new host category
       requestBody:
         required: true
         content:
@@ -380,6 +382,51 @@ paths:
                     $ref: '#/components/schemas/Meta'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Service category
+      summary: "Create a service category"
+      description: |
+        Create a service category
+
+        This endpoint does NOT update the ACL rights with the new service category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration.Service.Category.Add"
+      responses:
+        '201':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/categories/{service_category_id}:
+    delete:
+      tags:
+        - Host category
+      summary: "Delete a service category"
+      description: |
+        Delete a service category configuration
+      parameters:
+        - $ref: '#/components/parameters/ServiceCategoryId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/services/categories:
@@ -5055,6 +5102,15 @@ components:
         type: integer
         format: int64
         example: 1
+    ServiceCategoryId:
+      in: path
+      name: service_category_id
+      description: "ID of existing service category configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
   responses:
     Unauthorized:
       description: "Unauthorized"
@@ -5865,10 +5921,10 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
     Configuration.Service.Category:
       type: object
       properties:
@@ -5903,10 +5959,25 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
+    Configuration.Service.Category.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Service category name"
+          example: "service-category"
+        alias:
+          type: string
+          description: "Service category alias"
+          example: "service-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enabled/disabled)
+          example: true
     Configuration.Host.Severity:
       type: object
       properties:
@@ -5930,9 +6001,9 @@ components:
           type: integer
           description: "Define the image ID associated with this severity"
           example: 1
-        comments:
+        comment:
           type: string
-          description: "Host severity comments"
+          description: "Host severity comment"
           nullable: true
         is_activated:
           type: boolean

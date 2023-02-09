@@ -28,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [centos7, alma8, alma9, bullseye]
+        distrib: [alma8, alma9, bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3

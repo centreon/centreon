@@ -21,23 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Infrastructure\API\AddHostCategory;
+namespace Core\ServiceCategory\Infrastructure\API\AddServiceCategory;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
-use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategoryResponse;
-use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\ServiceCategory\Application\UseCase\AddServiceCategory\AddServiceCategoryResponse;
 
-class AddHostCategoryPresenter extends AbstractPresenter
+class AddServiceCategoryPresenter extends AbstractPresenter
 {
     use LoggerTrait;
-    private const ROUTE_NAME = 'FindHostCategory';
 
     public function __construct(
-        protected PresenterFormatterInterface $presenterFormatter,
-        readonly private Router $router
+        protected PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -49,7 +46,7 @@ class AddHostCategoryPresenter extends AbstractPresenter
     {
         if (
             $data instanceof CreatedResponse
-            && $data->getPayload() instanceof AddHostCategoryResponse
+            && $data->getPayload() instanceof AddServiceCategoryResponse
         ) {
             $payload = $data->getPayload();
             $data->setPayload([
@@ -57,22 +54,8 @@ class AddHostCategoryPresenter extends AbstractPresenter
                 'name' => $payload->name,
                 'alias' => $payload->alias,
                 'is_activated' => $payload->isActivated,
-                'comment' => $payload->comment,
             ]);
-
             // NOT setting location as required route does not currently exist
-            // try {
-            //     $this->setResponseHeaders([
-            //         'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
-            //     ]);
-            // } catch (\Throwable $ex) {
-            //     $this->error('Impossible to generate the location header', [
-            //         'message' => $ex->getMessage(),
-            //         'trace' => $ex->getTraceAsString(),
-            //         'route' => self::ROUTE_NAME,
-            //         'payload' => $payload,
-            //     ]);
-            // }
         }
         parent::present($data);
     }

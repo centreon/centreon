@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Add host category",
+    "title": "Add service category",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -16,9 +16,6 @@
         },
         "is_activated": {
             "type": "boolean"
-        },
-        "comment": {
-            "type": ["string","null"]
         }
     }
 }
