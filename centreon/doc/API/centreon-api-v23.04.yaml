@@ -5921,10 +5921,10 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
     Configuration.Service.Category:
       type: object
       properties:
@@ -5959,10 +5959,10 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
     Configuration.Service.Category.Add:
       type: object
       properties:
@@ -6001,9 +6001,9 @@ components:
           type: integer
           description: "Define the image ID associated with this severity"
           example: 1
-        comments:
+        comment:
           type: string
-          description: "Host severity comments"
+          description: "Host severity comment"
           nullable: true
         is_activated:
           type: boolean
