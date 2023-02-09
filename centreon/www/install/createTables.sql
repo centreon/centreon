@@ -2408,7 +2408,6 @@ CREATE TABLE `security_token` (
   `creation_date` bigint UNSIGNED NOT NULL,
   `expiration_date` bigint UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`id`),
-  INDEX `token_index` (`token`),
   INDEX `expiration_index` (`expiration_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
