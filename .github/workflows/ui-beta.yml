@@ -119,3 +119,4 @@ jobs:
       - uses: ./.github/actions/publish-storybook
         with:
           major_version: ${{ needs.get-version.outputs.major_version }}
+          directory: ${{ env.directory }}
