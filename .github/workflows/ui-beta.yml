@@ -101,7 +101,6 @@ jobs:
 
   publish-storybook:
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test, check-package-version]
 
     steps:
       - uses: actions/checkout@v3
