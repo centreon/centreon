@@ -43,7 +43,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin with ACL filters
+  Scenario: Host severities listing as non-admin with ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
@@ -89,7 +89,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin without ACL filters
+  Scenario: Host severities listing as non-admin without ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias

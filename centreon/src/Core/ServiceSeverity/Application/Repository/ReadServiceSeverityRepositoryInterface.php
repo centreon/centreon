@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceSeverity\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 
@@ -51,4 +52,47 @@ interface ReadServiceSeverityRepositoryInterface
      * @return ServiceSeverity[]
      */
     public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Check existence of a service severity.
+     *
+     * @param int $serviceSeverityId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $serviceSeverityId): bool;
+
+    /**
+     * Check existence of a service severity by access groups.
+     *
+     * @param int $serviceSeverityId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $serviceSeverityId, array $accessGroups): bool;
+
+    /**
+     * Check existence of a service severity by name.
+     *
+     * @param TrimmedString $serviceSeverityName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByName(TrimmedString $serviceSeverityName): bool;
+
+    /**
+     * Find one service severity.
+     *
+     * @param int $serviceSeverityId
+     *
+     * @return ServiceSeverity|null
+     */
+    public function findById(int $serviceSeverityId): ?ServiceSeverity;
 }
