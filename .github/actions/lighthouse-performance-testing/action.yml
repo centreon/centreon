@@ -36,8 +36,8 @@ runs:
       run: |
         rm -rf centreon-injector
         git clone https://github.com/centreon/centreon-injector.git
-        # cd centreon-injector
-        # composer install
+        cd centreon-injector
+        composer install
         # cd ..
 
         # docker cp centreon-injector lighthouse-tests-centreon:/usr/share
