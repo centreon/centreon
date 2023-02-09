@@ -42,6 +42,10 @@ runs:
         php composer-setup.php --install-dir=/usr/local/bin --filename=composer
       shell: bash
 
+    - name: "Start Centreon container"
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
+
     - name: Set up and running centreon-injector
       run: |
         rm -rf centreon-injector
@@ -54,10 +58,6 @@ runs:
         docker exec lighthouse-tests-centreon sed -i 's/127.0.0.1/localhost/g' /usr/share/centreon-injector/.env
         docker exec lighthouse-tests-centreon bash -c "cd /usr/share/centreon-injector && bin/console centreon:inject-data" || true
         docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
-      shell: bash
-
-    - name: "Start Centreon container"
-      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
     - name: Install npm dependencies
