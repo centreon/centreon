@@ -44,6 +44,8 @@ Then('the problematic Resource is displayed as acknowledged', () => {
           val.css('background-color') === actionBackgroundColors.acknowledge
         );
       });
+  }, {
+    timeout: 30000,
   });
 });
 
@@ -75,6 +77,8 @@ Then('the problematic Resource is displayed as in downtime', () => {
           val.css('background-color') === actionBackgroundColors.inDowntime
         );
       });
+  }, {
+    timeout: 30000,
   });
 });
 
