@@ -1,12 +1,15 @@
 name: publish-storybook
 description: Publish storybook
 
+inputs:
+  major_version:
+    description: "Major version"
+    required: true
+
 runs:
   using: "composite"
   steps:
     - name: Log
       run: |
-        echo "${{ steps.get_version.outputs.major_version }}"
-        echo "${{ steps.get_version.outputs.minor_version }}"
-        echo "${{ steps.get_version.outputs.release }}"
+        echo "${{ inputs.major_version }}"
       shell: bash

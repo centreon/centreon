@@ -114,3 +114,5 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - uses: ./.github/actions/publish-storybook
+        with:
+          major_version: ${{ needs.get-version.outputs.major_version }}
