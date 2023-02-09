@@ -109,7 +109,7 @@ if (
 }
 
 // Check if host is found
-$host_id = (int) getMyHostID($host_name);
+$host_id = getMyHostID($host_name);
 
 if (!is_null($host_id)) {
     $can_display = 1;

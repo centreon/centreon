@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add service category",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "is_activated": {
+            "type": "boolean"
+        }
+    }
+}

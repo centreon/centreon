@@ -268,7 +268,9 @@ class CentreonContact extends CentreonObject
         $this->addParams = [];
         $this->initUniqueField($params);
         $this->initUserInformation($params);
-        $this->initPassword($params);
+        if ($params[7] === "local"){
+            $this->initPassword($params);
+        }
         $this->initUserAccess($params);
         $this->initLang($params);
         $this->initAuthenticationType($params);

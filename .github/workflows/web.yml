@@ -237,11 +237,8 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el7, el8, el9, bullseye]
+        distrib: [el8, el9, bullseye]
         include:
-          - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
@@ -419,7 +416,7 @@ jobs:
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
