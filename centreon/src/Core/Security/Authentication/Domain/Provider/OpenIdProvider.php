@@ -1160,7 +1160,6 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $conditions = $this->getAclConditionsFromProvider($customConfiguration);
         $attributePath = explode(".", $aclConditions->getAttributePath());
-        $this->info("CONNECTION TOKEN BIPBOUP", $this->idTokenPayload);
         foreach ($attributePath as $attribute) {
             $providerConditions = [];
             if (array_key_exists($attribute, $conditions)) {
