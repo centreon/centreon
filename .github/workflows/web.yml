@@ -283,9 +283,9 @@ jobs:
         distrib: [bullseye]
         include:
           - project: centreon-web
-          - distrib: el9
-            os: alma9
-            package_extension: rpm
+          # - distrib: el9
+          #   os: alma9
+          #   package_extension: rpm
           - distrib: bullseye
             os: bullseye
             package_extension: deb
