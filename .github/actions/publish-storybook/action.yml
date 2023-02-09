@@ -21,7 +21,9 @@ runs:
         version: 7
 
     - name: Build storybook
-      run: pnpm build:storybook
+      run: |
+        pnpm i
+        pnpm build:storybook
       shell: bash
       working-directory: ${{ inputs.directory }}
 
