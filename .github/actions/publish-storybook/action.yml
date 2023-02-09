@@ -27,7 +27,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
-    - name: Publish storybook to ${{ inputs.major_version }}'s folder of S3 bucket
+    - name: Publish ${{ inputs.major_version }} version of the storybook to S3 bucket
       run: |
         TARGETDIR="s3://centreon-storybook/${{ inputs.major_version }}"
         aws s3 rm --recursive "$TARGETDIR"
@@ -35,7 +35,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
-    - name: Publish storybook to lastest folder of S3 bucket
+    - name: Publish the latest version of the storybook to S3 bucket
       if: ${{ github.ref_name == 'develop' }}
       run: |
         TARGETDIR="s3://centreon-storybook/latest"

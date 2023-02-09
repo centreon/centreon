@@ -14,16 +14,8 @@ env:
   centreon_directory: "centreon"
   package: "ui"
   base_branch: develop
-  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
-  AWS_DEFAULT_REGION: eu-west-1
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-
   lint:
     runs-on: ubuntu-22.04
 
@@ -105,18 +97,4 @@ jobs:
       - uses: ./.github/actions/check-package-version
         with:
           base_branch: ${{ env.base_branch }}
-          directory: ${{ env.directory }}
-
-  publish-storybook:
-    runs-on: ubuntu-22.04
-    needs: [get-version]
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-
-      - uses: ./.github/actions/publish-storybook
-        with:
-          major_version: ${{ needs.get-version.outputs.major_version }}
           directory: ${{ env.directory }}
