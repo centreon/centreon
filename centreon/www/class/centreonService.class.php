@@ -75,7 +75,7 @@ class CentreonService
             $this->dbMon = $dbMon;
         }
 
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
     }
 
     /**
