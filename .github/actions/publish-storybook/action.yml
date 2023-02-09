@@ -9,7 +9,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Log
+    - name: Publish storybook to ${{ inputs.major_version }}'s folder of S3 bucket
       run: |
-        echo "${{ inputs.major_version }}"
+        TARGETDIR="s3://centreon-storybook/${{ inputs.major_version }}"
+        aws s3 rm --recursive "$TARGETDIR"
+        aws s3 cp --recursive "storybook/" "$TARGETDIR"
+      shell: bash
+
+    - name: Publish storybook to lastest folder of S3 bucket
+      if: ${{ github.ref_name == 'develop' }}
+      run: |
+        TARGETDIR="s3://centreon-storybook/latest"
+        aws s3 rm --recursive "$TARGETDIR"
+        aws s3 cp --recursive "storybook/" "$TARGETDIR"
       shell: bash
