@@ -350,7 +350,7 @@ jobs:
 
   performances-test:
     runs-on: ubuntu-22.04
-    needs: [get-version]
+    needs: [get-version, dockerize]
 
     steps:
       - uses: actions/checkout@v3
@@ -367,7 +367,7 @@ jobs:
         with:
           path: "centreon/lighthouse"
           image: centreon.jfrog.io/docker/centreon-web-centos7
-          image_version: dev-22.10.x
+          image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
