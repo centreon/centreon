@@ -59,7 +59,7 @@ final class AddHostSeverityController extends AbstractController
              *     level: int,
              *     icon_id: positive-int,
              *     is_activated?: bool,
-             *     comments?: string|null
+             *     comment?: string|null
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostSeveritySchema.json');
@@ -83,7 +83,7 @@ final class AddHostSeverityController extends AbstractController
      *     level: int,
      *     icon_id: positive-int,
      *     is_activated?: bool,
-     *     comments?: string|null
+     *     comment?: string|null
      * } $data
      *
      * @return AddHostSeverityRequest
@@ -96,7 +96,7 @@ final class AddHostSeverityController extends AbstractController
         $hostSeverityRequest->level = $data['level'];
         $hostSeverityRequest->iconId = $data['icon_id'];
         $hostSeverityRequest->isActivated = $data['is_activated'] ?? true;
-        $hostSeverityRequest->comment = $data['comments'] ?? null;
+        $hostSeverityRequest->comment = $data['comment'] ?? null;
 
         return $hostSeverityRequest;
     }

@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
@@ -73,7 +74,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn ($accessGroup) => $accessGroup->getId(),
+            static fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -102,6 +103,124 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
 
         return $this->retrieveServiceCategories($concatenator, $requestParameters);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $serviceCategoryId): ?ServiceCategory
+    {
+        $this->info('Get a service category with id #' . $serviceCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+            FROM `:db`.service_categories sc
+            WHERE sc.sc_id = :serviceCategoryId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceCategoryId', $serviceCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /** @var array{sc_id:int,sc_name:string,sc_description:string,sc_activate:'0'|'1'} $result */
+        return $this->createServiceCategoryFromArray($result);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceCategoryId): bool
+    {
+        $this->info('Check existence of service category with id #' . $serviceCategoryId);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.service_categories sc WHERE sc.sc_id = :serviceCategoryId AND sc.level IS NULL'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceCategoryId', $serviceCategoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $serviceCategoryId, array $accessGroups): bool
+    {
+        $this->info(
+            'Check existence of service category by access groups',
+            ['id' => $serviceCategoryId, 'accessgroups' => $accessGroups]
+        );
+
+        if (empty($accessGroups)) {
+            $this->debug('Access groups array empty');
+
+            return false;
+        }
+
+        $concat = new SqlConcatenator();
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        // if service categories are not filtered in ACLs, then user has access to ALL service categories
+        if (! $this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            $this->info('Service categories access not filtered');
+
+            return $this->exists($serviceCategoryId);
+        }
+
+        $request = $this->translateDbName(
+            'SELECT 1
+            FROM `:db`.service_categories sc
+            INNER JOIN `:db`.acl_resources_sc_relations arhr
+                ON sc.sc_id = arhr.sc_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
+        $concat->appendWhere('sc.sc_id = :serviceCategoryId');
+        $concat->appendWhere('sc.level IS NULL');
+
+        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
+        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
+            $statement->bindValue($param, $value, $type);
+        }
+        $statement->bindValue(':serviceCategoryId', $serviceCategoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(TrimmedString $serviceCategoryName): bool
+    {
+        $this->info('Check existence of service category with name ' . $serviceCategoryName);
+
+        $request = $this->translateDbName(
+            'SELECT 1 FROM `:db`.service_categories sc WHERE sc.sc_name = :serviceCategoryName'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':serviceCategoryName', $serviceCategoryName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
