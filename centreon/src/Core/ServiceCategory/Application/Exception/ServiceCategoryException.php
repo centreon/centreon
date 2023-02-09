@@ -34,6 +34,22 @@ class ServiceCategoryException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete service categories'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function addNotAllowed(): self
+    {
+        return new self(_('You are not allowed to create service categories'));
+    }
+
+    /**
      * @param \Throwable $ex
      *
      * @return self
@@ -41,5 +57,41 @@ class ServiceCategoryException extends \Exception
     public static function findServiceCategories(\Throwable $ex): self
     {
         return new self(_('Error while searching for service categories'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function deleteServiceCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting service category'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function addServiceCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while creating service category'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function serviceNameAlreadyExists(): self
+    {
+        return new self(_('Service category name already exists'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving recently created service category'));
     }
 }
