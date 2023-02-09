@@ -279,7 +279,8 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el9, bullseye]
+        #distrib: [el9, bullseye]
+        distrib: [bullseye]
         include:
           - project: centreon-web
           - distrib: el9
