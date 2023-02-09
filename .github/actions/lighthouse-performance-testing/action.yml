@@ -21,7 +21,7 @@ runs:
   steps:
     - name: Install dependencies
       run: |
-        apt-get update -y && apt-get install -y \
+        sudo apt-get update -y && sudo apt-get install -y \
         ca-certificates \
         curl \
         gnupg \
