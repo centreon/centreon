@@ -15932,3 +15932,33 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "The service group name '%s' already exists"
 #  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service categories"
+#  msgstr ""
+
+#  msgid "Error while deleting service category"
+#  msgstr ""
+
+#  msgid "Error while creating service category"
+#  msgstr ""
+
+#  msgid "Service category name already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service category"
+#  msgstr ""

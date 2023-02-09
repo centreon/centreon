@@ -237,11 +237,8 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el7, el8, el9, bullseye]
+        distrib: [el8, el9, bullseye]
         include:
-          - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
@@ -272,8 +269,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.AUTOMATION_USERNAME }}
-      artifactory_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -419,7 +416,7 @@ jobs:
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources

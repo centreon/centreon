@@ -226,8 +226,8 @@ Feature:
     When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
     """
     {
-        "name": "host-cat-name",
-        "alias": "host-cat-alias",
+        "name": "  host-cat-name  ",
+        "alias": "  host-cat-alias  ",
         "comments": "blablabla"
     }
     """

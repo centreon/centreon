@@ -138,3 +138,11 @@ default:
       paths: [ "%paths.base%/features/ServiceGroup.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext
+    service_category:
+      paths: [ "%paths.base%/features/ServiceCategory.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    service_severity:
+      paths: [ "%paths.base%/features/ServiceSeverity.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext

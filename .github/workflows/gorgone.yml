@@ -35,11 +35,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, el9, bullseye]
+        distrib: [el8, el9, bullseye]
         include:
-          - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
@@ -62,8 +59,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   deliver-rpm:
     runs-on: [self-hosted, common]
@@ -71,7 +68,7 @@ jobs:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -86,8 +83,8 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.REPOS_USERNAME }}
-          nexus_password: ${{ secrets.REPOS_PASSWORD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
