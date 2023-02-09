@@ -53,9 +53,9 @@ runs:
     - name: Install npm dependencies
       run:  npm ci --legacy-peer-deps
       shell: bash
-      working-directory: lighthouse
+      working-directory: centreon/lighthouse
     
     - name: Run lighthouse
       run: npm run:lighthouse
       shell: bash
-      working-directory: lighthouse
+      working-directory: centreon/lighthouse
