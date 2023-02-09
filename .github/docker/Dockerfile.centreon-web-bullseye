@@ -4,8 +4,6 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN <<EOF
 
-set -e
-
 apt update
 
 apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
@@ -38,6 +36,8 @@ innodb_fast_shutdown=0
 " > /etc/mysql/conf.d/container.cnf
 
 apt clean
+
+mkdir /tmp/debs-centreon
 
 EOF
 
