@@ -193,11 +193,11 @@ Cypress.Commands.add(
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
         .trigger('mouseover');
-      cy.contains(page).click();
+      cy.contains(page).click({ force: true });
 
       return;
     }
-    cy.hoverRootMenuItem(rootItemNumber).contains(page).click();
+    cy.hoverRootMenuItem(rootItemNumber).contains(page).click({ force: true });
   }
 );
 

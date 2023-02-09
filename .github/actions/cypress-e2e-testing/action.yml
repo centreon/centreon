@@ -48,11 +48,6 @@ runs:
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/src" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
-    - name: "Start Centreon websso container"
-      if: ${{ contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-enabled') || contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO-authentication-only') }}
-      run: docker exec -i e2e-tests-${{ inputs.module }} sh /src/.github/scripts/centreon-web-sso.sh
-      shell: bash
-
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
       with:
