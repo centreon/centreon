@@ -281,6 +281,9 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $this->sendRequestForConnectionTokenOrFail($authorizationCode);
         $this->createAuthenticationTokens();
+        if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
+            $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent["id_token"]);
+        }
         $this->verifyThatClientIsAllowedToConnectOrFail($clientIp);
         if ($this->providerToken->isExpired() && $this->refreshToken->isExpired()) {
             throw SSOAuthenticationException::tokensExpired($this->configuration->getName());
@@ -289,9 +292,6 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->getUserInformationFromIntrospectionEndpoint();
         }
 
-        if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
-            $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent["id_token"]);
-        }
         $this->username = $this->getUsernameFromLoginClaim();
     }
 
@@ -1019,6 +1019,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             if (array_key_exists($attribute, $conditions)) {
                 $providerAuthenticationConditions = $conditions[$attribute];
                 $conditions = $conditions[$attribute];
+            } elseif (array_key_exists($attribute, $this->idTokenPayload)) {
+                $providerAuthenticationConditions = $this->idTokenPayload[$attribute];
+                $conditions = $this->idTokenPayload[$attribute];
             } else {
                 break;
             }
@@ -1157,11 +1160,15 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $conditions = $this->getAclConditionsFromProvider($customConfiguration);
         $attributePath = explode(".", $aclConditions->getAttributePath());
+        $this->info("CONNECTION TOKEN BIPBOUP", $this->idTokenPayload);
         foreach ($attributePath as $attribute) {
             $providerConditions = [];
             if (array_key_exists($attribute, $conditions)) {
                 $providerConditions = $conditions[$attribute];
                 $conditions = $conditions[$attribute];
+            } elseif (array_key_exists($attribute, $this->idTokenPayload)) {
+                $providerConditions = $this->idTokenPayload[$attribute];
+                $conditions = $this->idTokenPayload[$attribute];
             } else {
                 break;
             }
@@ -1319,6 +1326,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             if (array_key_exists($attribute, $groups)) {
                 $providerGroups = $groups[$attribute];
                 $groups = $groups[$attribute];
+            } elseif (array_key_exists($attribute, $this->idTokenPayload)) {
+                $providerGroups = $this->idTokenPayload[$attribute];
+                $groups = $this->idTokenPayload[$attribute];
             } else {
                 break;
             }
