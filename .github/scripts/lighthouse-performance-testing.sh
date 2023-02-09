@@ -15,4 +15,4 @@ docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!20
 
 npm ci --legacy-peer-deps
 
-npm start
+npm run run:lighthouse

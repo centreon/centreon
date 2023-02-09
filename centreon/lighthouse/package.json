@@ -4,7 +4,10 @@
   "description": "This is handle Lighthouse report",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./build/lighthouseReport.js",
+    "start:docker": "docker run -d -p 4000:80 --name centreon-dev centreon.jfrog.io/docker/centreon-web-centos7:dev-22.10.x",
+    "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
+    "run:lighthouse": "tsc && node ./build/lighthouseReport.js",
+    "start": "npm run start:docker && npm run run:lighthouse && npm run kill:docker",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "npm run eslint -- --fix"
   },

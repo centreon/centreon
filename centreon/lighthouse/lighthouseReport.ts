@@ -8,14 +8,14 @@ import { generateReportForResourceStatusPage } from './pages/resourceStatus';
 import { baseConfigContext } from './defaults';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 
-const createReportFile = (report): void => {
+const createReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
 
   if (!lighthouseFolderExists) {
     fs.mkdirSync('report');
   }
 
-  fs.writeFileSync('report/lighthouseci-index.html', report);
+  fs.writeFileSync('report/lighthouseci-index.html', await report);
 };
 
 const captureReport = async (): Promise<void> => {
