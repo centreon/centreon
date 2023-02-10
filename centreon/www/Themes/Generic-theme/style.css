@@ -1208,12 +1208,20 @@ table-form-header-h3 {
     vertical-align:top;
     white-space:normal;
 }
-
+.FormRowField .helpTooltip svg {
+    padding-top: 4px;
+}
 .table .FormRowField {
     width: 34ch;
-    padding: 4px 32px 4px 6px;
+    padding: 5px 32px 4px 6px;
     vertical-align: middle;
     line-height: 1.5;
+}
+#command_line{
+    margin-left: 6px;
+}
+#listOfMacroDiv{
+    margin-bottom: 4px;
 }
 
 .formRowLabel {
