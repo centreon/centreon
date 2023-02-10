@@ -19,28 +19,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies
-      run: |
-        sudo apt-get update -y && sudo apt-get install -y \
-        ca-certificates \
-        curl \
-        gnupg \
-        lsb-release \
-        php8.1 \
-        php8.1-yaml \
-        php8.1-xml \
-        php8.1-common \
-        php8.1-mysql \
-        php8.1-cli \
-        php8.1-dom \
-        php8.1-mbstring \
-        php8.1-intl \
-        php8.1-pdo \
-        php8.1-zip \
-        unzip
-        wget -O composer-setup.php https://getcomposer.org/installer
-        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-      shell: bash
+    - name: Setup PHP 8.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        extensions: yaml, xml, common, mysql, cli, dom, mbstring, intl, pdo, zip
+        coverage: none
+        tools: composer:v2
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}

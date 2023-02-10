@@ -18,11 +18,11 @@ export const generateReportForResourceStatusPage = async ({
     ...baseConfig,
   });
 
-  await flow.snapshot({ name: 'Resource Status Snapshot' });
+  await flow.snapshot({ name: 'Resource Status Snapshot', ...baseConfig });
 
   await page.waitForSelector('input[placeholder="Search"]');
 
-  await flow.startTimespan({ name: 'Type search query' });
+  await flow.startTimespan({ name: 'Type search query', ...baseConfig });
   await page.type('input[placeholder="Search"]', 'Centreon');
   await flow.endTimespan();
 };

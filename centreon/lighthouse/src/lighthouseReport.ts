@@ -5,7 +5,6 @@ import { startFlow } from 'lighthouse';
 
 import { generateReportForLoginPage } from './pages/login';
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
-import { baseConfigContext } from './defaults';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 
 const createReportFile = async (report): Promise<void> => {
