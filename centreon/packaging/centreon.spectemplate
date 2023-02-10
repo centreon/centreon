@@ -628,6 +628,13 @@ systemctl try-restart httpd || :
 %endif
 systemctl try-restart php-fpm || :
 
+%posttrans web
+
+# rebuild symfony cache on upgrade
+if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
+  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear --no-warmup"
+fi
+
 #%preun web
 #setsebool -P httpd_unified off 2>/dev/null || :
 #setsebool -P httpd_can_network_connect off 2>/dev/null || :
