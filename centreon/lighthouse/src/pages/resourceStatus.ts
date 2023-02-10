@@ -1,4 +1,4 @@
-import { baseUrl } from '../defaults';
+import { baseConfig, baseUrl } from '../defaults';
 
 export const generateReportForResourceStatusPage = async ({
   flow,
@@ -7,20 +7,22 @@ export const generateReportForResourceStatusPage = async ({
   await page.setCacheEnabled(false);
 
   await flow.navigate(`${baseUrl}monitoring/resources`, {
-    stepName: 'Resource Status Cold navigation',
+    name: 'Resource Status Cold navigation',
+    ...baseConfig,
   });
 
   await page.setCacheEnabled(true);
 
   await flow.navigate(`${baseUrl}monitoring/resources`, {
-    stepName: 'Resource Status Warm navigation',
+    name: 'Resource Status Warm navigation',
+    ...baseConfig,
   });
 
-  await flow.snapshot({ stepName: 'Resource Status Snapshot' });
+  await flow.snapshot({ name: 'Resource Status Snapshot' });
 
   await page.waitForSelector('input[placeholder="Search"]');
 
-  await flow.startTimespan({ stepName: 'Type search query' });
+  await flow.startTimespan({ name: 'Type search query' });
   await page.type('input[placeholder="Search"]', 'Centreon');
   await flow.endTimespan();
 };

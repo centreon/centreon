@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import puppeteer from 'puppeteer';
-import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api';
+import { startFlow } from 'lighthouse';
 
 import { generateReportForLoginPage } from './pages/login';
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
@@ -26,7 +26,6 @@ const captureReport = async (): Promise<void> => {
   const page = await browser.newPage();
 
   const flow = await startFlow(page, {
-    configContext: baseConfigContext,
     name: 'Centreon Web pages',
   });
 
