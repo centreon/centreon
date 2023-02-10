@@ -8,13 +8,16 @@ import {
   deleteUserFilter,
   tearDownResource,
 } from '../common';
+import { submitResultsViaClapi } from '../../../commons';
 
 before(() => {
-  insertResourceFixtures().then(() =>
-    cy
-      .fixture('resources/filters.json')
-      .then((filters) => setUserFilter(filters)),
-  );
+  insertResourceFixtures()
+    .then(() =>
+      cy
+        .fixture('resources/filters.json')
+        .then((filters) => setUserFilter(filters)),
+    )
+    .then(submitResultsViaClapi);
 });
 
 Then('the unhandled problems filter is selected', (): void => {
