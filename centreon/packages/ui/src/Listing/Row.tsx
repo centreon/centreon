@@ -153,16 +153,21 @@ const Row = memo<RowProps>(
       return false;
     }
 
-    if (not(nextIsInViewport) && lt(nextLimit, 60)) {
-      return equals(prevProps.isSelected, nextProps.isSelected);
-    }
-
     const previousRowColors = previousRowColorConditions?.map(({ condition }) =>
       condition(previousRow),
     );
     const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
       condition(nextRow),
     );
+
+    if (not(nextIsInViewport) && lt(nextLimit, 60)) {
+      return (
+        equals(prevProps.isSelected, nextProps.isSelected) &&
+        equals(prevProps.row, nextProps.row) &&
+        equals(previousRowColors, nextRowColors) &&
+        equals(prevProps.className, nextProps.className)
+      );
+    }
 
     return (
       equals(prevProps.isSelected, nextProps.isSelected) &&
