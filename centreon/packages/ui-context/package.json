@@ -7,7 +7,7 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "scripts": {
-    "eslint": "eslint ./src --ext .ts",
-    "eslint:fix": "pnpm run eslint --fix"
+    "eslint": "eslint ./src --ext .ts --max-warnings 0",
+    "eslint:fix": "pnpm eslint --fix"
   }
 }
