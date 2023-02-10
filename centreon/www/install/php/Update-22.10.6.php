@@ -27,33 +27,33 @@ $errorMessage = '';
 try {
 
 // Transactional queries
-$pearDB->beginTransaction();
+    $pearDB->beginTransaction();
 
 // check if entry ldap_connection_timeout exist
-$query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
-$ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
+    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
+    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
 // insert entry ldap_connection_timeout  with default value
-if (! $ldapResult) {
-$errorMessage = "Unable to add default ldap connection timeout";
-$pearDB->query(
-"INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
+    if (! $ldapResult) {
+        $errorMessage = "Unable to add default LDAP connection timeout";
+        $pearDB->query(
+            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
 (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
-);
-}
-$pearDB->commit();
+        );
+    }
+    $pearDB->commit();
 
 } catch (\Exception $e) {
-if ($pearDB->inTransaction()) {
-$pearDB->rollBack();
-}
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
 
-$centreonLog->insertLog(
-4,
-$versionOfTheUpgrade . $errorMessage
-. ' - Code : ' . (int) $e->getCode()
-. ' - Error : ' . $e->getMessage()
-. ' - Trace : ' . $e->getTraceAsString()
-);
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int)$e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
 
-throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
 }
