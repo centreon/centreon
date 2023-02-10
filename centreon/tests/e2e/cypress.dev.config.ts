@@ -11,7 +11,12 @@ export default defineConfig({
   e2e: {
     baseUrl: 'http://0.0.0.0:4000',
 
-    excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+    excludeSpecPattern: [
+      '*.js',
+      '*.ts',
+      '*.md',
+      'cypress/e2e/**/*-sso-*-{enabled,only}.feature'
+    ],
     experimentalSessionAndOrigin: true,
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.

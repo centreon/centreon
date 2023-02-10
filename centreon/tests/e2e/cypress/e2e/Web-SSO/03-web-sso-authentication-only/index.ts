@@ -1,6 +1,13 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { injectingWebSSOScriptsIntoContainer } from '../common';
+import {
+  initializeWebSSOUserAndGetLoginPage,
+  removeWebSSOContact
+} from '../common';
+
+before(() => {
+  initializeWebSSOUserAndGetLoginPage();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -10,21 +17,21 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/web-sso'
-  }).as('getWebSSOResponse');
+  }).as('getWebSSOProvider');
   cy.intercept({
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/web-sso'
-  }).as('updateWebSSOResponse');
+  }).as('updateWebSSOProvider');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('localAuthentification');
+  }).as('postLocalAuthentification');
 });
 
 Given('an administrator logged in the platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@localAuthentification')
+    .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200);
 });
@@ -36,7 +43,7 @@ When('the administrator sets authentication mode to Web SSO only', () => {
   })
     .get('div[role="tablist"] button:nth-child(3)')
     .click()
-    .wait('@getWebSSOResponse');
+    .wait('@getWebSSOProvider');
   cy.getByLabel({
     label: 'Enable Web SSO authentication',
     tag: 'input'
@@ -47,7 +54,7 @@ When('the administrator sets authentication mode to Web SSO only', () => {
     .type('REMOTE_USER');
   cy.getByLabel({ label: 'save button', tag: 'button' })
     .click()
-    .wait('@updateWebSSOResponse')
+    .wait('@updateWebSSOProvider')
     .its('response.statusCode')
     .should('eq', 204)
     .logout();
@@ -55,7 +62,7 @@ When('the administrator sets authentication mode to Web SSO only', () => {
 });
 
 Then('users and local admin user must not be able to authenticate', () => {
-  // TODO: - Testing the authentication via the provider
+  // TODO: - Test the authentication via the provider. Check out this issue for more information: https://github.com/cypress-io/cypress/issues/17701
   // cy.session('AUTH_SESSION_ID_LEGACY', () => {
   //   cy.visit(`${Cypress.config().baseUrl}`);
   //   cy.loginKeycloack('admin')
@@ -63,4 +70,8 @@ Then('users and local admin user must not be able to authenticate', () => {
   //     .should('be.visible')
   //     .and('include.text', 'Invalid username or password.');
   // });
+});
+
+after(() => {
+  removeWebSSOContact();
 });

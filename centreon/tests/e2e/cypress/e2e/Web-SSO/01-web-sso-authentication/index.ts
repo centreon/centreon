@@ -8,21 +8,17 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/web-sso'
-  }).as('getWebSSOResponse');
-  cy.intercept({
-    method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/web-sso'
-  }).as('updateWebSSOResponse');
+  }).as('getWebSSOProvider');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('localAuthentification');
+  }).as('postLocalAuthentification');
 });
 
 Given('an administrator logged in the platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@localAuthentification')
+    .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200);
 });
@@ -34,7 +30,7 @@ When('the administrator first configures the authentication mode', () => {
   })
     .get('div[role="tablist"] button:nth-child(3)')
     .click()
-    .wait('@getWebSSOResponse');
+    .wait('@getWebSSOProvider');
 });
 
 Then(
@@ -45,7 +41,7 @@ Then(
       .and('have.value', 'false');
     cy.logout().reload();
     cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-      .wait('@localAuthentification')
+      .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
   }

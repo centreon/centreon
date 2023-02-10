@@ -18,21 +18,21 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('getOIDCResponse');
+  }).as('getOIDCProvider');
   cy.intercept({
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('updateOIDCResponse');
+  }).as('updateOIDCProvider');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('localAuthentification');
+  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
   cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
-    .wait('@localAuthentification')
+    .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
     .navigateTo({
@@ -41,7 +41,7 @@ Given('an administrator is logged on the platform', () => {
     })
     .get('div[role="tablist"] button:nth-child(2)')
     .click()
-    .wait('@getOIDCResponse');
+    .wait('@getOIDCProvider');
 });
 
 When(
@@ -84,7 +84,7 @@ When(
       .type('oidc');
     cy.getByLabel({ label: 'save button', tag: 'button' })
       .click()
-      .wait('@updateOIDCResponse')
+      .wait('@updateOIDCProvider')
       .its('response.statusCode')
       .should('eq', 204);
   }

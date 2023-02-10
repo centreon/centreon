@@ -18,15 +18,15 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('getOIDCResponse');
+  }).as('getOIDCProvider');
   cy.intercept({
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('updateOIDCResponse');
+  }).as('updateOIDCProvider');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('localAuthentification');
+  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -44,7 +44,7 @@ When(
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
-    cy.wait('@getOIDCResponse');
+    cy.wait('@getOIDCProvider');
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
@@ -56,7 +56,7 @@ When(
 Then('the configuration is saved and secrets are not visible', () => {
   cy.getByLabel({ label: 'save button', tag: 'button' })
     .click()
-    .wait('@updateOIDCResponse')
+    .wait('@updateOIDCProvider')
     .its('response.statusCode')
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
@@ -91,7 +91,7 @@ Then(
       preserveToken: true
     });
 
-    cy.wait('@localAuthentification')
+    cy.wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
 
@@ -108,7 +108,7 @@ Given('an administrator is relogged on the platform', () => {
     })
     .get('div[role="tablist"] button:nth-child(2)')
     .click()
-    .wait('@getOIDCResponse');
+    .wait('@getOIDCProvider');
 });
 
 When(
@@ -121,7 +121,7 @@ When(
       .check()
       .getByLabel({ label: 'save button', tag: 'button' })
       .click()
-      .wait('@updateOIDCResponse')
+      .wait('@updateOIDCProvider')
       .its('response.statusCode')
       .should('eq', 204)
       .getByLabel({

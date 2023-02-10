@@ -1,6 +1,6 @@
 import { executeActionViaClapi } from '../../commons';
 
-const injectingWebSSOScriptsIntoContainer = (): Cypress.Chainable => {
+const injectWebSSOScriptsIntoContainer = (): Cypress.Chainable => {
   return cy
     .exec(
       `docker cp cypress/scripts/web-sso-commands.sh ${Cypress.env(
@@ -43,5 +43,5 @@ const removeWebSSOContact = (): Cypress.Chainable => {
 export {
   initializeWebSSOUserAndGetLoginPage,
   removeWebSSOContact,
-  injectingWebSSOScriptsIntoContainer
+  injectWebSSOScriptsIntoContainer
 };

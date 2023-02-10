@@ -8,24 +8,24 @@ import {
   deleteUserFilter,
   tearDownResource
 } from '../common';
-import { loginAsAdminViaApiV2, logout, submitResultsViaClapi } from '../../../commons';
+import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
   insertResourceFixtures()
-  .then(submitResultsViaClapi)
-  .then(loginAsAdminViaApiV2)
-  .then(() =>
-    cy
-      .fixture('resources/filters.json')
-      .then((filters) => setUserFilter(filters))
-  );
+    .then(submitResultsViaClapi)
+    .then(loginAsAdminViaApiV2)
+    .then(() =>
+      cy
+        .fixture('resources/filters.json')
+        .then((filters) => setUserFilter(filters))
+    );
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('getLoginResponse');
+  }).as('postLocalAuthentication');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -33,7 +33,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
-  }).as('filters');
+  }).as('getFilters');
 });
 
 Then('the unhandled problems filter is selected', (): void => {
@@ -74,9 +74,9 @@ Given('a saved custom filter', () => {
       jsonName: 'admin',
       preserveToken: true
     })
-    .wait('@getLoginResponse');
-  
-  cy.wait('@filters');
+    .wait('@postLocalAuthentication');
+
+  cy.wait('@getFilters');
 
   cy.get(stateFilterContainer).click();
 
