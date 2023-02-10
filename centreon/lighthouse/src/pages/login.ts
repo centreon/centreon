@@ -1,32 +1,36 @@
-import { baseConfig, baseUrl } from '../defaults';
+import { GenerateReportForPageProps } from '../models';
+import { baseUrl } from '../defaults';
 
 export const generateReportForLoginPage = async ({
-  flow,
+  navigate,
+  snapshot,
+  startTimespan,
+  endTimespan,
   page,
-}): Promise<void> => {
-  await flow.navigate(`${baseUrl}login`, {
+}: GenerateReportForPageProps): Promise<void> => {
+  await navigate({
     name: 'Login Cold navigation',
-    ...baseConfig,
+    url: `${baseUrl}login`,
   });
 
-  await flow.navigate(`${baseUrl}login`, {
+  await navigate({
     name: 'Login Warm navigation',
-    ...baseConfig,
+    url: `${baseUrl}login`,
   });
 
-  await flow.snapshot({ name: 'Login Snapshot', ...baseConfig });
+  await snapshot('Login Snapshot');
 
   await page.waitForSelector('input[aria-label="Alias"]');
 
-  await flow.startTimespan({ name: 'Type alias', ...baseConfig });
+  await startTimespan('Type alias');
   await page.type('input[aria-label="Alias"]', 'admin');
-  await flow.endTimespan();
+  await endTimespan();
 
-  await flow.startTimespan({ name: 'Type password', ...baseConfig });
+  await startTimespan('Type password');
   await page.type('input[aria-label="Password"]', 'Centreon!2021');
-  await flow.endTimespan();
+  await endTimespan();
 
-  await flow.startTimespan({ name: 'Click submit button', ...baseConfig });
+  await startTimespan('Click submit button');
   await page.click('button[aria-label="Connect"]');
-  await flow.endTimespan();
+  await endTimespan();
 };

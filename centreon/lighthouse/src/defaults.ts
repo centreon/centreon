@@ -1,7 +1,6 @@
 export const baseUrl = 'http://localhost:4000/centreon/';
 
 export const baseConfig = {
-  formFactor: 'desktop',
   screenEmulation: {
     deviceScaleFactor: 1,
     disabled: false,

@@ -1,28 +1,32 @@
-import { baseConfig, baseUrl } from '../defaults';
+import { GenerateReportForPageProps } from '../models';
+import { baseUrl } from '../defaults';
 
 export const generateReportForResourceStatusPage = async ({
-  flow,
+  navigate,
+  snapshot,
+  startTimespan,
+  endTimespan,
   page,
-}): Promise<void> => {
+}: GenerateReportForPageProps): Promise<void> => {
   await page.setCacheEnabled(false);
 
-  await flow.navigate(`${baseUrl}monitoring/resources`, {
+  await navigate({
     name: 'Resource Status Cold navigation',
-    ...baseConfig,
+    url: `${baseUrl}monitoring/resources`,
   });
 
   await page.setCacheEnabled(true);
 
-  await flow.navigate(`${baseUrl}monitoring/resources`, {
+  await navigate({
     name: 'Resource Status Warm navigation',
-    ...baseConfig,
+    url: `${baseUrl}monitoring/resources`,
   });
 
-  await flow.snapshot({ name: 'Resource Status Snapshot', ...baseConfig });
+  await snapshot('Resource Status Snapshot');
 
   await page.waitForSelector('input[placeholder="Search"]');
 
-  await flow.startTimespan({ name: 'Type search query', ...baseConfig });
+  await startTimespan('Type search query');
   await page.type('input[placeholder="Search"]', 'Centreon');
-  await flow.endTimespan();
+  await endTimespan();
 };
