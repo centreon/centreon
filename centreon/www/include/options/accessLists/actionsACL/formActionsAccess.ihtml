@@ -119,7 +119,7 @@
 					<h4>{$form.header.global_actions}</h4>
 				</td>
 				<td class="ListColLvl1_name FormRowValue">
-					<p class="oreonbutton">{$form.all_engine.html}</p>
+					<div class="oreonbutton">{$form.all_engine.html}</div>
 				</td>
 			</tr>
 			<tr class="list_one engineCheckbox">
@@ -301,7 +301,7 @@
 					<h4>{$form.header.service_actions}</h4>
 				</td>
 				<td class="ListColLvl1_name FormRowValue">
-					<p class="oreonbutton">{$form.all_service.html}</p>
+					<div class="oreonbutton">{$form.all_service.html}</div>
 				</td>
 			</tr>
 			{if $serverIsMaster}
@@ -536,7 +536,7 @@
 					<h4>{$form.header.host_actions}</h4>
 				</td>
 				<td class="ListColLvl1_name FormRowValue">
-					<p class="oreonbutton">{$form.all_host.html}</p>
+					<div class="oreonbutton">{$form.all_host.html}</div>
 				</td>
 			</tr>
 			{if $serverIsMaster}

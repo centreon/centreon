@@ -1217,6 +1217,9 @@ table-form-header-h3 {
     vertical-align: middle;
     line-height: 1.5;
 }
+div.oreonbutton{
+    margin-left: 6px;
+}
 #command_line{
     margin-left: 6px;
 }
