@@ -55,7 +55,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ inputs.widget_name }}
+          module_name: widget-${{ inputs.widget_name }}
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
