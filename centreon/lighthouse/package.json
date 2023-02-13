@@ -2,15 +2,18 @@
   "name": "centreon-lighthouse-report",
   "version": "22.4.0",
   "description": "This is handle Lighthouse report",
-  "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./build/lighthouseReport.js",
+    "start:docker": "docker run -d -p 4000:80 --name centreon-dev centreon.jfrog.io/docker/centreon-web-alma9:develop",
+    "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
+    "run:lighthouse": "swc src/ -d build && node --experimental-modules --es-module-specifier-resolution=node ./build/lighthouseReport.js",
+    "start": "npm run start:docker && npm run run:lighthouse && npm run kill:docker",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "pnpm eslint --fix"
   },
+  "type": "module",
   "devDependencies": {
-    "lighthouse": "9.6.8",
+    "lighthouse": "^10.0.0",
     "open": "^8.4.0",
-    "puppeteer": "^13.2.0"
+    "puppeteer": "^19.7.0"
   }
 }
