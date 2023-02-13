@@ -115,7 +115,8 @@ jobs:
       - if: ${{ matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
-          yum config-manager --set-enabled crb
+          yum config-manager --set-enabled crb || true # alma 9
+          yum config-manager --set-enabled powertools || true # alma 8
 
           yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
 
