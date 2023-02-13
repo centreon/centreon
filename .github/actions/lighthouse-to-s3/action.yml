@@ -23,12 +23,13 @@ runs:
 
     - name: "Setup AWS context"
       run: |
-        sudo apt update -y
-        sudo apt install -y unzip
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        unzip awscliv2.zip
-        sudo ./aws/install --update
-        rm -rf awscliv2.zip aws
+        # sudo apt update -y
+        # sudo apt install -y unzip
+        # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        # unzip awscliv2.zip
+        # sudo ./aws/install --update
+        # rm -rf awscliv2.zip aws
+        aws --version
         export AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }}
         export AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_key }}
         export AWS_DEFAULT_REGION=eu-west-1
