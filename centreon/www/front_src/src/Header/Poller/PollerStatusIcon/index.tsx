@@ -63,7 +63,16 @@ const useStatusStyles = makeStyles<StyleProps>()(
         height: theme.spacing(1.75),
         width: theme.spacing(1.75)
       },
-      latency: getSeverityColor(latencySeverity)
+      latency: getSeverityColor(latencySeverity),
+      visuallyHiddenText: {
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: '1px',
+        overflow: 'hidden',
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        width: '1px'
+      }
     };
   }
 );
@@ -81,15 +90,20 @@ const PollerStatusIcon = ({
   return (
     <div className={classes.container}>
       <Avatar
+        aria-label="database"
         className={cx(classes.database, classes.avatar)}
-        title={database.label}
+        role="status"
       >
+        <p className={classes.visuallyHiddenText}>{database.label}</p>
+
         <StorageIcon className={classes.icon} />
       </Avatar>
       <Avatar
+        aria-label="latency"
         className={cx(classes.latency, classes.avatar)}
-        title={latency.label}
+        role="status"
       >
+        <p className={classes.visuallyHiddenText}>{latency.label}</p>
         <LatencyIcon className={classes.icon} />
       </Avatar>
     </div>

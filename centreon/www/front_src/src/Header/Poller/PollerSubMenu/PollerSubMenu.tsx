@@ -1,4 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
+import { isEmpty } from 'ramda';
 
 import { Typography, Button } from '@mui/material';
 
@@ -70,8 +71,8 @@ export const PollerSubMenu = ({
   const { classes, cx } = useStyles();
 
   return (
-    <ul className={classes.list}>
-      {issues.length > 0 ? (
+    <ul className={classes.list} data-testid="poller-menu">
+      {!isEmpty(issues) ? (
         issues.map(({ text, total, key }) => {
           return (
             <li

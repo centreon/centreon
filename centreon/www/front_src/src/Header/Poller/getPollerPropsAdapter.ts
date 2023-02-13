@@ -4,7 +4,7 @@ import type { TFunction } from 'react-i18next';
 
 import { SeverityCode } from '@centreon/ui';
 
-import type { PollerIssuesResponse } from '../api/decoders';
+import type { PollersIssuesList } from '../api/models';
 
 import {
   labelDatabaseUpdatesNotActive,
@@ -25,11 +25,18 @@ const pollerIssueKeyToMessage = {
   stability: labelPollerNotRunning
 };
 
-const getIssueSeverity = ({ issues, key }): SeverityCode => {
-  if (!isNil(issues[key]?.warning)) {
+const getIssueSeverityCode = ({
+  issues,
+  key
+}: {
+  issues: PollersIssuesList['issues'];
+  key: keyof PollersIssuesList['issues'];
+}): SeverityCode => {
+  if (!!issues[key]?.warning?.total && !isNil(issues[key].warning.total)) {
     return SeverityCode.Medium;
   }
-  if (!isNil(issues[key]?.critical)) {
+
+  if (issues[key]?.critical?.total && !isNil(issues[key]?.critical?.total)) {
     return SeverityCode.High;
   }
 
@@ -39,8 +46,8 @@ const getIssueSeverity = ({ issues, key }): SeverityCode => {
 export const pollerConfigurationPageNumber = '60901';
 
 interface GetPollerPropsAdapterProps {
-  allowedPages: Array<string> | undefined;
-  data: PollerIssuesResponse;
+  allowedPages: Array<string>;
+  data: PollersIssuesList;
   isExportButtonEnabled: boolean;
   navigate: NavigateFunction;
   t: TFunction<'translation', undefined>;
@@ -58,18 +65,19 @@ export const getPollerPropsAdapter = ({
   navigate,
   isExportButtonEnabled
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
-  const { total } = data;
-  const issues = data?.issues ?? {};
+  const { total, issues } = data;
   const formatedIssues = !isEmpty(issues)
-    ? Object.entries(issues).map(([key, issue]) => ({
-        key,
-        text: t(pollerIssueKeyToMessage[key]),
-        total: issue.total || ''
-      }))
+    ? Object.entries(issues)
+        .filter(([key, issue]) => !!issue && issue.total > 0)
+        .map(([key, issue]) => ({
+          key,
+          text: t(pollerIssueKeyToMessage[key]),
+          total: issue?.total.toString() || ''
+        }))
     : [];
 
-  const databaseSeverity = getIssueSeverity({ issues, key: 'database' });
-  const latencySeverity = getIssueSeverity({ issues, key: 'latency' });
+  const databaseSeverity = getIssueSeverityCode({ issues, key: 'database' });
+  const latencySeverity = getIssueSeverityCode({ issues, key: 'latency' });
 
   const topIconProps = {
     database: {
