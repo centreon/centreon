@@ -11,17 +11,12 @@ export default defineConfig({
   e2e: {
     baseUrl: 'http://0.0.0.0:4000',
 
-    excludeSpecPattern: [
-      '*.js',
-      '*.ts',
-      '*.md',
-      'cypress/e2e/**/*-sso-*-{enabled,only}.feature'
-    ],
+    excludeSpecPattern: ['*.js', '*.ts', '*.md'],
     experimentalSessionAndOrigin: true,
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents,
-    specPattern: 'cypress/e2e/**/*.feature'
+    specPattern: 'cypress/e2e/**/!(*sso*only|*sso*enabled).feature'
   },
   env: {
     dockerName: 'centreon-dev'

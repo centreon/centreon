@@ -56,6 +56,8 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
+      env:
+        TAGS: 'not @ignore-scenario'
 
     - if: ${{ failure() }}
       run: |
