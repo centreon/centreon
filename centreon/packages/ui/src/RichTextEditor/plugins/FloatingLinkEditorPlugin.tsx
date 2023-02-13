@@ -8,90 +8,94 @@ import {
   LexicalEditor
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
-import { useAtomValue } from 'jotai';
-import { $isLinkNode } from '@lexical/link';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 
-import { Paper, Popper, TextField, Popover, IconButton } from '@mui/material';
+import { Popper, IconButton, Paper } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { getDOMRangeRect } from '../utils/getDOMRangeRect';
-import { isInsertingLinkAtom } from '../atoms';
+import { editLinkModeAtom, isInsertingLinkAtom, linkValueAtom } from '../atoms';
 import InputField from '../../InputField/Text';
 import { labelInputLink } from '../translatedLabels';
 
-interface FloatingActionsToolbarPluginProps {
-  anchorElem: HTMLElement;
-}
-
-interface FloatingTextFormatToolbarProps
-  extends FloatingActionsToolbarPluginProps {
+interface UseFloatingLinkEditorProps {
   editor: LexicalEditor;
 }
 
-interface ToolbarProps extends FloatingActionsToolbarPluginProps {
+interface FloatingLinkEditorProps {
   editor: LexicalEditor;
-  linkUrl: string;
-  setLinkUrl: (url: string) => void;
 }
 
-const Toolbar = ({
-  anchorElem,
-  editor,
-  linkUrl,
-  setLinkUrl
-}: ToolbarProps): JSX.Element => {
-  const [xOffset, setXOffset] = useState(0);
+const FloatingLinkEditor = ({
+  editor
+}: FloatingLinkEditorProps): JSX.Element | null => {
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
-  const [editMode, setEditMode] = useState(false);
+  const [lastSelection, setLastSelection] = useState();
 
-  useEffect(() => {
-    if (nativeSelection === null || rootElement === null) {
-      return;
-    }
+  const [editMode, setEditMode] = useAtom(editLinkModeAtom);
+  const [linkUrl, setLinkUrl] = useAtom(linkValueAtom);
 
-    const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
-    console.log('selection', nativeSelection);
-    setXOffset(rangeRect.x);
-  }, [nativeSelection, rootElement]);
-  console.log('offset', xOffset);
+  if (nativeSelection === null || rootElement === null) {
+    return null;
+  }
+
+  const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
+
+  const xOffset = rangeRect.x - (rootElement?.getBoundingClientRect()?.x || 0);
+  const yOffset = rangeRect.y - (rootElement?.getBoundingClientRect()?.y || 0);
 
   return (
-    <Popper
-      anchorEl={anchorElem}
-      // anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-      open={xOffset !== 0}
-    >
-      <TextField
-        InputProps={{
-          disableUnderline: true
-        }}
-        defaultValue={linkUrl}
-        id="insert-link"
-        variant="standard"
-        // label={labelInputLink}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-          setLinkUrl(event.target.value);
-        }}
-      />
-      <IconButton
-        aria-label="delete"
-        onClick={(): void => setEditMode(!editMode)}
-      >
-        <EditIcon />
-      </IconButton>
+    <Popper open anchorEl={rootElement} placement="top-start">
+      <Paper sx={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0px)` }}>
+        {editMode ? (
+          <InputField
+            autoFocus
+            defaultValue={linkUrl}
+            label={labelInputLink}
+            onKeyDown={(event): void => {
+              const { value } = event.target;
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                if (lastSelection !== null) {
+                  if (value !== '') {
+                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
+                  }
+                  setEditMode(false);
+                }
+              } else if (event.key === 'Escape') {
+                event.preventDefault();
+                setEditMode(false);
+              }
+            }}
+          />
+        ) : (
+          <div>
+            <a href={linkUrl} rel="noopener noreferrer" target="_blank">
+              {linkUrl}
+            </a>
+            <IconButton
+              aria-label="delete"
+              onClick={(): void => setEditMode(true)}
+            >
+              <EditIcon />
+            </IconButton>
+          </div>
+        )}
+      </Paper>
     </Popper>
   );
 };
 
 const useFloatingTextFormatToolbar = ({
-  editor,
-  anchorElem
-}: FloatingTextFormatToolbarProps): JSX.Element | null => {
+  editor
+}: UseFloatingLinkEditorProps): JSX.Element | null => {
   const [isText, setIsText] = useState(false);
-  const [linkUrl, setLinkUrl] = useState('');
   const isInsertingLink = useAtomValue(isInsertingLinkAtom);
+  const editLinkMode = useAtomValue(editLinkModeAtom);
+  const setLinkUrl = useSetAtom(linkValueAtom);
 
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
@@ -106,14 +110,15 @@ const useFloatingTextFormatToolbar = ({
         nativeSelection !== null &&
         (!$isRangeSelection(selection) ||
           rootElement === null ||
-          !rootElement.contains(nativeSelection.anchorNode))
+          !rootElement.contains(nativeSelection.anchorNode)) &&
+        !editLinkMode
       ) {
         setIsText(false);
 
         return;
       }
 
-      if (!$isRangeSelection(selection)) {
+      if (!$isRangeSelection(selection) || editLinkMode) {
         return;
       }
 
@@ -128,12 +133,12 @@ const useFloatingTextFormatToolbar = ({
       }
 
       if (selection.getTextContent() !== '') {
-        setIsText($isTextNode(node));
+        setIsText($isTextNode(node) || $isLinkNode(node));
       } else {
         setIsText(false);
       }
     });
-  }, [editor]);
+  }, [editor, editLinkMode]);
 
   useEffect(() => {
     document.addEventListener('selectionchange', updatePopup);
@@ -156,26 +161,19 @@ const useFloatingTextFormatToolbar = ({
     );
   }, [editor, updatePopup]);
 
+  console.log('text', isText, 'link', isInsertingLink, 'edit', editLinkMode);
+
   if (!isText || !isInsertingLink) {
     return null;
   }
 
-  return (
-    <Toolbar
-      anchorElem={anchorElem}
-      editor={editor}
-      linkUrl={linkUrl}
-      setLinkUrl={setLinkUrl}
-    />
-  );
+  return <FloatingLinkEditor editor={editor} />;
 };
 
-const FloatingActionsToolbarPlugin = ({
-  anchorElem = document.body
-}: FloatingActionsToolbarPluginProps): JSX.Element | null => {
+const FloatingActionsToolbarPlugin = (): JSX.Element | null => {
   const [editor] = useLexicalComposerContext();
 
-  return useFloatingTextFormatToolbar({ anchorElem, editor });
+  return useFloatingTextFormatToolbar({ editor });
 };
 
 export default FloatingActionsToolbarPlugin;

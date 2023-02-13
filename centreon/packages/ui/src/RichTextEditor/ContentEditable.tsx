@@ -45,7 +45,6 @@ interface Props {
   hasInitialTextContent?: boolean;
   inputClassname?: string;
   minInputHeight: number;
-  onRef: (rootElement: HTMLElement) => void;
   placeholder: string;
 }
 
