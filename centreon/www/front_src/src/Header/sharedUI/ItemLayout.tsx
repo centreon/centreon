@@ -52,6 +52,7 @@ const useStyles = makeStyles()((theme) => ({
     }
   },
   indicators: {
+    lineHeight: 1,
     [theme.breakpoints.down(600)]: {
       display: 'none'
     },
@@ -84,7 +85,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'inline-flex',
     flex: '100%',
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
+    fontWeight: theme.typography.fontWeightBold,
     lineHeight: '1',
     whiteSpace: 'nowrap',
     [theme.breakpoints.down(768)]: {
@@ -98,14 +100,12 @@ interface ItemLayoutProps {
   renderIndicators: () => JSX.Element;
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
   showPendingBadge: boolean;
-  testId: string;
   title: string;
 }
 
 const ItemLayout = ({
   Icon,
   title,
-  testId,
   renderIndicators,
   renderSubMenu,
   showPendingBadge
@@ -113,15 +113,25 @@ const ItemLayout = ({
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
 
+  const subMenuId = title.replace(/[^A-Za-z]/, '-');
+
   useEffect(() => {
     const closeMenu = (): void => setToggled(false);
+    const closeOnEscape = (event: KeyboardEvent): void => {
+      if (event.key === 'esc' || event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+      }
+    };
 
     if (toggled) {
       window.addEventListener('locationchange', closeMenu);
+      window.addEventListener('keydown', closeOnEscape);
     }
 
     return (): void => {
       window.removeEventListener('locationchange', closeMenu);
+      window.removeEventListener('keydown', closeOnEscape);
     };
   }, [toggled]);
 
@@ -134,17 +144,16 @@ const ItemLayout = ({
         setToggled(!toggled);
       }}
     >
-      <div className={classes.container} data-testid={`${testId}-container`}>
+      <div className={classes.container}>
         <div className={classes.header}>
-          <div
-            className={classes.indicators}
-            data-testid={`${testId}-indicators`}
-          >
-            {renderIndicators()}
-          </div>
+          <div className={classes.indicators}>{renderIndicators()}</div>
           <button
+            aria-controls={`${subMenuId}-menu`}
+            aria-expanded={toggled}
+            aria-haspopup="true"
+            aria-label={title}
             className={classes.button}
-            data-testid={`${testId}-button`}
+            id={`${subMenuId}-button`}
             type="button"
             onClick={(): void => setToggled(!toggled)}
           >
@@ -164,8 +173,10 @@ const ItemLayout = ({
           </button>
         </div>
         <div
+          aria-labelledby={`${subMenuId}-button`}
           className={cx(classes.subMenu, { [classes.subMenuOpen]: toggled })}
-          data-testid={`${testId}-sub-menu`}
+          id={`${subMenuId}-menu`}
+          role="menu"
         >
           {renderSubMenu({ closeSubMenu: () => setToggled(false) })}
         </div>

@@ -8,7 +8,6 @@ import StatusCounter from './StatusCounter';
 const useStyles = makeStyles()((theme) => ({
   container: {
     display: 'inline-block',
-    lineHeight: 1,
     listStyle: 'none',
     margin: 0,
     padding: 0,
@@ -18,6 +17,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   item: {
     display: 'inline-block',
+    margin: 0,
+    padding: 0,
     paddingRight: theme.spacing(0.25)
   },
   link: {
@@ -61,7 +62,6 @@ export default ({ counters }: CounterProps): JSX.Element => {
               <Link
                 aria-label={ariaLabel}
                 className={classes.link}
-                key={to}
                 to={to}
                 onClick={onClick}
               >

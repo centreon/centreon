@@ -75,8 +75,13 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
           countTestId,
           to
         }) => (
-          <li className={classes.submenuItem} key={to}>
-            <Link className={classes.link} to={to} onClick={onClick}>
+          <li className={classes.submenuItem} key={to} role="none">
+            <Link
+              className={classes.link}
+              role="menuitem"
+              to={to}
+              onClick={onClick}
+            >
               <span className={classes.status}>
                 <span
                   className={classes.statusCounter}

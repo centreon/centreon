@@ -40,7 +40,6 @@ const ServiceStatusCounter = (): JSX.Element | null => {
           <ResourceSubMenu items={data.items} />
         )}
         showPendingBadge={data.hasPending}
-        testId="Services"
         title="Services"
       />
     )

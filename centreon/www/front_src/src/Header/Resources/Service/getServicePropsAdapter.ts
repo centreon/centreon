@@ -20,6 +20,13 @@ import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
 import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { ServiceStatusResponse } from '../../api/decoders';
 
+import {
+  criticalStatusServices,
+  warningStatusServices,
+  unknownStatusServices,
+  okStatusServices
+} from './translatedLabels';
+
 type ChangeFilterAndNavigate = (
   link: string,
   criterias: Array<Criteria>
@@ -140,7 +147,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       ),
       severityCode: SeverityCode.High,
       shortCount: data.critical.unhandled,
-      to: unhandledCriticalServicesLink
+      to: unhandledCriticalServicesLink,
+      topCounterAriaLabel: t(criticalStatusServices)
     },
     ok: {
       count: numeral(data.ok).format('0a'),
@@ -148,7 +156,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       onClick: changeFilterAndNavigate(okServicesLink, okServicesCriterias),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
-      to: okServicesLink
+      to: okServicesLink,
+      topCounterAriaLabel: t(okStatusServices)
     },
     pending: {
       count: numeral(data.pending).format('0a'),
@@ -157,7 +166,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         pendingServicesLink,
         pendingServicesCriterias
       ),
-      serverityCode: SeverityCode.Pending,
+      severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingServicesLink
     },
@@ -170,7 +179,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       ),
       severityCode: SeverityCode.Low,
       shortCount: data.unknown.unhandled,
-      to: unhandledUnknownServicesLink
+      to: unhandledUnknownServicesLink,
+      topCounterAriaLabel: t(unknownStatusServices)
     },
     warning: {
       count: formatCount(data.warning.unhandled, data.warning.total),
@@ -181,17 +191,18 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       ),
       severityCode: SeverityCode.Medium,
       shortCount: data.warning.unhandled,
-      to: unhandledWarningServicesLink
+      to: unhandledWarningServicesLink,
+      topCounterAriaLabel: t(warningStatusServices)
     }
   };
 
   return {
     counters: ['critical', 'warning', 'unknown', 'ok'].map((statusName) => {
-      const { to, shortCount, label, onClick, severityCode } =
+      const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
         config[statusName];
 
       return {
-        ariaLabel: label,
+        ariaLabel: topCounterAriaLabel,
         count: shortCount,
         onClick,
         severityCode,
@@ -199,7 +210,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       };
     }),
     hasPending: config.pending.count > 0,
-    items: ['all', 'critical', 'warning', 'unknown', 'ok', 'pending'].map(
+    items: ['critical', 'warning', 'unknown', 'ok', 'pending', 'all'].map(
       (status) => {
         const { onClick, severityCode, count, label, to } = config[status];
 

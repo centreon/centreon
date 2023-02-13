@@ -1,4 +1,6 @@
 import { initialize } from './Header.testUtils';
+import HeaderServicesSpecs from './Header.Services';
+import HeaderHostsSpecs from './Header.Hosts';
 import HeaderUserMenu from './Header.UserMenu';
 
 describe('Header', () => {
@@ -16,5 +18,7 @@ describe('Header', () => {
     cy.matchImageSnapshot();
   });
 
+  HeaderServicesSpecs();
+  HeaderHostsSpecs();
   HeaderUserMenu();
 });

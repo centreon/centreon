@@ -19,6 +19,12 @@ import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
 import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { HostStatusResponse } from '../../api/decoders';
 
+import {
+  downStatusHosts,
+  unreachableStatusHosts,
+  upStatusHosts
+} from './translatedLabels.ts';
+
 type ChangeFilterAndNavigate = (
   link: string,
   criterias: Array<Criteria>
@@ -124,13 +130,14 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       ),
       severityCode: SeverityCode.High,
       shortCount: data.down.unhandled,
-      to: unhandledDownHostsLink
+      to: unhandledDownHostsLink,
+      topCounterAriaLabel: t(downStatusHosts)
     },
     pending: {
       count: numeral(data.pending).format('0a'),
       label: t('Pending'),
       onClick: changeFilterAndNavigate(pendingHostsLink, pendingHostsCriterias),
-      serverityCode: SeverityCode.Pending,
+      severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingHostsLink
     },
@@ -143,7 +150,8 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       ),
       severityCode: SeverityCode.Medium,
       shortCount: data.unreachable.unhandled,
-      to: unhandledUnreachableHostsLink
+      to: unhandledUnreachableHostsLink,
+      topCounterAriaLabel: t(unreachableStatusHosts)
     },
     up: {
       count: numeral(data.ok).format('0a'),
@@ -151,17 +159,18 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       onClick: changeFilterAndNavigate(upHostsLink, upHostsCriterias),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
-      to: upHostsLink
+      to: upHostsLink,
+      topCounterAriaLabel: t(upStatusHosts)
     }
   };
 
   return {
     counters: ['down', 'unreachable', 'up'].map((statusName) => {
-      const { to, shortCount, label, onClick, severityCode } =
+      const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
         config[statusName];
 
       return {
-        ariaLabel: label,
+        ariaLabel: topCounterAriaLabel,
         count: shortCount,
         onClick,
         severityCode,
@@ -169,7 +178,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       };
     }),
     hasPending: config.pending.count > 0,
-    items: ['all', 'down', 'unreachable', 'up', 'pending'].map((status) => {
+    items: ['down', 'unreachable', 'up', 'pending', 'all'].map((status) => {
       const { onClick, severityCode, count, label, to } = config[status];
 
       return {
