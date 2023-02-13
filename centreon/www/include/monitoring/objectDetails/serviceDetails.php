@@ -233,8 +233,8 @@ if (!is_null($host_id)) {
             " i.name as instance_name " .
             " FROM services s, hosts h, instances i " .
             " WHERE h.host_id = s.host_id " .
-            " AND h.host_id LIKE :hostId " .
-            " AND s.service_id LIKE :serviceId " .
+            " AND h.host_id = :hostId " .
+            " AND s.service_id = :serviceId " .
             " AND h.instance_id = i.instance_id" .
             " AND h.enabled = 1 " .
             " AND s.enabled = 1 ";
