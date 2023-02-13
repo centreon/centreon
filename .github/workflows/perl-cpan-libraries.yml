@@ -30,10 +30,8 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el8, el9, bullseye]
-        package_extension: [rpm, deb]
         name: [
           'boolean',
           'Carp::Assert',
@@ -104,7 +102,7 @@ jobs:
             dependencies: 'zeromq'
           - name: 'Libssh::Session'
             dependencies: 'libssh'
-    name: package ${{ matrix.package_extension }} ${{ matrix.name }}
+    name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
@@ -184,12 +182,17 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: packages-${{ matrix.package_extension }}
+          name: packages-${{ matrix.package_extension }}-${{ matrix.distrib }}
           path: ./*.${{ matrix.package_extension }}
 
   sign-rpm:
     needs: [package]
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [el8, el9]
+    name: sign rpm ${{ matrix.distrib }}
     container:
       image: centreon.jfrog.io/docker/rpm-signing:ubuntu
       options: -t
@@ -205,7 +208,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: packages-rpm
+          name: packages-rpm-${{ matrix.distrib }}
           path: ./
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
@@ -217,7 +220,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
-          key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   download-and-cache-deb:
     needs: [package]
@@ -284,5 +287,5 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bullseye
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
