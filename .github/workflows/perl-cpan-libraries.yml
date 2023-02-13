@@ -32,6 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        distrib: [el8, el9, bullseye]
         package_extension: [rpm, deb]
         name: [
           'boolean',
@@ -88,9 +89,14 @@ jobs:
         include:
           - dependencies: ''
           - version: ''
-          - package_extension: rpm
+          - distrib: el8
+            package_extension: rpm
+            image: packaging-alma8
+          - distrib: el9
+            package_extension: rpm
             image: packaging-alma9
-          - package_extension: deb
+          - distrib: bullseye
+            package_extension: deb
             image: packaging-bullseye
           - name: 'JSON::Path'
             version: '1.0.3'
@@ -133,7 +139,7 @@ jobs:
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
@@ -160,7 +166,7 @@ jobs:
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
@@ -174,7 +180,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ matrix.package_extension }}
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -250,7 +256,7 @@ jobs:
           release: ${{ needs.get-version.outputs.release }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
@@ -278,5 +284,5 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bullseye
           stability: ${{ needs.get-version.outputs.stability }}
