@@ -63,6 +63,7 @@ jobs:
           release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username}}
           nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
