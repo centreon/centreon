@@ -3,7 +3,6 @@ export const getDOMRangeRect = (
   rootElement: HTMLElement
 ): DOMRect => {
   const domRange = nativeSelection.getRangeAt(0);
-
   if (nativeSelection.anchorNode === rootElement) {
     let inner = rootElement;
     while (inner.firstElementChild != null) {

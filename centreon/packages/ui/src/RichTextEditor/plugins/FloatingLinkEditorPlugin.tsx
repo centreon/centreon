@@ -9,25 +9,42 @@ import {
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import { useAtomValue } from 'jotai';
+import { $isLinkNode } from '@lexical/link';
 
-import { Paper, Popper, Typography } from '@mui/material';
+import { Paper, Popper, TextField, Popover, IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { getDOMRangeRect } from '../utils/getDOMRangeRect';
 import { isInsertingLinkAtom } from '../atoms';
+import InputField from '../../InputField/Text';
+import { labelInputLink } from '../translatedLabels';
 
 interface FloatingActionsToolbarPluginProps {
   anchorElem: HTMLElement;
 }
 
-interface ToolbarProps extends FloatingActionsToolbarPluginProps {
+interface FloatingTextFormatToolbarProps
+  extends FloatingActionsToolbarPluginProps {
   editor: LexicalEditor;
 }
 
-const Toolbar = ({ anchorElem, editor }: ToolbarProps): JSX.Element => {
+interface ToolbarProps extends FloatingActionsToolbarPluginProps {
+  editor: LexicalEditor;
+  linkUrl: string;
+  setLinkUrl: (url: string) => void;
+}
+
+const Toolbar = ({
+  anchorElem,
+  editor,
+  linkUrl,
+  setLinkUrl
+}: ToolbarProps): JSX.Element => {
   const [xOffset, setXOffset] = useState(0);
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     if (nativeSelection === null || rootElement === null) {
@@ -35,15 +52,35 @@ const Toolbar = ({ anchorElem, editor }: ToolbarProps): JSX.Element => {
     }
 
     const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
-
+    console.log('selection', nativeSelection);
     setXOffset(rangeRect.x);
   }, [nativeSelection, rootElement]);
+  console.log('offset', xOffset);
 
   return (
-    <Popper anchorEl={anchorElem} open={xOffset !== 0} placement="bottom-start">
-      <Paper sx={{ marginLeft: `calc(${xOffset}px - 8px)` }}>
-        <Typography>heyyyyyyyy</Typography>
-      </Paper>
+    <Popper
+      anchorEl={anchorElem}
+      // anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+      open={xOffset !== 0}
+    >
+      <TextField
+        InputProps={{
+          disableUnderline: true
+        }}
+        defaultValue={linkUrl}
+        id="insert-link"
+        variant="standard"
+        // label={labelInputLink}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+          setLinkUrl(event.target.value);
+        }}
+      />
+      <IconButton
+        aria-label="delete"
+        onClick={(): void => setEditMode(!editMode)}
+      >
+        <EditIcon />
+      </IconButton>
     </Popper>
   );
 };
@@ -51,9 +88,9 @@ const Toolbar = ({ anchorElem, editor }: ToolbarProps): JSX.Element => {
 const useFloatingTextFormatToolbar = ({
   editor,
   anchorElem
-}: ToolbarProps): JSX.Element | null => {
+}: FloatingTextFormatToolbarProps): JSX.Element | null => {
   const [isText, setIsText] = useState(false);
-
+  const [linkUrl, setLinkUrl] = useState('');
   const isInsertingLink = useAtomValue(isInsertingLinkAtom);
 
   const updatePopup = useCallback(() => {
@@ -81,6 +118,14 @@ const useFloatingTextFormatToolbar = ({
       }
 
       const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      if ($isLinkNode(parent)) {
+        setLinkUrl(parent.getURL());
+      } else if ($isLinkNode(node)) {
+        setLinkUrl(node.getURL());
+      } else {
+        setLinkUrl('');
+      }
 
       if (selection.getTextContent() !== '') {
         setIsText($isTextNode(node));
@@ -111,11 +156,18 @@ const useFloatingTextFormatToolbar = ({
     );
   }, [editor, updatePopup]);
 
-  if (!isText) {
+  if (!isText || !isInsertingLink) {
     return null;
   }
 
-  return <Toolbar anchorElem={anchorElem} editor={editor} />;
+  return (
+    <Toolbar
+      anchorElem={anchorElem}
+      editor={editor}
+      linkUrl={linkUrl}
+      setLinkUrl={setLinkUrl}
+    />
+  );
 };
 
 const FloatingActionsToolbarPlugin = ({

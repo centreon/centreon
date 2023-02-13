@@ -16,6 +16,7 @@ import {
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
+import { useAtom } from 'jotai';
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -25,6 +26,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import { alpha } from '@mui/material';
 
 import { IconButton } from '../../..';
+import { isInsertingLinkAtom } from '../../atoms';
 
 const LowPriority = 1;
 
@@ -69,7 +71,7 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikeThrough, setIsStrikeThrough] = useState(false);
-  const [isLink, setIsLink] = useState(false);
+  const [isLink, setIsLink] = useAtom(isInsertingLinkAtom);
 
   const [editor] = useLexicalComposerContext();
 
