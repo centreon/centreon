@@ -229,13 +229,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: packages-deb-${{ matrix.distrib }}
+          name: packages-deb-bullseye
           path: ./
 
       - uses: actions/cache@v3
         with:
           path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-bullseye
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
