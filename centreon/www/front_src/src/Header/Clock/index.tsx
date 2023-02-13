@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { logDOM } from '@testing-library/react';
 
 import { Typography } from '@mui/material';
 

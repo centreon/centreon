@@ -1,6 +1,8 @@
 import { JsonDecoder } from 'ts.data.json';
 import type { FromDecoder } from 'ts.data.json';
 
+import type { PollersIssuesList, Alert, AlertDetails } from './models';
+
 const counterDecoder = JsonDecoder.object(
   {
     total: JsonDecoder.string,
@@ -39,25 +41,49 @@ export const hostStatusDecoder = JsonDecoder.object(
 );
 
 export type HostStatusResponse = FromDecoder<typeof hostStatusDecoder>;
-
-const issueDecoder = JsonDecoder.object(
+const AlertDetailPollerJsonDecoder = JsonDecoder.object<AlertDetails['poller']>(
   {
-    critical: JsonDecoder.number,
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    since: JsonDecoder.oneOf<string | number>(
+      [JsonDecoder.string, JsonDecoder.number],
+      'string | number'
+    )
+  },
+  'alert detail poller'
+);
+
+const AlertDetailDecoder = JsonDecoder.object<AlertDetails>(
+  {
+    poller: AlertDetailPollerJsonDecoder,
+    total: JsonDecoder.number
+  },
+  'alert detail'
+);
+
+const issueDecoder = JsonDecoder.object<Alert>(
+  {
+    critical: JsonDecoder.optional(AlertDetailDecoder),
     total: JsonDecoder.number,
-    warning: JsonDecoder.number
+    warning: JsonDecoder.optional(AlertDetailDecoder)
   },
   'issue'
 );
 
-export const pollerIssuesDecoder = JsonDecoder.object(
+const issuesDecoder = JsonDecoder.object(
   {
     database: JsonDecoder.optional(issueDecoder),
     latency: JsonDecoder.optional(issueDecoder),
+    stability: JsonDecoder.optional(issueDecoder)
+  },
+  'issues'
+);
+
+export const pollerIssuesDecoder = JsonDecoder.object<PollersIssuesList>(
+  {
+    issues: issuesDecoder,
     refreshTime: JsonDecoder.number,
-    stability: JsonDecoder.optional(issueDecoder),
     total: JsonDecoder.number
   },
   'poller issues'
 );
-
-export type PollerIssuesResponse = FromDecoder<typeof pollerIssuesDecoder>;

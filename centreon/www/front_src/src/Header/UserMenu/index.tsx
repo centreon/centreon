@@ -44,9 +44,9 @@ import {
   selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom
 } from '../../Navigation/Sidebar/sideBarAtoms';
+import { userEndpoint } from '../api/endpoints';
 
 import SwitchMode from './SwitchThemeMode';
-import { userEndpoint } from './api/endpoint';
 import {
   labelCopyAutologinLink,
   labelEditProfile,

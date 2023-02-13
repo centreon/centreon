@@ -1,4 +1,5 @@
 import { initialize } from './Header.testUtils';
+import HeaderUserMenu from './Header.UserMenu';
 
 describe('Header', () => {
   it('should renders all top menus items', () => {
@@ -14,4 +15,6 @@ describe('Header', () => {
     cy.viewport(599, 300);
     cy.matchImageSnapshot();
   });
+
+  HeaderUserMenu();
 });
