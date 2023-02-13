@@ -7,18 +7,23 @@ import { MenuSkeleton } from '@centreon/ui';
 import ItemLayout from '../../sharedUI/ItemLayout';
 import ResourceCounters from '../../sharedUI/ResourceCounters';
 import ResourceSubMenu from '../../sharedUI/ResourceSubMenu';
-import useResourcesCounters from '../useResourcesDatas';
+import useResourceCounters from '../useResourceCounters';
 import { serviceStatusDecoder } from '../../api/decoders';
+import type { ServiceStatusResponse } from '../../api/decoders';
 import { serviceStatusEndpoint } from '../../api/endpoints';
 
-import getvicePropsAdapter from './getServicePropsAdapter';
+import type { ServicesPropsAdapterOutput } from './getServicePropsAdapter';
+import getServicePropsAdapter from './getServicePropsAdapter';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
-  const { isLoading, data, isAllowed } = useResourcesCounters({
-    adapter: getvicePropsAdapter,
+  const { isLoading, data, isAllowed } = useResourceCounters<
+    ServiceStatusResponse,
+    ServicesPropsAdapterOutput
+  >({
+    adapter: getServicePropsAdapter,
+    decoder: serviceStatusDecoder,
     endPoint: serviceStatusEndpoint,
-    queryName: 'services-counters',
-    schema: serviceStatusDecoder
+    queryName: 'services-counters'
   });
 
   if (!isAllowed) {

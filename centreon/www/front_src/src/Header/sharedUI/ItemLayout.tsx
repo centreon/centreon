@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Badge, ClickAwayListener } from '@mui/material';
+import type { SvgIcon } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -96,7 +97,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface ItemLayoutProps {
-  Icon: JSX.Element;
+  Icon: typeof SvgIcon;
   renderIndicators: () => JSX.Element;
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
   showPendingBadge: boolean;

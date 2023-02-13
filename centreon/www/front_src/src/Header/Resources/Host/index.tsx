@@ -7,14 +7,19 @@ import { MenuSkeleton } from '@centreon/ui';
 import ItemLayout from '../../sharedUI/ItemLayout';
 import ResourceCounters from '../../sharedUI/ResourceCounters';
 import ResourceSubMenu from '../../sharedUI/ResourceSubMenu';
-import useResourcesCounters from '../useResourcesDatas';
+import useResourceCounters from '../useResourceCounters';
 import { hostStatusEndpoint } from '../../api/endpoints';
 import { hostStatusDecoder } from '../../api/decoders';
+import type { HostStatusResponse } from '../../api/decoders';
 
 import getHostPropsAdapter from './getHostPropsAdapter';
+import type { HostPropsAdapterOutput } from './getHostPropsAdapter';
 
 const HostStatusCounter = (): JSX.Element | null => {
-  const { isLoading, data, isAllowed } = useResourcesCounters({
+  const { isLoading, data, isAllowed } = useResourceCounters<
+    HostStatusResponse,
+    HostPropsAdapterOutput
+  >({
     adapter: getHostPropsAdapter,
     decoder: hostStatusDecoder,
     endPoint: hostStatusEndpoint,
@@ -40,7 +45,6 @@ const HostStatusCounter = (): JSX.Element | null => {
           <ResourceSubMenu items={data.items} />
         )}
         showPendingBadge={data.hasPending}
-        testId="Hosts"
         title="Hosts"
       />
     )

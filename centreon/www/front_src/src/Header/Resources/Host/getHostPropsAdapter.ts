@@ -13,7 +13,7 @@ import {
   hostCriterias
 } from '../getResourcesUrl';
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
-import type { Adapter } from '../useResourcesDatas';
+import type { Adapter } from '../useResourceCounters';
 import type { Criteria } from '../../../Resources/Filter/Criterias/models';
 import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
 import type { CounterProps } from '../../sharedUI/ResourceCounters';
@@ -22,22 +22,26 @@ import type { HostStatusResponse } from '../../api/decoders';
 import {
   downStatusHosts,
   unreachableStatusHosts,
-  upStatusHosts
-} from './translatedLabels.ts';
+  upStatusHosts,
+  allLabel,
+  downLabel,
+  pendingLabel,
+  unreachableLabel,
+  upLabel
+} from './translatedLabels';
 
 type ChangeFilterAndNavigate = (
   link: string,
   criterias: Array<Criteria>
 ) => (e: React.MouseEvent<HTMLLinkElement>) => void;
 
-type GetHostPropsAdapter = Adapter<
-  HostStatusResponse,
-  {
-    counters: CounterProps['counters'];
-    hasPending: boolean;
-    items: SubMenuProps['items'];
-  }
->;
+export interface HostPropsAdapterOutput {
+  counters: CounterProps['counters'];
+  hasPending: boolean;
+  items: SubMenuProps['items'];
+}
+
+type GetHostPropsAdapter = Adapter<HostStatusResponse, HostPropsAdapterOutput>;
 
 const formatCount = (
   unhandled: number | string,
@@ -58,6 +62,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       if (!useDeprecatedPages) {
         applyFilter({ criterias, id: '', name: 'New Filter' });
       }
+
       navigate(link);
     };
 
@@ -115,7 +120,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
   const config = {
     all: {
       count: numeral(data.total).format('0a'),
-      label: t('All'),
+      label: t(allLabel),
       onClick: changeFilterAndNavigate(hostsLink, hostsCriterias),
       serverityCode: null,
       shortCount: data.total,
@@ -123,7 +128,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
     },
     down: {
       count: formatCount(data.down.unhandled, data.down.total),
-      label: t('Down'),
+      label: t(downLabel),
       onClick: changeFilterAndNavigate(
         unhandledDownHostsLink,
         unhandledDownHostsCriterias
@@ -135,7 +140,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
     },
     pending: {
       count: numeral(data.pending).format('0a'),
-      label: t('Pending'),
+      label: t(pendingLabel),
       onClick: changeFilterAndNavigate(pendingHostsLink, pendingHostsCriterias),
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
@@ -143,7 +148,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
     },
     unreachable: {
       count: formatCount(data.unreachable.unhandled, data.unreachable.total),
-      label: t('Unreachable'),
+      label: t(unreachableLabel),
       onClick: changeFilterAndNavigate(
         unhandledUnreachableHostsLink,
         unhandledUnreachableHostsCriterias
@@ -155,7 +160,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
     },
     up: {
       count: numeral(data.ok).format('0a'),
-      label: t('Up'),
+      label: t(upLabel),
       onClick: changeFilterAndNavigate(upHostsLink, upHostsCriterias),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
@@ -177,7 +182,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
         to
       };
     }),
-    hasPending: config.pending.count > 0,
+    hasPending: Number(data.pending) > 0,
     items: ['down', 'unreachable', 'up', 'pending', 'all'].map((status) => {
       const { onClick, severityCode, count, label, to } = config[status];
 

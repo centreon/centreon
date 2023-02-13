@@ -22,15 +22,6 @@ const useStyles = makeStyles()((theme) => ({
     margin: 0,
     padding: theme.spacing(1)
   },
-  pollarHeaderRight: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    [theme.breakpoints.down(768)]: {
-      flexDirection: 'row',
-      gap: theme.spacing(0.5)
-    }
-  },
   pollerDetailRow: {
     display: 'flex',
     justifyContent: 'space-between'

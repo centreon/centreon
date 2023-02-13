@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 import { isNil, equals } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { NavigateFunction } from 'react-router-dom';
@@ -24,37 +24,35 @@ interface AdapterProps<Input> {
 
 export type Adapter<Input, OutPut> = (params: AdapterProps<Input>) => OutPut;
 
-interface UseRessourcesCountersProps<Input, OutPut> {
+interface UseRessourceCountersProps<Input, OutPut> {
   adapter: Adapter<Input, OutPut>;
   decoder: JsonDecoder.Decoder<Input>;
   endPoint: string;
   queryName: string;
 }
 
-interface UseRessourcesCountersOutput<OutPut> {
-  data: OutPut;
-  error: unknown;
+interface UseRessourceCountersOutput<OutPut> {
+  data: OutPut | null;
   isAllowed: boolean;
   isLoading: boolean;
 }
 
-type UseRessourcesCounters = <Input extends Record<string, unknown>, OutPut>(
-  params: UseRessourcesCountersProps<Input, OutPut>
-) => UseRessourcesCountersOutput<OutPut>;
+type UseRessourceCounters = <Input extends Record<string, unknown>, OutPut>(
+  params: UseRessourceCountersProps<Input, OutPut>
+) => UseRessourceCountersOutput<OutPut>;
 
-const useResourcesCounters: UseRessourcesCounters = ({
+const useResourceCounters: UseRessourceCounters = ({
   endPoint,
   adapter,
   queryName,
   decoder
 }) => {
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const refetchInterval = useAtomValue(refreshIntervalAtom);
-  const { use_deprecated_pages } = useAtomValue(userAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isAllowed, setIsAllowed] = useState<boolean>(true);
-  const [datas, setDatas] = useState(null);
+  const refetchInterval = useAtomValue(refreshIntervalAtom);
+  const { use_deprecated_pages } = useAtomValue(userAtom);
 
   const { isLoading, data } = useFetchQuery({
     catchError: ({ statusCode }): void => {
@@ -70,24 +68,22 @@ const useResourcesCounters: UseRessourcesCounters = ({
     }
   });
 
-  useEffect(() => {
-    if (!isNil(data)) {
-      setDatas(
-        adapter({
-          applyFilter,
-          data,
-          navigate,
-          t,
-          useDeprecatedPages: use_deprecated_pages
-        })
-      );
-    }
-  }, [data]);
-
   return useMemo(
-    () => ({ data: datas, isAllowed, isLoading }),
-    [isLoading, datas]
+    () => ({
+      data: !isNil(data)
+        ? adapter({
+            applyFilter,
+            data,
+            navigate,
+            t,
+            useDeprecatedPages: use_deprecated_pages
+          })
+        : null,
+      isAllowed,
+      isLoading
+    }),
+    [isLoading, data]
   );
 };
 
-export default useResourcesCounters;
+export default useResourceCounters;

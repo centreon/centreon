@@ -1,6 +1,6 @@
 import { initialize } from './Header.testUtils';
 
-export default () =>
+export default (): void =>
   describe('User Menu', () => {
     beforeEach(() => {
       cy.intercept('PATCH', 'parameters', {

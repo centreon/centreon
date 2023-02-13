@@ -42,16 +42,15 @@ const StatusCounter = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
 
-  const formatedCount =
+  const formattedCount =
     Number(count) >= 1000 ? numeral(count).format('0.0a') : count.toString();
 
   return Number(count) >= 1000 ? (
     <Tooltip followCursor title={count}>
       <Badge
-        badgeContent={formatedCount}
+        badgeContent={formattedCount}
         classes={{
-          badge: cx(classes.badge, className),
-          root: classes.badgeRoot
+          badge: cx(classes.badge, className)
         }}
         max={Infinity}
         overlap="circular"
@@ -59,10 +58,9 @@ const StatusCounter = ({
     </Tooltip>
   ) : (
     <Badge
-      badgeContent={formatedCount}
+      badgeContent={formattedCount}
       classes={{
-        badge: cx(classes.badge, className),
-        root: classes.badgeRoot
+        badge: cx(classes.badge, className)
       }}
       max={Infinity}
       overlap="circular"

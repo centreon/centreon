@@ -95,7 +95,6 @@ const PollerStatusIcon = ({
         role="status"
       >
         <p className={classes.visuallyHiddenText}>{database.label}</p>
-
         <StorageIcon className={classes.icon} />
       </Avatar>
       <Avatar

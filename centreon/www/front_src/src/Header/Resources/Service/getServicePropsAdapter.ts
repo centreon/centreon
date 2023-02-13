@@ -14,7 +14,7 @@ import {
   serviceCriteria
 } from '../getResourcesUrl';
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
-import type { Adapter } from '../useResourcesDatas';
+import type { Adapter } from '../useResourceCounters';
 import type { Criteria } from '../../../Resources/Filter/Criterias/models';
 import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
 import type { CounterProps } from '../../sharedUI/ResourceCounters';
@@ -24,7 +24,13 @@ import {
   criticalStatusServices,
   warningStatusServices,
   unknownStatusServices,
-  okStatusServices
+  okStatusServices,
+  allLabel,
+  criticalLabel,
+  warningLabel,
+  pendingLabel,
+  unknownLabel,
+  okLabel
 } from './translatedLabels';
 
 type ChangeFilterAndNavigate = (
@@ -32,13 +38,15 @@ type ChangeFilterAndNavigate = (
   criterias: Array<Criteria>
 ) => (e: React.MouseEvent<HTMLLinkElement>) => void;
 
+export interface ServicesPropsAdapterOutput {
+  counters: CounterProps['counters'];
+  hasPending: boolean;
+  items: SubMenuProps['items'];
+}
+
 type GetServicePropsAdapter = Adapter<
   ServiceStatusResponse,
-  {
-    counters: CounterProps['counters'];
-    hasPending: boolean;
-    items: SubMenuProps['items'];
-  }
+  ServicesPropsAdapterOutput
 >;
 
 const formatCount = (
@@ -133,14 +141,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   const config = {
     all: {
       count: numeral(data.total).format('0a'),
-      label: t('All'),
+      label: t(allLabel),
       onClick: changeFilterAndNavigate(servicesLink, servicesCriterias),
       shortCount: data.total,
       to: servicesLink
     },
     critical: {
       count: formatCount(data.critical.unhandled, data.critical.total),
-      label: t('Critical'),
+      label: t(criticalLabel),
       onClick: changeFilterAndNavigate(
         unhandledCriticalServicesLink,
         unhandledCriticalServicesCriterias
@@ -152,7 +160,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     },
     ok: {
       count: numeral(data.ok).format('0a'),
-      label: t('Ok'),
+      label: t(okLabel),
       onClick: changeFilterAndNavigate(okServicesLink, okServicesCriterias),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
@@ -161,7 +169,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     },
     pending: {
       count: numeral(data.pending).format('0a'),
-      label: t('Pending'),
+      label: t(pendingLabel),
       onClick: changeFilterAndNavigate(
         pendingServicesLink,
         pendingServicesCriterias
@@ -172,7 +180,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     },
     unknown: {
       count: formatCount(data.unknown.unhandled, data.unknown.total),
-      label: t('Unknown'),
+      label: t(unknownLabel),
       onClick: changeFilterAndNavigate(
         unhandledUnknownServicesLink,
         unhandledUnknownServicesCriterias
@@ -184,7 +192,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     },
     warning: {
       count: formatCount(data.warning.unhandled, data.warning.total),
-      label: t('Warning'),
+      label: t(warningLabel),
       onClick: changeFilterAndNavigate(
         unhandledWarningServicesLink,
         unhandledWarningServicesCriterias
@@ -209,7 +217,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         to
       };
     }),
-    hasPending: config.pending.count > 0,
+    hasPending: Number(data.pending) > 0,
     items: ['critical', 'warning', 'unknown', 'ok', 'pending', 'all'].map(
       (status) => {
         const { onClick, severityCode, count, label, to } = config[status];

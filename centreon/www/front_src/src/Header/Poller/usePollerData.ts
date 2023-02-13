@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
 
@@ -15,21 +15,20 @@ import { pollerIssuesDecoder } from '../api/decoders';
 import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
 
-interface UsePollerDatasResust {
-  data: GetPollerPropsAdapterResult;
+interface UsePollerDataResult {
+  data: GetPollerPropsAdapterResult | null;
   error: unknown;
   isAllowed: boolean;
   isLoading: boolean;
 }
 
-export const usePollerDatas = (): UsePollerDatasResust => {
+export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { allowedPages } = useNavigation();
+  const [isAllowed, setIsAllowed] = useState<boolean>(true);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
   const refetchInterval = useAtomValue(refreshIntervalAtom);
-  const [datas, setDatas] = useState(null);
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
 
   const { isLoading, data } = useFetchQuery({
     catchError: ({ statusCode }): void => {
@@ -45,24 +44,22 @@ export const usePollerDatas = (): UsePollerDatasResust => {
     }
   });
 
-  useEffect(() => {
-    if (!isNil(data)) {
-      setDatas(
-        getPollerPropsAdapter({
-          allowedPages,
-          data,
-          isExportButtonEnabled,
-          navigate,
-          t
-        })
-      );
-    }
-  }, [data]);
-
   return useMemo(
-    () => ({ data: datas, isAllowed, isLoading }),
-    [isLoading, datas]
+    () => ({
+      data: !isNil(data)
+        ? getPollerPropsAdapter({
+            allowedPages,
+            data,
+            isExportButtonEnabled,
+            navigate,
+            t
+          })
+        : null,
+      isAllowed,
+      isLoading
+    }),
+    [isLoading, data]
   );
 };
 
-export default usePollerDatas;
+export default usePollerData;

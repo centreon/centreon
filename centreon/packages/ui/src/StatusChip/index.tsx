@@ -1,13 +1,13 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
-import { equals } from "ramda";
-import { makeStyles } from "tss-react/mui";
+import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Chip, ChipProps } from "@mui/material";
-import useStyleTable from "../Listing/useStyleTable";
-import { TableStyleAtom } from "../Listing/models";
-import { getStatusColors } from "../utils/statuses";
-import type { SeverityCode } from "../utils/statuses";
+import { Chip, ChipProps } from '@mui/material';
+
+import useStyleTable from '../Listing/useStyleTable';
+import { TableStyleAtom } from '../Listing/models';
+import { getStatusColors, SeverityCode } from '../utils/statuses';
 
 export type Props = {
   clickable?: boolean;
@@ -17,28 +17,28 @@ export type Props = {
 } & ChipProps;
 
 interface StylesProps {
-  data: TableStyleAtom["statusColumnChip"];
+  data: TableStyleAtom['statusColumnChip'];
   severityCode: SeverityCode;
 }
 
 const useStyles = makeStyles<StylesProps>()(
   (theme, { severityCode, data }) => ({
     chip: {
-      "&:hover": { ...getStatusColors({ severityCode, theme }) },
+      '&:hover': { ...getStatusColors({ severityCode, theme }) },
       ...getStatusColors({ severityCode, theme }),
-      "& .MuiChip-label": {
-        alignItems: "center",
-        display: "flex",
-        height: "100%",
-        padding: 0,
-      },
+      '& .MuiChip-label': {
+        alignItems: 'center',
+        display: 'flex',
+        height: '100%',
+        padding: 0
+      }
     },
     statusColumnContainer: {
-      fontWeight: "bold",
+      fontWeight: 'bold',
       height: data.height,
       marginLeft: 1,
-      minWidth: theme.spacing((data.width - 1) / 8),
-    },
+      minWidth: theme.spacing((data.width - 1) / 8)
+    }
   })
 );
 
@@ -53,7 +53,7 @@ const StatusChip = ({
   const { dataStyle } = useStyleTable({});
   const { classes, cx } = useStyles({
     data: dataStyle.statusColumnChip,
-    severityCode,
+    severityCode
   });
 
   const lowerLabel = (name: string): string =>
@@ -62,11 +62,11 @@ const StatusChip = ({
   return (
     <Chip
       className={cx(classes.chip, className, {
-        [classes.statusColumnContainer]: statusColumn,
+        [classes.statusColumnContainer]: statusColumn
       })}
       clickable={clickable}
       label={
-        equals(typeof label, "string") ? lowerLabel(label as string) : label
+        equals(typeof label, 'string') ? lowerLabel(label as string) : label
       }
       {...rest}
     />

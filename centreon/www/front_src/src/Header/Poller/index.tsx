@@ -8,10 +8,10 @@ import ItemLayout from '../sharedUI/ItemLayout';
 
 import PollerStatusIcon from './PollerStatusIcon';
 import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';
-import { usePollerDatas } from './usePollerDatas';
+import { usePollerData } from './usePollerData';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
-  const { isLoading, data, isAllowed } = usePollerDatas();
+  const { isLoading, data, isAllowed } = usePollerData();
 
   if (!isAllowed) {
     return null;

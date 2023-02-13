@@ -15,9 +15,7 @@ import type { PollersIssuesList } from '../api/models';
 import { retrievedNavigation } from '../../Navigation/mocks';
 import type Navigation from '../../Navigation/models';
 
-export type DeepPartial<Thing> = Thing extends Function
-  ? Thing
-  : Thing extends Array<infer InferredArrayMember>
+export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
   ? DeepPartialArray<InferredArrayMember>
   : Thing extends object
   ? DeepPartialObject<Thing>
@@ -131,25 +129,35 @@ export interface Stubs {
   user: typeof userStub;
 }
 
-const requestHandler = (stubs: DeepPartial<Stubs>) => (req, res, ctx) => {
-  const datas = mergeDeepRight(
-    {
-      hosts_status: hostStatusStub,
-      navigationList: retrievedNavigation,
-      pollersListIssues: pollersListIssuesStubs,
-      servicesStatus: serviceStatusStub,
-      user: userStub
-    },
-    stubs as Stubs
-  );
+type RequestHandler = (
+  req: { url: { searchParams: { get: (param: string) => string } } },
+  res: (response: string) => string,
+  ctx: { json: (object: Record<string, unknown>) => string }
+) => string | undefined;
 
-  const object = req.url.searchParams.get('object');
-  const action = req.url.searchParams.get('action');
+const requestHandler =
+  (stubs: DeepPartial<Stubs>): RequestHandler =>
+  (req, res, ctx) => {
+    const datas = mergeDeepRight(
+      {
+        hosts_status: hostStatusStub,
+        navigationList: retrievedNavigation,
+        pollersListIssues: pollersListIssuesStubs,
+        servicesStatus: serviceStatusStub,
+        user: userStub
+      },
+      stubs as Stubs
+    );
 
-  if (object === 'centreon_topcounter' || object === 'centreon_topology') {
-    return res(ctx.json(datas[action]));
-  }
-};
+    const object = req.url.searchParams.get('object');
+    const action = req.url.searchParams.get('action');
+
+    if (object === 'centreon_topcounter' || object === 'centreon_topology') {
+      return res(ctx.json(datas[action]));
+    }
+
+    return undefined;
+  };
 
 export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
   cy.interceptRequest(
@@ -162,7 +170,7 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
   cy.interceptRequest(
     Method.GET,
     'api/latest/configuration/monitoring-servers/generate-and-reload',
-    (req, res, ctx) => res(ctx.json({})),
+    (_, res, ctx) => res(ctx.json({})),
     'generateConfigAndReload'
   );
 

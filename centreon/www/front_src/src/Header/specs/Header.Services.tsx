@@ -7,7 +7,7 @@ import {
 
 import { initialize } from './Header.testUtils';
 
-const getElements = () => {
+const getElements = (): void => {
   cy.findByRole('button', { name: 'Services', timeout: 5000 }).as(
     'serviceButton'
   );
@@ -21,7 +21,7 @@ const getElements = () => {
   cy.findByRole('link', { name: warningStatusServices }).as('warningCounter');
 };
 
-const submenuShouldBeClosed = (label) => {
+const submenuShouldBeClosed = (label: string): void => {
   cy.findByRole('button', { name: label })
     .as('button')
     .should('have.attr', 'aria-expanded', 'false');
@@ -32,14 +32,14 @@ const submenuShouldBeClosed = (label) => {
   cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
 };
 
-const openSubMenu = (label) => {
+const openSubMenu = (label: string): void => {
   cy.findByRole('button', {
     name: label
   }).click();
   submenuShouldBeOpened(label);
 };
 
-const submenuShouldBeOpened = (label) => {
+const submenuShouldBeOpened = (label: string): void => {
   cy.findByRole('button', { name: label })
     .as('button')
     .should('have.attr', 'aria-expanded', 'true');
@@ -84,7 +84,7 @@ export default (): void =>
     });
 
     describe('pending indicator', () => {
-      it('should have a pending indicator if pending > 0', () => {
+      it('should have a pending indicator when the pending count is greater than 0', () => {
         const serviceStubs = {
           pending: '1'
         };
@@ -196,7 +196,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should be able to close the submenu by clicking outside, using esc key, or clicking again on the button', () => {
+      it('should close the submenu when clicking outside, using esc key, or clicking again on the button', () => {
         initialize();
         getElements();
 
@@ -216,7 +216,7 @@ export default (): void =>
         submenuShouldBeClosed('Services');
       });
 
-      it('should have all the required items links', () => {
+      it('should have all the required item links', () => {
         const serviceStubs = {
           critical: { total: '2', unhandled: '1' },
           ok: '1',

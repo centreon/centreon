@@ -6,7 +6,7 @@ import {
 
 import { initialize } from './Header.testUtils';
 
-const getElements = () => {
+const getElements = (): void => {
   cy.findByRole('button', { name: 'Hosts', timeout: 5000 }).as('serviceButton');
 
   cy.findByRole('link', { name: downStatusHosts }).as('downCounter');
@@ -18,7 +18,7 @@ const getElements = () => {
   cy.findByRole('link', { name: upStatusHosts }).as('upCounter');
 };
 
-const submenuShouldBeClosed = (label) => {
+const submenuShouldBeClosed = (label: string): void => {
   cy.findByRole('button', { name: label })
     .as('button')
     .should('have.attr', 'aria-expanded', 'false');
@@ -29,14 +29,14 @@ const submenuShouldBeClosed = (label) => {
   cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
 };
 
-const openSubMenu = (label) => {
+const openSubMenu = (label: string): void => {
   cy.findByRole('button', {
     name: label
   }).click();
   submenuShouldBeOpened(label);
 };
 
-const submenuShouldBeOpened = (label) => {
+const submenuShouldBeOpened = (label: string): void => {
   cy.findByRole('button', { name: label })
     .as('button')
     .should('have.attr', 'aria-expanded', 'true');
@@ -50,7 +50,7 @@ const submenuShouldBeOpened = (label) => {
 export default (): void =>
   describe('Hosts', () => {
     describe('responsive behaviors', () => {
-      it('should hide button text at smaller screen size', () => {
+      it('should hide button text when the screen is under 768px width', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
@@ -68,7 +68,7 @@ export default (): void =>
         });
       });
 
-      it('should hide top counters at very small size', () => {
+      it('should hide top counters when the screen is is under 600px width', () => {
         initialize();
         getElements();
 
@@ -80,7 +80,7 @@ export default (): void =>
     });
 
     describe('pending indicator', () => {
-      it('should have a pending indicator if pending > 0', () => {
+      it('should have a pending indicator when the pending count is greater than 0', () => {
         const hoststubs = {
           pending: '1'
         };
@@ -95,7 +95,7 @@ export default (): void =>
         });
       });
 
-      it('should hide the pending indicator there is no pending ressources', () => {
+      it('should hide the pending indicator when there is no pending resource', () => {
         const hoststubs = {
           pending: '0'
         };
@@ -111,9 +111,8 @@ export default (): void =>
       });
     });
 
-    describe('top status counter', () => {
-      it('should display status counter numbers with the desired format', () => {
-        // given
+    describe('Status counter', () => {
+      it('should display formatted status counter numbers', () => {
         const hoststubs = {
           down: { unhandled: '12' },
           ok: '12134',
@@ -123,13 +122,8 @@ export default (): void =>
         initialize({ hosts_status: hoststubs });
         getElements();
 
-        // 12 => 12
         cy.get('@downCounter').should('be.visible').contains('12');
-
-        // 125 => 125
         cy.get('@unreachableCounter').should('be.visible').contains('126');
-
-        // 12134 => 12.1k
         cy.get('@upCounter').should('be.visible').contains('12.1k');
 
         cy.matchImageSnapshot();
@@ -181,7 +175,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should be able to close the submenu by clicking outside, using esc key, or clicking again on the button', () => {
+      it('should close the submenu when clicking outside, using esc key, or clicking again on the button', () => {
         initialize();
         getElements();
 
@@ -201,7 +195,7 @@ export default (): void =>
         submenuShouldBeClosed('Hosts');
       });
 
-      it('should have all the required items links', () => {
+      it('should have all the required item links', () => {
         const hoststubs = {
           down: { total: '2', unhandled: '1' },
           ok: '1',

@@ -32,7 +32,7 @@ const getIssueSeverityCode = ({
   issues: PollersIssuesList['issues'];
   key: keyof PollersIssuesList['issues'];
 }): SeverityCode => {
-  if (!!issues[key]?.warning?.total && !isNil(issues[key].warning.total)) {
+  if (!!issues[key]?.warning?.total && !isNil(issues[key]?.warning?.total)) {
     return SeverityCode.Medium;
   }
 
@@ -46,7 +46,7 @@ const getIssueSeverityCode = ({
 export const pollerConfigurationPageNumber = '60901';
 
 interface GetPollerPropsAdapterProps {
-  allowedPages: Array<string>;
+  allowedPages: Array<string | Array<string>> | undefined;
   data: PollersIssuesList;
   isExportButtonEnabled: boolean;
   navigate: NavigateFunction;
@@ -68,7 +68,7 @@ export const getPollerPropsAdapter = ({
   const { total, issues } = data;
   const formatedIssues = !isEmpty(issues)
     ? Object.entries(issues)
-        .filter(([key, issue]) => !!issue && issue.total > 0)
+        .filter(([_, issue]) => !!issue && issue.total > 0)
         .map(([key, issue]) => ({
           key,
           text: t(pollerIssueKeyToMessage[key]),

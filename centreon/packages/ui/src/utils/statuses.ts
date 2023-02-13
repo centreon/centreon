@@ -19,7 +19,10 @@ export enum SeverityCode {
   None = 6
 }
 
-export const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
+export const getStatusColors = ({
+  theme,
+  severityCode
+}: StatusColorProps): Colors => {
   const { palette } = theme;
 
   const colorMapping = {
