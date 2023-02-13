@@ -96,7 +96,7 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
 
   const insertLink = useCallback(() => {
     if (!isLink) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, '');
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
     } else {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     }

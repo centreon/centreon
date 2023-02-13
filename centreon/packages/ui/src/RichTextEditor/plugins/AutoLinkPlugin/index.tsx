@@ -25,6 +25,7 @@ const MATCHERS = [
 
     return (
       match && {
+        attributes: { rel: 'noopener', target: '_blank' },
         index: match.index,
         length: match[0].length,
         text: match[0],

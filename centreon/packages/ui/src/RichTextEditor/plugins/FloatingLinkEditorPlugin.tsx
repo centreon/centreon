@@ -33,10 +33,9 @@ const FloatingLinkEditor = ({
 }: FloatingLinkEditorProps): JSX.Element | null => {
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
-  const [lastSelection, setLastSelection] = useState();
 
   const [editMode, setEditMode] = useAtom(editLinkModeAtom);
-  const [linkUrl, setLinkUrl] = useAtom(linkValueAtom);
+  const linkUrl = useAtomValue(linkValueAtom);
 
   if (nativeSelection === null || rootElement === null) {
     return null;
@@ -59,12 +58,11 @@ const FloatingLinkEditor = ({
               const { value } = event.target;
               if (event.key === 'Enter') {
                 event.preventDefault();
-                if (lastSelection !== null) {
-                  if (value !== '') {
-                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
-                  }
-                  setEditMode(false);
+
+                if (value !== '') {
+                  editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
                 }
+                setEditMode(false);
               } else if (event.key === 'Escape') {
                 event.preventDefault();
                 setEditMode(false);
@@ -160,8 +158,6 @@ const useFloatingTextFormatToolbar = ({
       })
     );
   }, [editor, updatePopup]);
-
-  console.log('text', isText, 'link', isInsertingLink, 'edit', editLinkMode);
 
   if (!isText || !isInsertingLink) {
     return null;
