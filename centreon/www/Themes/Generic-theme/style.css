@@ -266,6 +266,7 @@ select {
     appearance: none;
     padding: 4px 20px 4px 6px;
     color: var(--select-color) ;
+    overflow-y: auto;
 }
 
 select::-ms-expand {
