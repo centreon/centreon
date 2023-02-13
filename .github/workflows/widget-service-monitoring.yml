@@ -35,8 +35,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      registry_username: ${{ secrets.NEXUS_USERNAME }}
-      registry_password: ${{ secrets.NEXUS_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_username: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   delivery:
     needs: [get-version, package]
