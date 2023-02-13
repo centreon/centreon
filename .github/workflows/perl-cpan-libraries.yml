@@ -190,7 +190,6 @@ jobs:
     needs: [package]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
         distrib: [el8, el9]
     name: sign rpm ${{ matrix.distrib }}
