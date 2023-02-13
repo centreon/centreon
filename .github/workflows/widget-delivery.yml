@@ -52,6 +52,8 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
+          minor_version: ${{ inputs.minor_version }}
+          release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
           artifactory_token: ${{ secrets.artifactory_token }}
