@@ -42,8 +42,8 @@ jobs:
       image_name: ${{ matrix.image }}
       module_name: centreon
       major_version: ${{ inputs.major_version }}
-      minor_version: ${{ inputs.minor_version }}
-      release: ${{ inputs.release }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.registry_username }}

@@ -44,8 +44,8 @@ jobs:
     with:
       widget_name: live-top10-memory-usage
       major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ inputs.minor_version }}
-      release: ${{ inputs.release }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USERNAME }}
