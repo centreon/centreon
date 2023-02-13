@@ -16,9 +16,6 @@ inputs:
   nexus_password:
     description: "Artifact Manager technical password"
     required: true
-  artifactory_token:
-    description: "Artifactory token"
-    required: true
   version:
     description: "Centreon packaged version"
     required: true
@@ -28,7 +25,9 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
-
+  artifactory_token:
+    description: "Artifactory token"
+    required: true
 
 runs:
   using: "composite"
