@@ -229,13 +229,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: packages-deb
+          name: packages-deb-${{ matrix.distrib }}
           path: ./
 
       - uses: actions/cache@v3
         with:
           path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
