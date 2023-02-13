@@ -81,10 +81,6 @@ const searchWords = filtersToBeDisplayedInSearchBar.reduce(
   { type: '' }
 );
 
-const customImageSnapshotProperty = {
-  failureThreshold: 0.06
-};
-
 describe('Anomaly detection - Filter', () => {
   beforeEach(() => {
     cy.viewport(1200, 750);
