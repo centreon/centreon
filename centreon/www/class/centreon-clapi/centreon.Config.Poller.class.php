@@ -288,7 +288,7 @@ class CentreonConfigPoller
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
-            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0'  WHERE `id` = :poller_id LIMIT 1"
+            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
