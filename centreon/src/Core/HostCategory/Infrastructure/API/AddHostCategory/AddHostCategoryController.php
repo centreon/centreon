@@ -51,7 +51,7 @@ final class AddHostCategoryController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            /** @var array{name:string,alias:string,is_activated?:bool,comments?:string|null} $data */
+            /** @var array{name:string,alias:string,is_activated?:bool,comment?:string|null} $data */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostCategorySchema.json');
 
             $hostCategoryRequest = $this->createRequestDto($data);
@@ -70,7 +70,7 @@ final class AddHostCategoryController extends AbstractController
     }
 
     /**
-     * @param array{name:string,alias:string,is_activated?:bool,comments:string|null} $data
+     * @param array{name:string,alias:string,is_activated?:bool,comment:string|null} $data
      *
      * @return AddHostCategoryRequest
      */
@@ -80,7 +80,7 @@ final class AddHostCategoryController extends AbstractController
         $hostCategoryRequest->name = $data['name'];
         $hostCategoryRequest->alias = $data['alias'];
         $hostCategoryRequest->isActivated = $data['is_activated'] ?? true;
-        $hostCategoryRequest->comment = $data['comments'] ?? null;
+        $hostCategoryRequest->comment = $data['comment'] ?? null;
 
         return $hostCategoryRequest;
     }
