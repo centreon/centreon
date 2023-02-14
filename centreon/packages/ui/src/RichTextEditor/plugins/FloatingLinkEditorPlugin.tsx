@@ -71,7 +71,7 @@ const FloatingLinkEditor = ({
           />
         ) : (
           <div>
-            <a href={linkUrl} rel="noopener noreferrer" target="_blank">
+            <a href={linkUrl} rel="noreferrer" target="_blank">
               {linkUrl}
             </a>
             <IconButton

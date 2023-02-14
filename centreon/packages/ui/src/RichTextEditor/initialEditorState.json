@@ -92,7 +92,7 @@
             "indent": 0,
             "type": "link",
             "version": 1,
-            "rel": "noopener",
+            "rel": "noreferrer",
             "target": "_blank",
             "url": "https://centreon.com"
           }
