@@ -41,7 +41,7 @@ RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
-
+yum clean all --enablerepo=*
 rm -f /tmp/rpms-centreon/centreon-22.04*.rpm /tmp/rpms-centreon/centreon-central-22.04*.rpm
 yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
