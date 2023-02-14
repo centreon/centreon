@@ -9,8 +9,6 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
   workflow_dispatch:
 
