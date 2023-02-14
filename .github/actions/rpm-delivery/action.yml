@@ -127,6 +127,9 @@ runs:
 
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
+          
+          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         done
 
         # Cleanup is done on unstable repository only
