@@ -62,6 +62,16 @@ runs:
         mv ${{ inputs.module }}/tests/e2e/cypress/results/videos/* logs/${{ steps.formatFeatureFilePath.outputs.value }}/
       shell: bash
 
+    - if: ${{ failure() }}
+      run: docker logs e2e-tests-${{ inputs.module }} >> docker-logs
+      shell: bash
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: docker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: docker-logs
+
     - name: Archive videos
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
