@@ -34,7 +34,8 @@ runs:
           && export AWS_DEFAULT_REGION=eu-west-1
         if [[ "$GITHUB_REF_NAME" != "develop" || "$GITHUB_REF_NAME" != "master" ]]; then
           VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})').x
-        else VERSION=$GITHUB_REF_NAME
+        else 
+          VERSION=$GITHUB_REF_NAME
       shell: bash
 
     - name: "Push report"
