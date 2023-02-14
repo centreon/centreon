@@ -8498,9 +8498,11 @@ components:
           nullable: true
         icon_source:
           type: string
+          description: "Image binary encoded in base64"
           nullable: true
         image_source:
           type: string
+          description: "Image binary encoded in base64"
           nullable: true
         text_position:
           type: string
