@@ -39,6 +39,5 @@ runs:
       shell: bash
 
     - name: "Push report"
-      run: |
-        aws s3 cp ${{ inputs.report_path }} ${{ inputs.report_target }}$VERSION/index.html --acl public-read
+      run: aws s3 cp ${{ inputs.report_path }} ${{ inputs.report_target }}$VERSION/index.html --acl public-read
       shell: bash
