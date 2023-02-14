@@ -140,6 +140,12 @@ runs:
           done
         fi
 
+        # Update repository metadata
+        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
+        for METADATA in `echo $METADATAS`; do
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
+        done
+
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
         # Remove duplicated invalidation paths
