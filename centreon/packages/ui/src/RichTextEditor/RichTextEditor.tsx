@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -63,16 +61,6 @@ const RichTextEditor = ({
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const [floatingAnchorElem, setFloatingAnchorElem] = useState<
-    HTMLElement | undefined
-  >();
-
-  const onRef = (_floatingAnchorElem: HTMLElement): void => {
-    if (_floatingAnchorElem !== undefined) {
-      setFloatingAnchorElem(_floatingAnchorElem);
-    }
-  };
-
   const hasInitialTextContent = initialEditorState
     ? JSON.parse(initialEditorState).root?.children.length > 0
     : false;
@@ -107,7 +95,6 @@ const RichTextEditor = ({
             inputClassname={inputClassname}
             minInputHeight={minInputHeight}
             placeholder={placeholder}
-            onRef={onRef}
           />
         }
         placeholder={null}
@@ -115,7 +102,7 @@ const RichTextEditor = ({
       <HistoryPlugin />
       <LinkPlugin />
       <AutoCompleteLinkPlugin />
-      <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
+      <FloatingLinkEditorPlugin />
     </LexicalComposer>
   );
 };

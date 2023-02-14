@@ -98,6 +98,16 @@ const FloatingLinkEditor = ({
             autoFocus
             defaultValue={linkUrl}
             label={labelInputLink}
+            onBlur={(event): void => {
+              const { value } = event.target;
+
+              event.preventDefault();
+
+              if (value !== '') {
+                editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
+              }
+              setEditMode(false);
+            }}
             onKeyDown={acceptOrCancelNewLinkValue}
           />
         ) : (
