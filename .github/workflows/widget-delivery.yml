@@ -92,6 +92,6 @@ jobs:
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
