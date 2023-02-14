@@ -2,6 +2,10 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { configureOpenIDConnect, getUserContactId } from '../common';
 
+before(() => {
+  cy.startOpenIdProviderContainer();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -138,3 +142,7 @@ Then(
     });
   }
 );
+
+after(() => {
+  cy.stopOpenIdProviderContainer();
+});

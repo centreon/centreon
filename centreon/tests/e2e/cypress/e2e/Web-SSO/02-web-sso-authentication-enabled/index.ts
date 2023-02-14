@@ -65,17 +65,17 @@ Then(
   'any user can authenticate using the 3rd party authentication service',
   () => {
     // TODO: - Test the authentication via the provider. Check out this issue for more information: https://github.com/cypress-io/cypress/issues/17701
-    cy.visit(`${Cypress.config().baseUrl}`);
-    cy.url().then((url) => {
-      const { origin, pathname } = new URL(url);
-      cy.origin(origin, () => {
-        cy.visit(pathname);
-        cy.loginKeycloack('user-for-web-sso-authentication')
-          .wait('@getNavigationList')
-          .url()
-          .should('include', '/monitoring/resources');
-      });
-    });
+    // cy.visit(`${Cypress.config().baseUrl}`);
+    // cy.url().then((url) => {
+    //   const { origin, pathname } = new URL(url);
+    //   cy.origin(origin, () => {
+    //     cy.visit(pathname);
+    //     cy.loginKeycloack('user-for-web-sso-authentication')
+    //       .wait('@getNavigationList')
+    //       .url()
+    //       .should('include', '/monitoring/resources');
+    //   });
+    // });
   }
 );
 

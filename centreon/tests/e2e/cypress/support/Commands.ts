@@ -192,7 +192,7 @@ Cypress.Commands.add(
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
-        .trigger('mouseover');
+        .trigger('mouseover', { force: true });
       cy.contains(page).click({ force: true });
 
       return;
@@ -222,6 +222,18 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
       values: 'ACL Group test'
     });
   });
+});
+
+Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
+  return cy.exec(
+    'docker run -p 8080:8080 -d --name e2e-tests-openid-centreon oidc-keycloak:Dockerfile'
+  );
+});
+
+Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
+  return cy.exec(
+    'docker stop e2e-tests-openid-centreon && docker rm e2e-tests-openid-centreon'
+  );
 });
 
 interface GetByLabelProps {
@@ -278,6 +290,8 @@ declare global {
         query
       }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: () => Cypress.Chainable;
+      startOpenIdProviderContainer: () => Cypress.Chainable;
+      stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
   }
 }

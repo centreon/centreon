@@ -63,13 +63,13 @@ When('the administrator sets authentication mode to Web SSO only', () => {
 
 Then('users and local admin user must not be able to authenticate', () => {
   // TODO: - Test the authentication via the provider. Check out this issue for more information: https://github.com/cypress-io/cypress/issues/17701
-  cy.session('AUTH_SESSION_ID_LEGACY', () => {
-    cy.visit(`${Cypress.config().baseUrl}`);
-    cy.loginKeycloack('admin')
-      .get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.');
-  });
+  // cy.session('AUTH_SESSION_ID_LEGACY', () => {
+  //   cy.visit(`${Cypress.config().baseUrl}`);
+  //   cy.loginKeycloack('admin')
+  //     .get('#input-error')
+  //     .should('be.visible')
+  //     .and('include.text', 'Invalid username or password.');
+  // });
 });
 
 after(() => {

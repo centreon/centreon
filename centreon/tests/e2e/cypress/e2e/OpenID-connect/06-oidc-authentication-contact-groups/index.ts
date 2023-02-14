@@ -8,7 +8,9 @@ import {
 } from '../common';
 
 before(() => {
-  initializeOIDCUserAndGetLoginPage();
+  cy.startOpenIdProviderContainer().then(() => {
+    initializeOIDCUserAndGetLoginPage();
+  });
 });
 
 beforeEach(() => {
@@ -149,4 +151,5 @@ Then(
 
 after(() => {
   removeContact();
+  cy.stopOpenIdProviderContainer();
 });

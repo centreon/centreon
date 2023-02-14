@@ -39,11 +39,6 @@ runs:
           find: '/'
           replace: '-'
 
-    - name: "Start Openid container"
-      if: ${{ contains(steps.formatFeatureFilePath.outputs.value, 'OpenID') || contains(steps.formatFeatureFilePath.outputs.value, 'Web-SSO') }}
-      run: docker run -p 8080:8080 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-openid-${{ inputs.module }} centreon.jfrog.io/docker/openid:${{ inputs.image_openid_version }}
-      shell: bash
-
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/src" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
@@ -56,8 +51,6 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
-      env:
-        TAGS: 'not @ignore-scenario'
 
     - if: ${{ failure() }}
       run: |
