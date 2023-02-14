@@ -1,0 +1,33 @@
+---
+name: release-web
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - "centreon-ha/**"
+  workflow_dispatch:
+
+env:
+  module: "ha"
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: ./.github/actions/release
+        with:
+          module_name: ${{ env.module }}
+          jira_token: ${{ secrets.JIRA_TOKEN }}
