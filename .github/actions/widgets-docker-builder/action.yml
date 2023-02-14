@@ -31,7 +31,7 @@ runs:
         key: ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
         restore-keys: |
           ${{ env.cache-name-rpmbuild }}-${{ inputs.distrib_rpm }}
-    
+
     - name: build docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
       run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} -t registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
@@ -41,7 +41,7 @@ runs:
       if: ${{ inputs.distrib_debian }}
       run: docker build --no-cache . -f .github/docker/Dockerfile.${{ inputs.module_name }}-package-${{ inputs.distrib_deb }} -t registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
-    
+
     - name: run docker ${{ inputs.project }} ${{ inputs.distrib_redhat }}
       if: ${{ inputs.distrib_redhat }}
       run: docker run -it -d --privileged --name ${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }} registry-centreon.jfrog.io/docker/docker-global/${{ inputs.module_name }}-package-${{ inputs.distrib_rpm }}:${{ github.head_ref || github.ref_name }}
