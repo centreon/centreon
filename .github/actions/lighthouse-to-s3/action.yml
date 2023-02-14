@@ -35,7 +35,7 @@ runs:
         echo $GITHUB_REF_NAME
         BRANCH_NAME="dev-22.10.x"
         if [[ "$BRANCH_NAME" != "develop" || "$BRANCH_NAME" != "master" ]]; then
-          VERSION=$(echo $BRANCH_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
+          VERSION=$(echo $BRANCH_NAME | grep -oE '([0-9]{2}\.[0-9]{2})')
         else 
           VERSION=$BRANCH_NAME
         fi
