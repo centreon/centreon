@@ -315,13 +315,6 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
