@@ -57,7 +57,7 @@ class AddHostCategoryPresenter extends AbstractPresenter
                 'name' => $payload->name,
                 'alias' => $payload->alias,
                 'is_activated' => $payload->isActivated,
-                'comments' => $payload->comment,
+                'comment' => $payload->comment,
             ]);
 
             // NOT setting location as required route does not currently exist

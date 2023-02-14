@@ -9,3 +9,12 @@ export const normal = (): JSX.Element => (
     onConfirm={(): void => undefined}
   />
 );
+
+export const confirmDisabled = (): JSX.Element => (
+  <DuplicateDialog
+    confirmDisabled
+    open
+    onCancel={(): void => undefined}
+    onConfirm={(): void => undefined}
+  />
+);

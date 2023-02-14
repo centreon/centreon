@@ -50,33 +50,21 @@ runs:
         publish-summary: false
 
     - if: ${{ failure() }}
-      run: docker logs e2e-tests-${{ inputs.module }} >> docker-logs
+      run: |
+        mkdir -p logs/${{ steps.formatFeatureFilePath.outputs.value }}
+        docker logs e2e-tests-${{ inputs.module }} > logs/${{ steps.formatFeatureFilePath.outputs.value }}/docker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/broker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-engine/centengine.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/engine.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-gorgone/gorgoned.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/gorgoned.log
+        mv ${{ inputs.module }}/tests/e2e/cypress/results/videos/* logs/${{ steps.formatFeatureFilePath.outputs.value }}/
       shell: bash
 
-    - uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
-      with:
-        name: docker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
-        path: docker-logs
-
-    - name: Archive videos
+    - if: ${{ failure() }}
+      name: Archive videos
       uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
       with:
-        name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-
-    - name: Retrieve broker logs
-      if: ${{ failure() }}
-      run: docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > broker.log
-      shell: bash
-    
-    - name: Archive Broker logs
-      uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
-      with:
-        name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
-        path: broker.log
+        name: e2e-test-logs
+        path: logs/
 
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
