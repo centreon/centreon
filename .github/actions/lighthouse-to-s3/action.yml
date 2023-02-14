@@ -39,9 +39,10 @@ runs:
         else 
           VERSION=$BRANCH_NAME
         fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
       shell: bash
 
     - name: "Push report"
       run: |
-        aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}$VERSION/index.html" --acl public-read
+        aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read
       shell: bash
