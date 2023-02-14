@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2021 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -68,13 +68,13 @@ try {
             's.service_id',
             $centreon->user->access->getServicesString('ID', $monitoringDb)
         );
-        $sql = "SELECT service_id, service_description
+        $sql = "SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr
         		WHERE hsr.host_host_id = :hostId
         		AND hsr.service_service_id = s.service_id ";
         $sql .= $aclString;
         $sql .= " UNION ";
-        $sql .= " SELECT service_id, service_description
+        $sql .= " SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr, hostgroup_relation hgr
         		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
         		AND hgr.host_host_id = :hostId
@@ -87,7 +87,11 @@ try {
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $xml->startElement('option');
             $xml->writeElement('id', $row['service_id']);
-            $xml->writeElement('label', $row['service_description']);
+            if (preg_match('/meta_/', $row['service_description'])) {
+                $xml->writeElement('label', $row['display_name']);
+            } else {
+                $xml->writeElement('label', $row['service_description']);
+            }
             $xml->endElement();
         }
     }

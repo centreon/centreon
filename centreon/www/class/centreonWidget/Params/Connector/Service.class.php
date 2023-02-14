@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -87,13 +87,13 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             's.service_id',
             $this->acl->getServicesString('ID', $this->monitoringDb)
         );
-        $sql = "SELECT service_id, service_description
+        $sql = "SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr
         		WHERE hsr.host_host_id = " . $this->db->escape($hostId) . "
         		AND hsr.service_service_id = s.service_id ";
         $sql .= $aclString;
         $sql .= " UNION ";
-        $sql .= " SELECT service_id, service_description
+        $sql .= " SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr, hostgroup_relation hgr
         		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
         		AND hgr.host_host_id = " . $this->db->escape($hostId) . "
@@ -103,7 +103,11 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         $res = $this->db->query($sql);
         $tab = array();
         while ($row = $res->fetchRow()) {
-            $tab[$hostId . "-" . $row['service_id']] = $row['service_description'];
+            if (preg_match('/meta_/', $row['service_description'])) {
+                $tab[$hostId . "-" . $row['service_id']] = $row['display_name'];
+            } else {
+                $tab[$hostId . "-" . $row['service_id']] = $row['service_description'];
+            }
         }
         return $tab;
     }
@@ -113,11 +117,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         static $tab;
 
         if (!isset($tab)) {
-            $query = "SELECT host_id, host_name
-                      FROM host
-            	      WHERE host_activate = '1'
-            	      AND host_register = '1' ";
-            $query .= $this->acl->queryBuilder(
+            $aclString = $this->acl->queryBuilder(
                 'AND',
                 'host_id',
                 $this->acl->getHostsString(
@@ -125,6 +125,16 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
                     $this->monitoringDb
                 )
             );
+            $query = "SELECT host_id, host_name
+                      FROM host
+            	      WHERE host_activate = '1'
+            	      AND host_register = '1' ";
+            $query .= $aclString;
+            $query .= "UNION SELECT host_id, 'META'
+                       FROM host
+                       WHERE host_register = '2'
+                       AND host_name = '_Module_Meta' ";
+            $query .= $aclString;
             $query .= " ORDER BY host_name";
             $res = $this->db->query($query);
             $tab = array(null => null);
