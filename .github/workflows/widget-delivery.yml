@@ -61,7 +61,7 @@ jobs:
           version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
-          nexus_username: ${{ secrets.nexus_username}}
+          nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
