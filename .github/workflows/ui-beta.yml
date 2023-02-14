@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "centreon/packages/ui/**"
-      - '.github/workflows/ui.yml'
+      - '.github/workflows/ui-beta.yml'
     branches:
       - develop
   workflow_dispatch:
