@@ -1,4 +1,4 @@
-import { always, cond, not, pipe, propEq, T } from 'ramda';
+import { equals } from 'ramda';
 
 import { CircularProgress } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
@@ -22,20 +22,27 @@ const StartIcon = ({
   startIconConfig,
   smallIconSize,
   iconSize,
-}: Props): JSX.Element | null =>
-  cond<StartIconConfigProps, JSX.Element | null>([
-    [pipe(propEq('hasLabel', true), not), always(null)],
-    [propEq('succeeded', true), always(<CheckIcon />)],
-    [
-      propEq('loading', true),
-      always(
-        <CircularProgress
-          color="inherit"
-          size={isSmall ? smallIconSize : iconSize}
-        />,
-      ),
-    ],
-    [T, always(<SaveIcon />)],
-  ])(startIconConfig);
+}: Props): JSX.Element | null => {
+  const { hasLabel, loading, succeeded } = startIconConfig;
+
+  if (!equals(hasLabel, true)) {
+    return null;
+  }
+
+  if (equals(succeeded, true)) {
+    return <CheckIcon />;
+  }
+
+  if (equals(loading, true)) {
+    return (
+      <CircularProgress
+        color="inherit"
+        size={isSmall ? smallIconSize : iconSize}
+      />
+    );
+  }
+
+  return <SaveIcon />;
+};
 
 export default StartIcon;
