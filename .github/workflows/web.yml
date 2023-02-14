@@ -371,20 +371,20 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      # - name: Run lighthouse
-      #   uses: ./.github/actions/lighthouse-performance-testing
-      #   with:
-      #     path: "centreon/lighthouse"
-      #     image: centreon.jfrog.io/docker/centreon-web-centos7
-      #     image_version: ${{ github.head_ref || github.ref_name }}
-      #     image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
-      #     module: centreon
+      - name: Run Lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon/lighthouse"
+          image: centreon.jfrog.io/docker/centreon-web-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
 
-      # - name: Publish report
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: lighthouse-report
-      #     path: centreon/lighthouse/report/lighthouseci-index.html
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
 
   deliver-rpm:
     runs-on: [self-hosted, common]
