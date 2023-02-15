@@ -44,8 +44,18 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
     public const VALUE_NULL = Assert::VALUE_NULL;
 
+    /**
+     * The extended constructor is here only to enforce the types used
+     * and set a default `int $code = 0` for child classes.
+     *
+     * @param string $message
+     * @param int $code
+     * @param string|null $propertyPath
+     * @param mixed|null $value
+     * @param array<string, mixed> $constraints
+     */
     public function __construct(
-        $message,
+        string $message,
         int $code = 0,
         ?string $propertyPath = null,
         mixed $value = null,
