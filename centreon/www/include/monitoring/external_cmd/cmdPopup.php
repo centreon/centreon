@@ -40,7 +40,6 @@ require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
-require_once _CENTREON_PATH_ .'www/class/HtmlAnalyzer.php';
 
 session_start();
 session_write_close();
@@ -78,19 +77,18 @@ if (isset($_POST["resources"]) && isset($sid)) {
     $resources = json_decode($_POST["resources"], true);
     foreach ($resources as $resource) {
         if (isset($_POST["cmd"])) {
-            $sanitizedResource = HtmlAnalyzer::sanitizeAndRemoveTags($resource);
             switch ($_POST["cmd"]) {
                 case 70:
-                    massiveServiceAck($sanitizedResource);
+                    massiveServiceAck($resource);
                     break;
                 case 72:
-                    massiveHostAck($sanitizedResource);
+                    massiveHostAck($resource);
                     break;
                 case 74:
-                    massiveServiceDowntime($sanitizedResource);
+                    massiveServiceDowntime($resource);
                     break;
                 case 75:
-                    massiveHostDowntime($sanitizedResource);
+                    massiveHostDowntime($resource);
                     break;
             }
         }
