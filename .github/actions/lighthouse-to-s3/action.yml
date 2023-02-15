@@ -32,6 +32,5 @@ runs:
       shell: bash
 
     - name: "Push report"
-      run: |
-        aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
+      run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
       shell: bash
