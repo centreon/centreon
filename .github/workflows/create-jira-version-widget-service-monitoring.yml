@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget service monitoring version
-
+name: Create widget service monitoring jira version
 on:
   pull_request_target:
     types:

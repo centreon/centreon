@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget host monitoring version
-
+name: Create widget host monitoring jira version
 on:
   pull_request_target:
     types:
