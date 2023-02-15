@@ -2,7 +2,7 @@ import numeral from 'numeral';
 import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
 
-import { Badge } from '@mui/material';
+import { Badge, Tooltip } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -34,7 +34,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
 
 export interface Props {
   className?: string;
-  count: number | JSX.Element;
+  count: string | number;
   severityCode: SeverityCode;
 }
 
@@ -44,13 +44,29 @@ const StatusCounter = ({
   className,
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
+  const shouldFormatCount = Number(count) >= 1000;
+  const formattedCount = shouldFormatCount
+    ? numeral(count).format('0.0a')
+    : count.toString();
 
-  return (
+  return shouldFormatCount ? (
+    <Tooltip followCursor title={count}>
+      <Badge
+        badgeContent={formattedCount}
+        classes={{
+          badge: cx(classes.badge, className),
+        }}
+        max={Infinity}
+        overlap="circular"
+      />
+    </Tooltip>
+  ) : (
     <Badge
-      badgeContent={numeral(count).format('0a')}
+      badgeContent={formattedCount}
       classes={{
         badge: cx(classes.badge, className),
       }}
+      max={Infinity}
       overlap="circular"
     />
   );
