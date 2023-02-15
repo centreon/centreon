@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget engine status version
+name: release-web
 
 on:
   pull_request_target:
@@ -9,14 +9,15 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "widgets/centreon-widget-engine-status/**"
+      - "centreon-gorgone/**"
   workflow_dispatch:
 
 env:
-  module: "widget-engine-status"
+  module: "gorgone"
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -30,4 +31,3 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
-          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
