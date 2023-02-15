@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget tactical overview version
-
+name: Create widget tactical overview jira version
 on:
   pull_request_target:
     types:

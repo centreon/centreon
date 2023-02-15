@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget engine status version
-
+name: Create widget engine status jira version
 on:
   pull_request_target:
     types:

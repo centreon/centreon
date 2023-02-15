@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget httploader version
-
+name: Create widget httploader jira version
 on:
   pull_request_target:
     types:

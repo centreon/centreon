@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget graph monitoring version
-
+name: Create widget graph monitoring jira version
 on:
   pull_request_target:
     types:
