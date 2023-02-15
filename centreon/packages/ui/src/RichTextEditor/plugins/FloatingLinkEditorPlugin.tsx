@@ -10,15 +10,20 @@ import {
 import { mergeRegister } from '@lexical/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { useTranslation } from 'react-i18next';
 
-import { Popper, IconButton, Paper } from '@mui/material';
+import { Popper, IconButton, Paper, Link, Box, Divider } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { getSelectedNode } from '../utils/getSelectedNode';
 import { getDOMRangeRect } from '../utils/getDOMRangeRect';
 import { editLinkModeAtom, isInsertingLinkAtom, linkValueAtom } from '../atoms';
 import InputField from '../../InputField/Text';
-import { labelInputLink } from '../translatedLabels';
+import {
+  labelInputLink,
+  labelSavedLink,
+  labelEditLink
+} from '../translatedLabels';
 
 interface UseFloatingLinkEditorProps {
   editor: LexicalEditor;
@@ -33,6 +38,7 @@ const FloatingLinkEditor = ({
 }: FloatingLinkEditorProps): JSX.Element | null => {
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
+  const { t } = useTranslation();
 
   const [editMode, setEditMode] = useAtom(editLinkModeAtom);
   const linkUrl = useAtomValue(linkValueAtom);
@@ -44,16 +50,24 @@ const FloatingLinkEditor = ({
   const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
   const xOffset = rangeRect.x - (rootElement?.getBoundingClientRect()?.x || 0);
-  const yOffset = rangeRect.y - (rootElement?.getBoundingClientRect()?.y || 0);
+  const yOffset =
+    rangeRect.y - (rootElement?.getBoundingClientRect()?.y || 0) + 50;
 
   return (
     <Popper open anchorEl={rootElement} placement="top-start">
-      <Paper sx={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0px)` }}>
+      <Paper
+        sx={{
+          transform: `translate3d(${xOffset}px, ${
+            editMode ? yOffset + 10 : yOffset
+          }px, 0px)`
+        }}
+      >
         {editMode ? (
           <InputField
             autoFocus
             defaultValue={linkUrl}
-            label={labelInputLink}
+            label={t(labelInputLink)}
+            size="small"
             onBlur={(event): void => {
               const { value } = event.target;
 
@@ -80,17 +94,25 @@ const FloatingLinkEditor = ({
             }}
           />
         ) : (
-          <div>
-            <a href={linkUrl} rel="noreferrer" target="_blank">
+          <Box component="span" sx={{ margin: '10px' }}>
+            <Link
+              aria-label={labelSavedLink}
+              href={linkUrl}
+              rel="noreferrer"
+              target="_blank"
+              variant="button"
+            >
               {linkUrl}
-            </a>
+            </Link>
             <IconButton
-              aria-label="delete"
+              aria-label={labelEditLink}
+              size="small"
+              sx={{ marginLeft: '5px' }}
               onClick={(): void => setEditMode(true)}
             >
-              <EditIcon />
+              <EditIcon fontSize="small" />
             </IconButton>
-          </div>
+          </Box>
         )}
       </Paper>
     </Popper>
