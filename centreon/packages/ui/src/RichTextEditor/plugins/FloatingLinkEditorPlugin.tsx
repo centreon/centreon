@@ -85,7 +85,7 @@ const FloatingLinkEditor = ({
     }
 
     setTooltipPosition(pick(['x', 'y'], rangeRect));
-  }, [rangeRect]);
+  }, [rangeRect?.x, rangeRect?.y]);
 
   if (isNil(rangeRect)) {
     return null;
