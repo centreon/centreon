@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget tactical overview version
+name: Create tactical overview version
 
 on:
   pull_request_target:

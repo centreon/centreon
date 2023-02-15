@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget live top10 memory usage version
+name: Create live top10 memory usage version
 
 on:
   pull_request_target:

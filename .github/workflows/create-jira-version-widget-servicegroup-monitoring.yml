@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget servicegroup monitoring version
+name: Create servicegroup monitoring version
 
 on:
   pull_request_target:

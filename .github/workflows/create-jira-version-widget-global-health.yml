@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget global health version
+name: Create global health version
 
 on:
   pull_request_target:

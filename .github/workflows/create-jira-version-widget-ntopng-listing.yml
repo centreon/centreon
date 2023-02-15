@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget ntopng listing version
+name: Create ntopng listing version
 
 on:
   pull_request_target:

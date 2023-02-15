@@ -1,5 +1,5 @@
 ---
-name: release-web
+name: Create dsm jira version
 
 on:
   pull_request_target:

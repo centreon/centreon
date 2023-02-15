@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget host monitoring version
+name: Create host monitoring version
 
 on:
   pull_request_target:
