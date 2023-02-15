@@ -130,7 +130,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             	      WHERE host_activate = '1'
             	      AND host_register = '1' ";
             $query .= $aclString;
-            $query .= "UNION SELECT host_id, 'META'
+            $query .= "UNION SELECT host_id, 'Meta'
                        FROM host
                        WHERE host_register = '2'
                        AND host_name = '_Module_Meta' ";
