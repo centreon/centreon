@@ -86,7 +86,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x | MON-16653-sync-delivery-2210)
+            develop | dev-[2-9][0-9].[0-9][0-9].x)
               STABILITY="unstable"
               ;;
             release* | hotfix*)
