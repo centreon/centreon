@@ -40,7 +40,6 @@ runs:
 
     - name: Publish DEBS to Nexus
       run: |
-        set -x
         FILES="*.deb";
         echo "[DEBUG] - Deb FILES: $FILES"
 
