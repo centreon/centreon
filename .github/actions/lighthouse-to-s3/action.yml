@@ -17,12 +17,12 @@ runs:
 
     - name: "Setup AWS context"
       run: |
-        sudo apt update -y
-        sudo apt install -y unzip
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
-        unzip awscliv2.zip
-        sudo ./aws/install --update
-        rm -rf awscliv2.zip aws
+        sudo apt update -y 1>&-  
+        sudo apt install -y unzip 1>&-
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 1>&-
+        unzip awscliv2.zip 1>&-
+        sudo ./aws/install --update 1>&-
+        rm -rf awscliv2.zip aws 1>&-
         if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
           VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
         else 
