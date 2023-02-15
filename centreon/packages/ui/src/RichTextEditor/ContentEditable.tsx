@@ -42,6 +42,7 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   editable: boolean;
+  editorStateForReadOnlyMode?: string;
   hasInitialTextContent?: boolean;
   inputClassname?: string;
   minInputHeight: number;
@@ -53,7 +54,8 @@ const ContentEditable = ({
   inputClassname,
   placeholder,
   hasInitialTextContent,
-  editable
+  editable,
+  editorStateForReadOnlyMode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, minInputHeight });
   const { t } = useTranslation();
@@ -73,10 +75,16 @@ const ContentEditable = ({
   useLayoutEffect(() => {
     setEditable(editor.isEditable());
 
+    if (editorStateForReadOnlyMode) {
+      const editorState = editor.parseEditorState(editorStateForReadOnlyMode);
+
+      editor.setEditorState(editorState);
+    }
+
     return editor.registerEditableListener((currentIsEditable) => {
       setEditable(currentIsEditable);
     });
-  }, [editor]);
+  }, [editor, editorStateForReadOnlyMode]);
 
   useEffect(() => {
     editor.registerTextContentListener((currentRoot) => {

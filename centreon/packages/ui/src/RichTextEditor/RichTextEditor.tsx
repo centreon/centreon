@@ -15,6 +15,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
   editable: boolean;
+  editorStateForReadOnlyMode?: string;
   getEditorState?: (editorState: EditorState) => void;
   initialEditorState?: string;
   inputClassname?: string;
@@ -57,7 +58,8 @@ const RichTextEditor = ({
   placeholder = 'Type here...',
   getEditorState,
   initialEditorState,
-  editable = true
+  editable = true,
+  editorStateForReadOnlyMode
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles();
 
@@ -91,6 +93,7 @@ const RichTextEditor = ({
         contentEditable={
           <ContentEditable
             editable={editable}
+            editorStateForReadOnlyMode={editorStateForReadOnlyMode}
             hasInitialTextContent={hasInitialTextContent}
             inputClassname={inputClassname}
             minInputHeight={minInputHeight}
