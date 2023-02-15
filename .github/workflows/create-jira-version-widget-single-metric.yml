@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget single metric version
+name: Create widget single metric version
 
 on:
   pull_request_target:

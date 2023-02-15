@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget engine status version
+name: Create widget engine status version
 
 on:
   pull_request_target:

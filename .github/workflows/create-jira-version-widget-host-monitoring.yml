@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget hostgroup monitoring version
+name: Create widget hostgroup monitoring version
 
 on:
   pull_request_target:

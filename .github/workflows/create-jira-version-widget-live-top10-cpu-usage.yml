@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget live top10 cpu usage version
+name: Create widget live top10 cpu usage version
 
 on:
   pull_request_target:
