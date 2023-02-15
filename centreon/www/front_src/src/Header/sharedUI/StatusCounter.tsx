@@ -41,12 +41,15 @@ const StatusCounter = ({
   className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
+  const shouldDisableTooltip = Number(count) < 1000;
+  const formattedCount = numeral(count).format('0.[0]a');
 
-  const formattedCount =
-    Number(count) >= 1000 ? numeral(count).format('0.0a') : count.toString();
-
-  return Number(count) >= 1000 ? (
-    <Tooltip followCursor title={count}>
+  return (
+    <Tooltip
+      followCursor
+      disableHoverListener={shouldDisableTooltip}
+      title={count}
+    >
       <Badge
         badgeContent={formattedCount}
         classes={{
@@ -56,15 +59,6 @@ const StatusCounter = ({
         overlap="circular"
       />
     </Tooltip>
-  ) : (
-    <Badge
-      badgeContent={formattedCount}
-      classes={{
-        badge: cx(classes.badge, className)
-      }}
-      max={Infinity}
-      overlap="circular"
-    />
   );
 };
 

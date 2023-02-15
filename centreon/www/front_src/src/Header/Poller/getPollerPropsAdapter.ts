@@ -67,12 +67,12 @@ export const getPollerPropsAdapter = ({
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
   const { total, issues } = data;
   const formatedIssues = !isEmpty(issues)
-    ? Object.entries(issues)
-        .filter(([_, issue]) => !!issue && issue.total > 0)
-        .map(([key, issue]) => ({
+    ? Object.keys(issues)
+        .filter((key) => !!issues[key] && issues[key].total > 0)
+        .map((key) => ({
           key,
           text: t(pollerIssueKeyToMessage[key]),
-          total: issue?.total.toString() || ''
+          total: issues[key]?.total.toString() || ''
         }))
     : [];
 
