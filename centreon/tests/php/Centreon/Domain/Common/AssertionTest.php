@@ -176,7 +176,7 @@ $failDataProvider = [
     ],
 ];
 
-// We use a custom data provider with a loop, because pest auto-evaluate the closure from the dataset.
+// We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
 foreach ($failDataProvider as $name => [$failAssertion, $failMessage, $failCode]) {
     it(
         'should throw an exception for ' . $name,
@@ -281,7 +281,7 @@ $successDataProvider = [
     ],
 ];
 
-// We use a custom data provider with a loop, because pest auto-evaluate the closure from the dataset.
+// We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
 foreach ($successDataProvider as $name => [$successAssertion]) {
     it(
         'should NOT throw an exception for ' . $name,
