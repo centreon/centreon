@@ -11,8 +11,9 @@ import { mergeRegister } from '@lexical/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useTranslation } from 'react-i18next';
+import { equals, isNil, pick } from 'ramda';
 
-import { Popper, IconButton, Paper, Link, Box, Divider } from '@mui/material';
+import { Popper, IconButton, Paper, Link, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { getSelectedNode } from '../utils/getSelectedNode';
@@ -33,25 +34,67 @@ interface FloatingLinkEditorProps {
   editor: LexicalEditor;
 }
 
+interface TooltipPosition {
+  x: number;
+  y: number;
+}
+
 const FloatingLinkEditor = ({
   editor
 }: FloatingLinkEditorProps): JSX.Element | null => {
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
   const { t } = useTranslation();
+  const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition>({
+    x: 0,
+    y: 0
+  });
 
   const [editMode, setEditMode] = useAtom(editLinkModeAtom);
-  const linkUrl = useAtomValue(linkValueAtom);
-
-  if (nativeSelection === null || rootElement === null) {
-    return null;
-  }
+  const [linkUrl, setLinkUrl] = useAtom(linkValueAtom);
 
   const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
-  const xOffset = rangeRect.x - (rootElement?.getBoundingClientRect()?.x || 0);
+  const acceptOrCancelNewLinkValue = useCallback(
+    (event): void => {
+      const { value } = event.target;
+      if (event.key === 'Enter') {
+        event.preventDefault();
+
+        if (value !== '') {
+          editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
+        }
+        setEditMode(false);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        setEditMode(false);
+      }
+    },
+    [setEditMode, setLinkUrl]
+  );
+
+  useEffect(() => {
+    if (isNil(rangeRect)) {
+      return;
+    }
+
+    const isNotPositioned = equals(rangeRect.x, 0) && equals(rangeRect.y, 0);
+
+    if (isNotPositioned || !nativeSelection) {
+      return;
+    }
+
+    setTooltipPosition(pick(['x', 'y'], rangeRect));
+  }, [rangeRect]);
+
+  if (isNil(rangeRect)) {
+    return null;
+  }
+
+  const xOffset =
+    tooltipPosition.x - (rootElement?.getBoundingClientRect()?.x || 0);
   const yOffset =
-    rangeRect.y - (rootElement?.getBoundingClientRect()?.y || 0) + 50;
+    tooltipPosition.y - (rootElement?.getBoundingClientRect()?.y || 0) + 50;
 
   return (
     <Popper open anchorEl={rootElement} placement="top-start">
@@ -78,27 +121,14 @@ const FloatingLinkEditor = ({
               }
               setEditMode(false);
             }}
-            onKeyDown={(event): void => {
-              const { value } = event.target;
-              if (event.key === 'Enter') {
-                event.preventDefault();
-
-                if (value !== '') {
-                  editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
-                }
-                setEditMode(false);
-              } else if (event.key === 'Escape') {
-                event.preventDefault();
-                setEditMode(false);
-              }
-            }}
+            onKeyDown={acceptOrCancelNewLinkValue}
           />
         ) : (
           <Box component="span" sx={{ margin: '10px' }}>
             <Link
               aria-label={labelSavedLink}
               href={linkUrl}
-              rel="noreferrer"
+              rel="noreferrer noopener"
               target="_blank"
               variant="button"
             >
