@@ -400,7 +400,7 @@ jobs:
           module: centreon
 
       - name: Publish report to S3
-        if: ${{ github.pull_request.merged }} || ${{ github.event_name }} == "push" 
+        if: ${{ github.pull_request.merged }} 
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
