@@ -12,7 +12,7 @@ on:
 jobs:
   main:
     name: Create PR Release to Main
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     if: github.event.pull_request.merged == true
     steps:
       - name: git checkout
