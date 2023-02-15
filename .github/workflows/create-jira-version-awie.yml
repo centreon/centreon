@@ -1,5 +1,5 @@
 ---
-name: Create centreon widget hostgroup monitoring version
+name: release-web
 
 on:
   pull_request_target:
@@ -9,16 +9,16 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "widgets/centreon-widget-hostgroup-monitoring/**"
+      - "centreon-awie/**"
   workflow_dispatch:
 
 env:
-  module: "widget-hostgroup-monitoring"
+  module: "awie"
 
 jobs:
   release:
-    runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -31,4 +31,3 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
-          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
