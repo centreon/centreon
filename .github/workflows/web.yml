@@ -362,7 +362,7 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: Run lighthouse
+      - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"

@@ -3,7 +3,7 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "start:docker": "docker run -d -p 4000:80 --name centreon-dev registry.centreon.com/mon-web-develop:centos7",
+    "start:docker": "docker run -d -p 4000:80 --name centreon-dev centreon.jfrog.io/docker/centreon-web-centos7:dev-22.10.x",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
     "cypress:local": "npm run start:docker && npx cypress run --config-file cypress.dev.json --browser=chrome && npm run kill:docker",
     "cypress:local:debug": "npm run start:docker && DEBUG=cypress:* npx cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && npm run kill:docker",

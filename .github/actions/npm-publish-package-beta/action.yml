@@ -54,7 +54,6 @@ runs:
       run: |
         npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
-        rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
       working-directory: ${{ env.directory }}
       shell: bash
