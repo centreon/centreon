@@ -80,9 +80,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo ${{ github.event_name }}
-        shell: bash
-
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
@@ -403,7 +400,7 @@ jobs:
           module: centreon
 
       - name: Publish report to S3
-        if: ${{ github.event_name }} == "push" && !${{ github.head_ref }}
+        if: ${{ github.event_name }} == "push"
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
