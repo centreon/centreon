@@ -80,6 +80,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - run: echo ${{ github.event_name }}
+        shell: bash
+
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
