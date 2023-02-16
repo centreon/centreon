@@ -40,16 +40,7 @@ runs:
           replace: '-'
 
     - name: "Start Centreon container"
-      run: |
-        ls ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-        ls ${{ inputs.module }}/tests/e2e/cypress/results
-        docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/src" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
-      shell: bash
-    
-    - name: "debug"
-      run: |
-        ls ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-        ls ${{ inputs.module }}/tests/e2e/cypress/results
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
     - name: Cypress end-to-end testing
@@ -68,7 +59,6 @@ runs:
         docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/broker.log
         docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-engine/centengine.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/engine.log
         docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-gorgone/gorgoned.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/gorgoned.log
-        mv ${{ inputs.module }}/tests/e2e/cypress/results/videos/* logs/${{ steps.formatFeatureFilePath.outputs.value }}/
       shell: bash
 
     - if: ${{ failure() }}
