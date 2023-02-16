@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui-context",
-  "version": "22.10.9",
+  "version": "22.10.10",
   "description": "Centreon UI shared context",
   "main": "src",
   "keywords": [],
