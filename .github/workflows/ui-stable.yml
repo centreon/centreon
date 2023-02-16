@@ -50,6 +50,7 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          version: ${{ env.base_branch }}
 
   publish-storybook:
     runs-on: ubuntu-22.04
