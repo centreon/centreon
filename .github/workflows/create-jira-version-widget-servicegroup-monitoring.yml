@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget servicegroup monitoring version
-
+name: Create widget servicegroup monitoring jira version
 on:
   pull_request_target:
     types:

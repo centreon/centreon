@@ -1,6 +1,5 @@
 ---
-name: Create centreon widget global health version
-
+name: Create widget global health jira version
 on:
   pull_request_target:
     types:

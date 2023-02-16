@@ -54,14 +54,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.registry_username }}
-          password: ${{ secrets.registry_password }}
-
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
           registry: centreon.jfrog.io/docker
