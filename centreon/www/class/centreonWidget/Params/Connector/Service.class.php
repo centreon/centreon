@@ -103,8 +103,9 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
         $res = $this->db->query($sql);
         $tab = array();
         while ($row = $res->fetchRow()) {
-            # For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) ? $row['display_name'] : $row['service_description'];
+            // For meta services, use display_name column instead of service_description
+            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+                ? $row['display_name'] : $row['service_description'];
             $tab[$hostId . "-" . $row['service_id']] = $serviceDescription;
         }
         return $tab;
