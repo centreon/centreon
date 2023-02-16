@@ -7,7 +7,7 @@ on:
       - closed
     paths:
       - "centreon/packages/ui/**"
-      - ".github/workflows/ui-merge.yml"
+      - ".github/workflows/ui-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
 
 env:

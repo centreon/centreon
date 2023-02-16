@@ -69,3 +69,4 @@ runs:
         package: ${{ env.directory }}/package.json
         tag: ${{ env.TAG }}
         token: ${{ inputs.npm_token }}
+        version: dev-22.10.x
