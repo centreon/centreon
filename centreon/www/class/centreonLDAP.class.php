@@ -1093,6 +1093,7 @@ class CentreonLdapAdmin
         $tab = array(
             'ldap_store_password',
             'ldap_auto_import',
+            'ldap_connection_timeout',
             'ldap_search_limit',
             'ldap_search_timeout',
             'ldap_contact_tmpl',
