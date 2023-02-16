@@ -29,7 +29,7 @@ beforeEach(() => {
 });
 
 Given('an administrator logged in the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin' })
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200);

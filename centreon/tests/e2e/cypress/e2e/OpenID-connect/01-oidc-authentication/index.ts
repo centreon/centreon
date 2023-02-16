@@ -32,7 +32,7 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged on the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 When(
@@ -88,8 +88,7 @@ Then(
     cy.logout().reload();
 
     cy.loginByTypeOfUser({
-      jsonName: 'user-non-admin-for-OIDC-authentication',
-      preserveToken: true
+      jsonName: 'user-non-admin-for-OIDC-authentication'
     });
 
     cy.wait('@postLocalAuthentification')

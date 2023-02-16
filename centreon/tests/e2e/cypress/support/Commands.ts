@@ -72,6 +72,9 @@ Cypress.Commands.add(
           Cypress.Cookies.defaults({
             preserve: 'PHPSESSID'
           });
+        })
+        .then(() => {
+          cy.visit(`${Cypress.config().baseUrl}`);
         });
     }
 

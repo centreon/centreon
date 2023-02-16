@@ -70,8 +70,7 @@ Then(
 
 Given('a saved custom filter', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
-    preserveToken: true
+    jsonName: 'admin'
   }).wait('@postLocalAuthentication');
 
   cy.wait('@getFilters');

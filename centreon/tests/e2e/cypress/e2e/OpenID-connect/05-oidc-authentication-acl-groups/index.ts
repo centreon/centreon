@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged in the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin' })
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
@@ -127,7 +127,7 @@ Then(
         .logout()
         .reload();
     });
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
