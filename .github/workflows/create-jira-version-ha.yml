@@ -1,14 +1,13 @@
 ---
-name: release-web
+name: Create HA jira version
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
   workflow_dispatch:
@@ -32,3 +31,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

@@ -1,14 +1,12 @@
 ---
-name: Create centreon widget service monitoring version
-
+name: Create widget service monitoring jira version
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-service-monitoring/**"
   workflow_dispatch:

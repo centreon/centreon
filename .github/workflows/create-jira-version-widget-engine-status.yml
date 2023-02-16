@@ -1,14 +1,12 @@
 ---
-name: Create centreon widget engine status version
-
+name: Create widget engine status jira version
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-engine-status/**"
   workflow_dispatch:

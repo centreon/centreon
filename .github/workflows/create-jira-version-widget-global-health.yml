@@ -1,14 +1,12 @@
 ---
-name: Create centreon widget global health version
-
+name: Create widget global health jira version
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-global-health/**"
   workflow_dispatch:

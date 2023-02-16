@@ -1,5 +1,5 @@
 ---
-name: release-web
+name: Create web jira version
 
 on:
   pull_request_target:
@@ -32,3 +32,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
