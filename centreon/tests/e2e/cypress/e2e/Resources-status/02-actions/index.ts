@@ -22,7 +22,7 @@ beforeEach(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
 
-  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+  cy.loginByTypeOfUser({
     jsonName: 'admin',
     preserveToken: true
   });

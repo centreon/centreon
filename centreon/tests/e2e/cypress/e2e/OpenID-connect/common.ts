@@ -26,7 +26,6 @@ const initializeOIDCUserAndGetLoginPage = (): void => {
       return cy
         .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
         .then((contact) => executeActionViaClapi(contact))
-        .then(() => cy.visit(`${Cypress.config().baseUrl}`));
     }
   );
 };

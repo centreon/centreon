@@ -81,11 +81,10 @@ Then(
 Given(
   'an authenticated user and the autologin configuration menu can be accessed',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}`)
-      .loginByTypeOfUser({
-        jsonName: 'user',
-        preserveToken: true
-      })
+    cy.loginByTypeOfUser({
+      jsonName: 'user',
+      preserveToken: true
+    })
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')
@@ -123,7 +122,7 @@ Then('the key is properly generated and displayed', () => {
 });
 
 Given('a user with an autologin key generated', () => {
-  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+  cy.loginByTypeOfUser({
     jsonName: 'user',
     preserveToken: true
   });
@@ -157,11 +156,11 @@ Then('the autologin link is copied in the clipboard', () => {
 Given(
   'a platform with autologin enabled and a user with both autologin key and link generated',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+    cy.loginByTypeOfUser({
       jsonName: 'user',
       preserveToken: true
     });
-    cy.visit('/centreon/main.php?p=50104&p=50104&o=c');
+    cy.visit('/centreon/main.php?p=50104&o=c');
     cy.isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
       .invoke('text')

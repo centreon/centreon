@@ -50,7 +50,7 @@ Then('only non-ok resources are displayed', () => {
 });
 
 When('I put in some criterias', () => {
-  cy.visit(`${Cypress.config().baseUrl}`).loginByTypeOfUser({
+  cy.loginByTypeOfUser({
     jsonName: 'admin',
     preserveToken: true
   });
@@ -69,12 +69,10 @@ Then(
 );
 
 Given('a saved custom filter', () => {
-  cy.visit(`${Cypress.config().baseUrl}`)
-    .loginByTypeOfUser({
-      jsonName: 'admin',
-      preserveToken: true
-    })
-    .wait('@postLocalAuthentication');
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  }).wait('@postLocalAuthentication');
 
   cy.wait('@getFilters');
 

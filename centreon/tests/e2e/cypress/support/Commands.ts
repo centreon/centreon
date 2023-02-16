@@ -75,7 +75,8 @@ Cypress.Commands.add(
         });
     }
 
-    cy.fixture(`users/${jsonName}.json`)
+    cy.visit(`${Cypress.config().baseUrl}`)
+      .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(

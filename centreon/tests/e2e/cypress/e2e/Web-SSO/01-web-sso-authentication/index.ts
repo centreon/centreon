@@ -16,7 +16,6 @@ beforeEach(() => {
 });
 
 Given('an administrator logged in the platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@postLocalAuthentification')
     .its('response.statusCode')

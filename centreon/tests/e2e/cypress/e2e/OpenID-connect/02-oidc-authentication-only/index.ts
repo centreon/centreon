@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+  import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   initializeOIDCUserAndGetLoginPage,
@@ -32,7 +32,6 @@ beforeEach(() => {
 });
 
 Given('an administrator is relogged on the platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .wait('@postLocalAuthentification')
     .its('response.statusCode')

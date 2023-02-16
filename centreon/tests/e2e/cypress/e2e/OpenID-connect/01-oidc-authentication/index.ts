@@ -32,7 +32,6 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged on the platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true });
 });
 
@@ -102,7 +101,6 @@ Then(
 );
 
 Given('an administrator is relogged on the platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
   cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
     .navigateTo({
       page: 'Authentication',

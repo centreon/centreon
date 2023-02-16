@@ -41,9 +41,7 @@ jobs:
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: build docker ${{ matrix.project }}
-        run: |
-          ls .github/docker/configs
-          docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
         run: docker push centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
