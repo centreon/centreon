@@ -33,7 +33,7 @@ rm -f centreon-release.rpm
 yum-config-manager --enable 'centreon-testing*'
 yum-config-manager --enable 'centreon-unstable*'
 
-yum clean all
+yum clean all --enablerepo=*
 
 EOF
 
@@ -54,7 +54,7 @@ echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-yum clean all
+yum clean all --enablerepo=*
 
 EOF
 
