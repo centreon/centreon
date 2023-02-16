@@ -20,7 +20,6 @@ interface ActionsType {
 interface Props {
   actions: Array<ActionsType>;
   className?: string;
-  onClick?: () => void;
 }
 
 const useStyles = makeStyles()({
@@ -29,15 +28,15 @@ const useStyles = makeStyles()({
   }
 });
 
-const ActionsList = ({ className, actions, onClick }: Props): JSX.Element => {
+const ActionsList = ({ className, actions }: Props): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
   return (
-    <MenuList className={cx(classes.list, className)} onClick={onClick}>
-      {actions?.map(({ Icon, label, onClick: onActionClick }) => {
+    <MenuList className={cx(classes.list, className)}>
+      {actions?.map(({ Icon, label, onClick }) => {
         return (
-          <MenuItem key={label} onClick={onActionClick}>
+          <MenuItem key={label} onClick={onClick}>
             <ListItemIcon>
               <Icon fontSize="small" />
             </ListItemIcon>
