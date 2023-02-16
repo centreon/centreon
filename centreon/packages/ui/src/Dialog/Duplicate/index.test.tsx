@@ -45,7 +45,7 @@ describe('DialogDuplicate', () => {
 
     expect(mockConfirm).toBeCalledWith(expect.anything(), '3');
   });
-  it('disables the confirm button if the given number is more than the limit', () => {
+  it('disables the confirm button if no number was giving', () => {
     const mockConfirm = jest.fn();
 
     const { getByDisplayValue, getByText } = render(
