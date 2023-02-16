@@ -371,6 +371,13 @@ jobs:
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
+      - name: Publish report to S3
+        if: ${{ github.event_name == 'push' }} 
+        uses: ./.github/actions/lighthouse-to-s3
+        with:
+          report_path: centreon/lighthouse/report/lighthouseci-index.html
+          report_target: s3://centreon-lighthouse-report/
+
       - name: Publish report
         uses: actions/upload-artifact@v3
         with:

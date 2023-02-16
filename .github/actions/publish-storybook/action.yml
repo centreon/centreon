@@ -1,0 +1,36 @@
+name: publish-storybook
+description: Publish storybook
+
+inputs:
+  major_version:
+    description: "Major version"
+    required: true
+  directory:
+    description: "Directory"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Build storybook
+      run: |
+        pnpm i
+        pnpm build:storybook
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+
+    - name: Publish ${{ inputs.major_version }} version of the storybook to S3 bucket
+      run: |
+        TARGETDIR="s3://centreon-storybook/${{ inputs.major_version }}"
+        aws s3 rm --recursive "$TARGETDIR"
+        aws s3 cp --recursive ".out/" "$TARGETDIR"
+      shell: bash
+      working-directory: ${{ inputs.directory }}
