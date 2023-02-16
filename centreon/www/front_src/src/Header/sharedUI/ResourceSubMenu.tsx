@@ -4,6 +4,8 @@ import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 import { Link } from 'react-router-dom';
 
+import { List, ListItem } from '@mui/material';
+
 import { SeverityCode, getStatusColors } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -15,7 +17,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     color: 'inherit',
     display: 'flex',
-    padding: theme.spacing(1),
+    flex: '100%',
+    padding: `0 ${theme.spacing(1)}`,
     textDecoration: 'none'
   },
   status: {
@@ -29,10 +32,7 @@ const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(1)
   },
   submenu: {
-    color: theme.palette.text.primary,
     fontSize: theme.typography.body2.fontSize,
-    listStyle: 'none',
-    margin: 0,
     padding: 0
   },
   submenuItem: {
@@ -65,7 +65,7 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
   const { classes, theme } = useStyles();
 
   return (
-    <ul className={classes.submenu}>
+    <List className={classes.submenu}>
       {items.map(
         ({
           onClick,
@@ -75,7 +75,12 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
           countTestId,
           to
         }) => (
-          <li className={classes.submenuItem} key={to} role="none">
+          <ListItem
+            disableGutters
+            className={classes.submenuItem}
+            key={to}
+            role="none"
+          >
             <Link
               className={classes.link}
               role="menuitem"
@@ -96,10 +101,10 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
                 {submenuCount}
               </span>
             </Link>
-          </li>
+          </ListItem>
         )
       )}
-    </ul>
+    </List>
   );
 };
 

@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 import { isEmpty } from 'ramda';
 
-import { Typography, Button } from '@mui/material';
+import { Typography, Button, List, ListItem } from '@mui/material';
 
 import ExportConfiguration from './ExportConfiguration';
 
@@ -10,16 +10,12 @@ const useStyles = makeStyles()((theme) => ({
     textDecoration: 'none'
   },
   list: {
-    listStyle: 'none',
-    margin: 0,
     padding: 0
   },
   listItem: {
     '&:not(:last-child)': {
       borderBottom: `1px solid ${theme.palette.divider}`
     },
-    listStyle: 'none',
-    margin: 0,
     padding: theme.spacing(1)
   },
   pollerDetailRow: {
@@ -62,11 +58,11 @@ export const PollerSubMenu = ({
   const { classes, cx } = useStyles();
 
   return (
-    <ul className={classes.list} data-testid="poller-menu">
+    <List className={classes.list} data-testid="poller-menu">
       {!isEmpty(issues) ? (
         issues.map(({ text, total, key }) => {
           return (
-            <li
+            <ListItem
               className={cx(classes.listItem, classes.pollerDetailRow)}
               key={key}
             >
@@ -74,17 +70,17 @@ export const PollerSubMenu = ({
                 {text}
               </Typography>
               <Typography variant="body2">{total}</Typography>
-            </li>
+            </ListItem>
           );
         })
       ) : (
-        <li className={cx(classes.listItem, classes.pollerDetailRow)}>
+        <ListItem className={cx(classes.listItem, classes.pollerDetailRow)}>
           <Typography variant="body2">{allPollerLabel}</Typography>
           <Typography variant="body2">{pollerCount as number}</Typography>
-        </li>
+        </ListItem>
       )}
       {pollerConfig.isAllowed && (
-        <li className={classes.listItem}>
+        <ListItem className={classes.listItem}>
           <Button
             fullWidth
             data-testid={pollerConfig.testId}
@@ -94,13 +90,13 @@ export const PollerSubMenu = ({
           >
             {pollerConfig.label}
           </Button>
-        </li>
+        </ListItem>
       )}
       {exportConfig.isExportButtonEnabled && (
-        <li className={classes.listItem}>
+        <ListItem className={classes.listItem}>
           <ExportConfiguration closeSubMenu={closeSubMenu} />
-        </li>
+        </ListItem>
       )}
-    </ul>
+    </List>
   );
 };
