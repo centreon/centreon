@@ -1,21 +1,29 @@
 import {
-  downStatusHosts,
-  unreachableStatusHosts,
-  upStatusHosts
+  labelDownStatusHosts,
+  labelUnreachableStatusHosts,
+  labelUpStatusHosts,
+  labelHosts,
+  labelDown,
+  labelAll,
+  labelUnreachable,
+  labelPending,
+  labelUp
 } from '../Resources/Host/translatedLabels';
 
 import { initialize } from './Header.testUtils';
 
 const getElements = (): void => {
-  cy.findByRole('button', { name: 'Hosts', timeout: 5000 }).as('serviceButton');
+  cy.findByRole('button', { name: labelHosts, timeout: 5000 }).as(
+    'serviceButton'
+  );
 
-  cy.findByRole('link', { name: downStatusHosts }).as('downCounter');
+  cy.findByRole('link', { name: labelDownStatusHosts }).as('downCounter');
 
-  cy.findByRole('link', { name: unreachableStatusHosts }).as(
+  cy.findByRole('link', { name: labelUnreachableStatusHosts }).as(
     'unreachableCounter'
   );
 
-  cy.findByRole('link', { name: upStatusHosts }).as('upCounter');
+  cy.findByRole('link', { name: labelUpStatusHosts }).as('upCounter');
 };
 
 const submenuShouldBeClosed = (label: string): void => {
@@ -48,21 +56,21 @@ const submenuShouldBeOpened = (label: string): void => {
 };
 
 export default (): void =>
-  describe('Hosts', () => {
+  describe(labelHosts, () => {
     describe('responsive behaviors', () => {
       it('should hide button text when the screen is under 768px width', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
-          cy.findByText('Hosts').should('be.visible');
+          cy.findByText(labelHosts).should('be.visible');
           cy.findByTestId('ExpandLessIcon').should('be.visible');
           cy.findByTestId('DnsIcon').should('be.visible');
         });
 
         cy.viewport(767, 300);
         cy.get('@serviceButton').within(() => {
-          cy.findByText('Hosts').should('not.be.visible');
+          cy.findByText(labelHosts).should('not.be.visible');
           cy.findByTestId('ExpandLessIcon').should('be.visible');
           cy.findByTestId('DnsIcon').should('be.visible');
         });
@@ -129,7 +137,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should redirect on click on the counter', () => {
+      it('should redirects to Resources Status with the correct filter when a counter is clicked', () => {
         // given
         const hoststubs = {
           critical: { unhandled: '12' },
@@ -164,14 +172,14 @@ export default (): void =>
       });
     });
 
-    describe('sub menu', () => {
-      it('should have a button to open the submenu', () => {
+    describe('Submenu', () => {
+      it('should open the submenu when clicking on the button', () => {
         initialize();
         getElements();
-        submenuShouldBeClosed('Hosts');
+        submenuShouldBeClosed(labelHosts);
         cy.get('@serviceButton').should('be.visible');
         cy.get('@serviceButton').click();
-        submenuShouldBeOpened('Hosts');
+        submenuShouldBeOpened(labelHosts);
         cy.matchImageSnapshot();
       });
 
@@ -179,20 +187,20 @@ export default (): void =>
         initialize();
         getElements();
 
-        openSubMenu('Hosts');
+        openSubMenu(labelHosts);
 
         cy.get('body').type('{esc}');
-        submenuShouldBeClosed('Hosts');
+        submenuShouldBeClosed(labelHosts);
 
-        openSubMenu('Hosts');
+        openSubMenu(labelHosts);
 
         cy.get('body').click();
-        submenuShouldBeClosed('Hosts');
+        submenuShouldBeClosed(labelHosts);
 
-        openSubMenu('Hosts');
+        openSubMenu(labelHosts);
 
         cy.get('@serviceButton').click();
-        submenuShouldBeClosed('Hosts');
+        submenuShouldBeClosed(labelHosts);
       });
 
       it('should have all the required item links', () => {
@@ -205,34 +213,34 @@ export default (): void =>
         };
 
         initialize({ hosts_status: hoststubs });
-        openSubMenu('Hosts');
+        openSubMenu(labelHosts);
 
         cy.get(`#Hosts-menu`).within(() => {
           const expectedOrderAndContent = [
             {
               count: '1/2',
               href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"DOWN","name":"Down"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: 'Down'
+              label: labelDown
             },
             {
               count: '1/2',
               href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"UNREACHABLE","name":"Unreachable"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: 'Unreachable'
+              label: labelUnreachable
             },
             {
               count: '1',
               href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"UP","name":"Up"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: 'Up'
+              label: labelUp
             },
             {
               count: '1',
               href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"PENDING","name":"Pending"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: 'Pending'
+              label: labelPending
             },
             {
               count: '8',
               href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: 'All'
+              label: labelAll
             }
           ];
 

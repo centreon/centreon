@@ -14,6 +14,7 @@ import { serviceStatusEndpoint } from '../../api/endpoints';
 
 import type { ServicesPropsAdapterOutput } from './getServicePropsAdapter';
 import getServicePropsAdapter from './getServicePropsAdapter';
+import { labelServices } from './translatedLabels';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = useResourceCounters<
@@ -45,7 +46,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
           <ResourceSubMenu items={data.items} />
         )}
         showPendingBadge={data.hasPending}
-        title="Services"
+        title={labelServices}
       />
     )
   );

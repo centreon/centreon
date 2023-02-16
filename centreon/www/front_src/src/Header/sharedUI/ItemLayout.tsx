@@ -100,7 +100,7 @@ interface ItemLayoutProps {
   Icon: typeof SvgIcon;
   renderIndicators: () => JSX.Element;
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
-  showPendingBadge: boolean;
+  showPendingBadge?: boolean;
   title: string;
 }
 

@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@centreon/ui-context';
 
 import {
+  labelPollers,
   labelNoLatencyDetected,
   labelLatencyDetected,
   labelAllPollers,
@@ -25,7 +26,7 @@ import useNavigation from '../../Navigation/useNavigation';
 import { initialize } from './Header.testUtils';
 
 const getElements = (): void => {
-  cy.findByRole('button', { name: 'Pollers', timeout: 5000 }).as(
+  cy.findByRole('button', { name: labelPollers, timeout: 5000 }).as(
     'pollerButton'
   );
 

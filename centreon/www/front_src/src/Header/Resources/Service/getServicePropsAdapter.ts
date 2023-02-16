@@ -21,22 +21,22 @@ import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { ServiceStatusResponse } from '../../api/decoders';
 
 import {
-  criticalStatusServices,
-  warningStatusServices,
-  unknownStatusServices,
-  okStatusServices,
-  allLabel,
-  criticalLabel,
-  warningLabel,
-  pendingLabel,
-  unknownLabel,
-  okLabel
+  labelCriticalStatusServices,
+  labelWarningStatusServices,
+  labelUnknownStatusServices,
+  labelOkStatusServices,
+  labelAll,
+  labelCritical,
+  labelWarning,
+  labelPending,
+  labelUnknown,
+  labelOk
 } from './translatedLabels';
 
-type ChangeFilterAndNavigate = (
-  link: string,
-  criterias: Array<Criteria>
-) => (e: React.MouseEvent<HTMLLinkElement>) => void;
+type ChangeFilterAndNavigate = (params: {
+  criterias: Array<Criteria>;
+  link: string;
+}) => (e: React.MouseEvent<HTMLLinkElement>) => void;
 
 export interface ServicesPropsAdapterOutput {
   counters: CounterProps['counters'];
@@ -63,7 +63,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   data
 }) => {
   const changeFilterAndNavigate: ChangeFilterAndNavigate =
-    (link, criterias) => (e) => {
+    ({ link, criterias }) =>
+    (e) => {
       e.preventDefault();
       if (!useDeprecatedPages) {
         applyFilter({ criterias, id: '', name: 'New Filter' });
@@ -141,66 +142,72 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   const config = {
     all: {
       count: numeral(data.total).format('0a'),
-      label: t(allLabel),
-      onClick: changeFilterAndNavigate(servicesLink, servicesCriterias),
+      label: t(labelAll),
+      onClick: changeFilterAndNavigate({
+        criterias: servicesCriterias,
+        link: servicesLink
+      }),
       shortCount: data.total,
       to: servicesLink
     },
     critical: {
       count: formatCount(data.critical.unhandled, data.critical.total),
-      label: t(criticalLabel),
-      onClick: changeFilterAndNavigate(
-        unhandledCriticalServicesLink,
-        unhandledCriticalServicesCriterias
-      ),
+      label: t(labelCritical),
+      onClick: changeFilterAndNavigate({
+        criterias: unhandledCriticalServicesCriterias,
+        link: unhandledCriticalServicesLink
+      }),
       severityCode: SeverityCode.High,
       shortCount: data.critical.unhandled,
       to: unhandledCriticalServicesLink,
-      topCounterAriaLabel: t(criticalStatusServices)
+      topCounterAriaLabel: t(labelCriticalStatusServices)
     },
     ok: {
       count: numeral(data.ok).format('0a'),
-      label: t(okLabel),
-      onClick: changeFilterAndNavigate(okServicesLink, okServicesCriterias),
+      label: t(labelOk),
+      onClick: changeFilterAndNavigate({
+        criterias: okServicesCriterias,
+        link: okServicesLink
+      }),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
       to: okServicesLink,
-      topCounterAriaLabel: t(okStatusServices)
+      topCounterAriaLabel: t(labelOkStatusServices)
     },
     pending: {
       count: numeral(data.pending).format('0a'),
-      label: t(pendingLabel),
-      onClick: changeFilterAndNavigate(
-        pendingServicesLink,
-        pendingServicesCriterias
-      ),
+      label: t(labelPending),
+      onClick: changeFilterAndNavigate({
+        criterias: pendingServicesCriterias,
+        link: pendingServicesLink
+      }),
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingServicesLink
     },
     unknown: {
       count: formatCount(data.unknown.unhandled, data.unknown.total),
-      label: t(unknownLabel),
-      onClick: changeFilterAndNavigate(
-        unhandledUnknownServicesLink,
-        unhandledUnknownServicesCriterias
-      ),
+      label: t(labelUnknown),
+      onClick: changeFilterAndNavigate({
+        criterias: unhandledUnknownServicesCriterias,
+        link: unhandledUnknownServicesLink
+      }),
       severityCode: SeverityCode.Low,
       shortCount: data.unknown.unhandled,
       to: unhandledUnknownServicesLink,
-      topCounterAriaLabel: t(unknownStatusServices)
+      topCounterAriaLabel: t(labelUnknownStatusServices)
     },
     warning: {
       count: formatCount(data.warning.unhandled, data.warning.total),
-      label: t(warningLabel),
-      onClick: changeFilterAndNavigate(
-        unhandledWarningServicesLink,
-        unhandledWarningServicesCriterias
-      ),
+      label: t(labelWarning),
+      onClick: changeFilterAndNavigate({
+        criterias: unhandledWarningServicesCriterias,
+        link: unhandledWarningServicesLink
+      }),
       severityCode: SeverityCode.Medium,
       shortCount: data.warning.unhandled,
       to: unhandledWarningServicesLink,
-      topCounterAriaLabel: t(warningStatusServices)
+      topCounterAriaLabel: t(labelWarningStatusServices)
     }
   };
 

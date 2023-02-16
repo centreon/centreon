@@ -1,11 +1,13 @@
-export const criticalStatusServices = 'critical status services';
-export const warningStatusServices = 'warning status services';
-export const unknownStatusServices = 'unknown status services';
-export const okStatusServices = 'ok status services';
+export const labelServices = 'Services';
 
-export const allLabel = 'All';
-export const criticalLabel = 'Critical';
-export const warningLabel = 'Warning';
-export const pendingLabel = 'Pending';
-export const unknownLabel = 'Unknown';
-export const okLabel = 'Ok';
+export const labelCriticalStatusServices = 'Critical status services';
+export const labelWarningStatusServices = 'Warning status services';
+export const labelUnknownStatusServices = 'Unknown status services';
+export const labelOkStatusServices = 'Ok status services';
+
+export const labelAll = 'All';
+export const labelCritical = 'Critical';
+export const labelWarning = 'Warning';
+export const labelPending = 'Pending';
+export const labelUnknown = 'Unknown';
+export const labelOk = 'Ok';

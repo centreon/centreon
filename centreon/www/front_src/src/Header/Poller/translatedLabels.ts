@@ -27,3 +27,4 @@ export const labelPollerNotRunning = 'Pollers not running';
 export const labelPollerRunning = 'Everything Ok';
 export const labelConfigurePollers = 'Configure pollers';
 export const labelAllPollers = 'All pollers:';
+export const labelPollers = 'Pollers';

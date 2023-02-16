@@ -9,6 +9,7 @@ import ItemLayout from '../sharedUI/ItemLayout';
 import PollerStatusIcon from './PollerStatusIcon';
 import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';
 import { usePollerData } from './usePollerData';
+import { labelPollers } from './translatedLabels';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = usePollerData();
@@ -31,8 +32,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
         renderSubMenu={({ closeSubMenu }): JSX.Element => (
           <PollerSubMenu {...data.subMenu} closeSubMenu={closeSubMenu} />
         )}
-        testId="Pollers"
-        title="Pollers"
+        title={labelPollers}
       />
     )
   );

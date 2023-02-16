@@ -20,20 +20,20 @@ import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { HostStatusResponse } from '../../api/decoders';
 
 import {
-  downStatusHosts,
-  unreachableStatusHosts,
-  upStatusHosts,
-  allLabel,
-  downLabel,
-  pendingLabel,
-  unreachableLabel,
-  upLabel
+  labelDownStatusHosts,
+  labelUnreachableStatusHosts,
+  labelUpStatusHosts,
+  labelAll,
+  labelDown,
+  labelPending,
+  labelUnreachable,
+  labelUp
 } from './translatedLabels';
 
-type ChangeFilterAndNavigate = (
-  link: string,
-  criterias: Array<Criteria>
-) => (e: React.MouseEvent<HTMLLinkElement>) => void;
+type ChangeFilterAndNavigate = (params: {
+  criterias: Array<Criteria>;
+  link: string;
+}) => (e: React.MouseEvent<HTMLLinkElement>) => void;
 
 export interface HostPropsAdapterOutput {
   counters: CounterProps['counters'];
@@ -57,7 +57,8 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
   data
 }) => {
   const changeFilterAndNavigate: ChangeFilterAndNavigate =
-    (link, criterias) => (e) => {
+    ({ link, criterias }) =>
+    (e) => {
       e.preventDefault();
       if (!useDeprecatedPages) {
         applyFilter({ criterias, id: '', name: 'New Filter' });
@@ -120,52 +121,61 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
   const config = {
     all: {
       count: numeral(data.total).format('0a'),
-      label: t(allLabel),
-      onClick: changeFilterAndNavigate(hostsLink, hostsCriterias),
+      label: t(labelAll),
+      onClick: changeFilterAndNavigate({
+        criterias: hostsCriterias,
+        link: hostsLink
+      }),
       serverityCode: null,
       shortCount: data.total,
       to: hostsLink
     },
     down: {
       count: formatCount(data.down.unhandled, data.down.total),
-      label: t(downLabel),
-      onClick: changeFilterAndNavigate(
-        unhandledDownHostsLink,
-        unhandledDownHostsCriterias
-      ),
+      label: t(labelDown),
+      onClick: changeFilterAndNavigate({
+        criterias: unhandledDownHostsCriterias,
+        link: unhandledDownHostsLink
+      }),
       severityCode: SeverityCode.High,
       shortCount: data.down.unhandled,
       to: unhandledDownHostsLink,
-      topCounterAriaLabel: t(downStatusHosts)
+      topCounterAriaLabel: t(labelDownStatusHosts)
     },
     pending: {
       count: numeral(data.pending).format('0a'),
-      label: t(pendingLabel),
-      onClick: changeFilterAndNavigate(pendingHostsLink, pendingHostsCriterias),
+      label: t(labelPending),
+      onClick: changeFilterAndNavigate({
+        criterias: pendingHostsCriterias,
+        link: pendingHostsLink
+      }),
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingHostsLink
     },
     unreachable: {
       count: formatCount(data.unreachable.unhandled, data.unreachable.total),
-      label: t(unreachableLabel),
-      onClick: changeFilterAndNavigate(
-        unhandledUnreachableHostsLink,
-        unhandledUnreachableHostsCriterias
-      ),
+      label: t(labelUnreachable),
+      onClick: changeFilterAndNavigate({
+        criterias: unhandledUnreachableHostsCriterias,
+        link: unhandledUnreachableHostsLink
+      }),
       severityCode: SeverityCode.Medium,
       shortCount: data.unreachable.unhandled,
       to: unhandledUnreachableHostsLink,
-      topCounterAriaLabel: t(unreachableStatusHosts)
+      topCounterAriaLabel: t(labelUnreachableStatusHosts)
     },
     up: {
       count: numeral(data.ok).format('0a'),
-      label: t(upLabel),
-      onClick: changeFilterAndNavigate(upHostsLink, upHostsCriterias),
+      label: t(labelUp),
+      onClick: changeFilterAndNavigate({
+        criterias: upHostsCriterias,
+        link: upHostsLink
+      }),
       severityCode: SeverityCode.Ok,
       shortCount: data.ok,
       to: upHostsLink,
-      topCounterAriaLabel: t(upStatusHosts)
+      topCounterAriaLabel: t(labelUpStatusHosts)
     }
   };
 
