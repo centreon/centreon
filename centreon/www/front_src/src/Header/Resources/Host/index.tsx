@@ -1,5 +1,3 @@
-import { withTranslation } from 'react-i18next';
-
 import HostIcon from '@mui/icons-material/Dns';
 
 import { MenuSkeleton } from '@centreon/ui';
@@ -52,4 +50,4 @@ const HostStatusCounter = (): JSX.Element | null => {
   );
 };
 
-export default withTranslation()(HostStatusCounter);
+export default HostStatusCounter;

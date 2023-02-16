@@ -1,5 +1,3 @@
-import { withTranslation } from 'react-i18next';
-
 import ServiceIcon from '@mui/icons-material/Grain';
 
 import { MenuSkeleton } from '@centreon/ui';
@@ -52,4 +50,4 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   );
 };
 
-export default withTranslation()(ServiceStatusCounter);
+export default ServiceStatusCounter;

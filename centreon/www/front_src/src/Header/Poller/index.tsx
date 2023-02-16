@@ -1,5 +1,3 @@
-import { withTranslation } from 'react-i18next';
-
 import PollerIcon from '@mui/icons-material/DeviceHub';
 
 import { MenuSkeleton } from '@centreon/ui';
@@ -38,4 +36,4 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   );
 };
 
-export default withTranslation()(ServiceStatusCounter);
+export default ServiceStatusCounter;
