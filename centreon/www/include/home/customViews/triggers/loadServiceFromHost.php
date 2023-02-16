@@ -87,8 +87,9 @@ try {
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $xml->startElement('option');
             $xml->writeElement('id', $row['service_id']);
-            # For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) ? $row['display_name'] : $row['service_description'];
+            // For meta services, use display_name column instead of service_description
+            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+                ? $row['display_name'] : $row['service_description'];
             $xml->writeElement('label', $serviceDescription);
             $xml->endElement();
         }
