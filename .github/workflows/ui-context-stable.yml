@@ -42,3 +42,4 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          version: ${{ env.base_branch }}
