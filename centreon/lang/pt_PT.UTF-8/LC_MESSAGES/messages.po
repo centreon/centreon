@@ -15962,3 +15962,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while retrieving recently created service category"
 #  msgstr ""
+
+#  msgid "You are not allowed to delete service severities"
+#  msgstr ""
+
+#  msgid "Error while deleting service severity"
+#  msgstr ""
+
+#  msgid "Error while creating service severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service severity"
+#  msgstr ""
+
+#  msgid "Service severity name already exists"
+#  msgstr ""
+
+#  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""

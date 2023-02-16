@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { isEmpty } from 'ramda';
+
 import TextField from '@mui/material/TextField';
 
 import Dialog, { Props as DialogProps } from '..';
@@ -27,6 +29,7 @@ const Duplicate = ({
 
   return (
     <Dialog
+      confirmDisabled={isEmpty(value)}
       labelConfirm={labelConfirm}
       labelTitle={labelTitle}
       maxWidth="xs"
