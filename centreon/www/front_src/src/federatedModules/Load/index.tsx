@@ -130,7 +130,7 @@ export const Remote = ({
   }
 
   return (
-    <MemoizedLoadComponent
+    <LoadComponent
       component={component}
       isFederatedModule={isFederatedModule}
       moduleFederationName={moduleFederationName}

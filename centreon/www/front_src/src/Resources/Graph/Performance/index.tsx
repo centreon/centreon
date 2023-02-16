@@ -23,7 +23,8 @@ import {
   prop,
   propEq,
   propOr,
-  reject
+  reject,
+  sortBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -48,7 +49,6 @@ import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import { Resource } from '../../models';
 import { labelNoDataForThisPeriod } from '../../translatedLabels';
 
-import { getNewLinesAnomalyDetection } from './AnomalyDetection/graph/helpers';
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -58,9 +58,7 @@ import { TimeShiftDirection } from './Graph/TimeShiftZones';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
-  AdditionalDataProps,
   AdjustTimePeriodProps,
-  GetDisplayAdditionalLinesConditionProps,
   GraphData,
   Line as LineModel,
   TimeValue
@@ -74,7 +72,7 @@ interface Props {
   displayEventAnnotations?: boolean;
   displayTitle?: boolean;
   endpoint?: string;
-  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
+  filterLines?: any;
   getPerformanceGraphRef?: (
     value: MutableRefObject<HTMLDivElement | null>
   ) => void;
@@ -84,6 +82,7 @@ interface Props {
   isInViewport?: boolean;
   limitLegendRows?: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
+  renderAdditionalLines?: any;
   resource: Resource | ResourceDetails;
   resourceDetailsUpdated?: boolean;
   timeline?: Array<TimelineEvent>;
@@ -146,7 +145,6 @@ const useStyles = makeStyles<MakeStylesProps>()(
 const shiftRatio = 2;
 
 const PerformanceGraph = <T,>({
-  additionalData,
   endpoint,
   graphHeight,
   xAxisTickFormat = timeFormat,
@@ -165,8 +163,9 @@ const PerformanceGraph = <T,>({
   interactWithGraph,
   graphActions,
   getPerformanceGraphRef,
-  getDisplayAdditionalLinesCondition
-}: Props & AdditionalDataProps<T>): JSX.Element => {
+  renderAdditionalLines,
+  filterLines
+}: Props): JSX.Element => {
   const { classes } = useStyles({
     canAdjustTimePeriod: not(isNil(adjustTimePeriod)),
     displayTitle,
@@ -277,12 +276,6 @@ const PerformanceGraph = <T,>({
     );
   }
 
-  const { newLines: displayedLines, newSortedLines } =
-    getNewLinesAnomalyDetection({
-      lines: lineData,
-      resource
-    });
-
   const getLineByMetric = (metric): LineModel => {
     return find(propEq('metric', metric), lineData) as LineModel;
   };
@@ -308,6 +301,16 @@ const PerformanceGraph = <T,>({
   const clearHighlight = (): void => {
     setLineData(map((line) => ({ ...line, highlight: undefined }), lineData));
   };
+
+  const filtredLines = filterLines?.({
+    lines: lineData,
+    resource
+  });
+
+  const sortedLines =
+    filtredLines?.newSortedLines ?? sortBy(prop('name'), lineData);
+  const displayedLines =
+    filtredLines?.newLines ?? reject(propEq('display', false), sortedLines);
 
   const selectMetricLine = (metric: string): void => {
     const metricLine = getLineByMetric(metric);
@@ -417,22 +420,19 @@ const PerformanceGraph = <T,>({
         <Responsive.ParentSize>
           {({ width, height }): JSX.Element => (
             <Graph<T>
-              additionalData={additionalData}
               applyZoom={adjustTimePeriod}
               base={base as number}
               canAdjustTimePeriod={not(isNil(adjustTimePeriod))}
               containsMetrics={containsMetrics}
               displayEventAnnotations={displayEventAnnotations}
               displayTimeValues={displayTimeValues}
-              getDisplayAdditionalLinesCondition={
-                getDisplayAdditionalLinesCondition
-              }
               height={height}
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={
                 not(resourceDetailsUpdated) && sendingGetGraphDataRequest
               }
+              renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               shiftTime={shiftTime}
               timeSeries={timeSeries}
@@ -444,12 +444,13 @@ const PerformanceGraph = <T,>({
           )}
         </Responsive.ParentSize>
       </div>
+
       <Legend
         base={base as number}
         displayCompleteGraph={displayCompleteGraph}
         displayTimeValues={displayTimeValues}
         limitLegendRows={limitLegendRows}
-        lines={newSortedLines}
+        lines={sortedLines}
         timeSeries={timeSeries}
         toggable={toggableLegend}
         onClearHighlight={clearHighlight}

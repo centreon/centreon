@@ -1,25 +1,25 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 
-import { path, isNil, not } from 'ramda';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { isNil, not, path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper } from '@mui/material';
 import IconGraph from '@mui/icons-material/BarChart';
+import { Paper } from '@mui/material';
 
-import { IconButton, LoadingSkeleton } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
+import { IconButton, LoadingSkeleton } from '@centreon/ui';
 
-import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
+import FederatedComponent from '../../../components/FederatedComponents';
 import { ResourceDetails } from '../../Details/models';
-import { Resource } from '../../models';
+import { lastDayPeriod } from '../../Details/tabs/Graph/models';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
   isListingGraphOpenAtom
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { lastDayPeriod } from '../../Details/tabs/Graph/models';
-import { getDisplayAdditionalLinesCondition } from '../../Graph/Performance/AnomalyDetection/graph';
+import { Resource } from '../../models';
+import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
@@ -75,9 +75,18 @@ const Graph = ({
         displayCompleteGraph={displayCompleteGraph}
         displayTitle={false}
         endpoint={`${endpoint}${graphQueryParameters}`}
-        getDisplayAdditionalLinesCondition={getDisplayAdditionalLinesCondition}
         graphHeight={150}
         interactWithGraph={false}
+        renderAdditionalLines={({
+          additionalLinesProps,
+          resource
+        }): JSX.Element => (
+          <FederatedComponent
+            enableAdditionalLines
+            additionalLinesData={{ additionalLinesProps, resource }}
+            path="/anomaly-detection/test"
+          />
+        )}
         resource={row}
         timeline={[]}
       />

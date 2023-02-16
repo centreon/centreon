@@ -3,14 +3,13 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
 
-import { ResourceType } from '../../../models';
 import { TabProps } from '..';
-import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
-import memoizeComponent from '../../../memoizedComponent';
+import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
-import AnomalyDetectionGraphActions from '../../../Graph/Performance/AnomalyDetection/graph/AnomalyDetectionGraphActions';
-import { getDisplayAdditionalLinesCondition } from '../../../Graph/Performance/AnomalyDetection/graph';
+import memoizeComponent from '../../../memoizedComponent';
+import { ResourceType } from '../../../models';
+import FederatedComponent from '../../../../components/FederatedComponents';
 
 import HostGraph from './HostGraph';
 
@@ -59,6 +58,26 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     loadDetails();
   };
 
+  const modalData = {
+    data: details,
+    renderGraph: ({
+      interactWithGraph,
+      graphHeight,
+      renderAdditionalLines,
+      filterLines
+    }): JSX.Element => (
+      <ExportablePerformanceGraphWithTimeline
+        filterLines={filterLines}
+        graphHeight={graphHeight}
+        interactWithGraph={interactWithGraph}
+        renderAdditionalLines={renderAdditionalLines}
+        resource={details}
+      />
+    ),
+    sendReloadGraphPerformance: reload,
+    timePeriodGroup: <TimePeriodButtonGroup />
+  };
+
   return (
     <div className={classes.container}>
       {isService ? (
@@ -66,16 +85,24 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
           <TimePeriodButtonGroup />
           <ExportablePerformanceGraphWithTimeline
             interactWithGraph
-            getDisplayAdditionalLinesCondition={
-              getDisplayAdditionalLinesCondition
-            }
             graphHeight={280}
             renderAdditionalGraphAction={
-              <AnomalyDetectionGraphActions
-                details={details}
-                sendReloadGraphPerformance={reload}
+              <FederatedComponent
+                enableModal
+                modalData={modalData}
+                path="/anomaly-detection/test"
               />
             }
+            renderAdditionalLines={({
+              additionalLinesProps,
+              resource
+            }): JSX.Element => (
+              <FederatedComponent
+                enableAdditionalLines
+                additionalLinesData={{ additionalLinesProps, resource }}
+                path="/anomaly-detection/test"
+              />
+            )}
             resource={details}
           />
         </>
