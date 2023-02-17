@@ -58,9 +58,12 @@ import { TimeShiftDirection } from './Graph/TimeShiftZones';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
+  AdditionalLines,
   AdjustTimePeriodProps,
+  FilterLines,
   GraphData,
   Line as LineModel,
+  NewLines,
   TimeValue
 } from './models';
 import { getLineData, getMetrics, getTimeSeries } from './timeSeries';
@@ -72,7 +75,7 @@ interface Props {
   displayEventAnnotations?: boolean;
   displayTitle?: boolean;
   endpoint?: string;
-  filterLines?: any;
+  filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   getPerformanceGraphRef?: (
     value: MutableRefObject<HTMLDivElement | null>
   ) => void;
@@ -82,7 +85,7 @@ interface Props {
   isInViewport?: boolean;
   limitLegendRows?: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: any;
+  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
   resourceDetailsUpdated?: boolean;
   timeline?: Array<TimelineEvent>;
@@ -208,7 +211,6 @@ const PerformanceGraph = <T,>({
         setBase(graphData.global.base);
         setTitle(graphData.global.title);
         const newLineData = getLineData(graphData);
-
         if (lineData) {
           setLineData(
             newLineData.map((line) => ({

@@ -36,7 +36,13 @@ import {
   labelAddComment
 } from '../../../translatedLabels';
 import Lines from '../Lines';
-import { AdjustTimePeriodProps, Line as LineModel, TimeValue } from '../models';
+import {
+  AdjustTimePeriodProps,
+  FilterLines,
+  Line as LineModel,
+  NewLines,
+  TimeValue
+} from '../models';
 import {
   getDates,
   getLeftScale,
@@ -195,7 +201,7 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: any;
+  renderAdditionalLines?: ({ lines, resource }: FilterLines) => NewLines;
   resource: Resource | ResourceDetails;
   shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
@@ -512,7 +518,7 @@ const GraphContent = <T,>({
               leftScale={leftScale}
               lines={lines}
               renderAdditionalLines={renderAdditionalLines?.({
-                additionalLinesProps,
+                ...additionalLinesProps,
                 resource
               })}
               rightScale={rightScale}

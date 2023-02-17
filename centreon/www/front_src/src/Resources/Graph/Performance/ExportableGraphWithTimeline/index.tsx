@@ -25,7 +25,12 @@ import { listTimelineEventsDecoder } from '../../../Details/tabs/Timeline/api/de
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
 import MemoizedGraphActions from '../GraphActions';
-import { GraphOptionId } from '../models';
+import {
+  AdditionalLines,
+  FilterLines,
+  GraphOptionId,
+  NewLines
+} from '../models';
 import {
   adjustTimePeriodDerivedAtom,
   customTimePeriodAtom,
@@ -53,12 +58,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
 }));
 
 interface Props {
-  filterLines?: any;
+  filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   graphHeight: number;
   interactWithGraph: boolean;
   limitLegendRows?: boolean;
   renderAdditionalGraphAction?: ReactNode;
-  renderAdditionalLines?: any;
+  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource?: Resource | ResourceDetails;
 }
 
