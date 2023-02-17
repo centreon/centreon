@@ -271,9 +271,11 @@ const FieldsTable = ({
   const updatePriorities = (items): Array<unknown> =>
     items.reduce((acc, curr, index) => {
       const row = acc[curr];
+
       if (isNil(row)) {
         return acc;
       }
+
       row.priority = index;
 
       return acc;
