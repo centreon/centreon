@@ -165,7 +165,7 @@ const GraphActions = ({
             <FederatedComponent
               enableButtonConfiguration
               buttonConfigurationData={{ resource }}
-              path="/anomaly-detection/test"
+              path="/anomaly-detection/graph"
             />
             {renderAdditionalGraphActions}
           </>
