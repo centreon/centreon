@@ -129,6 +129,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             	      WHERE host_activate = '1'
             	      AND host_register = '1' ";
             $query .= $aclString;
+            // Add virtual host 'Meta' in the list if it exists and if ACL allows it
             $query .= "UNION SELECT host_id, 'Meta'
                        FROM host
                        WHERE host_register = '2'
