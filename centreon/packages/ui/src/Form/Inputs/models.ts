@@ -50,6 +50,7 @@ export interface InputProps {
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
     getSortable?: (values: FormikValues) => boolean;
     hasSingleValue?: boolean;
+    sortableIdProperty?: string;
   };
   getDisabled?: (values: FormikValues) => boolean;
   getRequired?: (values: FormikValues) => boolean;
@@ -72,7 +73,8 @@ export interface InputProps {
     getChecked?: (value) => boolean;
   };
   text?: {
-    type: string;
+    multilineRows?: number;
+    type?: string;
   };
   type: InputType;
 }

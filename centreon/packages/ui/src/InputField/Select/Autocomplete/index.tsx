@@ -24,6 +24,7 @@ import getNormalizedId from '../../../utils/getNormalizedId';
 
 export type Props = {
   autoFocus?: boolean;
+  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
@@ -148,6 +149,7 @@ const AutocompleteField = ({
   displayPopupIcon = true,
   autoFocus = false,
   hideInput = false,
+  dataTestId,
   ...autocompleteProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
@@ -193,7 +195,7 @@ const AutocompleteField = ({
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
-        'data-testid': label,
+        'data-testid': dataTestId || label,
         id: getNormalizedId(label || '')
       }}
       label={label}

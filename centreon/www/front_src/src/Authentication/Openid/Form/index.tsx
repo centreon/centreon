@@ -2,7 +2,7 @@ import { FormikValues } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, pick, pipe, values, or, all, not } from 'ramda';
 
-import { useRequest, useSnackbar, Form } from '@centreon/ui';
+import { useSnackbar, Form, Method, useMutationQuery } from '@centreon/ui';
 
 import useValidationSchema from '../useValidationSchema';
 import {
@@ -10,12 +10,12 @@ import {
   labelOpenIDConnectConfigurationSaved,
   labelRequired
 } from '../translatedLabels';
-import { putProviderConfiguration } from '../../api';
 import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
 import FormButtons from '../../FormButtons';
 import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
+import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
 
@@ -34,13 +34,12 @@ const OpenidForm = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { sendRequest } = useRequest({
+  const { mutateAsync } = useMutationQuery<OpenidConfigurationToAPI>({
     defaultFailureMessage: t(labelFailedToSaveOpenidConfiguration),
-    request: putProviderConfiguration<
-      OpenidConfiguration,
-      OpenidConfigurationToAPI
-    >({ adapter: adaptOpenidConfigurationToAPI, type: Provider.Openid })
+    getEndpoint: () => authenticationProvidersEndpoint(Provider.Openid),
+    method: Method.PUT
   });
+
   const { showSuccessMessage } = useSnackbar();
 
   const validationSchema = useValidationSchema();
@@ -49,7 +48,7 @@ const OpenidForm = ({
     formikValues: OpenidConfiguration,
     { setSubmitting }
   ): Promise<void> =>
-    sendRequest(formikValues)
+    mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
       .then(() => {
         loadOpenidConfiguration();
         showSuccessMessage(t(labelOpenIDConnectConfigurationSaved));

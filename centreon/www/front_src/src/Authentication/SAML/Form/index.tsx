@@ -4,34 +4,34 @@ import { useSnackbar, Form, useMutationQuery, Method } from '@centreon/ui';
 
 import useValidationSchema from '../useValidationSchema';
 import {
-  labelFailedToSaveWebSSOConfiguration,
-  labelWebSSOConfigurationSaved
+  labelFailedToSaveSAMLConfiguration,
+  labelSAMLConfigurationSaved
 } from '../translatedLabels';
-import { WebSSOConfiguration, WebSSOConfigurationToAPI } from '../models';
+import { SAMLConfiguration } from '../models';
+import FormButtons from '../../FormButtons';
 import { groups } from '../../groups';
 import { Provider } from '../../models';
-import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
-import FormButtons from '../../FormButtons';
+import { adaptSAMLConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
 
 interface Props {
-  initialValues: WebSSOConfiguration;
+  initialValues: SAMLConfiguration;
   isLoading: boolean;
-  loadWebSSOonfiguration: () => void;
+  loadConfiguration: () => void;
 }
 
-const WebSSOForm = ({
+const SAMLForm = ({
   initialValues,
-  loadWebSSOonfiguration,
+  loadConfiguration,
   isLoading
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { mutateAsync } = useMutationQuery<WebSSOConfigurationToAPI>({
-    defaultFailureMessage: t(labelFailedToSaveWebSSOConfiguration),
-    getEndpoint: () => authenticationProvidersEndpoint(Provider.WebSSO),
+  const { mutateAsync } = useMutationQuery({
+    defaultFailureMessage: t(labelFailedToSaveSAMLConfiguration),
+    getEndpoint: () => authenticationProvidersEndpoint(Provider.SAML),
     method: Method.PUT
   });
 
@@ -40,19 +40,19 @@ const WebSSOForm = ({
   const validationSchema = useValidationSchema();
 
   const submit = (
-    values: WebSSOConfiguration,
+    formikValues: SAMLConfiguration,
     { setSubmitting }
-  ): Promise<void> => {
-    return mutateAsync(adaptWebSSOConfigurationToAPI(values))
+  ): Promise<void> =>
+    mutateAsync(adaptSAMLConfigurationToAPI(formikValues))
       .then(() => {
-        loadWebSSOonfiguration();
-        showSuccessMessage(t(labelWebSSOConfigurationSaved));
+        loadConfiguration();
+        showSuccessMessage(t(labelSAMLConfigurationSaved));
       })
       .finally(() => setSubmitting(false));
-  };
 
   return (
-    <Form<WebSSOConfiguration>
+    <Form<SAMLConfiguration>
+      isCollapsible
       Buttons={FormButtons}
       groups={groups}
       initialValues={initialValues}
@@ -64,4 +64,4 @@ const WebSSOForm = ({
   );
 };
 
-export default WebSSOForm;
+export default SAMLForm;
