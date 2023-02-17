@@ -400,7 +400,7 @@ jobs:
           module: centreon
 
       - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }} 
+        if: ${{ github.event_name == 'push' }}
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
@@ -411,6 +411,7 @@ jobs:
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
 
   deliver-rpm:
     runs-on: [self-hosted, common]

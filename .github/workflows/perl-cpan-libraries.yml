@@ -185,6 +185,7 @@ jobs:
         with:
           name: packages-${{ matrix.package_extension }}-${{ matrix.distrib }}
           path: ./*.${{ matrix.package_extension }}
+          retention-days: 1
 
   sign-rpm:
     needs: [package]
