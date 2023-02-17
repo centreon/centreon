@@ -341,6 +341,7 @@ jobs:
         with:
           name: cypress-videos
           path: centreon/tests/e2e/cypress/results/videos
+          retention-days: 1
 
       - if: failure()
         uses: ./.github/actions/publish-report
@@ -376,6 +377,7 @@ jobs:
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
 
   deliver-rpm:
     runs-on: [self-hosted, common]

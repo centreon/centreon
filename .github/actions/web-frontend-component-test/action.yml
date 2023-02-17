@@ -26,6 +26,7 @@ runs:
       with:
         name: cypress-videos
         path: ${{ inputs.working_directory }}/cypress/results/videos
+        retention-days: 1
 
     - if: failure()
       uses: ./.github/actions/publish-report
