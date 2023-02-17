@@ -75,8 +75,6 @@ import OpenidConfigurationForm from '.';
 
 jest.mock('../logos/providerPadlock.svg');
 
-const cancelTokenRequestParam = { cancelToken: {} };
-
 const renderOpenidConfigurationForm = (): RenderResult =>
   render(
     <TestQueryProvider>
