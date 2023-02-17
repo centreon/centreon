@@ -111,6 +111,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-logs
           path: acceptance-logs
+          retention-days: 1
 
       - name: Upload Test Results
         if: failure()
@@ -118,6 +119,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-reports
           path: xunit-reports
+          retention-days: 1
 
   behat-test-report:
     needs: [behat-test-run]
