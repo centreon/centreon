@@ -82,7 +82,7 @@ const Graph = ({
           resource
         }): JSX.Element => (
           <FederatedComponent
-            enableAdditionalLines
+            displayAdditionalLines
             additionalLinesData={{ additionalLinesProps, resource }}
             path="/anomaly-detection/graph"
           />

@@ -163,7 +163,7 @@ const GraphActions = ({
           </IconButton>
           <>
             <FederatedComponent
-              enableButtonConfiguration
+              displayButtonConfiguration
               buttonConfigurationData={{ resource }}
               path="/anomaly-detection/graph"
             />
