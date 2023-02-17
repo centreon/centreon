@@ -96,6 +96,24 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'moveSortableElementUsingAriaLabel',
+  ({ ariaLabel, direction }): void => {
+    const key = `{${direction}arrow}`;
+
+    cy.findByLabelText(ariaLabel).type(' ', {
+      force: true,
+      scrollBehavior: false
+    });
+    cy.findAllByLabelText(ariaLabel).eq(-1).type(key, {
+      scrollBehavior: false
+    });
+    cy.findAllByLabelText(ariaLabel).eq(-1).type(' ', {
+      scrollBehavior: false
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -105,6 +123,7 @@ declare global {
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({ element, direction }) => void;
+      moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
       waitForRequest: (alias) => Cypress.Chainable;
     }
