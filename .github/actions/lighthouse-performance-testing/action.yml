@@ -48,7 +48,7 @@ runs:
       run:  npm ci --legacy-peer-deps
       shell: bash
       working-directory: centreon/lighthouse
-    
+
     - name: Run lighthouse
       run: npm run run:lighthouse
       shell: bash
