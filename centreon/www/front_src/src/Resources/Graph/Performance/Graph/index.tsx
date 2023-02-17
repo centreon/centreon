@@ -220,7 +220,7 @@ interface GraphContentProps {
 
 export const bisectDate = bisector(identity).center;
 
-const GraphContent = <T,>({
+const GraphContent = ({
   width,
   height,
   timeSeries,

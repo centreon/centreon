@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai/utils';
 
 import { Theme } from '@mui/material';
 
@@ -10,6 +11,11 @@ import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
 import FederatedComponent from '../../../../components/FederatedComponents';
+import PopoverCustomTimePeriodPickers from '../../../Graph/Performance/TimePeriods/PopoverCustomTimePeriodPicker';
+import {
+  customTimePeriodAtom,
+  graphQueryParametersDerivedAtom
+} from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
 
 import HostGraph from './HostGraph';
 
@@ -44,6 +50,9 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const equalsMetaService = equals(ResourceType.metaservice);
   const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
 
+  const customTimePeriod = useAtomValue(customTimePeriodAtom);
+  const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
+
   const { loadDetails } = useLoadDetails();
 
   const isService =
@@ -74,8 +83,12 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
         resource={details}
       />
     ),
+    renderTimePeriodPicker: (props): JSX.Element => {
+      return <PopoverCustomTimePeriodPickers {...props} />;
+    },
     sendReloadGraphPerformance: reload,
-    timePeriodGroup: <TimePeriodButtonGroup />
+    timePeriodGroup: <TimePeriodButtonGroup />,
+    timePeriodPickerData: { customTimePeriod, getGraphQueryParameters }
   };
 
   return (

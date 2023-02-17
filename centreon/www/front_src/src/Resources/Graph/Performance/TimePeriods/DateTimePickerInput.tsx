@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DesktopDateTimePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -12,11 +12,15 @@ import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 interface Props {
   changeDate: (props) => void;
-  date: Date;
-  maxDate?: Date;
-  minDate?: Date;
+  date: Date | dayjs.Dayjs;
+  disabled?: boolean;
+  maxDate?: Date | dayjs.Dayjs;
+  minDate?: Date | dayjs.Dayjs;
+  onClosePicker?: (isClosed: boolean) => void;
   property: CustomTimePeriodProperty;
   setDate: Dispatch<SetStateAction<Date>>;
+  setWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
+  withoutInitialValue?: boolean;
 }
 
 const renderDateTimePickerTextField =
@@ -42,9 +46,14 @@ const DateTimePickerInput = ({
   minDate,
   property,
   changeDate,
-  setDate
+  setDate,
+  withoutInitialValue = false,
+  setWithoutInitialValue,
+  onClosePicker,
+  disabled = false
 }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+
   const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =
     useDateTimePickerAdapter();
 
@@ -52,6 +61,8 @@ const DateTimePickerInput = ({
     newValue: dayjs.Dayjs | null,
     keyBoardValue: string | undefined
   ): void => {
+    setWithoutInitialValue?.(false);
+
     if (isOpen) {
       changeDate({ date: dayjs(newValue).toDate(), property });
 
@@ -69,22 +80,25 @@ const DateTimePickerInput = ({
   const blur = (): void => {
     changeDate({ date, property });
   };
+  const close = (): void => {
+    setIsOpen(false);
+    onClosePicker?.(true);
+  };
 
   return (
-    <DesktopDateTimePicker<dayjs.Dayjs>
+    <DateTimePicker<dayjs.Dayjs>
       hideTabs
       PopperProps={{
         open: isOpen
       }}
-      dayOfWeekFormatter={(day): string => day.substring(0, 2).toUpperCase()}
+      disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
-      showToolbar={false}
-      value={date}
+      value={withoutInitialValue ? null : (date as dayjs.Dayjs)}
       onChange={changeTime}
-      onClose={(): void => setIsOpen(false)}
+      onClose={close}
       onOpen={(): void => setIsOpen(true)}
     />
   );
