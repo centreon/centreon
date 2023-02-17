@@ -50,59 +50,9 @@ import {
   labelSAMLOnly,
   labelUserIdAttribute
 } from './translatedLabels';
+import { retrievedSAMLConfiguration } from './defaults';
 
 import SAMLConfigurationForm from '.';
-
-const retrievedSAMLConfiguration = {
-  authentication_conditions: {
-    attribute_path: 'info.items.prop1',
-    authorized_values: ['string'],
-    is_enabled: true
-  },
-  auto_import: true,
-  certificate: 'string',
-  contact_template: {
-    id: 1,
-    name: 'Default'
-  },
-  email_bind_attribute: 'email',
-  entity_id_url: 'https://idp/saml',
-  fullname_bind_attribute: 'name',
-  groups_mapping: {
-    attribute_path: 'info.items.groups',
-    is_enabled: true,
-    relations: [
-      {
-        contact_group: {
-          id: 1,
-          name: 'cg1'
-        },
-        group_value: 'group1'
-      }
-    ]
-  },
-  is_active: true,
-  is_forced: false,
-  logout_from: true,
-  logout_from_url: 'https://idp/saml',
-  remote_login_url: 'https://idp/saml',
-  roles_mapping: {
-    apply_only_first_role: true,
-    attribute_path: 'info.items.role',
-    is_enabled: true,
-    relations: [
-      {
-        access_group: {
-          id: 1,
-          name: 'Default'
-        },
-        claim_value: 'scope',
-        priority: 0
-      }
-    ]
-  },
-  user_id_attribute: 'string'
-};
 
 const getRetrievedEntities = (label: string): object => ({
   meta: {
@@ -203,6 +153,8 @@ describe('SAMLConfiguration', () => {
       retrievedSAMLConfiguration.logout_from_url
     );
 
+    cy.contains(labelIdentityProvider).scrollIntoView();
+
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Identity provider'
     );
@@ -226,6 +178,8 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelConditionValue).eq(1).should('have.value', '');
 
+    cy.contains(labelAuthenticationConditions).scrollIntoView();
+
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Authentication conditions'
     );
@@ -245,6 +199,8 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.fullname_bind_attribute
     );
+
+    cy.contains(labelAutoImportUsers).scrollIntoView();
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Auto import users'
@@ -277,6 +233,8 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).should('have.value', '');
 
+    cy.contains(labelRolesMapping).scrollIntoView();
+
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Roles mapping'
     );
@@ -308,7 +266,7 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelContactGroup).eq(1).should('have.value', '');
 
-    cy.scrollTo('bottom');
+    cy.contains(labelGroupsMapping).scrollIntoView();
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Groups mapping'

@@ -1,5 +1,5 @@
-export const labelSAMLConfiguration = 'SAML Configuration';
-export const labelDefineSAMLConfiguration = 'Define SAML Configuration';
+export const labelSAMLConfiguration = 'SAML configuration';
+export const labelDefineSAMLConfiguration = 'Define SAML configuration';
 export const labelFailedToSaveSAMLConfiguration =
   'Failed to save SAML configuration';
 export const labelSAMLConfigurationSaved = 'SAML configuration saved';
