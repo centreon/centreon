@@ -301,7 +301,7 @@ class Assertion
         } elseif (\is_array($value)) {
             $result = '<ARRAY>';
         } elseif (\is_object($value)) {
-            $result = $value::class;
+            $result = \get_debug_type($value);
         } elseif (\is_resource($value)) {
             $result = \get_resource_type($value);
         } elseif (null === $value) {
