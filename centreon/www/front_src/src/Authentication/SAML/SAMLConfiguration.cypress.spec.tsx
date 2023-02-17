@@ -1,16 +1,57 @@
-import { Method } from '../../../../../cypress/support/commands';
-
-import { TestQueryProvider } from '@centreon/ui';
 import { replace } from 'ramda';
 
-import { accessGroupsEndpoint, authenticationProvidersEndpoint, contactGroupsEndpoint } from '../api/endpoints';
+import { TestQueryProvider } from '@centreon/ui';
+
+import { Method } from '../../../../../cypress/support/commands';
+import {
+  accessGroupsEndpoint,
+  authenticationProvidersEndpoint,
+  contactGroupsEndpoint
+} from '../api/endpoints';
 import { Provider } from '../models';
+import {
+  labelAclAccessGroup,
+  labelApplyOnlyFirtsRole,
+  labelConditionValue,
+  labelConditionsAttributePath,
+  labelContactGroup,
+  labelContactTemplate,
+  labelDeleteRelation,
+  labelEnableAutoImport,
+  labelEnableAutomaticManagement,
+  labelEnableConditionsOnIdentityProvider,
+  labelGroupValue,
+  labelGroupsAttributePath,
+  labelMixed,
+  labelRoleValue,
+  labelRolesAttributePath,
+  labelRolesMapping
+} from '../shared/translatedLabels';
+import {
+  labelAuthenticationConditions,
+  labelAutoImportUsers,
+  labelGroupsMapping,
+  labelIdentityProvider
+} from '../translatedLabels';
+import { labelSave } from '../Local/translatedLabels';
+
+import {
+  labelBothIdentityProviderAndCentreonUI,
+  labelCentreonUIOnly,
+  labelCertificate,
+  labelDefineSAMLConfiguration,
+  labelEmailAttribute,
+  labelEnableSAMLAuthentication,
+  labelEntityIdURL,
+  labelFullNameAttribute,
+  labelLogoutUrl,
+  labelRemoteLoginUrl,
+  labelRequired,
+  labelSAMLOnly,
+  labelUserIdAttribute
+} from './translatedLabels';
 
 import SAMLConfigurationForm from '.';
-import { labelBothIdentityProviderAndCentreonUI, labelCentreonUIOnly, labelCertificate, labelDefineSAMLConfiguration, labelEmailAttribute, labelEnableSAMLAuthentication, labelEntityIdURL, labelFullNameAttribute, labelLogoutUrl, labelRemoteLoginUrl, labelRequired, labelSAMLOnly, labelUserIdAttribute } from './translatedLabels';
-import { labelAclAccessGroup, labelApplyOnlyFirtsRole, labelConditionValue, labelConditionsAttributePath, labelContactGroup, labelContactTemplate, labelDeleteRelation, labelEnableAutoImport, labelEnableAutomaticManagement, labelEnableConditionsOnIdentityProvider, labelGroupValue, labelGroupsAttributePath, labelMixed, labelRoleValue, labelRolesAttributePath, labelRolesMapping } from '../shared/translatedLabels';
-import { labelAuthenticationConditions, labelAutoImportUsers, labelGroupsMapping, labelIdentityProvider } from '../translatedLabels';
-import { labelSave } from '../Local/translatedLabels';
 
 const retrievedSAMLConfiguration = {
   authentication_conditions: {
@@ -88,27 +129,27 @@ const initializeAndMountSAMLConfigurationForm = (): void => {
   cy.interceptAPIRequest({
     alias: 'getSAMLConfiguration',
     method: Method.GET,
-    path: replace('./',  '**', authenticationProvidersEndpoint(Provider.SAML)),
+    path: replace('./', '**', authenticationProvidersEndpoint(Provider.SAML)),
     response: retrievedSAMLConfiguration
   });
   cy.interceptAPIRequest({
     alias: 'putSAMLConfiguration',
     method: Method.PUT,
-    path: replace('./',  '**', authenticationProvidersEndpoint(Provider.SAML)),
+    path: replace('./', '**', authenticationProvidersEndpoint(Provider.SAML)),
     response: {}
   });
   cy.interceptAPIRequest({
     alias: 'getAccessGroups',
     method: Method.GET,
-    path: `${replace('./',  '**', accessGroupsEndpoint)}**`,
+    path: `${replace('./', '**', accessGroupsEndpoint)}**`,
     response: retrievedAccessGroups
   });
   cy.interceptAPIRequest({
     alias: 'getContactGroups',
     method: Method.GET,
-    path: `${replace('./',  '**', contactGroupsEndpoint)}**`,
+    path: `${replace('./', '**', contactGroupsEndpoint)}**`,
     response: retrievedContactGroup
-  })
+  });
 
   cy.mount({
     Component: (
@@ -137,63 +178,141 @@ describe('SAMLConfiguration', () => {
 
     cy.contains(labelIdentityProvider).click();
 
-    cy.findByLabelText(labelRemoteLoginUrl).should('have.value', retrievedSAMLConfiguration.remote_login_url);
-    cy.findByLabelText(labelEntityIdURL).should('have.value', retrievedSAMLConfiguration.entity_id_url);
-    cy.findByLabelText(labelCertificate).should('have.value', retrievedSAMLConfiguration.certificate);
-    cy.findByLabelText(labelUserIdAttribute).should('have.value', retrievedSAMLConfiguration.user_id_attribute);
+    cy.findByLabelText(labelRemoteLoginUrl).should(
+      'have.value',
+      retrievedSAMLConfiguration.remote_login_url
+    );
+    cy.findByLabelText(labelEntityIdURL).should(
+      'have.value',
+      retrievedSAMLConfiguration.entity_id_url
+    );
+    cy.findByLabelText(labelCertificate).should(
+      'have.value',
+      retrievedSAMLConfiguration.certificate
+    );
+    cy.findByLabelText(labelUserIdAttribute).should(
+      'have.value',
+      retrievedSAMLConfiguration.user_id_attribute
+    );
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
-    cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should('be.checked');
-    cy.findByLabelText(labelLogoutUrl).should('have.value', retrievedSAMLConfiguration.logout_from_url);
+    cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
+      'be.checked'
+    );
+    cy.findByLabelText(labelLogoutUrl).should(
+      'have.value',
+      retrievedSAMLConfiguration.logout_from_url
+    );
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Identity provider');
+    cy.matchImageSnapshot(
+      'displays the SAML configuration form - Identity provider'
+    );
 
     cy.contains(labelAuthenticationConditions).click();
 
-    cy.findByLabelText(labelEnableConditionsOnIdentityProvider).should('be.checked');
-    cy.findByLabelText(labelConditionsAttributePath).should('have.value', retrievedSAMLConfiguration.authentication_conditions.attribute_path);
+    cy.findByLabelText(labelEnableConditionsOnIdentityProvider).should(
+      'be.checked'
+    );
+    cy.findByLabelText(labelConditionsAttributePath).should(
+      'have.value',
+      retrievedSAMLConfiguration.authentication_conditions.attribute_path
+    );
     cy.findAllByLabelText(labelConditionValue).should('have.length', 2);
-    cy.findAllByLabelText(labelConditionValue).eq(0).should('have.value', retrievedSAMLConfiguration.authentication_conditions.authorized_values[0]);
+    cy.findAllByLabelText(labelConditionValue)
+      .eq(0)
+      .should(
+        'have.value',
+        retrievedSAMLConfiguration.authentication_conditions
+          .authorized_values[0]
+      );
     cy.findAllByLabelText(labelConditionValue).eq(1).should('have.value', '');
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Authentication conditions');
+    cy.matchImageSnapshot(
+      'displays the SAML configuration form - Authentication conditions'
+    );
 
     cy.contains(labelAutoImportUsers).click();
 
     cy.findByLabelText(labelEnableAutoImport).should('be.checked');
-    cy.findByLabelText(labelContactTemplate).should('have.value', retrievedSAMLConfiguration.contact_template.name);
-    cy.findByLabelText(labelEmailAttribute).should('have.value', retrievedSAMLConfiguration.email_bind_attribute);
-    cy.findByLabelText(labelFullNameAttribute).should('have.value', retrievedSAMLConfiguration.fullname_bind_attribute);
+    cy.findByLabelText(labelContactTemplate).should(
+      'have.value',
+      retrievedSAMLConfiguration.contact_template.name
+    );
+    cy.findByLabelText(labelEmailAttribute).should(
+      'have.value',
+      retrievedSAMLConfiguration.email_bind_attribute
+    );
+    cy.findByLabelText(labelFullNameAttribute).should(
+      'have.value',
+      retrievedSAMLConfiguration.fullname_bind_attribute
+    );
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Auto import users');
+    cy.matchImageSnapshot(
+      'displays the SAML configuration form - Auto import users'
+    );
 
     cy.contains(labelRolesMapping).click();
 
-    cy.findAllByLabelText(labelEnableAutomaticManagement).eq(0).should('be.checked');
+    cy.findAllByLabelText(labelEnableAutomaticManagement)
+      .eq(0)
+      .should('be.checked');
     cy.findByLabelText(labelApplyOnlyFirtsRole).should('be.checked');
-    cy.findByLabelText(labelRolesAttributePath).should('have.value', retrievedSAMLConfiguration.roles_mapping.attribute_path);
+    cy.findByLabelText(labelRolesAttributePath).should(
+      'have.value',
+      retrievedSAMLConfiguration.roles_mapping.attribute_path
+    );
     cy.findAllByLabelText(labelRoleValue).should('have.length', 2);
-    cy.findAllByLabelText(labelRoleValue).eq(0).should('have.value', retrievedSAMLConfiguration.roles_mapping.relations[0].claim_value);
+    cy.findAllByLabelText(labelRoleValue)
+      .eq(0)
+      .should(
+        'have.value',
+        retrievedSAMLConfiguration.roles_mapping.relations[0].claim_value
+      );
     cy.findAllByLabelText(labelRoleValue).eq(1).should('have.value', '');
     cy.findAllByLabelText(labelAclAccessGroup).should('have.length', 2);
-    cy.findAllByLabelText(labelAclAccessGroup).eq(0).should('have.value', retrievedSAMLConfiguration.roles_mapping.relations[0].access_group.name);
+    cy.findAllByLabelText(labelAclAccessGroup)
+      .eq(0)
+      .should(
+        'have.value',
+        retrievedSAMLConfiguration.roles_mapping.relations[0].access_group.name
+      );
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).should('have.value', '');
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Roles mapping');
+    cy.matchImageSnapshot(
+      'displays the SAML configuration form - Roles mapping'
+    );
 
     cy.contains(labelGroupsMapping).click();
 
-    cy.findAllByLabelText(labelEnableAutomaticManagement).eq(1).should('be.checked');
-    cy.findByLabelText(labelGroupsAttributePath).should('have.value', retrievedSAMLConfiguration.groups_mapping.attribute_path);
+    cy.findAllByLabelText(labelEnableAutomaticManagement)
+      .eq(1)
+      .should('be.checked');
+    cy.findByLabelText(labelGroupsAttributePath).should(
+      'have.value',
+      retrievedSAMLConfiguration.groups_mapping.attribute_path
+    );
     cy.findAllByLabelText(labelGroupValue).should('have.length', 2);
-    cy.findAllByLabelText(labelGroupValue).eq(0).should('have.value', retrievedSAMLConfiguration.groups_mapping.relations[0].group_value);
+    cy.findAllByLabelText(labelGroupValue)
+      .eq(0)
+      .should(
+        'have.value',
+        retrievedSAMLConfiguration.groups_mapping.relations[0].group_value
+      );
     cy.findAllByLabelText(labelGroupValue).eq(1).should('have.value', '');
     cy.findAllByLabelText(labelContactGroup).should('have.length', 2);
-    cy.findAllByLabelText(labelContactGroup).eq(0).should('have.value', retrievedSAMLConfiguration.groups_mapping.relations[0].contact_group.name);
+    cy.findAllByLabelText(labelContactGroup)
+      .eq(0)
+      .should(
+        'have.value',
+        retrievedSAMLConfiguration.groups_mapping.relations[0].contact_group
+          .name
+      );
     cy.findAllByLabelText(labelContactGroup).eq(1).should('have.value', '');
 
     cy.scrollTo('bottom');
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Groups mapping');
+    cy.matchImageSnapshot(
+      'displays the SAML configuration form - Groups mapping'
+    );
   });
 
   it('disables auto import fields when auto import is disabled', () => {
@@ -261,10 +380,15 @@ describe('SAMLConfiguration', () => {
 
     cy.contains('Access Group 1').click();
 
-    cy.moveSortableElement({ element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent(), direction: 'up' });
+    cy.moveSortableElement({
+      direction: 'up',
+      element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent()
+    });
 
     cy.findAllByLabelText(labelRoleValue).eq(0).should('have.value', 'A role');
-    cy.findAllByLabelText(labelAclAccessGroup).eq(0).should('have.value', 'Access Group 1');
+    cy.findAllByLabelText(labelAclAccessGroup)
+      .eq(0)
+      .should('have.value', 'Access Group 1');
 
     cy.matchImageSnapshot();
   });
@@ -355,7 +479,7 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelCertificate).clear();
     cy.findByLabelText(labelUserIdAttribute).clear();
     cy.findByLabelText(labelRemoteLoginUrl).click();
-    
+
     cy.findAllByText(labelRequired).should('have.length', 4);
 
     cy.contains(labelSave).should('be.disabled');
@@ -367,7 +491,7 @@ describe('SAMLConfiguration', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
     cy.contains(labelIdentityProvider).click();
-    
+
     cy.findByLabelText(labelLogoutUrl).clear();
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).click();
 
