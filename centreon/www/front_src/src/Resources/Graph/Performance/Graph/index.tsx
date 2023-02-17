@@ -1,4 +1,12 @@
-import { memo, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  MouseEvent,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { AddSVGProps } from '@visx/shape/lib/types';
 import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
@@ -37,20 +45,19 @@ import {
 } from '../../../translatedLabels';
 import Lines from '../Lines';
 import {
+  AdditionalLines,
   AdjustTimePeriodProps,
-  FilterLines,
   Line as LineModel,
-  NewLines,
   TimeValue
 } from '../models';
 import {
   getDates,
   getLeftScale,
   getRightScale,
-  getXScale,
   getSortedStackedLines,
   getTime,
   getUnits,
+  getXScale,
   getYScale
 } from '../timeSeries';
 
@@ -201,7 +208,7 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  renderAdditionalLines?: ({ lines, resource }: FilterLines) => NewLines;
+  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
   shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
@@ -518,7 +525,7 @@ const GraphContent = <T,>({
               leftScale={leftScale}
               lines={lines}
               renderAdditionalLines={renderAdditionalLines?.({
-                ...additionalLinesProps,
+                additionalLinesProps,
                 resource
               })}
               rightScale={rightScale}
