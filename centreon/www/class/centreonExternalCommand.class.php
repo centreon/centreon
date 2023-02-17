@@ -285,7 +285,7 @@ class CentreonExternalCommand
         /*
          * Check if $host is an id or a name
          */
-        if (preg_match("/^\d*$/", $host)) {
+        if (preg_match("/^\d+$/", $host)) {
             $statement = $db->prepare(<<<SQL
                 SELECT instance_id
                 FROM hosts
