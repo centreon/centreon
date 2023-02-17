@@ -18,3 +18,12 @@ export const confirmDisabled = (): JSX.Element => (
     onConfirm={(): void => undefined}
   />
 );
+
+export const withLimitNumber = (): JSX.Element => (
+  <DuplicateDialog
+    open
+    limit={10}
+    onCancel={(): void => undefined}
+    onConfirm={(): void => undefined}
+  />
+);
