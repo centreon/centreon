@@ -108,6 +108,7 @@ jobs:
         with:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
+          retention-days: 1
 
   package-deb:
     needs: [get-version]
@@ -146,6 +147,7 @@ jobs:
         with:
           name: packages-${{ matrix.distrib }}
           path: ./*.deb
+          retention-days: 1
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
