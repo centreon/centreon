@@ -77,8 +77,7 @@ const useValidationSchema = (): Yup.SchemaOf<SAMLConfiguration> => {
         is: true,
         otherwise: (schema) => schema.nullable(),
         then: (schema) => schema.required(t(labelRequired))
-      })
-      .defined(),
+      }),
     remoteLoginUrl: Yup.string()
       .matches(urlRegexp, t(labelInvalidURL))
       .required(t(labelRequired)),

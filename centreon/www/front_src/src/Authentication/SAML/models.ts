@@ -22,7 +22,7 @@ export interface SAMLConfiguration {
   isActive: boolean;
   isForced: boolean;
   logoutFrom: boolean;
-  logoutFromUrl: string | null;
+  logoutFromUrl?: string | null;
   remoteLoginUrl: string;
   rolesMapping: SharedRolesMapping;
   userIdAttribute: string;

@@ -234,7 +234,7 @@ describe('Resource Listing', () => {
     cy.waitFiltersAndListingRequests();
 
     cy.moveSortableElement({
-      ariaLabel: 'Parent Drag handle',
+      element: cy.findByLabelText('Parent Drag handle'),
       direction: 'right'
     });
 

@@ -12,7 +12,7 @@ import {
   labelEmailAttribute,
   labelEnableSAMLAuthentication,
   labelFullNameAttribute,
-  labelIdentityIdURL,
+  labelEntityIdURL,
   labelLogoutFrom,
   labelLogoutUrl,
   labelRemoteLoginUrl,
@@ -241,7 +241,7 @@ export const inputs: Array<InputProps> = [
     dataTestId: 'oidc_endityIdUrl',
     fieldName: 'entityIdUrl',
     group: labelIdentityProvider,
-    label: labelIdentityIdURL,
+    label: labelEntityIdURL,
     required: true,
     type: InputType.Text
   },
