@@ -11,7 +11,7 @@ import { mergeRegister } from '@lexical/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useTranslation } from 'react-i18next';
-import { equals, isNil, pick } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Popper, IconButton, Paper, Link, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -84,7 +84,11 @@ const FloatingLinkEditor = ({
       return;
     }
 
-    setTooltipPosition(pick(['x', 'y'], rangeRect));
+    const nodeX = rangeRect.x;
+    const nodeY = rangeRect.y;
+    const nodeHeight = rangeRect.height;
+
+    setTooltipPosition({ x: nodeX, y: nodeY + nodeHeight });
   }, [rangeRect?.x, rangeRect?.y]);
 
   if (isNil(rangeRect)) {
@@ -93,8 +97,9 @@ const FloatingLinkEditor = ({
 
   const xOffset =
     tooltipPosition.x - (rootElement?.getBoundingClientRect()?.x || 0);
-  const yOffset =
-    tooltipPosition.y - (rootElement?.getBoundingClientRect()?.y || 0) + 50;
+
+  const rootElementY = rootElement?.getBoundingClientRect()?.y || 0;
+  const yOffset = tooltipPosition.y - rootElementY + 30;
 
   return (
     <Popper open anchorEl={rootElement} placement="top-start">
