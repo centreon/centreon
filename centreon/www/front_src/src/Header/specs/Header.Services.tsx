@@ -66,7 +66,7 @@ const submenuShouldBeOpened = (label: string): void => {
 export default (): void =>
   describe(labelServices, () => {
     describe('responsive behaviors', () => {
-      it('should hide button text at smaller screen size', () => {
+      it('hides the button’s text at viewports uneder 768px', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
@@ -84,7 +84,7 @@ export default (): void =>
         });
       });
 
-      it('should hide top counters at very small size', () => {
+      it('hides top counters viewport size under 600px', () => {
         initialize();
         getElements();
 
@@ -97,7 +97,7 @@ export default (): void =>
     });
 
     describe('pending indicator', () => {
-      it('should have a pending indicator when the pending count is greater than 0', () => {
+      it('displays a pending indicator when the pending count is greater than 0', () => {
         const serviceStubs = {
           pending: '1'
         };
@@ -112,7 +112,7 @@ export default (): void =>
         });
       });
 
-      it('should hide the pending indicator there is no pending ressources', () => {
+      it('hides the pending indicator when there is no pending ressources', () => {
         const serviceStubs = {
           pending: '0'
         };
@@ -129,7 +129,7 @@ export default (): void =>
     });
 
     describe('top status counter', () => {
-      it('should display status counter numbers with the desired format', () => {
+      it('displays the status counter numbers with the desired format', () => {
         const serviceStubs = {
           critical: { unhandled: '12' },
           ok: '12134',
@@ -148,7 +148,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should redirect on click on the counter', () => {
+      it('redirects on click on the counter', () => {
         // given
         const serviceStubs = {
           critical: { unhandled: '12' },
@@ -191,7 +191,7 @@ export default (): void =>
     });
 
     describe('sub menu', () => {
-      it('should have a button to open the submenu', () => {
+      it('displays a button to open the submenu', () => {
         initialize();
         getElements();
         submenuShouldBeClosed(labelServices);
@@ -201,7 +201,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should close the submenu when clicking outside, using esc key, or clicking again on the button', () => {
+      it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
         initialize();
         getElements();
 
@@ -221,7 +221,7 @@ export default (): void =>
         submenuShouldBeClosed(labelServices);
       });
 
-      it('should have all the required item links', () => {
+      it('displays the items in the right order, with the right texts and urls', () => {
         const serviceStubs = {
           critical: { total: '2', unhandled: '1' },
           ok: '1',

@@ -66,7 +66,7 @@ const submenuShouldBeOpened = (label: string): void => {
 export default (): void =>
   describe('Pollers', () => {
     describe('responsive behaviors', () => {
-      it('should hide button text at smaller screen size', () => {
+      it('hides the button’s text at smaller screen size', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
@@ -84,7 +84,7 @@ export default (): void =>
         });
       });
 
-      it('should hide top counters at very small size', () => {
+      it('hides top counters at very small size', () => {
         initialize();
         getElements();
 
@@ -96,7 +96,7 @@ export default (): void =>
 
     describe('top status indicators', () => {
       describe('database', () => {
-        it('should alert database critical issues', () => {
+        it('alert user about database critical issues', () => {
           initialize({
             pollersListIssues: {
               issues: {
@@ -116,7 +116,7 @@ export default (): void =>
           );
         });
 
-        it('should validate database with no issues', () => {
+        it('validates database with no issues', () => {
           initialize({
             pollersListIssues: {
               issues: {
@@ -141,7 +141,7 @@ export default (): void =>
       });
 
       describe('latency', () => {
-        it('should alert latency critical issues', () => {
+        it('alerts user about latency critical issues', () => {
           initialize({
             pollersListIssues: {
               issues: {
@@ -161,7 +161,7 @@ export default (): void =>
           );
         });
 
-        it('should validate latency with no issues', () => {
+        it('validates latency with no issues', () => {
           initialize({
             pollersListIssues: {
               issues: {
@@ -187,7 +187,7 @@ export default (): void =>
     });
 
     describe('sub menu', () => {
-      it('should have a button to open the submenu', () => {
+      it('displays a button to open the submenu', () => {
         initialize();
         getElements();
         submenuShouldBeClosed('Pollers');
@@ -197,7 +197,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should be able to close the submenu by clicking outside, using esc key, or clicking again on the button', () => {
+      it('closes the submenu by clicking outside, using esc key, or clicking again on the button', () => {
         initialize();
         getElements();
 
@@ -217,7 +217,7 @@ export default (): void =>
         submenuShouldBeClosed('Pollers');
       });
 
-      it('should display the total number of pollers when there is no issues', () => {
+      it('displays the total number of pollers when there is no issues', () => {
         initialize();
         getElements();
 
@@ -231,7 +231,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should not display the total number if there is any issue', () => {
+      it('hides the total number if there is not any issue', () => {
         initialize({
           pollersListIssues: {
             issues: {
@@ -248,7 +248,7 @@ export default (): void =>
           .should('not.contain.text', labelAllPollers);
       });
 
-      it('should display alerting with the right text', () => {
+      it('displays alerting with the right text', () => {
         const issuesStubs = {
           database: {
             total: 1
@@ -309,7 +309,7 @@ export default (): void =>
           });
         });
 
-        it('should NOT display a configuratiuon button if page is NOT allowed', () => {
+        it('hides the configuratiuon button if the user is not allowed to access the configuration page', () => {
           initialize();
           openSubMenu('Pollers');
 
@@ -320,7 +320,7 @@ export default (): void =>
             .should('not.exist');
         });
 
-        it('should display a configuratiuon button if page is allowed and navigate on click', () => {
+        it('displays a configuratiuon button if the user is allowed to access the configuration page', () => {
           initialize({
             navigationList: {
               result: [
@@ -356,7 +356,7 @@ export default (): void =>
           cy.matchImageSnapshot();
         });
 
-        it('display an export configuration button if user is allowed', () => {
+        it('displays the export configuration button if user is allowed', () => {
           userData.result.current.isExportButtonEnabled = true;
           initialize();
           openSubMenu('Pollers');
@@ -370,7 +370,7 @@ export default (): void =>
           cy.matchImageSnapshot();
         });
 
-        it('should open export configuration modal, and close it on cancel', () => {
+        it('opens the export configuration’s modal, and close it on clicking the cancel button', () => {
           userData.result.current.isExportButtonEnabled = true;
           initialize();
           openSubMenu('Pollers');
@@ -403,7 +403,7 @@ export default (): void =>
           cy.get('@exportDialog').should('not.exist');
         });
 
-        it('should export configuration when clicking on export button in configuration modal', () => {
+        it('exports the configuration when clicking on the export button in the configuration modal', () => {
           userData.result.current.isExportButtonEnabled = true;
           initialize();
           openSubMenu('Pollers');

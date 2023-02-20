@@ -58,7 +58,7 @@ const submenuShouldBeOpened = (label: string): void => {
 export default (): void =>
   describe(labelHosts, () => {
     describe('responsive behaviors', () => {
-      it('should hide button text when the screen is under 768px width', () => {
+      it('hides the button text when the screen is under 768px width', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
@@ -76,7 +76,7 @@ export default (): void =>
         });
       });
 
-      it('should hide top counters when the screen is is under 600px width', () => {
+      it('hides top counters when the screen is is under 600px width', () => {
         initialize();
         getElements();
 
@@ -88,7 +88,7 @@ export default (): void =>
     });
 
     describe('pending indicator', () => {
-      it('should have a pending indicator when the pending count is greater than 0', () => {
+      it('displays a pending indicator when the pending count is greater than 0', () => {
         const hoststubs = {
           pending: '1'
         };
@@ -103,7 +103,7 @@ export default (): void =>
         });
       });
 
-      it('should hide the pending indicator when there is no pending resource', () => {
+      it('hides the pending indicator when there is no pending resource', () => {
         const hoststubs = {
           pending: '0'
         };
@@ -120,7 +120,7 @@ export default (): void =>
     });
 
     describe('Status counter', () => {
-      it('should display formatted status counter numbers', () => {
+      it('displays formatted status counter numbers', () => {
         const hoststubs = {
           down: { unhandled: '12' },
           ok: '12134',
@@ -137,7 +137,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should redirects to Resources Status with the correct filter when a counter is clicked', () => {
+      it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
         // given
         const hoststubs = {
           critical: { unhandled: '12' },
@@ -173,7 +173,7 @@ export default (): void =>
     });
 
     describe('Submenu', () => {
-      it('should open the submenu when clicking on the button', () => {
+      it('opens the submenu when clicking on the button', () => {
         initialize();
         getElements();
         submenuShouldBeClosed(labelHosts);
@@ -183,7 +183,7 @@ export default (): void =>
         cy.matchImageSnapshot();
       });
 
-      it('should close the submenu when clicking outside, using esc key, or clicking again on the button', () => {
+      it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
         initialize();
         getElements();
 
@@ -203,7 +203,7 @@ export default (): void =>
         submenuShouldBeClosed(labelHosts);
       });
 
-      it('should have all the required item links', () => {
+      it('links to the expected urls', () => {
         const hoststubs = {
           down: { total: '2', unhandled: '1' },
           ok: '1',

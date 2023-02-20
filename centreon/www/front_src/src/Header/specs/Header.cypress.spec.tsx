@@ -5,7 +5,7 @@ import HeaderUserMenu from './Header.UserMenu';
 import HeaderPollers from './Header.Poller';
 
 describe('Header', () => {
-  it('should renders all top menus items', () => {
+  it('renders all top menus items', () => {
     initialize();
     cy.viewport(1024, 300);
     cy.findByRole('button', { name: 'Services', timeout: 10000 }).should(
@@ -21,7 +21,7 @@ describe('Header', () => {
     cy.matchImageSnapshot();
   });
 
-  it('should modify layout when viewport width is smaller than 769px', () => {
+  it('modify layout when viewport width is smaller than 769px', () => {
     initialize();
     cy.viewport(768, 300);
     cy.findByRole('button', { name: 'Services', timeout: 10000 }).should(
@@ -37,7 +37,7 @@ describe('Header', () => {
     cy.matchImageSnapshot();
   });
 
-  it('should modify layout when viewport width is smaller than 600 px', () => {
+  it('modify layout when viewport width is smaller than 600 px', () => {
     initialize();
     cy.viewport(599, 300);
     cy.findByRole('button', { name: 'Services', timeout: 10000 }).should(
