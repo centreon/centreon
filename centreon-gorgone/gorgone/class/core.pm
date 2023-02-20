@@ -898,8 +898,8 @@ sub external_core_response {
         $message = MIME::Base64::encode_base64($message, '');
     }
 
-    #zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
-    #zmq_sendmsg($self->{external_socket}, $message, ZMQ_DONTWAIT);
+    $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
+    $self->{external_socket}->send($message, ZMQ_DONTWAIT);
 }
 
 sub external_core_key_response {
@@ -924,8 +924,8 @@ sub external_core_key_response {
         return -1;
     };
 
-    #zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
-    #zmq_sendmsg($self->{external_socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
+    $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
+    $self->{external_socket}->send(MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
     return 0;
 }
 
