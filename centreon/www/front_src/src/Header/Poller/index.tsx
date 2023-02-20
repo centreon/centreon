@@ -12,27 +12,26 @@ import { labelPollers } from './translatedLabels';
 const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = usePollerData();
 
-  if (!isAllowed) {
-    return null;
-  }
-
+  
   if (isLoading) {
     return <MenuSkeleton width={20} />;
   }
-
+  
+  if (!isAllowed || !data) {
+    return null;
+  }
+  
   return (
-    data && (
-      <ItemLayout
-        Icon={PollerIcon}
-        renderIndicators={(): JSX.Element => (
-          <PollerStatusIcon iconSeverities={data.iconSeverities} />
-        )}
-        renderSubMenu={({ closeSubMenu }): JSX.Element => (
-          <PollerSubMenu {...data.subMenu} closeSubMenu={closeSubMenu} />
-        )}
-        title={labelPollers}
-      />
-    )
+    <ItemLayout
+      Icon={PollerIcon}
+      renderIndicators={(): JSX.Element => (
+        <PollerStatusIcon iconSeverities={data.iconSeverities} />
+      )}
+      renderSubMenu={({ closeSubMenu }): JSX.Element => (
+        <PollerSubMenu {...data.subMenu} closeSubMenu={closeSubMenu} />
+      )}
+      title={labelPollers}
+    />
   );
 };
 

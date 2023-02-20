@@ -25,28 +25,26 @@ const ServiceStatusCounter = (): JSX.Element | null => {
     queryName: 'services-counters'
   });
 
-  if (!isAllowed) {
-    return null;
-  }
-
   if (isLoading) {
     return <MenuSkeleton width={20} />;
   }
 
+  if (!isAllowed || !data) {
+    return null;
+  }
+
   return (
-    data && (
-      <ItemLayout
-        Icon={ServiceIcon}
-        renderIndicators={(): JSX.Element => (
-          <ResourceCounters counters={data.counters} />
-        )}
-        renderSubMenu={(): JSX.Element => (
-          <ResourceSubMenu items={data.items} />
-        )}
-        showPendingBadge={data.hasPending}
-        title={labelServices}
-      />
-    )
+    <ItemLayout
+      Icon={ServiceIcon}
+      renderIndicators={(): JSX.Element => (
+        <ResourceCounters counters={data.counters} />
+      )}
+      renderSubMenu={(): JSX.Element => (
+        <ResourceSubMenu items={data.items} />
+      )}
+      showPendingBadge={data.hasPending}
+      title={labelServices}
+    />
   );
 };
 

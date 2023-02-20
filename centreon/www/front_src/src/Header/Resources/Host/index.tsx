@@ -25,29 +25,27 @@ const HostStatusCounter = (): JSX.Element | null => {
     queryName: 'hosts-counters'
   });
 
-  if (!isAllowed) {
-    return null;
-  }
-
   if (isLoading) {
     return <MenuSkeleton width={20} />;
   }
 
+  if (!isAllowed || !data) {
+    return null;
+  }
+
   return (
-    data && (
-      <ItemLayout
-        Icon={HostIcon}
-        renderIndicators={(): JSX.Element => (
-          <ResourceCounters counters={data.counters} />
-        )}
-        renderSubMenu={(): JSX.Element => (
-          <ResourceSubMenu items={data.items} />
-        )}
-        showPendingBadge={data.hasPending}
-        title={labelHosts}
-      />
-    )
-  );
+    <ItemLayout
+      Icon={HostIcon}
+      renderIndicators={(): JSX.Element => (
+        <ResourceCounters counters={data.counters} />
+      )}
+      renderSubMenu={(): JSX.Element => (
+        <ResourceSubMenu items={data.items} />
+      )}
+      showPendingBadge={data.hasPending}
+      title={labelHosts}
+    />
+  )
 };
 
 export default HostStatusCounter;

@@ -43,11 +43,13 @@ export interface HostPropsAdapterOutput {
 
 type GetHostPropsAdapter = Adapter<HostStatusResponse, HostPropsAdapterOutput>;
 
-const formatCount = (
+const formatCount = (number: number | string): string => numeral(number).format('0a')
+
+const formatUnhandledOverTotal = (
   unhandled: number | string,
   total: number | string
 ): string =>
-  `${numeral(unhandled).format('0a')}/${numeral(total).format('0a')}`;
+  `${formatCount(unhandled)}/${formatCount(total)}`;
 
 const getHostPropsAdapter: GetHostPropsAdapter = ({
   useDeprecatedPages,
@@ -131,7 +133,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       to: hostsLink
     },
     down: {
-      count: formatCount(data.down.unhandled, data.down.total),
+      count: formatUnhandledOverTotal(data.down.unhandled, data.down.total),
       label: t(labelDown),
       onClick: changeFilterAndNavigate({
         criterias: unhandledDownHostsCriterias,
@@ -143,7 +145,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       topCounterAriaLabel: t(labelDownStatusHosts)
     },
     pending: {
-      count: numeral(data.pending).format('0a'),
+      count: formatCount(data.pending),
       label: t(labelPending),
       onClick: changeFilterAndNavigate({
         criterias: pendingHostsCriterias,
@@ -154,7 +156,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       to: pendingHostsLink
     },
     unreachable: {
-      count: formatCount(data.unreachable.unhandled, data.unreachable.total),
+      count: formatUnhandledOverTotal(data.unreachable.unhandled, data.unreachable.total),
       label: t(labelUnreachable),
       onClick: changeFilterAndNavigate({
         criterias: unhandledUnreachableHostsCriterias,
@@ -166,7 +168,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       topCounterAriaLabel: t(labelUnreachableStatusHosts)
     },
     up: {
-      count: numeral(data.ok).format('0a'),
+      count: formatCount(data.ok),
       label: t(labelUp),
       onClick: changeFilterAndNavigate({
         criterias: upHostsCriterias,
