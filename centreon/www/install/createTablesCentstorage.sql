@@ -17,7 +17,7 @@ CREATE TABLE `centreon_acl` (
   `service_id` int(11) DEFAULT NULL,
   UNIQUE KEY (`group_id`,`host_id`,`service_id`),
   KEY `index1` (`host_id`,`service_id`,`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `centreon_acl` WRITE;
@@ -48,7 +48,7 @@ CREATE TABLE `config` (
   `len_storage_comments` int(11) DEFAULT NULL,
   `audit_log_retention` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `config` WRITE;
@@ -68,7 +68,7 @@ CREATE TABLE `data_stats_daily` (
   `day_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`data_stats_daily_id`),
   KEY `metric_id` (`metric_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `data_stats_daily` WRITE;
@@ -87,7 +87,7 @@ CREATE TABLE `data_stats_monthly` (
   `month_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`data_stats_monthly_id`),
   KEY `metric_id` (`metric_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `data_stats_monthly` WRITE;
@@ -106,7 +106,7 @@ CREATE TABLE `data_stats_yearly` (
   `year_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`data_stats_yearly_id`),
   KEY `metric_id` (`metric_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `data_stats_yearly` WRITE;
@@ -138,7 +138,7 @@ CREATE TABLE `index_data` (
   KEY `service_id` (`service_id`),
   KEY `must_be_rebuild` (`must_be_rebuild`),
   KEY `trashed` (`trashed`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `index_data` WRITE;
@@ -159,7 +159,7 @@ CREATE TABLE `log_action` (
   KEY `log_contact_id` (`log_contact_id`),
   KEY `action_log_date` (`action_log_date`),
   KEY `action_object_date` (`object_type`,`action_log_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `log_action` WRITE;
@@ -175,7 +175,7 @@ CREATE TABLE `log_action_modification` (
   `action_log_id` int(11) NOT NULL,
   PRIMARY KEY (`modification_id`),
   KEY `action_log_id` (`action_log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `log_action_modification` WRITE;
@@ -191,7 +191,7 @@ CREATE TABLE `log_archive_last_status` (
   `service_description` varchar(255) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `ctime` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `log_archive_last_status` WRITE;
@@ -221,7 +221,7 @@ CREATE TABLE `metrics` (
   PRIMARY KEY (`metric_id`),
   UNIQUE KEY `index_id` (`index_id`,`metric_name`),
   KEY `index` (`index_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `metrics` WRITE;
@@ -235,7 +235,7 @@ CREATE TABLE `nagios_stats` (
   `stat_key` varchar(255) NOT NULL,
   `stat_value` varchar(255) NOT NULL,
   `stat_label` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `nagios_stats` WRITE;
@@ -262,7 +262,7 @@ CREATE TABLE `log_traps` (
   `output_message` varchar(2048) DEFAULT NULL,
   KEY `trap_id` (`trap_id`),
   KEY `trap_time` (`trap_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `log_traps` WRITE;
@@ -279,7 +279,7 @@ CREATE TABLE `log_traps_args` (
   `arg_value` varchar(255) DEFAULT NULL,
   `trap_time` int(11) DEFAULT NULL,
   KEY `fk_log_traps` (`fk_log_traps`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `log_traps_args` WRITE;
