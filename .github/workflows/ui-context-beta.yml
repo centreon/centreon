@@ -31,14 +31,14 @@ jobs:
         working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
+        run: pnpm eslint -o checkstyle.xml -f checkstyle
         working-directory: ${{ env.directory }}
 
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          path:  ${{ env.directory }}/junit.xml
-          format: java-junit
+          path:  ${{ env.directory }}/checkstyle.xml
+          format: checkstyle
           check_name: centreon-ui-context-eslint-report
 
   publish-new-npm-beta-version:
