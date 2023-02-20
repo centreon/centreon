@@ -6,7 +6,7 @@ import { useAtomValue } from 'jotai/utils';
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
