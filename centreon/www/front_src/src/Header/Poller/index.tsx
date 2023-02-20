@@ -12,15 +12,14 @@ import { labelPollers } from './translatedLabels';
 const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = usePollerData();
 
-  
   if (isLoading) {
     return <MenuSkeleton width={20} />;
   }
-  
+
   if (!isAllowed || !data) {
     return null;
   }
-  
+
   return (
     <ItemLayout
       Icon={PollerIcon}

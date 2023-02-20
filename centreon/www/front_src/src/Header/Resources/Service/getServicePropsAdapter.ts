@@ -49,13 +49,13 @@ type GetServicePropsAdapter = Adapter<
   ServicesPropsAdapterOutput
 >;
 
-const formatCount = (number: number | string): string => numeral(number).format('0a')
+const formatCount = (number: number | string): string =>
+  numeral(number).format('0a');
 
 const formatUnhandledOverTotal = (
   unhandled: number | string,
   total: number | string
-): string =>
-  `${formatCount(unhandled)}/${formatCount(total)}`;
+): string => `${formatCount(unhandled)}/${formatCount(total)}`;
 
 const getServicePropsAdapter: GetServicePropsAdapter = ({
   useDeprecatedPages,
@@ -153,7 +153,10 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       to: servicesLink
     },
     critical: {
-      count: formatUnhandledOverTotal(data.critical.unhandled, data.critical.total),
+      count: formatUnhandledOverTotal(
+        data.critical.unhandled,
+        data.critical.total
+      ),
       label: t(labelCritical),
       onClick: changeFilterAndNavigate({
         criterias: unhandledCriticalServicesCriterias,
@@ -188,7 +191,10 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       to: pendingServicesLink
     },
     unknown: {
-      count: formatUnhandledOverTotal(data.unknown.unhandled, data.unknown.total),
+      count: formatUnhandledOverTotal(
+        data.unknown.unhandled,
+        data.unknown.total
+      ),
       label: t(labelUnknown),
       onClick: changeFilterAndNavigate({
         criterias: unhandledUnknownServicesCriterias,
@@ -200,7 +206,10 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       topCounterAriaLabel: t(labelUnknownStatusServices)
     },
     warning: {
-      count: formatUnhandledOverTotal(data.warning.unhandled, data.warning.total),
+      count: formatUnhandledOverTotal(
+        data.warning.unhandled,
+        data.warning.total
+      ),
       label: t(labelWarning),
       onClick: changeFilterAndNavigate({
         criterias: unhandledWarningServicesCriterias,

@@ -43,13 +43,13 @@ export interface HostPropsAdapterOutput {
 
 type GetHostPropsAdapter = Adapter<HostStatusResponse, HostPropsAdapterOutput>;
 
-const formatCount = (number: number | string): string => numeral(number).format('0a')
+const formatCount = (number: number | string): string =>
+  numeral(number).format('0a');
 
 const formatUnhandledOverTotal = (
   unhandled: number | string,
   total: number | string
-): string =>
-  `${formatCount(unhandled)}/${formatCount(total)}`;
+): string => `${formatCount(unhandled)}/${formatCount(total)}`;
 
 const getHostPropsAdapter: GetHostPropsAdapter = ({
   useDeprecatedPages,
@@ -156,7 +156,10 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       to: pendingHostsLink
     },
     unreachable: {
-      count: formatUnhandledOverTotal(data.unreachable.unhandled, data.unreachable.total),
+      count: formatUnhandledOverTotal(
+        data.unreachable.unhandled,
+        data.unreachable.total
+      ),
       label: t(labelUnreachable),
       onClick: changeFilterAndNavigate({
         criterias: unhandledUnreachableHostsCriterias,

@@ -39,13 +39,11 @@ const HostStatusCounter = (): JSX.Element | null => {
       renderIndicators={(): JSX.Element => (
         <ResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => (
-        <ResourceSubMenu items={data.items} />
-      )}
+      renderSubMenu={(): JSX.Element => <ResourceSubMenu items={data.items} />}
       showPendingBadge={data.hasPending}
       title={labelHosts}
     />
-  )
+  );
 };
 
 export default HostStatusCounter;
