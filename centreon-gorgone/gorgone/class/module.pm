@@ -27,10 +27,9 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use gorgone::class::tpapi;
+use ZMQ::FFI qw(ZMQ_DONTWAIT);
 use JSON::XS;
 use Crypt::Mode::CBC;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Try::Tiny;
 
 my %handlers = (DIE => {});
@@ -39,6 +38,11 @@ sub new {
     my ($class, %options) = @_;
     my $self  = {};
     bless $self, $class;
+
+    {
+        local $SIG{__DIE__};
+        $self->{zmq_context} = ZMQ::FFI->new();
+    }
 
     $self->{internal_socket} = undef;
     $self->{module_id} = $options{module_id};
@@ -174,7 +178,7 @@ sub send_internal_key {
         return -1;
     };
 
-    zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);
+    $options{socket}->send($message, ZMQ_DONTWAIT);
     return 0;
 }
 
@@ -225,7 +229,7 @@ sub send_internal_action {
         };
     }
 
-    zmq_sendmsg($socket, $options->{message}, ZMQ_DONTWAIT);
+    $socket->send($options->{message}, ZMQ_DONTWAIT);
 }
 
 sub send_log_msg_error {

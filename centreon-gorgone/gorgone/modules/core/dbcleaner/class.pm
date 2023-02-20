@@ -27,9 +27,8 @@ use warnings;
 use gorgone::class::db;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {}, DIE => {});
 my ($connector);
@@ -99,7 +98,6 @@ sub exit_process {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogInfo("[dbcleaner] $$ has quit");
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -173,11 +171,20 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->exit_process();
+    }
+
+    $connector->action_dbclean(cycle => 1);
+}
+
 sub run {
     my ($self, %options) = @_;
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-dbcleaner',
         logger => $self->{logger},
@@ -188,13 +195,6 @@ sub run {
         action => 'DBCLEANERREADY',
         data => {}
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
 
     $self->{db_gorgone} = gorgone::class::db->new(
         type => $self->get_core_config(name => 'gorgone_db_type'),
@@ -207,14 +207,9 @@ sub run {
         logger => $self->{logger}
     );
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->exit_process();
-        }
-
-        $self->action_dbclean(cycle => 1);
-    }
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 }
 
 1;

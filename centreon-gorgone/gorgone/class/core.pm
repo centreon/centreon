@@ -26,8 +26,8 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
 use MIME::Base64;
 use Crypt::Mode::CBC;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
+use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE);
+use EV;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
@@ -180,11 +180,7 @@ sub init {
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq '');
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} = '/tmp/gorgone/routing-' . $time_hi . '.ipc'
         if (!defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path}) || $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path} eq '');
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> centreon-gorgone/gorgone-save-memory
     if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt}) && $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} =~ /^(?:false|0)$/i) {
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_crypt} = 0;
     } else {
@@ -552,7 +548,7 @@ sub read_internal_message {
 sub send_internal_response {
     my ($self, %options) = @_;
 
-    zmq_sendmsg($self->{internal_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
+    $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
 
     my $response_type = defined($options{response_type}) ? $options{response_type} : 'ACK';
     my $data = gorgone::standard::library::json_encode(data => { code => $options{code}, data => $options{data} });
@@ -572,7 +568,7 @@ sub send_internal_response {
         };
     }
 
-    zmq_sendmsg($self->{internal_socket}, $message, ZMQ_DONTWAIT);
+    $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
 }
 
 sub send_internal_message {
@@ -582,7 +578,7 @@ sub send_internal_message {
     if (!defined($message)) {
         $message = gorgone::standard::library::build_protocol(%options);
     }
-    zmq_sendmsg($self->{internal_socket}, $options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
+    $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
 
     if ($self->{internal_crypt}->{enabled} == 1) {
         try {
@@ -597,7 +593,7 @@ sub send_internal_message {
         };
     }
 
-    zmq_sendmsg($self->{internal_socket}, $message, ZMQ_DONTWAIT);
+    $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
 }
 
 sub broadcast_run {
@@ -902,8 +898,8 @@ sub external_core_response {
         $message = MIME::Base64::encode_base64($message, '');
     }
 
-    zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
-    zmq_sendmsg($self->{external_socket}, $message, ZMQ_DONTWAIT);
+    #zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
+    #zmq_sendmsg($self->{external_socket}, $message, ZMQ_DONTWAIT);
 }
 
 sub external_core_key_response {
@@ -928,8 +924,8 @@ sub external_core_key_response {
         return -1;
     };
 
-    zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
-    zmq_sendmsg($self->{external_socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
+    #zmq_sendmsg($self->{external_socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
+    #zmq_sendmsg($self->{external_socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
     return 0;
 }
 
@@ -1105,18 +1101,18 @@ sub waiting_ready_pool {
     return 0;
 }
 
+sub stop_ev {
+    EV::break();
+    $gorgone->check_exit_modules();
+}
+
 sub waiting_ready {
     my (%options) = @_;
 
     return 1 if (${$options{ready}} == 1);
-    
-    my $time = time();
-    # We wait 10 seconds
-    while (${$options{ready}} == 0 && 
-           time() - $time < 10) {
-        zmq_poll($gorgone->{poll}, 5000);
-        $gorgone->check_exit_modules();
-    }
+
+    my $w = EV::timer(10, 0, \&stop_ev);
+    EV::run();
 
     if (${$options{ready}} == 0) {
         return 0;
@@ -1129,10 +1125,7 @@ sub quit {
     my ($self, %options) = @_;
     
     $self->{logger}->writeLogInfo("[core] Quit main process");
-    zmq_close($self->{internal_socket});
-    if (defined($self->{external_socket})) {
-        zmq_close($self->{external_socket});
-    }
+
     if ($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq 'ipc') {
         unlink($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path});
     }
@@ -1203,6 +1196,11 @@ sub check_exit_modules {
     }
 }
 
+sub periodic_exec {
+    $gorgone->check_exit_modules();
+    $gorgone->{listener}->check();
+}
+
 sub run {
     $gorgone = shift;
 
@@ -1221,8 +1219,14 @@ sub run {
         $gorgone->{logger}->writeLogInfo("[core] Cannot write in history. We quit!!");
         exit(1);
     }
-    
+
+    {
+        local $SIG{__DIE__};
+        $gorgone->{zmq_context} = ZMQ::FFI->new();
+    }
+
     $gorgone->{internal_socket} = gorgone::standard::library::create_com(
+        context => $gorgone->{zmq_context},
         type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type},
         path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path},
         zmq_type => 'ZMQ_ROUTER',
@@ -1230,11 +1234,13 @@ sub run {
         zmq_router_handover => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_zmq_router_handover},
         logger => $gorgone->{logger}
     );
+
     if (defined($gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
         if ($gorgone->{keys_loaded}) {
             $gorgone->init_external_informations();
 
             $gorgone->{external_socket} = gorgone::standard::library::create_com(
+                context => $gorgone->{zmq_context},
                 type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type},
                 path => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_path},
                 zmq_type => 'ZMQ_ROUTER',
@@ -1247,23 +1253,6 @@ sub run {
         } else {
             $gorgone->{logger}->writeLogError("[core] Cannot create external com: no keys loaded");
         }
-    }
-
-    # Initialize poll set
-    $gorgone->{poll} = [
-        {
-            socket  => $gorgone->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&router_internal_event
-        }
-    ];
-    
-    if (defined($gorgone->{external_socket})) {
-        push @{$gorgone->{poll}}, {
-            socket  => $gorgone->{external_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&router_external_event
-        };
     }
 
     # init all modules
@@ -1289,13 +1278,14 @@ sub run {
 
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
     $gorgone->{cb_timer_check} = time();
-    while (1) {
-        $gorgone->check_exit_modules();
 
-        zmq_poll($gorgone->{poll}, 5000);
-
-        $gorgone->{listener}->check();
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $wr2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&router_internal_event);
+    if (defined($gorgone->{external_socket})) {
+        my $wr3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ|EV::WRITE, \&router_external_event);
     }
+
+    EV::run();
 }
 
 1;

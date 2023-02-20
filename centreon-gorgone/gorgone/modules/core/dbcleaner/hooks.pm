@@ -69,7 +69,7 @@ sub routing {
         $dbcleaner->{ready} = 1;
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$dbcleaner->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -80,7 +80,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-dbcleaner',
         action => $options{action},

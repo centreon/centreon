@@ -24,8 +24,6 @@ use strict;
 use warnings;
 use gorgone::standard::library;
 use gorgone::standard::misc;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Crypt::Mode::CBC;
 use MIME::Base64;
 use Scalar::Util;
@@ -120,7 +118,7 @@ sub get_connect_identity {
 sub get_server_pubkey {
     my ($self, %options) = @_;
 
-    zmq_sendmsg($sockets->{$self->{identity}}, '[GETPUBKEY]', ZMQ_DONTWAIT);
+    #zmq_sendmsg($sockets->{$self->{identity}}, '[GETPUBKEY]', ZMQ_DONTWAIT);
     zmq_poll([$self->get_poll()], 10000);
 }
 
@@ -274,13 +272,13 @@ sub ping {
 sub get_poll {
     my ($self, %options) = @_;
 
-    return {
-        socket  => $sockets->{$self->{identity}},
-        events  => ZMQ_POLLIN,
-        callback => sub {
-            event(identity => $self->{identity});
-        }
-    };
+    #return {
+    #    socket  => $sockets->{$self->{identity}},
+    #    events  => ZMQ_POLLIN,
+    #    callback => sub {
+    #        event(identity => $self->{identity});
+    #    }
+    #};
 }
 
 sub event {
@@ -357,7 +355,7 @@ sub zmq_send_message {
         return undef;
     }
 
-    zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);    
+    #zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);    
 }
 
 sub send_message {
@@ -383,7 +381,7 @@ sub send_message {
         }
 
         $self->{verbose_last_message} = 'Handshake timeout';
-        zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
+        #zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
         zmq_poll([$self->get_poll()], 10000);
     }
 

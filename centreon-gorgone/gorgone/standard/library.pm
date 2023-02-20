@@ -23,8 +23,9 @@ package gorgone::standard::library;
 use strict;
 use warnings;
 use gorgone::standard::constants qw(:all);
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
+use ZMQ::FFI qw(ZMQ_DEALER ZMQ_ROUTER ZMQ_ROUTER_HANDOVER ZMQ_IPV6 ZMQ_TCP_KEEPALIVE 
+    ZMQ_CONNECT_TIMEOUT ZMQ_DONTWAIT ZMQ_SNDMORE ZMQ_IDENTITY ZMQ_FD ZMQ_EVENTS
+    ZMQ_LINGER ZMQ_SNDHWM ZMQ_RCVHWM ZMQ_RECONNECT_IVL);
 use JSON::XS;
 use File::Basename;
 use Crypt::PK::RSA;
@@ -43,10 +44,6 @@ $YAML::XS::LoadBlessed = 1;
 
 our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
-my $ZMQ_CONNECT_TIMEOUT = 79;
-my $ZMQ_ROUTER_HANDOVER = 56;
-my $ZMQ_IPV6 = 42;
-my $ZMQ_TCP_KEEPALIVE = 34;
 
 sub read_config {
     my (%options) = @_;
@@ -186,7 +183,7 @@ sub zmq_core_key_response {
 sub zmq_get_routing_id {
     my (%options) = @_;
 
-    return zmq_getsockopt($options{socket}, ZMQ_IDENTITY);
+    return $options{socket}->get_identity();
 }
 
 sub zmq_getfd {
@@ -485,8 +482,6 @@ sub ping {
     return (GORGONE_ACTION_BEGIN, { action => 'ping', message => 'ping ok', id => $options{id}, hostname => $options{gorgone}->{hostname}, data => $constatus }, 'PONG');
 }
 
-use Devel::Size;
-
 sub putlog {
     my (%options) = @_;
 
@@ -709,63 +704,67 @@ sub json_decode {
 sub connect_com {
     my (%options) = @_;
 
-    my $context = zmq_init();
-    my $socket = zmq_socket($context, $zmq_type{$options{zmq_type}});
+    my $socket = $options{context}->socket($zmq_type{$options{zmq_type}});
     if (!defined($socket)) {
         $options{logger}->writeLogError("Can't setup server: $!");
         exit(1);
     }
+    $socket->die_on_error(0);
 
-    zmq_setsockopt($socket, ZMQ_IDENTITY, $options{name});
-    zmq_setsockopt($socket, ZMQ_LINGER, defined($options{zmq_linger}) ? $options{zmq_linger} : 0); # 0 we discard
-    zmq_setsockopt($socket, ZMQ_SNDHWM, defined($options{zmq_sndhwm}) ? $options{zmq_sndhwm} : 0);
-    zmq_setsockopt($socket, ZMQ_RCVHWM, defined($options{zmq_rcvhwm}) ? $options{zmq_rcvhwm} : 0);
-    zmq_setsockopt($socket, ZMQ_RECONNECT_IVL, 1000);
-    ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_CONNECT_TIMEOUT, defined($options{zmq_connect_timeout}) ? $options{zmq_connect_timeout} : 30000);
-    ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
-    if ($options{type} eq 'tcp') {
-        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_IPV6, defined($options{zmq_ipv6}) && $options{zmq_ipv6} =~ /true|1/i ? 1 : 0);
+    $socket->set_identity($options{name});
+    $socket->set(ZMQ_LINGER, 'int', defined($options{zmq_linger}) ? $options{zmq_linger} : 0); # 0 we discard
+    $socket->set(ZMQ_SNDHWM, 'int', defined($options{zmq_sndhwm}) ? $options{zmq_sndhwm} : 0);
+    $socket->set(ZMQ_RCVHWM, 'int', defined($options{zmq_rcvhwm}) ? $options{zmq_rcvhwm} : 0);
+    $socket->set(ZMQ_RECONNECT_IVL, 'int', 1000);
+    $socket->set(ZMQ_CONNECT_TIMEOUT, 'int', defined($options{zmq_connect_timeout}) ? $options{zmq_connect_timeout} : 30000);
+    if ($options{zmq_type} eq 'ZMQ_ROUTER') {
+        $socket->set(ZMQ_ROUTER_HANDOVER, 'int', defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
     }
-    zmq_connect($socket, $options{type} . '://' . $options{path});
+    if ($options{type} eq 'tcp') {
+        $socket->set(ZMQ_TCP_KEEPALIVE, 'int', defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
+    }
+
+    $socket->connect($options{type} . '://' . $options{path});
     return $socket;
 }
 
 sub create_com {
     my (%options) = @_;
 
-    my $context = zmq_init();
-    my $socket = zmq_socket($context, $zmq_type{$options{zmq_type}});
+    my $socket = $options{context}->socket($zmq_type{$options{zmq_type}});
     if (!defined($socket)) {
         $options{logger}->writeLogError("Can't setup server: $!");
         exit(1);
     }
+    $socket->die_on_error(0);
 
-    zmq_setsockopt($socket, ZMQ_IDENTITY, $options{name});
-    zmq_setsockopt($socket, ZMQ_LINGER, 0); # we discard
-    ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_ROUTER_HANDOVER, defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
+    $socket->set_identity($options{name});
+    $socket->set_linger(0);
+    $socket->set(ZMQ_ROUTER_HANDOVER, 'int', defined($options{zmq_router_handover}) ? $options{zmq_router_handover} : 1);
+
     if ($options{type} eq 'tcp') {
-        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_IPV6, defined($options{zmq_ipv6}) && $options{zmq_ipv6} =~ /true|1/i ? 1 : 0);
-        ZMQ::LibZMQ4::zmq_setsockopt_int($socket, $ZMQ_TCP_KEEPALIVE, defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
-        zmq_bind($socket, 'tcp://' . $options{path});
+        $socket->set(ZMQ_IPV6, 'int', defined($options{zmq_ipv6}) && $options{zmq_ipv6} =~ /true|1/i ? 1 : 0);
+        $socket->set(ZMQ_TCP_KEEPALIVE, 'int', defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
+
+        $socket->bind('tcp://' . $options{path});
     } elsif ($options{type} eq 'ipc') {
-        if (zmq_bind($socket, 'ipc://' . $options{path}) == -1) {
+        $socket->bind('ipc://' . $options{path});
+        if ($socket->has_error) {
             $options{logger}->writeLogDebug("[core] Cannot bind IPC '$options{path}': $!");
             # try create dir
             $options{logger}->writeLogDebug("[core] Maybe directory not exist. We try to create it!!!");
             if (!mkdir(dirname($options{path}))) {
                 $options{logger}->writeLogError("[core] Cannot create IPC file directory '$options{path}'");
-                zmq_close($socket);
                 exit(1);
             }
-            if (zmq_bind($socket, 'ipc://' . $options{path}) == -1) {
-                $options{logger}->writeLogError("[core] Cannot bind IPC '$options{path}': $!");
-                zmq_close($socket);
+            $socket->bind('ipc://' . $options{path});
+            if ($socket->has_error) {
+                $options{logger}->writeLogError("[core] Cannot bind IPC '$options{path}': " . $socket->last_strerror);
                 exit(1);
             }
         }
     } else {
         $options{logger}->writeLogError("[core] ZMQ type '$options{type}' not managed");
-        zmq_close($socket);
         exit(1);
     }
 
@@ -795,15 +794,10 @@ sub build_protocol {
 sub zmq_dealer_read_message {
     my (%options) = @_;
 
-    my $message = zmq_msg_init();
-    my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
-    if ($rv == -1) {
-        zmq_msg_close($message);
+    my $data = $options{socket}->recv(ZMQ_DONTWAIT);
+    if ($options{socket}->has_error) {
         return 1;
     }
-
-    my $data = zmq_msg_data($message);
-    zmq_msg_close($message);
 
     if (defined($options{frame})) {
         $options{frame}->setFrame(\$data);
@@ -817,17 +811,13 @@ sub zmq_read_message {
     my (%options) = @_;
 
     # Process all parts of the message
-    my $message = zmq_msg_init();
-    my $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
-    if ($rv == -1) {
-        zmq_msg_close($message);
-        return undef if ($! == Errno::EAGAIN);
+    my $identity = $options{socket}->recv(ZMQ_DONTWAIT);
+    if ($options{socket}->has_error()) {
+        return undef if ($options{socket}->last_errno == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
         return undef;
     }
-    my $identity = zmq_msg_data($message);
-    zmq_msg_close($message);
 
     $identity = defined($identity) ? $identity  : 'undef';
     if ($identity !~ /^gorgone-/) {
@@ -835,17 +825,13 @@ sub zmq_read_message {
         return undef;
     }
 
-    $message = zmq_msg_init();
-    $rv = zmq_msg_recv($message, $options{socket}, ZMQ_DONTWAIT);
-    if ($rv == -1) {
-        zmq_msg_close($message);
-        return undef if ($! == Errno::EAGAIN);
+    my $data = $options{socket}->recv(ZMQ_DONTWAIT);
+    if ($options{socket}->has_error()) {
+        return undef if ($options{socket}->last_errno == Errno::EAGAIN);
 
         $options{logger}->writeLogError("[core] zmq_recvmsg error: $!");
         return undef;
     }
-    my $data = zmq_msg_data($message);
-    zmq_msg_close($message);
 
     my $frame = gorgone::class::frame->new();
     $frame->setFrame(\$data);
@@ -856,17 +842,17 @@ sub zmq_read_message {
 sub zmq_still_read {
     my (%options) = @_;
 
-    return zmq_getsockopt($options{socket}, ZMQ_RCVMORE);        
+    #return zmq_getsockopt($options{socket}, ZMQ_RCVMORE);        
 }
 
 sub add_zmq_pollin {
     my (%options) = @_;
 
-    push @{$options{poll}}, {
-        socket  => $options{socket},
-        events  => ZMQ_POLLIN,
-        callback => $options{callback},
-    };
+    #push @{$options{poll}}, {
+    #    socket  => $options{socket},
+    #    events  => ZMQ_POLLIN,
+    #    callback => $options{callback},
+    #};
 }
 
 sub create_schema {

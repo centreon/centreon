@@ -27,13 +27,12 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use gorgone::standard::api;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use HTTP::Daemon;
 use HTTP::Status;
 use MIME::Base64;
 use JSON::XS;
 use Socket;
+use EV;
 
 my $time = time();
 
@@ -150,6 +149,10 @@ sub load_peer_subnets {
     }
 }
 
+sub stop_ev {
+    EV::break();
+}
+
 sub run {
     my ($self, %options) = @_;
 
@@ -157,6 +160,7 @@ sub run {
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserver',
         logger => $self->{logger},
@@ -168,15 +172,9 @@ sub run {
         data => {}
     });
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
-    my $rev = zmq_poll($self->{poll}, 4000);
+    my $w1 = EV::timer(4, 0, \&stop_ev);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 
     $self->init_dispatch();
 
@@ -213,7 +211,6 @@ sub run {
         if ($self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[httpserver] $$ has quit");
             $connection->close() if (defined($connection));
-            zmq_close($connector->{internal_socket});
             exit(0);
         }
 

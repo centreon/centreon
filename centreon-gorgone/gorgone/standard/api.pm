@@ -23,10 +23,9 @@ package gorgone::standard::api;
 use strict;
 use warnings;
 use gorgone::standard::library;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Time::HiRes;
 use JSON::XS;
+use EV;
 
 my $module;
 my $socket;
@@ -89,6 +88,10 @@ sub root {
     return $response;
 }
 
+sub stop_ev {
+    EV::break();
+}
+
 sub call_action {
     my (%options) = @_;
 
@@ -121,14 +124,6 @@ sub call_action {
 sub call_internal {
     my (%options) = @_;
 
-    my $poll = [
-        {
-            socket  => $socket,
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
-
     $action_token = gorgone::standard::library::generate_token();
     if (defined($options{target}) && $options{target} ne '') {        
         return call_action(
@@ -151,13 +146,8 @@ sub call_internal {
         json_encode => 1
     });
 
-    my $timeout = 5000;
-    while ($timeout > 100) {
-        my $t1 = Time::HiRes::time();
-        my $rev = zmq_poll($poll, $timeout);
-        last if (defined($results->{ $action_token }));
-        $timeout -= ((Time::HiRes::time() - $t1) * 1000);
-    }
+    my $w1 = EV::timer(5, 0, \&stop_ev);
+    EV::run();
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
     if (defined($results->{$action_token}->{data})) {
@@ -187,14 +177,6 @@ sub call_internal {
 sub get_log {
     my (%options) = @_;
 
-    my $poll = [
-        {
-            socket  => $socket,
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
-
     if (defined($options{target}) && $options{target} ne '') {
         $options{module}->send_internal_action({
             socket => $socket,
@@ -219,13 +201,8 @@ sub get_log {
         json_encode => 1
     });
 
-    my $timeout = 5000;
-    while ($timeout > 100) {
-        my $t1 = Time::HiRes::time();
-        my $rev = zmq_poll($poll, $timeout);
-        last if (defined($results->{ $token_log }));
-        $timeout -= ($t1 - Time::HiRes::time());
-    }
+    my $w1 = EV::timer(5, 0, \&stop_ev);
+    EV::run();
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
     if (defined($results->{ $token_log }) && defined($results->{ $token_log }->{data})) {
