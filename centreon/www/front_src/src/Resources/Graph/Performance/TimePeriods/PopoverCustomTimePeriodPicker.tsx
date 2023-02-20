@@ -72,6 +72,7 @@ interface Props {
   maxDatePickerStartInput?: Date;
   minDatePickerEndInput?: Date;
   minDatePickerStartInput?: Date;
+  onClose: () => void;
   onCloseEndPicker?: (isClosed: boolean) => void;
   onCloseStartPicker?: (isClosed: boolean) => void;
   open: boolean;
@@ -118,7 +119,8 @@ const PopoverCustomTimePeriodPickers = ({
   onCloseStartPicker,
   onCloseEndPicker,
   disabledPickerEndInput,
-  disabledPickerStartInput
+  disabledPickerStartInput,
+  onClose
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
@@ -184,6 +186,7 @@ const PopoverCustomTimePeriodPickers = ({
       className={cx(classes.paper)}
       open={open}
       transformOrigin={transformOrigin}
+      onClose={onClose}
     >
       <div className={classNamePaper} data-testid="popover">
         {renderTitle}
