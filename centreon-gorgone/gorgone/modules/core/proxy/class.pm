@@ -173,6 +173,7 @@ sub connect {
             logger => $self->{logger}
         );
         $self->{clients}->{ $options{id} }->{class}->init(callback => \&read_message_client);
+        $self->{clients}->{ $options{id} }->{class}->set_ev_io();
     } elsif ($self->{clients}->{ $options{id} }->{type} eq 'push_ssh') {
         $self->{clients}->{$options{id}}->{class} = gorgone::modules::core::proxy::sshclient->new(logger => $self->{logger});
         my $code = $self->{clients}->{$options{id}}->{class}->open_session(
@@ -229,6 +230,7 @@ sub action_proxyaddnode {
         $self->{clients}->{ $data->{id} }->{class}->close();
     } else {
         $self->{internal_channels}->{ $data->{id} } = gorgone::standard::library::connect_com(
+            context => $self->{zmq_context},
             zmq_type => 'ZMQ_DEALER',
             name => 'gorgone-proxy-channel-' . $data->{id},
             logger => $self->{logger},
@@ -502,7 +504,7 @@ sub periodic_exec {
                 action => 'PONGRESET',
                 data => '{ "data": { "id": ' . $_ . ' } }',
                 data_noencode => 1,
-                token => $self->generate_token(),
+                token => $connector->generate_token(),
                 target => ''
             });
             $connector->{clients}->{$_}->{class}->close() if (defined($connector->{clients}->{$_}->{class}));
@@ -513,15 +515,12 @@ sub periodic_exec {
         }
 
         if ($connector->{clients}->{$_}->{com_read_internal} == 1) {
-            my $w = EV::io($self->{internal_channels}->{$_}->get_fd(), EV::READ|EV::WRITE, generate_internal_cb(channel => $self->{clients}->{$_}->{id}));
-        }
-        if (defined($connector->{clients}->{$_}->{class}) && $connector->{clients}->{$_}->{type} eq 'push_zmq') {
-            push @$polls, $connector->{clients}->{$_}->{class}->get_poll();
+            my $w = EV::io($connector->{internal_channels}->{$_}->get_fd(), EV::READ|EV::WRITE, generate_internal_cb(channel => $connector->{clients}->{$_}->{id}));
         }
     }
 
-    if ($self->{stop} == 1) {
-        $self->exit_process();
+    if ($connector->{stop} == 1) {
+        $connector->exit_process();
     }
 }
 

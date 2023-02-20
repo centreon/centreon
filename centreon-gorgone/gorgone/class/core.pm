@@ -1087,12 +1087,8 @@ sub waiting_ready_pool {
     my $name = $gorgone->{modules_id}->{$gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name}};
     my $method = $name->can('is_all_proxy_ready');
 
-    my $time = time();
-    while (time() - $time < 60) {
-        return 1 if ($method->() == 100);
-        zmq_poll($gorgone->{poll}, 5000);
-        $gorgone->check_exit_modules();
-    }
+    my $w = EV::timer(10, 0, \&stop_ev);
+    EV::run();
 
     if ($method->() > 0) {
         return 1;
