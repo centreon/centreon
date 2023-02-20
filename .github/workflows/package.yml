@@ -69,6 +69,7 @@ on:
 
 jobs:
   package:
+    name: Package ${{ inputs.package_extension }}
     runs-on: ubuntu-22.04
     container:
       image: centreon.jfrog.io/docker/${{ inputs.image_name }}:${{ inputs.major_version }}

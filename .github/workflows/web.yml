@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
     branches:
-      - dev-22.04.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
-
     tags:
       - centreon-*
 
@@ -103,15 +103,14 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        run: npm run eslint -- -o junit.xml -f junit --quiet
         working-directory: centreon
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
+          path: "centreon/junit.xml"
+          format: "java-junit"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -131,13 +130,10 @@ jobs:
         run: npm t -- --silent --reporters=jest-junit
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -163,13 +159,11 @@ jobs:
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-backend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/build/phpunit.xml"
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
     needs: [
@@ -236,13 +230,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Login to Registry
         uses: docker/login-action@v2
@@ -321,14 +308,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
           registry: centreon.jfrog.io/docker
@@ -350,13 +330,11 @@ jobs:
           name: cypress-videos
           path: centreon/tests/e2e/cypress/results/videos
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-e2e-tests-report"
-          comment_mode: failures
-          junit_files: centreon/tests/e2e/cypress-result.xml
+          check_name: centreon-web-frontend-e2e-tests-report
+          path: "centreon/tests/e2e/cypress-result.xml"
 
   performances-test:
     runs-on: ubuntu-22.04
@@ -365,13 +343,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
@@ -379,20 +350,20 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      # - name: Run lighthouse
-      #   uses: ./.github/actions/lighthouse-performance-testing
-      #   with:
-      #     path: "centreon/lighthouse"
-      #     image: centreon.jfrog.io/docker/centreon-web-centos7
-      #     image_version: ${{ github.head_ref || github.ref_name }}
-      #     image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
-      #     module: centreon
+      - name: Run Lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon/lighthouse"
+          image: centreon.jfrog.io/docker/centreon-web-centos7
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
 
-      # - name: Publish report
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: lighthouse-report
-      #     path: centreon/lighthouse/report/lighthouseci-index.html
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
 
   deliver-rpm:
     runs-on: [self-hosted, common]
@@ -415,8 +386,9 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_USERNAMENAME }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
@@ -444,5 +416,6 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

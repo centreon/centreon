@@ -1,0 +1,72 @@
+name: ui-context
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ui-context.yml"
+      - "centreon/packages/ui-context/**"
+      - ".github/actions/npm-publish-package-beta/**"
+    branches:
+      - dev-22.04.x
+
+env:
+  directory: "centreon/packages/ui-context"
+  centreon_directory: "centreon"
+  package: 'ui-context'
+  base_branch: dev-22.04.x
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: ${{ env.centreon_directory }}
+
+      - name: Lint
+        run: npm run eslint -- -o checkstyle.xml -f checkstyle
+        working-directory: ${{ env.directory }}
+
+      - name: Publish report
+        if: ${{ always() }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-ui-context-eslint-report
+          path: ${{ env.directory }}/checkstyle.xml
+
+  publish-new-npm-beta-version:
+    runs-on: ubuntu-22.04
+    needs: [lint, check-package-version]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/npm-publish-package-beta
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

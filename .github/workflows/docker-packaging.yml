@@ -10,13 +10,11 @@ on:
     branches:
       - develop
     paths:
-      - ".github/workflows/docker-packaging.yml"
       - ".github/docker/Dockerfile.packaging-centos7"
       - ".github/docker/Dockerfile.packaging-alma8"
       - ".github/docker/Dockerfile.packaging-bullseye"
   pull_request:
     paths:
-      - ".github/workflows/docker-packaging.yml"
       - ".github/docker/Dockerfile.packaging-centos7"
       - ".github/docker/Dockerfile.packaging-alma8"
       - ".github/docker/Dockerfile.packaging-bullseye"
@@ -37,13 +35,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: centreon.jfrog.io/docker
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Login to Registry
         uses: docker/login-action@v2

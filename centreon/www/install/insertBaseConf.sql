@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '22.04.10');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '22.04.11');
 
 --
 -- Contenu de la table `contact`
@@ -75,6 +75,7 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('ldap_auth_enable', '0'),
 ('ldap_auto_import', '0'),
 ('ldap_srv_dns', '0'),
+('ldap_connection_timeout','5'),
 ('ldap_dns_use_domain', ''),
 ('ldap_search_timeout','60'),
 ('ldap_search_limit','60'),
