@@ -27,6 +27,8 @@ use gorgone::standard::misc;
 use Crypt::Mode::CBC;
 use MIME::Base64;
 use Scalar::Util;
+use ZMQ::FFI qw(ZMQ_DONTWAIT);
+use EV;
 
 my $connectors = {};
 my $callbacks = {};
@@ -35,6 +37,7 @@ my $sockets = {};
 sub new {
     my ($class, %options) = @_;
     my $connector  = {};
+    $connector->{context} = $options{context};
     $connector->{logger} = $options{logger};
     $connector->{identity} = $options{identity};
     $connector->{extra_identity} = gorgone::standard::library::generate_token(length => 12);
@@ -92,7 +95,8 @@ sub init {
     my ($self, %options) = @_;
     
     $self->{handshake} = 0;
-    $sockets->{$self->{identity}} = gorgone::standard::library::connect_com(
+    $sockets->{ $self->{identity} } = gorgone::standard::library::connect_com(
+        context => $self->{context},
         zmq_type => 'ZMQ_DEALER',
         name => $self->{identity} . '-' .  $self->{extra_identity},
         logger => $self->{logger},
@@ -100,7 +104,7 @@ sub init {
         path => $self->{target_path},
         zmq_ipv6 => $self->{config_core}->{ipv6}
     );
-    $callbacks->{$self->{identity}} = $options{callback} if (defined($options{callback}));
+    $callbacks->{ $self->{identity} } = $options{callback} if (defined($options{callback}));
 }
 
 sub close {
@@ -118,8 +122,9 @@ sub get_connect_identity {
 sub get_server_pubkey {
     my ($self, %options) = @_;
 
-    #zmq_sendmsg($sockets->{$self->{identity}}, '[GETPUBKEY]', ZMQ_DONTWAIT);
-    zmq_poll([$self->get_poll()], 10000);
+    $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
+    my $w = EV::timer(10, 0, \&stop_ev);
+    EV::run();
 }
 
 sub read_key_protocol {
@@ -236,6 +241,7 @@ sub is_connected {
     return -1;
 }
 
+# TODO PING
 sub ping {
     my ($self, %options) = @_;
     my $status = 0;
@@ -248,6 +254,7 @@ sub ping {
         $self->send_message(action => $action, data => $options{data}, json_encode => $options{json_encode});
         $status = 1;
     }
+
     if ($self->{ping_progress} == 1 && 
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
@@ -259,26 +266,27 @@ sub ping {
                 last;
             }
         }
-        zmq_close($sockets->{$self->{identity}});
+        $sockets->{ $self->{identity} }->close();
 
         $self->init();
-        push @{$options{poll}}, $self->get_poll();
+        #push @{$options{poll}}, $self->get_poll();
         $status = 1;
     }
     
     return $status;
 }
 
-sub get_poll {
+sub stop_ev {
+    EV::break();
+}
+
+sub set_ev_io {
     my ($self, %options) = @_;
 
-    #return {
-    #    socket  => $sockets->{$self->{identity}},
-    #    events  => ZMQ_POLLIN,
-    #    callback => sub {
-    #        event(identity => $self->{identity});
-    #    }
-    #};
+    my $w = EV::io($sockets->{ $self->{identity} }->get_fd(), EV::READ|EV::WRITE, sub {
+            event(identity => $self->{identity});
+        }
+    );
 }
 
 sub event {
@@ -355,7 +363,7 @@ sub zmq_send_message {
         return undef;
     }
 
-    #zmq_sendmsg($options{socket}, $message, ZMQ_DONTWAIT);    
+    $options{socket}->send($message, ZMQ_DONTWAIT);
 }
 
 sub send_message {
@@ -381,8 +389,9 @@ sub send_message {
         }
 
         $self->{verbose_last_message} = 'Handshake timeout';
-        #zmq_sendmsg($sockets->{$self->{identity}}, $ciphertext, ZMQ_DONTWAIT);
-        zmq_poll([$self->get_poll()], 10000);
+        $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
+        my $w = EV::timer(10, 0, \&stop_ev);
+        EV::run();
     }
 
     if ($self->{handshake} < 2) {

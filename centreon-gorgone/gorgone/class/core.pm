@@ -1280,9 +1280,9 @@ sub run {
     $gorgone->{cb_timer_check} = time();
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $wr2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&router_internal_event);
+    my $w2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&router_internal_event);
     if (defined($gorgone->{external_socket})) {
-        my $wr3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ|EV::WRITE, \&router_external_event);
+        my $w3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ|EV::WRITE, \&router_external_event);
     }
 
     EV::run();
