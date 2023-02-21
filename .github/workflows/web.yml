@@ -377,6 +377,8 @@ jobs:
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
           report_target: s3://centreon-lighthouse-report/
+          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
         uses: actions/upload-artifact@v3
