@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 
 import { SeverityCode } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
+import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
 
 import {
   getServiceResourcesUrl,
@@ -15,10 +15,12 @@ import {
 } from '../getResourcesUrl';
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { Adapter } from '../useResourceCounters';
-import type { Criteria } from '../../../Resources/Filter/Criterias/models';
-import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
-import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { ServiceStatusResponse } from '../../api/decoders';
+import {
+  formatCount,
+  formatUnhandledOverTotal,
+  getNavigationFunction
+} from '../utils';
 
 import {
   labelCriticalStatusServices,
@@ -33,11 +35,6 @@ import {
   labelOk
 } from './translatedLabels';
 
-type ChangeFilterAndNavigate = (params: {
-  criterias: Array<Criteria>;
-  link: string;
-}) => (e: React.MouseEvent<HTMLLinkElement>) => void;
-
 export interface ServicesPropsAdapterOutput {
   counters: CounterProps['counters'];
   hasPending: boolean;
@@ -49,14 +46,6 @@ type GetServicePropsAdapter = Adapter<
   ServicesPropsAdapterOutput
 >;
 
-const formatCount = (number: number | string): string =>
-  numeral(number).format('0a');
-
-const formatUnhandledOverTotal = (
-  unhandled: number | string,
-  total: number | string
-): string => `${formatCount(unhandled)}/${formatCount(total)}`;
-
 const getServicePropsAdapter: GetServicePropsAdapter = ({
   useDeprecatedPages,
   applyFilter,
@@ -64,15 +53,11 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   t,
   data
 }) => {
-  const changeFilterAndNavigate: ChangeFilterAndNavigate =
-    ({ link, criterias }) =>
-    (e) => {
-      e.preventDefault();
-      if (!useDeprecatedPages) {
-        applyFilter({ criterias, id: '', name: 'New Filter' });
-      }
-      navigate(link);
-    };
+  const changeFilterAndNavigate = getNavigationFunction({
+    applyFilter,
+    navigate,
+    useDeprecatedPages
+  });
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
     resourceTypes: serviceCriteria.value,
