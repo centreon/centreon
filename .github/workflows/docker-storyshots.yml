@@ -1,4 +1,4 @@
-name: Centreon build docker storyshots
+name: docker-storyshots
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -6,26 +6,24 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/docker/Dockerfile.storyshots"
   push:
     branches:
       - develop
     paths:
       - ".github/docker/Dockerfile.storyshots"
-
-env:
-  version: "23.04"
+  pull_request:
+    paths:
+      - ".github/docker/Dockerfile.storyshots"
 
 jobs:
-  create-and-push-docker:
-    runs-on: ubuntu-22.04
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
 
-    strategy:
-      matrix:
-        include:
-          - project: storyshots
+  dockerize:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout sources
@@ -38,8 +36,12 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/setup-buildx-action@v2
 
-      - name: push docker ${{ matrix.project }}
-        run: docker push centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.translation
+          context: .
+          pull: true
+          push: true
+          tags: centreon.jfrog.io/docker/translation:${{ needs.get-version.outputs.major_version }}
