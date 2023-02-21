@@ -13,5 +13,3 @@ RUN npm install -g pnpm
 
 # Install Chromium
 RUN apt-get install chromium chromium-l10n -y
-
-WORKDIR /src
