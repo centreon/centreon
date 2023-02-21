@@ -24,7 +24,7 @@ runs:
       shell: bash
 
     - name: Cache vendor directory
-      uses: actions/cache@pdotl/zstd-hotfix
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.base_directory }}/vendor
         key: ${{ inputs.cache_key }}
