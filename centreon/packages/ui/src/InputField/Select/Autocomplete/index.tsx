@@ -9,8 +9,7 @@ import {
   InputAdornment,
   Autocomplete,
   AutocompleteProps,
-  useTheme,
-  Typography
+  useTheme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
