@@ -10,7 +10,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `centreon_acl` (
   `group_id` int(11) NOT NULL,
   `host_id` int(11) NOT NULL,
@@ -25,7 +25,7 @@ LOCK TABLES `centreon_acl` WRITE;
 /*!40000 ALTER TABLE `centreon_acl` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `RRDdatabase_path` varchar(255) DEFAULT NULL,
@@ -57,7 +57,7 @@ INSERT INTO `config` VALUES (1,'@centreon_varlib@/metrics/','@centreon_varlib@/s
 /*!40000 ALTER TABLE `config` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `data_stats_daily` (
   `data_stats_daily_id` int(11) NOT NULL AUTO_INCREMENT,
   `metric_id` int(11) DEFAULT NULL,
@@ -76,7 +76,7 @@ LOCK TABLES `data_stats_daily` WRITE;
 /*!40000 ALTER TABLE `data_stats_daily` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `data_stats_monthly` (
   `data_stats_monthly_id` int(11) NOT NULL AUTO_INCREMENT,
   `metric_id` int(11) DEFAULT NULL,
@@ -95,7 +95,7 @@ LOCK TABLES `data_stats_monthly` WRITE;
 /*!40000 ALTER TABLE `data_stats_monthly` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `data_stats_yearly` (
   `data_stats_yearly_id` int(11) NOT NULL AUTO_INCREMENT,
   `metric_id` int(11) DEFAULT NULL,
@@ -114,7 +114,7 @@ LOCK TABLES `data_stats_yearly` WRITE;
 /*!40000 ALTER TABLE `data_stats_yearly` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `index_data` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `host_name` varchar(255) DEFAULT NULL,
@@ -146,7 +146,7 @@ LOCK TABLES `index_data` WRITE;
 /*!40000 ALTER TABLE `index_data` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `log_action` (
   `action_log_id` int(11) NOT NULL AUTO_INCREMENT,
   `action_log_date` int(11) NOT NULL,
@@ -167,7 +167,7 @@ LOCK TABLES `log_action` WRITE;
 /*!40000 ALTER TABLE `log_action` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `log_action_modification` (
   `modification_id` int(11) NOT NULL AUTO_INCREMENT,
   `field_name` varchar(255) NOT NULL,
@@ -183,7 +183,7 @@ LOCK TABLES `log_action_modification` WRITE;
 /*!40000 ALTER TABLE `log_action_modification` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `log_archive_last_status` (
   `host_id` int(11) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
@@ -199,7 +199,7 @@ LOCK TABLES `log_archive_last_status` WRITE;
 /*!40000 ALTER TABLE `log_archive_last_status` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `metrics` (
   `metric_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
@@ -229,7 +229,7 @@ LOCK TABLES `metrics` WRITE;
 /*!40000 ALTER TABLE `metrics` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nagios_stats` (
   `instance_id` int(11) NOT NULL,
   `stat_key` varchar(255) NOT NULL,
@@ -244,7 +244,7 @@ LOCK TABLES `nagios_stats` WRITE;
 UNLOCK TABLES;
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `log_traps` (
   `trap_id` int(11) NOT NULL AUTO_INCREMENT,
   `trap_time` int(11) DEFAULT NULL,
@@ -271,7 +271,7 @@ LOCK TABLES `log_traps` WRITE;
 UNLOCK TABLES;
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `log_traps_args` (
   `fk_log_traps` int(11) NOT NULL,
   `arg_number` int(11) DEFAULT NULL,

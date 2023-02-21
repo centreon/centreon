@@ -40,7 +40,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
         // Get the list of tables in the database
         $query = "SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = :database";
         $stmt = $db->prepare($query);
-        $stmt->execute(array (":database" => $dbName));
+        $stmt->execute([":database" => $dbName]);
         $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
@@ -54,7 +54,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
                 continue;
             }
 
-            $errorMessage = "Couldn't change charset for table: " . $tableName;
+            $errorMessage = "Couldn't change charset for table: " . $tableName . "\n";
             // Create a query to alter the table and change the character set to utf8mb4
             $query = 'ALTER TABLE ' . $tableName . ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
             $stmt = $db->prepare($query);
@@ -62,7 +62,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
 
         }
 
-        echo "all tables of " . $dbName . " has charset converted \n";
+        echo "All tables of " . $dbName . " have had their charset converted.\n";
     } catch (\PDOException $e) {
 
         if ($db->inTransaction()) {
