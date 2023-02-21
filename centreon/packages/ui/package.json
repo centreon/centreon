@@ -1,10 +1,10 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.22",
+  "version": "23.4.28",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
-    "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",

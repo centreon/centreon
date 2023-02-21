@@ -111,6 +111,7 @@ jobs:
         with:
           name: packages-${{ matrix.distrib }}
           path: ./*.rpm
+          retention-days: 1
 
   deliver-rpm:
     needs: [get-version, sign-rpm]

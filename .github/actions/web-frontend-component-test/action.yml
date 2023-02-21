@@ -37,6 +37,7 @@ runs:
       with:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/results/videos
+        retention-days: 1
 
     - name: Archive screenshots
       uses: actions/upload-artifact@v3
@@ -44,6 +45,7 @@ runs:
       with:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/screenshots
+        retention-days: 1
 
     - name: Rename cypress report
       run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml

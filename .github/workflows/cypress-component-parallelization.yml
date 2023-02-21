@@ -52,6 +52,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-reports
           path: centreon/cypress/results/*.xml
+          retention-days: 1
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]

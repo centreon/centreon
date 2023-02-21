@@ -1,6 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/plugin/timezone';
-import 'dayjs/plugin/utc';
 import humanizeDuration from 'humanize-duration';
 import { useAtomValue } from 'jotai/utils';
 
