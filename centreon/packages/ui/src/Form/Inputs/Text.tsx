@@ -17,7 +17,6 @@ const Text = ({
   required,
   getDisabled,
   getRequired,
-  hideInput,
   change,
   additionalMemoProps,
   text
@@ -80,17 +79,14 @@ const Text = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <TextField
         fullWidth
         EndAdornment={passwordEndAdornment}
-        ariaLabel={t(label)}
-        dataTestId={dataTestId}
+        ariaLabel={t(label) || ''}
+        dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
@@ -107,8 +103,7 @@ const Text = ({
       isVisible,
       disabled,
       isRequired,
-      additionalMemoProps,
-      hidden
+      additionalMemoProps
     ]
   });
 };

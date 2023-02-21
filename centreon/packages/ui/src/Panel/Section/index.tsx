@@ -13,41 +13,65 @@ import ExpandableSection from './ExpandableSection';
 const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;
 
-interface StylesProps {
+interface GridTemplateColumns {
   hasSecondaryPanel?: boolean;
+  mainPanelWidth: number;
 }
 
-const useStyles = makeStyles<StylesProps>()((theme, { hasSecondaryPanel }) => ({
-  closeIcon: {
-    margin: 'auto',
-    width: 15
-  },
-  closeSecondaryPanelBar: {
-    alignContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.palette.background.paper,
-    borderBottom: 'none',
-    borderTop: 'none',
-    cursor: 'pointer',
-    display: 'flex'
-  },
-  container: {
-    display: hasSecondaryPanel ? 'grid' : 'block',
-    gridTemplateColumns: hasSecondaryPanel
-      ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
-      : '100%',
-    height: '100%'
-  },
-  mainPanel: {
-    bottom: 0,
-    left: 0,
-    overflow: 'auto',
-    position: hasSecondaryPanel ? 'unset' : 'absolute',
-    right: 0,
-    top: 0,
-    width: panelWidth
+const getGridTemplateColumns = ({
+  mainPanelWidth,
+  hasSecondaryPanel
+}: GridTemplateColumns): string => {
+  if (!hasSecondaryPanel) {
+    return '100%';
   }
-}));
+  if (!mainPanelWidth) {
+    return `1fr ${closeSecondaryPanelBarWidth}px 1fr`;
+  }
+
+  return `${mainPanelWidth}px ${closeSecondaryPanelBarWidth}px 1fr`;
+};
+
+interface StylesProps {
+  hasSecondaryPanel?: boolean;
+  mainPanelWidth: number;
+}
+
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { hasSecondaryPanel, mainPanelWidth }) => ({
+    closeIcon: {
+      margin: 'auto',
+      width: 15
+    },
+    closeSecondaryPanelBar: {
+      alignContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.palette.background.paper,
+      borderBottom: 'none',
+      borderTop: 'none',
+      cursor: 'pointer',
+      display: 'flex',
+      width: closeSecondaryPanelBarWidth
+    },
+    container: {
+      display: hasSecondaryPanel ? 'grid' : 'block',
+      gridTemplateColumns: getGridTemplateColumns({
+        hasSecondaryPanel,
+        mainPanelWidth
+      }),
+      height: '100%'
+    },
+    mainPanel: {
+      bottom: 0,
+      left: 0,
+      overflow: 'auto',
+      position: hasSecondaryPanel ? 'unset' : 'absolute',
+      right: 0,
+      top: 0,
+      width: mainPanelWidth
+    }
+  })
+);
 
 interface Section {
   expandable: boolean;
@@ -59,10 +83,13 @@ interface Section {
 interface SectionPanelProps {
   header: JSX.Element;
   loading?: boolean;
+  mainPanelWidth?: number;
   onClose: () => void;
+  onResize?: (width: number) => void;
   onSecondaryPanelClose?: () => void;
   secondaryPanel?: JSX.Element;
   sections: Array<Section>;
+  setWidth?: (width: number) => void;
 }
 
 const SectionPanel = ({
@@ -71,18 +98,26 @@ const SectionPanel = ({
   sections,
   onSecondaryPanelClose = (): undefined => undefined,
   onClose = (): undefined => undefined,
-  loading = false
+  onResize,
+  loading = false,
+  mainPanelWidth = panelWidth,
+  setWidth
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
   const { classes } = useStyles({
-    hasSecondaryPanel
+    hasSecondaryPanel,
+    mainPanelWidth
   });
 
   const getWidth = (): number => {
     if (hasSecondaryPanel) {
-      return panelWidth * 2 + closeSecondaryPanelBarWidth;
+      const newWidth = panelWidth * 2 + closeSecondaryPanelBarWidth;
+      setWidth?.(newWidth);
+
+      return newWidth;
     }
+    setWidth?.(panelWidth);
 
     return panelWidth;
   };
@@ -128,6 +163,7 @@ const SectionPanel = ({
       }
       width={getWidth()}
       onClose={onClose}
+      onResize={onResize}
     />
   );
 };

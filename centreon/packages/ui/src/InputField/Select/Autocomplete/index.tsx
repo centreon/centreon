@@ -20,16 +20,16 @@ import Option from '../Option';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
+import getNormalizedId from '../../../utils/getNormalizedId';
 
 export type Props = {
   autoFocus?: boolean;
-  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
   error?: string;
   hideInput?: boolean;
-  label?: string;
+  label: string;
   loading?: boolean;
   onTextChange?;
   placeholder?: string | undefined;
@@ -135,7 +135,6 @@ type DisableClearable = boolean;
 type FreeSolo = boolean;
 
 const AutocompleteField = ({
-  dataTestId,
   options,
   label,
   placeholder,
@@ -149,7 +148,7 @@ const AutocompleteField = ({
   displayPopupIcon = true,
   autoFocus = false,
   hideInput = false,
-  ...props
+  ...autocompleteProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
   const { t } = useTranslation();
@@ -174,7 +173,6 @@ const AutocompleteField = ({
       }}
       InputProps={{
         ...params.InputProps,
-        'data-testid': dataTestId,
         endAdornment: (
           <>
             {endAdornment && (
@@ -194,7 +192,9 @@ const AutocompleteField = ({
       error={error}
       inputProps={{
         ...params.inputProps,
-        'aria-label': label
+        'aria-label': label,
+        'data-testid': label,
+        id: getNormalizedId(label || '')
       }}
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
@@ -225,9 +225,12 @@ const AutocompleteField = ({
       loadingText={<LoadingIndicator />}
       options={options}
       renderInput={renderInput}
-      renderOption={(renderProps, option): JSX.Element => {
+      renderOption={(props, option): JSX.Element => {
         return (
-          <li className={classes.options} {...renderProps}>
+          <li
+            className={classes.options}
+            {...(props as React.HTMLAttributes<HTMLLIElement>)}
+          >
             <Option
               thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
             >
@@ -237,7 +240,7 @@ const AutocompleteField = ({
         );
       }}
       size="small"
-      {...props}
+      {...autocompleteProps}
     />
   );
 };

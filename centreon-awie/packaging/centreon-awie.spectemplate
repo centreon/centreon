@@ -1,5 +1,5 @@
 ##
-## Copyright 2016-2021 Centreon
+## Copyright 2016-2023 Centreon
 ##
 ## All rights reserved.
 ##
@@ -13,11 +13,11 @@ Name:           centreon-awie
 Version:        %{version}
 Release:        %{release}
 Summary:        Centreon API Web Import Export
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
 
 Group:          Applications/System
-License:        Proprietary
+License:        Apache-2.0
 URL:            https://www.centreon.com
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -34,14 +34,14 @@ UI to export/import centreon configuration.
 
 find .          \
         -type f \
-        -exec %{__grep} -qE '(@@CENTREON_ETC@@)|(@@BIN_DIR@@)|(CENTREON_DIR)|(CENTREON_LOG)|(CENTREON_VARLIB)|(MODULE_NAME)|(DB_CENTSTORAGE)' {} ';'   \
-        -exec %{__sed} -i -e "s|@@CENTREON_ETC@@|%{centreon_etc}|g" \
-                          -e "s|@@BIN_DIR@@|%{_bindir}|g" \
-                          -e "s|@@CENTREON_DIR@@|%{centreon_dir}|g" \
-                          -e "s|@@CENTREON_LOG@@|%{centreon_log}|g" \
-                          -e "s|@@CENTREON_VARLIB@@|%{centreon_varlib}|g" \
-                          -e "s|@@MODULE_NAME@@|%{name}|g" \
-			  -e "s|@@DB_CENTSTORAGE@@|centreon_storage|g" \
+        -exec %{__grep} -qE '(@CENTREON_ETC@)|(@BIN_DIR@)|(CENTREON_DIR)|(CENTREON_LOG)|(CENTREON_VARLIB)|(MODULE_NAME)|(DB_CENTSTORAGE)' {} ';'   \
+        -exec %{__sed} -i -e "s|@CENTREON_ETC@|%{centreon_etc}|g" \
+                          -e "s|@BIN_DIR@|%{_bindir}|g" \
+                          -e "s|@CENTREON_DIR@|%{centreon_dir}|g" \
+                          -e "s|@CENTREON_LOG@|%{centreon_log}|g" \
+                          -e "s|@CENTREON_VARLIB@|%{centreon_varlib}|g" \
+                          -e "s|@MODULE_NAME@|%{name}|g" \
+			  -e "s|@DB_CENTSTORAGE@|centreon_storage|g" \
                        {} ';'
 
 %build

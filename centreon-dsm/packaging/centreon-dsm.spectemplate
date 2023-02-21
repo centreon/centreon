@@ -9,20 +9,20 @@
 
 Name:           centreon-dsm
 Version:        %{version}
-Release:        %{release}%{?dist}
+Release:        %{release}
 Summary:        Centreon-dsm add-on for Centreon
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
 
 Group:          System Environment/Base
-License:        GPLv2
+License:        Apache-2.0
 URL:            https://github.com/centreon/centreon-dsm
 Source0:        %{name}-%{version}.tar.gz
 Source1:        centreon-macroreplacement.txt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 Requires:       centreon
-Requires:	centreon-dsm-client = %{version}-%{release}
+Requires:	    centreon-dsm-client = %{version}-%{release}
 Requires:       centreon-dsm-server = %{version}-%{release}
 
 %description
@@ -33,6 +33,7 @@ events.
 %package server
 Summary:        Centreon-dsm server
 Group:          Networking/Other
+License:        Apache-2.0
 Requires(post): /sbin/chkconfig
 Requires:	centreon-web >= %{thismajor}
 Requires:       centreon-web < %{nextmajor}
@@ -43,6 +44,7 @@ Centreon-dsm server package
 %package client
 Summary:	Centreon-dsm client
 Group:		Networking/Other
+License:	Apache-2.0
 
 %description client
 Centreon-dsm client package
@@ -51,7 +53,7 @@ Centreon-dsm client package
 # Prepare the build
 ######################################################
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}
 
 # Change macro
 find . -type f | xargs sed -i -f %{SOURCE1}

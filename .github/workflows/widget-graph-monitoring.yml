@@ -1,16 +1,21 @@
 name: widget-graph-monitoring
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/centreon-widget-graph-monitoring.yml"
       - "widgets/centreon-widget-graph-monitoring/**"
     tags:
       - centreon-widget-graph-monitoring-*
@@ -30,8 +35,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   delivery:
     needs: [get-version, package]
@@ -39,6 +44,15 @@ jobs:
     with:
       widget_name: graph-monitoring
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      nexus_username: ${{ secrets.NEXUS_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}

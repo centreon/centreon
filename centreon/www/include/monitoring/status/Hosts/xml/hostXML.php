@@ -45,20 +45,22 @@ include_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
  * Create XML Request Objects
  */
 CentreonSession::start();
-$obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
 if (!isset($_SESSION['centreon'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
-$criticality = new CentreonCriticality($obj->DB);
-$instanceObj = new CentreonInstance($obj->DB);
-$media = new CentreonMedia($obj->DB);
 
+$obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
     print "Bad Session ID";
     exit();
 }
+
+$criticality = new CentreonCriticality($obj->DB);
+$instanceObj = CentreonInstance::getInstance($obj->DB, $obj->DBC);
+$media = new CentreonMedia($obj->DB);
+$hostObj = new CentreonHost($obj->DB);
 
 // Set Default Poller
 $obj->getDefaultFilters();
@@ -83,10 +85,10 @@ $statusHost = isset($_GET['statusHost']) ? \HtmlAnalyzer::sanitizeAndRemoveTags(
 $statusFilter = isset($_GET['statusFilter']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['statusFilter']) : '';
 $order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
 
-if (isset($_GET['sort_type']) && $_GET['sort_type'] == "host_name") {
+if (isset($_GET['sort_type']) && $_GET['sort_type'] === "host_name") {
     $sort_type = "name";
 } else {
-    if ($o == "hpb" || $o == "h_unhandled") {
+    if ($o === "hpb" || $o === "h_unhandled") {
         $sort_type = $obj->checkArgument("sort_type", $_GET, "");
     } else {
         $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
@@ -107,72 +109,88 @@ $queryValues = [];
 /*
  * Get Host status
  */
-$rq1 = " SELECT SQL_CALC_FOUND_ROWS DISTINCT h.state,
-    h.acknowledged,
-    h.passive_checks,
-    h.active_checks,
-    h.notify,
-    h.last_state_change,
-    h.last_hard_state_change,
-    h.output,
-    h.last_check,
-    h.address,
-    h.name,
-    h.alias,
-    h.action_url,
-    h.notes_url,
-    h.notes,
-    h.icon_image,
-    h.icon_image_alt,
-    h.max_check_attempts,
-    h.state_type,
-    h.check_attempt,
-    h.scheduled_downtime_depth,
-    h.host_id,
-    h.flapping,
-    hph.parent_id AS is_parent,
-    i.name AS instance_name,
-    cv.value AS criticality,
-    cv.value IS NULL AS isnull
-    FROM instances i, ";
+$rq1 = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+        h.state,
+        h.acknowledged,
+        h.passive_checks,
+        h.active_checks,
+        h.notify,
+        h.last_state_change,
+        h.last_hard_state_change,
+        h.output,
+        h.last_check,
+        h.address,
+        h.name,
+        h.alias,
+        h.action_url,
+        h.notes_url,
+        h.notes,
+        h.icon_image,
+        h.icon_image_alt,
+        h.max_check_attempts,
+        h.state_type,
+        h.check_attempt,
+        h.scheduled_downtime_depth,
+        h.host_id,
+        h.flapping,
+        hph.parent_id AS is_parent,
+        i.name AS instance_name,
+        cv.value AS criticality,
+        cv.value IS NULL AS isnull
+        FROM instances i
+    INNER JOIN hosts h 
+        ON h.instance_id = i.instance_id
+    SQL;
+
 if (!$obj->is_admin) {
-    $rq1 .= " centreon_acl, ";
+    $rq1 .= <<<SQL
+
+    INNER JOIN centreon_acl
+        ON centreon_acl.host_id = h.host_id
+        AND centreon_acl.group_id IN ({$obj->grouplistStr})
+    SQL;
 }
+
 if ($hostgroups) {
-    $rq1 .= " hosts_hostgroups hhg, hostgroups hg, ";
+    $rq1 .= <<<SQL
+
+        INNER JOIN hosts_hostgroups hhg
+            ON hhg.host_id = h.host_id
+        INNER JOIN hostgroups hg
+            ON hg.hostgroup_id = :hostgroup
+            AND hg.hostgroup_id = hhg.hostgroup_id
+        SQL;
+    $queryValues['hostgroup'] = [\PDO::PARAM_INT => $hostgroups];
 }
+
 if ($criticalityId) {
-    $rq1 .= "customvariables cvs, ";
+    $rq1 .= <<<SQL
+
+        INNER JOIN customvariables cvs
+            ON cvs.host_id = h.host_id
+            AND cvs.name = 'CRITICALITY_ID'
+            AND cvs.service_id = 0
+            AND cvs.value = :criticalityId
+        SQL;
+    $queryValues['criticalityId'] = [\PDO::PARAM_STR => $criticalityId];
 }
-$rq1 .= " `hosts` h
+
+$rq1 .= <<<SQL
+    
     LEFT JOIN hosts_hosts_parents hph
-    ON hph.parent_id = h.host_id
+        ON hph.parent_id = h.host_id
     LEFT JOIN `customvariables` cv
-    ON (cv.host_id = h.host_id AND cv.service_id = 0 AND cv.name = 'CRITICALITY_LEVEL')
+        ON (cv.host_id = h.host_id AND cv.service_id = 0 AND cv.name = 'CRITICALITY_LEVEL')
     WHERE h.name NOT LIKE '\_Module\_%'
-    AND h.instance_id = i.instance_id ";
+        AND h.instance_id = i.instance_id
+    SQL;
 
-if ($criticalityId) {
-    $rq1 .= " AND h.host_id = cvs.host_id
-        AND cvs.name = 'CRITICALITY_ID'
-        AND cvs.service_id = 0
-        AND cvs.value = :criticalityId ";
-    $queryValues['criticalityId'] = [
-        \PDO::PARAM_STR => $criticalityId
-    ];
-}
-
-if (!$obj->is_admin) {
-    $rq1 .= " AND h.host_id = centreon_acl.host_id " .
-        $obj->access->queryBuilder("AND", "centreon_acl.group_id", $obj->grouplistStr);
-}
 if ($search != "") {
     $rq1 .= " AND (h.name LIKE :search
         OR h.alias LIKE :search
         OR h.address LIKE :search) ";
-    $queryValues['search'] = [
-        \PDO::PARAM_STR => '%' . $search . '%'
-    ];
+    $queryValues['search'] = [\PDO::PARAM_STR => '%' . $search . '%'];
 }
 
 if ($statusHost == "h_unhandled") {
@@ -192,15 +210,6 @@ if ($statusFilter == "up") {
     $rq1 .= " AND h.state = 2 ";
 } elseif ($statusFilter == "pending") {
     $rq1 .= " AND h.state = 4 ";
-}
-
-if ($hostgroups) {
-    $rq1 .= " AND h.host_id = hhg.host_id
-        AND hg.hostgroup_id = :hostgroup
-        AND hhg.hostgroup_id = hg.hostgroup_id";
-    $queryValues['hostgroup'] = [
-        \PDO::PARAM_INT => $hostgroups
-    ];
 }
 
 if ($instance != -1 && !empty($instance)) {
@@ -392,17 +401,16 @@ while ($data = $dbResult->fetch()) {
     $obj->XML->writeElement("parenth", $parenth);
     $obj->XML->writeElement("delim", $delim);
 
-    $hostObj = new CentreonHost($obj->DB);
     if ($data["notes"] != "") {
         $obj->XML->writeElement(
             "hnn",
             CentreonUtils::escapeSecure(
                 $hostObj->replaceMacroInString(
-                    $data["name"],
+                    $data["host_id"],
                     str_replace(
-                        "\$HOSTNAME\$",
+                        'HOSTNAME$',
                         $data["name"],
-                        str_replace("\$HOSTADDRESS\$", $data["address"], $data["notes"])
+                        str_replace('$HOSTADDRESS$', $data["address"], $data["notes"])
                     )
                 )
             )
@@ -412,24 +420,23 @@ while ($data = $dbResult->fetch()) {
     }
 
     if ($data["notes_url"] != "") {
-        $str = $data['notes_url'];
-        $str = str_replace("\$HOSTNAME\$", $data['name'], $str);
-        $str = str_replace("\$HOSTALIAS\$", $data['alias'], $str);
-        $str = str_replace("\$HOSTADDRESS\$", $data['address'], $str);
-        $str = str_replace("\$HOSTNOTES\$", $data['notes'], $str);
-        $str = str_replace("\$INSTANCENAME\$", $data['instance_name'], $str);
+        $str = str_replace('$HOSTNAME$', $data['name'], $data['notes_url']);
+        $str = str_replace('$HOSTALIAS$', $data['alias'], $str);
+        $str = str_replace('$HOSTADDRESS$', $data['address'], $str);
+        $str = str_replace('$HOSTNOTES$', $data['notes'], $str);
+        $str = str_replace('$INSTANCENAME$', $data['instance_name'], $str);
 
-        $str = str_replace("\$HOSTSTATEID\$", $data['state'], $str);
-        $str = str_replace("\$HOSTSTATE\$", $obj->statusHost[$data['state']], $str);
+        $str = str_replace('$HOSTSTATEID$', $data['state'], $str);
+        $str = str_replace('$HOSTSTATE$', $obj->statusHost[$data['state']], $str);
 
         $str = str_replace(
-            "\$INSTANCEADDRESS\$",
+            '$INSTANCEADDRESS$',
             $instanceObj->getParam($data['instance_name'], 'ns_ip_address'),
             $str
         );
         $obj->XML->writeElement(
             "hnu",
-            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["name"], $str))
+            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["host_id"], $str))
         );
     } else {
         $obj->XML->writeElement("hnu", "none");
@@ -437,23 +444,23 @@ while ($data = $dbResult->fetch()) {
 
     if ($data["action_url"] != "") {
         $str = $data['action_url'];
-        $str = str_replace("\$HOSTNAME\$", $data['name'], $str);
-        $str = str_replace("\$HOSTALIAS\$", $data['alias'], $str);
-        $str = str_replace("\$HOSTADDRESS\$", $data['address'], $str);
-        $str = str_replace("\$HOSTNOTES\$", $data['notes'], $str);
-        $str = str_replace("\$INSTANCENAME\$", $data['instance_name'], $str);
+        $str = str_replace('$HOSTNAME$', $data['name'], $str);
+        $str = str_replace('$HOSTALIAS$', $data['alias'], $str);
+        $str = str_replace('$HOSTADDRESS$', $data['address'], $str);
+        $str = str_replace('$HOSTNOTES$', $data['notes'], $str);
+        $str = str_replace('$INSTANCENAME$', $data['instance_name'], $str);
 
-        $str = str_replace("\$HOSTSTATEID\$", $data['state'], $str);
-        $str = str_replace("\$HOSTSTATE\$", $obj->statusHost[$data['state']], $str);
+        $str = str_replace('$HOSTSTATEID$', $data['state'], $str);
+        $str = str_replace('$HOSTSTATE$', $obj->statusHost[$data['state']], $str);
 
         $str = str_replace(
-            "\$INSTANCEADDRESS\$",
+            '$INSTANCEADDRESS$',
             $instanceObj->getParam($data['instance_name'], 'ns_ip_address'),
             $str
         );
         $obj->XML->writeElement(
             "hau",
-            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["name"], $str))
+            CentreonUtils::escapeSecure($hostObj->replaceMacroInString($data["host_id"], $str))
         );
     } else {
         $obj->XML->writeElement("hau", "none");

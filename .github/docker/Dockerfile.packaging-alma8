@@ -1,8 +1,8 @@
-FROM registry-docker.centreon.com/docker-global/almalinux:8.5
+FROM centreon.jfrog.io/docker/almalinux:8
 
 RUN <<EOF
 
-dnf install -y rpm-build rpm-sign zstd
+dnf install -y rpm-build rpm-sign zstd perl-devel
 dnf clean all
 
 EOF

@@ -15361,3 +15361,174 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Confirm"
 #  msgstr "Confirmar"
+
+#  msgid "Incorrect LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
+#  msgid "Vault configuration with these properties already exists"
+#  msgstr ""
+
+#  msgid "Impossible to create vault configuration"
+#  msgstr ""
+
+#  msgid "Vault provider does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host categories"
+#  msgstr ""
+
+#  msgid "Error while searching for host categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host categories"
+#  msgstr ""
+
+#  msgid "Host category not found"
+#  msgstr ""
+
+#  msgid "Error while deleting host category"
+#  msgstr ""
+
+#  msgid "Error while searching for host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on host groups"
+#  msgstr ""
+
+#  msgid "Host group not found"
+#  msgstr ""
+
+#  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "The host group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving just created host group"
+#  msgstr ""
+
+#  msgid "The host group icon '%s' with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host categories"
+#  msgstr ""
+
+#  msgid "Host category name already exists"
+#  msgstr ""
+
+#  msgid "Error while creating host category"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host severities"
+#  msgstr ""
+
+#  msgid "Error while deleting host severity"
+#  msgstr ""
+
+#  msgid "Error while creating host severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created host severity"
+#  msgstr ""
+
+#  msgid "Host severity name already exists"
+#  msgstr ""
+
+#  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on service groups"
+#  msgstr ""
+
+#  msgid "Error while searching for service groups"
+#  msgstr ""
+
+#  msgid "Error while deleting a service group"
+#  msgstr ""
+
+#  msgid "Error while adding a service group"
+#  msgstr ""
+
+#  msgid "Error while retrieving newly created service group"
+#  msgstr ""
+
+#  msgid "The service group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service categories"
+#  msgstr ""
+
+#  msgid "Error while deleting service category"
+#  msgstr ""
+
+#  msgid "Error while creating service category"
+#  msgstr ""
+
+#  msgid "Service category name already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service category"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service severities"
+#  msgstr ""
+
+#  msgid "Error while deleting service severity"
+#  msgstr ""
+
+#  msgid "Error while creating service severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service severity"
+#  msgstr ""
+
+#  msgid "Service severity name already exists"
+#  msgstr ""
+
+#  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""

@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 
-import { PaletteOptions } from '@mui/material';
+import { alpha, PaletteOptions } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -15,16 +15,35 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Palette {
+    background: {
+      default: string;
+      listingHeader: string;
+      paper: string;
+    };
     pending: {
       contrastText: string;
       main: string;
     };
+    statusBackground: StatusBackground;
+  }
+  interface StatusBackground {
+    error: string;
+    none: string;
+    pending: string;
+    success: string;
+    unknown: string;
+    warning: string;
   }
   interface PaletteOptions {
     pending: {
       contrastText: string;
       main: string;
     };
+    statusBackground: StatusBackground;
+  }
+
+  interface TypeBackground {
+    listingHeader: string;
   }
 }
 
@@ -59,6 +78,7 @@ export const lightPalette: PaletteOptions = {
   },
   background: {
     default: '#F4F4F4',
+    listingHeader: '#666666',
     paper: '#FFFFFF'
   },
   divider: '#E3E3E3',
@@ -84,6 +104,14 @@ export const lightPalette: PaletteOptions = {
   secondary: {
     contrastText: '#fff',
     main: '#C772D6'
+  },
+  statusBackground: {
+    error: '#FF6666',
+    none: alpha('#2E68AA', 0.1),
+    pending: '#1EBEB3',
+    success: '#88B922',
+    unknown: '#E3E3E3',
+    warning: '#FD9B27'
   },
   success: {
     contrastText: '#000',
@@ -119,6 +147,7 @@ export const darkPalette: PaletteOptions = {
   },
   background: {
     default: '#4a4a4a',
+    listingHeader: '#666666',
     paper: '#212121'
   },
   divider: '#666666',
@@ -144,6 +173,14 @@ export const darkPalette: PaletteOptions = {
   secondary: {
     contrastText: '#fff',
     main: '#7C1FA2'
+  },
+  statusBackground: {
+    error: '#D60101',
+    none: alpha('#2E68AA', 0.1),
+    pending: '#118077',
+    success: '#5F8118',
+    unknown: '#666666',
+    warning: '#C55400'
   },
   success: {
     contrastText: '#fff',

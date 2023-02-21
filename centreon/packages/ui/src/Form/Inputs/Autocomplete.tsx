@@ -39,13 +39,11 @@ const normalizeNewValues = ({
 };
 
 const Autocomplete = ({
-  dataTestId,
   fieldName,
   label,
   required,
   getDisabled,
   getRequired,
-  hideInput,
   change,
   additionalMemoProps,
   autocomplete,
@@ -125,10 +123,14 @@ const Autocomplete = ({
     | Array<SelectEntry>
     | undefined => {
     if (isMultiple && isCreatable) {
-      return selectedValues.map((value) => ({
-        id: value,
-        name: value
-      }));
+      return equals(type(selectedValues), 'Array')
+        ? (
+            selectedValues as Array<SelectEntry> | Array<string> | undefined
+          )?.map((value) => ({
+            id: value,
+            name: value
+          }))
+        : selectedValues;
     }
 
     return selectedValues;
@@ -138,7 +140,6 @@ const Autocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   const additionalLabel =
     inputText && isCreatable ? ` (${labelPressEnterToAccept})` : '';
@@ -149,12 +150,9 @@ const Autocomplete = ({
   );
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <div>
         <AutocompleteField
-          dataTestId={dataTestId}
           disabled={disabled}
           freeSolo={isCreatable}
           inputValue={inputText}
@@ -189,8 +187,7 @@ const Autocomplete = ({
       additionalMemoProps,
       isMultiple,
       autocomplete?.options,
-      isCreatable,
-      hidden
+      isCreatable
     ]
   });
 };

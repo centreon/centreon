@@ -150,7 +150,7 @@ export const basicFormGroups: Array<Group> = [
     order: 1
   },
   {
-    EndIcon: HelpOutlineIcon,
+    EndIcon: () => <HelpOutlineIcon />,
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2
@@ -180,6 +180,7 @@ export const basicFormInputs: Array<InputProps> = [
     additionalLabel: 'This a very special label',
     fieldName: 'password',
     group: 'First group',
+    hideInput: (values) => values.active,
     label: 'Password',
     type: InputType.Password
   },

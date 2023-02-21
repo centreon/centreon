@@ -3,33 +3,52 @@ import { memo } from 'react';
 import { equals, props } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip, Typography } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
+import { ListingVariant } from '@centreon/ui-context';
+
+import DraggableIcon from '../Header/SortableCell/DraggableIcon';
 import {
   Column,
   ColumnType,
   ComponentColumnProps,
   RowColorCondition
 } from '../models';
+import useStyleTable from '../useStyleTable';
+
+import EllipsisTypography from './EllipsisTypography';
 
 import Cell from '.';
 
 interface Props {
+  areColumnsEditable: boolean;
   column: Column;
   disableRowCondition: (row) => boolean;
+  getHighlightRowCondition?: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
+  viewMode?: ListingVariant;
 }
 
 const useStyles = makeStyles()((theme) => ({
   cell: {
     alignItems: 'center',
-    alignSelf: 'stretch',
+    backgroundColor: 'transparent',
     display: 'flex',
+    height: '100%',
     overflow: 'hidden',
     whiteSpace: 'nowrap'
+  },
+  componentColumn: {
+    width: theme.spacing(2.75)
+  },
+  headerCell: {
+    padding: theme.spacing(0, 0, 0, 1)
+  },
+  item: {
+    paddingLeft: theme.spacing(1.5)
   },
   rowNotHovered: {
     color: theme.palette.text.secondary
@@ -47,19 +66,23 @@ const DataCell = ({
   isRowSelected,
   isRowHovered,
   rowColorConditions,
-  disableRowCondition
+  disableRowCondition,
+  viewMode,
+  getHighlightRowCondition,
+  areColumnsEditable
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
+  const { dataStyle } = useStyleTable({ viewMode });
+  const { classes } = useStyles();
 
   const commonCellProps = {
     align: 'left' as const,
-    className: classes.cell,
-    compact: column.compact,
     disableRowCondition,
     isRowHovered,
     row,
     rowColorConditions
   };
+
+  const isRowHighlighted = getHighlightRowCondition?.(row);
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
@@ -72,22 +95,31 @@ const DataCell = ({
       const gridColumn = colSpan ? `auto / span ${colSpan}` : 'auto / auto';
 
       const typography = (
-        <Typography
-          className={cx(classes.text, {
-            [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row)
-          })}
-          variant="body2"
-        >
-          {formattedString}
-        </Typography>
+        <EllipsisTypography
+          dataStyle={dataStyle}
+          disableRowCondition={disableRowCondition(row)}
+          formattedString={formattedString}
+          isRowHovered={isRowHovered}
+        />
       );
 
       return (
-        <Cell style={{ gridColumn }} {...commonCellProps}>
+        <Cell
+          className={classes.item}
+          isRowHighlighted={isRowHighlighted}
+          style={{
+            gridColumn
+          }}
+          viewMode={viewMode}
+          {...commonCellProps}
+        >
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
-          {!isTruncated && typography}
+          <>
+            {areColumnsEditable && <DraggableIcon />}
+            {!isTruncated && typography}
+          </>
         </Cell>
       );
     },
@@ -105,6 +137,9 @@ const DataCell = ({
 
       return (
         <Cell
+          className={classes.item}
+          isRowHighlighted={isRowHighlighted}
+          viewMode={viewMode}
           onClick={(e): void => {
             if (!clickable) {
               return;
@@ -114,11 +149,31 @@ const DataCell = ({
           }}
           {...commonCellProps}
         >
-          <Component
-            isHovered={isRowHovered}
-            isSelected={isRowSelected}
-            row={row}
-          />
+          <>
+            {areColumnsEditable && (
+              <DraggableIcon className={classes.componentColumn} />
+            )}
+
+            <Component
+              isHovered={isRowHovered}
+              isSelected={isRowSelected}
+              renderEllipsisTypography={({
+                className,
+                formattedString
+              }): JSX.Element => {
+                return (
+                  <EllipsisTypography
+                    className={className}
+                    dataStyle={dataStyle}
+                    disableRowCondition={disableRowCondition(row)}
+                    formattedString={formattedString}
+                    isRowHovered={isRowHovered}
+                  />
+                );
+              }}
+              row={row}
+            />
+          </>
         </Cell>
       );
     }
@@ -149,6 +204,9 @@ const MemoizedDataCell = memo<Props>(
     const previousHiddenCondition = prevProps.column.getHiddenCondition?.(
       prevProps.isRowSelected
     );
+    const previousIsRowHighlighted = prevProps.getHighlightRowCondition?.(
+      prevProps.row
+    );
 
     const nextHasHoverableComponent = nextProps.column.hasHoverableComponent;
     const nextRenderComponentOnRowUpdate =
@@ -176,6 +234,9 @@ const MemoizedDataCell = memo<Props>(
     const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
       condition(nextProps.row)
     );
+    const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
+      nextProps.row
+    );
 
     // Explicitely render the Component.
     if (previousRenderComponentCondition && nextRenderComponentCondition) {
@@ -184,7 +245,7 @@ const MemoizedDataCell = memo<Props>(
 
     // Explicitely prevent the component from rendering.
     if (nextRenderComponentCondition === false) {
-      return true;
+      return equals(prevProps.viewMode, nextProps.viewMode);
     }
 
     const previousRowProps = previousRowMemoProps
@@ -213,7 +274,10 @@ const MemoizedDataCell = memo<Props>(
       equals(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)
-      )
+      ) &&
+      equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
+      equals(prevProps.viewMode, nextProps.viewMode) &&
+      equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
     );
   }
 );

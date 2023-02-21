@@ -18,9 +18,9 @@ on:
         type: string
         default: behat.yml
     secrets:
-      nexus_username:
+      registry_username:
         required: true
-      nexus_password:
+      registry_password:
         required: true
       composer_token:
         required: true
@@ -42,24 +42,24 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
-    name: ""
     needs: [behat-test-list]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
         feature: ${{ fromJson(needs.behat-test-list.outputs.features) }}
+    name: ${{ matrix.feature }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.nexus_username }}
-          password: ${{ secrets.nexus_password }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -87,54 +87,55 @@ jobs:
 
       - name: Behat acceptance testing
         run: |
-          SELENIUM_IMAGE="registry-docker.centreon.com/docker-global/selenium/standalone-chrome:106.0"
-          WEB_IMAGE="registry-docker.centreon.com/docker-global/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
+          SELENIUM_IMAGE="centreon.jfrog.io/docker/selenium/standalone-chrome:106.0"
+          WEB_IMAGE="centreon.jfrog.io/docker/${{ inputs.image_name }}-alma9:${{ github.head_ref || github.ref_name }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#registry-docker.centreon.com/docker-global/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
-            -e "s#@WEB_WIDGETS_IMAGE@#registry-docker.centreon.com/docker-global/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-fresh-alma9:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_WIDGETS_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-widgets-alma9:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=`pwd`
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
-        if: always()
+        if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs rm
 
       - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
+        if: failure()
         name: Upload acceptance test logs
         with:
           name: ${{ inputs.name }}-test-logs
           path: acceptance-logs
+          retention-days: 1
 
       - name: Upload Test Results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
           path: xunit-reports
+          retention-days: 1
 
   behat-test-report:
     needs: [behat-test-run]
-    if: always()
+    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
           path: ${{ inputs.name }}-xunit-reports
 
-      - name: Publish tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() }}
+      - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          comment_mode: failures
-          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
+          path: "${{ inputs.name }}-xunit-reports/**/*.xml"

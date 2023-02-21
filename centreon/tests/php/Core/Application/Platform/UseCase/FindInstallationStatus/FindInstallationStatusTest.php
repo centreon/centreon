@@ -50,7 +50,7 @@ class FindInstallationStatusTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('isCentreonWebUpgradeAvailable')
+            ->method('isCentreonWebInstallableOrUpgradable')
             ->willReturn(true);
 
         $this->repository

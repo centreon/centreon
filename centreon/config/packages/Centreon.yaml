@@ -34,6 +34,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
@@ -53,12 +55,12 @@ services:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false
 
-    json_presenter:
-        class: Core\Infrastructure\Common\Presenter\JsonPresenter
+    json_formatter:
+        class: Core\Infrastructure\Common\Presenter\JsonFormatter
         public: false
 
     Core\Infrastructure\Common\Presenter\PresenterFormatterInterface:
-        class: Core\Infrastructure\Common\Presenter\JsonPresenter
+        class: Core\Infrastructure\Common\Presenter\JsonFormatter
         public: false
 
     # Encryption
@@ -95,7 +97,7 @@ services:
 
     presenter.download.csv:
         class: Core\Infrastructure\Common\Presenter\DownloadPresenter
-        arguments: ['@Core\Infrastructure\Common\Presenter\CsvPresenter']
+        arguments: ['@Core\Infrastructure\Common\Presenter\CsvFormatter']
 
     Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricPresenterInterface:
         class: Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
@@ -354,12 +356,6 @@ services:
     # Host group configuration
     Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadRepositoryInterface:
         class: Centreon\Infrastructure\HostConfiguration\Repository\HostGroupRepositoryRDB
-
-    Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups:
-        class: Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups
-        calls:
-            - method: setMediaPath
-              arguments: ["%media_path%"]
 
     # Service configuration
     Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface:

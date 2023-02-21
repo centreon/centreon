@@ -1,5 +1,5 @@
-import {
-  buildListingEndpoint,
+import { buildListingEndpoint } from '@centreon/ui';
+import type {
   BuildListingEndpointParameters,
   ListingParameters
 } from '@centreon/ui';

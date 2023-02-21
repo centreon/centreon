@@ -347,8 +347,8 @@ if ($o != MASSIVE_CHANGE) {
         _("Generate"),
         [
             'onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');",
-            "id" => "contact_gen_akey",
-            "data-testid" => "contact_gen_akey"
+            "id" => "generateAutologinKeyButton",
+            "data-testid" => "generateAutologinKeyButton"
         ]
     );
     /**
@@ -370,17 +370,17 @@ if ($o != MASSIVE_CHANGE) {
  * Contact template used
  */
 $form->addElement(
-    'select', 
-    'contact_template_id', 
-    _("Contact template used"), 
-    $contactTpl, 
+    'select',
+    'contact_template_id',
+    _("Contact template used"),
+    $contactTpl,
     [
-        "id" => "contact_template_id", 
+        "id" => "contact_template_id",
         "data-testid" => "contact_template_id"
     ]
 );
 $form->addElement('header', 'furtherAddress', _("Additional Addresses"));
-for ($i=0; $i < 6; $i++) { 
+for ($i=0; $i < 6; $i++) {
     $attrsText["id"] = "contact_address" . $i + 1;
     $attrsText["data-testid"] = "contact_address" . $i + 1;
     $form->addElement('text', 'contact_address' . $i+1, _("Address" . $i + 1), $attrsText);
@@ -479,6 +479,145 @@ if ($o !== MASSIVE_CHANGE) {
     );
 }
 
+/* ------------------------ Topoogy ---------------------------- */
+$pages = [null => ""];
+$aclUser = $centreon->user->lcaTStr;
+if (! empty($aclUser)) {
+    $acls = array_flip(explode(',', $aclUser));
+    /**
+     * Transform [1, 2, 101, 202, 10101, 20201] to :
+     *
+     * 1
+     *   101
+     *     10101
+     * 2
+     *   202
+     *     20201
+     */
+    $createTopologyTree = function (array $topologies): array {
+        ksort($topologies, \SORT_ASC);
+        $parentsLvl = [];
+
+        // Classify topologies by parents
+        foreach (array_keys($topologies) as $page) {
+            if (strlen($page) === 1) {
+                // MENU level 1
+                if (! array_key_exists($page, $parentsLvl)) {
+                    $parentsLvl[$page] = [];
+                }
+            } elseif (strlen($page) === 3) {
+                // MENU level 2
+                $parentLvl1 = substr($page, 0, 1);
+                if (! array_key_exists($parentLvl1, $parentsLvl)) {
+                    $parentsLvl[$parentLvl1] = [];
+                }
+                if (! array_key_exists($page, $parentsLvl[$parentLvl1])) {
+                    $parentsLvl[$parentLvl1][$page] = [];
+                }
+            } elseif (strlen($page) === 5) {
+                // MENU level 3
+                $parentLvl1 = substr($page, 0, 1);
+                $parentLvl2 = substr($page, 0, 3);
+                if (! array_key_exists($parentLvl1, $parentsLvl)) {
+                    $parentsLvl[$parentLvl1] = [];
+                }
+                if (! array_key_exists($parentLvl2, $parentsLvl[$parentLvl1])) {
+                    $parentsLvl[$parentLvl1][$parentLvl2] = [];
+                }
+                if (! in_array($page, $parentsLvl[$parentLvl1][$parentLvl2])) {
+                    $parentsLvl[$parentLvl1][$parentLvl2][] = $page;
+                }
+            }
+        }
+
+        return $parentsLvl;
+    };
+
+    /**
+     * Check if at least one child can be shown
+     */
+    $oneChildCanBeShown = function () use (&$childrenLvl3, &$translatedPages): bool {
+        foreach ($childrenLvl3 as $topologyPage) {
+            if ($translatedPages[$topologyPage]['show']) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    $topologies = $createTopologyTree($acls);
+
+    /**
+     * Retrieve the name of all topologies available for this user
+     */
+    $aclTopologies = $pearDB->query(
+        "SELECT topology_page, topology_name, topology_show "
+        . "FROM topology "
+        . "WHERE topology_page IN ($aclUser)"
+    );
+
+    $translatedPages = [];
+
+    while ($topology = $aclTopologies->fetch(\PDO::FETCH_ASSOC)) {
+        $translatedPages[$topology['topology_page']] = [
+            'i18n' => _($topology['topology_name']),
+            'show' => ((int)$topology['topology_show'] === 1)
+        ];
+    }
+
+    /**
+     * Create flat tree for menu with the topologies names
+     * [item1Id] = menu1 > submenu1 > item1
+     * [item2Id] = menu2 > submenu2 > item2
+     */
+    foreach ($topologies as $parentLvl1 => $childrenLvl2) {
+        $parentNameLvl1 = $translatedPages[$parentLvl1]['i18n'];
+        foreach ($childrenLvl2 as $parentLvl2 => $childrenLvl3) {
+            $parentNameLvl2 = $translatedPages[$parentLvl2]['i18n'];
+            $isThirdLevelMenu = false;
+            $parentLvl3 = null;
+
+            if ($oneChildCanBeShown()) {
+                /**
+                 * There is at least one child that can be shown then we can
+                 * process the third level
+                 */
+                foreach ($childrenLvl3 as $parentLvl3) {
+                    if ($translatedPages[$parentLvl3]['show']) {
+                        $parentNameLvl3 = $translatedPages[$parentLvl3]['i18n'];
+
+                        if ($parentNameLvl2 === $parentNameLvl3) {
+                            /**
+                             * The name between lvl2 and lvl3 are equals.
+                             * We keep only lvl1 and lvl3
+                             */
+                            $pages[$parentLvl3] = $parentNameLvl1 . ' > '
+                                . $parentNameLvl3;
+                        } else {
+                            $pages[$parentLvl3] = $parentNameLvl1 . ' > '
+                                . $parentNameLvl2 . ' > '
+                                . $parentNameLvl3;
+                        }
+                    }
+                }
+
+                $isThirdLevelMenu = true;
+            }
+
+            // select parent from level 2 if level 3 is missing
+            $pageId = $parentLvl3 ?? $parentLvl2;
+
+            if (! $isThirdLevelMenu && $translatedPages[$pageId]['show']) {
+                /**
+                 * We show only first and second level
+                 */
+                $pages[$pageId] =
+                    $parentNameLvl1 . ' > ' . $parentNameLvl2;
+            }
+        }
+    }
+}
+
 $form->addElement(
     'select',
     'contact_lang',
@@ -489,6 +628,7 @@ $form->addElement(
         "data-testid" => "contact_lang"
     ]
 );
+$form->addElement('select', 'default_page', _("Default page"), $pages);
 $form->addElement(
     'select',
     'contact_type_msg',

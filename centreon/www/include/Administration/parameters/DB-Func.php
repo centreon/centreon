@@ -492,6 +492,13 @@ function updateLdapConfigData($gopt_id = null)
     );
     updateOption(
         $pearDB,
+        "ldap_connection_timeout",
+        !empty($ret["ldap_connection_timeout"])
+            ? htmlentities($ret["ldap_connection_timeout"], ENT_QUOTES, "UTF-8")
+            : "NULL"
+    );
+    updateOption(
+        $pearDB,
         "ldap_search_timeout",
         isset($ret["ldap_search_timeout"]) && $ret["ldap_search_timeout"] != null
             ? htmlentities($ret["ldap_search_timeout"], ENT_QUOTES, "UTF-8") : "NULL"
@@ -545,6 +552,13 @@ function updateGeneralConfigData()
         !empty($ret["inheritance_mode"]["inheritance_mode"])
             ? (int)$ret["inheritance_mode"]["inheritance_mode"]
             : 3 //default cumulative inheritance
+    );
+    updateOption(
+        $pearDB,
+        "resource_status_view_mode",
+        ! empty($ret["resource_status_view_mode"]["resource_status_view_mode"])
+            ? $ret["resource_status_view_mode"]["resource_status_view_mode"]
+            : 'compact'
     );
     updateOption(
         $pearDB,

@@ -40,6 +40,8 @@ require_once __DIR__ . "/../../../../class/centreonGMT.class.php";
 const VERTICAL_NOTIFICATION = 1;
 const CLOSE_NOTIFICATION = 2;
 const CUMULATIVE_NOTIFICATION = 3;
+const RESOURCE_STATUS_VIEW_COMPACT_MODE = 'compact';
+const RESOURCE_STATUS_VIEW_EXTENDED_MODE = 'extended';
 
 if (!isset($centreon)) {
     exit();
@@ -88,6 +90,27 @@ $form->addElement('header', 'oreon', _("Centreon information"));
 $form->addElement('text', 'oreon_path', _("Directory"), $attrsText);
 
 $form->addElement('text', 'session_expire', _("Sessions Expiration Time"), $attrsText2);
+
+$resourceStatusViewMode = [];
+
+$resourceStatusViewMode[] = $form->createElement(
+    'radio',
+    'resource_status_view_mode',
+    null,
+    _('Compact'),
+    RESOURCE_STATUS_VIEW_COMPACT_MODE
+);
+
+$resourceStatusViewMode[] = $form->createElement(
+    'radio',
+    'resource_status_view_mode',
+    null,
+    _('Extended'),
+    RESOURCE_STATUS_VIEW_EXTENDED_MODE
+);
+
+$form->addGroup($resourceStatusViewMode, 'resource_status_view_mode', _('Resource Status view mode'), '&nbsp;');
+$form->setDefaults(['resource_status_view_mode' => RESOURCE_STATUS_VIEW_COMPACT_MODE]);
 
 $inheritanceMode = array();
 $inheritanceMode[] = $form->createElement(
@@ -163,7 +186,13 @@ $form->addElement('select', 'problem_sort_type', _("Sort problems by"), $sortTyp
 $sort_order = array("ASC" => _("Ascending"), "DESC" => _("Descending"));
 $form->addElement('select', 'problem_sort_order', _("Order sort problems"), $sort_order);
 
-$options1[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
+$options1[] = $form->createElement(
+    'checkbox',
+    'yes',
+    '&nbsp;',
+    '',
+    ["id" => "enableAutoLogin", "data-testid" => _("Enable Autologin")]
+);
 $form->addGroup($options1, 'enable_autologin', _("Enable Autologin"), '&nbsp;&nbsp;');
 
 $options2[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
@@ -259,7 +288,12 @@ $tpl = initSmartyTpl($path . 'general/', $tpl);
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
+$subC = $form->addElement(
+    'submit',
+    'submitC',
+    _("Save"),
+    ["class" => "btc bt_success", "id" => "submitGeneralOptionsForm", "data-testid" => _("Save")]
+);
 $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 
 $valid = false;

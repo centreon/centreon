@@ -4,6 +4,9 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
+  repository_name:
+    description: "The repository name (standard, business, ...)"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -16,62 +19,147 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
+  minor_version:
+    description: "Centreon packaged version"
+    required: true
+  release:
+    description: The release number
+    required: true
   cache_key:
     description: "The cached package key"
+    required: true
+  yum_repo_url:
+    description: "The legacy yum repo url"
+    required: true
+  update_repo_path:
+    description: "The update repo script path"
+    required: true
+  cloudfront_id:
+    description: "The cloudfront ID for repo url"
+    required: true
+  yum_repo_address:
+    description: "The legacy yum repo address"
+    required: true
+  yum_repo_key:
+    description: "The repo key"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
+  artifactory_token:
+    description: "Artifactory token"
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache RPM files
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
 
+    - name: Setup awscli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        sudo unzip -q awscliv2.zip
+        sudo ./aws/install
+      shell: bash
+
     - name: Publish RPMS to Nexus
       run: |
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          BRANCHNAME="$GITHUB_REF_NAME"
-        else
-          BRANCHNAME="$GITHUB_HEAD_REF"
-        fi
+        PROJECT_LOCATIONS=""
+        INVALIDATION_PATHS=""
+        METADATAS=""
 
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
-
-        case "$BRANCHNAME" in
-          develop | dev-[2-9][0-9].[0-9][0-9].x)
-            REPO="unstable"
-            ;;
-          release* | hotfix*)
-            REPO="testing"
-            ;;
-          master | [2-9][0-9].[0-9][0-9].x)
-            REPO="stable"
-            ;;
-          *)
-            echo -n "[INFO] NO DELIVERY FOR THIS BRANCH"
-            exit 0
-            ;;
-        esac
-
-        FILES="*.rpm";
-        echo "[DEBUG] - Repo: $REPO"
+        FILES="*.rpm"
         echo "[DEBUG] - Rpm FILES: $FILES"
+
+        eval `ssh-agent`
+        ssh-add - <<< "${{ inputs.yum_repo_key }}"
 
         for FILE in $FILES
         do
           echo "[DEBUG] - File: $FILE"
 
           VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
+
+          if [ -z "${{ inputs.distrib }}" ]; then
+            DISTRIB=$(echo $FILE | grep -oP 'el[0-9]' || echo '')
+          else
+            DISTRIB="${{ inputs.distrib }}"
+          fi
+
+          if [ -z "${DISTRIB}" ]; then
+            echo "package distribution not set"
+            exit 1
+          fi
+
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
           echo "[DEBUG] - Version: $VERSION"
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION-$REPO/$DISTRIB/$REPO/$ARCH/$FILE" -T "./$FILE"
+          MAJOR=$VERSION
+          MINOR=${{ inputs.minor_version }}
+          RELEASE=${{ inputs.release }}
+          DISTRIB=$DISTRIB
+          REPOTYPE=${{ inputs.stability }}
+          ARCH=$ARCH
+          PROJECT=${{ inputs.module_name }}
+          PROJECT_PATH="standard"
+
+          # Delivery with proper repository structure according to stability
+          if [ "${{ inputs.stability }}" == stable ]; then
+            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$FILE" -T "./$FILE"
+          else
+            FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
+            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
+            PROJECT_LOCATIONS="$PROJECT_LOCATIONS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/$FILE" -T "./$FILE"
+          fi
+
+          echo "[DEBUG] - Folder: $FOLDER"
+          echo "[DEBUG] - Project : $PROJECT"
+          echo "[DEBUG] - Target : $TARGET"
+
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
+          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
+
+          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        done
+
+        # Cleanup is done on unstable repository only
+        if [ "${{ inputs.stability }}" == unstable ]; then
+          PROJECT_LOCATIONS=`echo "$PROJECT_LOCATIONS" | xargs -n1 | sort -u | xargs`
+          for PROJECT_LOCATION in `echo $PROJECT_LOCATIONS`; do
+            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
+          done
+        fi
+
+        # Update repository metadata
+        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
+        for METADATA in `echo $METADATAS`; do
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
+        done
+
+        # Invalidate cloudfront cache
+        ID="${{ inputs.cloudfront_id }}"
+        # Remove duplicated invalidation paths
+        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        ITERATIONS=1
+
+        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
+          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
+            if [ ${ITERATIONS} -eq 10 ]; then
+              return 0
+            fi
+            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+            sleep 30s
+            ITERATIONS=$((ITERATIONS+1))
+          done
         done
       shell: bash

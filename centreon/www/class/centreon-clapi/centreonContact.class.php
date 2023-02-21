@@ -61,6 +61,7 @@ class CentreonContact extends CentreonObject
     public const ORDER_ACCESS = 5;
     public const ORDER_LANG = 6;
     public const ORDER_AUTHTYPE = 7;
+    public const ORDER_DEFAULT_PAGE = 8;
     public const HOST_NOTIF_TP = "hostnotifperiod";
     public const SVC_NOTIF_TP = "svcnotifperiod";
     public const HOST_NOTIF_CMD = "hostnotifcmd";
@@ -267,10 +268,13 @@ class CentreonContact extends CentreonObject
         $this->addParams = [];
         $this->initUniqueField($params);
         $this->initUserInformation($params);
-        $this->initPassword($params);
+        if ($params[7] === "local"){
+            $this->initPassword($params);
+        }
         $this->initUserAccess($params);
         $this->initLang($params);
         $this->initAuthenticationType($params);
+        $this->initDefaultPage($params);
 
         $this->params = array_merge($this->params, $this->addParams);
         $this->checkParameters();
@@ -371,6 +375,18 @@ class CentreonContact extends CentreonObject
     protected function initAuthenticationType(array $params): void
     {
         $this->addParams['contact_auth_type'] = $params[static::ORDER_AUTHTYPE];
+    }
+
+    /**
+     * Initialize default page
+     *
+     * @param array<int,mixed> $params
+     */
+    protected function initDefaultPage(array $params): void
+    {
+        if (isset($params[static::ORDER_DEFAULT_PAGE])) {
+            $this->addParams['default_page'] = $params[static::ORDER_DEFAULT_PAGE];
+        }
     }
 
     /**

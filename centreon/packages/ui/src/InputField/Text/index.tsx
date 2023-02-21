@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useMemo } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -10,6 +10,8 @@ import {
   Theme,
   Tooltip
 } from '@mui/material';
+
+import getNormalizedId from '../../utils/getNormalizedId';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
@@ -46,16 +48,18 @@ const OptionalLabelInputAdornment = ({
   );
 };
 
+type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
+
 export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   className?: string;
-  dataTestId?: string;
+  dataTestId: string;
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'medium' | 'small' | 'compact';
+  size?: SizeVariant;
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
@@ -80,6 +84,19 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
+    const baseProps = useMemo(
+      () => ({
+        'data-testid': dataTestId,
+        error: !isNil(error),
+        helperText: displayErrorInTooltip ? undefined : error,
+        id: getNormalizedId(dataTestId || ''),
+        label,
+        ref,
+        size: size || 'small'
+      }),
+      [label, ref, size, dataTestId, error, displayErrorInTooltip]
+    );
+
     return (
       <Tooltip placement="top" title={tooltipTitle}>
         <MuiTextField
@@ -91,7 +108,6 @@ const TextField = forwardRef(
               },
               className
             ),
-            disableUnderline: true,
             endAdornment: EndAdornment && (
               <OptionalLabelInputAdornment label={label} position="end">
                 <EndAdornment />
@@ -103,16 +119,13 @@ const TextField = forwardRef(
               </OptionalLabelInputAdornment>
             )
           }}
-          error={!isNil(error)}
-          helperText={displayErrorInTooltip ? undefined : error}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            'data-testid': dataTestId
+            'data-testid': dataTestId || ''
           }}
-          label={label}
-          ref={ref}
-          size={size || 'small'}
+          variant="outlined"
+          {...baseProps}
           {...rest}
         />
       </Tooltip>

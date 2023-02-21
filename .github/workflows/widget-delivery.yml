@@ -7,18 +7,46 @@ on:
       major_version:
         required: true
         type: string
-    secrets:
-      artifactory_username:
+      minor_version:
         required: true
-      artifactory_password:
+        type: string
+      release:
+        description: The release number
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
+      artifactory_token:
+        required: true
+      update_repo_path:
+        description: "The update repo script path"
+        required: true
+      cloudfront_id:
+        description: "The cloudfront ID for repo url"
+        required: true
+      yum_repo_address:
+        description: "The yum legacy repo address"
+        required: true
+      yum_repo_key:
+        description: "The yum repo key"
+        required: true
+      yum_repo_url:
+        description: "The legacy yum repo url"
         required: true
 
 jobs:
   delivery-rpm:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -27,14 +55,25 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
+          module_name: widget-${{ inputs.widget_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          nexus_username: ${{ secrets.artifactory_username }}
-          nexus_password: ${{ secrets.artifactory_password }}
+          minor_version: ${{ inputs.minor_version }}
+          release: ${{ inputs.release }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ inputs.stability }}
 
   delivery-deb:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -48,8 +87,11 @@ jobs:
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ${{ inputs.widget_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          nexus_username: ${{ secrets.artifactory_username }}
-          nexus_password: ${{ secrets.artifactory_password }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ inputs.stability }}

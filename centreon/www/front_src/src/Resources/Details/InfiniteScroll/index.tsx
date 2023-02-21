@@ -25,7 +25,8 @@ import {
 } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-import { useIntersectionObserver, ListingModel } from '@centreon/ui';
+import { useIntersectionObserver } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 import NoResultsMessage from '../NoResultsMessage';
 import memoizeComponent from '../../memoizedComponent';

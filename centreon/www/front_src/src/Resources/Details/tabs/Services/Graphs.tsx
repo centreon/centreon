@@ -47,6 +47,7 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ExportableGraphWithTimeline
+              interactWithGraph
               limitLegendRows
               graphHeight={120}
               resource={service}

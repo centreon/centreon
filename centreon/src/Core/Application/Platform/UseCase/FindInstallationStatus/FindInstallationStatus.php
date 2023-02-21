@@ -26,7 +26,6 @@ namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
-use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusResponse;
 
 class FindInstallationStatus
 {
@@ -46,7 +45,7 @@ class FindInstallationStatus
     {
         $this->info('check installation status of centreon web');
         $isCentreonWebInstalled = $this->repository->isCentreonWebInstalled();
-        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebUpgradeAvailable();
+        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebInstallableOrUpgradable();
 
         if ($isCentreonWebInstalled === false && $isCentreonWebUpgradeAvailable === false) {
             $this->critical(
@@ -55,6 +54,7 @@ class FindInstallationStatus
             $presenter->setResponseStatus(new ErrorResponse(
                 _('centreon is not properly installed')
             ));
+            return;
         }
 
         $presenter->present($this->createResponse(

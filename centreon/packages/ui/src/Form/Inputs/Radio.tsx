@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';
+import getNormalizedId from '../../utils/getNormalizedId';
 
 import { InputPropsWithoutGroup } from './models';
 
@@ -20,7 +21,6 @@ const Radio = ({
   label,
   radio,
   getDisabled,
-  hideInput,
   change,
   additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
@@ -55,12 +55,9 @@ const Radio = ({
   const value = path(fieldNamePath, values);
 
   const disabled = getDisabled?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
         <RadioGroup value={value} onChange={changeRadio}>
@@ -68,10 +65,11 @@ const Radio = ({
             <FormControlLabel
               control={
                 <MUIRadio
+                  data-testid={`${dataTestId} ${optionLabel}`}
                   disabled={disabled}
+                  id={getNormalizedId(`${dataTestId}${optionLabel}`)}
                   inputProps={{
-                    'aria-label': t(optionLabel),
-                    'data-testid': dataTestId
+                    'aria-label': t(optionLabel) || ''
                   }}
                 />
               }
@@ -83,7 +81,7 @@ const Radio = ({
         </RadioGroup>
       </FormGroup>
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden]
+    memoProps: [value, disabled, additionalMemoProps]
   });
 };
 

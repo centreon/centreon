@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/SaveAlt';
 import { Button, Stack } from '@mui/material';
 
-import { getSearchQueryParameterValue, SearchParameter } from '@centreon/ui';
+import { getSearchQueryParameterValue } from '@centreon/ui';
+import type { SearchParameter } from '@centreon/ui';
 
 import { labelExportToCSV } from '../../../translatedLabels';
 
@@ -35,7 +36,7 @@ const ExportToCsv = ({
         data-testid={labelExportToCSV}
         size="small"
         startIcon={<SaveIcon />}
-        variant="text"
+        variant="contained"
         onClick={exportToCsv}
       >
         {t(labelExportToCSV)}

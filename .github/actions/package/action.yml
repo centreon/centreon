@@ -48,28 +48,28 @@ runs:
   steps:
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
@@ -111,16 +111,31 @@ runs:
         tar czf $MODULE_BASENAME-$VERSION.tar.gz $MODULE_BASENAME
         cd ./$MODULE_BASENAME
 
+        ls -lath .
+
         if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
+
+        # This makes shure that widget pkgs end up in the same dir as non widgets
+        if [[ $MODULE_BASENAME = "centreon-widget"* ]]; then
+          find / -name "*centreon-widget*.deb" -exec mv {} ../../ \;
+        fi
+        ls -lath ..
       shell: bash
 
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packages-${{ inputs.package_extension }}
+        path: ./*.${{ inputs.package_extension }}
+        retention-days: 1
+
     - name: Cache packaged files
-      uses: actions/cache@v3
+      uses: kduret/cache@pdotl/zstd-hotfix
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}

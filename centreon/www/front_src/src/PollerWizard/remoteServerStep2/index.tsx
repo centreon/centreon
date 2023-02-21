@@ -11,9 +11,9 @@ import {
   getData,
   postData,
   useRequest,
-  SelectEntry,
   MultiAutocompleteField
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import WizardButtons from '../forms/wizardButtons';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
@@ -33,7 +33,7 @@ const RemoteServerWizardStepTwo = ({
   goToNextStep,
   goToPreviousStep
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [pollers, setPollers] = useState<Array<Poller> | null>(null);
 

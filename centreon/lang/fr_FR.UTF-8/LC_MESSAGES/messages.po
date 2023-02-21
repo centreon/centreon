@@ -5661,6 +5661,12 @@ msgstr "Toutes les sessions de ce contact seront supprimées. Êtes-vous sûr de
 msgid "Synchronize LDAP"
 msgstr "Synchroniser avec le LDAP"
 
+msgid "Incorrect LDAP filter syntax"
+msgstr "Mauvaise syntaxe du filtre LDAP"
+
+msgid "LDAP connection timeout"
+msgstr "Délai d'attente de connexion LDAP"
+
 msgid "No LDAP configuration enabled !"
 msgstr "Aucune configuration LDAP active !"
 
@@ -17200,5 +17206,200 @@ msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
 msgid "Impossible to create vault configuration"
 msgstr "Impossible de créer la configuration du coffre-fort"
 
+msgid "Impossible to delete vault configuration"
+msgstr "Impossible de supprimer la configuration du coffre-fort"
+
+msgid "Impossible to update vault configuration"
+msgstr "Impossible de mettre à jour la configuration du coffre-fort"
+
+msgid "Impossible to find vault configuration(s)"
+msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
+
 msgid "Vault provider does not exist"
 msgstr "Le fournisseur de coffre-fort n'existe pas"
+
+msgid "Event queues maximum total size"
+msgstr "Taille maximale de l'ensemble des queues d'évènements"
+
+msgid "You are not allowed to access host categories"
+msgstr "Vous n'êtes pas autorisé à accéder aux catégories d'hôtes"
+
+msgid "Error while searching for host categories"
+msgstr "Erreur lors de la recherche des catégories d'hôtes"
+
+msgid "You are not allowed to delete host categories"
+msgstr "Vous n'êtes pas autorisé à supprimer des catégories d'hôtes"
+
+msgid "Host category not found"
+msgstr "Catégorie d'hôtes introuvable"
+
+msgid "Error while deleting host category"
+msgstr "Erreur lors de la suppression d'une catégorie d'hôtes"
+
+msgid "Error when deleting the time period %d"
+msgstr "Erreur lors de la suppression de la période de temps %d"
+
+msgid "Error when updating the time period %d"
+msgstr "Erreur lors de la mise à jour de la période de temps %d"
+
+msgid "Error when adding the time period"
+msgstr "Erreur lors de l'ajout de la période de temps"
+
+msgid "Error when searching for time periods"
+msgstr "Erreur lors de la recherche de périodes de temps"
+
+msgid "Error when searching for the time period %d"
+msgstr "Erreur lors de la recherche de la période de temps %d"
+
+msgid "The time period name '%s' already exists"
+msgstr "La période de temps '%s' existe déjà"
+
+msgid "The time range format is wrong (%s)"
+msgstr "Le format de l'intervalle de temps est incorrect (%s)"
+
+msgid "The order of the time intervals is not consistent"
+msgstr "L'ordre des intervalles de temps n'est pas cohérent"
+
+msgid "Error while searching for host groups"
+msgstr "Erreur durant la recherche de groupes d'hôtes"
+
+msgid "You are not allowed to access host groups"
+msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
+
+msgid "You are not allowed to perform write operations on host groups"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes d'hôtes"
+
+msgid "Host group not found"
+msgstr "Groupe d'hôtes non trouvé"
+
+msgid "Error while deleting a host group"
+msgstr "Erreur durant la suppression d'un groupe d'hôtes"
+
+msgid "Error while adding a host group"
+msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
+
+msgid "The host group name '%s' already exists"
+msgstr "Le groupe d'hôtes '%s' existe déjà"
+
+msgid "Error while retrieving newly created host group"
+msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être créé"
+
+msgid "The host group icon '%s' with id '%d' does not exist"
+msgstr "L'icône '%s' avec l'identifiant '%d' n'existe pas"
+
+msgid "You are not allowed to create host categories"
+msgstr "Vous n'êtes pas autorisé à créer des catégories d'hôtes"
+
+msgid "Host category name already exists"
+msgstr "Ce nom de catégorie d'hôtes existe déjà"
+
+msgid "Error while creating host category"
+msgstr "Erreur lors de la création d'une catégorie d'hôtes"
+
+msgid "Error while retrieving recently created host category"
+msgstr "Error lors de la récupération de la catégorie d'hôtes nouvellement créée"
+
+msgid "You are not allowed to access host severities"
+msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
+
+msgid "Error while searching for host severities"
+msgstr "Erreur durant la recherche de sévérités d'hôtes"
+
+msgid "You are not allowed to delete host severities"
+msgstr "Vous n'êtes pas autorisé à supprimer des sévérités d'hôtes"
+
+msgid "Error while deleting host severity"
+msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
+
+msgid "Error while creating host severity"
+msgstr "Erreur lors de la création d'une sévérité d'hôtes"
+
+msgid "You are not allowed to create host severities"
+msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+
+msgid "Error while retrieving recently created host severity"
+msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+
+msgid "Host severity name already exists"
+msgstr "Ce nom de sévérité d'hôtes existe déjà"
+
+msgid "The host severity icon with id '%d' does not exist"
+msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"
+
+msgid "You are not allowed to access time periods"
+msgstr "Vous n'êtes pas autorisé à accéder aux périodes de temps"
+
+msgid "You are not allowed to edit time periods"
+msgstr "Vous n'êtes pas autorisé à éditer des périodes de temps"
+
+msgid "You are not allowed to access service groups"
+msgstr "Vous n'êtes pas autorisé à accéder aux groupes de services"
+
+msgid "You are not allowed to perform write operations on service groups"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes de services"
+
+msgid "Error while searching for service groups"
+msgstr "Erreur durant la recherche de groupes de services"
+
+msgid "Error while deleting a service group"
+msgstr "Erreur durant la suppression d'un groupe de services"
+
+msgid "Error while adding a service group"
+msgstr "Erreur durant l'ajout d'un groupe de services"
+
+msgid "Error while retrieving newly created service group"
+msgstr "Erreur durant la récupération d'un groupe de services venant d'être créé"
+
+msgid "The service group name '%s' already exists"
+msgstr "Le groupe de services '%s' existe déjà"
+
+msgid "You are not allowed to access service categories"
+msgstr "Vous n'êtes pas autorisé à accéder aux catégories de services"
+
+msgid "Error while searching for service categories"
+msgstr "Erreur lors de la recherche des catégories de services"
+
+msgid "You are not allowed to access service severities"
+msgstr "Vous n'êtes pas autorisé à accéder aux sévérités de services"
+
+msgid "Error while searching for service severities"
+msgstr "Erreur lors de la recherche de sévérités de services"
+
+msgid "You are not allowed to delete service categories"
+msgstr "Vous n'êtes pas autorisé à supprimer des catégories de services"
+
+msgid "You are not allowed to create service categories"
+msgstr "Vous n'êtes pas autorisé à créer des catégories de services"
+
+msgid "Error while deleting service category"
+msgstr "Erreur lors de la suppression d'une catégorie de services"
+
+msgid "Error while creating service category"
+msgstr "Erreur lors de la création d'une catégorie de services"
+
+msgid "Service category name already exists"
+msgstr "Ce nom de catégorie de services existe déjà"
+
+msgid "Error while retrieving recently created service category"
+msgstr "Error lors de la récupération de la catégorie de services nouvellement créée"
+
+msgid "You are not allowed to delete service severities"
+msgstr "Vous n'êtes pas autorisé à supprimer des sévérités de services"
+
+msgid "Error while deleting service severity"
+msgstr "Erreur durant la suppression d'une sévérité de services"
+
+msgid "Error while creating service severity"
+msgstr "Erreur lors de la création d'une sévérité de services"
+
+msgid "You are not allowed to create service severities"
+msgstr "Vous n'êtes pas autorisé à créer des sévérités de services"
+
+msgid "Error while retrieving recently created service severity"
+msgstr "Error lors de la récupération de la sévérité de services nouvellement créée"
+
+msgid "Service severity name already exists"
+msgstr "Ce nom de sévérité de services existe déjà"
+
+msgid "The service severity icon with id '%d' does not exist"
+msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"

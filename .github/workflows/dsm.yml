@@ -1,17 +1,22 @@
 name: dsm
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/dsm.yml"
-      - "dsm/**"
+      - "centreon-dsm/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/dsm.yml"
-      - "dsm/**"
+      - "centreon-dsm/**"
     tags:
       - centreon-dsm-*
 
@@ -21,22 +26,22 @@ env:
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
-    with: 
+    with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
   package:
     needs: [get-version]
-    
+
     strategy:
       fail-fast: true
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
-          - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -53,19 +58,19 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.ARTI_USER }}
-      artifactory_password: ${{ secrets.ARTI_PASSWD }}          
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   delivery-rpm:
     needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
+        distrib: [el8, el9]
         include:
           - module_name: dsm
-            distrib: el7
-          - module_name: dsm
-            distrib: el8
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -74,14 +79,24 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ${{ matrix.module_name }}
+          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
     needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -98,7 +113,8 @@ jobs:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-
+          stability: ${{ needs.get-version.outputs.stability }}

@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This grid map widget displays the status of services for a set of hosts. It is possible to select which services to display.</description>
-        <version>22.10.0</version>
+        <version>23.04.0</version>
         <keywords>centreon, widget, Grid-map</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/Grid-map/resources/logo1.png</thumbnail>

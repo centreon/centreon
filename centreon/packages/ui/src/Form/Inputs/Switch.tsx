@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
 
+import getNormalizedId from '../../utils/getNormalizedId';
 import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
@@ -17,7 +18,6 @@ const Switch = ({
   label,
   switchInput,
   getDisabled,
-  hideInput,
   additionalMemoProps
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
@@ -40,20 +40,18 @@ const Switch = ({
     switchInput?.getChecked?.(path(fieldNamePath, values)) ??
     path(fieldNamePath, values);
   const disabled = getDisabled?.(values) || false;
-  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: hidden ? (
-      <div />
-    ) : (
+    Component: (
       <FormControlLabel
         control={
           <MUISwitch
             checked={value}
+            data-testid={dataTestId}
             disabled={disabled}
+            id={getNormalizedId(dataTestId || '')}
             inputProps={{
-              'aria-label': t(label),
-              'data-testid': dataTestId
+              'aria-label': t(label) || ''
             }}
             onChange={changeSwitchValue}
           />
@@ -61,7 +59,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps, hidden]
+    memoProps: [value, disabled, additionalMemoProps]
   });
 };
 

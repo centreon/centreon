@@ -1,0 +1,35 @@
+Source: centreon-ha
+Section: net
+Priority: optional
+Maintainer: Centreon <contact@centreon.com>
+Build-Depends: 
+  debhelper-compat (=12),
+  lsb-base,
+  perl:native
+Standards-Version: 4.5.0
+Homepage: https://wwww.centreon.com
+
+Package: centreon-ha-common
+Architecture: any
+Description:
+  This package provides the scripts and config files necessary 
+  for database and central nodes in a Centreon-HA cluster
+Depends:
+  ${misc:Depends}, 
+  ${shlibs:Depends},
+  rsync,
+  libcommon-sense-perl,
+  liblinux-inotify2-perl,
+  centreon-common (>= ${centreon:version}~),
+  centreon-gorgone (>= ${centreon:version}~)
+
+
+Package: centreon-ha-web
+Architecture: any
+Description: This add-on is built to manage a failover solution for Centreon.
+Depends:
+  ${misc:Depends}, 
+  ${shlibs:Depends},
+  resource-agents,
+  centreon-ha-common (>= ${centreon:version}~),
+  centreon-web (>= ${centreon:version}~)

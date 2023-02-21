@@ -71,6 +71,8 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_CONTACTS_READ = 'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R';
     public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_RW';
     public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R';
+    public const ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_TIME_PERIODS_RW';
+    public const ROLE_CONFIGURATION_TIME_PERIODS_READ = 'ROLE_CONFIGURATION_USERS_TIME_PERIODS_R';
     public const ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ = 'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R';
     public const ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW';
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW';
@@ -433,7 +435,39 @@ class Contact implements UserInterface, ContactInterface
      */
     public function getRoles(): array
     {
-        return array_merge($this->roles, $this->topologyRulesNames);
+        return $this->roles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = [];
+        foreach ($roles as $role) {
+            $this->addRole($role);
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTopologyRules(): array
+    {
+        return $this->topologyRulesNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTopologyRules(array $topologyRoles): self
+    {
+        $this->topologyRulesNames = [];
+        foreach ($topologyRoles as $topologyRole) {
+            $this->addTopologyRule($topologyRole);
+        }
+        return $this;
     }
 
     /**
@@ -563,7 +597,9 @@ class Contact implements UserInterface, ContactInterface
      */
     private function removeRole(string $roleName): void
     {
-        unset($this->roles[$roleName]);
+        if (($index = array_search($roleName, $this->roles)) !== false) {
+            unset($this->roles[$index]);
+        }
     }
 
     /**

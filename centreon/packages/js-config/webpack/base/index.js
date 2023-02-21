@@ -9,14 +9,14 @@ const excludeNodeModulesExceptCentreonUi =
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  jscTransformConfiguration,
+  jscTransformConfiguration
 }) => ({
   cache: false,
   module: {
     rules: [
       {
         parser: { system: false },
-        test: /\.[cm]?(j|t)sx?$/,
+        test: /\.[cm]?(j|t)sx?$/
       },
       {
         exclude: excludeNodeModulesExceptCentreonUi,
@@ -27,16 +27,16 @@ const getBaseConfiguration = ({
             jsc: {
               parser: {
                 syntax: 'typescript',
-                tsx: true,
+                tsx: true
               },
-              transform: jscTransformConfiguration,
-            },
-          },
-        },
+              transform: jscTransformConfiguration
+            }
+          }
+        }
       },
       {
         test: /\.icon.svg$/,
-        use: ['@svgr/webpack'],
+        use: ['@svgr/webpack']
       },
       {
         exclude: excludeNodeModulesExceptCentreonUi,
@@ -46,84 +46,85 @@ const getBaseConfiguration = ({
             loader: 'url-loader',
             options: {
               limit: 10000,
-              name: '[name].[hash:8].[ext]',
-            },
-          },
-        ],
-      },
-    ],
+              name: '[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
   },
   optimization: {
     splitChunks: {
       chunks: 'all',
-      maxSize: 400 * 1024,
-    },
+      maxSize: 400 * 1024
+    }
   },
   output: {
     chunkFilename: '[name].[chunkhash:8].chunk.js',
     filename: '[name].[chunkhash:8].js',
     libraryTarget: 'umd',
-    umdNamedDefine: true,
+    umdNamedDefine: true
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new ModuleFederationPlugin({
-      filename: 'remoteEntry.[chunkhash:8].js',
-      library: { name: moduleName, type: 'var' },
-      name: moduleName,
-      shared: [
-        {
-          '@centreon/ui-context': {
-            requiredVersion: '22.10.0',
-            singleton: true,
+    moduleName &&
+      new ModuleFederationPlugin({
+        filename: 'remoteEntry.[chunkhash:8].js',
+        library: { name: moduleName, type: 'var' },
+        name: moduleName,
+        shared: [
+          {
+            '@centreon/ui-context': {
+              requiredVersion: '22.10.0',
+              singleton: true
+            }
           },
-        },
-        {
-          jotai: {
-            requiredVersion: '1.x',
-            singleton: true,
+          {
+            jotai: {
+              requiredVersion: '1.x',
+              singleton: true
+            }
           },
-        },
-        {
-          'jotai-suspense': {
-            requiredVersion: '0.1.x',
-            singleton: true,
+          {
+            'jotai-suspense': {
+              requiredVersion: '0.1.x',
+              singleton: true
+            }
           },
-        },
-        {
-          react: {
-            requiredVersion: '18.x',
-            singleton: true,
+          {
+            react: {
+              requiredVersion: '18.x',
+              singleton: true
+            }
           },
-        },
-        {
-          'react-dom': {
-            requiredVersion: '18.x',
-            singleton: true,
+          {
+            'react-dom': {
+              requiredVersion: '18.x',
+              singleton: true
+            }
           },
-        },
-        {
-          'react-i18next': {
-            requiredVersion: '11.x',
-            singleton: true,
+          {
+            'react-i18next': {
+              requiredVersion: '11.x',
+              singleton: true
+            }
           },
-        },
-        {
-          'react-router-dom': {
-            requiredVersion: '6.x',
-            singleton: true,
-          },
-        },
-      ],
-      ...moduleFederationConfig,
-    }),
-  ],
+          {
+            'react-router-dom': {
+              requiredVersion: '6.x',
+              singleton: true
+            }
+          }
+        ],
+        ...moduleFederationConfig
+      })
+  ].filter(Boolean),
   resolve: {
     alias: {
-      react: path.resolve('./node_modules/react'),
+      react: path.resolve('./node_modules/react')
     },
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-  },
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  }
 });
 
 module.exports = getBaseConfiguration;

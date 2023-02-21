@@ -1,20 +1,22 @@
 name: Centreon build docker test cypress
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/docker-builder-test-cypress.yml"
       - ".github/docker/Dockerfile.cypress"
   push:
     branches:
       - develop
     paths:
-      - ".github/workflows/docker-builder-test-cypress.yml"
       - ".github/docker/Dockerfile.cypress"
 
 env:
-  version: "22.10"
+  version: "23.04"
 
 jobs:
   create-and-push-docker:
@@ -29,22 +31,15 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER  }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.AUTOMATION_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
+        run: docker push centreon.jfrog.io/docker/${{ matrix.project }}:${{ env.version }}

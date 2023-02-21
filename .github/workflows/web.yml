@@ -1,25 +1,31 @@
 name: web
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
-
     tags:
       - centreon-*
 
 env:
   base_directory: centreon
+  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
 
 jobs:
   changes:
@@ -29,7 +35,7 @@ jobs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
       - uses: actions/checkout@v3
-      
+
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -45,7 +51,12 @@ jobs:
             has_backend_changes:
               - '**/*.php'
               - '**/phpstan*.neon'
-              - '**/*.xml|**/bin/**'
+              - 'centreon/codingstyle.xml'
+              - 'centreon/config/**/*.xml'
+              - 'centreon/phpunit.xml'
+              - 'centreon/ruleset.xml'
+              - 'centreon/www/**/*.xml'
+              - '**/bin/**'
               - '**/tmpl/**'
               - '**/features/**'
               - '/centreon/src/**'
@@ -56,6 +67,7 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -91,10 +103,10 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     container:
-      image: registry-docker.centreon.com/docker-global/translation:${{ needs.get-version.outputs.major_version }}
+      image: centreon.jfrog.io/docker/translation:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.REPOS_USERNAME }}
-        password: ${{ secrets.REPOS_PASSWORD }}
+        username: ${{ secrets.AUTOMATION_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -114,14 +126,14 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -136,19 +148,18 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o junit.xml -f junit
         working-directory: centreon
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
+          path: "centreon/junit.xml"
+          format: "java-junit"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -166,30 +177,23 @@ jobs:
         run: pnpm t --silent --reporter=jest-junit
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
 
   frontend-component-test:
-    runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - uses: ./.github/actions/web-frontend-component-test
-        with:
-          working_directory: centreon
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/front_src/src/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: changes
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -213,38 +217,36 @@ jobs:
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-backend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/build/phpunit.xml"
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
-    if: ${{ always() }}
-    needs: [
-      get-version,
-      translation-build,
-      backend-dependencies,
-      backend-unit-test,
-      frontend-build,
-      frontend-lint,
-      frontend-unit-test,
-      frontend-component-test
-    ]
+    needs:
+      [
+        get-version,
+        translation-build,
+        backend-dependencies,
+        backend-unit-test,
+        frontend-build,
+        frontend-lint,
+        frontend-unit-test,
+        frontend-component-test,
+      ]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
-      fail-fast: false
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el8, el9, bullseye]
         include:
-          - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -269,35 +271,35 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: package
-    if: ${{ always() }}
+    needs: [package]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
         include:
           - project: centreon-web
-            distrib: centos7
-            distrib_rpm: el7
+            distrib: alma9
+            distrib_rpm: el9
             module_name: web
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.AUTOMATION_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Use cache RPM files
-        uses: actions/cache@v3
+        uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
@@ -311,7 +313,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: centreon.jfrog.io/docker/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -320,7 +322,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: centreon.jfrog.io/docker/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -329,11 +331,11 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: centreon.jfrog.io/docker/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -342,84 +344,89 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize,changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/behat-test.yml
     with:
-      name: e2e
+      name: legacy-e2e
       module_name: centreon
       image_name: centreon-web
       features_path: features
     secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
-
-      - name: Cypress e2e testing
-        uses: ./.github/actions/cypress-e2e-testing
-        with:
-          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          module: centreon
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/e2e/cypress/e2e
+    secrets:
+      registry_username: ${{ secrets.AUTOMATION_USERNAME }}
+      registry_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          registry: centreon.jfrog.io/docker
+          username: ${{ secrets.AUTOMATION_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: Run lighthouse
+      - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
-          path: "centreon"
-          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
+          path: "centreon/lighthouse"
+          image: centreon.jfrog.io/docker/centreon-web-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
+
+      - name: Publish report to S3
+        if: ${{ github.event_name == 'push' }}
+        uses: ./.github/actions/lighthouse-to-s3
+        with:
+          report_path: centreon/lighthouse/report/lighthouseci-index.html
+          report_target: s3://centreon-lighthouse-report/
 
       - name: Publish report
         uses: actions/upload-artifact@v3
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
 
   deliver-rpm:
     runs-on: [self-hosted, common]
-    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        legacy-e2e-test,
+        e2e-test,
+        performances-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -431,14 +438,29 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
-    if: ${{ always() && (contains(join(needs.*.result, ','), 'success') || contains(join(needs.*.result, ','), 'skipped')) }}
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        legacy-e2e-test,
+        e2e-test,
+        performances-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
       matrix:
         distrib: [bullseye]
@@ -453,6 +475,8 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}

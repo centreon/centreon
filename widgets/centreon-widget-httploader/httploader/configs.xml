@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This widget displays the content of any URI in your custom view. Good idea to display some Intranet page, the Centreon official documentation or the weather forecast!</description>
-    <version>22.10.0</version>
+    <version>23.04.0</version>
     <keywords>centreon, widget, url, http</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/httploader/resources/centreon-logo.png</thumbnail>

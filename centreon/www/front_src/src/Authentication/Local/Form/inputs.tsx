@@ -1,4 +1,5 @@
-import { InputProps, InputType } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
+import type { InputProps } from '@centreon/ui';
 
 import {
   labelLast3PasswordsCanBeReused,
@@ -22,7 +23,7 @@ const inputs: Array<InputProps> = [
       alignItems: 'center',
       columns: [
         {
-          dataTestId: 'local_passwordMinLength',
+          dataTestId: labelMinimumPasswordLength,
           fieldName: 'passwordMinLength',
           label: labelMinimumPasswordLength,
           text: {
@@ -82,7 +83,7 @@ const inputs: Array<InputProps> = [
     type: InputType.Custom
   },
   {
-    dataTestId: 'local_canReusePasswords',
+    dataTestId: labelLast3PasswordsCanBeReused,
     fieldName: 'canReusePasswords',
     group: labelPasswordExpirationPolicy,
     label: labelLast3PasswordsCanBeReused,

@@ -1,7 +1,8 @@
 import { pipe, split, head, propOr, T } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { ColumnType, Column } from '@centreon/ui';
+import { ColumnType } from '@centreon/ui';
+import type { Column } from '@centreon/ui';
 
 import {
   labelResource,
@@ -42,22 +43,25 @@ interface StyleProps {
 }
 
 const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
+  extraSmallChip: {
+    height: theme.spacing(1.25),
+    lineHeight: theme.spacing(1.25),
+    minWidth: theme.spacing(1.25)
+  },
   resourceDetailsCell: {
     alignItems: 'center',
     display: 'flex',
-    flexWrap: 'nowrap',
-    padding: theme.spacing(0, 0.5)
+    flexWrap: 'nowrap'
   },
   resourceNameItem: {
     lineHeight: 1,
-    marginLeft: theme.spacing(1),
     whiteSpace: 'nowrap'
   },
   resourceNameText: {
     color: isHovered
       ? theme.palette.text.primary
       : theme.palette.text.secondary,
-    lineHeight: 1
+    paddingLeft: theme.spacing(0.5)
   }
 }));
 
@@ -67,32 +71,17 @@ export interface ColumnProps {
 }
 
 export const defaultSelectedColumnIds = [
-  'severity',
   'status',
   'resource',
   'parent_resource',
-  'notes_url',
-  'action_url',
   'graph',
   'duration',
-  'tries',
   'last_check',
   'information',
-  'state'
+  'tries'
 ];
 
 export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
-  {
-    Component: SeverityColumn,
-    getRenderComponentOnRowUpdateCondition: T,
-    id: 'severity',
-    label: t(labelSeverity),
-    rowMemoProps: ['severity_level'],
-    shortLabel: 'S',
-    sortField: 'severity_level',
-    sortable: true,
-    type: ColumnType.component
-  },
   {
     Component: StatusColumn({ actions, t }),
     clickable: true,
@@ -104,7 +93,7 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     sortField: 'status_severity_code',
     sortable: true,
     type: ColumnType.component,
-    width: 'minmax(100px, max-content)'
+    width: 'max-content'
   },
   {
     Component: ResourceColumn,
@@ -114,7 +103,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     rowMemoProps: ['icon', 'short_type', 'name'],
     sortField: 'name',
     sortable: true,
-    type: ColumnType.component
+    type: ColumnType.component,
+    width: 'max-content'
   },
   {
     Component: ParentResourceColumn,
@@ -123,6 +113,66 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     label: t(labelParent),
     rowMemoProps: ['parent'],
     sortField: 'parent_name',
+    sortable: true,
+    type: ColumnType.component,
+    width: 'max-content'
+  },
+  {
+    Component: GraphColumn({ onClick: actions.onDisplayGraph }),
+    getRenderComponentOnRowUpdateCondition: T,
+    id: 'graph',
+    label: t(labelGraph),
+    shortLabel: 'G',
+    sortable: false,
+    type: ColumnType.component
+  },
+  {
+    getFormattedString: ({ duration }): string => duration,
+    id: 'duration',
+    label: t(labelDuration),
+    sortField: 'last_status_change',
+    sortable: true,
+    type: ColumnType.string,
+    width: 'max-content'
+  },
+  {
+    getFormattedString: ({ tries }): string => tries,
+    id: 'tries',
+    label: t(labelTries),
+    sortable: true,
+    type: ColumnType.string,
+    width: 'max-content'
+  },
+  {
+    getFormattedString: ({ last_check }): string => last_check,
+    id: 'last_check',
+    label: t(labelLastCheck),
+    sortable: true,
+    type: ColumnType.string,
+    width: 'max-content'
+  },
+  {
+    getFormattedString: pipe(
+      propOr('', 'information'),
+      split('\n'),
+      head,
+      truncate
+    ) as (row) => string,
+    id: 'information',
+    label: t(labelInformation),
+    rowMemoProps: ['information'],
+    sortable: false,
+    type: ColumnType.string,
+    width: 'minmax(100px, 1fr)'
+  },
+  {
+    Component: SeverityColumn,
+    getRenderComponentOnRowUpdateCondition: T,
+    id: 'severity',
+    label: t(labelSeverity),
+    rowMemoProps: ['severity_level'],
+    shortLabel: 'S',
+    sortField: 'severity_level',
     sortable: true,
     type: ColumnType.component
   },
@@ -147,81 +197,41 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     type: ColumnType.component
   },
   {
-    Component: GraphColumn({ onClick: actions.onDisplayGraph }),
-    getRenderComponentOnRowUpdateCondition: T,
-    id: 'graph',
-    label: t(labelGraph),
-    shortLabel: 'G',
-    sortable: false,
-    type: ColumnType.component
-  },
-  {
-    getFormattedString: ({ duration }): string => duration,
-    id: 'duration',
-    label: t(labelDuration),
-    sortField: 'last_status_change',
-    sortable: true,
-    type: ColumnType.string
-  },
-  {
-    getFormattedString: ({ tries }): string => tries,
-    id: 'tries',
-    label: t(labelTries),
-    sortable: true,
-    type: ColumnType.string
-  },
-  {
-    getFormattedString: ({ last_check }): string => last_check,
-    id: 'last_check',
-    label: t(labelLastCheck),
-    sortable: true,
-    type: ColumnType.string
-  },
-  {
-    getFormattedString: pipe(
-      propOr('', 'information'),
-      split('\n'),
-      head,
-      truncate
-    ) as (row) => string,
-    id: 'information',
-    label: t(labelInformation),
-    sortable: false,
-    type: ColumnType.string,
-    width: 'minmax(50px, 1fr)'
-  },
-  {
     Component: StateColumn,
     getRenderComponentOnRowUpdateCondition: T,
     id: 'state',
     label: t(labelState),
     rowMemoProps: ['in_downtime', 'acknowledged', 'name', 'links'],
     sortable: false,
-    type: ColumnType.component
+    type: ColumnType.component,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ alias }): string => alias,
     id: 'alias',
     label: t(labelAlias),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'max-content'
   },
   {
     Component: ParentAliasColumn,
-    getRenderComponentOnRowUpdateCondition: T,
+    getFormattedString: ({ parent }): string => parent?.alias,
     id: 'parent_alias',
     label: t(labelParentAlias),
     rowMemoProps: ['parent'],
     sortField: 'parent_alias',
     sortable: true,
-    type: ColumnType.component
+    type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ fqdn }): string => fqdn,
     id: 'fqdn',
     label: t(labelFqdn),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'max-content'
   },
   {
     getFormattedString: ({ monitoring_server_name }): string =>
@@ -229,7 +239,8 @@ export const getColumns = ({ actions, t }: ColumnProps): Array<Column> => [
     id: 'monitoring_server_name',
     label: t(labelMonitoringServer),
     sortable: true,
-    type: ColumnType.string
+    type: ColumnType.string,
+    width: 'max-content'
   },
   {
     Component: NotificationColumn,

@@ -11,9 +11,9 @@ import {
   postData,
   useRequest,
   MultiAutocompleteField,
-  SelectField,
-  SelectEntry
+  SelectField
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { pollerAtom, setWizardDerivedAtom, PollerData } from '../pollerAtoms';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
@@ -37,7 +37,7 @@ const PollerWizardStepTwo = ({
   goToNextStep,
   goToPreviousStep
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const navigate = useNavigate();
 

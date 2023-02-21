@@ -5,7 +5,12 @@ import { useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
 
-import { MemoizedListing as Listing, useSnackbar } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+import {
+  MemoizedListing as Listing,
+  SeverityCode,
+  useSnackbar
+} from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
 import { rowColorConditions } from '../colors';
@@ -15,7 +20,8 @@ import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
 import {
   openDetailsTabIdAtom,
   selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom
+  selectedResourcesDetailsAtom,
+  panelWidthStorageAtom
 } from '../Details/detailsAtoms';
 import {
   resourcesToAcknowledgeAtom,
@@ -45,6 +51,7 @@ export const okStatuses = ['OK', 'UP'];
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
+
   const { showWarningMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
@@ -65,6 +72,8 @@ const ResourceListing = (): JSX.Element => {
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
+  const panelWidth = useAtomValue(panelWidthStorageAtom);
+  const { resourceStatusViewMode } = useAtomValue(userAtom);
 
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -76,6 +85,8 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
   const changeSort = ({ sortField, sortOrder }): void => {
     setCriteriaAndNewFilter({
@@ -182,6 +193,9 @@ const ResourceListing = (): JSX.Element => {
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
+      getHighlightRowCondition={({ status }): boolean =>
+        equals(status?.severity_code, SeverityCode.High)
+      }
       getId={getId}
       headerMemoProps={[search]}
       limit={listing?.meta.limit}
@@ -197,6 +211,7 @@ const ResourceListing = (): JSX.Element => {
         enabledAutoRefresh,
         selectedResourceDetails
       ]}
+      moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[
         resourceDetailsOpenCondition,
@@ -207,6 +222,8 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
+      viewMode={resourceStatusViewMode}
+      widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}

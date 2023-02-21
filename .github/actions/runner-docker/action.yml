@@ -20,5 +20,5 @@ runs:
   using: "composite"
 
   steps:
-    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/.github/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" registry-docker.centreon.com/docker-global/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
+    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/.github/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" centreon.jfrog.io/docker/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
       shell: bash

@@ -2,8 +2,6 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
-export { default as IconToggleSubmenu } from './Icon/IconToggleSubmenu';
-
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
@@ -61,20 +59,12 @@ export { default as useSnackbar } from './Snackbar/useSnackbar';
 export { default as Severity } from './Snackbar/Severity';
 export { default as SaveButton } from './Button/Save';
 
-export { default as IconHeader } from './Icon/IconHeader';
-export { default as StatusCounter } from './StatusCounter';
-export { default as SubmenuHeader } from './Submenu/SubmenuHeader';
-export { default as SubmenuItems } from './Submenu/SubmenuHeader/SubmenuItems';
-export { default as SubmenuItem } from './Submenu/SubmenuHeader/SubmenuItem';
-
 export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as SectionPanel, MemoizedSectionPanel } from './Panel/Section';
 export { default as Tab } from './Panel/Tab';
 
 export { default as StatusChip } from './StatusChip';
 export type { Props as StatusChipProps } from './StatusChip';
-
-export { SeverityCode, getStatusColors } from './StatusChip';
 
 export type { Listing as ListingModel } from './api/models';
 
@@ -135,7 +125,6 @@ export { default as Module } from './Module';
 export { default as LicensedModule } from './Module/LicensedModule';
 export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
-export * from './testRenderer';
 export { default as Form, GroupDirection } from './Form';
 export { InputType } from './Form/Inputs/models';
 export type {
@@ -157,5 +146,7 @@ export * from './utils/useThemeMode';
 export * from './utils/typedMemo';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
-export { default as Image } from './Image/Image';
-export type { ImageVariant } from './Image/Image';
+export { default as Image, ImageVariant } from './Image/Image';
+
+export { default as ActionsList } from './ActionsList';
+export { getStatusColors, SeverityCode } from './utils/statuses';
