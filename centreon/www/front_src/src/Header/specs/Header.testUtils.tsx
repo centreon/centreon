@@ -190,3 +190,32 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
 
   cy.viewport(1200, 300);
 };
+
+export const submenuShouldBeClosed = (label: string): void => {
+  cy.findByRole('button', { name: label })
+    .as('button')
+    .should('have.attr', 'aria-expanded', 'false');
+
+  cy.get('@button').within(() => {
+    cy.findByTestId('ExpandLessIcon').should('be.visible');
+  });
+  cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
+};
+
+export const openSubMenu = (label: string): void => {
+  cy.findByRole('button', {
+    name: label
+  }).click();
+  submenuShouldBeOpened(label);
+};
+
+export const submenuShouldBeOpened = (label: string): void => {
+  cy.findByRole('button', { name: label })
+    .as('button')
+    .should('have.attr', 'aria-expanded', 'true');
+
+  cy.get('@button').within(() => {
+    cy.findByTestId('ExpandMoreIcon').should('be.visible');
+  });
+  cy.get(`#${label}-menu`).should('be.visible').should('exist');
+};

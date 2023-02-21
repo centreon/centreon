@@ -1,5 +1,3 @@
-import numeral from 'numeral';
-
 import { SeverityCode } from '@centreon/ui';
 import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
 
