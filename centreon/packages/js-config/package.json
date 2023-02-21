@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme"
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.19.1",
+    "babel-merge": "^3.0.0"
+  }
 }

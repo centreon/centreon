@@ -14,16 +14,12 @@ runs:
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
-
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7
+        node-version: 16.2.0
 
     - name: Build storybook
       run: |
-        pnpm i
-        pnpm build:storybook
+        npm ci --legacy-peer-deps
+        npm build:storybook
       shell: bash
       working-directory: ${{ inputs.directory }}
 
