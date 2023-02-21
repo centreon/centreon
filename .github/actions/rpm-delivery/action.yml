@@ -54,7 +54,7 @@ runs:
   using: "composite"
   steps:
     - name: Use cache RPM files
-      uses: kduret/cache@pdotl/zstd-hotfix
+      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
