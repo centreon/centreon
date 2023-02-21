@@ -186,7 +186,7 @@ Feature: Vault Configuration API
         "name": "myAnotherVaultConfiguration",
         "address": "127.0.0.2",
         "port": 8201,
-        "root_path": "myAnotherStorageFolder",
+        "root_path": "myStorageFolder",
         "role_id": "myAnotherRoleId",
         "secret_id": "myAnotherSecretId"
       }
