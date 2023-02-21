@@ -201,7 +201,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
     $updateVaultConfigurationRequest->typeId = 1;
-    $updateVaultConfigurationRequest->address = '127.0.0.1';
+    $updateVaultConfigurationRequest->address = $invalidAddress;
     $updateVaultConfigurationRequest->port = 8200;
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
