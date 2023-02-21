@@ -68,6 +68,7 @@ export interface InputProps {
     }>;
   };
   required?: boolean;
+  row?: boolean;
   switchInput?: {
     getChecked?: (value) => boolean;
   };
