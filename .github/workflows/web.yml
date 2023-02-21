@@ -24,8 +24,6 @@ on:
 
 env:
   base_directory: centreon
-  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
 
 jobs:
   changes:
@@ -405,6 +403,8 @@ jobs:
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
           report_target: s3://centreon-lighthouse-report/
+          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
         uses: actions/upload-artifact@v3
