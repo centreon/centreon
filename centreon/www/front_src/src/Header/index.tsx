@@ -9,9 +9,9 @@ import { ThemeMode } from '@centreon/ui-context';
 
 import FederatedComponent from '../components/FederatedComponents';
 
-import PollerMenu from './PollerMenu';
-import HostStatusCounter from './RessourceStatusCounter/Host';
-import ServiceStatusCounter from './RessourceStatusCounter/Service';
+import Poller from './Poller';
+import HostStatusCounter from './Resources/Host';
+import ServiceStatusCounter from './Resources/Service';
 import UserMenu from './UserMenu';
 
 export const isDarkMode = (theme: Theme): boolean =>
@@ -30,15 +30,20 @@ const useStyles = makeStyles()((theme) => ({
     padding: `0 ${theme.spacing(3)}`
   },
   item: {
-    flex: '1 0 120px'
+    '&:first-of-type': {
+      borderRight: `solid 1px ${theme.palette.common.white}`,
+      marginRight: theme.spacing(3.25),
+      paddingRight: theme.spacing(3.25)
+    },
+    flex: 'initial',
+    [theme.breakpoints.down(768)]: {
+      marginRight: theme.spacing(5.5)
+    },
+    marginRight: theme.spacing(6.5)
   },
   leftContainer: {
     alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(2),
-    [theme.breakpoints.up(768)]: {
-      gap: theme.spacing(3)
-    }
+    display: 'flex'
   },
   userMenuContainer: {
     marginLeft: 'auto'
@@ -53,18 +58,22 @@ const Header = (): JSX.Element => {
     <header className={classes.header} ref={headerRef}>
       <div className={classes.leftContainer}>
         <div className={classes.item}>
-          <PollerMenu />
+          <Poller />
         </div>
+
         <div className={classes.item}>
           <ServiceStatusCounter />
         </div>
+
         <div className={classes.item}>
           <HostStatusCounter />
         </div>
+
         <div className={classes.item}>
           <FederatedComponent path="/bam/header/topCounter" />
         </div>
       </div>
+
       <div className={classes.userMenuContainer}>
         <UserMenu headerRef={headerRef} />
       </div>
