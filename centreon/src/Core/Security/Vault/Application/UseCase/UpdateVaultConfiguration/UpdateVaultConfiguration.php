@@ -53,10 +53,10 @@ final class UpdateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        readonly private ReadVaultRepositoryInterface $readVaultRepository,
-        readonly private ContactInterface $user
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -102,13 +102,13 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if ($this->isVaultConfigurationAlreadyExists($request)) {
+            if ($this->isVaultConfigurationAlreadyExists($request, $vaultConfiguration->getRootPath())) {
                 $this->error(
                     'Vault configuration with these properties already exists for same provider',
                     [
                         'address' => $request->address,
                         'port' => $request->port,
-                        'storage' => $request->storage,
+                        'root_path' => $request->getRootPath(),
                     ]
                 );
                 $presenter->setResponseStatus(
@@ -122,7 +122,7 @@ final class UpdateVaultConfiguration
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (InvalidArgumentException $ex) {
+        } catch (InvalidArgumentException | AssertionException $ex) {
             $this->error('Some parameters are not valid', ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new InvalidArgumentResponse($ex->getMessage())
@@ -144,17 +144,17 @@ final class UpdateVaultConfiguration
 
     /**
      * @param UpdateVaultConfigurationRequest $request
-     *
+     * @param string $rootPath
      * @throws \Throwable
      *
      * @return boolean
      */
-    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request): bool
+    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $rootPath): bool
     {
-        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndStorage(
+        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndRootPath(
             $request->address,
             $request->port,
-            $request->storage
+            $rootPath
         );
 
         return $existingVaultConfiguration !== null
@@ -170,9 +170,7 @@ final class UpdateVaultConfiguration
         UpdateVaultConfigurationRequest $request,
         VaultConfiguration $vaultConfiguration
     ): void {
-        $vaultConfiguration->setName($request->name);
         $vaultConfiguration->setAddress($request->address);
-        $vaultConfiguration->setStorage($request->storage);
         $vaultConfiguration->setPort($request->port);
         $vaultConfiguration->setNewRoleId($request->roleId);
         $vaultConfiguration->setNewSecretId($request->secretId);

@@ -6,7 +6,7 @@
         "name",
         "address",
         "port",
-        "storage",
+        "root_path",
         "role_id",
         "secret_id"
     ],
@@ -21,7 +21,7 @@
         "port": {
             "type": "integer"
         },
-        "storage": {
+        "root_path": {
             "type": "string"
         },
         "role_id": {

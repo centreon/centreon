@@ -102,11 +102,9 @@ it('should present NotFoundResponse when vault provider does not exist', functio
 
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
-    $updateVaultConfigurationRequest->name = 'myVault';
     $updateVaultConfigurationRequest->typeId = 3;
     $updateVaultConfigurationRequest->address = '127.0.0.1';
     $updateVaultConfigurationRequest->port = 8200;
-    $updateVaultConfigurationRequest->storage = 'myStorage';
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
@@ -144,11 +142,9 @@ it('should present NotFoundResponse when vault configuration does not exist for 
 
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
-    $updateVaultConfigurationRequest->name = 'myVault';
     $updateVaultConfigurationRequest->typeId = 3;
     $updateVaultConfigurationRequest->address = '127.0.0.1';
     $updateVaultConfigurationRequest->port = 8200;
-    $updateVaultConfigurationRequest->storage = 'myStorage';
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
@@ -201,15 +197,12 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         $this->user
     );
 
-    $invalidName = '';
-
+    $invalidAddress = '._@';
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
-    $updateVaultConfigurationRequest->name = $invalidName;
     $updateVaultConfigurationRequest->typeId = 1;
     $updateVaultConfigurationRequest->address = '127.0.0.1';
     $updateVaultConfigurationRequest->port = 8200;
-    $updateVaultConfigurationRequest->storage = 'myStorage';
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
@@ -217,11 +210,9 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        AssertionException::minLength(
-            $invalidName,
-            strlen($invalidName),
-            VaultConfiguration::MIN_LENGTH,
-            'VaultConfiguration::name'
+        AssertionException::ipOrDomain(
+            $invalidAddress,
+            'VaultConfiguration::address'
         )->getMessage()
     );
 });
@@ -281,16 +272,14 @@ it(
 
         $this->readVaultConfigurationRepository
             ->expects($this->once())
-            ->method('findByAddressAndPortAndStorage')
+            ->method('findByAddressAndPortAndRootPath')
             ->willReturn($existingVaultConfiguration);
 
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
         $updateVaultConfigurationRequest->vaultConfigurationId = $vaultConfiguration->getId();
-        $updateVaultConfigurationRequest->name = $vaultConfiguration->getName();
         $updateVaultConfigurationRequest->typeId = $vault->getId();
         $updateVaultConfigurationRequest->address = $existingVaultConfiguration->getAddress();
         $updateVaultConfigurationRequest->port = $existingVaultConfiguration->getPort();
-        $updateVaultConfigurationRequest->storage = $existingVaultConfiguration->getStorage();
         $updateVaultConfigurationRequest->roleId = $vaultConfiguration->getEncryptedRoleId();
         $updateVaultConfigurationRequest->secretId = $vaultConfiguration->getEncryptedSecretId();
 
@@ -374,7 +363,7 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
+        ->method('findByAddressAndPortAndRootPath')
         ->willReturn(null);
 
     $presenter = new UpdateVaultConfigurationPresenterStub($this->presenterFormatter);
@@ -387,17 +376,15 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
     $updateVaultConfigurationRequest->vaultConfigurationId = 1;
-    $updateVaultConfigurationRequest->name = 'myVaultConfigurationName';
     $updateVaultConfigurationRequest->typeId = 1;
     $updateVaultConfigurationRequest->address = '127.0.0.1';
     $updateVaultConfigurationRequest->port = 8200;
-    $updateVaultConfigurationRequest->storage = 'myStorage';
     $updateVaultConfigurationRequest->roleId = 'myRole';
     $updateVaultConfigurationRequest->secretId = 'mySecretId';
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('findByAddressAndPortAndStorage')
+        ->method('findByAddressAndPortAndRootPath')
         ->willReturn(null);
 
     $useCase($presenter, $updateVaultConfigurationRequest);

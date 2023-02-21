@@ -30,6 +30,6 @@ interface UUIDGeneratorInterface
      *
      * @return string
      */
-    public function generateUUIDV4(): string;
+    public function generateV4(): string;
 }
 
