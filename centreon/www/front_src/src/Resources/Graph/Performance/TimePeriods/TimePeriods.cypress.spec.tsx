@@ -286,7 +286,7 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
 };
 
 testData.forEach((item) =>
-  describe(`DateTimePicker`, () => {
+  describe(`DateTimePicker ${item.button}`, () => {
     before(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
 
@@ -480,18 +480,18 @@ testData.forEach((item) =>
       cy.get('button').click();
 
       item.data.forEach((element) => {
-        cy.matchImageSnapshot(
-          `calendar-${item.timezone}-${
-            Object.keys(element)[0]
-          }-when-clicking-on-${item.button}`
-        );
-
         const currentMonth = Object.keys(element)[0];
         if (equals(item.button, ButtonCalendar.PMONTH)) {
           getPreviousMonth({ currentMonth, labelButton: item.button });
         } else {
           getNextMonth({ currentMonth, labelButton: item.button });
         }
+
+        cy.matchImageSnapshot(
+          `calendar-${item.timezone}-${
+            Object.keys(element)[0]
+          }-when-clicking-on-${item.button}`
+        );
       });
     });
   })

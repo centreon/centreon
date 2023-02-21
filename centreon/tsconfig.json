@@ -11,6 +11,5 @@
   "include": [
     "./www/front_src/src",
     "./cypress"
-  ],
-  "exclude":["./www/front_src/public/mockServiceWorker.js"]
+  ]
 }

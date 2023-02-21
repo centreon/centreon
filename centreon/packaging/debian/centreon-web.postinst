@@ -74,6 +74,6 @@ timezone=$(/usr/bin/php -r '
   }
   echo $timezoneName;
 ' 2>/dev/null)
-sed -i "s#^date.timezone = .*#date.timezone = ${timezone}#" /etc/php/8.0/mods-available/centreon.ini
+sed -i "s#^date.timezone = .*#date.timezone = ${timezone}#" /etc/php/8.1/mods-available/centreon.ini
 
 exit 0

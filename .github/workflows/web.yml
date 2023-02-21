@@ -24,6 +24,8 @@ on:
 
 env:
   base_directory: centreon
+  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
 
 jobs:
   changes:
@@ -124,7 +126,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -297,7 +299,7 @@ jobs:
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Use cache RPM files
-        uses: actions/cache@v3
+        uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
@@ -388,21 +390,19 @@ jobs:
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: Run lighthouse
+      - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
-          path: "centreon"
+          path: "centreon/lighthouse"
           image: centreon.jfrog.io/docker/centreon-web-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
       - name: Publish report to S3
-        if: ${{ github.pull_request.merged }} || ${{ github.event_name }} == "push" 
+        if: ${{ github.event_name == 'push' }}
         uses: ./.github/actions/lighthouse-to-s3
         with:
-          aws_access_key: ${{ secrets.LIGHTHOUSE_ID }}
-          aws_secret_key: ${{secrets.LIGHTHOUSE_SECRET }}
           report_path: centreon/lighthouse/report/lighthouseci-index.html
           report_target: s3://centreon-lighthouse-report/
 
@@ -411,6 +411,7 @@ jobs:
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
 
   deliver-rpm:
     runs-on: [self-hosted, common]

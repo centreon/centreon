@@ -1,12 +1,6 @@
 name: "Publish Lighthouse report to S3"
 description: "Publish Lighthouse report to S3"
 inputs:
-  aws_access_key:
-    description: "aws_access_key"
-    required: true
-  aws_secret_key:
-    description: "aws_secret_key"
-    required: true
   report_path:
     description: "report_path"
     required: true
@@ -23,23 +17,20 @@ runs:
 
     - name: "Setup AWS context"
       run: |
-        sudo apt update -y \
-          && sudo apt install -y unzip \
-          && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \ 
-          && unzip awscliv2.zip \
-          &&  sudo ./aws/install \
-          &&  rm -rf awscliv2.zip aws \
-          && export AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} \
-          && export AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_key }} \
-          && export AWS_DEFAULT_REGION=eu-west-1
-        if [[ "$GITHUB_REF_NAME" != "develop" || "$GITHUB_REF_NAME" != "master" ]]; then
-          VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})').x
+        sudo apt update -y 1>&-  
+        sudo apt install -y unzip 1>&-
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 1>&-
+        unzip awscliv2.zip 1>&-
+        sudo ./aws/install --update 1>&-
+        rm -rf awscliv2.zip aws 1>&-
+        if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
+          VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
         else 
           VERSION=$GITHUB_REF_NAME
         fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
       shell: bash
 
     - name: "Push report"
-      run: |
-        aws s3 cp ${{ inputs.report_path }} ${{ inputs.report_target }}$VERSION/index.html --acl public-read
+      run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
       shell: bash
