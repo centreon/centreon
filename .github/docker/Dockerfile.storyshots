@@ -5,23 +5,19 @@ ENV LANG en_US.utf8
 RUN apt-get update
 RUN apt-get install -y curl
 
-RUN <<EOF
-
 # Install Node.js
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+RUN export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-source ~/.bashrc
-nvm install 18
-nvm use 18
-nvm alias default 18
+RUN source ~/.bashrc
+RUN nvm install 18
+RUN nvm use 18
+RUN nvm alias default 18
 
 # Install pnpm
-npm install -g pnpm
+RUN npm install -g pnpm
 
 # Install Chromium
-apt install chromium chromium-l10n
-
-EOF
+RUN apt-get install chromium chromium-l10n -y
 
 WORKDIR /src
