@@ -1,8 +1,6 @@
 import PollerIcon from '@mui/icons-material/DeviceHub';
 
-import { MenuSkeleton } from '@centreon/ui';
-
-import ItemLayout from '../sharedUI/ItemLayout';
+import { MenuSkeleton, ItemLayout } from '@centreon/ui';
 
 import PollerStatusIcon from './PollerStatusIcon';
 import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';

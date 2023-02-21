@@ -1,10 +1,12 @@
 import ServiceIcon from '@mui/icons-material/Grain';
 
-import { MenuSkeleton } from '@centreon/ui';
+import {
+  MenuSkeleton,
+  ItemLayout,
+  ResourceCounters,
+  ResourceSubMenu
+} from '@centreon/ui';
 
-import ItemLayout from '../../sharedUI/ItemLayout';
-import ResourceCounters from '../../sharedUI/ResourceCounters';
-import ResourceSubMenu from '../../sharedUI/ResourceSubMenu';
 import useResourceCounters from '../useResourceCounters';
 import { serviceStatusDecoder } from '../../api/decoders';
 import type { ServiceStatusResponse } from '../../api/decoders';

@@ -1,10 +1,12 @@
 import HostIcon from '@mui/icons-material/Dns';
 
-import { MenuSkeleton } from '@centreon/ui';
+import {
+  MenuSkeleton,
+  ItemLayout,
+  ResourceCounters,
+  ResourceSubMenu
+} from '@centreon/ui';
 
-import ItemLayout from '../../sharedUI/ItemLayout';
-import ResourceCounters from '../../sharedUI/ResourceCounters';
-import ResourceSubMenu from '../../sharedUI/ResourceSubMenu';
 import useResourceCounters from '../useResourceCounters';
 import { hostStatusEndpoint } from '../../api/endpoints';
 import { hostStatusDecoder } from '../../api/decoders';
