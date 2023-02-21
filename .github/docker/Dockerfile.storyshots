@@ -2,33 +2,11 @@ FROM centreon.jfrog.io/docker/debian:bullseye
 
 ENV LANG en_US.utf8
 
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
 # Install base dependencies
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates \
-        curl \
-        git \
-        libssl-dev \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl
 
-ENV NVM_DIR /usr/local/nvm # or ~/.nvm , depending
-ENV NODE_VERSION 18.14.2
-
-# Install nvm with node and npm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
-    && . $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
 
 # Install pnpm
 RUN npm install -g pnpm
