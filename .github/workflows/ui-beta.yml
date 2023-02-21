@@ -50,7 +50,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 16.2.0
 
       - run: |
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
