@@ -126,7 +126,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -299,7 +299,7 @@ jobs:
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Use cache RPM files
-        uses: actions/cache@v3
+        uses: kduret/cache@pdotl/zstd-hotfix
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
