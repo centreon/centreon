@@ -40,8 +40,8 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.translation
+          file: .github/docker/Dockerfile.storyshots
           context: .
           pull: true
           push: true
-          tags: centreon.jfrog.io/docker/translation:${{ needs.get-version.outputs.major_version }}
+          tags: centreon.jfrog.io/docker/storyshots:${{ needs.get-version.outputs.major_version }}
