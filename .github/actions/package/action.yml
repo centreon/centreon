@@ -62,7 +62,7 @@ runs:
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache@v3
+      uses: actions/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
