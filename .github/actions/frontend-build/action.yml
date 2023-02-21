@@ -39,13 +39,13 @@ runs:
       shell: bash
 
     - name: Cache index.html file
-      uses: actions/cache@v3
+      uses: actions/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.index_file }}
         key: ${{ inputs.index_cache_key }}
 
     - name: Cache static directory
-      uses: actions/cache@v3
+      uses: actions/cache@pdotl/zstd-hotfix
       with:
         path: ${{ inputs.static_directory }}
         key: ${{ inputs.static_cache_key }}

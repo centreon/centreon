@@ -33,7 +33,7 @@ runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache@v3
+      uses: actions/cache@pdotl/zstd-hotfix
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
