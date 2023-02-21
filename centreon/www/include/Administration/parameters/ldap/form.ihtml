@@ -29,16 +29,42 @@
     <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><h4>{$form.header.ldapScanOption}</h4></td></tr>
 	<tr class="list_two" id="ldap_auto_sync">
 		<td class="FormRowField">
-			<img class="helpTooltip" name="ldap_auto_sync" />
-			<span>{$form.ldap_auto_sync.label}</span>
+
+
+			<div class="formRowLabel">
+				<div>
+					<img class="helpTooltip" name="ldap_auto_sync" />
+				</div>
+				<div>
+					<p class="fieldLabel">
+						<span>{$form.ldap_auto_sync.label}</span>
+					</p>
+
+				</div>
+			</div>
+
+
 		</td>
 		<td class="FormRowValue">{$form.ldap_auto_sync.html}</td>
 	</tr>
 	{if $hideSyncInterval != 1}
 		<tr class="list_one" id="ldap_sync_interval">
 			<td class="FormRowField">
-				<img class="helpTooltip" name="ldap_sync_interval" />
-				<span>{$form.ldap_sync_interval.label}</span>
+				<div class="formRowLabel">
+					<div>
+						<img class="helpTooltip" name="ldap_sync_interval" />
+					</div>
+					<div>
+						<p class="fieldLabel">
+							<span>{$form.ldap_sync_interval.label}</span>
+						</p>
+
+					</div>
+				</div>
+
+
+
+
 			</td>
 			<td class="FormRowValue">{$form.ldap_sync_interval.html}</td>
 		</tr>
