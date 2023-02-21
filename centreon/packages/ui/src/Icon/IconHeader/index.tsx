@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-  Icon: (props) => JSX.Element;
+  Icon: (props) => JSX.Element | null;
   iconName: string;
   onClick?: () => void;
   pending?: boolean;

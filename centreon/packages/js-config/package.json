@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme"
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "devDependencies": {
+    "babel-merge": "^3.0.0"
+  }
 }

@@ -12,6 +12,7 @@ xunit-reports
 
 # front development files
 **/node_modules/
+**/.out
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache
