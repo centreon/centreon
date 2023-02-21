@@ -9,6 +9,8 @@ on:
       - "centreon/packages/js-config/**"
       - ".github/workflows/js-config-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.10.x
 
 env:
   directory: "centreon/packages/js-config"

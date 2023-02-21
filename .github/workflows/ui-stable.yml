@@ -9,6 +9,8 @@ on:
       - "centreon/packages/ui/**"
       - ".github/workflows/ui-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.10.x
 
 env:
   directory: "centreon/packages/ui"
