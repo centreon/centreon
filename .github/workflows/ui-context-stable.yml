@@ -7,8 +7,10 @@ on:
       - closed
     paths:
       - "centreon/packages/ui-context/**"
-      - ".github/workflows/ui-context-merge.yml"
+      - ".github/workflows/ui-context-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.04.x
 
 env:
   directory: "centreon/packages/ui-context"
@@ -42,3 +44,4 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          version: ${{ env.base_branch }}

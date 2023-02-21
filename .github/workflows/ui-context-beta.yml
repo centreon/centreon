@@ -3,7 +3,7 @@ name: ui-context
 on:
   pull_request:
     paths:
-      - ".github/workflows/ui-context.yml"
+      - ".github/workflows/ui-context-beta.yml"
       - "centreon/packages/ui-context/**"
       - ".github/actions/npm-publish-package-beta/**"
     branches:

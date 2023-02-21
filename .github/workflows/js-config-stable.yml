@@ -7,8 +7,10 @@ on:
       - closed
     paths:
       - "centreon/packages/js-config/**"
-      - ".github/workflows/js-config-merge.yml"
+      - ".github/workflows/js-config-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.04.x
 
 env:
   directory: "centreon/packages/js-config"
@@ -42,3 +44,4 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          version: ${{ env.base_branch }}
