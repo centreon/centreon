@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
 use Assert\InvalidArgumentException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
@@ -108,7 +109,7 @@ final class UpdateVaultConfiguration
                     [
                         'address' => $request->address,
                         'port' => $request->port,
-                        'root_path' => $request->getRootPath(),
+                        'root_path' => $vaultConfiguration->getRootPath(),
                     ]
                 );
                 $presenter->setResponseStatus(
