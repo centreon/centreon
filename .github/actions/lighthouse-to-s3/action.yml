@@ -29,12 +29,12 @@ runs:
         unzip awscliv2.zip 1>&-
         sudo ./aws/install --update 1>&-
         rm -rf awscliv2.zip aws 1>&-
-        # if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
-        #   VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
-        # else 
-        #   VERSION=$GITHUB_REF_NAME
-        # fi
-        echo "VERSION=develop" >> $GITHUB_ENV
+        if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
+          VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
+        else 
+          VERSION=$GITHUB_REF_NAME
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "AWS_ACCESS_KEY_ID=${{ inputs.access_key_id }}" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.secret_access_key }}" >> $GITHUB_ENV
       shell: bash
