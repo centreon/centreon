@@ -27,8 +27,6 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use Try::Tiny;
 use gorgone::modules::centreon::mbi::etlworkers::import::main;
@@ -36,6 +34,7 @@ use gorgone::modules::centreon::mbi::etlworkers::dimensions::main;
 use gorgone::modules::centreon::mbi::etlworkers::event::main;
 use gorgone::modules::centreon::mbi::etlworkers::perfdata::main;
 use gorgone::modules::centreon::mbi::libs::Messages;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -311,39 +310,34 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[" . $connector->{module_id} . "] $$ has quit");
+        exit(0);
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-' . $self->{module_id} . '-' . $self->{pool_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'CENTREONMBIETLWORKERSREADY',
         data => {
             pool_id => $self->{pool_id}
         }
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[" . $self->{module_id} . "] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    EV::timer(5, 2, \&periodic_exec);
+    EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 }
 
 1;

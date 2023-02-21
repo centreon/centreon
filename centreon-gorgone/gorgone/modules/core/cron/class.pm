@@ -27,9 +27,8 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Schedule::Cron;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -400,11 +399,16 @@ sub event {
     }
 }
 
+sub stop_ev {
+    EV::break();
+}
+
 sub cron_sleep {
-    my $rev = zmq_poll($connector->{poll}, 1000);
-    if ($rev == 0 && $connector->{stop} == 1) {
+    EV::timer(1, 0, \&stop_ev);
+    EV::run();
+
+    if ($connector->{stop} == 1) {
         $connector->{logger}->writeLogInfo("[cron] $$ has quit");
-        zmq_close($connector->{internal_socket});
         exit(0);
     }
 }
@@ -428,15 +432,8 @@ sub dispatcher {
         json_encode => 1
     });
  
-    my $poll = [
-        {
-            socket  => $options->{socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
-    my $rev = zmq_poll($poll, 5000);
+    EV::timer(5, 0, \&stop_ev);
+    EV::run();
 }
 
 sub run {
@@ -444,6 +441,7 @@ sub run {
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-cron',
         logger => $self->{logger},
@@ -454,13 +452,6 @@ sub run {
         action => 'CRONREADY',
         data => {}
     });
-    $connector->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
 
     # need at least one cron to get sleep working
     push @{$self->{config}->{cron}}, {
@@ -485,9 +476,10 @@ sub run {
         );
     }
 
+    EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+
     $self->{cron}->run(sleep => \&cron_sleep);
 
-    zmq_close($connector->{internal_socket});
     exit(0);
 }
 

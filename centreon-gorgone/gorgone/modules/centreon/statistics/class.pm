@@ -27,12 +27,11 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use File::Path qw(make_path);
 use JSON::XS;
 use Time::HiRes;
 use RRDs;
+use EV;
 
 my $result;
 my %handlers = (TERM => {}, HUP => {});
@@ -601,18 +600,25 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[statistics] $$ has quit");
+        exit(0);
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-statistics',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'STATISTICSREADY',
         data => {}
     });
@@ -641,14 +647,6 @@ sub run {
         db_centreon => $self->{db_centstorage}
     );
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
     if (defined($self->{config}->{cron})) {
         $self->send_internal_action({
             action => 'ADDCRON', 
@@ -658,14 +656,9 @@ sub run {
         });
     }
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[statistics] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    EV::timer(5, 2, \&periodic_exec);
+    EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 }
 
 1;

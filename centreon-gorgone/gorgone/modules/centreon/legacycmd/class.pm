@@ -29,9 +29,8 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::sqlquery;
 use gorgone::class::tpapi::clapi;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use File::Copy;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -793,6 +792,16 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[legacycmd] $$ has quit");
+        exit(0);
+    }
+
+    $connector->cache_refresh();
+    $connector->handle_cmd_files();
+}
+
 sub run {
     my ($self, %options) = @_;
 
@@ -806,6 +815,7 @@ sub run {
 
     # Connect internal
     $connector->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-legacycmd',
         logger => $self->{logger},
@@ -817,36 +827,21 @@ sub run {
         data => {}
     });
 
-    $self->{db_centreon} = gorgone::class::db->new(
+    $connector->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
         user => $self->{config_db_centreon}->{username},
         password => $self->{config_db_centreon}->{password},
         force => 2,
         logger => $self->{logger}
     );
-    $self->{class_object_centreon} = gorgone::class::sqlquery->new(
+    $connector->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}
     );
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 2000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[legacycmd] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-
-        $self->cache_refresh();
-        $self->handle_cmd_files();
-    }
+    EV::timer(5, 2, \&periodic_exec);
+    EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 }
 
 1;

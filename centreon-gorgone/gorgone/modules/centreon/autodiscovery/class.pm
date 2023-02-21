@@ -31,13 +31,12 @@ use gorgone::class::tpapi::clapi;
 use gorgone::class::tpapi::centreonv2;
 use gorgone::class::sqlquery;
 use gorgone::class::frame;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Try::Tiny;
+use EV;
 
 use constant JOB_SCHEDULED => 0;
 use constant JOB_FINISH => 1;
@@ -1135,6 +1134,16 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    $connector->is_module_installed();
+    $connector->hdisco_sync();
+
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
+        exit(0);
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
 
@@ -1175,37 +1184,25 @@ sub run {
         db_centreon => $self->{db_centstorage}
     );
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-autodiscovery',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'AUTODISCOVERYREADY',
         data => {}
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
 
-    while (1) {
-        $self->is_module_installed();
-        $self->hdisco_sync();
+    $self->is_module_installed();
+    $self->hdisco_sync();
 
-        my $rev = zmq_poll($self->{poll}, 5000);
-        if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    EV::timer(5, 2, \&periodic_exec);
+    EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    EV::run();
 }
 
 1;
