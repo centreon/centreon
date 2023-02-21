@@ -19,7 +19,7 @@ runs:
     - name: Build storybook
       run: |
         npm ci --legacy-peer-deps
-        npm build:storybook
+        npm run build:storybook
       shell: bash
       working-directory: ${{ inputs.directory }}
 
