@@ -7,7 +7,7 @@
     "build:analyze": "webpack --mode production --config ./webpack.config.analyze.js",
     "build:dev": "cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
     "build:watch": "cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
-    "eslint": "eslint ./www/front_src --ext .js,.jsx,.ts,.tsx",
+    "eslint": "eslint ./www/front_src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
     "test": "jest",
     "test:watch": "pnpm test --watch",

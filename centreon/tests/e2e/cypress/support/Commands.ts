@@ -14,6 +14,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'getByTestId',
+  ({ tag = '', testId }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid="${testId}"]`);
+  }
+);
+
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
 });
@@ -50,7 +57,8 @@ Cypress.Commands.add(
   'loginByTypeOfUser',
   ({ jsonName, preserveToken }): Cypress.Chainable => {
     if (preserveToken) {
-      cy.fixture(`users/${jsonName}.json`)
+      return cy
+        .fixture(`users/${jsonName}.json`)
         .then((user) => {
           return cy.request({
             body: {
@@ -65,10 +73,14 @@ Cypress.Commands.add(
           Cypress.Cookies.defaults({
             preserve: 'PHPSESSID'
           });
+        })
+        .then(() => {
+          cy.visit(`${Cypress.config().baseUrl}`);
         });
     }
 
-    cy.fixture(`users/${jsonName}.json`)
+    cy.visit(`${Cypress.config().baseUrl}`)
+      .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
@@ -85,6 +97,20 @@ Cypress.Commands.add(
           cy.wait('@getNavigationList');
         }
       });
+  }
+);
+
+Cypress.Commands.add(
+  'loginKeycloack',
+  (jsonName: string): Cypress.Chainable => {
+    return cy
+      .fixture(`users/${jsonName}.json`)
+      .then((credential) => {
+        cy.get('#username').clear().type(credential.login);
+        cy.get('#password').clear().type(credential.password);
+      })
+      .get('#kc-login')
+      .click();
   }
 );
 
@@ -171,12 +197,12 @@ Cypress.Commands.add(
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
-        .trigger('mouseover');
-      cy.contains(page).click();
+        .trigger('mouseover', { force: true });
+      cy.contains(page).click({ force: true });
 
       return;
     }
-    cy.hoverRootMenuItem(rootItemNumber).contains(page).click();
+    cy.hoverRootMenuItem(rootItemNumber).contains(page).click({ force: true });
   }
 );
 
@@ -203,9 +229,26 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
+  return cy.exec(
+    'docker run -p 8080:8080 -d --name e2e-tests-openid-centreon centreon.jfrog.io/docker/openid:23.04'
+  );
+});
+
+Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
+  return cy.exec(
+    'docker stop e2e-tests-openid-centreon && docker rm e2e-tests-openid-centreon'
+  );
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
+}
+
+interface GetByTestIdProps {
+  tag?: string;
+  testId: string;
 }
 
 interface NavigateToProps {
@@ -229,6 +272,7 @@ declare global {
     interface Chainable {
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
+      getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
@@ -236,6 +280,7 @@ declare global {
         jsonName = 'admin',
         preserveToken = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
+      loginKeycloack: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
       navigateTo: ({
         page,
@@ -250,6 +295,8 @@ declare global {
         query
       }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: () => Cypress.Chainable;
+      startOpenIdProviderContainer: () => Cypress.Chainable;
+      stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
   }
 }

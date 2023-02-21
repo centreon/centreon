@@ -17372,7 +17372,7 @@ msgid "You are not allowed to create service categories"
 msgstr "Vous n'êtes pas autorisé à créer des catégories de services"
 
 msgid "Error while deleting service category"
-msgstr "Erreur durant la suppression d'une catégorie de services"
+msgstr "Erreur lors de la suppression d'une catégorie de services"
 
 msgid "Error while creating service category"
 msgstr "Erreur lors de la création d'une catégorie de services"
@@ -17382,3 +17382,24 @@ msgstr "Ce nom de catégorie de services existe déjà"
 
 msgid "Error while retrieving recently created service category"
 msgstr "Error lors de la récupération de la catégorie de services nouvellement créée"
+
+msgid "You are not allowed to delete service severities"
+msgstr "Vous n'êtes pas autorisé à supprimer des sévérités de services"
+
+msgid "Error while deleting service severity"
+msgstr "Erreur durant la suppression d'une sévérité de services"
+
+msgid "Error while creating service severity"
+msgstr "Erreur lors de la création d'une sévérité de services"
+
+msgid "You are not allowed to create service severities"
+msgstr "Vous n'êtes pas autorisé à créer des sévérités de services"
+
+msgid "Error while retrieving recently created service severity"
+msgstr "Error lors de la récupération de la sévérité de services nouvellement créée"
+
+msgid "Service severity name already exists"
+msgstr "Ce nom de sévérité de services existe déjà"
+
+msgid "The service severity icon with id '%d' does not exist"
+msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"

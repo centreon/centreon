@@ -81,9 +81,10 @@ Then(
 Given(
   'an authenticated user and the autologin configuration menu can be accessed',
   () => {
-    cy.logout()
-      .reload()
-      .loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
+    cy.loginByTypeOfUser({
+      jsonName: 'user',
+      preserveToken: true
+    })
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')
@@ -121,6 +122,10 @@ Then('the key is properly generated and displayed', () => {
 });
 
 Given('a user with an autologin key generated', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'user',
+    preserveToken: true
+  });
   cy.isInProfileMenu('Copy autologin link').should('be.exist');
 });
 
@@ -151,6 +156,11 @@ Then('the autologin link is copied in the clipboard', () => {
 Given(
   'a platform with autologin enabled and a user with both autologin key and link generated',
   () => {
+    cy.loginByTypeOfUser({
+      jsonName: 'user',
+      preserveToken: true
+    });
+    cy.visit('/centreon/main.php?p=50104&o=c');
     cy.isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
       .invoke('text')
@@ -172,7 +182,7 @@ When('the user opens the autologin link in a browser', () => {
 
 Then('the page is reached without manual login', () => {
   cy.url()
-    .should('include', '/main.php?p=60103')
+    .should('include', '/main.php?p=50104&p=50104&o=c')
     .wait('@getTimeZone')
     .getIframeBody()
     .find('form')
