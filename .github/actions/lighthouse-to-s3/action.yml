@@ -7,6 +7,12 @@ inputs:
   report_target:
     description: "report_target"
     required: true
+  access_key_id:
+    description: "access_key_id"
+    required: true
+  secret_access_key:
+    description: "secret_access_key"
+    required: true
 
 runs:
   using: "composite"
@@ -29,8 +35,16 @@ runs:
           VERSION=$GITHUB_REF_NAME
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=${{ inputs.access_key_id }}" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.secret_access_key }}" >> $GITHUB_ENV
       shell: bash
 
     - name: "Push report"
       run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
+      shell: bash
+
+    - name: "Clean up AWS credentials"
+      run: |
+        echo "AWS_ACCESS_KEY_ID=" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=" >> $GITHUB_ENV
       shell: bash
