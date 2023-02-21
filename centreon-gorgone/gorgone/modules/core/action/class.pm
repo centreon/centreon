@@ -845,16 +845,15 @@ sub periodic_exec {
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
-        context => $connector->{zmq_context},
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-action',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'ACTIONREADY',
         data => {}
     });
@@ -862,7 +861,7 @@ sub run {
     $connector->get_package_manager();
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $wr2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
     EV::run();
 }
 

@@ -103,15 +103,6 @@ sub class_handle_HUP {
     }
 }
 
-sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[httpserver] Event: $message");
-    }
-}
-
 sub init_dispatch {
     my ($self, $config_dispatch) = @_;
 
@@ -172,8 +163,10 @@ sub run {
         data => {}
     });
 
+    gorgone::standard::api::set_module($connector);
+
     my $w1 = EV::timer(4, 0, \&stop_ev);
-    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&gorgone::standard::api::event);
     EV::run();
 
     $self->init_dispatch();

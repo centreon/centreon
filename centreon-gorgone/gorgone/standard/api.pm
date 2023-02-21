@@ -32,6 +32,10 @@ my $socket;
 my $results = {};
 my $action_token;
 
+sub set_module {
+    $module = $_[0];
+}
+
 sub root {
     my (%options) = @_;
 

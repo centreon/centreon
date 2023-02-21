@@ -263,8 +263,8 @@ sub run {
         data => {}
     });
 
-    EV::timer(5, 2, \&periodic_exec);
-    EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
     EV::run();
 }
 

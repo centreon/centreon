@@ -814,33 +814,33 @@ sub run {
     $self->{clapi_password} = $self->{tpapi_clapi}->get_password(protected => 1);
 
     # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
-        context => $connector->{zmq_context},
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-legacycmd',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'LEGACYCMDREADY',
         data => {}
     });
 
-    $connector->{db_centreon} = gorgone::class::db->new(
+    $self->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
         user => $self->{config_db_centreon}->{username},
         password => $self->{config_db_centreon}->{password},
         force => 2,
         logger => $self->{logger}
     );
-    $connector->{class_object_centreon} = gorgone::class::sqlquery->new(
+    $self->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}
     );
 
-    EV::timer(5, 2, \&periodic_exec);
-    EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
     EV::run();
 }
 

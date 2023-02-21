@@ -404,7 +404,7 @@ sub stop_ev {
 }
 
 sub cron_sleep {
-    EV::timer(1, 0, \&stop_ev);
+    my $w = EV::timer(1, 0, \&stop_ev);
     EV::run();
 
     if ($connector->{stop} == 1) {
@@ -432,7 +432,7 @@ sub dispatcher {
         json_encode => 1
     });
  
-    EV::timer(5, 0, \&stop_ev);
+    my $w = EV::timer(5, 0, \&stop_ev);
     EV::run();
 }
 
@@ -476,7 +476,7 @@ sub run {
         );
     }
 
-    EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
 
     $self->{cron}->run(sleep => \&cron_sleep);
 
