@@ -10,7 +10,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | b
 RUN export NVM_DIR="$HOME/.nvm"
 RUN echo $HOME
 RUN echo $NVM_DIR
-RUN ls $NVM_DIR
+RUN ls /root
 RUN [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 RUN source ~/.bashrc
 RUN nvm install 18
