@@ -35,8 +35,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.AUTOMATION_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
         run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
