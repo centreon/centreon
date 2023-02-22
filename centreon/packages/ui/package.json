@@ -43,7 +43,6 @@
     "babel-plugin-require-context-hook": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest-transform-mdx": "link:@storybook/addon-docs/jest-transform-mdx",
     "puppeteer": "^13.7.0",
     "react-test-renderer": "^18.1.0",
     "storybook-addon-mock": "^2.4.1",
