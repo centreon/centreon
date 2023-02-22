@@ -1,4 +1,4 @@
-FROM centreon.jfrog.io/docker/centos:7
+FROM docker.centreon.com/centreon/centos:7
 
 RUN <<EOF
 
