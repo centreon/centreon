@@ -27,8 +27,6 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::modules::centreon::autodiscovery::services::resources;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Net::SMTP;
 use XML::Simple;
 use POSIX qw(strftime);

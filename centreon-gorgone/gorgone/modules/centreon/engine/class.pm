@@ -28,6 +28,7 @@ use JSON::XS;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 my %handlers = (TERM => {}, HUP => {});
@@ -226,7 +227,7 @@ sub action_run {
         return -1;
     }
 
-    zmq_close($socket_log);
+    $socket_log->close();
 }
 
 sub create_child {
@@ -265,15 +266,21 @@ sub create_child {
 }
 
 sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[engine] Event: $message");
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my ($message) = $self->read_message();
+            next if (!defined($message));
 
-        if ($message !~ /^\[ACK\]/) {
-            $connector->create_child(message => $message);
-        }        
+            $self->{logger}->writeLogDebug("[engine] Event: $message");
+
+            if ($message !~ /^\[ACK\]/) {
+                $self->create_child(message => $message);
+            }        
+        } else {
+            last;
+        }
     }
 }
 
@@ -301,7 +308,7 @@ sub run {
     });
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     EV::run();
 }
 

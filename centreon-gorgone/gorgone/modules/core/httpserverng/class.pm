@@ -27,14 +27,13 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::Constants qw(:all);
-use ZMQ::LibZMQ4;
 use Mojolicious::Lite;
 use Mojo::Server::Daemon;
 use Authen::Simple::Password;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -236,6 +235,7 @@ sub run {
 
     # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserverng',
         logger => $self->{logger},
@@ -303,7 +303,6 @@ sub run {
 
     $daemon->run();
 
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 

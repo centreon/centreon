@@ -121,7 +121,7 @@ sub event {
     while (my $events = gorgone::standard::library::zmq_events(socket => $socket)) {
         if ($events & ZMQ_POLLIN) {
             my ($message) = $self->read_message();
-            last if (!defined($message));
+            next if (!defined($message));
 
             $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} Event: $message");
             if ($message =~ /^\[(.*?)\]/) {

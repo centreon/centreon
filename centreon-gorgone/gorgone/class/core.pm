@@ -764,7 +764,7 @@ sub router_internal_event {
     while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
             my ($identity, $frame) = $self->read_internal_message();
-            last if (!defined($identity));
+            next if (!defined($identity));
 
             my ($token, $code, $response, $response_type) = $self->message_run(
                 {
@@ -906,7 +906,6 @@ sub external_core_response {
     }
 
     $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
-    $self->router_external_event();
     $self->{external_socket}->send($message, ZMQ_DONTWAIT);
     $self->router_external_event();
 }
@@ -935,6 +934,7 @@ sub external_core_key_response {
 
     $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{external_socket}->send(MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
+    $self->router_external_event();
     return 0;
 }
 
@@ -951,6 +951,7 @@ sub handshake {
             identity => $options{identity},
             pubkey => $self->{server_pubkey}
         );
+        $self->router_external_event();
         return 1;
     }
 
@@ -1067,7 +1068,7 @@ sub router_external_event {
                 socket => $self->{external_socket},
                 logger => $self->{logger}
             );
-            last if (!defined($identity));
+            next if (!defined($identity));
 
             my ($rv, $cipher_infos) = $self->handshake(
                 identity => $identity,

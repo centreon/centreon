@@ -773,25 +773,6 @@ sub action_centreoncommand {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[legacycmd] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
-    }
-}
-
 sub periodic_exec {
     if ($connector->{stop} == 1) {
         $connector->{logger}->writeLogInfo("[legacycmd] $$ has quit");
@@ -840,7 +821,7 @@ sub run {
     );
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, \&event);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     EV::run();
 }
 

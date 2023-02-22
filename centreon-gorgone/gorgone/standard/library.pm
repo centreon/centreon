@@ -153,30 +153,12 @@ sub zmq_core_pubkey_response {
     my (%options) = @_;
     
     if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
+        $options{socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
     my $client_pubkey = $options{pubkey}->export_key_pem('public');
     my $msg = '[PUBKEY] [' . MIME::Base64::encode_base64($client_pubkey, '') . ']';
 
-    zmq_sendmsg($options{socket}, $msg, ZMQ_DONTWAIT);
-    return 0;
-}
-
-sub zmq_core_key_response {
-    my (%options) = @_;
-    
-    if (defined($options{identity})) {
-        zmq_sendmsg($options{socket}, pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
-    }
-    my $crypttext;
-    try {
-        $crypttext = $options{client_pubkey}->encrypt("[KEY] [$options{hostname}] [" . $options{symkey} . "]", 'v1.5');
-    } catch {
-        $options{logger}->writeLogError("[core] Encoding issue: $_");
-        return -1;
-    };
-
-    zmq_sendmsg($options{socket}, MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
+    $options{socket}->send($msg, ZMQ_DONTWAIT);
     return 0;
 }
 
@@ -837,12 +819,6 @@ sub zmq_read_message {
     $frame->setFrame(\$data);
 
     return (unpack('H*', $identity), $frame);
-}
-
-sub zmq_still_read {
-    my (%options) = @_;
-
-    #return zmq_getsockopt($options{socket}, ZMQ_RCVMORE);        
 }
 
 sub add_zmq_pollin {

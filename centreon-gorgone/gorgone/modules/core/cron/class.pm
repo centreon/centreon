@@ -28,6 +28,7 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use Schedule::Cron;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 my %handlers = (TERM => {}, HUP => {});
@@ -371,31 +372,37 @@ sub action_deletecron {
 }
 
 sub event {
-    while (1) {
-        my ($message) = $connector->read_message(); 
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[cron] Event: $message");
-        if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
-            my $token = $1;
-            my ($rv, $data) = $connector->json_decode(argument => $2, token => $token);
-            next if ($rv);
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my ($message) = $self->read_message(); 
+            next if (!defined($message));
 
-            $connector->{ack} = {
-                token => $token,
-                data => $data
-            };
-        } else {
-            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
+            $self->{logger}->writeLogDebug("[cron] Event: $message");
+            if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
+                my $token = $1;
+                my ($rv, $data) = $self->json_decode(argument => $2, token => $token);
                 next if ($rv);
 
-                $method->($connector, token => $token, data => $data);
+                $self->{ack} = {
+                    token => $token,
+                    data => $data
+                };
+            } else {
+                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                if ((my $method = $self->can('action_' . lc($1)))) {
+                    $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                    my ($action, $token) = ($1, $2);
+                    my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+                    next if ($rv);
+
+                    $method->($self, token => $token, data => $data);
+                }
             }
-        }        
+        } else {
+            last;
+        }
     }
 }
 
@@ -439,16 +446,15 @@ sub dispatcher {
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
-        context => $connector->{zmq_context},
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-cron',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'CRONREADY',
         data => {}
     });
@@ -476,7 +482,7 @@ sub run {
         );
     }
 
-    my $w = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
 
     $self->{cron}->run(sleep => \&cron_sleep);
 

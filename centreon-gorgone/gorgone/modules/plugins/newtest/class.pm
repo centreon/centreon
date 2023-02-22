@@ -28,14 +28,13 @@ use gorgone::standard::misc;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use MIME::Base64;
 use JSON::XS;
 use Data::Dumper;
 use gorgone::modules::plugins::newtest::libs::stubs::ManagementConsoleService;
 use gorgone::modules::plugins::newtest::libs::stubs::errors;
 use Date::Parse;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -606,6 +605,18 @@ sub event {
     }
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[newtest] $$ has quit");
+        exit(0);
+    }
+
+    if (time() - $connector->{resync_time} > $connector->{last_resync_time}) {
+        $connector->{last_resync_time} = time();
+        $connector->action_newtestresync();
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
 
@@ -630,39 +641,22 @@ sub run {
     $SOAP::Constants::PREFIX_ENV = 'SOAP-ENV';
     $self->{instance} = gorgone::modules::plugins::newtest::libs::stubs::ManagementConsoleService->new();
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-newtest-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'NEWTESTREADY',
         data => { container_id => $self->{container_id} }
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[newtest] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            zmq_close($self->{socket_log}) if (defined($self->{socket_log}));
-            exit(0);
-        }
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_newtestresync();
-        }
-    }
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    EV::run();
 }
 
 1;

@@ -29,6 +29,7 @@ use gorgone::standard::constants qw(:all);
 use gorgone::class::clientzmq;
 use gorgone::modules::core::proxy::sshclient;
 use JSON::XS;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 my %handlers = (TERM => {}, HUP => {});
@@ -87,10 +88,10 @@ sub exit_process {
     $self->close_connections();
     foreach (keys %{$self->{internal_channels}}) {
         $self->{logger}->writeLogInfo("[proxy] Close internal connection for $_");
-        zmq_close($self->{internal_channels}->{$_});
+        $self->{internal_channels}->{$_}->close();
     }
     $self->{logger}->writeLogInfo("[proxy] Close control connection");
-    zmq_close($self->{internal_socket});
+    $self->{internal_socket}->close();
     exit(0);
 }
 
@@ -460,31 +461,31 @@ sub proxy {
     }
 }
 
-=begin comment
-    perl binding zmq_poll order fired events (first of the array,...)
-    the first array element is: the control channel
-=cut
-sub event_internal {
-    my (%options) = @_;
+sub event {
+    my ($self, %options) = @_;
 
     return if (
-        defined($connector->{clients}->{ $options{channel} }) && 
-        ($connector->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $connector->{clients}->{ $options{channel} }->{delete} == 1)
+        defined($self->{clients}->{ $options{channel} }) && 
+        ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
     );
 
-    my $socket = $options{channel} eq 'control' ? $connector->{internal_socket} : $connector->{internal_channels}->{ $options{channel} };
-    while (1) {
-        my ($message) = $connector->read_message(socket => $socket);
-        last if (!defined($message));
+    my $socket = $options{channel} eq 'control' ? $self->{internal_socket} : $self->{internal_channels}->{ $options{channel} };
+    while (my $events = gorgone::standard::library::zmq_events(socket => $socket)) {
+        if ($events & ZMQ_POLLIN) {
+            my ($message) = $self->read_message(socket => $socket);
+            next if (!defined($message));
 
-        proxy(message => $message, channel => $options{channel});
-        if ($connector->{stop} == 1 && (time() - $connector->{exit_timeout}) > $connector->{stop_time}) {
-            $connector->exit_process();
+            proxy(message => $message, channel => $options{channel});
+            if ($self->{stop} == 1 && (time() - $self->{exit_timeout}) > $self->{stop_time}) {
+                $self->exit_process();
+            }
+            return if (
+                defined($self->{clients}->{ $options{channel} }) && 
+                ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
+            );
+        } else {
+            last;
         }
-        return if (
-            defined($connector->{clients}->{ $options{channel} }) && 
-            ($connector->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $connector->{clients}->{ $options{channel} }->{delete} == 1)
-        );
     }
 }
 
@@ -527,8 +528,7 @@ sub periodic_exec {
 sub run {
     my ($self, %options) = @_;
 
-    # Connect canal internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
         context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-proxy-' . $self->{pool_id},
@@ -536,7 +536,7 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'PROXYREADY',
         data => {
             pool_id => $self->{pool_id}
@@ -544,8 +544,11 @@ sub run {
     });
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, sub {
-            event_internal(channel => 'control');
+    my $w2 = EV::io(
+        $self->{internal_socket}->get_fd(),
+        EV::READ,
+        sub {
+            $connector->event(channel => 'control');
         }
     );
     EV::run();

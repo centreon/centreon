@@ -28,11 +28,9 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use MIME::Base64;
 use JSON::XS;
-use Data::Dumper;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -257,8 +255,6 @@ sub get_realtime_scom_alerts_1801 {
     
     return 1 if ($self->http_check_error(status => $status, method => 'data/alert') == 1);
 
-    print Data::Dumper::Dumper($response);
-
     return 0;
 }
 
@@ -474,20 +470,15 @@ sub action_scomresync {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[scom] $$ has quit");
+        exit(0);
+    }
 
-        $connector->{logger}->writeLogDebug("[scom] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my $data = JSON::XS->new->decode($3);
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+    if (time() - $self->{resync_time} > $connector->{last_resync_time}) {
+        $connector->{last_resync_time} = time();
+        $connector->action_scomresync();
     }
 }
 
@@ -506,38 +497,22 @@ sub run {
     $self->{class_object} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centstorage});
     $self->{http} = gorgone::class::http::http->new(logger => $self->{logger});
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-scom-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'SCOMREADY',
         data => { container_id => $self->{container_id} }
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[scom] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_scomresync();
-        }
-    }
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    EV::run();
 }
 
 1;

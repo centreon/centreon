@@ -93,7 +93,7 @@ sub new {
 
 sub init {
     my ($self, %options) = @_;
-    
+
     $self->{handshake} = 0;
     $sockets->{ $self->{identity} } = gorgone::standard::library::connect_com(
         context => $self->{context},
@@ -110,7 +110,7 @@ sub init {
 sub close {
     my ($self, %options) = @_;
     
-    zmq_close($sockets->{$self->{identity}});
+    $sockets->{ $self->{identity} }->close();
 }
 
 sub get_connect_identity {
@@ -283,14 +283,14 @@ sub stop_ev {
 sub set_ev_io {
     my ($self, %options) = @_;
 
-    my $w = EV::io($sockets->{ $self->{identity} }->get_fd(), EV::READ|EV::WRITE, sub {
-            event(identity => $self->{identity});
+    my $w = EV::io($sockets->{ $self->{identity} }->get_fd(), EV::READ, sub {
+            $self->event(identity => $self->{identity});
         }
     );
 }
 
 sub event {
-    my (%options) = @_;
+    my ($self, %options) = @_;
 
     # We have a response. So it's ok :)
     if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
@@ -298,47 +298,51 @@ sub event {
     }
 
     $connectors->{ $options{identity} }->{ping_time} = time();
-    while (1) {
-        my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{$options{identity}});
-        last if ($rv);
+    while (my $events = gorgone::standard::library::zmq_events(socket => $sockets->{ $options{identity} })) {
+        if ($events & ZMQ_POLLIN) {
+            my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{ $options{identity} });
+            last if ($rv);
 
-        # in progress
-        if ($connectors->{ $options{identity} }->{handshake} == 0) {
-            $connectors->{ $options{identity} }->{handshake} = 1;
-            if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
-                $connectors->{ $options{identity} }->{handshake} = -1;
-            }
-        } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
-            my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
-                message => $message
-            );
-            if ($status == -1) {
-                $connectors->{ $options{identity} }->{handshake} = -1;
-                $connectors->{ $options{identity} }->{verbose_last_message} = $verbose;
-                return ;
-            }
-            $connectors->{ $options{identity} }->{handshake} = 2;
-            if (defined($connectors->{ $options{identity} }->{logger})) {
-                $connectors->{ $options{identity} }->{logger}->writeLogInfo(
-                    "[clientzmq] Client connected successfully to '" . $connectors->{ $options{identity} }->{target_type} .
-                    "://" . $connectors->{ $options{identity} }->{target_path} . "'"
+            # in progress
+            if ($connectors->{ $options{identity} }->{handshake} == 0) {
+                $connectors->{ $options{identity} }->{handshake} = 1;
+                if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
+                    $connectors->{ $options{identity} }->{handshake} = -1;
+                }
+            } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
+                my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
+                    message => $message
                 );
+                if ($status == -1) {
+                    $connectors->{ $options{identity} }->{handshake} = -1;
+                    $connectors->{ $options{identity} }->{verbose_last_message} = $verbose;
+                    return ;
+                }
+                $connectors->{ $options{identity} }->{handshake} = 2;
+                if (defined($connectors->{ $options{identity} }->{logger})) {
+                    $connectors->{ $options{identity} }->{logger}->writeLogInfo(
+                        "[clientzmq] Client connected successfully to '" . $connectors->{ $options{identity} }->{target_type} .
+                        "://" . $connectors->{ $options{identity} }->{target_path} . "'"
+                    );
+                }
+            } else {
+                my ($rv, $data) = $connectors->{ $options{identity} }->decrypt_message(message => $message);
+
+                if ($rv == -1 || $data !~ /^\[([a-zA-Z0-9:\-_]+?)\]\s+/) {
+                    $connectors->{ $options{identity} }->{handshake} = -1;
+                    $connectors->{ $options{identity} }->{verbose_last_message} = 'decrypt issue: ' . $data;
+                    return ;
+                }
+
+                if ($1 eq 'KEY') {
+                    ($rv) = $connectors->{ $options{identity} }->read_key_protocol(text => $data);
+                } elsif (defined($callbacks->{$options{identity}})) {
+                    $callbacks->{$options{identity}}->(identity => $options{identity}, data => $data);
+                }
             }
         } else {
-            my ($rv, $data) = $connectors->{ $options{identity} }->decrypt_message(message => $message);
-
-            if ($rv == -1 || $data !~ /^\[([a-zA-Z0-9:\-_]+?)\]\s+/) {
-                $connectors->{ $options{identity} }->{handshake} = -1;
-                $connectors->{ $options{identity} }->{verbose_last_message} = 'decrypt issue: ' . $data;
-                return ;
-            }
-
-            if ($1 eq 'KEY') {
-                ($rv) = $connectors->{ $options{identity} }->read_key_protocol(text => $data);
-            } elsif (defined($callbacks->{$options{identity}})) {
-                $callbacks->{$options{identity}}->(identity => $options{identity}, data => $data);
-            }
-        }        
+            last;
+        }
     }
 }
 
@@ -364,6 +368,7 @@ sub zmq_send_message {
     }
 
     $options{socket}->send($message, ZMQ_DONTWAIT);
+    $self->event(identity => $self->{identity});
 }
 
 sub send_message {

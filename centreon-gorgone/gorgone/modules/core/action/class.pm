@@ -37,6 +37,7 @@ use Digest::MD5::File qw(file_md5_hex);
 use Archive::Tar;
 use Fcntl;
 use Try::Tiny;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 $Archive::Tar::SAME_PERMISSIONS = 1;
@@ -810,26 +811,32 @@ sub create_child {
 }
 
 sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[action] Event: $message");
-        
-        if ($message !~ /^\[ACK\]/) {
-            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my ($message) = $self->read_message();
+            next if (!defined($message));
+
+            $self->{logger}->writeLogDebug("[action] Event: $message");
             
-            my ($action, $token) = ($1, $2);
-            my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-            next if ($rv);
+            if ($message !~ /^\[ACK\]/) {
+                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                
+                my ($action, $token) = ($1, $2);
+                my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+                next if ($rv);
 
-            if (defined($data->{parameters}->{no_fork})) {
-                if ((my $method = $connector->can('action_' . lc($action)))) {
-                    $method->($connector, token => $token, data => $data);
+                if (defined($data->{parameters}->{no_fork})) {
+                    if ((my $method = $self->can('action_' . lc($action)))) {
+                        $method->($self, token => $token, data => $data);
+                    }
+                } else {
+                    $self->create_child(action => $action, token => $token, data => $data);
                 }
-            } else {
-                $connector->create_child(action => $action, token => $token, data => $data);
             }
+        } else {
+            last;
         }
     }
 }
@@ -861,7 +868,7 @@ sub run {
     $connector->get_package_manager();
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     EV::run();
 }
 

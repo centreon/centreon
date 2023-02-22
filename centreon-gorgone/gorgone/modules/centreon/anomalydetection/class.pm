@@ -28,11 +28,10 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use IO::Compress::Bzip2;
 use MIME::Base64;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -637,22 +636,16 @@ sub action_saasregister {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my ($message) = $connector->read_message();
-        last if (!defined($message));
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[anomalydetection] -class- $$ has quit");
+        exit(0);
+    }
 
-        $connector->{logger}->writeLogDebug("[anomalydetection] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+    if (time() - $connector->{resync_time} > $connector->{last_resync_time}) {
+        $connector->{last_resync_time} = time();
+        $connector->action_saasregister();
+        $connector->action_saaspredict();
     }
 }
 
@@ -667,43 +660,25 @@ sub run {
         logger => $self->{logger}
     );
 
-    ##### Load objects #####
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
-    $self->{http} = gorgone::class::http::http->new(logger => $self->{logger});
+    $c->{http} = gorgone::class::http::http->new(logger => $self->{logger});
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-anomalydetection',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'CENTREONADREADY',
         data => {}
     });
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[anomalydetection] -class- $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_saasregister();
-            $self->action_saaspredict();
-        }
-    }
+    my $w1 = EV::timer(5, 2, \&periodic_exec);
+    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    EV::run();
 }
 
 1;

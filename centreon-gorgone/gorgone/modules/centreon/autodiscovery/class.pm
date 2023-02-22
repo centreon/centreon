@@ -36,6 +36,7 @@ use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Try::Tiny;
+use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 use constant JOB_SCHEDULED => 0;
@@ -1117,19 +1118,25 @@ sub is_hdisco_synced {
 }
 
 sub event {
-    while (1) {
-        my $frame = gorgone::class::frame->new();
-        my (undef, $rv) = $connector->read_message(frame => $frame);
-        last if ($rv);
+    my ($self, %options) = @_;
 
-        my $raw = $frame->getFrame();
-        $connector->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
-        if ($$raw =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my $frame = gorgone::class::frame->new();
+            my (undef, $rv) = $self->read_message(frame => $frame);
+            next if ($rv);
 
-                $method->($connector, token => $frame->getToken(), frame => $frame);
+            my $raw = $frame->getFrame();
+            $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
+            if ($$raw =~ /^\[(.*?)\]/) {
+                if ((my $method = $connector->can('action_' . lc($1)))) {
+                    next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
+
+                    $method->($self, token => $frame->getToken(), frame => $frame);
+                }
             }
+        } else {
+            last;
         }
     }
 }
@@ -1201,7 +1208,7 @@ sub run {
     $self->hdisco_sync();
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&event);
+    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     EV::run();
 }
 

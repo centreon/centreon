@@ -243,7 +243,7 @@ sub event {
     while (my $events = gorgone::standard::library::zmq_events(socket => $httpserver->{internal_socket})) {
         if ($events & ZMQ_POLLIN) {
             my ($message) = $httpserver->read_message();
-            last if (!defined($message));
+            next if (!defined($message));
 
             if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
                 $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
