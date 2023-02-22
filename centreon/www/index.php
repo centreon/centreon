@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -109,7 +109,7 @@ if (!preg_match('/.*<base\shref="' . preg_quote($basePath, '/') . '">/', $indexH
         $indexHtmlContent
     );
 
-    file_put_contents($indexHtmlPath, $indexHtmlContent);
+    file_put_contents($indexHtmlPath, $indexHtmlContent, LOCK_EX);
 }
 
 CentreonSession::start();
