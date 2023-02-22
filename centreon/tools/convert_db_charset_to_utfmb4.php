@@ -56,7 +56,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
 
             $errorMessage = "Couldn't change charset for table: " . $tableName . "\n";
             // Create a query to alter the table and change the character set to utf8mb4
-            $query = 'ALTER TABLE ' . $tableName . ' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
+            $query = 'ALTER TABLE `' . $tableName . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
             $stmt = $db->prepare($query);
             $stmt->execute();
 
@@ -65,9 +65,6 @@ function convertCharset($dbName, $db, $excluded_table = "")
         echo "All tables of " . $dbName . " have had their charset converted.\n";
     } catch (\PDOException $e) {
 
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
         throw new \Exception($errorMessage, (int)$e->getCode(), $e);
     }
 }
