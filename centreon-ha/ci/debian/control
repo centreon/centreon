@@ -1,7 +1,7 @@
 Source: centreon-ha
 Section: net
 Priority: optional
-Maintainer: Luiz Costa <me@luizgustavo.pro.br>
+Maintainer: Centreon <contact@centreon.com>
 Build-Depends: 
   debhelper-compat (=12),
   lsb-base,

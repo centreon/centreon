@@ -75,7 +75,7 @@ class CentreonService
             $this->dbMon = $dbMon;
         }
 
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
     }
 
     /**
@@ -325,19 +325,29 @@ class CentreonService
      */
     public function replaceMacroInString($svc_id, $string, $antiLoop = null, $instanceId = null)
     {
-        $rq = "SELECT service_register FROM service WHERE service_id = '" . $svc_id . "' LIMIT 1";
-        $DBRES = $this->db->query($rq);
-        if (!$DBRES->rowCount()) {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
             return $string;
         }
-        $row = $DBRES->fetchRow();
+        $query = <<<SQL
+          SELECT service_register, service_description
+          FROM service
+          WHERE service_id = :service_id LIMIT 1
+        SQL;
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':service_id', (int) $svc_id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (!$statement->rowCount()) {
+            return $string;
+        }
+        $row = $statement->fetchRow();
 
         /*
          * replace if not template
          */
         if ($row['service_register'] == 1) {
             if (preg_match('/\$SERVICEDESC\$/', $string)) {
-                $string = str_replace("\$SERVICEDESC\$", $this->getServiceDesc($svc_id), $string);
+                $string = str_replace("\$SERVICEDESC\$", $row['service_description'], $string);
             }
             if (!is_null($instanceId) && preg_match("\$INSTANCENAME\$", $string)) {
                 $string = str_replace("\$INSTANCENAME\$", $this->instanceObj->getParam($instanceId, 'name'), $string);

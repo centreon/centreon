@@ -100,7 +100,7 @@ jobs:
           cache_key: unsigned-${{ inputs.cache_key }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
-        uses: actions/cache@v3
+        uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
@@ -122,7 +122,7 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
         with:
           path: ./*.${{ inputs.package_extension }}
           key: unsigned-${{ inputs.cache_key }}
@@ -133,7 +133,7 @@ jobs:
       - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}

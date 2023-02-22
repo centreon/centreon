@@ -118,63 +118,76 @@ class CentreonMonitoring
     }
 
     /**
-     *
-     * Proxy function
-     * @param unknown_type $hostList
-     * @param unknown_type $objXMLBG
-     * @param unknown_type $o
-     * @param unknown_type $instance
-     * @param unknown_type $hostgroups
+     * @param string $hostList
+     * @param CentreonXMLBGRequest $objXMLBG
+     * @param string $o
+     * @param false|int $instance
+     * @param false|int $hostgroups
      */
     public function getServiceStatus($hostList, $objXMLBG, $o, $instance, $hostgroups)
     {
-        if ($hostList == "") {
-            return array();
+        if ($hostList === '') {
+            return [];
         }
 
-        $rq = "SELECT h.name, s.description as service_name, s.state, s.service_id, "
-            . " (case s.state when 0 then 3 when 2 then 0 when 3 then 2  when 3 then 2 else s.state END) as tri "
-            . "FROM hosts h, services s ";
+        $rq = <<<SQL
+            SELECT
+                h.name, s.description AS service_name, s.state, s.service_id,
+                (CASE s.state
+                    WHEN 0 THEN 3
+                    WHEN 2 THEN 0
+                    WHEN 3 THEN 2
+                    ELSE s.state
+                END) AS tri
+            FROM hosts h
+            INNER JOIN services s
+                ON s.host_id = h.host_id
+            SQL;
 
         if (!$objXMLBG->is_admin) {
-            $rq .= ", centreon_acl ";
+            $grouplistStr = $objXMLBG->access->getAccessGroupsString();
+            $rq .= <<<SQL
+                
+                INNER JOIN centreon_acl
+                    ON centreon_acl.host_id = h.host_id
+                    AND centreon_acl.service_id = s.service_id
+                    AND centreon_acl.group_id IN ({$grouplistStr})
+                SQL;
         }
-            $rq .= "WHERE h.host_id = s.host_id "
-                . "AND s.enabled = '1' "
-                . "AND h.enabled = '1' "
-                . "AND h.name NOT LIKE '\_Module\_%' ";
+        $rq .= <<<SQL
 
-        if ($o == "svcgrid_pb" || $o == "svcOV_pb") {
-            $rq .= "AND s.state != 0 ";
-        } elseif ($o == "svcgrid_ack_0" || $o == "svcOV_ack_0") {
-            $rq .= "AND s.acknowledged = 0 AND s.state != 0 ";
-        } elseif ($o == "svcgrid_ack_1" || $o == "svcOV_ack_1") {
-            $rq .= "AND s.acknowledged = 1 ";
+            WHERE s.enabled = '1'
+                AND h.enabled = '1'
+                AND h.name NOT LIKE '\_Module\_%'
+            SQL;
+
+        if ($o === "svcgrid_pb" || $o === "svcOV_pb") {
+            $rq .= " AND s.state != 0 ";
+        } elseif ($o === "svcgrid_ack_0" || $o === "svcOV_ack_0") {
+            $rq .= " AND s.acknowledged = 0 AND s.state != 0 ";
+        } elseif ($o === "svcgrid_ack_1" || $o === "svcOV_ack_1") {
+            $rq .= " AND s.acknowledged = 1 ";
         }
 
-        $rq .= "AND h.name IN (" . $hostList . ") ";
+        $rq .= " AND h.name IN (" . $hostList . ") ";
 
         # Instance filter
-        if ($instance != -1) {
-            $rq .=  "AND h.instance_id = " . $instance . " ";
+        if ($instance !== -1) {
+            $rq .=  " AND h.instance_id = " . $instance . " ";
         }
 
-        $grouplistStr = $objXMLBG->access->getAccessGroupsString();
-        if (!$objXMLBG->is_admin) {
-            $rq .= "AND h.host_id = centreon_acl.host_id AND s.service_id = centreon_acl.service_id "
-                . $objXMLBG->access->queryBuilder("AND", "centreon_acl.group_id", $grouplistStr)
-                . " ";
-        }
+        $rq .= " ORDER BY tri ASC, service_name";
 
-        $rq .= " order by tri asc, service_name";
-
-        $tab = array();
+        $tab = [];
         $DBRESULT = $objXMLBG->DBC->query($rq);
         while ($svc = $DBRESULT->fetchRow()) {
             if (!isset($tab[$svc["name"]])) {
-                $tab[$svc["name"]] = array();
+                $tab[$svc["name"]] = [];
             }
-            $tab[$svc["name"]][$svc["service_name"]] = $svc["state"];
+            $tab[$svc["name"]][$svc["service_name"]] = [
+                'state' => $svc["state"],
+                'service_id' => $svc['service_id']
+            ];
         }
         $DBRESULT->closeCursor();
 

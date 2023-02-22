@@ -1,0 +1,44 @@
+name: centreon-js-config-merge
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
+    paths:
+      - "centreon/packages/js-config/**"
+      - ".github/workflows/js-config-stable.yml"
+      - ".github/actions/npm-publish-package-stable/**"
+
+env:
+  directory: "centreon/packages/js-config"
+  package: "js-config"
+  base_branch: dev-22.10.x
+
+jobs:
+  clean-up-npm-beta-tag:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/clean-up-npm-tag
+        with:
+          package: js-config
+          npm_token: ${{ secrets.NPM_TOKEN }}
+
+  publish-new-npm-version:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.pull_request.merged == true }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/npm-publish-package-stable
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          release_branch: ${{ env.base_branch }}
+          package: ${{ env.package }}

@@ -22,6 +22,8 @@ on:
         required: true
       nexus_password:
         required: true
+      artifactory_token:
+        required: true
       update_repo_path:
         description: "The update repo script path"
         required: true
@@ -57,10 +59,11 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          minor_version: ${{ inputs.minor_version }}          
+          minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
-          nexus_username: ${{ secrets.nexus_username}}
+          nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
@@ -89,5 +92,6 @@ jobs:
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}

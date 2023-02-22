@@ -19,9 +19,37 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup PHP 8.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        extensions: yaml, xml, common, mysql, cli, dom, mbstring, intl, pdo, zip
+        coverage: none
+        tools: composer:v2
+
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
-    - name: "Run Lighthouse"
-      run: docker run --shm-size 2gb -e MODULE_PATH=${{ inputs.path }} -i -v "/var/run/docker.sock:/var/run/docker.sock" -v "$PWD:/tmp" -w "/tmp" --net="host" --entrypoint "/tmp/.github/scripts/lighthouse-performance-testing.sh" centreon.jfrog.io/docker/lighthouse:${{ inputs.image_lighthouse_version }}
+
+    - name: Setup and run centreon-injector
+      run: |
+        rm -rf centreon-injector
+        git clone https://github.com/centreon/centreon-injector.git
+        cd centreon-injector
+        composer install
+        cd ..
+        docker cp centreon-injector lighthouse-tests-centreon:/usr/share
+        docker exec lighthouse-tests-centreon sed -i 's/127.0.0.1/localhost/g' /usr/share/centreon-injector/.env
+        docker exec lighthouse-tests-centreon bash -c "cd /usr/share/centreon-injector && bin/console centreon:inject-data" || true
+        docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
       shell: bash
+
+    - name: Install npm dependencies
+      run:  npm ci --legacy-peer-deps
+      shell: bash
+      working-directory: centreon/lighthouse
+
+    - name: Run lighthouse
+      run: npm run run:lighthouse
+      shell: bash
+      working-directory: centreon/lighthouse

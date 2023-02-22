@@ -1,0 +1,29 @@
+---
+name: Sync stable and dev version branches
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Sync Stable Branches
+    runs-on: ubuntu-22.04
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Sync Branches
+        id: release
+        uses: ./.github/actions/sync-branches
+        with:
+          src_branch: ${{ github.ref_name }}
+          dest_branch: dev-${{ github.ref_name }}
