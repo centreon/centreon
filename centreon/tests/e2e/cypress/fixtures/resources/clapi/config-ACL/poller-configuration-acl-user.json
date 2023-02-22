@@ -15,9 +15,19 @@
         "values": "acl_menu_test;;"
     },
     {
+        "action": "ADD",
+        "object": "ACLACTION",
+        "values": "acl_action_test;;"
+    },
+    {
         "action": "ADDMENU",
         "object": "ACLGROUP",
         "values": "ACL Group test;acl_menu_test"
+    },
+    {
+        "action": "ADDACTION",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;acl_action_test"
     },
     {
         "action": "SETCONTACT",
@@ -28,6 +38,11 @@
         "action": "GRANTRW",
         "object": "ACLMENU",
         "values": "acl_menu_test;1;Configuration"
+    },
+    {
+        "action": "GRANT",
+        "object": "ACLACTION",
+        "values": "acl_action_test;*"
     },
     {
         "action": "RELOAD",
