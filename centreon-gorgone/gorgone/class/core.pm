@@ -26,7 +26,7 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
 use MIME::Base64;
 use Crypt::Mode::CBC;
-use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE);
+use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE ZMQ_POLLIN);
 use EV;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
@@ -548,8 +548,6 @@ sub read_internal_message {
 sub send_internal_response {
     my ($self, %options) = @_;
 
-    $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
-
     my $response_type = defined($options{response_type}) ? $options{response_type} : 'ACK';
     my $data = gorgone::standard::library::json_encode(data => { code => $options{code}, data => $options{data} });
     # We add 'target' for 'PONG', 'SYNCLOGS'. Like that 'gorgone-proxy can get it
@@ -568,7 +566,9 @@ sub send_internal_response {
         };
     }
 
+    $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
+    $self->router_internal_event();
 }
 
 sub send_internal_message {
@@ -578,7 +578,6 @@ sub send_internal_message {
     if (!defined($message)) {
         $message = gorgone::standard::library::build_protocol(%options);
     }
-    $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
 
     if ($self->{internal_crypt}->{enabled} == 1) {
         try {
@@ -593,7 +592,9 @@ sub send_internal_message {
         };
     }
 
+    $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
+    $self->router_internal_event();
 }
 
 sub broadcast_run {
@@ -758,24 +759,30 @@ sub message_run {
 }
 
 sub router_internal_event {
-    while (1) {
-        my ($identity, $frame) = $gorgone->read_internal_message();
-        last if (!defined($identity));
+    my ($self, %options) = @_;
 
-        my ($token, $code, $response, $response_type) = $gorgone->message_run(
-            {
-                frame => $frame,
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my ($identity, $frame) = $self->read_internal_message();
+            last if (!defined($identity));
+
+            my ($token, $code, $response, $response_type) = $self->message_run(
+                {
+                    frame => $frame,
+                    identity => $identity,
+                    router_type => 'internal'
+                }
+            );
+            $self->send_internal_response(
                 identity => $identity,
-                router_type => 'internal'
-            }
-        );
-        $gorgone->send_internal_response(
-            identity => $identity,
-            response_type => $response_type,
-            data => $response,
-            code => $code,
-            token => $token
-        );
+                response_type => $response_type,
+                data => $response,
+                code => $code,
+                token => $token
+            );
+        } else {
+            last;
+        }
     }
 }
 
@@ -899,7 +906,9 @@ sub external_core_response {
     }
 
     $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
+    $self->router_external_event();
     $self->{external_socket}->send($message, ZMQ_DONTWAIT);
+    $self->router_external_event();
 }
 
 sub external_core_key_response {
@@ -1050,33 +1059,39 @@ sub send_message_parent {
 }
 
 sub router_external_event {
-    while (1) {
-        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-            socket => $gorgone->{external_socket},
-            logger => $gorgone->{logger}
-        );
-        last if (!defined($identity));
+    my ($self, %options) = @_;
 
-        my ($rv, $cipher_infos) = $gorgone->handshake(
-            identity => $identity,
-            frame => $frame
-        );
-        if ($rv == 0) {
-            my ($token, $code, $response, $response_type) = $gorgone->message_run(
-                {
-                    frame => $frame,
-                    identity => $identity,
-                    router_type => 'external'
-                }
+    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{external_socket})) {
+        if ($events & ZMQ_POLLIN) {
+            my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+                socket => $self->{external_socket},
+                logger => $self->{logger}
             );
-            $gorgone->external_core_response(
+            last if (!defined($identity));
+
+            my ($rv, $cipher_infos) = $self->handshake(
                 identity => $identity,
-                cipher_infos => $cipher_infos,
-                response_type => $response_type,
-                token => $token, 
-                code => $code,
-                data => $response
+                frame => $frame
             );
+            if ($rv == 0) {
+                my ($token, $code, $response, $response_type) = $self->message_run(
+                    {
+                        frame => $frame,
+                        identity => $identity,
+                        router_type => 'external'
+                    }
+                );
+                $self->external_core_response(
+                    identity => $identity,
+                    cipher_infos => $cipher_infos,
+                    response_type => $response_type,
+                    token => $token, 
+                    code => $code,
+                    data => $response
+                );
+            }
+        } else {
+            last;
         }
     }
 }
@@ -1276,9 +1291,9 @@ sub run {
     $gorgone->{cb_timer_check} = time();
 
     my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ|EV::WRITE, \&router_internal_event);
+    my $w2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ, sub { $gorgone->router_internal_event() });
     if (defined($gorgone->{external_socket})) {
-        my $w3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ|EV::WRITE, \&router_external_event);
+        my $w3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ, sub { $gorgone->router_external_event() });
     }
 
     EV::run();

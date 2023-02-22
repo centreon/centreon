@@ -189,13 +189,13 @@ sub zmq_get_routing_id {
 sub zmq_getfd {
     my (%options) = @_;
 
-    return zmq_getsockopt($options{socket}, ZMQ_FD);
+    return $options{socket}->get_fd();
 }
 
 sub zmq_events {
     my (%options) = @_;
 
-    return zmq_getsockopt($options{socket}, ZMQ_EVENTS);
+    return $options{socket}->get(ZMQ_EVENTS, 'int');
 }
 
 sub generate_token {

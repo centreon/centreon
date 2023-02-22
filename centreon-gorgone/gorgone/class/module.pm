@@ -27,10 +27,11 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use gorgone::class::tpapi;
-use ZMQ::FFI qw(ZMQ_DONTWAIT);
+use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_POLLIN);
 use JSON::XS;
 use Crypt::Mode::CBC;
 use Try::Tiny;
+use EV;
 
 my %handlers = (DIE => {});
 
@@ -113,6 +114,32 @@ sub set_fork {
     $self->{fork} = 1;
 }
 
+sub event {
+    my ($self, %options) = @_;
+
+    my $socket = defined($options{socket}) ? $options{socket} : $self->{internal_socket};
+    while (my $events = gorgone::standard::library::zmq_events(socket => $socket)) {
+        if ($events & ZMQ_POLLIN) {
+            my ($message) = $self->read_message();
+            last if (!defined($message));
+
+            $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} Event: $message");
+            if ($message =~ /^\[(.*?)\]/) {
+                if ((my $method = $self->can('action_' . lc($1)))) {
+                    $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                    my ($action, $token) = ($1, $2);
+                    my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+                    next if ($rv);
+
+                    $method->($self, token => $token, data => $data);
+                }
+            }
+        } else {
+            last;
+        }
+    }
+}
+
 sub get_core_config {
     my ($self, %options) = @_;
 
@@ -179,6 +206,7 @@ sub send_internal_key {
     };
 
     $options{socket}->send($message, ZMQ_DONTWAIT);
+    $self->event(socket => $options{socket});
     return 0;
 }
 
@@ -230,6 +258,7 @@ sub send_internal_action {
     }
 
     $socket->send($options->{message}, ZMQ_DONTWAIT);
+    $self->event(socket => $socket);
 }
 
 sub send_log_msg_error {
