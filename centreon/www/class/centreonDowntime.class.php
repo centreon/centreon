@@ -268,7 +268,7 @@ class CentreonDowntime
      * Intends to return hosts, hostgroups, services, servicesgroups linked to the recurrent downtime
      *
      * @param integer $downtimeId
-     * @return array
+     * @return array<string, array<int, array{id: string, activated: '0'|'1'}>>
      */
     public function getRelations(int $downtimeId): array
     {
