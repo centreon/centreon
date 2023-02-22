@@ -72,25 +72,33 @@ require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 require_once _CENTREON_PATH_ . "www/include/monitoring/common-Func.php";
 include_once _CENTREON_PATH_ . "www/include/monitoring/external_cmd/functionsPopup.php";
 
-if (isset($_POST["resources"]) && isset($sid)) {
+const AKNOWLEDGEMENT_ON_SERVICE = 70;
+const AKNOWLEDGEMENT_ON_HOST = 72;
+const DOWNTIME_ON_SERVICE = 74;
+const DOWNTIME_ON_HOST = 75;
+
+
+if (
+    isset($_POST['resources'])
+    && isset($sid)
+    && isset($_POST['cmd'])
+) {
     $is_admin = isUserAdmin($sid);
-    $resources = json_decode($_POST["resources"], true);
+    $resources = json_decode($_POST['resources'], true);
     foreach ($resources as $resource) {
-        if (isset($_POST["cmd"])) {
-            switch ($_POST["cmd"]) {
-                case 70:
-                    massiveServiceAck($resource);
-                    break;
-                case 72:
-                    massiveHostAck($resource);
-                    break;
-                case 74:
-                    massiveServiceDowntime($resource);
-                    break;
-                case 75:
-                    massiveHostDowntime($resource);
-                    break;
-            }
+        switch ((int) $_POST['cmd']) {
+            case AKNOWLEDGEMENT_ON_SERVICE:
+                massiveServiceAck($resource);
+                break;
+            case AKNOWLEDGEMENT_ON_HOST:
+                massiveHostAck($resource);
+                break;
+            case DOWNTIME_ON_SERVICE:
+                massiveServiceDowntime($resource);
+                break;
+            case DOWNTIME_ON_HOST:
+                massiveHostDowntime($resource);
+                break;
         }
     }
 }
