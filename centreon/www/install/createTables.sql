@@ -10,7 +10,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_actions` (
   `acl_action_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_action_name` varchar(255) DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE `acl_actions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_actions_rules` (
   `aar_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_action_rule_id` int(11) DEFAULT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `acl_actions_rules` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_group_actions_relations` (
   `acl_action_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE `acl_group_actions_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_group_contactgroups_relations` (
   `cg_cg_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `acl_group_contactgroups_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_group_contacts_relations` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE `acl_group_contacts_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_group_topology_relations` (
   `acl_group_id` int(11) DEFAULT NULL,
   `acl_topology_id` int(11) DEFAULT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE `acl_group_topology_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_groups` (
   `acl_group_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_group_name` varchar(255) DEFAULT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE `acl_groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_res_group_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE `acl_res_group_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources` (
   `acl_res_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_res_name` varchar(255) DEFAULT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE `acl_resources` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_hc_relations` (
   `hc_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE `acl_resources_hc_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_hg_relations` (
   `hg_hg_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE `acl_resources_hg_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_host_relations` (
   `host_host_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE `acl_resources_host_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_hostex_relations` (
   `host_host_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -157,7 +157,7 @@ CREATE TABLE `acl_resources_hostex_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_meta_relations` (
   `meta_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE `acl_resources_meta_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_poller_relations` (
   `poller_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -179,7 +179,7 @@ CREATE TABLE `acl_resources_poller_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_sc_relations` (
   `sc_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE `acl_resources_sc_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_service_relations` (
   `service_service_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -201,7 +201,7 @@ CREATE TABLE `acl_resources_service_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_resources_sg_relations` (
   `sg_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -213,7 +213,7 @@ CREATE TABLE `acl_resources_sg_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_topology` (
   `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_topo_name` varchar(255) DEFAULT NULL,
@@ -225,7 +225,7 @@ CREATE TABLE `acl_topology` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_topology_relations` (
   `topology_topology_id` int(11) DEFAULT NULL,
   `acl_topo_id` int(11) DEFAULT NULL,
@@ -237,7 +237,7 @@ CREATE TABLE `acl_topology_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_ressource` (
   `ar_id` int(11) NOT NULL AUTO_INCREMENT,
   `ar_name` varchar(255) NOT NULL DEFAULT 'Default',
@@ -249,7 +249,7 @@ CREATE TABLE `auth_ressource` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_ressource_host` (
   `ldap_host_id` int(11) NOT NULL AUTO_INCREMENT,
   `auth_ressource_id` int(11) NOT NULL,
@@ -264,7 +264,7 @@ CREATE TABLE `auth_ressource_host` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_ressource_info` (
   `ar_id` int(11) NOT NULL,
   `ari_name` varchar(100) NOT NULL,
@@ -274,7 +274,7 @@ CREATE TABLE `auth_ressource_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_fieldset` (
   `cb_fieldset_id` INT NOT NULL,
   `fieldset_name` VARCHAR(255) NOT NULL,
@@ -282,7 +282,7 @@ CREATE TABLE `cb_fieldset` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_fieldgroup` (
   `cb_fieldgroup_id` INT NOT NULL AUTO_INCREMENT,
   `groupname` VARCHAR(100) NOT NULL,
@@ -294,7 +294,7 @@ CREATE TABLE `cb_fieldgroup` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_field` (
   `cb_field_id` int(11) NOT NULL AUTO_INCREMENT,
   `fieldname` varchar(100) NOT NULL,
@@ -307,7 +307,7 @@ CREATE TABLE `cb_field` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_list` (
   `cb_list_id` int(11) NOT NULL,
   `cb_field_id` int(11) NOT NULL,
@@ -319,7 +319,7 @@ CREATE TABLE `cb_list` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_list_values` (
   `cb_list_id` int(11) NOT NULL,
   `value_name` varchar(255) NOT NULL,
@@ -330,7 +330,7 @@ CREATE TABLE `cb_list_values` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_module` (
   `cb_module_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -344,7 +344,7 @@ CREATE TABLE `cb_module` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_module_relation` (
   `cb_module_id` int(11) NOT NULL,
   `module_depend_id` int(11) NOT NULL,
@@ -357,7 +357,7 @@ CREATE TABLE `cb_module_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_tag` (
   `cb_tag_id` int(11) NOT NULL AUTO_INCREMENT,
   `tagname` varchar(50) NOT NULL,
@@ -366,7 +366,7 @@ CREATE TABLE `cb_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_tag_type_relation` (
   `cb_tag_id` int(11) NOT NULL,
   `cb_type_id` int(11) NOT NULL,
@@ -379,7 +379,7 @@ CREATE TABLE `cb_tag_type_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_type` (
   `cb_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `type_name` varchar(50) NOT NULL,
@@ -391,7 +391,7 @@ CREATE TABLE `cb_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_type_field_relation` (
   `cb_type_id` int(11) NOT NULL,
   `cb_field_id` int(11) NOT NULL,
@@ -408,7 +408,7 @@ CREATE TABLE `cb_type_field_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -416,7 +416,7 @@ CREATE TABLE `cb_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cb_log_level` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -424,7 +424,7 @@ CREATE TABLE `cb_log_level` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_centreonbroker_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_centreonbroker` int(11) NOT NULL,
@@ -434,7 +434,7 @@ CREATE TABLE `cfg_centreonbroker_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_centreonbroker` (
   `config_id` int(11) NOT NULL AUTO_INCREMENT,
   `config_name` varchar(100) NOT NULL,
@@ -458,7 +458,7 @@ CREATE TABLE `cfg_centreonbroker` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_centreonbroker_info` (
   `config_id` int(11) NOT NULL,
   `config_key` varchar(50) NOT NULL,
@@ -475,7 +475,7 @@ CREATE TABLE `cfg_centreonbroker_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_nagios` (
   `nagios_id` int(11) NOT NULL AUTO_INCREMENT,
   `nagios_name` varchar(255) DEFAULT NULL,
@@ -577,7 +577,7 @@ CREATE TABLE `cfg_nagios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_nagios_broker_module` (
   `bk_mod_id` int(11) NOT NULL AUTO_INCREMENT,
   `cfg_nagios_id` int(11) DEFAULT NULL,
@@ -588,7 +588,7 @@ CREATE TABLE `cfg_nagios_broker_module` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_resource` (
   `resource_id` int(11) NOT NULL AUTO_INCREMENT,
   `resource_name` varchar(255) DEFAULT NULL,
@@ -599,7 +599,7 @@ CREATE TABLE `cfg_resource` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cfg_resource_instance_relations` (
   `resource_id` int(11) NOT NULL,
   `instance_id` int(11) NOT NULL,
@@ -610,7 +610,7 @@ CREATE TABLE `cfg_resource_instance_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `command` (
   `command_id` int(11) NOT NULL AUTO_INCREMENT,
   `connector_id` int(10) unsigned DEFAULT NULL,
@@ -630,7 +630,7 @@ CREATE TABLE `command` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `command_arg_description` (
   `cmd_id` int(11) NOT NULL,
   `macro_name` varchar(255) NOT NULL,
@@ -640,7 +640,7 @@ CREATE TABLE `command_arg_description` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `command_categories` (
   `cmd_category_id` int(11) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) NOT NULL,
@@ -650,14 +650,14 @@ CREATE TABLE `command_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `command_categories_relation` (
   `category_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `connector` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -672,7 +672,7 @@ CREATE TABLE `connector` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_tp_id` int(11) DEFAULT NULL,
@@ -729,7 +729,7 @@ CREATE TABLE `contact` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact_host_relation` (
   `host_host_id` int(11) DEFAULT NULL,
   `contact_id` int(11) DEFAULT NULL,
@@ -740,7 +740,7 @@ CREATE TABLE `contact_host_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact_hostcommands_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL,
@@ -751,7 +751,7 @@ CREATE TABLE `contact_hostcommands_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact_param` (
   `id` int(4) NOT NULL AUTO_INCREMENT,
   `cp_key` varchar(255) NOT NULL,
@@ -763,7 +763,7 @@ CREATE TABLE `contact_param` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact_service_relation` (
   `service_service_id` int(11) DEFAULT NULL,
   `contact_id` int(11) DEFAULT NULL,
@@ -774,7 +774,7 @@ CREATE TABLE `contact_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contact_servicecommands_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL,
@@ -785,7 +785,7 @@ CREATE TABLE `contact_servicecommands_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup` (
   `cg_id` int(11) NOT NULL AUTO_INCREMENT,
   `cg_name` varchar(200) DEFAULT NULL,
@@ -801,7 +801,7 @@ CREATE TABLE `contactgroup` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup_contact_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -812,7 +812,7 @@ CREATE TABLE `contactgroup_contact_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup_host_relation` (
   `host_host_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -823,7 +823,7 @@ CREATE TABLE `contactgroup_host_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup_hostgroup_relation` (
   `contactgroup_cg_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -834,7 +834,7 @@ CREATE TABLE `contactgroup_hostgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup_service_relation` (
   `contactgroup_cg_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -845,7 +845,7 @@ CREATE TABLE `contactgroup_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contactgroup_servicegroup_relation` (
   `servicegroup_sg_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -856,7 +856,7 @@ CREATE TABLE `contactgroup_servicegroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cron_operation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
@@ -873,7 +873,7 @@ CREATE TABLE `cron_operation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `css_color_menu` (
   `id_css_color_menu` int(11) NOT NULL AUTO_INCREMENT,
   `menu_nb` int(11) DEFAULT NULL,
@@ -882,7 +882,7 @@ CREATE TABLE `css_color_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `custom_view_default` (
   `user_id` int(11) NOT NULL,
   `custom_view_id` int(11) NOT NULL,
@@ -893,7 +893,7 @@ CREATE TABLE `custom_view_default` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `custom_view_user_relation` (
   `custom_view_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -912,7 +912,7 @@ CREATE TABLE `custom_view_user_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `custom_views` (
   `custom_view_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -922,7 +922,7 @@ CREATE TABLE `custom_views` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency` (
   `dep_id` int(11) NOT NULL AUTO_INCREMENT,
   `dep_name` varchar(255) DEFAULT NULL,
@@ -935,7 +935,7 @@ CREATE TABLE `dependency` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_hostChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -947,7 +947,7 @@ CREATE TABLE `dependency_hostChild_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_hostParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -959,7 +959,7 @@ CREATE TABLE `dependency_hostParent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_hostgroupChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -971,7 +971,7 @@ CREATE TABLE `dependency_hostgroupChild_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_hostgroupParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -983,7 +983,7 @@ CREATE TABLE `dependency_hostgroupParent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_metaserviceChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -995,7 +995,7 @@ CREATE TABLE `dependency_metaserviceChild_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_metaserviceParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -1007,7 +1007,7 @@ CREATE TABLE `dependency_metaserviceParent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_serviceChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1022,7 +1022,7 @@ CREATE TABLE `dependency_serviceChild_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_serviceParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1037,7 +1037,7 @@ CREATE TABLE `dependency_serviceParent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_servicegroupChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1049,7 +1049,7 @@ CREATE TABLE `dependency_servicegroupChild_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dependency_servicegroupParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1061,7 +1061,7 @@ CREATE TABLE `dependency_servicegroupParent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime` (
   `dt_id` int(11) NOT NULL AUTO_INCREMENT,
   `dt_name` varchar(100) NOT NULL,
@@ -1073,7 +1073,7 @@ CREATE TABLE `downtime` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime_host_relation` (
   `dt_id` int(11) NOT NULL,
   `host_host_id` int(11) NOT NULL,
@@ -1084,7 +1084,7 @@ CREATE TABLE `downtime_host_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime_hostgroup_relation` (
   `dt_id` int(11) NOT NULL,
   `hg_hg_id` int(11) NOT NULL,
@@ -1095,7 +1095,7 @@ CREATE TABLE `downtime_hostgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime_period` (
   `dt_id` int(11) NOT NULL,
   `dtp_start_time` time NOT NULL,
@@ -1112,7 +1112,7 @@ CREATE TABLE `downtime_period` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime_service_relation` (
   `dt_id` int(11) NOT NULL,
   `host_host_id` int(11) NOT NULL,
@@ -1126,7 +1126,7 @@ CREATE TABLE `downtime_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downtime_servicegroup_relation` (
   `dt_id` int(11) NOT NULL,
   `sg_sg_id` int(11) NOT NULL,
@@ -1137,7 +1137,7 @@ CREATE TABLE `downtime_servicegroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation` (
   `esc_id` int(11) NOT NULL AUTO_INCREMENT,
   `esc_name` varchar(255) DEFAULT NULL,
@@ -1157,7 +1157,7 @@ CREATE TABLE `escalation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_contactgroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -1168,7 +1168,7 @@ CREATE TABLE `escalation_contactgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_host_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1179,7 +1179,7 @@ CREATE TABLE `escalation_host_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_hostgroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1190,7 +1190,7 @@ CREATE TABLE `escalation_hostgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_meta_service_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -1201,7 +1201,7 @@ CREATE TABLE `escalation_meta_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_service_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1215,7 +1215,7 @@ CREATE TABLE `escalation_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escalation_servicegroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1226,7 +1226,7 @@ CREATE TABLE `escalation_servicegroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `extended_host_information` (
   `ehi_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1250,7 +1250,7 @@ CREATE TABLE `extended_host_information` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `extended_service_information` (
   `esi_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1270,7 +1270,7 @@ CREATE TABLE `extended_service_information` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `giv_components_template` (
   `compo_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_id` int(11) DEFAULT NULL,
@@ -1303,7 +1303,7 @@ CREATE TABLE `giv_components_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `giv_graphs_template` (
   `graph_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
@@ -1323,7 +1323,7 @@ CREATE TABLE `giv_graphs_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `host` (
   `host_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_template_model_htm_id` int(11) DEFAULT NULL,
@@ -1389,7 +1389,7 @@ CREATE TABLE `host` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `host_hostparent_relation` (
   `host_parent_hp_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1400,7 +1400,7 @@ CREATE TABLE `host_hostparent_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `host_service_relation` (
   `hsr_id` int(11) NOT NULL AUTO_INCREMENT,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1420,7 +1420,7 @@ CREATE TABLE `host_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `host_template_relation` (
   `host_host_id` int(11) NOT NULL DEFAULT '0',
   `host_tpl_id` int(11) NOT NULL DEFAULT '0',
@@ -1432,7 +1432,7 @@ CREATE TABLE `host_template_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hostcategories` (
   `hc_id` int(11) NOT NULL AUTO_INCREMENT,
   `hc_name` varchar(200) DEFAULT NULL,
@@ -1447,7 +1447,7 @@ CREATE TABLE `hostcategories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hostcategories_relation` (
   `hostcategories_hc_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1458,7 +1458,7 @@ CREATE TABLE `hostcategories_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hostgroup` (
   `hg_id` int(11) NOT NULL AUTO_INCREMENT,
   `hg_name` varchar(200) DEFAULT NULL,
@@ -1478,7 +1478,7 @@ CREATE TABLE `hostgroup` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hostgroup_hg_relation` (
   `hg_parent_id` int(11) DEFAULT NULL,
   `hg_child_id` int(11) DEFAULT NULL,
@@ -1489,7 +1489,7 @@ CREATE TABLE `hostgroup_hg_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hostgroup_relation` (
   `hgr_id` int(11) NOT NULL AUTO_INCREMENT,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1502,14 +1502,14 @@ CREATE TABLE `hostgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `informations` (
   `key` varchar(25) DEFAULT NULL,
   `value` varchar(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `meta_contactgroup_relation` (
   `meta_id` int(11) DEFAULT NULL,
   `cg_cg_id` int(11) DEFAULT NULL,
@@ -1520,7 +1520,7 @@ CREATE TABLE `meta_contactgroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `meta_service` (
   `meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `meta_name` varchar(254) DEFAULT NULL,
@@ -1555,7 +1555,7 @@ CREATE TABLE `meta_service` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `meta_service_relation` (
   `msr_id` int(11) NOT NULL AUTO_INCREMENT,
   `meta_id` int(11) DEFAULT NULL,
@@ -1572,7 +1572,7 @@ CREATE TABLE `meta_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modules_informations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -1587,7 +1587,7 @@ CREATE TABLE `modules_informations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nagios_macro` (
   `macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `macro_name` varchar(255) DEFAULT NULL,
@@ -1595,7 +1595,7 @@ CREATE TABLE `nagios_macro` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nagios_server` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
@@ -1632,7 +1632,7 @@ CREATE TABLE `nagios_server` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ns_host_relation` (
   `nagios_server_id` int(11) NOT NULL DEFAULT '0',
   `host_host_id` int(11) NOT NULL DEFAULT '0',
@@ -1644,7 +1644,7 @@ CREATE TABLE `ns_host_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Relation Table For centreon Servers and hosts ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ods_view_details` (
   `dv_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
@@ -1658,7 +1658,7 @@ CREATE TABLE `ods_view_details` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `on_demand_macro_host` (
   `host_macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_macro_name` varchar(255) NOT NULL,
@@ -1673,7 +1673,7 @@ CREATE TABLE `on_demand_macro_host` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `on_demand_macro_service` (
   `svc_macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `svc_macro_name` varchar(255) NOT NULL,
@@ -1688,14 +1688,14 @@ CREATE TABLE `on_demand_macro_service` (
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `options` (
   `key` varchar(255) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `poller_command_relations` (
   `poller_id` int(11) NOT NULL,
   `command_id` int(11) NOT NULL,
@@ -1707,7 +1707,7 @@ CREATE TABLE `poller_command_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service` (
   `service_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_template_model_stm_id` int(11) DEFAULT NULL,
@@ -1768,7 +1768,7 @@ CREATE TABLE `service` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service_categories` (
   `sc_id` int(11) NOT NULL AUTO_INCREMENT,
   `sc_name` varchar(255) DEFAULT NULL,
@@ -1780,7 +1780,7 @@ CREATE TABLE `service_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Services Catygories For best Reporting';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service_categories_relation` (
   `scr_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1793,7 +1793,7 @@ CREATE TABLE `service_categories_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `servicegroup` (
   `sg_id` int(11) NOT NULL AUTO_INCREMENT,
   `sg_name` varchar(200) DEFAULT NULL,
@@ -1807,7 +1807,7 @@ CREATE TABLE `servicegroup` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `servicegroup_relation` (
   `sgr_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1826,7 +1826,7 @@ CREATE TABLE `servicegroup_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `session` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `session_id` varchar(256) DEFAULT NULL,
@@ -1851,7 +1851,7 @@ CREATE TABLE `session` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `timeperiod` (
   `tp_id` int(11) NOT NULL AUTO_INCREMENT,
   `tp_name` varchar(200) DEFAULT NULL,
@@ -1867,7 +1867,7 @@ CREATE TABLE `timeperiod` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `timeperiod_exceptions` (
   `exception_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1879,7 +1879,7 @@ CREATE TABLE `timeperiod_exceptions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `timeperiod_exclude_relations` (
   `exclude_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1890,7 +1890,7 @@ CREATE TABLE `timeperiod_exclude_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `timeperiod_include_relations` (
   `include_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1901,7 +1901,7 @@ CREATE TABLE `timeperiod_include_relations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `topology` (
   `topology_id` int(11) NOT NULL AUTO_INCREMENT,
   `topology_name` varchar(255) DEFAULT NULL,
@@ -1928,7 +1928,7 @@ CREATE TABLE `topology` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `topology_JS` (
   `id_t_js` int(11) NOT NULL AUTO_INCREMENT,
   `id_page` int(11) DEFAULT NULL,
@@ -1942,7 +1942,7 @@ CREATE TABLE `topology_JS` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps` (
   `traps_id` int(11) NOT NULL AUTO_INCREMENT,
   `traps_name` varchar(255) DEFAULT NULL,
@@ -1979,7 +1979,7 @@ CREATE TABLE `traps` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_matching_properties` (
   `tmo_id` int(11) NOT NULL AUTO_INCREMENT,
   `trap_id` int(11) DEFAULT NULL,
@@ -1995,7 +1995,7 @@ CREATE TABLE `traps_matching_properties` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_preexec` (
   `trap_id` int(11) DEFAULT NULL,
   `tpe_order` int(11) DEFAULT NULL,
@@ -2005,7 +2005,7 @@ CREATE TABLE `traps_preexec` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_service_relation` (
   `traps_id` int(11) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
@@ -2016,7 +2016,7 @@ CREATE TABLE `traps_service_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_group` (
   `traps_group_id` int(11) NOT NULL AUTO_INCREMENT,
   `traps_group_name` varchar(255) NOT NULL,
@@ -2024,7 +2024,7 @@ CREATE TABLE `traps_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_group_relation` (
   `traps_group_id` int(11) NOT NULL,
   `traps_id` int(11) NOT NULL,
@@ -2035,7 +2035,7 @@ CREATE TABLE `traps_group_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `traps_vendor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
@@ -2045,7 +2045,7 @@ CREATE TABLE `traps_vendor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `view_img` (
   `img_id` int(11) NOT NULL AUTO_INCREMENT,
   `img_name` varchar(255) DEFAULT NULL,
@@ -2055,7 +2055,7 @@ CREATE TABLE `view_img` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `view_img_dir` (
   `dir_id` int(11) NOT NULL AUTO_INCREMENT,
   `dir_name` varchar(255) DEFAULT NULL,
@@ -2065,7 +2065,7 @@ CREATE TABLE `view_img_dir` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `view_img_dir_relation` (
   `vidr_id` int(11) NOT NULL AUTO_INCREMENT,
   `dir_dir_parent_id` int(11) DEFAULT NULL,
@@ -2076,7 +2076,7 @@ CREATE TABLE `view_img_dir_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `virtual_metrics` (
   `vmetric_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
@@ -2094,7 +2094,7 @@ CREATE TABLE `virtual_metrics` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_models` (
   `widget_model_id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -2113,7 +2113,7 @@ CREATE TABLE `widget_models` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_parameters` (
   `parameter_id` int(11) NOT NULL AUTO_INCREMENT,
   `parameter_name` varchar(255) NOT NULL,
@@ -2132,7 +2132,7 @@ CREATE TABLE `widget_parameters` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_parameters_field_type` (
   `field_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `ft_typename` varchar(50) NOT NULL,
@@ -2141,7 +2141,7 @@ CREATE TABLE `widget_parameters_field_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_parameters_multiple_options` (
   `parameter_id` int(11) NOT NULL,
   `option_name` varchar(255) NOT NULL,
@@ -2151,7 +2151,7 @@ CREATE TABLE `widget_parameters_multiple_options` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_parameters_range` (
   `parameter_id` int(11) NOT NULL,
   `min_range` int(11) NOT NULL,
@@ -2162,7 +2162,7 @@ CREATE TABLE `widget_parameters_range` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_preferences` (
   `widget_view_id` int(11) NOT NULL,
   `parameter_id` int(11) NOT NULL,
@@ -2175,7 +2175,7 @@ CREATE TABLE `widget_preferences` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widget_views` (
   `widget_view_id` int(11) NOT NULL AUTO_INCREMENT,
   `custom_view_id` int(11) NOT NULL,
@@ -2189,7 +2189,7 @@ CREATE TABLE `widget_views` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SETcharacter_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `widgets` (
   `widget_id` int(11) NOT NULL AUTO_INCREMENT,
   `widget_model_id` int(11) NOT NULL,
