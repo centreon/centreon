@@ -80,8 +80,8 @@ $p = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['p']);
 $cmd = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['cmd']);
 
 if (
-    (int) $cmd === AKNOWLEDGEMENT_ON_SERVICE
-    || (int) $cmd === AKNOWLEDGEMENT_ON_HOST
+    (int) $cmd === ACKNOWLEDGEMENT_ON_SERVICE
+    || (int) $cmd === ACKNOWLEDGEMENT_ON_HOST
 ) {
     require_once _CENTREON_PATH_ . 'www/include/monitoring/external_cmd/popup/massive_ack.php';
 } elseif (
