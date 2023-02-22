@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -184,7 +184,7 @@ function updateCentreonBaseUri(): void
             $indexHtmlContent
         );
 
-        file_put_contents($indexHtmlPath, $indexHtmlContent);
+        file_put_contents($indexHtmlPath, $indexHtmlContent, LOCK_EX);
     }
 }
 
