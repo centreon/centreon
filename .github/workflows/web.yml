@@ -270,7 +270,7 @@ jobs:
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD  }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   dockerize:
     runs-on: ubuntu-22.04
