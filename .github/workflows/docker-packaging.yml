@@ -36,7 +36,7 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_REGISTRY_BASE_URL }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.AUTOMATION_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
@@ -48,4 +48,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/packaging-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}

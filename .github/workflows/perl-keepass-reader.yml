@@ -38,10 +38,10 @@ jobs:
             distrib: el9
     name: package ${{ matrix.distrib }}
     container:
-      image: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -76,11 +76,11 @@ jobs:
             distrib: el9
     name: sign rpm ${{ matrix.distrib }}
     container:
-      image: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - run: apt-get install -y zstd
@@ -120,10 +120,10 @@ jobs:
             distrib: bullseye
     name: package ${{ matrix.distrib }}
     container:
-      image: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
