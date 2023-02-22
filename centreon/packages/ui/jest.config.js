@@ -12,5 +12,9 @@ module.exports = {
     '<rootDir>/setupTests.js',
     '@testing-library/jest-dom/extend-expect'
   ],
-  testResultsProcessor: 'jest-junit'
+  testResultsProcessor: 'jest-junit',
+  transform: {
+    ...baseConfig.transform,
+    '^.+\\.mdx?$': '@storybook/addon-docs/jest-transform-mdx'
+  }
 };
