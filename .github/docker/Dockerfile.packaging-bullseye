@@ -1,4 +1,4 @@
-FROM docker.centreon.com/centreon/debian:bullseye
+FROM docker.centreon.com/proxy/debian:bullseye
 
 RUN <<EOF
 
