@@ -1721,6 +1721,7 @@ class CentreonService
         $statement->bindValue(':serviceId', (int) $id, \PDO::PARAM_INT);
         $statement->execute();
 
+        $result = [];
         if ($statement->rowCount()) {
             $result = $statement->fetchRow();
         }
