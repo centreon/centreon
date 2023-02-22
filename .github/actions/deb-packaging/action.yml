@@ -16,5 +16,5 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: docker run -i --entrypoint /src/.github/scripts/${{ inputs.module_name }}/debian/${{ inputs.module_name }}-packaging.sh -v "$PWD:/src" centreon.jfrog.io/docker/${{ inputs.module_name }}-package-${{ inputs.distrib }}:${{ inputs.image_version }} ${{ inputs.params }}
+    - run: docker run -i --entrypoint /src/.github/scripts/${{ inputs.module_name }}/debian/${{ inputs.module_name }}-packaging.sh -v "$PWD:/src" docker.centreon.com/centreon/${{ inputs.module_name }}-package-${{ inputs.distrib }}:${{ inputs.image_version }} ${{ inputs.params }}
       shell: bash

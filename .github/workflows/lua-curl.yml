@@ -38,7 +38,7 @@ jobs:
             distrib: el9
     name: package ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
         username: ${{ secrets.AUTOMATION_USERNAME }}
         password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -79,7 +79,7 @@ jobs:
             distrib: el9
     name: sign rpm ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_REGISTRY_BASE_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/rpm-signing:ubuntu
       options: -t
       credentials:
         username: ${{ secrets.AUTOMATION_USERNAME }}
