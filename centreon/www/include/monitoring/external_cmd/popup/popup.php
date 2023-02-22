@@ -42,8 +42,8 @@ require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonLang.class.php";
 require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 
-const AKNOWLEDGEMENT_ON_SERVICE = 70;
-const AKNOWLEDGEMENT_ON_HOST = 72;
+const ACKNOWLEDGEMENT_ON_SERVICE = 70;
+const ACKNOWLEDGEMENT_ON_HOST = 72;
 const DOWNTIME_ON_SERVICE = 74;
 const DOWNTIME_ON_HOST = 75;
 
