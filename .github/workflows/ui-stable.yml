@@ -9,13 +9,23 @@ on:
       - "centreon/packages/ui/**"
       - ".github/workflows/ui-stable.yml"
       - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.10.x
 
 env:
   directory: "centreon/packages/ui"
   package: "ui"
   base_branch: dev-22.10.x
+  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+  AWS_DEFAULT_REGION: eu-west-1
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   clean-up-npm-beta-tag:
     runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
@@ -42,3 +52,16 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          version: ${{ env.base_branch }}
+
+  publish-storybook:
+    runs-on: ubuntu-22.04
+    needs: [get-version]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/publish-storybook
+        with:
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          directory: ${{ env.directory }}
