@@ -2,9 +2,9 @@ import HostIcon from '@mui/icons-material/Dns';
 
 import {
   MenuSkeleton,
-  ItemLayout,
-  ResourceCounters,
-  ResourceSubMenu
+  TopCounterLayout,
+  TopCounterResourceCounters,
+  TopCounterResourceSubMenu
 } from '@centreon/ui';
 
 import useResourceCounters from '../useResourceCounters';
@@ -36,12 +36,14 @@ const HostStatusCounter = (): JSX.Element | null => {
   }
 
   return (
-    <ItemLayout
+    <TopCounterLayout
       Icon={HostIcon}
       renderIndicators={(): JSX.Element => (
-        <ResourceCounters counters={data.counters} />
+        <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => <ResourceSubMenu items={data.items} />}
+      renderSubMenu={(): JSX.Element => (
+        <TopCounterResourceSubMenu items={data.items} />
+      )}
       showPendingBadge={data.hasPending}
       title={labelHosts}
     />

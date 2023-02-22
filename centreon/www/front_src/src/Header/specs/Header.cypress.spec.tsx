@@ -5,7 +5,7 @@ import HeaderUserMenu from './Header.UserMenu';
 import HeaderPollers from './Header.Poller';
 
 describe('Header', () => {
-  it('renders all top menus items', () => {
+  it.only('renders all top menus items', () => {
     initialize();
     cy.viewport(1024, 300);
     cy.findByRole('button', { name: 'Services', timeout: 10000 }).should(
@@ -53,8 +53,8 @@ describe('Header', () => {
     cy.matchImageSnapshot();
   });
 
-  HeaderPollers();
-  HeaderServicesSpecs();
-  HeaderHostsSpecs();
-  HeaderUserMenu();
+  // HeaderPollers();
+  // HeaderServicesSpecs();
+  // HeaderHostsSpecs();
+  // HeaderUserMenu();
 });

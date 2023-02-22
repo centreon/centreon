@@ -2,9 +2,9 @@ import ServiceIcon from '@mui/icons-material/Grain';
 
 import {
   MenuSkeleton,
-  ItemLayout,
-  ResourceCounters,
-  ResourceSubMenu
+  TopCounterLayout,
+  TopCounterResourceCounters,
+  TopCounterResourceSubMenu
 } from '@centreon/ui';
 
 import useResourceCounters from '../useResourceCounters';
@@ -36,12 +36,14 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   }
 
   return (
-    <ItemLayout
+    <TopCounterLayout
       Icon={ServiceIcon}
       renderIndicators={(): JSX.Element => (
-        <ResourceCounters counters={data.counters} />
+        <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => <ResourceSubMenu items={data.items} />}
+      renderSubMenu={(): JSX.Element => (
+        <TopCounterResourceSubMenu items={data.items} />
+      )}
       showPendingBadge={data.hasPending}
       title={labelServices}
     />

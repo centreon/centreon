@@ -4,7 +4,12 @@ import '@testing-library/cypress/add-commands';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { mergeDeepRight } from 'ramda';
 
-import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
+import {
+  SnackbarProvider,
+  Method,
+  TestQueryProvider,
+  LicensedModule
+} from '@centreon/ui';
 
 import Header from '../index';
 import type {
@@ -121,7 +126,10 @@ const pollersListIssuesStubs: PollersIssuesList = {
   total: 12
 };
 
+const bamLicenceStub = { success: true };
+
 export interface Stubs {
+  bamLicence: typeof bamLicenceStub;
   hosts_status: HostStatusResponse;
   navigationList: Navigation;
   pollersListIssues: PollersIssuesList;
@@ -138,8 +146,9 @@ type RequestHandler = (
 const requestHandler =
   (stubs: DeepPartial<Stubs>): RequestHandler =>
   (req, res, ctx) => {
-    const datas = mergeDeepRight(
+    const data = mergeDeepRight(
       {
+        bamLicence: bamLicenceStub,
         hosts_status: hostStatusStub,
         navigationList: retrievedNavigation,
         pollersListIssues: pollersListIssuesStubs,
@@ -151,9 +160,21 @@ const requestHandler =
 
     const object = req.url.searchParams.get('object');
     const action = req.url.searchParams.get('action');
+    const productName = req.url.searchParams.get('productName');
 
     if (object === 'centreon_topcounter' || object === 'centreon_topology') {
-      return res(ctx.json(datas[action]));
+      return res(ctx.json(data[action]));
+    }
+    console.log(object, action, productName);
+
+    if (
+      object === 'centreon_license_manager' &&
+      action === 'licenseValid' &&
+      productName === 'bam'
+    ) {
+      console.log('centreon_license_manager');
+
+      return res(ctx.json(data.bamLicence));
     }
 
     return undefined;
@@ -181,7 +202,13 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
       <SnackbarProvider maxSnackbars={2}>
         <TestQueryProvider>
           <Router>
-            <Header />
+            <LicensedModule
+              maxSnackbars={1}
+              moduleName="bam"
+              seedName="centreon-auto-discovery-jobs"
+            >
+              <Header />
+            </LicensedModule>
           </Router>
         </TestQueryProvider>
       </SnackbarProvider>
