@@ -42,4 +42,4 @@ jobs:
         run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ vars.DOCKER_INTERNAL_REGISTRY }}/${{ matrix.project }}:${{ env.version }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
