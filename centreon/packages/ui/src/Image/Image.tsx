@@ -1,6 +1,7 @@
 import { FC, Suspense } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { isNil } from 'ramda';
 
 import { useLoadImage } from './useLoadImage';
 
@@ -50,7 +51,11 @@ const ImageContent: FC<Omit<Props, 'fallback'>> = ({
   );
 };
 
-const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element => {
+const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element | null => {
+  if (isNil(props.imagePath)) {
+    return null;
+  }
+
   return (
     <Suspense fallback={fallback}>
       <ImageContent {...props} />
