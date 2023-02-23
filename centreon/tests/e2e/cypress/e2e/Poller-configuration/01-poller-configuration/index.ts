@@ -23,6 +23,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+  }).as('generateAndReloadPollers');
 });
 
 Given(
@@ -175,8 +179,34 @@ Then(
       .eq(0)
       .should('be.visible')
       .and('contain', 'Compulsory Poller');
+
+    cy.logout().reload();
+
+    removeFixtures();
   }
 );
+
+When('I click on the export configuration action and confirm', () => {
+  cy.get('header')
+    .get('svg[data-testid="DeviceHubIcon"]')
+    .click()
+    .get('button[data-testid="Export configuration"]')
+    .click();
+
+  cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
+});
+
+Then('a success message is displayed', () => {
+  cy.wait('@generateAndReloadPollers').then(() => {
+    cy.get('.SnackbarContent-root > .MuiPaper-root')
+      .eq(1)
+      .should('contain.text', 'Configuration exported and reloaded');
+  });
+});
+
+Then('the configuration is generated on all pollers', () => {
+  checkIfConfigurationIsExported();
+});
 
 after(() => {
   removeFixtures();
