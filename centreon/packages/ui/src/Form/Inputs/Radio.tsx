@@ -20,7 +20,6 @@ const Radio = ({
   fieldName,
   label,
   radio,
-  row = false,
   getDisabled,
   change,
   additionalMemoProps
@@ -61,7 +60,11 @@ const Radio = ({
     Component: (
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
-        <RadioGroup row={row} value={value} onChange={changeRadio}>
+        <RadioGroup
+          row={radio?.row || false}
+          value={value}
+          onChange={changeRadio}
+        >
           {radio?.options?.map(({ value: optionValue, label: optionLabel }) => (
             <FormControlLabel
               control={
