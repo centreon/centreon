@@ -66,9 +66,9 @@ class DbVaultConfigurationFactory
             (string) $recordData['url'],
             (int) $recordData['port'],
             (string) $recordData['root_path'],
-            (string) $recordData['salt'],
             (string) $recordData['role_id'],
-            (string) $recordData['secret_id']
+            (string) $recordData['secret_id'],
+            (string) $recordData['salt'],
         );
     }
 }
