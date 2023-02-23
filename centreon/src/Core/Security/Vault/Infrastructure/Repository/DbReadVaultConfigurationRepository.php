@@ -221,4 +221,42 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
 
         return $vaultConfigurations;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDefaultVaultConfiguration(): ?VaultConfiguration
+    {
+        $statement = $this->db->query(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT conf.*, vault.name as vault_name
+                    FROM `:db`.`vault_configuration` conf
+                    INNER JOIN `:db`.`vault`
+                      ON vault.id = conf.vault_id
+                    LIMIT 1
+                SQL
+            )
+        );
+
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            return null;
+        }
+
+        /**
+         * @var array{
+         *  id: int,
+         *  name: string,
+         *  vault_id: int,
+         *  vault_name: string,
+         *  url: string,
+         *  port: int,
+         *  root_path: string,
+         *  role_id: string,
+         *  secret_id: string,
+         *  salt: string
+         * } $record
+         */
+        return $this->factory->createFromRecord($record);
+    }
 }
