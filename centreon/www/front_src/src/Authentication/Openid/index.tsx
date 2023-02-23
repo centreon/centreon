@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -32,10 +30,7 @@ const OpenidConfigurationForm = (): JSX.Element => {
       providerType: Provider.Openid
     });
 
-  const isOpenidConfigurationEmpty = useMemo(
-    () => isNil(initialConfiguration),
-    [initialConfiguration]
-  );
+  const isOpenidConfigurationEmpty = isNil(initialConfiguration);
 
   useTab(isOpenidConfigurationEmpty);
 

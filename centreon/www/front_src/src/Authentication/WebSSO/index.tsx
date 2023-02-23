@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -38,10 +36,7 @@ const WebSSOConfigurationForm = (): JSX.Element => {
       providerType: Provider.WebSSO
     });
 
-  const isWebSSOConfigurationEmpty = useMemo(
-    () => isNil(initialConfiguration),
-    [initialConfiguration]
-  );
+  const isWebSSOConfigurationEmpty = isNil(initialConfiguration);
 
   useTab(isWebSSOConfigurationEmpty);
 
