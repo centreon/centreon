@@ -3,7 +3,7 @@
   "version": "22.4.0",
   "description": "This is handle Lighthouse report",
   "scripts": {
-    "start:docker": "docker run -d -p 4000:80 --name centreon-dev centreon.jfrog.io/docker/centreon-web-alma9:develop",
+    "start:docker": "docker run -d -p 4000:80 --name centreon-dev docker.centreon.com/centreon/centreon-web-alma9:develop",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
     "run:lighthouse": "swc src/ -d build && node --experimental-modules --es-module-specifier-resolution=node ./build/lighthouseReport.js",
     "start": "npm run start:docker && npm run run:lighthouse && npm run kill:docker",
