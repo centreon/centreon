@@ -92,7 +92,8 @@ describe('Authentication configuration', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays the Web SSO configuration tab when the "Web SSO configuration" tab is clicked', () => {
+  it('displays the Web SSO configuration when the corresponding tab is clicked', () => {
+
     cy.findByText(labelWebSSOConfiguration).click();
 
     cy.waitForRequest('@getWebSSOConfiguration');
@@ -100,7 +101,8 @@ describe('Authentication configuration', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays the SAML configuration tab when the "SAML configuration" tab is clicked', () => {
+  it('displays the SAML configuration when the corresponding tab is clicked', () => {
+
     cy.findByText(labelSAMLConfiguration).click();
 
     cy.waitForRequest('@getSAMLConfiguration');
