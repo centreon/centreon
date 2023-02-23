@@ -27,3 +27,11 @@ Background:
         | method    | poller_action |
         | Reload    | reloaded      |
         | Restart   | restarted     |
+
+Scenario: Generate the configuration with no poller selected
+   When I visit the export configuration page
+   And I click on the Export configuration button
+   Then I am redirected to generate page
+   And no poller names are displayed
+   When I click on the export button
+   Then an error message is displayed to inform that no poller is selected

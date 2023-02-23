@@ -2,7 +2,7 @@
 import { executeActionViaClapi, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
-const waitToExport = 8000;
+const waitToExport = 10000;
 
 const insertPollerConfigAclUser = (): Cypress.Chainable => {
   return cy

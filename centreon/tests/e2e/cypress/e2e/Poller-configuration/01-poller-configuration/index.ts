@@ -87,17 +87,14 @@ When('I select some pollers', () => {
 });
 
 When('I click on the Export configuration button', () => {
-  cy.get('@pollerId').then((pollerId) => {
-    cy.visit(`/centreon/main.php?p=60902&poller=${pollerId}`).wait(
-      '@getTimeZone'
-    );
-  });
+  cy.getIframeBody()
+    .find('form button[name="apply_configuration"]')
+    .contains('Export configuration')
+    .click();
 });
 
 Then('I am redirected to generate page', () => {
-  cy.get('@pollerId').then((pollerId) => {
-    cy.url().should('include', `/centreon/main.php?p=60902&poller=${pollerId}`);
-  });
+  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
 });
 
 Then('the selected poller names are displayed', () => {
@@ -160,5 +157,27 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 
   cy.logout().reload();
 
+  removeFixtures();
+});
+
+Then('no poller names are displayed', () => {
+  cy.getIframeBody()
+    .find('form span[class="selection"]')
+    .eq(0)
+    .should('have.value', '');
+});
+
+Then(
+  'an error message is displayed to inform that no poller is selected',
+  () => {
+    cy.getIframeBody()
+      .find('form i[id="noSelectedPoller"]')
+      .eq(0)
+      .should('be.visible')
+      .and('contain', 'Compulsory Poller');
+  }
+);
+
+after(() => {
   removeFixtures();
 });
