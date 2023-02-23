@@ -74,26 +74,28 @@ describe('Authentication configuration', () => {
   });
 
   it('displays the Openid Connect configuration when the corresponding tab is clicked', () => {
-
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
-    cy.findByText(labelOpenIDConnectConfiguration).click();
+    cy.findAllByLabelText(labelOpenIDConnectConfiguration)
+      .eq(1)
+      .as('OpenidConnectTab');
+
+    cy.get('@OpenidConnectTab').click();
 
     cy.waitForRequest('@getOpendidConnectConfiguration');
 
-    cy.findByText(labelGroupsMapping).click();
-    cy.findByText(labelRolesMapping).click();
-    cy.findByText(labelAutoImportUsers).click();
-    cy.findByText(labelAuthenticationConditions).click();
-    cy.findByText(labelIdentityProvider).click();
+    cy.findByLabelText(labelGroupsMapping).click();
+    cy.findByLabelText(labelRolesMapping).click();
+    cy.findByLabelText(labelAutoImportUsers).click();
+    cy.findByLabelText(labelAuthenticationConditions).click();
+    cy.findByLabelText(labelIdentityProvider).click();
 
-    cy.findByText(labelOpenIDConnectConfiguration).scrollIntoView();
+    cy.get('@OpenidConnectTab').scrollIntoView();
 
     cy.matchImageSnapshot();
   });
 
   it('displays the Web SSO configuration when the corresponding tab is clicked', () => {
-
     cy.findByText(labelWebSSOConfiguration).click();
 
     cy.waitForRequest('@getWebSSOConfiguration');
@@ -102,18 +104,17 @@ describe('Authentication configuration', () => {
   });
 
   it('displays the SAML configuration when the corresponding tab is clicked', () => {
-
     cy.findByText(labelSAMLConfiguration).click();
 
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.findByText(labelGroupsMapping).click();
-    cy.findByText(labelRolesMapping).click();
-    cy.findByText(labelAutoImportUsers).click();
-    cy.findByText(labelAuthenticationConditions).click();
-    cy.findByText(labelIdentityProvider).click();
+    cy.findByLabelText(labelGroupsMapping).click();
+    cy.findByLabelText(labelRolesMapping).click();
+    cy.findByLabelText(labelAutoImportUsers).click();
+    cy.findByLabelText(labelAuthenticationConditions).click();
+    cy.findByLabelText(labelIdentityProvider).click();
 
-    cy.findByText(labelSAMLConfiguration).scrollIntoView();
+    cy.findAllByLabelText(labelSAMLConfiguration).eq(1).scrollIntoView();
 
     cy.matchImageSnapshot();
   });

@@ -120,7 +120,7 @@ const Authentication = (): JSX.Element => {
   const tabs = useMemo(
     () =>
       panels.map(({ title, value }) => (
-        <Tab key={value} label={t(title)} value={value} />
+        <Tab aria-label={t(title)} key={value} label={t(title)} value={value} />
       )),
     []
   );
