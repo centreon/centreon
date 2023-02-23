@@ -1,4 +1,4 @@
-FROM centreon.jfrog.io/docker/centos:7 AS web_fresh
+FROM docker.centreon.com/proxy/centos:7 AS web_fresh
 
 RUN <<EOF
 
