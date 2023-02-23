@@ -36,7 +36,7 @@ export interface InputProps {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     endpoint?: string;
     filterKey?: string;
-    getRenderedOptionText?: (option) => string;
+    getRenderedOptionText?: (option) => string | JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
