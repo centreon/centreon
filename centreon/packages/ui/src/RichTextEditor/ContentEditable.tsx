@@ -102,7 +102,7 @@ const ContentEditable = ({
 
   return (
     <div className={cx(classes.container, isFocused && classes.inputFocused)}>
-      {isTextEmpty && (
+      {editable && isTextEmpty && (
         <Typography className={classes.placeholder}>
           {t(placeholder)}
         </Typography>

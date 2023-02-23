@@ -62,7 +62,10 @@ const FloatingLinkEditor = ({
         event.preventDefault();
 
         if (value !== '') {
-          editor.dispatchCommand(TOGGLE_LINK_COMMAND, value);
+          editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
+            target: '_blank',
+            url: value
+          });
         }
         setEditMode(false);
       } else if (event.key === 'Escape') {

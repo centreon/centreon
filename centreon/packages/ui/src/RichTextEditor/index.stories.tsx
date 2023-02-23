@@ -63,11 +63,16 @@ withEditableFalse.args = {
 };
 
 const StoryWithEditableFalseLikePreview = (): JSX.Element => {
-  const [editorState, setEditorState] = useState<EditorState>();
+  const [editorState, setEditorState] =
+    useState<EditorState>(initialEditorState);
 
   return (
     <div>
-      <Template getEditorState={setEditorState} namespace="editable" />
+      <Template
+        getEditorState={setEditorState}
+        initialEditorState={JSON.stringify(initialEditorState)}
+        namespace="editable"
+      />
       <Template
         editable={false}
         editorStateForReadOnlyMode={JSON.stringify(editorState)}
