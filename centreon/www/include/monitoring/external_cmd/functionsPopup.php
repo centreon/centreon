@@ -94,9 +94,15 @@ function massiveHostAck($key)
     }
 
     $actions = $centreon->user->access->checkAction("service_acknowledgement");
-    if (($actions == true || $is_admin) && isset($_POST['ackhostservice']) && $_POST['ackhostservice'] == "true") {
-        $DBRES = $pearDB->query("SELECT host_id FROM `host` WHERE host_name = '" . $hostName . "' LIMIT 1");
-        $row = $DBRES->fetchRow();
+    if (
+        ($actions == true || $is_admin)
+        && isset($_POST['ackhostservice'])
+        && $_POST['ackhostservice'] == "true"
+    ) {
+        $statement = $pearDB->prepare('SELECT host_id FROM `host` WHERE host_name = :hostName LIMIT 1');
+        $statement->bindValue(':hostName', $hostName, \PDO::PARAM_STR);
+        $statement->execute();
+        $row = $statement->fetchRow();
         $svc_tab = getMyHostServices($row['host_id']);
         if (count($svc_tab)) {
             foreach ($svc_tab as $key2 => $value) {
