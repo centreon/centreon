@@ -3,6 +3,8 @@ import { executeActionViaClapi, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 const waitToExport = 10000;
+const waitPollerListToLoad = 3000;
+const testHostName = 'test_host';
 
 const insertPollerConfigAclUser = (): Cypress.Chainable => {
   return cy
@@ -65,9 +67,27 @@ const removeFixtures = (): Cypress.Chainable => {
   });
 };
 
+const checkExportedFileContent = (): Cypress.Chainable<boolean> => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
+    )
+    .then(({ stdout }): boolean => {
+      if (stdout) {
+        return true;
+      }
+
+      return false;
+    });
+};
+
 const checkIfConfigurationIsExported = (): void => {
   cy.log('Checking that configuration is exported');
   const now = dateBeforeLogin.getTime();
+
+  cy.wait(waitToExport);
 
   cy.exec(
     `docker exec -i ${Cypress.env(
@@ -76,7 +96,7 @@ const checkIfConfigurationIsExported = (): void => {
   ).then(({ stdout }): Cypress.Chainable<null> | null => {
     const configurationExported = now < new Date(stdout).getTime();
 
-    if (configurationExported) {
+    if (configurationExported && checkExportedFileContent()) {
       return null;
     }
 
@@ -90,7 +110,7 @@ const checkIfMethodIsAppliedToPollers = (method: string): void => {
   let logToSearch = '';
   switch (method) {
     case 'restarted':
-      logToSearch = 'Centreon Engine 23.04.0 starting ...';
+      logToSearch = 'Centreon Engine [0-9]*.[0-9]*.[0-9]* starting ...';
       break;
     default:
       logToSearch = 'Reload configuration finished.';
@@ -112,12 +132,18 @@ const checkIfMethodIsAppliedToPollers = (method: string): void => {
   });
 };
 
-const clearCentenginLogs = (): Cypress.Chainable => {
-  return cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} truncate -s 0 /var/log/centreon-engine/centengine.log`
-  );
+const clearCentengineLogs = (): Cypress.Chainable => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} truncate -s 0 /var/log/centreon-engine/centengine.log`
+    )
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} rm -rf /etc/centreon-engine/hosts.cfg`
+    );
 };
 
 export {
@@ -127,5 +153,6 @@ export {
   removeFixtures,
   checkIfConfigurationIsExported,
   checkIfMethodIsAppliedToPollers,
-  clearCentenginLogs
+  clearCentengineLogs,
+  waitPollerListToLoad
 };

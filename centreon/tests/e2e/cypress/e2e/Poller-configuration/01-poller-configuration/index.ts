@@ -3,11 +3,12 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   checkIfConfigurationIsExported,
   checkIfMethodIsAppliedToPollers,
-  clearCentenginLogs,
+  clearCentengineLogs,
   getPoller,
   insertHost,
   insertPollerConfigAclUser,
-  removeFixtures
+  removeFixtures,
+  waitPollerListToLoad
 } from '../common';
 
 beforeEach(() => {
@@ -63,17 +64,29 @@ Given('some post-generation commands are configured for each poller', () => {
       .select(2)
       .should('have.value', 39);
 
-    cy.getIframeBody().find('form input[name="submitC"]').eq(0).click();
+    cy.getIframeBody()
+      .find('form input[name="submitC"]')
+      .eq(0)
+      .contains('Save')
+      .click({ force: true });
   });
 });
 
 When('I visit the export configuration page', () => {
-  cy.visit('/centreon/main.php?p=60901');
+  cy.navigateTo({
+    page: 'Pollers',
+    rootItemNumber: 0,
+    subMenu: 'Pollers'
+  }).wait('@getTimeZone').then(() => {
+    cy.url().should('include', '/centreon/main.php?p=60901');
+  });
 });
 
 Then(
   'there is an indication that the configuration have changed on the listed pollers',
   () => {
+    cy.wait(waitPollerListToLoad);
+
     cy.getIframeBody().find('form .list_one>td').eq(5).contains('Yes');
   }
 );
@@ -145,7 +158,7 @@ When('I select the {string} export method', (method: string) => {
 });
 
 When('I click on the export button', () => {
-  clearCentenginLogs()
+  clearCentengineLogs()
     .getIframeBody()
     .find('form input[name="submit"]')
     .eq(0)
