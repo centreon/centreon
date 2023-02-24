@@ -32,7 +32,6 @@ const getIssueSeverityCode = ({
   issues: PollersIssuesList['issues'];
   key: keyof NonNullIssues;
 }): SeverityCode => {
-  // api inconsistency return an empty array when there is no issues
   const issueExists = !isEmpty(issues) && !isNil(issues[key]);
 
   if (issueExists && issues[key].warning.total > 0) {
