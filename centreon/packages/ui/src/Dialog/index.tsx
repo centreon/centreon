@@ -35,6 +35,7 @@ export type Props = {
   confirmDisabled?: boolean;
   contentWidth?: number;
   dialogActionsClassName?: string;
+  dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
   dialogPaperClassName?: string;
   dialogTitleClassName?: string;
@@ -65,6 +66,7 @@ const Dialog = ({
   dialogTitleClassName,
   dialogContentClassName,
   dialogActionsClassName,
+  dialogConfirmButtonClassName,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
@@ -97,6 +99,7 @@ const Dialog = ({
         )}
         <Button
           aria-label={labelConfirm || ''}
+          className={dialogConfirmButtonClassName}
           color="primary"
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
