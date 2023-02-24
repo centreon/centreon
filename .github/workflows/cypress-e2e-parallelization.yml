@@ -20,6 +20,11 @@ on:
         required: true
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
@@ -36,7 +41,7 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    needs: [cypress-e2e-test-list]
+    needs: [cypress-e2e-test-list, get-version]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
@@ -51,7 +56,7 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: centreon.jfrog.io/docker
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -59,7 +64,8 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
-          image: centreon.jfrog.io/docker/centreon-web-alma9
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
+          image_openid_version: ${{ needs.get-version.outputs.major_version }}
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
@@ -70,6 +76,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-reports
           path: centreon/tests/e2e/cypress/results/reports/*.xml
+          retention-days: 1
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]

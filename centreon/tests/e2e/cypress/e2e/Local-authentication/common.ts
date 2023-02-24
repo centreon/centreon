@@ -21,7 +21,6 @@ const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
       'resources/clapi/config-ACL/local-authentication-acl-user-non-admin.json'
     )
     .then(applyConfigurationViaClapi)
-    .then(() => cy.visit(`${Cypress.config().baseUrl}`))
     .then(() => cy.fixture('users/admin.json'));
 };
 

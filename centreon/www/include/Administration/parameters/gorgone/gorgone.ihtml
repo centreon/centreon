@@ -12,11 +12,55 @@
             <h4>{t}Common Options{/t}</h4>
           </td>
         </tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_enable_broker_stats">&nbsp;{$form.enable_broker_stats.label}</td><td class="FormRowValue">{$form.enable_broker_stats.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_gorgone_cmd_timeout">&nbsp;{$form.gorgone_cmd_timeout.label}</td><td class="FormRowValue">{$form.gorgone_cmd_timeout.html}&nbsp;{t}seconds{/t}</td></tr>
         <tr class="list_two">
             <td class="FormRowField">
-                <img class="helpTooltip" name="tip_gorgone_illegal_characters">&nbsp;{$form.gorgone_illegal_characters.label}
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_enable_broker_stats">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.enable_broker_stats.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.enable_broker_stats.html}</td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_gorgone_cmd_timeout">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.gorgone_cmd_timeout.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.gorgone_cmd_timeout.html}&nbsp;{t}seconds{/t}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_gorgone_illegal_characters">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.gorgone_illegal_characters.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
             </td>
             <td class="FormRowValue">
                 {$form.gorgone_illegal_characters.html}

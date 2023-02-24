@@ -9,7 +9,6 @@ const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
       'resources/clapi/config-ACL/autologin-configuration-acl-user.json'
     )
     .then(applyConfigurationViaClapi)
-    .then(() => cy.visit(`${Cypress.config().baseUrl}`))
     .then(() => cy.fixture('users/admin.json'));
 };
 
