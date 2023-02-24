@@ -4,6 +4,8 @@ export { default as IconButton } from './Button/Icon';
 
 export { default as IconToggleSubmenu } from './Icon/IconToggleSubmenu';
 
+export { Checkbox, MultiCheckbox } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
