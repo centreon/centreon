@@ -62,7 +62,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
 
         }
 
-        echo "All tables of " . $dbName . " have had their charset converted.\n";
+        echo "All tables of " . $dbName . " had their charset converted.\n";
     } catch (\PDOException $e) {
 
         throw new \Exception($errorMessage, (int)$e->getCode(), $e);
