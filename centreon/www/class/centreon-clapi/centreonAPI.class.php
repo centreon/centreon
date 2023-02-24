@@ -556,6 +556,8 @@ class CentreonAPI
             if (
                 $passwordExpirationDelay !== null
                 && (int) $row['password_creation'] + (int) $passwordExpirationDelay < time()
+                // Do not check expiration for excluded users of local security policy
+                && !in_array($row['contact_alias'], $securityPolicy['password_expiration']['excluded_users'])
             ) {
                 print "Unable to login, your password has expired.\n";
                 exit(1);
