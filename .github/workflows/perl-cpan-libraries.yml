@@ -30,80 +30,85 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        package_extension: [rpm, deb]
-        name: [
-          'boolean',
-          'Carp::Assert',
-          'Clone',
-          'Clone::Choose',
-          'common::sense',
-          'Convert::EBCDIC',
-          'Crypt::Argon2',
-          'Crypt::Blowfish_PP',
-          'Device::Modbus',
-          'Device::Modbus::RTU::Client',
-          'Device::Modbus::TCP::Client',
-          'Digest::MD5::File',
-          'Digest::SHA1',
-          'Email::Send::SMTP::Gmail',
-          'File::SearchPath',
-          'Hash::Merge',
-          'HTTP::Daemon',
-          'HTTP::Daemon::SSL',
-          'HTTP::ProxyPAC',
-          'JMX::Jmx4Perl',
-          'JSON::Parse',
-          'JSON::Path',
-          'JSON::WebToken',
-          'Libssh::Session',
-          'LV',
-          'Net::Curl::Easy',
-          'Net::FTPSSL',
-          'Net::HTTPTunnel',
-          'Net::NTP',
-          'Net::SMTPS',
-          'Net::SMTP_auth',
-          'Net::Subnet',
-          'Net::TFTP',
-          'Schedule::Cron',
-          'Statistics::Descriptive',
-          'Statistics::Regression',
-          'Sys::SigAction',
-          'Term::Clui',
-          'Term::ShellUI',
-          'URI::Encode',
-          'URI::Template',
-          'URL::Encode',
-          'UUID',
-          'UUID::URandom',
-          'XML::Filter::BufferText',
-          'XML::LibXML::Simple',
-          'XML::SAX::Writer',
-          'YAML::LibYAML',
-          'ZMQ::Constants',
-          'ZMQ::LibZMQ4',
-        ]
+        distrib: [el8, el9, bullseye]
+        name:
+          [
+            "boolean",
+            "Carp::Assert",
+            "Clone",
+            "Clone::Choose",
+            "common::sense",
+            "Convert::EBCDIC",
+            "Crypt::Argon2",
+            "Crypt::Blowfish_PP",
+            "Device::Modbus",
+            "Device::Modbus::RTU::Client",
+            "Device::Modbus::TCP::Client",
+            "Digest::MD5::File",
+            "Digest::SHA1",
+            "Email::Send::SMTP::Gmail",
+            "File::SearchPath",
+            "Hash::Merge",
+            "HTTP::Daemon",
+            "HTTP::Daemon::SSL",
+            "HTTP::ProxyPAC",
+            "JMX::Jmx4Perl",
+            "JSON::Parse",
+            "JSON::Path",
+            "JSON::WebToken",
+            "Libssh::Session",
+            "LV",
+            "Net::Curl::Easy",
+            "Net::FTPSSL",
+            "Net::HTTPTunnel",
+            "Net::NTP",
+            "Net::SMTPS",
+            "Net::SMTP_auth",
+            "Net::Subnet",
+            "Net::TFTP",
+            "Schedule::Cron",
+            "Statistics::Descriptive",
+            "Statistics::Regression",
+            "Sys::SigAction",
+            "Term::Clui",
+            "Term::ShellUI",
+            "URI::Encode",
+            "URI::Template",
+            "URL::Encode",
+            "UUID",
+            "UUID::URandom",
+            "XML::Filter::BufferText",
+            "XML::LibXML::Simple",
+            "XML::SAX::Writer",
+            "YAML::LibYAML",
+            "ZMQ::Constants",
+            "ZMQ::LibZMQ4",
+          ]
         include:
-          - dependencies: ''
-          - version: ''
-          - package_extension: rpm
+          - dependencies: ""
+          - version: ""
+          - distrib: el8
+            package_extension: rpm
+            image: packaging-alma8
+          - distrib: el9
+            package_extension: rpm
             image: packaging-alma9
-          - package_extension: deb
+          - distrib: bullseye
+            package_extension: deb
             image: packaging-bullseye
-          - name: 'JSON::Path'
-            version: '1.0.3'
-          - name: 'ZMQ::LibZMQ4'
-            dependencies: 'zeromq'
-          - name: 'Libssh::Session'
-            dependencies: 'libssh'
-    name: package ${{ matrix.package_extension }} ${{ matrix.name }}
+          - name: "JSON::Path"
+            version: "1.0.3"
+          - name: "ZMQ::LibZMQ4"
+            dependencies: "zeromq"
+          - name: "Libssh::Session"
+            dependencies: "libssh"
+    name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -111,7 +116,8 @@ jobs:
       - if: ${{ matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
-          yum config-manager --set-enabled crb
+          yum config-manager --set-enabled crb || true # alma 9
+          yum config-manager --set-enabled powertools || true # alma 8
 
           yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
 
@@ -133,7 +139,7 @@ jobs:
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
@@ -160,7 +166,7 @@ jobs:
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
       - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
@@ -174,22 +180,27 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.${{ matrix.package_extension }}
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}
+          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: packages-${{ matrix.package_extension }}
+          name: packages-${{ matrix.package_extension }}-${{ matrix.distrib }}
           path: ./*.${{ matrix.package_extension }}
+          retention-days: 1
 
   sign-rpm:
     needs: [package]
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+    name: sign rpm ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - run: apt-get install -y zstd
@@ -199,7 +210,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: packages-rpm
+          name: packages-rpm-${{ matrix.distrib }}
           path: ./
 
       - run: echo "HOME=/root" >> $GITHUB_ENV
@@ -211,7 +222,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ./*.rpm
-          key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   download-and-cache-deb:
     needs: [package]
@@ -219,13 +230,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: packages-deb
+          name: packages-deb-bullseye
           path: ./
 
       - uses: actions/cache@v3
         with:
           path: ./*.deb
-          key: ${{ github.sha }}-${{ github.run_id }}-deb
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-bullseye
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
@@ -250,7 +261,7 @@ jobs:
           release: ${{ needs.get-version.outputs.release }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
           yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
@@ -278,5 +289,5 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

@@ -1,14 +1,13 @@
 ---
-name: Create centreon widget tactical overview version
+name: Create tactical overview version
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-tactical-overview/**"
   workflow_dispatch:

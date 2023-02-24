@@ -97,13 +97,39 @@
 			</tr>
 			{/if}
 			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="use"> {$form.host_parallel_template.label}<p class="description">{$form.tplTextParallel.label}<p></td>
-				<td class="FormRowValue" id="parallelTemplate">{include file="file:$centreon_path/www/include/common/templates/cloneHost.ihtml" cloneId="template" cloneSet=$cloneSetTemplate}</td>
+				<td class="FormRowField">
+					<div class="formRowLabel">
+						<div><img class="helpTooltip" name="use"></div>
+						<div>
+							<div><p>{$form.host_parallel_template.label}</p></div>
+							<div><p class="description">{$form.tplTextParallel.label}
+								<p>
+
+							</div>
+						</div>
+					</div>
+				</td>
+
+	<td class="FormRowValue" id="parallelTemplate">{include file="file:$centreon_path/www/include/common/templates/cloneHost.ihtml" cloneId="template" cloneSet=$cloneSetTemplate}</td>
 			</tr>
             {if isset($form.dupSvTplAssocText.label)}
 			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="create_linked_services"> {$form.dupSvTplAssocText.label}</td>
-				<td class="FormRowValue">{$form.dupSvTplAssoc.html}</td>
+				<td class="FormRowField">
+				<div class="formRowLabel">
+					<div>
+						<img class="helpTooltip" name="create_linked_services">
+					</div>
+					<div>
+						<p class="fieldLabel">
+							{$form.dupSvTplAssocText.label}
+						</p>
+
+					</div>
+				</div></td>
+				<td class="FormRowValue">{$form.dupSvTplAssoc.html}
+
+
+				</td>
 			</tr>
             {/if}
 			{if isset($form.acl_groups)}
@@ -427,8 +453,34 @@
 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
       <h4>{$History_Options}</h4>
     </td></tr>
-	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="retain_status_information"> {$form.host_retain_status_information.label}</td><td class="FormRowValue">{$form.host_retain_status_information.html}</td></tr>
-	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="retain_nonstatus_information"> {$form.host_retain_nonstatus_information.label}</td><td class="FormRowValue">{$form.host_retain_nonstatus_information.html}</td></tr>
+	<tr class="list_one">
+		<td class="FormRowField">
+			<div class="formRowLabel">
+				<div>
+					<img class="helpTooltip" name="retain_status_information">
+				</div>
+				<div>
+					<p class="fieldLabel">
+						{$form.host_retain_status_information.label}
+					</p>
+				</div>
+			</div>
+		</td>
+		<td class="FormRowValue">{$form.host_retain_status_information.html}</td></tr>
+	<tr class="list_two">
+		<td class="FormRowField">
+		<div class="formRowLabel">
+			<div>
+				<img class="helpTooltip" name="retain_nonstatus_information">
+			</div>
+			<div>
+				<p class="fieldLabel">
+					{$form.host_retain_nonstatus_information.label}
+				</p>
+			</div>
+		</div>
+		</td>
+		<td class="FormRowValue">{$form.host_retain_nonstatus_information.html}</td></tr>
 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="stalking_options"> {$form.host_stalOpts.label}</td><td class="FormRowValue">{$form.host_stalOpts.html}</td></tr>
 	<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
       <h4>{$Event_Handler}</h4>
