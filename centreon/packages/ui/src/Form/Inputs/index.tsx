@@ -18,6 +18,7 @@ import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
+import MultiCheckbox from './MultiCheckbox';
 import Checkbox from './Checkbox';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -66,6 +67,10 @@ export const getInput = R.cond<
   [
     R.equals(InputType.Checkbox) as (b: InputType) => boolean,
     R.always(Checkbox)
+  ],
+  [
+    R.equals(InputType.MultiCheckbox) as (b: InputType) => boolean,
+    R.always(MultiCheckbox)
   ]
 ]);
 

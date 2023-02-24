@@ -1,14 +1,14 @@
 import { ChangeEvent } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, split } from 'ramda';
+import { equals, path, split } from 'ramda';
 
-import { Checkbox as CheckboxComponent } from '../../Checkbox';
+import { MultiCheckbox as MultiCheckboxComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
 
-const Checkbox = ({
+const MultiCheckbox = ({
   change,
   checkbox,
   fieldName
@@ -21,7 +21,15 @@ const Checkbox = ({
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
-    const newValue = { checked: event.target.checked, label };
+
+    const newValue = value?.map((item) => {
+      if (equals(item.label, label)) {
+        return { ...item, checked: event.target.checked };
+      }
+
+      return item;
+    });
+
     if (change) {
       change({ setFieldValue, value: newValue });
 
@@ -32,11 +40,10 @@ const Checkbox = ({
 
   return useMemoComponent({
     Component: (
-      <CheckboxComponent
-        Icon={value?.Icon}
-        checked={value?.checked}
-        label={value?.label}
+      <MultiCheckboxComponent
         labelPlacement={checkbox?.labelPlacement || 'end'}
+        row={checkbox?.row || false}
+        values={value}
         onChange={handleChange}
       />
     ),
@@ -44,4 +51,4 @@ const Checkbox = ({
   });
 };
 
-export default Checkbox;
+export default MultiCheckbox;

@@ -17,7 +17,8 @@ export enum InputType {
   FieldsTable,
   Grid,
   Custom,
-  Checkbox
+  Checkbox,
+  MultiCheckbox
 }
 
 interface FieldsTableGetRequiredProps {
