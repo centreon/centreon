@@ -95,7 +95,7 @@ export default (): void =>
     });
 
     describe('top status indicators', () => {
-      it('displays green indicators when no issues where detected', () => {
+      it('displays green indicators when no issues are detected', () => {
         initialize({
           pollersListIssues: {
             issues: []
