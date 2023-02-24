@@ -18,6 +18,7 @@ import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
+import Checkbox from './Checkbox';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
 
@@ -61,7 +62,11 @@ export const getInput = R.cond<
     R.always(FieldsTable)
   ],
   [R.equals(InputType.Grid) as (b: InputType) => boolean, R.always(Grid)],
-  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)]
+  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)],
+  [
+    R.equals(InputType.Checkbox) as (b: InputType) => boolean,
+    R.always(Checkbox)
+  ]
 ]);
 
 interface StylesProps {
