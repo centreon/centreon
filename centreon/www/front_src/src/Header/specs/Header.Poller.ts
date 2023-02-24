@@ -95,6 +95,25 @@ export default (): void =>
     });
 
     describe('top status indicators', () => {
+      it('displays green indicators when no issues where detected', () => {
+        initialize({
+          pollersListIssues: {
+            issues: []
+          }
+        });
+        getElements();
+
+        cy.get('@databaseIndicator').should(
+          'contain.text',
+          labelDatabaseUpdateAndActive
+        );
+
+        cy.get('@latencyIndicator').should(
+          'contain.text',
+          labelNoLatencyDetected
+        );
+      });
+
       describe('database', () => {
         it('alert user about database critical issues', () => {
           initialize({

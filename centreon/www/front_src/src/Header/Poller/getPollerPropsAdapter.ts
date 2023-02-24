@@ -1,10 +1,10 @@
-import { isNil, isEmpty } from 'ramda';
+import { isNil, is, isEmpty } from 'ramda';
 import type { NavigateFunction } from 'react-router-dom';
 import type { TFunction } from 'react-i18next';
 
 import { SeverityCode } from '@centreon/ui';
 
-import type { PollersIssuesList } from '../api/models';
+import type { PollersIssuesList, NonNullIssues } from '../api/models';
 
 import {
   labelDatabaseUpdatesNotActive,
@@ -30,13 +30,16 @@ const getIssueSeverityCode = ({
   key
 }: {
   issues: PollersIssuesList['issues'];
-  key: keyof PollersIssuesList['issues'];
+  key: keyof NonNullIssues;
 }): SeverityCode => {
-  if (!!issues[key]?.warning?.total && !isNil(issues[key]?.warning?.total)) {
+  // api inconsistency return an empty array when there is no issues
+  const issueExists = !isEmpty(issues) && !isNil(issues[key]);
+
+  if (issueExists && issues[key].warning.total > 0) {
     return SeverityCode.Medium;
   }
 
-  if (issues[key]?.critical?.total && !isNil(issues[key]?.critical?.total)) {
+  if (issueExists && issues[key].critical.total > 0) {
     return SeverityCode.High;
   }
 
@@ -66,7 +69,9 @@ export const getPollerPropsAdapter = ({
   isExportButtonEnabled
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
   const { total, issues } = data;
-  const formatedIssues = !isEmpty(issues)
+
+  // api inconsistency return an empty array when there is no issues
+  const formatedIssues = !is(Array, issues)
     ? Object.keys(issues)
         .filter((key) => !!issues[key] && issues[key].total > 0)
         .map((key) => ({
