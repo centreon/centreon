@@ -49,7 +49,7 @@ function convertCharset($dbName, $db, $excluded_table = "")
             $tableName = $table["table_name"];
             $tableType = $table["table_type"];
 
-            // Check if the table is a view, and skip it if it is
+            // Skip the table if it is a view or an explicitly excluded table
             if ($tableName === $excluded_table || $tableType !== "BASE TABLE") {
                 continue;
             }
