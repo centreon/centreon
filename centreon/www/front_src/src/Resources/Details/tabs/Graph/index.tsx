@@ -103,7 +103,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
               <FederatedComponent
                 displayModal
                 modalData={modalData}
-                path="/anomaly-detection/graph"
+                path="/anomaly-detection"
               />
             }
             renderAdditionalLines={({
@@ -113,7 +113,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
               <FederatedComponent
                 displayAdditionalLines
                 additionalLinesData={{ additionalLinesProps, resource }}
-                path="/anomaly-detection/graph"
+                path="/anomaly-detection"
               />
             )}
             resource={details}

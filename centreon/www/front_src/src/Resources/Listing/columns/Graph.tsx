@@ -84,7 +84,7 @@ const Graph = ({
           <FederatedComponent
             displayAdditionalLines
             additionalLinesData={{ additionalLinesProps, resource }}
-            path="/anomaly-detection/graph"
+            path="/anomaly-detection"
           />
         )}
         resource={row}
