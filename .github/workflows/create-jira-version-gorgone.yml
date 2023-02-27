@@ -1,5 +1,5 @@
 ---
-name: release-web
+name: Create gorgone jira version
 
 on:
   pull_request_target:
@@ -9,12 +9,11 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "centreon/**"
-      - "!centreon/packages/**"
+      - "centreon-gorgone/**"
   workflow_dispatch:
 
 env:
-  module: "web"
+  module: "gorgone"
 
 jobs:
   release:
@@ -32,3 +31,4 @@ jobs:
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}

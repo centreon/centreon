@@ -25,15 +25,15 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
-  arti_token:
-    description: "test token for arti"
+  artifactory_token:
+    description: "Artifactory token"
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache@v3
+      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
@@ -54,10 +54,11 @@ runs:
           echo "[DEBUG] - Version: $VERSION"
 
           if [[ "${{ inputs.stability }}" == "stable" ]]; then
-            curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/22.10/
+            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-${{ inputs.version }}-${{ inputs.stability }}/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
           else
-            curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/22.10-${{ inputs.stability }}/
-            curl -v -H "Authorization: Bearer ${{ inputs.arti_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-22.10-${{ inputs.stability }}/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
+            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-${{ inputs.version }}-${{ inputs.stability }}/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
           fi
 
         done

@@ -29,7 +29,7 @@ Source10:   php.ini
 Source11:   mariadb-systemd.conf
 Source12:   php-fpm-systemd.conf
 
-License:    GPLv2
+License:    Apache-2.0
 Group:      Applications/System
 Url:        http://www.centreon.com
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -56,6 +56,7 @@ It allows you to be more efficient in your network monitoring, but also allows
 %package common
 Summary:    Centreon common package
 Group:      Networking/Other
+License:    Apache-2.0
 %{?systemd_requires}
 BuildRequires:  systemd
 Requires(pre):  /usr/bin/getent
@@ -70,6 +71,7 @@ Add user and group for Centreon and this suite.
 %package web
 Summary:    Centreon WebUI
 Group:      Networking/Other
+License:    Apache-2.0
 %{?systemd_requires}
 BuildRequires: systemd
 Requires:   centreon-common = %{version}-%{release}
@@ -132,6 +134,7 @@ This package contains WebUI files.
 %package database
 Summary:    Centreon Databases
 Group:      Networking/Other
+License:    Apache-2.0
 %if 0%{?el7}
 Requires:   mysql-server
 %else
@@ -144,6 +147,7 @@ Install a database server optimized for use with Centreon.
 %package perl-libs
 Summary:     Centreon Perl libraries
 Group:       Development/Libraries
+License:     Apache-2.0
 Requires:    centreon-common = %{version}-%{release}
 Requires:    perl perl(DBI) perl(FindBin) perl(Getopt::Long) perl(IO::Handle) perl(POSIX) perl(Pod::Usage) perl(Sys::Syslog)
 Provides:    perl(centreon::common::db) perl(centreon::common::lock) perl(centreon::common::lock::file) perl(centreon::common::lock::sql) perl(centreon::common::logger) perl(centreon::common::misc) perl(centreon::script) perl(centreon::script::centreontrapd) perl(centreon::script::centreontrapdforward) perl(centreon::script::centFillTrapDB) perl(centreon::script::centreonSyncArchives) perl(centreon::script::centreonSyncPlugins) perl(centreon::script::centreon_trap_send) perl(centreon::script::dashboardBuilder) perl(centreon::script::eventReportBuilder) perl(centreon::script::logAnalyser) perl(centreon::script::logAnalyserBroker) perl(centreon::script::centreon_health)
@@ -157,6 +161,7 @@ This packages contains Centreon Perl libraries.
 %package trap
 Summary:    Centreon Traps
 Group:      Networking/Other
+License:    Apache-2.0
 %{?systemd_requires}
 BuildRequires: systemd
 Requires:   net-snmp
@@ -171,6 +176,7 @@ This package contains Centreon Trap engine
 %package central
 Summary:    Configuration for Centreon with Centreon Engine and Centreon Broker
 Group:      Networking/Other
+License:    Apache-2.0
 Requires:   centreon-poller = %{version}-%{release}
 Requires:   centreon-web = %{version}-%{release}
 Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmajor}
@@ -207,6 +213,7 @@ performance data in RRD files.
 %package poller
 Summary:    Rights and file for pollers (including central)
 Group:      Networking/Other
+License:    Apache-2.0
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-trap = %{version}-%{release}
 Requires:   centreon-engine >= %{thismajor}, centreon-engine < %{nextmajor}
@@ -627,6 +634,13 @@ systemctl try-restart httpd24-httpd || :
 systemctl try-restart httpd || :
 %endif
 systemctl try-restart php-fpm || :
+
+%posttrans web
+
+# rebuild symfony cache on upgrade
+if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
+  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear --no-warmup"
+fi
 
 #%preun web
 #setsebool -P httpd_unified off 2>/dev/null || :

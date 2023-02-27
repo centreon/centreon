@@ -7,7 +7,10 @@ on:
       - closed
     paths:
       - "centreon/packages/ui-context/**"
-      - ".github/workflows/ui-context-merge.yml"
+      - ".github/workflows/ui-context-stable.yml"
+      - ".github/actions/npm-publish-package-stable/**"
+    branches:
+      - dev-22.10.x
 
 env:
   directory: "centreon/packages/ui-context"
@@ -15,7 +18,7 @@ env:
   base_branch: dev-22.10.x
 
 jobs:
-  clean-up-npm-beta:
+  clean-up-npm-beta-tag:
     runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
 
@@ -27,18 +30,18 @@ jobs:
           package: ui-context
           npm_token: ${{ secrets.NPM_TOKEN }}
 
-  deliver-npm-beta:
+  publish-new-npm-version:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true && !startsWith(github.head_ref, 'MON-update-package-versions') }}
+    if: ${{ github.event.pull_request.merged == true }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/npm-publish-package
+      - uses: ./.github/actions/npm-publish-package-stable
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
+          release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
-          release_type: "stable"
-          version: "dev-22.10.x"
+          version: ${{ env.base_branch }}

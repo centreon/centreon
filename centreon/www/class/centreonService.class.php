@@ -61,6 +61,9 @@ class CentreonService
      */
     protected $instanceObj;
 
+    private const TABLE_SERVICE_CONFIGURATION = 'service',
+                  TABLE_SERVICE_REALTIME = 'services';
+
     /**
      *  Constructor
      *
@@ -75,7 +78,7 @@ class CentreonService
             $this->dbMon = $dbMon;
         }
 
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
     }
 
     /**
@@ -325,19 +328,29 @@ class CentreonService
      */
     public function replaceMacroInString($svc_id, $string, $antiLoop = null, $instanceId = null)
     {
-        $rq = "SELECT service_register FROM service WHERE service_id = '" . $svc_id . "' LIMIT 1";
-        $DBRES = $this->db->query($rq);
-        if (!$DBRES->rowCount()) {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
             return $string;
         }
-        $row = $DBRES->fetchRow();
+        $query = <<<SQL
+          SELECT service_register, service_description
+          FROM service
+          WHERE service_id = :service_id LIMIT 1
+        SQL;
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':service_id', (int) $svc_id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (!$statement->rowCount()) {
+            return $string;
+        }
+        $row = $statement->fetchRow();
 
         /*
          * replace if not template
          */
         if ($row['service_register'] == 1) {
             if (preg_match('/\$SERVICEDESC\$/', $string)) {
-                $string = str_replace("\$SERVICEDESC\$", $this->getServiceDesc($svc_id), $string);
+                $string = str_replace("\$SERVICEDESC\$", $row['service_description'], $string);
             }
             if (!is_null($instanceId) && preg_match("\$INSTANCENAME\$", $string)) {
                 $string = str_replace("\$INSTANCENAME\$", $this->instanceObj->getParam($instanceId, 'name'), $string);
@@ -1681,37 +1694,39 @@ class CentreonService
      * Returns service details
      *
      * @param int $id
+     * @param array $parameters
+     * @param boolean $monitoringDB
+     *
      * @return array
      */
-    public function getParameters($id, $parameters = array(), $monitoringDB = false)
+    public function getParameters($id, $parameters = [], $monitoringDB = false)
     {
-        $sElement = "*";
-        $arr = array();
-        if (empty($id)) {
-            return array();
-        }
-        if (count($parameters) > 0) {
-            $sElement = implode(",", $parameters);
+        if ((int) $id <= 0) {
+            return [];
         }
 
-        $table = 'service';
-        $db = $this->db;
-        if ($monitoringDB) {
-            $table = 'services';
-            $db = $this->dbMon;
-        }
+        $searchColumns = (count($parameters) > 0) ? implode(',', $parameters) : '*';
+        $searchTable = ($monitoringDB === true) ? self::TABLE_SERVICE_REALTIME : self::TABLE_SERVICE_CONFIGURATION;
+        $database = ($monitoringDB === true) ? $this->dbMon : $this->db;
 
-        $res = $db->query(
-            "SELECT " . $sElement . " "
-            . "FROM " . $table . " "
-            . "WHERE service_id = " . $db->escape($id)
+        $statement = $database->prepare(<<<SQL
+            SELECT
+                $searchColumns
+            FROM
+                $searchTable
+            WHERE
+                service_id = :serviceId
+            SQL
         );
+        $statement->bindValue(':serviceId', (int) $id, \PDO::PARAM_INT);
+        $statement->execute();
 
-        if ($res->rowCount()) {
-            $arr = $res->fetchRow();
+        $result = [];
+        if ($statement->rowCount()) {
+            $result = $statement->fetchRow();
         }
 
-        return $arr;
+        return $result;
     }
 
     /**
