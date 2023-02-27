@@ -46,6 +46,7 @@ jobs:
         run: |
           mkdir -p stability/x86_64
           mkdir -p stability/noarch
+
           jf rt upload --include-dirs=true "stability" "rpm/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/stable/"
         shell: bash
 
