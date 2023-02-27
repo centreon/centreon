@@ -47,7 +47,7 @@ jobs:
           mkdir -p stability
 
           for ARCH in "noarch" "x86_64"; do
-            jf rt upload "stability" "rpm/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/stable/$ARCH/"
+            jf rt upload --include-dirs "stability" "rpm/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/stable/$ARCH"
           done
 
           curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm?path=/standard/${{ needs.get-version.outputs.major_version }}/el9/${{ matrix.distrib }}/stable&async=1"
