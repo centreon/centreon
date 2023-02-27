@@ -81,13 +81,10 @@ const FloatingLinkEditor = ({
   );
 
   useEffect(() => {
-    if (isNil(rangeRect)) {
-      return;
-    }
+    const isPositioned =
+      rangeRect && (!equals(rangeRect.x, 0) || !equals(rangeRect.y, 0));
 
-    const isNotPositioned = equals(rangeRect.x, 0) && equals(rangeRect.y, 0);
-
-    if (isNotPositioned || !nativeSelection) {
+    if (!isPositioned || !nativeSelection) {
       return;
     }
 
