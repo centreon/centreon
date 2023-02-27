@@ -40,3 +40,12 @@ Background:
          When I click on the export configuration action and confirm
          Then a success message is displayed
          And the configuration is generated on all pollers
+
+   Scenario: Generate the configuration with broken pollers
+         Given broken pollers
+         When I visit the export configuration page
+         And I select some pollers
+         And I click on the Export configuration button
+         Then I am redirected to generate page
+         When I click on the export button
+         Then the configuration is not generated on selected pollers

@@ -1,12 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import { executeActionViaClapi, insertFixture } from '../../commons';
 
-const dateBeforeLogin = new Date();
+let dateBeforeLogin: Date;
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;
 const testHostName = 'test_host';
 
-const insertPollerConfigAclUser = (): Cypress.Chainable => {
+const insertPollerConfigUserAcl = (): Cypress.Chainable => {
+  dateBeforeLogin = new Date();
+
   return cy
     .setUserTokenApiV1()
     .executeCommandsViaClapi(
@@ -142,17 +144,41 @@ const clearCentengineLogs = (): Cypress.Chainable => {
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
-      )} rm -rf /etc/centreon-engine/hosts.cfg`
+      )} truncate -s 0 /etc/centreon-engine/hosts.cfg`
     );
 };
 
+const breakSomePollers = (): Cypress.Chainable => {
+  return cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} sh -c "chmod a-rwx  /var/cache/centreon/config/engine/1/"`
+  );
+};
+
+const checkIfConfigurationIsNotExported = (): void => {
+  cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
+  ).then(({ stdout }): Cypress.Chainable<null> | null => {
+    if (!stdout) {
+      return null;
+    }
+
+    throw new Error(`The configuration has been exported`);
+  });
+};
+
 export {
-  insertPollerConfigAclUser,
+  insertPollerConfigUserAcl,
   getPoller,
   insertHost,
   removeFixtures,
   checkIfConfigurationIsExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
-  waitPollerListToLoad
+  breakSomePollers,
+  waitPollerListToLoad,
+  checkIfConfigurationIsNotExported
 };

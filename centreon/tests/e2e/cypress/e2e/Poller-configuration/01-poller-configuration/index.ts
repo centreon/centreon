@@ -1,12 +1,14 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
+  breakSomePollers,
   checkIfConfigurationIsExported,
+  checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   getPoller,
   insertHost,
-  insertPollerConfigAclUser,
+  insertPollerConfigUserAcl,
   removeFixtures,
   waitPollerListToLoad
 } from '../common';
@@ -33,7 +35,9 @@ beforeEach(() => {
 Given(
   'I am granted the rights to access the poller page and export the configuration',
   () => {
-    insertPollerConfigAclUser();
+    clearCentengineLogs().then(() => {
+      insertPollerConfigUserAcl();
+    })
   }
 );
 
@@ -202,9 +206,9 @@ Then(
 When('I click on the export configuration action and confirm', () => {
   cy.get('header')
     .get('svg[data-testid="DeviceHubIcon"]')
-    .click()
-    .get('button[data-testid="Export configuration"]')
     .click();
+
+  cy.get('button[data-testid="Export configuration"]').click();
 
   cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
 });
@@ -219,6 +223,18 @@ Then('a success message is displayed', () => {
 
 Then('the configuration is generated on all pollers', () => {
   checkIfConfigurationIsExported();
+
+  cy.logout().reload();
+
+  removeFixtures();
+});
+
+Given('broken pollers', () => {
+  breakSomePollers();
+});
+
+Then('the configuration is not generated on selected pollers', () => {
+  checkIfConfigurationIsNotExported();
 });
 
 after(() => {
