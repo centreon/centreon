@@ -10,6 +10,7 @@
     "cypress:run": "cypress run --config-file cypress.dev.config.ts --browser=chrome",
     "cypress:run:develop:debug": "pnpm start:docker && DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && pnpm kill:docker",
     "cypress:open:dev": "pnpm start:docker && cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e && pnpm kill:docker",
+    "cypress:run:ci": "DEBUG=cypress:* cypress run --e2e --browser chrome",
     "eslint": "eslint ./cypress",
     "eslint:fix": "pnpm eslint --fix"
   },
