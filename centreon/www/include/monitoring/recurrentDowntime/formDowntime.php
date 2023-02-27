@@ -254,16 +254,17 @@ $form->setRequiredNote("<i class='red'>*</i>&nbsp;" . _("Required fields"));
 if ($o == "c" || $o == 'w') {
     $infos = $downtime->getInfos($id);
     $relations = $downtime->getRelations((int) $id);
-    $default_dt = array(
+    $extractRelationId = static fn(array $item): string => (string) ($item['id'] ?? '');
+    $default_dt = [
         'dt_id' => $id,
         'downtime_name' => $infos['name'],
         'downtime_description' => $infos['description'],
         'downtime_activate' => $infos['activate'],
-        'host_relations' => $relations['hosts'],
-        'hostgroup_relations' => $relations['hostgroups'],
-        'service_relations' => $relations['services'],
-        'servicegroup_relations' => $relations['servicegroups']
-    );
+        'host_relation' => array_map($extractRelationId, $relations['hosts']),
+        'hostgroup_relation' => array_map($extractRelationId, $relations['hostgroups']),
+        'svc_relation' => array_map($extractRelationId, $relations['services']),
+        'svcgroup_relation' => array_map($extractRelationId, $relations['servicegroups']),
+    ];
 }
 
 
@@ -301,9 +302,9 @@ if ($o == "w") {
         $userAcl = new CentreonACL($userId, $userIsAdmin);
 
         if (
-            ! checkResourcesRelations($userAcl, $default_dt['host_relations'], 'hosts')
-            || ! checkResourcesRelations($userAcl, $default_dt['hostgroup_relations'], 'hostgroups')
-            || ! checkResourcesRelations($userAcl, $default_dt['servicegroup_relations'], 'servicegroups')
+            ! checkResourcesRelations($userAcl, $default_dt['host_relation'], 'hosts')
+            || ! checkResourcesRelations($userAcl, $default_dt['hostgroup_relation'], 'hostgroups')
+            || ! checkResourcesRelations($userAcl, $default_dt['svcgroup_relation'], 'servicegroups')
         ) {
             $form->addElement('text', 'msgacl', _("error"), 'error');
             $form->freeze();

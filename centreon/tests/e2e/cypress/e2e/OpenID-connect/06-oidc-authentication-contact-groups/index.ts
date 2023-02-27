@@ -64,12 +64,12 @@ When(
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
-      .click();
+      .click({ force: true });
     configureOpenIDConnect();
     cy.getByLabel({ label: 'Groups mapping' })
       .eq(0)
       .contains('Groups mapping')
-      .click();
+      .click({ force: true });
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'
