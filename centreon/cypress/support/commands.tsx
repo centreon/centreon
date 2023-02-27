@@ -100,6 +100,24 @@ Cypress.Commands.add('waitFiltersAndListingRequests', () => {
 
 Cypress.Commands.add(
   'moveSortableElement',
+  ({ element, direction }): void => {
+    const key = `{${direction}arrow}`;
+
+    element.type(' ', {
+      force: true,
+      scrollBehavior: false
+    });
+    element.eq(-1).type(key, {
+      scrollBehavior: false
+    });
+    element.eq(-1).type(' ', {
+      scrollBehavior: false
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'moveSortableElementUsingAriaLabel',
   ({ ariaLabel, direction }): void => {
     const key = `{${direction}arrow}`;
 
@@ -124,7 +142,8 @@ declare global {
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
-      moveSortableElement: ({ ariaLabel, direction }) => void;
+      moveSortableElement: ({ element, direction }) => void;
+      moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
       waitForRequest: (alias) => Cypress.Chainable;
     }
