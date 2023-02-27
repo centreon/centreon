@@ -26,7 +26,11 @@ import {
   labelEditLink
 } from '../translatedLabels';
 
-interface UseFloatingLinkEditorProps {
+interface FloatingLinkEditorPluginProps {
+  editable: boolean;
+}
+
+interface UseFloatingLinkEditorProps extends FloatingLinkEditorPluginProps {
   editor: LexicalEditor;
 }
 
@@ -158,7 +162,8 @@ const FloatingLinkEditor = ({
 };
 
 const useFloatingTextFormatToolbar = ({
-  editor
+  editor,
+  editable
 }: UseFloatingLinkEditorProps): JSX.Element | null => {
   const [isText, setIsText] = useState(false);
   const isInsertingLink = useAtomValue(isInsertingLinkAtom);
@@ -229,17 +234,19 @@ const useFloatingTextFormatToolbar = ({
     );
   }, [editor, updatePopup]);
 
-  if (!isText || !isInsertingLink) {
+  if (!editable || !isText || !isInsertingLink) {
     return null;
   }
 
   return <FloatingLinkEditor editor={editor} />;
 };
 
-const FloatingActionsToolbarPlugin = (): JSX.Element | null => {
+const FloatingActionsToolbarPlugin = ({
+  editable
+}: FloatingLinkEditorPluginProps): JSX.Element | null => {
   const [editor] = useLexicalComposerContext();
 
-  return useFloatingTextFormatToolbar({ editor });
+  return useFloatingTextFormatToolbar({ editable, editor });
 };
 
 export default FloatingActionsToolbarPlugin;

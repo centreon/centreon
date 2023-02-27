@@ -105,7 +105,7 @@ const RichTextEditor = ({
       <HistoryPlugin />
       <LinkPlugin />
       <AutoCompleteLinkPlugin />
-      <FloatingLinkEditorPlugin />
+      <FloatingLinkEditorPlugin editable={editable} />
     </LexicalComposer>
   );
 };
