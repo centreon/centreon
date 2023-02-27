@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\InvalidEndpointException;
+use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
 
 class Endpoint
 {

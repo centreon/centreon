@@ -42,7 +42,7 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;

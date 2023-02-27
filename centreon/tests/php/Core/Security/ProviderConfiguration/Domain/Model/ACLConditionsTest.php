@@ -22,20 +22,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration;
 
-use Centreon\Domain\Repository\RepositoryException;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\InvalidEndpointException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfiguration;
-use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\ReadWebSSOConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration\{
-    FindWebSSOConfiguration,
-    FindWebSSOConfigurationResponse
-};
 
 beforeEach(function () {
     $this->custom_relative_url = '/info';

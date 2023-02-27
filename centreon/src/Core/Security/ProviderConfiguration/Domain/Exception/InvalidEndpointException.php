@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions;
+namespace Core\Security\ProviderConfiguration\Domain\Exception;
 
-class InvalidEndpointException extends OpenIdConfigurationException
+class InvalidEndpointException extends \DomainException
 {
     /**
      * @return self
      */
     public static function invalidType(): self
     {
-        return new self(_('Invalid endpoint type specified'));
+        return new self('Invalid endpoint type specified');
     }
 
     /**
@@ -38,6 +38,6 @@ class InvalidEndpointException extends OpenIdConfigurationException
      */
     public static function invalidUrl(): self
     {
-        return new self(_('Invalid endpoint URL specified'));
+        return new self('Invalid endpoint URL specified');
     }
 }
