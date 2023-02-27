@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { makeStyles } from 'tss-react/mui';
-import { isEmpty } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
@@ -42,11 +42,13 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   editable: boolean;
-  editorStateForReadOnlyMode?: string;
+  editorState?: string;
   hasInitialTextContent?: boolean;
+  initialEditorState?: string;
   inputClassname?: string;
   minInputHeight: number;
   placeholder: string;
+  resetEditorToInitialStateCondition?: () => boolean;
 }
 
 const ContentEditable = ({
@@ -55,7 +57,9 @@ const ContentEditable = ({
   placeholder,
   hasInitialTextContent,
   editable,
-  editorStateForReadOnlyMode
+  editorState,
+  resetEditorToInitialStateCondition,
+  initialEditorState
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, minInputHeight });
   const { t } = useTranslation();
@@ -75,16 +79,16 @@ const ContentEditable = ({
   useLayoutEffect(() => {
     setEditable(editor.isEditable());
 
-    if (editorStateForReadOnlyMode) {
-      const editorState = editor.parseEditorState(editorStateForReadOnlyMode);
+    if (editorState && !editable) {
+      const newEditorState = editor.parseEditorState(editorState);
 
-      editor.setEditorState(editorState);
+      editor.setEditorState(newEditorState);
     }
 
     return editor.registerEditableListener((currentIsEditable) => {
       setEditable(currentIsEditable);
     });
-  }, [editor, editorStateForReadOnlyMode]);
+  }, [editor, editorState]);
 
   useEffect(() => {
     editor.registerTextContentListener((currentRoot) => {
@@ -97,6 +101,19 @@ const ContentEditable = ({
 
     setRoot(' ');
   }, [editor]);
+
+  useEffect(() => {
+    const shouldResetEditorToInitialState =
+      resetEditorToInitialStateCondition?.();
+
+    if (!shouldResetEditorToInitialState || isNil(initialEditorState)) {
+      return;
+    }
+
+    const newEditorState = editor.parseEditorState(initialEditorState);
+
+    editor.setEditorState(newEditorState);
+  }, [editorState]);
 
   const isTextEmpty = isEmpty(root);
 
