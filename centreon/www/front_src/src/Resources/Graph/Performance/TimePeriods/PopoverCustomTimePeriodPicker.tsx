@@ -125,6 +125,7 @@ const PopoverCustomTimePeriodPickers = ({
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const [start, setStart] = useState<Date>(customTimePeriod.start);
+  const [error, setError] = useState(false);
   const [end, setEnd] = useState<Date>(customTimePeriod.end);
 
   const { locale } = useAtomValue(userAtom);
@@ -132,13 +133,6 @@ const PopoverCustomTimePeriodPickers = ({
 
   const isInvalidDate = ({ startDate, endDate }): boolean =>
     dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
-
-  const error =
-    !pickerStartWithoutInitialValue &&
-    !pickerEndWithoutInitialValue &&
-    isInvalidDate({ endDate: end, startDate: start });
-
-  getIsErrorDatePicker?.(error);
 
   const changeDate = ({ property, date }): void => {
     const currentDate = customTimePeriod[property];
@@ -176,6 +170,25 @@ const PopoverCustomTimePeriodPickers = ({
     setStart(customTimePeriod.start);
     setEnd(customTimePeriod.end);
   }, [customTimePeriod.start, customTimePeriod.end]);
+
+  useEffect(() => {
+    if (pickerStartWithoutInitialValue || pickerEndWithoutInitialValue) {
+      return;
+    }
+    if (!end || !start) {
+      return;
+    }
+    setError(isInvalidDate({ endDate: end, startDate: start }));
+  }, [
+    end,
+    start,
+    pickerStartWithoutInitialValue,
+    pickerEndWithoutInitialValue
+  ]);
+
+  useEffect(() => {
+    getIsErrorDatePicker?.(error);
+  }, [error]);
 
   return (
     <Popover

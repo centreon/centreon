@@ -85,6 +85,11 @@ const DateTimePickerInput = ({
     onClosePicker?.(true);
   };
 
+  const open = (): void => {
+    setIsOpen(true);
+    onClosePicker?.(false);
+  };
+
   return (
     <DateTimePicker<dayjs.Dayjs>
       hideTabs
@@ -99,7 +104,7 @@ const DateTimePickerInput = ({
       value={withoutInitialValue ? null : (date as dayjs.Dayjs)}
       onChange={changeTime}
       onClose={close}
-      onOpen={(): void => setIsOpen(true)}
+      onOpen={open}
     />
   );
 };
