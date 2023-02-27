@@ -75,9 +75,10 @@ if (session_id()) {
 } else {
     exit;
 }
-$o = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']);
-$p = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['p']);
-$cmd = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['cmd']);
+
+$o = htmlspecialchars($_GET['o']);
+$p = htmlspecialchars($_GET['p']);
+$cmd = htmlspecialchars($_GET['cmd']);
 
 if (
     (int) $cmd === ACKNOWLEDGEMENT_ON_SERVICE
