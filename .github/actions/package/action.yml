@@ -129,7 +129,7 @@ runs:
       with:
         name: packages-${{ inputs.package_extension }}
         path: ./*.${{ inputs.package_extension }}
-        retention-days: 7
+        retention-days: 1
 
     - name: Cache packaged files
       uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0

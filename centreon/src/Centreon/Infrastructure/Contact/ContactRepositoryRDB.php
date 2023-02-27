@@ -176,6 +176,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 
     /**
      * @inheritDoc
+     *
+     * Check if token is present in security_authentication_tokens (session token)
+     * and on top of that in security_token (JWT, OAuth access token...)
      */
     public function findByAuthenticationToken(string $token): ?Contact
     {
@@ -192,7 +195,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                     ON t.topology_page = contact.default_page
                 INNER JOIN `:db`.security_authentication_tokens sat
                     ON sat.user_id = contact.contact_id
-                WHERE sat.token = :token
+                INNER JOIN `:db`.security_token st
+                    ON st.id = sat.provider_token_id
+                WHERE (sat.token = :token OR st.token = :token)
                 ORDER BY cp.creation_date DESC LIMIT 1"
             )
         );
