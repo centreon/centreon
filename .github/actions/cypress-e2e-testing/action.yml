@@ -51,7 +51,6 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
-        command: DEBUG=cypress:* cypress run --browser=chrome --e2e
 
     - if: ${{ failure() }}
       run: |
@@ -79,14 +78,6 @@ runs:
       with:
         name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
-        retention-days: 1
-
-    - name: Archive screenshots
-      uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
-      with:
-        name: cypress-screenshots-${{ steps.formatFeatureFilePath.outputs.value }}
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/screenshots/
         retention-days: 1
 
     - name: Retrieve Broker logs
