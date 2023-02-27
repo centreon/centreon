@@ -80,6 +80,14 @@ runs:
         path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
         retention-days: 1
 
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-screenshots-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/screenshots/
+        retention-days: 1
+
     - name: Retrieve Broker logs
       if: ${{ failure() }}
       run: docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > broker.log
