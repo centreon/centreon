@@ -1,4 +1,4 @@
-FROM centreon.jfrog.io/docker/almalinux:9 AS web_fresh
+FROM docker.centreon.com/proxy/almalinux:9 AS web_fresh
 
 RUN <<EOF
 
@@ -84,7 +84,7 @@ RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
-
+yum clean all --enablerepo=*
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 

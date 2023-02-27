@@ -1,4 +1,4 @@
-FROM centreon.jfrog.io/docker/almalinux:8
+FROM docker.centreon.com/proxy/almalinux:8
 
 RUN <<EOF
 

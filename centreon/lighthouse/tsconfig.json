@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"],
-    "module": "CommonJS",
+    "module": "nodenext",
     "outDir": "build",
     "esModuleInterop": true,
     "resolveJsonModule": true

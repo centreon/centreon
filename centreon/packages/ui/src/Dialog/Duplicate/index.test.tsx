@@ -45,4 +45,47 @@ describe('DialogDuplicate', () => {
 
     expect(mockConfirm).toBeCalledWith(expect.anything(), '3');
   });
+  it('disables the confirm button if no number was giving', () => {
+    const mockConfirm = jest.fn();
+
+    const { getByDisplayValue, getByText } = render(
+      <DialogDuplicate
+        open
+        labelCancel="cancel"
+        labelConfirm="confirm"
+        labelInput="Duplications"
+        labelTitle="title"
+        onCancel={jest.fn()}
+        onConfirm={mockConfirm}
+      />
+    );
+
+    const input = getByDisplayValue('1');
+    fireEvent.change(input, { target: { value: '' } });
+
+    expect(getByText('confirm')).toBeDisabled();
+  });
+  it('disables the confirm button if the given number is more than the limit', () => {
+    const mockConfirm = jest.fn();
+
+    const limit = 10;
+
+    const { getByDisplayValue, getByText } = render(
+      <DialogDuplicate
+        open
+        labelCancel="cancel"
+        labelConfirm="confirm"
+        labelInput="Duplications"
+        labelTitle="title"
+        limit={limit}
+        onCancel={jest.fn()}
+        onConfirm={mockConfirm}
+      />
+    );
+
+    const input = getByDisplayValue('1');
+    fireEvent.change(input, { target: { value: limit + 1 } });
+
+    expect(getByText('confirm')).toBeDisabled();
+  });
 });

@@ -223,14 +223,6 @@ class OpenId implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return array<string>
-     */
-    public function getUserClaims(): array
-    {
-        return $this->provider->getRolesMappingFromProvider();
-    }
-
-    /**
      * @param array<string> $claims
      * @return array<int,AccessGroup>
      */

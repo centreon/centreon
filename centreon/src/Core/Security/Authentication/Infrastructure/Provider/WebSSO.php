@@ -219,6 +219,10 @@ class WebSSO implements ProviderAuthenticationInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->getConfiguration()->getCustomConfiguration();
+        if (!$this->getConfiguration()->isActive()) {
+            return;
+        }
+
         $this->info('Validating login header attribute');
         if (!array_key_exists($customConfiguration->getLoginHeaderAttribute(), $_SERVER)) {
             $this->error('login header attribute not found in server environment', [
