@@ -6,7 +6,6 @@ import { and, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import {
   FormHelperText,
   Popover,
@@ -14,6 +13,7 @@ import {
   PopoverReference,
   Typography
 } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -42,13 +42,6 @@ const useStyles = makeStyles()((theme) => ({
       minWidth: 250,
       padding: theme.spacing(1)
     }
-  },
-  popover: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    justifyItems: 'center',
-    padding: theme.spacing(1, 2)
   }
 }));
 
@@ -207,7 +200,7 @@ const PopoverCustomTimePeriodPickers = ({
           dateAdapter={Adapter}
           locale={locale.substring(0, 2)}
         >
-          <div className={cx(classes.popover, classNamePicker)}>
+          <div className={classNamePicker}>
             <div>
               <Typography>{t(labelFrom)}</Typography>
               <div aria-label={t(labelStartDate)}>

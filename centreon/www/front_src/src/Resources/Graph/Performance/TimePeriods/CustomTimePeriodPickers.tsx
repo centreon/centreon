@@ -60,19 +60,11 @@ const useStyles = makeStyles()((theme) => ({
     flex: 1,
     paddingRight: 4
   },
-  error: {
-    textAlign: 'center'
-  },
   fromTo: {
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
     display: 'grid',
     gridTemplateColumns: 'repeat(2, auto)'
-  },
-  minimalFromTo: {
-    display: 'grid',
-    gridTemplateRows: 'repeat(2, min-content)',
-    rowGap: theme.spacing(0.3)
   },
   minimalPickers: {
     alignItems: 'center',
@@ -80,24 +72,12 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateColumns: 'min-content auto'
   },
-  pickerText: {
-    cursor: 'pointer',
-    lineHeight: '1.2'
-  },
-  pickers: {
-    alignItems: 'center',
-    columnGap: theme.spacing(0.5),
-    display: 'grid',
-    gridTemplateColumns: `minmax(${theme.spacing(15)}, ${theme.spacing(
-      17
-    )}px) min-content minmax(${theme.spacing(15)}, ${theme.spacing(17)})`
-  },
-  popover: {
-    display: 'grid',
-    gridTemplateRows: 'auto auto auto',
+  picker: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
     justifyItems: 'center',
-    padding: theme.spacing(1, 2),
-    rowGap: theme.spacing(1)
+    padding: theme.spacing(1, 2)
   },
   timeContainer: {
     alignItems: 'center',
@@ -175,6 +155,7 @@ const CustomTimePeriodPickers = ({
       <PopoverCustomTimePeriodPickers
         acceptDate={acceptDate}
         anchorReference="anchorEl"
+        classNamePicker={classes.picker}
         customTimePeriod={customTimePeriod}
         open={displayPopover}
         reference={{ anchorEl }}
