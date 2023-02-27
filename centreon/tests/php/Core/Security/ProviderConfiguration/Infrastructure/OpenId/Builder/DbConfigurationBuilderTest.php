@@ -31,7 +31,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
 
 beforeEach(function () {
