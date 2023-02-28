@@ -52,7 +52,10 @@ export const customFetch = <T>({
     .then((response) => {
       return response.json().then((data) => {
         if (!response.ok) {
-          const defaultError = { code: -1, message: defaultFailureMessage };
+          const defaultError = {
+            code: -1,
+            message: data.message || 'Oops'
+          };
           catchError({
             data: data || defaultError,
             statusCode: response.status
@@ -60,7 +63,7 @@ export const customFetch = <T>({
 
           return {
             isError: true,
-            message: data.message || defaultFailureMessage,
+            message: data.message || 'Oops',
             statusCode: response.status
           };
         }
@@ -75,7 +78,7 @@ export const customFetch = <T>({
     .catch((error: Error) => {
       const defaultError = {
         code: -1,
-        message: error.message || defaultFailureMessage
+        message: error.message || 'Oops'
       };
 
       catchError({
@@ -85,7 +88,7 @@ export const customFetch = <T>({
 
       return {
         isError: true,
-        message: error.message || defaultFailureMessage,
+        message: error.message || 'Oops',
         statusCode: 0
       };
     });
