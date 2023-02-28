@@ -3,14 +3,14 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "start:docker": "docker run -d -p 4000:80 --name centreon-dev docker.centreon.com/centreon/centreon-web-alma9:develop",
+    "start:docker": "docker run -d -p 4000:80 --name centreon-dev docker.centreon.com/centreon/centreon-web-widgets-alma9:MON-fix-e2e-tests",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
     "cypress:run:develop": "pnpm start:docker && cypress run --config-file cypress.dev.config.ts --browser=chrome --e2e && pnpm kill:docker",
     "cypress:open": "cypress open --config-file cypress.dev.config.ts --browser=chrome",
     "cypress:run": "cypress run --config-file cypress.dev.config.ts --browser=chrome",
     "cypress:run:develop:debug": "pnpm start:docker && DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt && pnpm kill:docker",
     "cypress:open:dev": "pnpm start:docker && cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e && pnpm kill:docker",
-    "cypress:run:ci": "DEBUG=cypress:* cypress run --e2e --browser chrome",
+    "cypress:run:ci": "cypress run --e2e --browser chrome",
     "eslint": "eslint ./cypress",
     "eslint:fix": "pnpm eslint --fix"
   },
