@@ -58,8 +58,8 @@ class LoginController extends AbstractController
             ) : null;
 
         $request = LoginRequest::createForLocal(
-            $payload["login"] ?? null,
-            $payload["password"] ?? null,
+            $payload["login"] ?: '',
+            $payload["password"] ?: '',
             $request->getClientIp(),
             $referer
         );
