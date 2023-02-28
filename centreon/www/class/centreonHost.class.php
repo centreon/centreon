@@ -63,6 +63,31 @@ class CentreonHost
     protected $serviceObj;
 
     /**
+     * Macros formatted by id
+     * ex:
+     * [
+     *  1 => [
+     *    "macroName" => "KEY"
+     *    "macroValue" => "value"
+     *    "macroPassword" => "1"
+     *  ],
+     *  2 => [
+     *    "macroName" => "KEY_1"
+     *    "macroValue" => "value_1"
+     *    "macroPassword" => "1"
+     *    "originalName" => "MACRO_1"
+     *  ]
+     * ]
+     * @var array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+    */
+    private array $formattedMacros = [];
+
+    /**
      * @param CentreonDB $db
      * @throws PDOException
      */
@@ -858,6 +883,19 @@ class CentreonHost
                 }
                 $cnt++;
                 $stored[strtolower($value)] = true;
+
+                //Format macros to improve handling on form submit.
+                $dbResult = $this->db->query("SELECT MAX(host_macro_id) FROM on_demand_macro_host");
+                $macroId = $dbResult->fetch();
+                $this->formattedMacros[(int) $macroId['MAX(host_macro_id)']] = [
+                    "macroName" => '_HOST' . strtoupper($value),
+                    "macroValue" => $macrovalues[$key],
+                    "macroPassword" => $macroPassword[$key] ?? '0',
+                ];
+                if (isset($_REQUEST['macroOriginalName_' . $key])) {
+                    $this->formattedMacros[(int) $macroId['MAX(host_macro_id)']]['originalName']
+                        = '_HOST' . $_REQUEST['macroOriginalName_' . $key];
+                }
             }
         }
     }
@@ -2558,5 +2596,20 @@ class CentreonHost
         if (!$dbResult) {
             throw new \Exception('Error while delete host ' . $hostName);
         }
+    }
+
+    /**
+     * Get Macros Information Unified by id
+     *
+     * @return array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+     */
+    public function getFormattedMacros(): array
+    {
+        return $this->formattedMacros;
     }
 }

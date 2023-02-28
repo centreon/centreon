@@ -3831,21 +3831,8 @@ msgstr ""
 msgid "Define the timezone of the host's location."
 msgstr "Define o fuso horário para a localização do host."
 
-#: centreon-web/www/include/configuration/configObject/host/help.php:36
-msgid ""
-"This is where you specify the template that you want to inherit "
-"properties/variables from. Inherited properties doesn't need to be specified"
-" again. \"Local\" object variables always take precedence over variables "
-"defined in the template object. Objects can inherit properties/variables "
-"from multiple levels of template objects. When defining multiple sources, "
-"the first template specified takes precedence over the later one, in the "
-"case where a property is defined in both."
-msgstr ""
-"Isso permite que você adicione modelos de host para herdar propriedades / variáveis ​​deles. \n"
-"Propriedades herdadas não devem ser redefinidas. \n"
-"De fato, propriedades / variáveis ​​definidas localmente neste objeto sobrescreverão propriedades / variáveis ​​predefinidas em modelos vinculados. \n"
-"Objetos podem herdar propriedades de vários níveis de modelos. \n"
-"Ao definir vários modelos e no caso em que a mesma propriedade é definida em vários locais, a prioridade será dada àquela do primeiro modelo vinculado."
+# msgid "A host or host template inherits properties from its templates, unless the properties are defined directly on the host or host template itself. A host or host template can inherit from multiple templates. The properties of the first template in the list prevail over the properties of the second one, and so on."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host/help.php:44
 msgid ""
