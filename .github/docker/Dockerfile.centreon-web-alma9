@@ -26,7 +26,7 @@ innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
 dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm/standard/23.04/el9/centreon.repo
-dnf config-manager --set-enabled="centreon*"
+dnf config-manager --set-enabled 'centreon*'
 
 dnf clean all --enablerepo=*
 
