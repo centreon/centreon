@@ -25,13 +25,13 @@ runs:
         junit_files: "${{ inputs.path }}"
         fail_on: nothing
 
-    - if: ${{ inputs.format == 'checkstyle' }}}
-      uses: jwgmeligmeyling/checkstyle-github-action@master
+    - name: Publish Checkstyle report
+      if: ${{ inputs.format == 'checkstyle' }}
+      uses: Juuxel/publish-checkstyle-report@v1
       with:
-        path: ${{ inputs.path }}
-        name: ${{ inputs.check_name }}
+        reports: ${{ inputs.path }}
 
-    - if: ${{ inputs.format != 'php-junit' }}
+    - if: ${{ inputs.format != 'php-junit' && inputs.format != 'checkstyle' }}
       uses: dorny/test-reporter@v1
       with:
         name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
