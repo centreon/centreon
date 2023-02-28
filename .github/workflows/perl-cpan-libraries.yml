@@ -32,61 +32,62 @@ jobs:
     strategy:
       matrix:
         distrib: [el8, el9, bullseye]
-        name: [
-          'boolean',
-          'Carp::Assert',
-          'Clone',
-          'Clone::Choose',
-          'common::sense',
-          'Convert::EBCDIC',
-          'Crypt::Argon2',
-          'Crypt::Blowfish_PP',
-          'Device::Modbus',
-          'Device::Modbus::RTU::Client',
-          'Device::Modbus::TCP::Client',
-          'Digest::MD5::File',
-          'Digest::SHA1',
-          'Email::Send::SMTP::Gmail',
-          'File::SearchPath',
-          'Hash::Merge',
-          'HTTP::Daemon',
-          'HTTP::Daemon::SSL',
-          'HTTP::ProxyPAC',
-          'JMX::Jmx4Perl',
-          'JSON::Parse',
-          'JSON::Path',
-          'JSON::WebToken',
-          'Libssh::Session',
-          'LV',
-          'Net::Curl::Easy',
-          'Net::FTPSSL',
-          'Net::HTTPTunnel',
-          'Net::NTP',
-          'Net::SMTPS',
-          'Net::SMTP_auth',
-          'Net::Subnet',
-          'Net::TFTP',
-          'Schedule::Cron',
-          'Statistics::Descriptive',
-          'Statistics::Regression',
-          'Sys::SigAction',
-          'Term::Clui',
-          'Term::ShellUI',
-          'URI::Encode',
-          'URI::Template',
-          'URL::Encode',
-          'UUID',
-          'UUID::URandom',
-          'XML::Filter::BufferText',
-          'XML::LibXML::Simple',
-          'XML::SAX::Writer',
-          'YAML::LibYAML',
-          'ZMQ::Constants',
-          'ZMQ::LibZMQ4',
-        ]
+        name:
+          [
+            "boolean",
+            "Carp::Assert",
+            "Clone",
+            "Clone::Choose",
+            "common::sense",
+            "Convert::EBCDIC",
+            "Crypt::Argon2",
+            "Crypt::Blowfish_PP",
+            "Device::Modbus",
+            "Device::Modbus::RTU::Client",
+            "Device::Modbus::TCP::Client",
+            "Digest::MD5::File",
+            "Digest::SHA1",
+            "Email::Send::SMTP::Gmail",
+            "File::SearchPath",
+            "Hash::Merge",
+            "HTTP::Daemon",
+            "HTTP::Daemon::SSL",
+            "HTTP::ProxyPAC",
+            "JMX::Jmx4Perl",
+            "JSON::Parse",
+            "JSON::Path",
+            "JSON::WebToken",
+            "Libssh::Session",
+            "LV",
+            "Net::Curl::Easy",
+            "Net::FTPSSL",
+            "Net::HTTPTunnel",
+            "Net::NTP",
+            "Net::SMTPS",
+            "Net::SMTP_auth",
+            "Net::Subnet",
+            "Net::TFTP",
+            "Schedule::Cron",
+            "Statistics::Descriptive",
+            "Statistics::Regression",
+            "Sys::SigAction",
+            "Term::Clui",
+            "Term::ShellUI",
+            "URI::Encode",
+            "URI::Template",
+            "URL::Encode",
+            "UUID",
+            "UUID::URandom",
+            "XML::Filter::BufferText",
+            "XML::LibXML::Simple",
+            "XML::SAX::Writer",
+            "YAML::LibYAML",
+            "ZMQ::Constants",
+            "ZMQ::LibZMQ4",
+          ]
         include:
-          - dependencies: ''
-          - version: ''
+          - dependencies: ""
+          - version: ""
           - distrib: el8
             package_extension: rpm
             image: packaging-alma8
@@ -96,18 +97,18 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
-          - name: 'JSON::Path'
-            version: '1.0.3'
-          - name: 'ZMQ::LibZMQ4'
-            dependencies: 'zeromq'
-          - name: 'Libssh::Session'
-            dependencies: 'libssh'
+          - name: "JSON::Path"
+            version: "1.0.3"
+          - name: "ZMQ::LibZMQ4"
+            dependencies: "zeromq"
+          - name: "Libssh::Session"
+            dependencies: "libssh"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
-      image: centreon.jfrog.io/docker/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -195,11 +196,11 @@ jobs:
         distrib: [el8, el9]
     name: sign rpm ${{ matrix.distrib }}
     container:
-      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.AUTOMATION_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - run: apt-get install -y zstd

@@ -79,9 +79,13 @@ const issuesDecoder = JsonDecoder.object(
   'issues'
 );
 
+const noIssuesDecoder = JsonDecoder.array(JsonDecoder.string, 'Empty issues');
+
 export const pollerIssuesDecoder = JsonDecoder.object<PollersIssuesList>(
   {
-    issues: issuesDecoder,
+    issues: JsonDecoder.oneOf<
+      FromDecoder<typeof noIssuesDecoder> | FromDecoder<typeof issuesDecoder>
+    >([noIssuesDecoder, issuesDecoder], 'empty array | issues'),
     refreshTime: JsonDecoder.number,
     total: JsonDecoder.number
   },

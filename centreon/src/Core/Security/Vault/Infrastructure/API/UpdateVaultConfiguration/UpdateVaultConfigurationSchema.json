@@ -3,26 +3,18 @@
     "title": "Update Vault Configuration",
     "type": "object",
     "required": [
-        "name",
         "address",
         "port",
-        "storage",
         "role_id",
         "secret_id"
     ],
     "additionalProperties": false,
     "properties": {
-        "name": {
-            "type": "string"
-        },
         "address": {
             "type": "string"
         },
         "port": {
             "type": "integer"
-        },
-        "storage": {
-            "type": "string"
         },
         "role_id": {
             "type": "string"
