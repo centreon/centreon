@@ -55,6 +55,9 @@ jobs:
 
             curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm?path=/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY&async=1"
 
+            jf rt upload --include-dirs "stability" "rpm-connectors/${{ matrix.distrib }}/$STABILITY/$ARCH"
+
+            curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm-connectors?path=/${{ matrix.distrib }}/$STABILITY&async=1"
           done
         shell: bash
 
