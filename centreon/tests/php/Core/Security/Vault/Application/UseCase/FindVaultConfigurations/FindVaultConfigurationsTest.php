@@ -33,7 +33,6 @@ use Core\Security\Vault\Application\Repository\{
 };
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
     FindVaultConfigurations,
-    FindVaultConfigurationsRequest,
     FindVaultConfigurationsResponse
 };
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
@@ -172,7 +171,7 @@ it('should present FindVaultConfigurationsResponse', function () {
             'vault_id' => $vault->getId(),
             'url' => $vaultConfiguration->getAddress(),
             'port' => $vaultConfiguration->getPort(),
-            'storage' => $vaultConfiguration->getStorage()
+            'root_path' => $vaultConfiguration->getRootPath()
         ]
     ];
 

@@ -34,11 +34,9 @@ $help["host_location"] = dgettext(
 
 $help["use"] = dgettext(
     "help",
-    "This is where you specify the template that you want to inherit properties/variables from."
-    . " Inherited properties doesn't need to be specified again. \"Local\" object variables always take"
-    . " precedence over variables defined in the template object. Objects can inherit properties/variables"
-    . " from multiple levels of template objects. When defining multiple sources, the first template specified"
-    . " takes precedence over the later one, in the case where a property is defined in both."
+    "A host or host template inherits properties from its templates, unless the properties are defined directly"
+    . " on the host or host template itself. A host or host template can inherit from multiple templates. The properties"
+    . " of the first template in the list prevail over the properties of the second one, and so on."
 );
 $help["create_linked_services"] = dgettext(
     "help",
