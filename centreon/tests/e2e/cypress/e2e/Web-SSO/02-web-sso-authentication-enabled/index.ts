@@ -53,7 +53,7 @@ When(
       .clear()
       .type('REMOTE_USER');
     cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
+      .click({ force: true })
       .wait('@updateWebSSOProvider')
       .its('response.statusCode')
       .should('eq', 204);
