@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 
 /**

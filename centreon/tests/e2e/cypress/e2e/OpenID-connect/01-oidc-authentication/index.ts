@@ -49,7 +49,7 @@ When(
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
-      .click();
+      .click({ force: true });
     configureOpenIDConnect();
   }
 );

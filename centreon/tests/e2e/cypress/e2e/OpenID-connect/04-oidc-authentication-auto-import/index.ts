@@ -57,12 +57,12 @@ When(
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
-      .click();
+      .click({ force: true });
     configureOpenIDConnect();
     cy.getByLabel({ label: 'Auto import users' })
       .eq(0)
       .contains('Auto import users')
-      .click();
+      .click({ force: true });
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
     cy.getByLabel({
       label: 'Contact template',

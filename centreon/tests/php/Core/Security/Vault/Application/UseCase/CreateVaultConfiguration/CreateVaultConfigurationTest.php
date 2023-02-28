@@ -148,7 +148,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     $createVaultConfigurationRequest->typeId = 1;
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
-    $createVaultConfigurationRequest->storage = 'myStorage';
+    $createVaultConfigurationRequest->rootPath = 'myStorage';
     $createVaultConfigurationRequest->roleId = 'myRole';
     $createVaultConfigurationRequest->secretId = 'mySecretId';
 
@@ -211,7 +211,7 @@ it('should present NotFoundResponse when vault provider does not exist', functio
     $createVaultConfigurationRequest->typeId = 3;
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
-    $createVaultConfigurationRequest->storage = 'myStorage';
+    $createVaultConfigurationRequest->rootPath = 'myStorage';
     $createVaultConfigurationRequest->roleId = 'myRole';
     $createVaultConfigurationRequest->secretId = 'mySecretId';
 
@@ -284,7 +284,7 @@ it('should present CreatedResponse when vault configuration is created with succ
     $createVaultConfigurationRequest->typeId = $vault->getId();
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
-    $createVaultConfigurationRequest->storage = 'myStorage';
+    $createVaultConfigurationRequest->rootPath = 'myStorage';
     $createVaultConfigurationRequest->roleId = 'myRoleId';
     $createVaultConfigurationRequest->secretId = 'mySecretId';
 

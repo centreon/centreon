@@ -45,7 +45,7 @@ class DbVaultConfigurationFactory
      *  vault_name: string,
      *  url: string,
      *  port: int,
-     *  storage: string,
+     *  root_path: string,
      *  role_id: string,
      *  secret_id: string,
      *  salt: string
@@ -65,10 +65,10 @@ class DbVaultConfigurationFactory
             new Vault($recordData['vault_id'], $recordData['vault_name']),
             (string) $recordData['url'],
             (int) $recordData['port'],
-            (string) $recordData['storage'],
-            (string) $recordData['salt'],
+            (string) $recordData['root_path'],
             (string) $recordData['role_id'],
-            (string) $recordData['secret_id']
+            (string) $recordData['secret_id'],
+            (string) $recordData['salt'],
         );
     }
 }

@@ -54,7 +54,7 @@ final class CreateVaultConfigurationController extends AbstractController
          *  "name": string,
          *  "address": string,
          *  "port": integer,
-         *  "storage": string,
+         *  "root_path": string,
          *  "role_id": string,
          *  "secret_id": string
          * } $decodedRequest
@@ -77,7 +77,7 @@ final class CreateVaultConfigurationController extends AbstractController
      *  "name": string,
      *  "address": string,
      *  "port": integer,
-     *  "storage": string,
+     *  "root_path": string,
      *  "role_id": string,
      *  "secret_id": string
      * } $decodedRequest
@@ -93,7 +93,7 @@ final class CreateVaultConfigurationController extends AbstractController
         $createVaultConfigurationRequest->typeId = $vaultId;
         $createVaultConfigurationRequest->address = $decodedRequest['address'];
         $createVaultConfigurationRequest->port = $decodedRequest['port'];
-        $createVaultConfigurationRequest->storage = $decodedRequest['storage'];
+        $createVaultConfigurationRequest->rootPath = $decodedRequest['root_path'];
         $createVaultConfigurationRequest->roleId = $decodedRequest['role_id'];
         $createVaultConfigurationRequest->secretId = $decodedRequest['secret_id'];
 

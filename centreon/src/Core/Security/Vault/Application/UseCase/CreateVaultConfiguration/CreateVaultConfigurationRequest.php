@@ -38,7 +38,7 @@ final class CreateVaultConfigurationRequest
     public int $port = 0;
 
     /** @var string */
-    public string $storage = '';
+    public string $rootPath = '';
 
     /** @var string */
     public string $roleId = '';
