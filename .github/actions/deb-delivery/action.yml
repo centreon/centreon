@@ -60,11 +60,11 @@ runs:
 
           jf rt upload "$FILE" "apt-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
 
-          if [[ "${{ inputs.stability }}" == "stable" ]]; then
-            #curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
-          else
-            #curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
-          fi
+          #if [[ "${{ inputs.stability }}" == "stable" ]]; then
+          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
+          #else
+          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
+          #fi
 
         done
       shell: bash
