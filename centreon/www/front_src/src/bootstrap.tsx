@@ -9,4 +9,5 @@ const createApp = async (): Promise<void> => {
 
   createRoot(container).render(<Main />);
 };
+
 createApp();
