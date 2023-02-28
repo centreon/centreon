@@ -21,8 +21,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        distrib: [el9]
-        #distrib: [el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources

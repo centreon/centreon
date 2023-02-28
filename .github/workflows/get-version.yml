@@ -92,7 +92,7 @@ jobs:
               STABILITY="stable"
               ;;
             *)
-              STABILITY="canary"
+              STABILITY="unstable"
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
