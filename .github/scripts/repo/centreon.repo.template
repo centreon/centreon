@@ -33,7 +33,7 @@ module_hotfixes=1
 [centreon-testing-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/testing/noarch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -41,7 +41,7 @@ module_hotfixes=1
 [centreon-connectors-testing-noarch]
 name=Centreon connectors repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/testing/noarch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -49,7 +49,7 @@ module_hotfixes=1
 [centreon-testing]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/testing/$basearch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -57,7 +57,7 @@ module_hotfixes=1
 [centreon-connectors-testing]
 name=Centreon connectors repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/testing/$basearch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -65,7 +65,7 @@ module_hotfixes=1
 [centreon-unstable-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/unstable/noarch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -73,7 +73,7 @@ module_hotfixes=1
 [centreon-connectors-unstable-noarch]
 name=Centreon connectors repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/unstable/noarch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -81,7 +81,7 @@ module_hotfixes=1
 [centreon-unstable]
 name=Centreon open source software repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/unstable/$basearch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
@@ -89,7 +89,7 @@ module_hotfixes=1
 [centreon-connectors-unstable]
 name=Centreon connectors repository. (UNSUPPORTED)
 baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/unstable/$basearch/
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
