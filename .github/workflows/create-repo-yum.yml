@@ -33,14 +33,6 @@ jobs:
           JF_URL: https://centreon.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
-      - name: Create .repo file
-        run: |
-          sed \
-            -e "s#@MAJOR_VERSION@#${{ needs.get-version.outputs.major_version }}#g" \
-            -e "s#@DISTRIB@#${{ matrix.distrib }}#g" \
-            ./.github/scripts/repo/centreon.repo.template > ./centreon.repo
-        shell: bash
-
       - name: Create repository structure
         run: |
           for STABILITY in "unstable" "testing" "stable"; do
@@ -54,6 +46,14 @@ jobs:
             curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm-connectors?path=/${{ matrix.distrib }}/$STABILITY&async=1"
 
           done
+        shell: bash
+
+      - name: Create repo file
+        run: |
+          sed \
+            -e "s#@MAJOR_VERSION@#${{ needs.get-version.outputs.major_version }}#g" \
+            -e "s#@DISTRIB@#${{ matrix.distrib }}#g" \
+            ./.github/scripts/repo/centreon.repo.template > ./centreon.repo
         shell: bash
 
       - name: Upload repo file in jfrog
