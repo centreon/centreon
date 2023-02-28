@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Utility;
 
-final class CreateVaultConfigurationRequest
+use Utility\Interfaces\UUIDGeneratorInterface;
+use Symfony\Component\Uid\Uuid;
+
+class UUIDGenerator implements UUIDGeneratorInterface
 {
-    /** @var string */
-    public string $name = '';
-
-    /** @var int */
-    public int $typeId = 0;
-
-    /** @var string */
-    public string $address = '';
-
-    /** @var int */
-    public int $port = 0;
-
-    /** @var string */
-    public string $rootPath = '';
-
-    /** @var string */
-    public string $roleId = '';
-
-    /** @var string */
-    public string $secretId = '';
+    /**
+     * @inheritDoc
+     */
+    public function generateV4(): string
+    {
+        return (string) Uuid::v4();
+    }
 }

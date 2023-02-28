@@ -32,7 +32,7 @@ final class FindVaultConfigurationResponse
      *  vault_id: int,
      *  url: string,
      *  port: int,
-     *  storage: string
+     *  root_path: string
      * }
      */
     public array $vaultConfiguration;
