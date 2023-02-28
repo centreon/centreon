@@ -44,22 +44,16 @@ jobs:
 
       - name: Create repository structure
         run: |
-          set -x
-          mkdir -p stability
-
           for STABILITY in "unstable" "testing" "stable"; do
 
             for ARCH in "noarch" "x86_64"; do
               curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY/$ARCH/"
-              #jf rt upload --include-dirs "stability" "rpm/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY/$ARCH"
+              curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm-connectors/${{ matrix.distrib }}/$STABILITY/$ARCH/"
             done
 
             curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm?path=/standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY&async=1"
-
-            curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm-connectors/${{ matrix.distrib }}/$STABILITY/$ARCH/"
-            #jf rt upload --include-dirs "stability" "rpm-connectors/${{ matrix.distrib }}/$STABILITY/$ARCH"
-
             curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm-connectors?path=/${{ matrix.distrib }}/$STABILITY&async=1"
+
           done
         shell: bash
 
