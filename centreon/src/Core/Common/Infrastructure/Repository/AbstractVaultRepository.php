@@ -9,7 +9,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class AbstractVaultRepository
+abstract class AbstractVaultRepository
 {
     use LoggerTrait;
 
