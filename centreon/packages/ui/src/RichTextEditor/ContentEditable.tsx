@@ -47,6 +47,7 @@ interface Props {
   initialEditorState?: string;
   inputClassname?: string;
   minInputHeight: number;
+  namespace: string;
   placeholder: string;
   resetEditorToInitialStateCondition?: () => boolean;
 }
@@ -58,6 +59,7 @@ const ContentEditable = ({
   hasInitialTextContent,
   editable,
   editorState,
+  namespace,
   resetEditorToInitialStateCondition,
   initialEditorState
 }: Props): JSX.Element => {
@@ -118,19 +120,24 @@ const ContentEditable = ({
   const isTextEmpty = isEmpty(root);
 
   return (
-    <div className={cx(classes.container, isFocused && classes.inputFocused)}>
+    <div
+      className={cx(classes.container, isFocused && classes.inputFocused)}
+      id={namespace}
+    >
       {editable && isTextEmpty && (
         <Typography className={classes.placeholder}>
           {t(placeholder)}
         </Typography>
       )}
       <div
+        aria-label={namespace}
         className={cx(
           isTextEmpty && classes.emptyInput,
           classes.input,
           inputClassname
         )}
         contentEditable={isEditable}
+        data-testid={namespace}
         ref={ref}
         onBlur={(): void => setFocused(false)}
         onFocus={(): void => setFocused(true)}

@@ -100,6 +100,7 @@ const RichTextEditor = ({
             initialEditorState={initialEditorState}
             inputClassname={inputClassname}
             minInputHeight={minInputHeight}
+            namespace={namespace}
             placeholder={placeholder}
             resetEditorToInitialStateCondition={
               resetEditorToInitialStateCondition
