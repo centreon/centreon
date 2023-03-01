@@ -112,6 +112,8 @@ runs:
         cd ./$MODULE_BASENAME
 
         ls -lath .
+        apt update
+        apt install -y dh-exec
 
         if [ -f "debian/substvars" ]; then
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
