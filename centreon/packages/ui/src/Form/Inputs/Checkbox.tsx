@@ -9,7 +9,6 @@ import { useMemoComponent } from '../..';
 import { InputPropsWithoutGroup } from './models';
 
 const Checkbox = ({
-  change,
   checkbox,
   fieldName
 }: InputPropsWithoutGroup): JSX.Element => {
@@ -20,13 +19,12 @@ const Checkbox = ({
   const value = path(fieldNamePath, values);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const label = event.target.id;
-    const newValue = { checked: event.target.checked, label };
-    if (change) {
-      change({ setFieldValue, value: newValue });
+    const newValue = {
+      ...value,
+      checked: event.target.checked,
+      label: event.target.id
+    };
 
-      return;
-    }
     setFieldValue(fieldName, newValue);
   };
 

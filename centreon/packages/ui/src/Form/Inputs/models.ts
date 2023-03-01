@@ -38,6 +38,7 @@ export interface InputProps {
   change?: ({ setFieldValue, value }) => void;
   checkbox?: {
     labelPlacement?: LabelPlacement;
+    options?: Array<string>;
     row?: boolean;
   };
   connectedAutocomplete?: {

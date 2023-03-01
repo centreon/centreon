@@ -4,7 +4,9 @@ import { SvgIconComponent } from '@mui/icons-material';
 import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
-  checkbox: { padding: theme.spacing(0.25) },
+  checkbox: {
+    padding: theme.spacing(0.25)
+  },
   container: {
     alignItems: 'center',
     display: 'flex',
@@ -13,9 +15,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   icon: {
     fontSize: theme.spacing(12)
-  },
-  text: {
-    fontSize: theme.spacing(1.25)
   }
 }));
 

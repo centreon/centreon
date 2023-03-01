@@ -1,22 +1,19 @@
-import { SvgIconComponent } from '@mui/icons-material';
+import { includes } from 'ramda';
+
 import { FormGroup } from '@mui/material';
 
 import SingleCheckbox, { LabelPlacement } from '../Single';
 
-interface Item {
-  Icon?: SvgIconComponent;
-  checked: boolean;
-  label: string;
-}
-
 interface Props {
+  initialValues: Array<string>;
   labelPlacement?: LabelPlacement;
   onChange?: () => void;
   row?: boolean;
-  values: Array<Item>;
+  values: Array<string>;
 }
 
 const MultiCheckbox = ({
+  initialValues,
   values,
   row = false,
   onChange,
@@ -24,13 +21,12 @@ const MultiCheckbox = ({
 }: Props): JSX.Element => {
   return (
     <FormGroup row={row}>
-      {values?.map(({ label, checked, Icon }) => {
+      {initialValues?.map((elm) => {
         return (
           <SingleCheckbox
-            Icon={Icon}
-            checked={checked}
-            key={label}
-            label={label}
+            checked={includes(elm, values)}
+            key={elm}
+            label={elm}
             labelPlacement={labelPlacement}
             onChange={onChange}
           />

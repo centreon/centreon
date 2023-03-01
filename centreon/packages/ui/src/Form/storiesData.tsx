@@ -5,7 +5,6 @@ import { equals, prop } from 'ramda';
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MailIcon from '@mui/icons-material/MailOutline';
-import SmsIcon from '@mui/icons-material/TextsmsOutlined';
 
 import { SelectEntry } from '../InputField/Select';
 import { Listing } from '../api/models';
@@ -115,17 +114,8 @@ export const basicFormInitialValues = {
   language: 'French',
   name: '',
   notifications: {
-    channels: [
-      { Icon: MailIcon, checked: true, label: 'mail' },
-      { Icon: SmsIcon, checked: false, label: 'Sms' },
-      { Icon: MailIcon, checked: false, label: 'Slack' }
-    ],
-    hostevents: [
-      { checked: false, label: 'Up' },
-      { checked: true, label: 'Down' },
-      { checked: false, label: 'Unreachable' },
-      { checked: false, label: 'Warning' }
-    ],
+    channels: { Icon: MailIcon, checked: true, label: 'mail' },
+    hostevents: ['ok', 'warning'],
     includeServices: { checked: true, label: 'Include services for this host' }
   },
   password: '',
@@ -225,6 +215,7 @@ export const basicFormInputs: Array<InputProps> = [
   {
     checkbox: {
       labelPlacement: 'top',
+      options: ['ok', 'warning', 'critical', 'unknown'],
       row: true
     },
     fieldName: 'notifications.hostevents',
@@ -239,7 +230,7 @@ export const basicFormInputs: Array<InputProps> = [
     fieldName: 'notifications.channels',
     group: 'Third group',
     label: 'channels',
-    type: InputType.MultiCheckbox
+    type: InputType.Checkbox
   },
   {
     fieldName: 'notifications.includeServices',
