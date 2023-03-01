@@ -9782,14 +9782,8 @@ msgstr "Remplacement"
 msgid "Update mode"
 msgstr "Mode de mise à jour"
 
-#: centreon-web/www/include/configuration/configObject/host/formHost.php:541
-#: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
-msgid ""
-"A host can have multiple templates, their orders have a significant "
-"importance"
-msgstr ""
-"Un hôte peut avoir plusieurs modèles, leurs ordre à une importance "
-"significative"
+msgid "A host or host template can have several templates. See help for more details."
+msgstr "Un hôte ou modèle d’hôte peut avoir plusieurs modèles. Voir l’aide pour plus d’informations."
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
