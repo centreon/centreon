@@ -21,9 +21,8 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 
 /**
@@ -49,20 +48,17 @@ class GroupsMapping
     /**
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @param Endpoint $endpoint
-     * @param ContactGroupRelation[] $contactGroupRelations
+     * @param Endpoint|null $endpoint
+     * @param array $contactGroupRelations
+     * @throws OpenIdConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
         private string $attributePath,
-        private Endpoint $endpoint,
+        private ?Endpoint $endpoint,
         private array $contactGroupRelations
     ) {
-        $this->validateMandatoryParametersForEnabledGroupsMapping(
-            $isEnabled,
-            $attributePath,
-            $contactGroupRelations
-        );
+        $this->validateMandatoryParametersForEnabledGroupsMapping($isEnabled, $attributePath);
     }
 
     /**
@@ -100,9 +96,9 @@ class GroupsMapping
     }
 
     /**
-     * @return Endpoint
+     * @return Endpoint|null
      */
-    public function getEndpoint(): Endpoint
+    public function getEndpoint(): ?Endpoint
     {
         return $this->endpoint;
     }

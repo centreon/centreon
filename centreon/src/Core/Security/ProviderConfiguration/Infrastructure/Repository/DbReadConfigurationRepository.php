@@ -38,11 +38,12 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration as WebSSOCustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SAMLCustomConfiguration;
 
 final class DbReadConfigurationRepository extends AbstractRepositoryDRB implements ReadConfigurationRepositoryInterface
 {
@@ -64,9 +65,9 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return Configuration
      * @throws \Throwable
      */
-    public function getConfigurationByName(string $providerName): Configuration
+    public function getConfigurationByType(string $providerName): Configuration
     {
-        $configuration = $this->loadConfigurationByName($providerName);
+        $configuration = $this->loadConfigurationByType($providerName);
         $customConfiguration = $this->loadCustomConfigurationFromConfiguration($configuration);
         $configuration->setCustomConfiguration($customConfiguration);
 
@@ -100,7 +101,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
         Configuration $configuration
     ): CustomConfigurationInterface {
 
-        switch ($configuration->getName()) {
+        switch ($configuration->getType()) {
             case Provider::LOCAL:
                 $jsonSchemaValidatorFile = __DIR__ . '/../Local/Repository/CustomConfigurationSchema.json';
                 $this->validateJsonRecord($configuration->getJsonCustomConfiguration(), $jsonSchemaValidatorFile);
@@ -160,6 +161,28 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                     $json['pattern_matching_login'],
                     $json['pattern_replace_login']
                 );
+
+            case Provider::SAML:
+                $jsonSchemaValidatorFile = __DIR__ . '/../SAML/Repository/CustomConfigurationSchema.json';
+                $json = $configuration->getJsonCustomConfiguration();
+                $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
+                $jsonDecoded = json_decode($json, true);
+                $jsonDecoded['contact_template'] = $jsonDecoded['contact_template_id'] !== null
+                    ? $this->readOpenIdConfigurationRepository->getContactTemplate($jsonDecoded['contact_template_id'])
+                    : null;
+                $jsonDecoded['roles_mapping'] = $this->createAclConditions(
+                    $configuration->getId(),
+                    $jsonDecoded['roles_mapping']
+                );
+                $jsonDecoded['authentication_conditions'] = $this->createAuthenticationConditionsFromRecord(
+                    $jsonDecoded['authentication_conditions']
+                );
+                $jsonDecoded['groups_mapping'] = $this->createGroupsMappingFromRecord(
+                    $jsonDecoded['groups_mapping'],
+                    $configuration->getId()
+                );
+
+                return new SAMLCustomConfiguration($jsonDecoded);
             default:
                 throw new \Exception("Unknown provider configuration name, can't load custom configuration");
         }
@@ -175,12 +198,15 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     private function createAclConditions(int $configurationId, array $rolesMapping): ACLConditions
     {
         $rules = $this->readOpenIdConfigurationRepository->getAuthorizationRulesByConfigurationId($configurationId);
-
+        $endpoint = null;
+        if (array_key_exists('endpoint', $rolesMapping)) {
+            $endpoint = new Endpoint($rolesMapping['endpoint']['type'], $rolesMapping['endpoint']['custom_endpoint']);
+        }
         return new ACLConditions(
             $rolesMapping['is_enabled'],
             $rolesMapping['apply_only_first_role'],
             $rolesMapping['attribute_path'],
-            new Endpoint($rolesMapping['endpoint']['type'], $rolesMapping['endpoint']['custom_endpoint']),
+            $endpoint,
             $rules
         );
     }
@@ -190,20 +216,20 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return Configuration
      * @throws \Exception
      */
-    private function loadConfigurationByName(string $providerName): Configuration
+    private function loadConfigurationByType(string $providerName): Configuration
     {
         $query = $this->translateDbName(
             sprintf("SELECT *
                 FROM `:db`.`provider_configuration`
-                WHERE `name` = '%s'", $providerName)
+                WHERE `type` = '%s'", $providerName)
         );
 
         $statement = $this->db->query($query);
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             return new Configuration(
                 (int)$result['id'],
-                $result['name'],
                 $result['type'],
+                $result['name'],
                 $result['custom_configuration'],
                 (bool)$result['is_active'],
                 (bool)$result['is_forced']
@@ -230,8 +256,8 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             return new Configuration(
                 (int)$result['id'],
-                $result['name'],
                 $result['type'],
+                $result['name'],
                 $result['custom_configuration'],
                 (bool)$result['is_active'],
                 (bool)$result['is_forced']
@@ -252,7 +278,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
         $query = $this->translateDbName("SELECT name FROM `:db`.`provider_configuration`");
         $statement = $this->db->query($query);
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $configurations[] = $this->getConfigurationByName($result['name']);
+            $configurations[] = $this->getConfigurationByType($result['name']);
         }
 
         return $configurations;
@@ -303,10 +329,14 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     private function createAuthenticationConditionsFromRecord(
         array $authenticationConditionsRecord
     ): AuthenticationConditions {
-        $endpoint = new Endpoint(
-            $authenticationConditionsRecord["endpoint"]["type"],
-            $authenticationConditionsRecord["endpoint"]["custom_endpoint"]
-        );
+
+        $endpoint = null;
+        if (array_key_exists('endpoint', $authenticationConditionsRecord)) {
+            $endpoint = new Endpoint(
+                $authenticationConditionsRecord["endpoint"]["type"],
+                $authenticationConditionsRecord["endpoint"]["custom_endpoint"]
+            );
+        }
 
         $authenticationConditions = new AuthenticationConditions(
             $authenticationConditionsRecord["is_enabled"],
@@ -314,12 +344,18 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
             $endpoint,
             $authenticationConditionsRecord["authorized_values"]
         );
-        $authenticationConditions->setTrustedClientAddresses(
-            $authenticationConditionsRecord["trusted_client_addresses"]
-        );
-        $authenticationConditions->setBlacklistClientAddresses(
-            $authenticationConditionsRecord["blacklist_client_addresses"]
-        );
+
+        if (!empty($authenticationConditionsRecord["trusted_client_addresses"])) {
+            $authenticationConditions->setTrustedClientAddresses(
+                $authenticationConditionsRecord["trusted_client_addresses"]
+            );
+        }
+
+        if (!empty($authenticationConditionsRecord["blacklist_client_addresses"])) {
+            $authenticationConditions->setBlacklistClientAddresses(
+                $authenticationConditionsRecord["blacklist_client_addresses"]
+            );
+        }
 
         return $authenticationConditions;
     }
@@ -339,21 +375,23 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      */
     private function createGroupsMappingFromRecord(array $groupsMappingRecord, int $configurationId): GroupsMapping
     {
-        $endpoint = new Endpoint(
-            $groupsMappingRecord["endpoint"]["type"],
-            $groupsMappingRecord["endpoint"]["custom_endpoint"]
-        );
+        $endpoint = null;
+        if (array_key_exists('endpoint', $groupsMappingRecord)) {
+            $endpoint = new Endpoint(
+                $groupsMappingRecord["endpoint"]["type"],
+                $groupsMappingRecord["endpoint"]["custom_endpoint"]
+            );
+        }
 
         $contactGroupRelations = $this->readOpenIdConfigurationRepository->getContactGroupRelationsByConfigurationId(
             $configurationId
         );
-        $groupsMapping = new GroupsMapping(
+
+        return new GroupsMapping(
             $groupsMappingRecord['is_enabled'],
             $groupsMappingRecord['attribute_path'],
             $endpoint,
             $contactGroupRelations
         );
-
-        return $groupsMapping;
     }
 }

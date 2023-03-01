@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 use TypeError;
 

@@ -34,6 +34,8 @@ class LoginRequest
      * @param string|null $password
      * @param string|null $code
      * @param string|null $refererQueryParameters
+     * @param string|null $requestId
+     * @param string|null $assertion
      */
     private function __construct(
         public string $providerName,
@@ -41,8 +43,11 @@ class LoginRequest
         public ?string $username = null,
         public ?string $password = null,
         public ?string $code = null,
-        public ?string $refererQueryParameters = null
-    ) {
+        public ?string $refererQueryParameters = null,
+        public ?string $requestId = null,
+        public ?string $assertion = null
+    )
+    {
     }
 
     /**
@@ -57,7 +62,8 @@ class LoginRequest
         string $password,
         ?string $clientIp = null,
         ?string $refererQueryParameters = null
-    ): self {
+    ): self
+    {
 
         return new self(
             Provider::LOCAL,
@@ -86,5 +92,14 @@ class LoginRequest
     public static function createForSSO(string $clientIp): self
     {
         return new self(Provider::WEB_SSO, $clientIp);
+    }
+
+    /**
+     * @param string $clientIp
+     * @return LoginRequest
+     */
+    public static function createForSAML(string $clientIp): self
+    {
+        return new self(providerName: Provider::SAML, clientIp: $clientIp);
     }
 }

@@ -21,10 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 
 /**
@@ -59,14 +58,14 @@ class AuthenticationConditions
     /**
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @param Endpoint $endpoint
+     * @param Endpoint|null $endpoint
      * @param string[] $authorizedValues
      * @throws OpenIdConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
         private string $attributePath,
-        private Endpoint $endpoint,
+        private ?Endpoint $endpoint,
         private array $authorizedValues
     ) {
         $this->validateMandatoryParametersForEnabledCondition(
@@ -93,9 +92,9 @@ class AuthenticationConditions
     }
 
     /**
-     * @return Endpoint
+     * @return Endpoint|null
      */
-    public function getEndpoint(): Endpoint
+    public function getEndpoint(): ?Endpoint
     {
         return $this->endpoint;
     }

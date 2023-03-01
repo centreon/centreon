@@ -28,4 +28,5 @@ final class Provider
     public const LOCAL = 'local';
     public const OPENID = 'openid';
     public const WEB_SSO = 'web-sso';
+    public const SAML = "saml";
 }

@@ -27,7 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**

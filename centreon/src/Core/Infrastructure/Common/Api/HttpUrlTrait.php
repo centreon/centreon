@@ -84,6 +84,7 @@ trait HttpUrlTrait
     /**
      * Get base URI (example: /centreon)
      *
+     * @param bool $withApiVersion
      * @return string
      */
     protected function getBaseUri(): string
@@ -106,5 +107,19 @@ trait HttpUrlTrait
         }
 
         return rtrim($baseUri, '/');
+    }
+
+    /**
+     * @param bool $withScheme
+     * @return string
+     */
+    public function getHost(bool $withScheme = false): string
+    {
+        $httpHost = $_SERVER['HTTP_HOST'];
+        if ($withScheme) {
+            $scheme = $_SERVER['REQUEST_SCHEME'];
+        }
+
+        return $withScheme ? sprintf("%s://%s", $scheme, $httpHost) : $httpHost;
     }
 }

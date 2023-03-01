@@ -19,36 +19,21 @@
  *
  */
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+declare(strict_types=1);
 
-use Core\Contact\Domain\Model\ContactGroup;
+namespace Core\Security\ProviderConfiguration\Domain\SAML\Model;
 
-/**
- * This class is designed to represent the relation between a Provider Claim and a contact Group.
- */
-class ContactGroupRelation
+use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
+
+final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements
+    ProviderConfigurationInterface
 {
     /**
-     * @param string $claimValue
-     * @param ContactGroup $contactGroup
+     * @return CustomConfiguration
      */
-    public function __construct(private string $claimValue, private ContactGroup $contactGroup)
+    public function getCustomConfiguration(): CustomConfiguration
     {
-    }
-
-    /**
-     * @return string
-     */
-    public function getClaimValue(): string
-    {
-        return $this->claimValue;
-    }
-
-    /**
-     * @return ContactGroup
-     */
-    public function getContactGroup(): ContactGroup
-    {
-        return $this->contactGroup;
+        /** @phpstan-ignore-next-line */
+        return $this->customConfiguration;
     }
 }

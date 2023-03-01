@@ -141,7 +141,7 @@ class LocalProvider implements LocalProviderInterface
                 throw new Exception('user not found');
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();

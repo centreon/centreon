@@ -33,7 +33,7 @@ interface ReadConfigurationRepositoryInterface
      * @param string $providerName
      * @return Configuration
      */
-    public function getConfigurationByName(string $providerName): Configuration;
+    public function getConfigurationByType(string $providerName): Configuration;
 
     /**
      * Get provider configuration by id

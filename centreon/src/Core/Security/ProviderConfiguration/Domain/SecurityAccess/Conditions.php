@@ -24,7 +24,6 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
@@ -76,7 +75,7 @@ class Conditions implements SecurityAccessInterface
             $providerAuthenticationConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {
                 $providerAuthenticationConditions = $identityProviderData[$attribute];
-                $identityProviderData[] = $identityProviderData[$attribute];
+                $identityProviderData = $identityProviderData[$attribute];
             } else {
                 break;
             }
