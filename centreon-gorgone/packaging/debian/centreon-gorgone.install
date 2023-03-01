@@ -1,4 +1,4 @@
-#!/usr/bin/dh-exec
+#!/usr/bin/dh-exec --with=install
 
 gorgoned                                usr/bin
 contrib/*                               usr/local/bin
