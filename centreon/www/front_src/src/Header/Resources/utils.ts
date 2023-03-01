@@ -1,14 +1,12 @@
-import numeral from 'numeral';
+import {
+  formatTopCounterCount,
+  formatTopCounterUnhandledOverTotal
+} from '@centreon/ui';
 
 import type { Criteria } from '../../Resources/Filter/Criterias/models';
 
-export const formatCount = (number: number | string): string =>
-  numeral(number).format('0a');
-
-export const formatUnhandledOverTotal = (
-  unhandled: number | string,
-  total: number | string
-): string => `${formatCount(unhandled)}/${formatCount(total)}`;
+export const formatCount = formatTopCounterCount;
+export const formatUnhandledOverTotal = formatTopCounterUnhandledOverTotal;
 
 type ChangeFilterAndNavigate = (params: {
   criterias: Array<Criteria>;

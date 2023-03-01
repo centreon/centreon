@@ -28,7 +28,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   });
 
   if (isLoading) {
-    return <MenuSkeleton width={20} />;
+    return <MenuSkeleton width={14} />;
   }
 
   if (!isAllowed || !data) {

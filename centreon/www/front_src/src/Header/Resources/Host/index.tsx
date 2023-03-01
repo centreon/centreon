@@ -28,7 +28,7 @@ const HostStatusCounter = (): JSX.Element | null => {
   });
 
   if (isLoading) {
-    return <MenuSkeleton width={20} />;
+    return <MenuSkeleton width={11} />;
   }
 
   if (!isAllowed || !data) {
