@@ -1,4 +1,4 @@
-
+#!/usr/bin/dh-exec --with=install
 
 gorgoned                                usr/bin
 contrib/*                               usr/local/bin
@@ -11,4 +11,5 @@ gorgone/class/*                         usr/share/perl5/gorgone/class
 gorgone/modules/*                       usr/share/perl5/gorgone/modules
 gorgone/standard/*                      usr/share/perl5/gorgone/standard
 
-
+config/systemd/gorgoned-service => lib/systemd/system/gorgoned
+config/systemd/gorgoned-sysconfig => etc/default/gorgoned
