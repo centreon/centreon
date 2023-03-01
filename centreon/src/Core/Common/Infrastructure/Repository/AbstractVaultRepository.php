@@ -26,6 +26,7 @@ class AbstractVaultRepository
      * Connect to vault to get an authenticationToken
      *
      * @return string
+     * @throws \Exception
      */
     public function getAuthenticationToken(): string
     {
