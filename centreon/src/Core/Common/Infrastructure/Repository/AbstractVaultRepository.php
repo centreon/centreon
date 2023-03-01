@@ -13,7 +13,7 @@ abstract class AbstractVaultRepository
 {
     use LoggerTrait;
 
-    protected VaultConfiguration $vaultConfiguration;
+    protected ?VaultConfiguration $vaultConfiguration;
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
