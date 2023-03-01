@@ -15,8 +15,6 @@ class AbstractVaultRepository
 
     protected VaultConfiguration $vaultConfiguration;
 
-    protected string $authenticationToken;
-
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
         protected HttpClientInterface $httpClient
