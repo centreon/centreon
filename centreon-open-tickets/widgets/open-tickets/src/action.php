@@ -42,9 +42,9 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 
 /**
  * service_ack: put an ack on a host and service
- * @param int $autoCloseActionPopup set to 1 if you want to automatically close call popup
+ * @param bool $autoCloseActionPopup set to 1 if you want to automatically close call popup
  */
-function service_ack(int $autoCloseActionPopup)
+function service_ack(bool $autoCloseActionPopup)
 {
     global $cmd, $centreon, $centreon_path;
 
@@ -100,11 +100,12 @@ function service_ack(int $autoCloseActionPopup)
 
 /**
  * schedule_check: prepare variables for widget popup when scheduling a check
- * @param int $isService set to 1 if you want to schedule a check on a service
- * @param int $forced set to 1 if you want to schedule a forced check
- * @param int $autoCloseActionPopup set to 1 if you want to automatically close call popup
+ *
+ * @param bool $isService set to true if you want to schedule a check on a service
+ * @param bool $isForced set to true if you want to schedule a forced check
+ * @param bool $autoCloseActionPopup set to true if you want to automatically close call popup
  */
-function schedule_check(int $isService, int $forced, int $autoCloseActionPopup)
+function schedule_check(bool $isService, bool $isForced, bool $autoCloseActionPopup)
 {
     global $cmd, $centreon, $centreon_path;
 
@@ -115,9 +116,9 @@ function schedule_check(int $isService, int $forced, int $autoCloseActionPopup)
     $template = initSmartyTpl($path . 'templates/', $template, "./", $centreon_path);
     $template->assign('selection', $selection);
     $template->assign('titleLabel', _("Scheduling checks"));
-    $template->assign('forced', $forced);
+    $template->assign('forced', $isForced);
     $template->assign('isService', $isService);
-    $template->assign('autoCloseActionPopup', $autoCloseActionPopup);
+    $template->assign('autoCloseActionPopup', $autoCloseActionPopup ? 'true' : 'false');
     $template->display('schedulecheck.ihtml');
 }
 
@@ -224,19 +225,19 @@ try {
     } elseif ($cmd == 10) {
         remove_tickets();
     } elseif ($cmd == 70) {
-        service_ack($preferences['auto_close_action_popup']);
+        service_ack((bool) $preferences['auto_close_action_popup']);
     //schedule service forced check
     } elseif ($cmd == 80) {
-        schedule_check(1, 1, $preferences['auto_close_action_popup']);
+        schedule_check(true, true, (bool) $preferences['auto_close_action_popup']);
     // schedule service check
     } elseif ($cmd == 81) {
-        schedule_check(1, 0, $preferences['auto_close_action_popup']);
+        schedule_check(true, false, (bool) $preferences['auto_close_action_popup']);
     // schedule host forced check
     } elseif ($cmd == 82) {
-        schedule_check(0, 1, $preferences['auto_close_action_popup']);
+        schedule_check(false, true, (bool) $preferences['auto_close_action_popup']);
     // schedule host check
     } elseif ($cmd == 83) {
-        schedule_check(0, 0, $preferences['auto_close_action_popup']);
+        schedule_check(false, false, (bool) $preferences['auto_close_action_popup']);
     }
 } catch (Exception $e) {
     echo $e->getMessage() . "<br/>";

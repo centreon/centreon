@@ -33,6 +33,14 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
     exit;
 }
 
+$baseUri = (function() {
+    $paths = explode('/centreon/', htmlspecialchars($_SERVER['REQUEST_URI']), 2);
+    if (count($paths) > 1) {
+        return $paths[0] . '/centreon/';
+    }
+    return htmlspecialchars($_SERVER['REQUEST_URI']);
+})();
+
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
 
@@ -60,14 +68,14 @@ if ($preferences['toolbar_buttons']) {
             $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' "
                 . "for='host-ticket'>Host <input type='image' title='"
                 . _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='"
-                . $centreon->optGen['oreon_web_path']
+                . $baseUri
                 . "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' "
                 . "style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
         }
         if ($preferences['action_open_services']) {
             $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  "
                 . "for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='"
-                . _("Service: Open ticket") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Service: Open ticket") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' "
                 . "style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
         }
@@ -77,7 +85,7 @@ if ($preferences['toolbar_buttons']) {
         ) {
             $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='"
-                . _("Service: Acknowledge") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Service: Acknowledge") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
@@ -88,7 +96,7 @@ if ($preferences['toolbar_buttons']) {
             $toolbar .= "<label id='buttontoolbar_80' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-service-forced-check-ticket'>Service: Schedule forced check <input type='image' "
                 . "title='" . _("Service: Schedule Forced Check") . "' alt='"
-                . _("Service: Schedule Forced Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Service: Schedule Forced Check") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
                 . "name='schedule-service-forced-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
@@ -100,7 +108,7 @@ if ($preferences['toolbar_buttons']) {
             $toolbar .= "<label id='buttontoolbar_81' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-sevice-check-ticket'>Service: Schedule check <input type='image' title='"
                 . _("Service: Schedule Check") . "' alt='"
-                . _("Service: Schedule Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Service: Schedule Check") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-service-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
@@ -111,7 +119,7 @@ if ($preferences['toolbar_buttons']) {
             $toolbar .= "<label id='buttontoolbar_82' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='host-service-forced-check-ticket'>Host: Schedule forced check <input type='image' title='"
                 . _("Host: Schedule Forced Check") . "' alt='"
-                . _("Host: Schedule Forced Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Host: Schedule Forced Check") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
                 . "name='schedule-host-forced-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
@@ -123,13 +131,13 @@ if ($preferences['toolbar_buttons']) {
             $toolbar .= "<label id='buttontoolbar_83' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-host-check-ticket'>Host: Schedule check <input type='image' title='"
                 . _("Host: Schedule Check") . "' alt='"
-                . _("Host: Schedule Check") . "' src='" . $centreon->optGen['oreon_web_path']
+                . _("Host: Schedule Check") . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-host-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> |";
         }
     } else {
         $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets")
-            . "' src='" . $centreon->optGen['oreon_web_path']
+            . "' src='" . $baseUri
             . "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' "
             . "style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
     }

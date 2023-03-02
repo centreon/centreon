@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2023 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -52,13 +52,16 @@ foreach ($selected_values as $value) {
     }
 }
 
-$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
-    WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
+$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
+    FROM hosts
+    INNER JOIN services
+        ON services.host_id = hosts.host_id
+    WHERE (" . $selected_str . ')';
 if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
-        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
-        )
+    $query .= " AND EXISTS (
+        SELECT *
+        FROM centreon_acl
+        WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
         AND hosts.host_id = centreon_acl.host_id
         AND services.service_id = centreon_acl.service_id
     )";
@@ -66,15 +69,11 @@ if (!$centreon_bg->is_admin) {
 $query .= ") UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
     FROM hosts
-    WHERE hosts.host_id IN (" .
-        $hosts_selected_str . "
-    )";
+    WHERE hosts.host_id IN ({$hosts_selected_str})";
 if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
+    $query .= " AND EXISTS (
         SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
-        )
+        WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
         AND hosts.host_id = centreon_acl.host_id
     )";
 }
