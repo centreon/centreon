@@ -7,7 +7,6 @@ inputs:
   installation_directory:
     description: "The installation directory"
     required: false
-    default: ${{ inputs.frontend_directory }}
   module_name:
     description: "The module name"
     required: true
@@ -26,7 +25,7 @@ runs:
 
       - name: Install dependencies
         run: pnpm install
-        working-directory: ${{ inputs.frontend_directory }}
+        working-directory: ${{ inputs.installation_directory || inputs.frontend_directory }}
         shell: bash
 
       - name: Run ESLint
