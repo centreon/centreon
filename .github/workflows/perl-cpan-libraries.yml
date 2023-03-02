@@ -145,34 +145,35 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
-        run: |
-          apt update
-          apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
+      # - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
+      #   run: |
+      #     apt update
+      #     apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
 
-          PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g' | sed -e 's/liblib/lib/g'`
-          if [ -z "${{ matrix.version }}" ]; then
-            PACKAGE_VERSION=""
-          else
-            PACKAGE_VERSION=" -v ${{ matrix.version }}"
-          fi
+      #     PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g' | sed -e 's/liblib/lib/g'`
+      #     if [ -z "${{ matrix.version }}" ]; then
+      #       PACKAGE_VERSION=""
+      #     else
+      #       PACKAGE_VERSION=" -v ${{ matrix.version }}"
+      #     fi
 
-          if [ -z "${{ matrix.deb_dependencies }}" ]; then
-            PACKAGE_DEPENDENCIES=""
-          else
-            for PACKAGE_DEPENDENCY in `echo ${{ matrix.deb_dependencies }}`; do
-              PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
-            done
-          fi
+      #     if [ -z "${{ matrix.deb_dependencies }}" ]; then
+      #       PACKAGE_DEPENDENCIES=""
+      #     else
+      #       for PACKAGE_DEPENDENCY in `echo ${{ matrix.deb_dependencies }}`; do
+      #         PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
+      #       done
+      #     fi
 
-          cpanm Module::Build::Tiny
-          cpanm Module::Install
+      #     cpanm Module::Build::Tiny
+      #     cpanm Module::Install
 
-          gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
-        shell: bash
+      #     gem install fpm
+      #     fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+      #   shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
+      #- if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
+      - if: ${{ matrix.package_extension == 'deb' }}
         run: |
           apt update
           apt install -y cpanminus libcurl4-openssl-dev dh-make-perl
