@@ -112,6 +112,8 @@ jobs:
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
             version: "0.026"
+          - name: "Statistics::Regression"
+            version: "0.53"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
