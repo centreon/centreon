@@ -1,0 +1,11 @@
+#!/bin/sh
+
+sed \
+  -i 's#@INSTALL_DIR_CENTREON@#/usr/share/centreon#g' \
+  -i 's#@CENTREON_USER@#centreon#g' \
+  libinstall/systemd/dsmd.systemd
+
+sed \
+  -i 's#@CENTREON_LOG@#/var/log/centreon#g' \
+  -i 's#@CENTREON_ETC@#/etc/centreon#g' \
+  libinstall/systemd/dsmd.sysconfig
