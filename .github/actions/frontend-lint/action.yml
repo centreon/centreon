@@ -1,0 +1,42 @@
+name: frontend-lint
+description: Lint Frontend
+inputs:
+  frontend_directory:
+    description: "The frontend source directory"
+    required: true
+  installation_directory:
+    description: "The installation directory"
+    required: false
+    default: ${{ inputs.frontend_directory }}
+  module_name:
+    description: "The module name"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ${{ inputs.frontend_directory }}
+        shell: bash
+
+      - name: Run ESLint
+        run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
+        working-directory: ${{ inputs.frontend_directory }}
+        shell: bash
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: ${{ inputs.frontend_directory }}/eslint-report.json
+          format: eslint
+          check_name: ${{ inputs.module_name }}-eslint-report
