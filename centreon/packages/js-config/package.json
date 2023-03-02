@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon JS config shared build configuration",
-  "version": "22.4.9",
+  "version": "22.4.10",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme"
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.19.1",
+    "babel-merge": "^3.0.0"
+  }
 }

@@ -57,7 +57,7 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: centreon.jfrog.io/docker
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
@@ -87,15 +87,15 @@ jobs:
 
       - name: Behat acceptance testing
         run: |
-          SELENIUM_IMAGE="centreon.jfrog.io/docker/selenium/standalone-chrome:106.0"
-          WEB_IMAGE="centreon.jfrog.io/docker/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
+          SELENIUM_IMAGE="${{ vars.DOCKER_PROXY_REGISTRY_URL }}/selenium/standalone-chrome:106.0"
+          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
-            -e "s#@WEB_WIDGETS_IMAGE@#centreon.jfrog.io/docker/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_WIDGETS_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=`pwd`
           cd ${{ inputs.module_name }}
@@ -111,6 +111,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-logs
           path: acceptance-logs
+          retention-days: 1
 
       - name: Upload Test Results
         if: failure()
@@ -118,6 +119,7 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-reports
           path: xunit-reports
+          retention-days: 1
 
   behat-test-report:
     needs: [behat-test-run]
