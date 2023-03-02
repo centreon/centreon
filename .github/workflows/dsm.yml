@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "centreon-dsm/**"
+  # pull_request:
+  #   paths:
+  #     - "centreon-dsm/**"
   push:
     branches:
       - develop

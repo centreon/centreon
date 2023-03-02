@@ -1,7 +1,7 @@
 #!/usr/bin/dh-exec
 
-package/src/centreon.conf.php                   etc/centreon
-package/src/install.conf.php                    usr/share/centreon/www/install
+packaging/src/centreon.conf.php                   etc/centreon
+packaging/src/install.conf.php                    usr/share/centreon/www/install
 bin/centFillTrapDB                              usr/share/centreon/bin
 bin/centreon                                    usr/share/centreon/bin
 bin/centreon-partitioning.php                   usr/share/centreon/bin
@@ -33,6 +33,6 @@ api/*                                           usr/share/centreon/api
 
 tmpl/install/centreon.cron => etc/cron.d/centreon
 tmpl/install/centstorage.cron => etc/cron.d/centstorage
-package/src/php-fpm.conf => etc/php/8.1/fpm/pool.d/centreon.conf
-package/src/php-fpm-systemd.conf => etc/default/centreon.conf
-package/src/php.ini => etc/php/8.1/mods-available/centreon.ini
+packaging/src/php-fpm.conf => etc/php/8.1/fpm/pool.d/centreon.conf
+packaging/src/php-fpm-systemd.conf => etc/default/centreon.conf
+packaging/src/php.ini => etc/php/8.1/mods-available/centreon.ini
