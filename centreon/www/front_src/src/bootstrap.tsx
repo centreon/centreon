@@ -4,8 +4,6 @@ import Main from './Main';
 
 const container = document.getElementById('root') as HTMLElement;
 
-const test = 'test';
-
 const createApp = async (): Promise<void> => {
   window.React = await import(/* webpackChunkName: "external" */ 'react');
 

@@ -1,5 +1,5 @@
 import axios, { CancelToken } from 'axios';
-import { isNil, not, and } from 'ramda';
+import { isNil, not } from 'ramda';
 
 const contentTypeHeaders = {
   'Content-Type': 'application/x-www-form-urlencoded'
