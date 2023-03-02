@@ -65,3 +65,4 @@ jobs:
         with:
           major_version: ${{ needs.get-version.outputs.major_version }}
           directory: ${{ env.directory }}
+          centreon_directory: "centreon"
