@@ -12,6 +12,6 @@ override_dh_clean:
 
 override_dh_auto_build:
 	find . -type f -not -path "./vendor/*" | \
-		grep -v debian/extra/centreon-web/centreon-macroreplacement.txt | \
-		xargs -d '\n' sed -i -f debian/extra/centreon-web/centreon-macroreplacement.txt
+		grep -v packaging/src/centreon-macroreplacement.txt | \
+		xargs -d '\n' sed -i -f packaging/src/centreon-macroreplacement.txt
 	mv config/centreon.config.php.template config/centreon.config.php
