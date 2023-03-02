@@ -31,8 +31,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        # distrib: [el8, el9, bullseye]
-        distrib: [bullseye]
+        distrib: [el8, el9, bullseye]
         name:
           [
             "boolean",
@@ -91,12 +90,12 @@ jobs:
           - deb_dependencies: ""
           - version: ""
           - use_dh_make_perl: "true"
-          # - distrib: el8
-          #   package_extension: rpm
-          #   image: packaging-alma8
-          # - distrib: el9
-          #   package_extension: rpm
-          #   image: packaging-alma9
+          - distrib: el8
+            package_extension: rpm
+            image: packaging-alma8
+          - distrib: el9
+            package_extension: rpm
+            image: packaging-alma9
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
