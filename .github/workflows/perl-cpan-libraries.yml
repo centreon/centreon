@@ -238,36 +238,36 @@ jobs:
           path: ./*.deb
           key: ${{ github.sha }}-${{ github.run_id }}-deb-bullseye
 
-  deliver-rpm:
-    needs: [get-version, sign-rpm]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        distrib: [el8, el9]
+  # deliver-rpm:
+  #   needs: [get-version, sign-rpm]
+  #   if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+  #   runs-on: [self-hosted, common]
+  #   strategy:
+  #     matrix:
+  #       distrib: [el8, el9]
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v3
 
-      - name: Delivery
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: perl-cpan-libraries
-          repository_name: standard
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: 0
-          release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-          stability: ${{ needs.get-version.outputs.stability }}
+  #     - name: Delivery
+  #       uses: ./.github/actions/rpm-delivery
+  #       with:
+  #         module_name: perl-cpan-libraries
+  #         repository_name: standard
+  #         distrib: ${{ matrix.distrib }}
+  #         version: ${{ needs.get-version.outputs.major_version }}
+  #         minor_version: 0
+  #         release: ${{ needs.get-version.outputs.release }}
+  #         nexus_username: ${{ secrets.NEXUS_USERNAME }}
+  #         nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+  #         artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+  #         update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+  #         cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+  #         yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+  #         yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+  #         stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     needs: [get-version, download-and-cache-deb]
