@@ -124,6 +124,8 @@ sub get_server_pubkey {
     my ($self, %options) = @_;
 
     $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
+    $self->event(identity => $self->{identity});
+
     my $w1 = $self->{loop}->timer(
         10,
         0, 
@@ -286,6 +288,8 @@ sub ping {
 sub add_watcher {
     my ($self, %options) = @_;
 
+    print "=====clientzmq WATCHER ====\n";
+
     $self->{watcher} = $self->{loop}->io(
         $sockets->{ $self->{identity} }->get_fd(),
         EV::READ,
@@ -298,16 +302,18 @@ sub add_watcher {
 sub event {
     my ($self, %options) = @_;
 
-    # We have a response. So it's ok :)
-    if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
-        $connectors->{ $options{identity} }->{ping_progress} = 0;
-    }
-
     $connectors->{ $options{identity} }->{ping_time} = time();
     while (my $events = gorgone::standard::library::zmq_events(socket => $sockets->{ $options{identity} })) {
         if ($events & ZMQ_POLLIN) {
+            # We have a response. So it's ok :)
+            if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
+                $connectors->{ $options{identity} }->{ping_progress} = 0;
+            }
+
             my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{ $options{identity} });
             last if ($rv);
+
+            print "=====clientzmq= $message===\n";
 
             # in progress
             if ($connectors->{ $options{identity} }->{handshake} == 0) {
@@ -401,6 +407,8 @@ sub send_message {
 
         $self->{verbose_last_message} = 'Handshake timeout';
         $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
+        $self->event(identity => $self->{identity});
+
         my $w1 = $self->{loop}->timer(
             10,
             0,

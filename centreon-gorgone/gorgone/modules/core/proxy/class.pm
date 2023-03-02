@@ -245,20 +245,20 @@ sub action_proxyaddnode {
                 node_id => $data->{id}
             }
         });
-
-        $self->{clients}->{ $data->{id} }->{watcher} = $self->{loop}->io(
-            $self->{internal_channels}->{ $data->{id} }->get_fd(),
-            EV::READ,
-            sub {
-                $connector->event(channel => $connector->{clients}->{$_}->{id});
-            }
-        );
     }
 
     $self->{clients}->{ $data->{id} } = $data;
     $self->{clients}->{ $data->{id} }->{delete} = 0;
     $self->{clients}->{ $data->{id} }->{class} = undef;
     $self->{clients}->{ $data->{id} }->{com_read_internal} = 1;
+
+    $self->{clients}->{ $data->{id} }->{watcher} = $self->{loop}->io(
+        $self->{internal_channels}->{ $data->{id} }->get_fd(),
+        EV::READ,
+        sub {
+            $connector->event(channel => $data->{id});
+        }
+    );
 }
 
 sub action_proxydelnode {
