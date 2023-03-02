@@ -59,7 +59,7 @@ jobs:
             "JSON::WebToken",
             "Libssh::Session",
             "LV",
-            "Net::Curl",
+            #"Net::Curl",
             "Net::Curl::Easy",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
@@ -114,8 +114,6 @@ jobs:
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
             version: "0.026"
-          - name: "Net::Curl::Easy"
-            use_dh_make_perl: "false"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
