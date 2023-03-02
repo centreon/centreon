@@ -104,6 +104,7 @@ jobs:
           - name: "ZMQ::LibZMQ4"
             rpm_dependencies: "zeromq"
             deb_dependencies: "libzmq5"
+            version: "0.01"
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
