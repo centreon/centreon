@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: Package ${{ inputs.package_extension }}
     container:
-      image: centreon.jfrog.io/docker/${{ inputs.image_name }}:${{ inputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
         username: ${{ secrets.registry_username }}
         password: ${{ secrets.registry_password }}
@@ -110,7 +110,7 @@ jobs:
     needs: [package]
     runs-on: ubuntu-22.04
     container:
-      image: centreon.jfrog.io/docker/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
       options: -t
       credentials:
         username: ${{ secrets.registry_username }}
