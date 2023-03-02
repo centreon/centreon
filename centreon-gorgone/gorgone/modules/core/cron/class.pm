@@ -376,34 +376,30 @@ sub action_deletecron {
 sub event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $self->read_message(); 
-            next if (!defined($message));
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message(); 
+        next if (!defined($message));
 
-            $self->{logger}->writeLogDebug("[cron] Event: $message");
-            if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
-                my $token = $1;
-                my ($rv, $data) = $self->json_decode(argument => $2, token => $token);
+        $self->{logger}->writeLogDebug("[cron] Event: $message");
+        if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
+            my $token = $1;
+            my ($rv, $data) = $self->json_decode(argument => $2, token => $token);
+            next if ($rv);
+
+            $self->{ack} = {
+                token => $token,
+                data => $data
+            };
+        } else {
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+            if ((my $method = $self->can('action_' . lc($1)))) {
+                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                my ($action, $token) = ($1, $2);
+                my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
                 next if ($rv);
 
-                $self->{ack} = {
-                    token => $token,
-                    data => $data
-                };
-            } else {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                if ((my $method = $self->can('action_' . lc($1)))) {
-                    $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                    my ($action, $token) = ($1, $2);
-                    my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
-                    next if ($rv);
-
-                    $method->($self, token => $token, data => $data);
-                }
+                $method->($self, token => $token, data => $data);
             }
-        } else {
-            last;
         }
     }
 }

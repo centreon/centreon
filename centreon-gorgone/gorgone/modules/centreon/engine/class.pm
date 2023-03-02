@@ -268,18 +268,14 @@ sub create_child {
 sub event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $self->read_message();
-            next if (!defined($message));
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
 
-            $self->{logger}->writeLogDebug("[engine] Event: $message");
+        $self->{logger}->writeLogDebug("[engine] Event: $message");
 
-            if ($message !~ /^\[ACK\]/) {
-                $self->create_child(message => $message);
-            }        
-        } else {
-            last;
+        if ($message !~ /^\[ACK\]/) {
+            $self->create_child(message => $message);
         }
     }
 }

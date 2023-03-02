@@ -120,24 +120,20 @@ sub event {
     my ($self, %options) = @_;
 
     my $socket = defined($options{socket}) ? $options{socket} : $self->{internal_socket};
-    while (my $events = gorgone::standard::library::zmq_events(socket => $socket)) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $self->read_message();
-            next if (!defined($message));
+    while ($socket->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
 
-            $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} Event: $message");
-            if ($message =~ /^\[(.*?)\]/) {
-                if ((my $method = $self->can('action_' . lc($1)))) {
-                    $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                    my ($action, $token) = ($1, $2);
-                    my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
-                    next if ($rv);
+        $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} Event: $message");
+        if ($message =~ /^\[(.*?)\]/) {
+            if ((my $method = $self->can('action_' . lc($1)))) {
+                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
+                my ($action, $token) = ($1, $2);
+                my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+                next if ($rv);
 
-                    $method->($self, token => $token, data => $data);
-                }
+                $method->($self, token => $token, data => $data);
             }
-        } else {
-            last;
         }
     }
 }

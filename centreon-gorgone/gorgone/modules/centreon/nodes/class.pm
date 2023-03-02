@@ -208,14 +208,16 @@ sub action_centreonnodessync {
 }
 
 sub periodic_exec {
-    if ($connector->{stop} == 1) {
-        $connector->{logger}->writeLogInfo("[nodes] -class- $$ has quit");
+    my ($self, %options) = @_;
+
+    if ($self->{stop} == 1) {
+        $self->{logger}->writeLogInfo("[nodes] -class- $$ has quit");
         exit(0);
     }
 
-    if (time() - $connector->{resync_time} > $connector->{last_resync_time}) {
-        $connector->{last_resync_time} = time();
-        $connector->action_centreonnodessync();
+    if (time() - $self->{resync_time} > $self->{last_resync_time}) {
+        $self->{last_resync_time} = time();
+        $self->action_centreonnodessync();
     }
 }
 
@@ -244,7 +246,9 @@ sub run {
         data => {}
     });
 
-    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    $self->periodic_exec();
+
+    my $watcher_timer = $self->{loop}->timer(5, 5, sub { $self->periodic_exec() } );
     my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     $self->{loop}->run();
 }

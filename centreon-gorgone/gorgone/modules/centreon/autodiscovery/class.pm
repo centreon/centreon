@@ -1120,23 +1120,19 @@ sub is_hdisco_synced {
 sub event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my $frame = gorgone::class::frame->new();
-            my (undef, $rv) = $self->read_message(frame => $frame);
-            next if ($rv);
+    while ($self->{internal_socket}->has_pollin()) {
+        my $frame = gorgone::class::frame->new();
+        my (undef, $rv) = $self->read_message(frame => $frame);
+        next if ($rv);
 
-            my $raw = $frame->getFrame();
-            $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
-            if ($$raw =~ /^\[(.*?)\]/) {
-                if ((my $method = $connector->can('action_' . lc($1)))) {
-                    next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
+        my $raw = $frame->getFrame();
+        $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
+        if ($$raw =~ /^\[(.*?)\]/) {
+            if ((my $method = $connector->can('action_' . lc($1)))) {
+                next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
 
-                    $method->($self, token => $frame->getToken(), frame => $frame);
-                }
+                $method->($self, token => $frame->getToken(), frame => $frame);
             }
-        } else {
-            last;
         }
     }
 }

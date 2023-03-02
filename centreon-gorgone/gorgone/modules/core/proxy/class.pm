@@ -43,6 +43,8 @@ sub new {
     $connector->{pool_id} = $options{pool_id};
     $connector->{clients} = {};
     $connector->{internal_channels} = {};
+    $connector->{watchers} = {};
+
 
     $connector->set_signal_handlers();
     return $connector;
@@ -155,7 +157,7 @@ sub connect {
     if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
         $self->{clients}->{$options{id}}->{class} = gorgone::class::clientzmq->new(
             context => $self->{zmq_context},
-            loop => $self->{loop},
+            core_loop => $self->{loop},
             identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id}, 
             cipher => $self->{clients}->{ $options{id} }->{cipher}, 
             vector => $self->{clients}->{ $options{id} }->{vector},
@@ -175,7 +177,6 @@ sub connect {
             logger => $self->{logger}
         );
         $self->{clients}->{ $options{id} }->{class}->init(callback => \&read_message_client);
-        $self->{clients}->{ $options{id} }->{class}->add_watcher();
     } elsif ($self->{clients}->{ $options{id} }->{type} eq 'push_ssh') {
         $self->{clients}->{$options{id}}->{class} = gorgone::modules::core::proxy::sshclient->new(logger => $self->{logger});
         my $code = $self->{clients}->{$options{id}}->{class}->open_session(
@@ -245,20 +246,19 @@ sub action_proxyaddnode {
                 node_id => $data->{id}
             }
         });
+        $self->{watchers}->{ $data->{id} } = $self->{loop}->io(
+            $self->{internal_channels}->{ $data->{id} }->get_fd(),
+            EV::READ,
+            sub {
+                $connector->event(channel => $data->{id});
+            }
+        );
     }
 
     $self->{clients}->{ $data->{id} } = $data;
     $self->{clients}->{ $data->{id} }->{delete} = 0;
     $self->{clients}->{ $data->{id} }->{class} = undef;
     $self->{clients}->{ $data->{id} }->{com_read_internal} = 1;
-
-    $self->{clients}->{ $data->{id} }->{watcher} = $self->{loop}->io(
-        $self->{internal_channels}->{ $data->{id} }->get_fd(),
-        EV::READ,
-        sub {
-            $connector->event(channel => $data->{id});
-        }
-    );
 }
 
 sub action_proxydelnode {
@@ -486,22 +486,18 @@ sub event {
         $options{channel} = 'control';
     }
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $socket)) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $self->read_message(socket => $socket);
-            next if (!defined($message));
+    while ($socket->has_pollin()) {
+        my ($message) = $self->read_message(socket => $socket);
+        next if (!defined($message));
 
-            proxy(message => $message, channel => $options{channel});
-            if ($self->{stop} == 1 && (time() - $self->{exit_timeout}) > $self->{stop_time}) {
-                $self->exit_process();
-            }
-            return if (
-                defined($self->{clients}->{ $options{channel} }) && 
-                ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
-            );
-        } else {
-            last;
+        proxy(message => $message, channel => $options{channel});
+        if ($self->{stop} == 1 && (time() - $self->{exit_timeout}) > $self->{stop_time}) {
+            $self->exit_process();
         }
+        return if (
+            defined($self->{clients}->{ $options{channel} }) && 
+            ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
+        );
     }
 }
 

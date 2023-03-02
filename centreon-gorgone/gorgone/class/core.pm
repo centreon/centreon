@@ -594,7 +594,7 @@ sub send_internal_message {
 
     $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
-    $self->router_internal_event();
+    $self->router_internal_event() if (!defined($options{nosync}));
 }
 
 sub broadcast_run {
@@ -761,28 +761,24 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($identity, $frame) = $self->read_internal_message();
-            next if (!defined($identity));
+    while ( $self->{internal_socket}->has_pollin() ) {
+        my ($identity, $frame) = $self->read_internal_message();
+        next if (!defined($identity));
 
-            my ($token, $code, $response, $response_type) = $self->message_run(
-                {
-                    frame => $frame,
-                    identity => $identity,
-                    router_type => 'internal'
-                }
-            );
-            $self->send_internal_response(
+        my ($token, $code, $response, $response_type) = $self->message_run(
+            {
+                frame => $frame,
                 identity => $identity,
-                response_type => $response_type,
-                data => $response,
-                code => $code,
-                token => $token
-            );
-        } else {
-            last;
-        }
+                router_type => 'internal'
+            }
+        );
+        $self->send_internal_response(
+            identity => $identity,
+            response_type => $response_type,
+            data => $response,
+            code => $code,
+            token => $token
+        );
     }
 }
 
@@ -1062,37 +1058,33 @@ sub send_message_parent {
 sub router_external_event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{external_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-                socket => $self->{external_socket},
-                logger => $self->{logger}
-            );
-            next if (!defined($identity));
+    while ( $self->{external_socket}->has_pollin() ) {
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+            socket => $self->{external_socket},
+            logger => $self->{logger}
+        );
+        next if (!defined($identity));
 
-            my ($rv, $cipher_infos) = $self->handshake(
-                identity => $identity,
-                frame => $frame
-            );
-            if ($rv == 0) {
-                my ($token, $code, $response, $response_type) = $self->message_run(
-                    {
-                        frame => $frame,
-                        identity => $identity,
-                        router_type => 'external'
-                    }
-                );
-                $self->external_core_response(
+        my ($rv, $cipher_infos) = $self->handshake(
+            identity => $identity,
+            frame => $frame
+        );
+        if ($rv == 0) {
+            my ($token, $code, $response, $response_type) = $self->message_run(
+                {
+                    frame => $frame,
                     identity => $identity,
-                    cipher_infos => $cipher_infos,
-                    response_type => $response_type,
-                    token => $token, 
-                    code => $code,
-                    data => $response
-                );
-            }
-        } else {
-            last;
+                    router_type => 'external'
+                }
+            );
+            $self->external_core_response(
+                identity => $identity,
+                cipher_infos => $cipher_infos,
+                response_type => $response_type,
+                token => $token, 
+                code => $code,
+                data => $response
+            );
         }
     }
 }
@@ -1107,11 +1099,14 @@ sub waiting_ready_pool {
         return 1;
     }
 
-    my $watcher_timer = $gorgone->{loop}->timer(10, 0, \&stop_ev);
-    $gorgone->{loop}->run();
-
-    if ($method->() > 0) {
-        return 1;
+    my $iteration = 10;
+    while ($iteration > 0) {
+        my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
+        $gorgone->{loop}->run();
+        $iteration--;
+        if ($method->() > 0) {
+            return 1;
+        }
     }
 
     return 0;
@@ -1127,14 +1122,16 @@ sub waiting_ready {
 
     return 1 if (${$options{ready}} == 1);
 
-    my $watcher_timer = $gorgone->{loop}->timer(10, 0, \&stop_ev);
-    $gorgone->{loop}->run();
-
-    if (${$options{ready}} == 0) {
-        return 0;
+    my $iteration = 10;
+    while ($iteration > 0) {
+        my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
+        $gorgone->{loop}->run();
+        if (${$options{ready}} == 1) {
+            return 1;
+        }
     }
 
-    return 1;
+    return 0;
 }
 
 sub quit {

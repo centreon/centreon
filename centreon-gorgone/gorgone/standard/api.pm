@@ -240,27 +240,23 @@ sub event {
     my (%options) = @_;
 
     my $httpserver = defined($options{httpserver}) ? $options{httpserver} : $module;
-    while (my $events = gorgone::standard::library::zmq_events(socket => $httpserver->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $httpserver->read_message();
-            next if (!defined($message));
+    while ($httpserver->{internal_socket}->has_pollin()) {
+        my ($message) = $httpserver->read_message();
+        next if (!defined($message));
 
-            if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
-                $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
-                my ($action, $token, $data) = ($1, $2, $3);
-                $results->{$token} = {
-                    action => $action,
-                    token => $token,
-                    data => $data
-                };
-                if ((my $method = $httpserver->can('action_' . lc($action)))) {
-                    my ($rv, $decoded) = $httpserver->json_decode(argument => $data, token => $token);
-                    next if ($rv);
-                    $method->($httpserver, token => $token, data => $decoded);
-                }
+        if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
+            $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
+            my ($action, $token, $data) = ($1, $2, $3);
+            $results->{$token} = {
+                action => $action,
+                token => $token,
+                data => $data
+            };
+            if ((my $method = $httpserver->can('action_' . lc($action)))) {
+                my ($rv, $decoded) = $httpserver->json_decode(argument => $data, token => $token);
+                next if ($rv);
+                $method->($httpserver, token => $token, data => $decoded);
             }
-        } else {
-            last;
         }
     }
 }
