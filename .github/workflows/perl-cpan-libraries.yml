@@ -181,7 +181,7 @@ jobs:
       - if: ${{ matrix.package_extension == 'deb' }}
         run: |
           apt update
-          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev
+          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev libmodule-install-perl
 
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
