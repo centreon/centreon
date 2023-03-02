@@ -60,6 +60,7 @@ jobs:
             "Libssh::Session",
             "LV",
             "Net::Curl",
+            "Net::Curl::Easy",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
             "Net::NTP",
