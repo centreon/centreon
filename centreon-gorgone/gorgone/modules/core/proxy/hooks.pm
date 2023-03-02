@@ -231,7 +231,7 @@ sub routing {
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data => { message => 'proxy - still all ready' },
+            data => { message => 'proxy - still not ready' },
             json_encode => 1
         });
         return ;

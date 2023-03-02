@@ -654,9 +654,9 @@ sub run {
         data => { container_id => $self->{container_id} }
     });
 
-    my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
-    EV::run();
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

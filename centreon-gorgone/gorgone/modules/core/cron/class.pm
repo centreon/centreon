@@ -97,7 +97,9 @@ sub action_getcron {
                     code => $options{data}->{parameters}->{code}
                 }
             });
-            my $rev = zmq_poll($connector->{poll}, 5000);
+            my $watcher_timer = $self->{loop}->timer(5, 0, \&stop_ev);
+            $self->{loop}->run();
+
             $data = $connector->{ack}->{data}->{data}->{result};
         } else {
             my $idx;
@@ -407,12 +409,12 @@ sub event {
 }
 
 sub stop_ev {
-    EV::break();
+    $connector->{loop}->break();
 }
 
 sub cron_sleep {
-    my $w = EV::timer(1, 0, \&stop_ev);
-    EV::run();
+    my $watcher_timer = $connector->{loop}->timer(1, 0, \&stop_ev);
+    $connector->{loop}->run();
 
     if ($connector->{stop} == 1) {
         $connector->{logger}->writeLogInfo("[cron] $$ has quit");
@@ -439,8 +441,8 @@ sub dispatcher {
         json_encode => 1
     });
  
-    my $w = EV::timer(5, 0, \&stop_ev);
-    EV::run();
+    my $watcher_timer = $options->{connector}->{loop}->timer(5, 0, \&stop_ev);
+    $options->{connector}->{loop}->run();
 }
 
 sub run {
@@ -482,7 +484,7 @@ sub run {
         );
     }
 
-    my $w = EV::io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
 
     $self->{cron}->run(sleep => \&cron_sleep);
 

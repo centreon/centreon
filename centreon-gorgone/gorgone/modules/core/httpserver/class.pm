@@ -141,7 +141,7 @@ sub load_peer_subnets {
 }
 
 sub stop_ev {
-    EV::break();
+    $connector->{loop}->break();
 }
 
 sub run {
@@ -150,7 +150,7 @@ sub run {
     $self->load_peer_subnets();
 
     # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
         context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserver',
@@ -158,16 +158,16 @@ sub run {
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action({
+    $self->send_internal_action({
         action => 'HTTPSERVERREADY',
         data => {}
     });
 
-    gorgone::standard::api::set_module($connector);
+    gorgone::standard::api::set_module($self);
 
-    my $w1 = EV::timer(4, 0, \&stop_ev);
-    my $w2 = EV::io($connector->{internal_socket}->get_fd(), EV::READ, \&gorgone::standard::api::event);
-    EV::run();
+    my $watcher_timer = $self->{loop}->timer(4, 0, \&stop_ev);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, \&gorgone::standard::api::event);
+    $self->{loop}->run();
 
     $self->init_dispatch();
 

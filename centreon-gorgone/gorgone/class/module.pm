@@ -61,6 +61,8 @@ sub new {
     $self->{stop} = 0;
     $self->{fork} = 0;
 
+    $self->{loop} = new EV::Loop();
+
     $self->{internal_crypt} = { enabled => 0 };
     if ($self->get_core_config(name => 'internal_com_crypt') == 1) {
         $self->{cipher} = Crypt::Mode::CBC->new(

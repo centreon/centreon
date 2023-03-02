@@ -27,7 +27,7 @@ use gorgone::standard::misc;
 use Crypt::Mode::CBC;
 use MIME::Base64;
 use Scalar::Util;
-use ZMQ::FFI qw(ZMQ_DONTWAIT);
+use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_POLLIN);
 use EV;
 
 my $connectors = {};
@@ -41,6 +41,7 @@ sub new {
     $connector->{logger} = $options{logger};
     $connector->{identity} = $options{identity};
     $connector->{extra_identity} = gorgone::standard::library::generate_token(length => 12);
+    $connector->{loop} = $options{loop};
 
     $connector->{verbose_last_message} = '';
     $connector->{config_core} = $options{config_core};
@@ -123,8 +124,14 @@ sub get_server_pubkey {
     my ($self, %options) = @_;
 
     $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
-    my $w = EV::timer(10, 0, \&stop_ev);
-    EV::run();
+    my $w1 = $self->{loop}->timer(
+        10,
+        0, 
+        sub {
+            $self->{loop}->break();
+        }
+    );
+    $self->{loop}->run();
 }
 
 sub read_key_protocol {
@@ -276,14 +283,13 @@ sub ping {
     return $status;
 }
 
-sub stop_ev {
-    EV::break();
-}
-
-sub set_ev_io {
+sub add_watcher {
     my ($self, %options) = @_;
 
-    my $w = EV::io($sockets->{ $self->{identity} }->get_fd(), EV::READ, sub {
+    $self->{watcher} = $self->{loop}->io(
+        $sockets->{ $self->{identity} }->get_fd(),
+        EV::READ,
+        sub {
             $self->event(identity => $self->{identity});
         }
     );
@@ -395,8 +401,12 @@ sub send_message {
 
         $self->{verbose_last_message} = 'Handshake timeout';
         $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
-        my $w = EV::timer(10, 0, \&stop_ev);
-        EV::run();
+        my $w1 = $self->{loop}->timer(
+            10,
+            0,
+            sub { $self->{loop}->break(); }
+        );
+        $self->{loop}->run();
     }
 
     if ($self->{handshake} < 2) {

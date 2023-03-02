@@ -1103,8 +1103,12 @@ sub waiting_ready_pool {
     my $name = $gorgone->{modules_id}->{$gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name}};
     my $method = $name->can('is_all_proxy_ready');
 
-    my $w = EV::timer(10, 0, \&stop_ev);
-    EV::run();
+    if ($method->() > 0) {
+        return 1;
+    }
+
+    my $watcher_timer = $gorgone->{loop}->timer(10, 0, \&stop_ev);
+    $gorgone->{loop}->run();
 
     if ($method->() > 0) {
         return 1;
@@ -1114,7 +1118,7 @@ sub waiting_ready_pool {
 }
 
 sub stop_ev {
-    EV::break();
+    $gorgone->{loop}->break();
     $gorgone->check_exit_modules();
 }
 
@@ -1123,8 +1127,8 @@ sub waiting_ready {
 
     return 1 if (${$options{ready}} == 1);
 
-    my $w = EV::timer(10, 0, \&stop_ev);
-    EV::run();
+    my $watcher_timer = $gorgone->{loop}->timer(10, 0, \&stop_ev);
+    $gorgone->{loop}->run();
 
     if (${$options{ready}} == 0) {
         return 0;
@@ -1291,13 +1295,14 @@ sub run {
     $gorgone->{logger}->writeLogInfo("[core] Server accepting clients");
     $gorgone->{cb_timer_check} = time();
 
-    my $w1 = EV::timer(5, 2, \&periodic_exec);
-    my $w2 = EV::io($gorgone->{internal_socket}->get_fd(), EV::READ, sub { $gorgone->router_internal_event() });
+    $gorgone->{loop} = new EV::Loop();
+    $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
+    $gorgone->{watcher_io_internal} =  $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub { $gorgone->router_internal_event() });
     if (defined($gorgone->{external_socket})) {
-        my $w3 = EV::io($gorgone->{external_socket}->get_fd(), EV::READ, sub { $gorgone->router_external_event() });
+        $gorgone->{watcher_io_external} =  $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub { $gorgone->router_external_event() });
     }
 
-    EV::run();
+    $gorgone->{loop}->run();
 }
 
 1;

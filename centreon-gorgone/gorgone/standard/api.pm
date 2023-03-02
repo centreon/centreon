@@ -94,7 +94,7 @@ sub root {
 }
 
 sub stop_ev {
-    EV::break();
+    $module->{loop}->break();
 }
 
 sub call_action {
@@ -151,8 +151,8 @@ sub call_internal {
         json_encode => 1
     });
 
-    my $w1 = EV::timer(5, 0, \&stop_ev);
-    EV::run();
+    my $watcher_timer = $options{module}->{loop}->timer(5, 0, \&stop_ev);
+    $options{module}->{loop}->run();
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
     if (defined($results->{$action_token}->{data})) {
@@ -206,8 +206,8 @@ sub get_log {
         json_encode => 1
     });
 
-    my $w1 = EV::timer(5, 0, \&stop_ev);
-    EV::run();
+    my $watcher_timer = $options{module}->{loop}->timer(5, 0, \&stop_ev);
+    $options{module}->{loop}->run();
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
     if (defined($results->{ $token_log }) && defined($results->{ $token_log }->{data})) {
