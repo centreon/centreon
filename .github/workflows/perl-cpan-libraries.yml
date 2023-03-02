@@ -31,7 +31,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        # distrib: [el8, el9, bullseye]
+        distrib: [bullseye]
         name:
           [
             "boolean",
