@@ -89,12 +89,12 @@ jobs:
           - rpm_dependencies: ""
           - deb_dependencies: ""
           - version: ""
-          - distrib: el8
-            package_extension: rpm
-            image: packaging-alma8
-          - distrib: el9
-            package_extension: rpm
-            image: packaging-alma9
+          # - distrib: el8
+          #   package_extension: rpm
+          #   image: packaging-alma8
+          # - distrib: el9
+          #   package_extension: rpm
+          #   image: packaging-alma9
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
