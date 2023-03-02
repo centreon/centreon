@@ -15,6 +15,7 @@ import FormButtons from '../../FormButtons';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: WebSSOConfiguration;
@@ -35,6 +36,8 @@ const WebSSOForm = ({
     method: Method.PUT
   });
 
+  const queryClient = useQueryClient();
+
   const { showSuccessMessage } = useSnackbar();
 
   const validationSchema = useValidationSchema();
@@ -45,6 +48,7 @@ const WebSSOForm = ({
   ): Promise<void> => {
     return mutateAsync(adaptWebSSOConfigurationToAPI(values))
       .then(() => {
+        queryClient.invalidateQueries([Provider.WebSSO])
         loadWebSSOonfiguration();
         showSuccessMessage(t(labelWebSSOConfigurationSaved));
       })

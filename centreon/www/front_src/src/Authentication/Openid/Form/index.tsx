@@ -18,6 +18,7 @@ import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: OpenidConfiguration;
@@ -39,6 +40,7 @@ const OpenidForm = ({
     getEndpoint: () => authenticationProvidersEndpoint(Provider.Openid),
     method: Method.PUT
   });
+  const queryClient = useQueryClient();
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -50,6 +52,7 @@ const OpenidForm = ({
   ): Promise<void> =>
     mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
       .then(() => {
+        queryClient.invalidateQueries([Provider.Openid])
         loadOpenidConfiguration();
         showSuccessMessage(t(labelOpenIDConnectConfigurationSaved));
       })

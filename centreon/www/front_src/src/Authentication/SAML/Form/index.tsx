@@ -15,6 +15,7 @@ import { adaptSAMLConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: SAMLConfiguration;
@@ -34,6 +35,7 @@ const SAMLForm = ({
     getEndpoint: () => authenticationProvidersEndpoint(Provider.SAML),
     method: Method.PUT
   });
+  const queryClient = useQueryClient();
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -45,6 +47,7 @@ const SAMLForm = ({
   ): Promise<void> =>
     mutateAsync(adaptSAMLConfigurationToAPI(formikValues))
       .then(() => {
+        queryClient.invalidateQueries([Provider.SAML])
         loadConfiguration();
         showSuccessMessage(t(labelSAMLConfigurationSaved));
       })
