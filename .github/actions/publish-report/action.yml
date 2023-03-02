@@ -30,7 +30,7 @@ runs:
       with:
         name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
         path: "${{ inputs.path }}"                     # Path to test results (inside artifact .zip)
-        reporter: java-junit
+        reporter: jest-junit
         max-annotations: '0'
         list-suites: 'failed'
         list-tests: 'failed'

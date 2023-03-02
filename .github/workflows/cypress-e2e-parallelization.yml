@@ -96,4 +96,3 @@ jobs:
         with:
           check_name: ${{ inputs.name }}-tests-report
           path: "${{ inputs.name }}-xunit-reports/**/*.xml"
-          format: "php-junit"
