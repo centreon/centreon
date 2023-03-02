@@ -86,7 +86,8 @@ jobs:
             "ZMQ::LibZMQ4",
           ]
         include:
-          - dependencies: ""
+          - rpm_dependencies: ""
+          - deb_dependencies: ""
           - version: ""
           - distrib: el8
             package_extension: rpm
@@ -100,9 +101,11 @@ jobs:
           - name: "JSON::Path"
             version: "1.0.3"
           - name: "ZMQ::LibZMQ4"
-            dependencies: "zeromq"
+            rpm_dependencies: "zeromq"
+            deb_dependencies: "libzmq5"
           - name: "Libssh::Session"
-            dependencies: "libssh"
+            rpm_dependencies: "libssh"
+            deb_dependencies: "libssh2-1"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -127,10 +130,10 @@ jobs:
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
-          if [ -z "${{ matrix.dependencies }}" ]; then
+          if [ -z "${{ matrix.rpm_dependencies }}" ]; then
             PACKAGE_DEPENDENCIES=""
           else
-            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.rpm_dependencies }}`; do
               PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
             done
           fi
@@ -154,10 +157,10 @@ jobs:
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
-          if [ -z "${{ matrix.dependencies }}" ]; then
+          if [ -z "${{ matrix.deb_dependencies }}" ]; then
             PACKAGE_DEPENDENCIES=""
           else
-            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.deb_dependencies }}`; do
               PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
             done
           fi
