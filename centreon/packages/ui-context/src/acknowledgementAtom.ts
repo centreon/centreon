@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom, Provider } from 'jotai';
 
 import { defaultAcknowledgement } from './defaults';
 
