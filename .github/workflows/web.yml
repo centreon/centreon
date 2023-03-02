@@ -279,11 +279,13 @@ jobs:
 
     strategy:
       matrix:
+        distrib: [el9, bullseye]
         include:
           - project: centreon-web
-            distrib: alma9
+          - distrib: alma9
             distrib_rpm: el9
-            module_name: web
+          - distrib: bullseye
+            distrib_rpm: bullseye
 
     steps:
       - name: Checkout sources
