@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: centreon/cypress/results/*.xml
+          path: centreon/cypress/results/*.json
           retention-days: 1
 
   cypress-component-test-report:
@@ -62,12 +62,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: ${{ inputs.name }}-xunit-reports
+          path: ${{ inputs.name }}-json-reports
 
-      - uses: ./.github/actions/publish-report
-        with:
-          path: "${{ inputs.name }}-xunit-reports/**/*.xml"
+      - name: Merge reports
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          cat mochawesome.json
+        shell: bash

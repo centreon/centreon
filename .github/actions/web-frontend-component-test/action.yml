@@ -48,5 +48,5 @@ runs:
         retention-days: 1
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/cypress/results/mochawesome.json ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.json
       shell: bash

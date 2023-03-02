@@ -22,9 +22,12 @@ export default defineConfig({
     dockerName: 'e2e-tests-centreon'
   },
   execTimeout: 60000,
-  reporter: 'junit',
+  reporter: 'mochawesome',
   reporterOptions: {
-    mochaFile: 'cypress/results/reports/cypress-fe.xml'
+    reportDir: 'cypress/results/dev/reports',
+    overwrite: true,
+    html: false,
+    json: true,
   },
   requestTimeout: 10000,
   retries: 0,

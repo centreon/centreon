@@ -94,5 +94,5 @@ runs:
 
     - name: Rename cypress report
       if: always()
-      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/mochawesome.json ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.json
       shell: bash
