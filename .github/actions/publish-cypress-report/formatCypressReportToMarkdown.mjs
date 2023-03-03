@@ -54,8 +54,7 @@ const testsDetails = report.results.map((result) => ({
 }));
 
 const details = 
-  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3>
-<table>
+  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3><table>
   <thead>
     <tr>
       <th>Test</th>
@@ -72,11 +71,11 @@ const details =
       if (!localizableFile) {
         const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
         return `<tr>
-          <td>${fullTitle}</td>
-          <td>${fail ? ':x:' : ':fast_forward:'}</td>
-          <td>${duration / 1000}</td>
-          <td>${sanitizedEStack}</td>
-        </tr>`;
+      <td>${fullTitle}</td>
+      <td>${fail ? ':x:' : ':fast_forward:'}</td>
+      <td>${duration / 1000}</td>
+      <td>${sanitizedEStack}</td>
+    </tr>`;
       }
 
       const [,,lineNumber] = localizableFile.split(':');
@@ -86,21 +85,20 @@ const details =
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
       return `<tr>
-          <td>${fullTitle}</td>
-          <td>${fail ? ':x:' : ':fast_forward:'}</td>
-          <td>${duration / 1000}</td>
-          <td>
-            ${error}
-            <br />
-            The following line fails the test: <code>${locatedLine}</code>
-            <pre>${errorMessage}</pre>
-          </td>
-        </tr>`;
+      <td>${fullTitle}</td>
+      <td>${fail ? ':x:' : ':fast_forward:'}</td>
+      <td>${duration / 1000}</td>
+      <td>
+        ${error}
+        <br />
+        The following line fails the test: <code>${locatedLine}</code>
+        <pre>${errorMessage}</pre>
+      </td>
+    </tr>`;
     }}).then((v) => v.join(''))}
   </tbody>
 </table>` }).then((v) => v.join(''));
 
-const newReportContent = `${summary}
-${details}`;
+const newReportContent = `${summary}${details}`;
 
 fs.writeFileSync('cypress-report.md', newReportContent);

@@ -75,7 +75,6 @@ jobs:
       - name: Merge reports
         run: |
           pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
-          cat mochawesome.json
         shell: bash
 
       - name: Publish report
