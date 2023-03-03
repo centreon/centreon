@@ -20,7 +20,6 @@ const totalTests = report.stats.tests;
 const totalPasses = report.stats.passes;
 const totalPending = report.stats.pending;
 const totalFailures = report.stats.failures;
-const totalSkipped = report.stats.skipped;
 const duration = report.stats.duration / 1000;
 
 const summary = `<h1>Cypress Test summary</h1>
@@ -30,7 +29,6 @@ const summary = `<h1>Cypress Test summary</h1>
   <li>:white_check_mark: Passes: ${totalPasses}</li>
   <li>:hourglass: Pending: ${totalPending}</li>
   <li>:x: Failures: ${totalFailures}</li>
-  <li>:fast_forward: Skipped: ${totalSkipped}</li>
   <li>:stopwatch: Duration: ${duration} seconds</li>
 </ul>`;
 
@@ -56,15 +54,14 @@ const testsDetails = report.results.map((result) => ({
 }));
 
 const details = 
-  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<details>
-    <summary>${file}</summary>
+  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3>
     <table>
       <thead>
         <tr>
           <th>Test</th>
           <th>Error stack</th>
-          <th>State</th>
           <th>Duration (seconds)</th>
+          <th>State</th>
         </tr>
       </thead>
       <tbody>
@@ -77,8 +74,8 @@ const details =
             return `<tr>
               <td>${fullTitle}</td>
               <td>${fail ? ':x:' : ':fast_forward:'}</td>
-              <td>${sanitizedEStack}</td>
               <td>${duration / 1000}</td>
+              <td>${sanitizedEStack}</td>
             </tr>`;
           }
 
@@ -91,18 +88,17 @@ const details =
           return `<tr>
               <td>${fullTitle}</td>
               <td>${fail ? ':x:' : ':fast_forward:'}</td>
+              <td>${duration / 1000}</td>
               <td>
                 ${error}
                 <br />
-                The following line does not work: ${locatedLine}
+                The following line fails the test: <code>${locatedLine}</code>
                 <pre>${errorMessage}</pre>
               </td>
-              <td>${duration / 1000}</td>
             </tr>`;
         }}).then((v) => v.join(''))}
       </tbody>
-    </table>
-  </details>` }).then((v) => v.join(''));
+    </table>` }).then((v) => v.join(''));
 
 const newReportContent = `${summary}
 ${details}`;
