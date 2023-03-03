@@ -33,7 +33,6 @@ use Authen::Simple::Password;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -377,29 +376,25 @@ sub read_listener {
 sub read_zmq_events {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $connector->read_message();
-            $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
-            if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
-                my ($action, $token, $data) = ($1, $2, $3);
-                if (defined($connector->{token_watch}->{$token})) {
-                    if ($action eq 'HTTPSERVERNGLISTENER') {
-                        $connector->read_listener(token => $token, data => $data);
-                    } elsif ($token =~ /-log$/) {
-                        $connector->read_log_event(token => $token, data => $data);
-                    }
-                }
-                if ((my $method = $connector->can('action_' . lc($action)))) {
-                    my ($rv, $decoded) = $connector->json_decode(argument => $data, token => $token);
-                    if (!$rv) {
-                        $method->($connector, token => $token, data => $decoded);
-                    }
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $connector->read_message();
+        $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
+        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
+            my ($action, $token, $data) = ($1, $2, $3);
+            if (defined($connector->{token_watch}->{$token})) {
+                if ($action eq 'HTTPSERVERNGLISTENER') {
+                    $connector->read_listener(token => $token, data => $data);
+                } elsif ($token =~ /-log$/) {
+                    $connector->read_log_event(token => $token, data => $data);
                 }
             }
-        } else {
-            last;
+            if ((my $method = $connector->can('action_' . lc($action)))) {
+                my ($rv, $decoded) = $connector->json_decode(argument => $data, token => $token);
+                if (!$rv) {
+                    $method->($connector, token => $token, data => $decoded);
+                }
+            }
         }
     }
 }

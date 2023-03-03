@@ -37,7 +37,6 @@ use Digest::MD5::File qw(file_md5_hex);
 use Archive::Tar;
 use Fcntl;
 use Try::Tiny;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 $Archive::Tar::SAME_PERMISSIONS = 1;

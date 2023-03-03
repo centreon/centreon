@@ -26,7 +26,7 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
 use MIME::Base64;
 use Crypt::Mode::CBC;
-use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE ZMQ_POLLIN);
+use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE);
 use EV;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
@@ -1058,7 +1058,7 @@ sub send_message_parent {
 sub router_external_event {
     my ($self, %options) = @_;
 
-    while ( $self->{external_socket}->has_pollin() ) {
+    while ($self->{external_socket}->has_pollin()) {
         my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
             socket => $self->{external_socket},
             logger => $self->{logger}

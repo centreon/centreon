@@ -36,7 +36,6 @@ use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Try::Tiny;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 use constant JOB_SCHEDULED => 0;

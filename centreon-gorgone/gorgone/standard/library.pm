@@ -821,16 +821,6 @@ sub zmq_read_message {
     return (unpack('H*', $identity), $frame);
 }
 
-sub add_zmq_pollin {
-    my (%options) = @_;
-
-    #push @{$options{poll}}, {
-    #    socket  => $options{socket},
-    #    events  => ZMQ_POLLIN,
-    #    callback => $options{callback},
-    #};
-}
-
 sub create_schema {
     my (%options) = @_;
 

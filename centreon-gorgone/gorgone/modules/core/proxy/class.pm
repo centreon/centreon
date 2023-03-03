@@ -29,7 +29,6 @@ use gorgone::standard::constants qw(:all);
 use gorgone::class::clientzmq;
 use gorgone::modules::core::proxy::sshclient;
 use JSON::XS;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 my %handlers = (TERM => {}, HUP => {});

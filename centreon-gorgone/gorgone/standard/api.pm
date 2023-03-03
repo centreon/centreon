@@ -25,8 +25,6 @@ use warnings;
 use gorgone::standard::library;
 use Time::HiRes;
 use JSON::XS;
-use ZMQ::FFI qw(ZMQ_POLLIN);
-use EV;
 
 my $module;
 my $socket;

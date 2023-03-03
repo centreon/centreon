@@ -28,7 +28,6 @@ use JSON::XS;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 use EV;
 
 my %handlers = (TERM => {}, HUP => {});

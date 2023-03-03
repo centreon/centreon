@@ -32,7 +32,6 @@ use Mojo::Server::Daemon;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
-use ZMQ::FFI qw(ZMQ_POLLIN);
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);

@@ -27,7 +27,7 @@ use gorgone::standard::misc;
 use Crypt::Mode::CBC;
 use MIME::Base64;
 use Scalar::Util;
-use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_POLLIN);
+use ZMQ::FFI qw(ZMQ_DONTWAIT);
 use EV;
 
 my $connectors = {};

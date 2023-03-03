@@ -27,7 +27,7 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use gorgone::class::tpapi;
-use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_POLLIN);
+use ZMQ::FFI qw(ZMQ_DONTWAIT);
 use JSON::XS;
 use Crypt::Mode::CBC;
 use Try::Tiny;
