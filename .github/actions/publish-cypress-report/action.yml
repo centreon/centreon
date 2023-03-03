@@ -19,7 +19,9 @@ runs:
       with:
         version: 7
 
-    - run: |
-        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.js ${{ inputs.path }} ${{ github.repository }} ${{ github.ref_name }} ${{ inputs.urlFilePrefix }} > cypress-report.md
+    - name: Publish Cypress report
+      run: |
+        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.js ${{ inputs.path }} ${{ github.repository }} ${{ github.head_ref || github.ref_name }} ${{ inputs.urlFilePrefix }} > cypress-report.md
+        cat cypress-report.md
         cat cypress-report.md >> $GITHUB_STEP_SUMMARY
       shell: bash
