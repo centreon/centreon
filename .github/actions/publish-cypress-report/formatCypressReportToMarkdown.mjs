@@ -94,6 +94,10 @@ const details =
         <td>
           <div>${error}</div>
           <div>The following line fails the test: <code>${locatedLine}</code></div>
+          <details>
+            <summary>Complete logs</summary>
+            ${errorMessage.split('\n')[0]}
+          </details>
         </td>
       </tr>`;
     }}).then((v) => v.join(''))}
