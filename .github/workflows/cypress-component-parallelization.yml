@@ -62,10 +62,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
