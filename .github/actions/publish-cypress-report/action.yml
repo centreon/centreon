@@ -16,8 +16,8 @@ runs:
         node-version: 18
 
     - uses: pnpm/action-setup@v2
-        with:
-          version: 7
+      with:
+        version: 7
 
     - run: |
         node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.js ${{ inputs.path }} ${{ github.repository }} ${{ github.ref_name }} ${{ inputs.urlFilePrefix }} > cypress-report.md
