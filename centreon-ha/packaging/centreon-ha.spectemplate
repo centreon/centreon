@@ -87,8 +87,8 @@ This package provides the scripts and config files necessary for database and ce
 %{_datadir}/centreon-ha/lib%define name centreon-ha
 %define version @VERSION@
 %define release @RELEASE@%{?dist}
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define thismajor 23.04.0
+%define nextmajor 23.05.0
 
 %define debug_package %{nil}
 
