@@ -96,6 +96,7 @@ sub init {
     my ($self, %options) = @_;
 
     $self->{handshake} = 0;
+    delete $self->{server_pubkey};
     $sockets->{ $self->{identity} } = gorgone::standard::library::connect_com(
         context => $self->{context},
         zmq_type => 'ZMQ_DEALER',
@@ -188,6 +189,11 @@ sub decrypt_message {
 sub client_get_secret {
     my ($self, %options) = @_;
 
+    # there is an issue
+    if ($options{message} =~ /^\[ACK\]/) {
+        return (-1, "issue: $options{message}");
+    }
+
     my $plaintext;
     eval {
         my $cryptedtext = MIME::Base64::decode_base64($options{message});
@@ -272,20 +278,13 @@ sub ping {
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
-        # we delete the old one
-        for (my $i = 0; $i < scalar(@{$options{poll}}); $i++) {
-            if (Scalar::Util::refaddr($sockets->{$self->{identity}}) eq Scalar::Util::refaddr($options{poll}->[$i]->{socket})) {
-                splice @{$options{poll}}, $i, 1;
-                last;
-            }
-        }
         $sockets->{ $self->{identity} }->close();
+        delete $self->{core_watcher};
 
         $self->init();
-        #push @{$options{poll}}, $self->get_poll();
         $status = 1;
     }
-    
+
     return $status;
 }
 

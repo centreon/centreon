@@ -138,9 +138,8 @@ sub run {
         }
     }
 
-    # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
-        context => $connector->{zmq_context},
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-proxy-httpserver',
         logger => $self->{logger},
@@ -155,7 +154,7 @@ sub run {
     });
     $self->read_zmq_events();
 
-    my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
+    my $socket_fd = $self->{internal_socket}->get_fd();
     my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
     Mojo::IOLoop->singleton->reactor->io($socket => sub {
         $connector->read_zmq_events();

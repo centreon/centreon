@@ -306,7 +306,7 @@ sub routing {
     if ($is_ctrl_channel == 0 && $synctime_nodes->{$target_parent}->{channel_ready} == 1) {
         $identity = 'gorgone-proxy-channel-' . $target_parent;
     }
-    if ($register_nodes->{$target_parent}->{type} eq 'wss') {
+    if ($register_nodes->{$target_parent}->{type} eq 'wss' || $register_nodes->{$target_parent}->{type} eq 'pullwss') {
         $identity = 'gorgone-proxy-httpserver';
     }
 
@@ -690,7 +690,7 @@ sub ping_send {
         if ($register_nodes->{$id}->{type} eq 'push_zmq' || $register_nodes->{$id}->{type} eq 'push_ssh') {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             routing(action => 'PING', target => $id, frame => gorgone::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
-        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
+        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss|pullwss)$/) {
             $constatus_ping->{$id}->{in_progress_ping} = 1;
             $constatus_ping->{$id}->{in_progress_ping_pull} = time();
             routing(action => 'PING', target => $id, frame => gorgone::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
@@ -714,7 +714,7 @@ sub full_sync_history {
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             routing(action => 'GETLOG', target => $id, frame => gorgone::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
-        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss)$/) {
+        } elsif ($register_nodes->{$id}->{type} =~ /^(?:pull|wss|pullwss)$/) {
             routing(action => 'GETLOG', target => $id, frame => gorgone::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
         }
     }
@@ -890,7 +890,7 @@ sub unregister_nodes {
     return if (!defined($options{data}->{nodes}));
 
     foreach my $node (@{$options{data}->{nodes}}) {
-        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/) {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss|pullwss)$/) {
             routing(
                 action => 'PROXYDELNODE',
                 target => $node->{id},
@@ -904,7 +904,7 @@ sub unregister_nodes {
         my $prevail = 0;
         $prevail = 1  if (defined($prevails->{ $node->{id} }));
 
-        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} =~ /^(?:pull|wss)$/ && $prevail == 1) {
+        if (defined($register_nodes->{ $node->{id} }) && $register_nodes->{ $node->{id} }->{type} =~ /^(?:pull|wss|pullwss)$/ && $prevail == 1) {
             $register_nodes->{ $node->{id} }->{identity} = undef;
         }
 
@@ -987,12 +987,15 @@ sub register_nodes {
         if (defined($register_nodes->{ $node->{id} })) {
             $new_node = 0;
 
-            unregister_nodes(
-                data => { nodes => [ { id => $node->{id} } ] },
-                gorgone => $options{gorgone},
-                dbh => $options{dbh},
-                logger => $options{logger}
-            ) if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/ && $node->{type} =~ /^(?:pull|wss)$/);
+            if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss|pullwss)$/ && $node->{type} =~ /^(?:pull|wss|pullwss)$/) {
+                unregister_nodes(
+                    data => { nodes => [ { id => $node->{id} } ] },
+                    gorgone => $options{gorgone},
+                    dbh => $options{dbh},
+                    logger => $options{logger}
+                );
+                $new_node = 1;
+            }
         }
 
         if ($prevail == 0) {
@@ -1017,7 +1020,7 @@ sub register_nodes {
         }
 
         # we update identity in all cases (already created or not)
-        if ($node->{type} =~ /^(?:pull|wss)$/ && defined($node->{identity})) {
+        if ($node->{type} =~ /^(?:pull|wss|pullwss)$/ && defined($node->{identity})) {
             $register_nodes->{ $node->{id} }->{identity} = $node->{identity};
             $last_pong->{ $node->{id} } = time() if (defined($last_pong->{ $node->{id} }));
         }
@@ -1035,7 +1038,7 @@ sub register_nodes {
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});
         }
 
-        if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss)$/) {
+        if ($register_nodes->{ $node->{id} }->{type} !~ /^(?:pull|wss|pullwss)$/) {
             if ($prevail == 1) {
                 routing(
                     action => 'PROXYADDNODE',

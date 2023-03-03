@@ -27,12 +27,11 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::Constants qw(:all);
-use ZMQ::LibZMQ4;
 use Mojo::UserAgent;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -195,8 +194,8 @@ sub wss_connect {
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-pullwss',
         logger => $self->{logger},
@@ -226,7 +225,6 @@ sub run {
 
     Mojo::IOLoop->start() unless (Mojo::IOLoop->is_running);
 
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -257,18 +255,14 @@ sub transmit_back {
 sub read_zmq_events {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $connector->read_message();
-            $message = transmit_back(message => $message);
-            next if (!defined($message));
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $connector->read_message();
+        $message = transmit_back(message => $message);
+        next if (!defined($message));
 
-            # Only send back SETLOGS and PONG
-            $connector->{logger}->writeLogDebug("[pullwss] read message from internal: $message");
-            $connector->send_message(message => $message);
-        } else {
-            last;
-        }
+        # Only send back SETLOGS and PONG
+        $connector->{logger}->writeLogDebug("[pullwss] read message from internal: $message");
+        $connector->send_message(message => $message);
     }
 }
 
