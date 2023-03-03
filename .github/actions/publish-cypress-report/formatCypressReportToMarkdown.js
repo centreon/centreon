@@ -42,18 +42,6 @@ const getTestsBySuite = (suite) => {
   return [...suite.tests.filter(({ fail, skipped }) => fail || skipped), ...suite.suites.map((subSuite) => getTestsBySuite(subSuite))];
 }
 
-
-export const mapSeries = async ({
-  array,
-  callback,
-}) => {
-  const result = [];
-  for (const element of array) {
-    result.push(await callback.call(this, await element));
-  }
-  return result;
-};
-
 const testsDetails = report.results.map((result) => ({
   file: result.file,
   tests: getTestsBySuite(result).flat(Infinity),
