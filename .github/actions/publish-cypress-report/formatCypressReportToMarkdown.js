@@ -1,4 +1,4 @@
-import fs from  'fs';
+const fs = require('fs');
 
 const reportFile = process.argv[2];
 const repo = process.argv[3];
@@ -73,10 +73,11 @@ const details =
       </thead>
       <tbody>
         ${tests.map(({ fullTitle, err, fail, duration }) => {
-          const errorLine = err.estack ? err.estack.split('\n')[1] : '';
-          const isLoggableFile = errorLine.includes(file);
-          if (!isLoggableFile) {
-            const sanitizedEStack = err.estack ? `<pre>${err.estack.replaceAll(/</g, '&lt;').replaceAll(/>/g, '&gt;')}</pre>` : '';
+          const stackLines = err.estack ? err.estack.split('\n') : [];
+          const localizableFile = stackLines.find((line) => line.includes(file));
+
+          if (!localizableFile) {
+            const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
             return `<tr>
               <td>${fullTitle}</td>
               <td>${fail ? ':x:' : ':fast_forward:'}</td>
@@ -84,16 +85,20 @@ const details =
               <td>${duration / 1000}</td>
             </tr>`;
           }
-          const [,,lineNumber] = errorLine.split(':');
-          const sanitizedErrorMessage = err.message ? err.message.replaceAll(/</g, '&lt;').replaceAll(/>/g, '&gt;') : '';
-          const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>\n<pre>${sanitizedErrorMessage}</pre>`;
+
+          const [,,lineNumber] = localizableFile.split(':');
+          const errorMessage = err.message || '';
+          const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
           return `<tr>
               <td>${fullTitle}</td>
               <td>${fail ? ':x:' : ':fast_forward:'}</td>
-              <td>${error}</td>
+              <td>
+                ${error}
+                <pre>${errorMessage}</pre>
+              </td>
               <td>${duration / 1000}</td>
             </tr>`;
-        })}
+        }).join('')}
       </tbody>
     </table>
   </details>`).join('');
