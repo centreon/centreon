@@ -279,15 +279,12 @@ jobs:
 
     strategy:
       matrix:
-        os: [alma9, bullseye]
+        os: [alma9]
         include:
           - project: centreon-web
           - os: alma9
             distrib: el9
             package_extension: rpm
-          - os: bullseye
-            distrib: bullseye
-            package_extension: deb
 
     steps:
       - name: Checkout sources
