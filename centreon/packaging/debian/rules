@@ -11,9 +11,10 @@ override_dh_gencontrol:
 override_dh_clean:
 
 override_dh_auto_build:
+	sed -i 's#WEB_USER=apache#WEB_USER=www-data#g; s#WEB_GROUP=apache#WEB_GROUP=www-data#g' \
+		packaging/src/instCentWeb.conf \
+		packaging/src/instCentPlugins.conf
 	sed -i 's#"apache"#"www-data"#g' packaging/src/install.conf.php
-	sed -i 's#"apache"#"www-data"#g' packaging/src/instCentWeb.conf
-	sed -i 's#"apache"#"www-data"#g' packaging/src/instCentPlugins.conf
 	sed -i "s#@PHPFPM_LOGFILE@#/var/log/php8.1-fpm-centreon-error.log#g" packaging/src/php-fpm.conf
 	find . -type f -not -path "./vendor/*" | \
 		grep -v packaging/src/centreon-macroreplacement.txt | \
