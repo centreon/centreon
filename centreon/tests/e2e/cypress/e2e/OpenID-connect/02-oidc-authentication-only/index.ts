@@ -86,10 +86,7 @@ Then(
       cy.loginKeycloack('admin')
         .get('#input-error')
         .should('be.visible')
-        .and(
-          'include.text',
-          'Invaldsguidiqdlqid userdbsdhsdgsigsdksgiusuyqdname or password.'
-        )
+        .and('include.text', 'Invalid username or password.')
         .loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
