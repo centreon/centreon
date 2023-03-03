@@ -88,7 +88,7 @@ jobs:
       - name: Behat acceptance testing
         run: |
           SELENIUM_IMAGE="${{ vars.DOCKER_PROXY_REGISTRY_URL }}/selenium/standalone-chrome:106.0"
-          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-bullseye:${{ github.head_ref || github.ref_name }}"
+          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-alma9:${{ github.head_ref || github.ref_name }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
