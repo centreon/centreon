@@ -2,7 +2,6 @@
 
 bin/registerServerTopology.sh         usr/share/centreon/bin
 bin/registerServerTopologyTemplate    usr/share/centreon/bin
-packaging/src/conf.pm                 etc/centreon
 packaging/src/centreontrapd.pm        etc/centreon
 
 packaging/src/sudoersCentreonEngine => etc/sudoers.d/centreon

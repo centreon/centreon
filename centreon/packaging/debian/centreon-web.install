@@ -1,6 +1,5 @@
 #!/usr/bin/dh-exec
 
-packaging/src/centreon.conf.php                   etc/centreon
 packaging/src/install.conf.php                    usr/share/centreon/www/install
 bin/centFillTrapDB                              usr/share/centreon/bin
 bin/centreon                                    usr/share/centreon/bin

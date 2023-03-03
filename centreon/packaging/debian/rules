@@ -12,10 +12,7 @@ override_dh_clean:
 
 override_dh_auto_build:
 	sed -i "s#@PHPFPM_LOGFILE@#/var/log/php8.1-fpm-centreon-error.log#g" packaging/src/php-fpm.conf
-	cat packaging/src/php-fpm.conf
 	find . -type f -not -path "./vendor/*" | \
 		grep -v packaging/src/centreon-macroreplacement.txt | \
 		xargs -d '\n' sed -i -f packaging/src/centreon-macroreplacement.txt
 	mv config/centreon.config.php.template config/centreon.config.php
-	cat packaging/src/php-fpm.conf
-	cat config/centreon.config.php
