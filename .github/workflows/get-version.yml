@@ -53,6 +53,8 @@ jobs:
             VERSION=`grep '<revision>.*</revision>' ${{ inputs.version_file }} | cut -d '>' -f 2 | cut -d - -f 1`
           elif [[ "${{ inputs.version_file }}" == */*.spectemplate ]]; then
             VERSION=`grep 'Version: ' ${{ inputs.version_file }} | rev | cut -d' ' -f1 | rev`
+          elif [[ "${{ inputs.version_file }}" == */.env ]]; then
+            VERSION=`sed -e '/\[[2-9][0-9].[0-9][0-9].[0-9]+\]/p' ${{ inputs.version_file }} | cut -d '=' -f 2`
           else
             echo "Unable to parse ${{ inputs.version_file }}"
             exit 1
@@ -86,7 +88,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x | MON-16434-add-centreon-ha-workflow-2204)
               STABILITY="unstable"
               ;;
             release* | hotfix*)
