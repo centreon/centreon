@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 const reportFile = process.argv[2];
 const repo = process.argv[3];
