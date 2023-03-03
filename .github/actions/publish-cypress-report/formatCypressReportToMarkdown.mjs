@@ -96,7 +96,7 @@ const details =
           <div>The following line fails the test: <code>${locatedLine}</code></div>
           <details>
             <summary>Complete logs</summary>
-            <pre>${errorMessage.replaceAll('\n', '').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</pre>
+            <pre>${errorMessage}</pre>
           </details>
         </td>
       </tr>`;
