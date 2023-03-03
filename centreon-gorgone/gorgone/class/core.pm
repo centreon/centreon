@@ -1142,6 +1142,12 @@ sub quit {
     if ($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq 'ipc') {
         unlink($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_path});
     }
+
+    $self->{internal_socket}->close();
+    if (defined($self->{external_socket})) {
+        $self->{external_socket}->close();
+    }
+
     exit(0);
 }
 
