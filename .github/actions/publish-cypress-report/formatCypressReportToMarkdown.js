@@ -91,6 +91,7 @@ const details =
     </table>
   </details>`).join('');
 
-const newReportContent = `${summary}${details}`;
+const newReportContent = `${summary}
+${details}`;
 
 fs.writeFileSync('cypress-report.md', newReportContent);
