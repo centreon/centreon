@@ -65,7 +65,7 @@ EOF
 COPY --chmod=+x ./.github/docker/centreon-web-bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY ./.github/docker/centreon-web-bullseye/entrypoint/container.d /usr/share/centreon/container.d
 COPY ./.github/docker/init/* /etc/init.d/
-COPY --chmod=+x ./.github/docker/scripts/autoinstall.php /usr/share/centreon/
+COPY --chmod=+x ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=www-data:www-data ./.github/docker/centreon-web-bullseye/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF

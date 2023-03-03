@@ -56,7 +56,7 @@ EOF
 COPY --chmod=+x ./.github/docker/centreon-web-alma9/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY ./.github/docker/centreon-web-alma9/entrypoint/container.d /usr/share/centreon/container.d
 COPY ./.github/docker/init/* /etc/init.d/
-COPY --chmod=+x ./.github/docker/scripts/autoinstall.php /usr/share/centreon/
+COPY --chmod=+x ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
