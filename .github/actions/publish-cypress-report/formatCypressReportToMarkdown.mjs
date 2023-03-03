@@ -77,7 +77,7 @@ const details =
         <td>${fullTitle}</td>
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
-        <td></td>
+        <td>${sanitizedEStack}</td>
       </tr>`;
       }
 
@@ -92,9 +92,12 @@ const details =
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
         <td>
-          ${error}
-          <br />
-          The following line fails the test: <code>${locatedLine}</code>
+        <div>${error}</div>
+          <div>The following line fails the test: <code>${locatedLine}</code></div>
+          <details>
+            <summary>Complete logs</summary>
+            <pre>${errorMessage}</pre>
+          </details>
         </td>
       </tr>`;
     }}).then((v) => v.join(''))}
