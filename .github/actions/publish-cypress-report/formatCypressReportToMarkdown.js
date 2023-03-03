@@ -42,13 +42,21 @@ const getTestsBySuite = (suite) => {
   return [...suite.tests.filter(({ fail, skipped }) => fail || skipped), ...suite.suites.map((subSuite) => getTestsBySuite(subSuite))];
 }
 
+const mapSeries = async ({ array, callback }) => {
+  const result = [];
+  for (const element of array) {
+    result.push(await callback.call(this, await element));
+  }
+  return result;
+};
+
 const testsDetails = report.results.map((result) => ({
   file: result.file,
   tests: getTestsBySuite(result).flat(Infinity),
 }));
 
 const details = 
-  testsDetails.map(({ file, tests }) => `<details>
+  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<details>
     <summary>${file}</summary>
     <table>
       <thead>
@@ -60,7 +68,7 @@ const details =
         </tr>
       </thead>
       <tbody>
-        ${tests.map(({ fullTitle, err, fail, duration }) => {
+        ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
           const stackLines = err.estack ? err.estack.split('\n') : [];
           const localizableFile = stackLines.find((line) => line.includes(file));
 
@@ -76,20 +84,25 @@ const details =
 
           const [,,lineNumber] = localizableFile.split(':');
           const errorMessage = err.message || '';
+          const response = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${urlFilePrefix}/${file}`);
+          const upstreamFile = await response.text();
+          const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
           const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
           return `<tr>
               <td>${fullTitle}</td>
               <td>${fail ? ':x:' : ':fast_forward:'}</td>
               <td>
                 ${error}
+                <br />
+                The following line does not work: ${locatedLine}
                 <pre>${errorMessage}</pre>
               </td>
               <td>${duration / 1000}</td>
             </tr>`;
-        }).join('')}
+        }}).then((v) => v.join(''))}
       </tbody>
     </table>
-  </details>`).join('');
+  </details>` }).then((v) => v.join(''));
 
 const newReportContent = `${summary}
 ${details}`;
