@@ -54,15 +54,16 @@ const testsDetails = report.results.map((result) => ({
 }));
 
 const details = 
-  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3>
+  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `
 <div>
+  <h3>${file} :arrow_down_small:</h3>
   <table>
     <thead>
       <tr>
         <th>Test</th>
-        <th>Error stack</th>
-        <th>Duration (seconds)</th>
         <th>State</th>
+        <th>Duration (seconds)</th>
+        <th>Error stack</th>
       </tr>
     </thead>
     <tbody>
@@ -76,7 +77,7 @@ const details =
         <td>${fullTitle}</td>
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
-        <td>${sanitizedEStack}</td>
+        <td></td>
       </tr>`;
       }
 
@@ -94,7 +95,6 @@ const details =
           ${error}
           <br />
           The following line fails the test: <code>${locatedLine}</code>
-          <pre>${errorMessage}</pre>
         </td>
       </tr>`;
     }}).then((v) => v.join(''))}
