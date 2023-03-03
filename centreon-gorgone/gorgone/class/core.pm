@@ -761,7 +761,7 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    while ( $self->{internal_socket}->has_pollin() ) {
+    while ($self->{internal_socket}->has_pollin()) {
         my ($identity, $frame) = $self->read_internal_message();
         next if (!defined($identity));
 

@@ -813,30 +813,26 @@ sub create_child {
 sub event {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my ($message) = $self->read_message();
-            next if (!defined($message));
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
 
-            $self->{logger}->writeLogDebug("[action] Event: $message");
+        $self->{logger}->writeLogDebug("[action] Event: $message");
+        
+        if ($message !~ /^\[ACK\]/) {
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
             
-            if ($message !~ /^\[ACK\]/) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
-                next if ($rv);
+            my ($action, $token) = ($1, $2);
+            my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
+            next if ($rv);
 
-                if (defined($data->{parameters}->{no_fork})) {
-                    if ((my $method = $self->can('action_' . lc($action)))) {
-                        $method->($self, token => $token, data => $data);
-                    }
-                } else {
-                    $self->create_child(action => $action, token => $token, data => $data);
+            if (defined($data->{parameters}->{no_fork})) {
+                if ((my $method = $self->can('action_' . lc($action)))) {
+                    $method->($self, token => $token, data => $data);
                 }
+            } else {
+                $self->create_child(action => $action, token => $token, data => $data);
             }
-        } else {
-            last;
         }
     }
 }

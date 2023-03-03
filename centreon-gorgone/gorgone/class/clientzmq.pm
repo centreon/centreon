@@ -139,7 +139,7 @@ sub get_server_pubkey {
 sub read_key_protocol {
     my ($self, %options) = @_;
 
-    $self->{logger}->writeLogDebug('[clientzmq] read key protocol: ' . $options{text});
+    $self->{logger}->writeLogDebug('[clientzmq] ' . $self->{identity} . ' - read key protocol: ' . $options{text});
 
     return (-1, 'Wrong protocol') if ($options{text} !~ /^\[KEY\]\s+(.*)$/);
 
@@ -179,7 +179,7 @@ sub decrypt_message {
         );
     };
     if ($@) {
-        $self->{logger}->writeLogError("[clientzmq] decrypt message issue: " .  $@);
+        $self->{logger}->writeLogError("[clientzmq] $self->{identity} - decrypt message issue: " .  $@);
         return (-1, $@);
     }
     return (0, $plaintext);
@@ -203,8 +203,10 @@ sub client_get_secret {
 sub check_server_pubkey {
     my ($self, %options) = @_;
 
+    $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - get_server_pubkey check [1]");
+
     if ($options{message} !~ /^\s*\[PUBKEY\]\s+\[(.*?)\]/) {
-        $self->{logger}->writeLogError('[clientzmq] Cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[clientzmq] ' . $self->{identity} . ' - cannot read pubbkey response from server: ' . $options{message}) if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot read pubkey response from server';
         return 0;
     }
@@ -218,7 +220,7 @@ sub check_server_pubkey {
     );
 
     if ($code == 0) {
-        $self->{logger}->writeLogError('[clientzmq] Cannot load pubbkey') if (defined($self->{logger}));
+        $self->{logger}->writeLogError('[clientzmq] ' . $self->{identity} . ' cannot load pubbkey') if (defined($self->{logger}));
         $self->{verbose_last_message} = 'cannot load pubkey';
         return 0;
     }
@@ -236,6 +238,8 @@ sub check_server_pubkey {
             return 0;
         }
     }
+
+    $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - get_server_pubkey ok [1]");
 
     return 1;
 }
@@ -288,8 +292,6 @@ sub ping {
 sub add_watcher {
     my ($self, %options) = @_;
 
-    print "=====clientzmq WATCHER ====\n";
-
     $self->{core_watcher} = $self->{core_loop}->io(
         $sockets->{ $self->{identity} }->get_fd(),
         EV::READ,
@@ -318,13 +320,17 @@ sub event {
             $connectors->{ $options{identity} }->{handshake} = 1;
             if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
                 $connectors->{ $options{identity} }->{handshake} = -1;
+                
             }
         } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
             $self->{connect_loop}->break();
+
+            $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_get_secret recv [3]");
             my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
                 message => $message
             );
             if ($status == -1) {
+                $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_get_secret $verbose [3]");
                 $connectors->{ $options{identity} }->{handshake} = -1;
                 $connectors->{ $options{identity} }->{verbose_last_message} = $verbose;
                 return ;
@@ -332,7 +338,7 @@ sub event {
             $connectors->{ $options{identity} }->{handshake} = 2;
             if (defined($connectors->{ $options{identity} }->{logger})) {
                 $connectors->{ $options{identity} }->{logger}->writeLogInfo(
-                    "[clientzmq] Client connected successfully to '" . $connectors->{ $options{identity} }->{target_type} .
+                    "[clientzmq] $self->{identity} - Client connected successfully to '" . $connectors->{ $options{identity} }->{target_type} .
                     "://" . $connectors->{ $options{identity} }->{target_path} . "'"
                 );
                 $self->add_watcher();
@@ -394,6 +400,7 @@ sub send_message {
         );
 
         if (!defined($self->{server_pubkey})) {
+            $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - get_server_pubkey sent [1]");
             $self->get_server_pubkey();
         } else {
             $self->{handshake} = 1;
@@ -407,9 +414,12 @@ sub send_message {
             client_pubkey => $self->{client_pubkey},
         );
         if ($status == -1) {
+            $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo crypt handshake issue [2]");
             $self->{verbose_last_message} = 'crypt handshake issue';
             return (-1, $self->{verbose_last_message}); 
         }
+
+        $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo sent [2]");
 
         $self->{verbose_last_message} = 'Handshake timeout';
         $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
