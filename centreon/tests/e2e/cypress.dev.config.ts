@@ -24,10 +24,10 @@ export default defineConfig({
   execTimeout: 60000,
   reporter: 'mochawesome',
   reporterOptions: {
-    reportDir: 'cypress/results/reports',
-    overwrite: true,
     html: false,
     json: true,
+    overwrite: true,
+    reportDir: 'cypress/results/dev/reports'
   },
   requestTimeout: 10000,
   retries: 0,
