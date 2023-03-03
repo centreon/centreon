@@ -49,6 +49,8 @@ jobs:
             VERSION=`grep '<revision>.*</revision>' ${{ inputs.version_file }} | cut -d '>' -f 2 | cut -d - -f 1`
           elif [[ "${{ inputs.version_file }}" == */*.spectemplate ]]; then
             VERSION=`grep 'Version: ' ${{ inputs.version_file }} | rev | cut -d' ' -f1 | rev`
+          elif [[ $"{{ inputs.version_file }}" == .env ]]; then
+            VERSION=`sed -e '/\[[2-9][0-9].[0-9][0-9].[0-9]+\]/p' ${{ inputs.version_file }}`
           else
             echo "Unable to parse ${{ inputs.version_file }}"
             exit 1

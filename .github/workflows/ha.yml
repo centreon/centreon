@@ -27,7 +27,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-ha/packaging/centreon-ha.spectemplate
+      version_file: centreon-ha/.env
 
   package:
     needs: [get-version]
