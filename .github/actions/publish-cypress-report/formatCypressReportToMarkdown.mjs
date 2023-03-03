@@ -72,8 +72,7 @@ const details =
 
       if (!localizableFile) {
         const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
-        return `
-      <tr>
+        return `<tr>
         <td>${fullTitle}</td>
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
@@ -87,8 +86,7 @@ const details =
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
-      return `
-      <tr>
+      return `<tr>
         <td>${fullTitle}</td>
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
