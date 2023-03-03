@@ -5,7 +5,7 @@ pidfile='/var/run/cbwd.pid'
 service_start() {
     echo "cbddevscript: starting cbwd"
     if [ \! -f "$pidfile" ] ; then
-	pid=`su - centreon-broker -c "/usr/sbin/cbwd /etc/centreon-broker/watchdog.json > /dev/null 2>&1 & echo \\$!"`
+	pid=`su - centreon-broker -s /bin/bash -c "/usr/sbin/cbwd /etc/centreon-broker/watchdog.json > /dev/null 2>&1 & echo \\$!"`
 	echo "$pid" > "$pidfile"
 	echo "cbddevscript: cbwd started"
     else

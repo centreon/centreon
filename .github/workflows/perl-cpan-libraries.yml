@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   paths:
-  #     - ".github/workflows/perl-cpan-libraries.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/perl-cpan-libraries.yml"
   push:
     branches:
       - develop
@@ -156,7 +156,6 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      #- if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
       - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
@@ -184,7 +183,6 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      #- if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
       - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
         run: |
           apt update
