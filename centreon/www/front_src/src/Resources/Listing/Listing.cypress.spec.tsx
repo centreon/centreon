@@ -194,7 +194,7 @@ describe('Resource Listing', () => {
         .should('exist')
     );
     resourcesWithSingleLines.forEach(({ information }) => {
-      cy.contains(information as string).should('not.exist');
+      cy.contains(information as string).should('exist');
     });
 
     cy.matchImageSnapshot();
@@ -224,7 +224,7 @@ describe('Resource Listing', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('not.exist');
+    cy.contains('E0').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -308,7 +308,7 @@ describe('column sorting', () => {
 
       cy.waitForRequest(`@dataToListingTableDesc${label}`);
 
-      cy.findByLabelText(`Column ${label}burhusdsfdstsdstd`).click();
+      cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequest(`@dataToListingTableAsc${label}`);
 
@@ -446,7 +446,7 @@ describe('Display additional columns', () => {
 
     cy.findByLabelText(chipLabel).trigger('mouseover');
 
-    cy.waitForRequest('@downtimeRequestshsdgudusdsddstsdtsds').then(({ request }) => {
+    cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
         Ramda.includes(
           request.url.pathname,
@@ -533,7 +533,7 @@ describe('Display additional columns', () => {
       );
 
       if (hasShortLabel) {
-        cy.findByText(columnDisplayLabel).should('not.exist');
+        cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
       cy.matchImageSnapshot();
