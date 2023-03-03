@@ -1,4 +1,4 @@
 #!/bin/sh
 
-mkdir -p /run/php-fpm
-/usr/sbin/php-fpm
+mkdir -p /run/php
+/usr/sbin/php-fpm8.1
