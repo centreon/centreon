@@ -83,7 +83,6 @@ const details =
 
       const [,,lineNumber] = localizableFile.split(':');
       const errorMessage = err.message || '';
-      const sanitizedErrorMessage = errorMessage.replaceAll(/\s+/g, ' ').replaceAll(/\s+\/?>/g, '>').replaceAll('>', '&gt;').replaceAll('<', '&lt;');
       const response = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${urlFilePrefix}/${file}`);
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
@@ -97,7 +96,7 @@ const details =
           <div>The following line fails the test: <code>${locatedLine}</code></div>
           <details>
             <summary>Complete logs</summary>
-            <pre>${sanitizedErrorMessage}</pre>
+            <pre>${errorMessage}</pre>
           </details>
         </td>
       </tr>`;
