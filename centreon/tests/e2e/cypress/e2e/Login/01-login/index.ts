@@ -6,12 +6,12 @@ import { insertContactFixture, removeContact } from '../common';
 before(() => {
   insertContactFixture();
   cy.intercept(
-    '/centreon/api/internal.php?object=centreon_topcounter&action=user',
+    '/centreon/api/internal.php?object=centreon_topcounter&action=user'
   ).as('userTopCounterEndpoint');
 });
 
 When('I enter my credentials on the login page', () => {
-  cy.getByLabel({ label: 'Alias', tag: 'input' }).type('user1');
+  // cy.getByLabel({ label: 'Alias', tag: 'input' }).type('user1');
   cy.getByLabel({ label: 'Password', tag: 'input' }).type('Centreon!2021User1');
   cy.getByLabel({ label: 'Connect', tag: 'button' }).click();
 });

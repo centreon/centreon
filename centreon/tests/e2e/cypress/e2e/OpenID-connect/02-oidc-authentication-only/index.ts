@@ -1,4 +1,4 @@
-  import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   initializeOIDCUserAndGetLoginPage,
@@ -86,7 +86,10 @@ Then(
       cy.loginKeycloack('admin')
         .get('#input-error')
         .should('be.visible')
-        .and('include.text', 'Invalid username or password.')
+        .and(
+          'include.text',
+          'Invaldsguidiqdlqid userdbsdhsdgsigsdksgiusuyqdname or password.'
+        )
         .loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
