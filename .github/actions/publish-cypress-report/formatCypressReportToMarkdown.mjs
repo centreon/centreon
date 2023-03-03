@@ -54,28 +54,31 @@ const testsDetails = report.results.map((result) => ({
 }));
 
 const details = 
-  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3><table>
-  <thead>
-    <tr>
-      <th>Test</th>
-      <th>Error stack</th>
-      <th>Duration (seconds)</th>
-      <th>State</th>
-    </tr>
-  </thead>
-  <tbody>
+  await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `<h3>${file} :arrow_down_small:</h3>
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Error stack</th>
+        <th>Duration (seconds)</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody>
     ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
       const stackLines = err.estack ? err.estack.split('\n') : [];
       const localizableFile = stackLines.find((line) => line.includes(file));
 
       if (!localizableFile) {
         const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
-        return `<tr>
-      <td>${fullTitle}</td>
-      <td>${fail ? ':x:' : ':fast_forward:'}</td>
-      <td>${duration / 1000}</td>
-      <td>${sanitizedEStack}</td>
-    </tr>`;
+        return `
+      <tr>
+        <td>${fullTitle}</td>
+        <td>${fail ? ':x:' : ':fast_forward:'}</td>
+        <td>${duration / 1000}</td>
+        <td>${sanitizedEStack}</td>
+      </tr>`;
       }
 
       const [,,lineNumber] = localizableFile.split(':');
@@ -84,20 +87,22 @@ const details =
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
-      return `<tr>
-      <td>${fullTitle}</td>
-      <td>${fail ? ':x:' : ':fast_forward:'}</td>
-      <td>${duration / 1000}</td>
-      <td>
-        ${error}
-        <br />
-        The following line fails the test: <code>${locatedLine}</code>
-        <pre>${errorMessage}</pre>
-      </td>
-    </tr>`;
+      return `
+      <tr>
+        <td>${fullTitle}</td>
+        <td>${fail ? ':x:' : ':fast_forward:'}</td>
+        <td>${duration / 1000}</td>
+        <td>
+          ${error}
+          <br />
+          The following line fails the test: <code>${locatedLine}</code>
+          <pre>${errorMessage}</pre>
+        </td>
+      </tr>`;
     }}).then((v) => v.join(''))}
-  </tbody>
-</table>` }).then((v) => v.join(''));
+    </tbody>
+  </table>
+</div>` }).then((v) => v);
 
 const newReportContent = `${summary}${details}`;
 
