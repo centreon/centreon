@@ -92,12 +92,8 @@ const details =
         <td>${fail ? ':x:' : ':fast_forward:'}</td>
         <td>${duration / 1000}</td>
         <td>
-        <div>${error}</div>
+          <div>${error}</div>
           <div>The following line fails the test: <code>${locatedLine}</code></div>
-          <details>
-            <summary>Complete logs</summary>
-            <pre>${errorMessage.split('\n')[0]}</pre>
-          </details>
         </td>
       </tr>`;
     }}).then((v) => v.join(''))}
