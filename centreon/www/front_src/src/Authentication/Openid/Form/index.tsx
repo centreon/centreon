@@ -1,6 +1,7 @@
 import { FormikValues } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, pick, pipe, values, or, all, not } from 'ramda';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useSnackbar, Form, Method, useMutationQuery } from '@centreon/ui';
 
@@ -18,7 +19,6 @@ import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: OpenidConfiguration;
@@ -52,7 +52,7 @@ const OpenidForm = ({
   ): Promise<void> =>
     mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
       .then(() => {
-        queryClient.invalidateQueries([Provider.Openid])
+        queryClient.invalidateQueries([Provider.Openid]);
         loadOpenidConfiguration();
         showSuccessMessage(t(labelOpenIDConnectConfigurationSaved));
       })
