@@ -96,7 +96,7 @@ const details =
           <div>The following line fails the test: <code>${locatedLine}</code></div>
           <details>
             <summary>Complete logs</summary>
-            ${errorMessage.split('\n')[0]}
+            <pre>${errorMessage.split('\n')[0]}</pre>
           </details>
         </td>
       </tr>`;
