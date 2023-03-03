@@ -39,7 +39,7 @@ Cypress.Commands.add('mount', ({ Component, options }) => {
 
   document.getElementsByTagName('body')[0].style = 'margin:0px';
 
-  return mount(<div></div>, options);
+  return mount(wrapped, options);
 });
 
 Cypress.Commands.add('displayFilterMenu', () => {

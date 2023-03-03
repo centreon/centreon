@@ -77,3 +77,11 @@ jobs:
           pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
           cat mochawesome.json
         shell: bash
+
+      - name: Publish report
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: ${{ inputs.name }}-report
+          path: mochawesome.json
+          format: cypress
+          urlFilePrefix: centreon
