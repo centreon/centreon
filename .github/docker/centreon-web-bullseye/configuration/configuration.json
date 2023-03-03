@@ -22,7 +22,7 @@
   "monitoring_init_script": "centengine",
   "monitoring_binary": "\/usr\/sbin\/centengine",
   "monitoring_varlog": "\/var\/log\/centreon-engine",
-  "plugin_dir": "\/usr\/nagios\/plugins",
+  "plugin_dir": "\/usr\/lib\/nagios\/plugins",
   "centreon_engine_connectors": "\/usr\/lib64\/centreon-connector",
   "centreon_engine_lib": "\/usr\/lib64\/centreon-engine",
   "centreonbroker_cbmod": "\/usr\/lib64\/nagios\/cbmod.so",
