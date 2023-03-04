@@ -53,58 +53,39 @@ const testsDetails = report.results.map((result) => ({
   tests: getTestsBySuite(result).flat(Infinity),
 }));
 
-const details = 
+const details2 =
   await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `
 <div>
-  <h3>${file} :arrow_down_small:</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Test</th>
-        <th>State</th>
-        <th>Duration (seconds)</th>
-        <th>Error stack</th>
-      </tr>
-    </thead>
-    <tbody>
-    ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
-      const stackLines = err.estack ? err.estack.split('\n') : [];
+  <h2>${file} :arrow_down_small:</h2>
+  ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
+    const stackLines = err.estack ? err.estack.split('\n') : [];
       const localizableFile = stackLines.find((line) => line.includes(file));
 
       if (!localizableFile) {
         const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
-        return `<tr>
-        <td>${fullTitle}</td>
-        <td>${fail ? ':x:' : ':fast_forward:'}</td>
-        <td>${duration / 1000}</td>
-        <td>${sanitizedEStack}</td>
-      </tr>`;
+        return `<h3>${fail ? ':x:' : ':fast_forward:'} ${fullTitle}</h3>
+        Duration: ${duration / 1000} seconds
+        ${fail ? `Error stack: ${sanitizedEStack}` : '<br />'}
+        <br />`;
       }
-
       const [,,lineNumber] = localizableFile.split(':');
       const errorMessage = err.message || '';
       const response = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${urlFilePrefix}/${file}`);
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
-      return `<tr>
-        <td>${fullTitle}</td>
-        <td>${fail ? ':x:' : ':fast_forward:'}</td>
-        <td>${duration / 1000}</td>
-        <td>
-          <div>${error}</div>
-          <div>The following line fails the test: <code>${locatedLine}</code></div>
-          <details>
-            <summary>Complete logs</summary>
-            <pre>${errorMessage.split('\n')[0]}</pre>
-          </details>
-        </td>
-      </tr>`;
-    }}).then((v) => v.join(''))}
-    </tbody>
-  </table>
+      return `<h3>${fail ? ':x:' : ':fast_forward:'} ${fullTitle}</h3>
+        Duration: ${duration / 1000} seconds
+        <div>${error}</div>
+        <div>The following line fails the test: <code>${locatedLine}</code></div>
+        <details>
+          <summary>Complete logs</summary>
+          <pre>${errorMessage.split('\n')[0]}</pre>
+        </details>
+        <br />`;
+  }}).then((v) => v.join(''))}
 </div>` }).then((v) => v);
 
-const newReportContent = `${summary}${details}`;
+const newReportContent = `${summary}${details2}`;
 
 fs.writeFileSync('cypress-report.md', newReportContent);
