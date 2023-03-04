@@ -17,7 +17,7 @@ describe('Header', () => {
     cy.findByRole('button', { name: 'Pollers', timeout: 10000 }).should(
       'be.visible'
     );
-    cy.get('[aria-label="Profile"]', { timeout: 10000 }).should('be.visible');
+    cy.get('[aria-label="Profile"]', { timeout: 10000 }).should('not.exist');
     cy.matchImageSnapshot();
   });
 
