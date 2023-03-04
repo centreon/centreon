@@ -21,6 +21,7 @@ const totalPasses = report.stats.passes;
 const totalPending = report.stats.pending;
 const totalFailures = report.stats.failures;
 const duration = report.stats.duration / 1000;
+const passPercent = report.stats.passPercent;
 
 const summary = `<h1>Cypress Test summary</h1>
 <ul>
@@ -29,6 +30,7 @@ const summary = `<h1>Cypress Test summary</h1>
   <li>:white_check_mark: Passes: ${totalPasses}</li>
   <li>:hourglass: Pending: ${totalPending}</li>
   <li>:x: Failures: ${totalFailures}</li>
+  <li>:bar_chart: Pass percent: ${passPercent}%</li>
   <li>:stopwatch: Duration: ${duration} seconds</li>
 </ul>`;
 
@@ -53,7 +55,7 @@ const testsDetails = report.results.map((result) => ({
   tests: getTestsBySuite(result).flat(Infinity),
 }));
 
-const details2 =
+const details =
   await mapSeries({ array: testsDetails, callback: async ({ file, tests }) => `
 <div>
   <h2>${file} :arrow_down_small:</h2>
@@ -63,7 +65,7 @@ const details2 =
 
       if (!localizableFile) {
         const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
-        return `<h3>${fail ? ':x:' : ':fast_forward:'} ${fullTitle}</h3>
+        return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
         Duration: ${duration / 1000} seconds
         ${fail ? `Error stack: ${sanitizedEStack}` : '<br />'}
         <br />`;
@@ -74,7 +76,7 @@ const details2 =
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
-      return `<h3>${fail ? ':x:' : ':fast_forward:'} ${fullTitle}</h3>
+      return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
         Duration: ${duration / 1000} seconds
         <div>${error}</div>
         <div>The following line fails the test: <code>${locatedLine}</code></div>
@@ -86,6 +88,6 @@ const details2 =
   }}).then((v) => v.join(''))}
 </div>` }).then((v) => v);
 
-const newReportContent = `${summary}${details2}`;
+const newReportContent = `${summary}${details}`;
 
 fs.writeFileSync('cypress-report.md', newReportContent);
