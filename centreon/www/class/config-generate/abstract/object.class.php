@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -35,6 +35,8 @@
 
 abstract class AbstractObject
 {
+    const VAULT_PATH_REGEX = '/^secret::\d+::/';
+
     protected $backend_instance = null;
     protected $generate_subpath = 'nagios';
     protected $generate_filename = null;
@@ -50,6 +52,45 @@ abstract class AbstractObject
     protected $engine = true;
     protected $broker = false;
     protected $dependencyInjector;
+
+    protected $isVaultEnabled = null;
+    protected $isCentreonCloudPlatform = null;
+
+    /*
+     * Get Centreon Vault Configuration Status
+     */
+    public function getVaultConfigurationStatus(): void
+    {
+        $kernel = \App\Kernel::createForWeb();
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+        $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\LegacyLogger::class);
+        $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+        if ($vaultConfiguration !== null) {
+            $this->isVaultEnabled = true;
+        } else {
+            $this->isVaultEnabled = false;
+        }
+    }
+
+    /*
+     * Get Centreon Cloud Platform Status
+     */
+    public function getCentreonPlatofrmStatus(): void
+    {
+        $query = "SELECT `value` FROM informations WHERE `key` = 'is_cloud'";
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (isset($result) && $result['value'] === 'yes') {
+            $this->isCentreonCloudPlatform = true;
+        } else {
+            $this->isCentreonCloudPlatform = false;
+        }
+    }
 
     /**
      * @param \Pimple\Container $dependencyInjector

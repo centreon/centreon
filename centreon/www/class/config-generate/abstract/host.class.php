@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -197,9 +197,17 @@ abstract class AbstractHost extends AbstractObject
             return 1;
         }
 
+        if (is_null($this->isVaultEnabled)) {
+            $this->getVaultConfigurationStatus();
+        }
+
+        if (is_null($this->isCentreonCloudPlatform)) {
+            $this->getCentreonPlatofrmStatus();
+        }
+
         if (is_null($this->stmt_macro)) {
             $this->stmt_macro = $this->backend_instance->db->prepare("SELECT
-              host_macro_name, host_macro_value
+              host_macro_name, host_macro_value, is_password
             FROM on_demand_macro_host
             WHERE host_host_id = :host_id
             ");
@@ -210,14 +218,29 @@ abstract class AbstractHost extends AbstractObject
 
         $host['macros'] = array();
         foreach ($macros as $macro) {
-            $host['macros'][preg_replace(
+            $hostMacroName = preg_replace(
                 '/\$_HOST(.*)\$/',
                 '_$1',
-                $macro['host_macro_name']
-            )] = $macro['host_macro_value'];
+                $macro['host_macro_name']);
+
+            # Modify macro value for Centreon Vault Storage
+            if (
+                $this->isCentreonCloudPlatform
+                && $this->isVaultEnabled
+                && ( $macro['is_password'] == 1
+                || preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value']))
+            ) {
+                $macro['host_macro_value'] = sprintf("{%s::%s}", $hostMacroName, $macro['host_macro_value']);
+            }
+
+            $host['macros'][$hostMacroName] = $macro['host_macro_value'];
         }
         if (!is_null($host['host_snmp_community']) && $host['host_snmp_community'] != '') {
-            $host['macros']['_SNMPCOMMUNITY'] = $host['host_snmp_community'];
+            if (preg_match(self::VAULT_PATH_REGEX, $host['host_snmp_community'])) {
+                $host['macros']['_SNMPCOMMUNITY'] = sprintf("{%s::%s}", "_SNMPCOMMUNITY", $host['host_snmp_community']);
+            } else {
+                $host['macros']['_SNMPCOMMUNITY'] = $host['host_snmp_community'];
+            }
         }
         if (!is_null($host['host_snmp_version']) && $host['host_snmp_version'] != 0) {
             $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
