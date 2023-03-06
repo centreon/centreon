@@ -44,8 +44,6 @@ Centreon HA
 # ocf-scripts
 %{__install} -d %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat
 %{__install} -d %buildroot%{_prefix}/lib/ocf/lib/heartbeat
-%{__cp} -r centreon-ha/ocf-scripts/mariadb-centreon %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat/
-%{__cp} -r centreon-ha/ocf-scripts/mariadb-centreon-common.sh %buildroot%{_prefix}/lib/ocf/lib/heartbeat/
 
 # systemd
 %{__install} -d %buildroot%{_unitdir}
@@ -91,8 +89,7 @@ This package provides the scripts and config files necessary for database and ce
 
 # ocf-scripts
 %defattr(0755, root, root, -)
-%{_prefix}/lib/ocf/resource.d/heartbeat/mariadb-centreon
-%{_prefix}/lib/ocf/lib/heartbeat/mariadb-centreon-common.sh
+%{_prefix}/lib/ocf/lib/heartbeat/mysql-centreon.sh
 
 
 ###################
