@@ -43,5 +43,5 @@ Feature:
     """
 
     Then the response code should be 204
-    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_FORCED_HOST_CHECK;test/"
-    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_FORCED_SVC_CHECK;test;test_service1/" (tries: 3)
+    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_HOST_CHECK;test/"
+    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_SVC_CHECK;test;test_service1/" (tries: 3)
