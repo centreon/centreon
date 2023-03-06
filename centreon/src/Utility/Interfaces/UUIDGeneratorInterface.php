@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
+namespace Utility\Interfaces;
 
-final class CreateVaultConfigurationRequest
+interface UUIDGeneratorInterface
 {
-    /** @var string */
-    public string $name = '';
-
-    /** @var int */
-    public int $typeId = 0;
-
-    /** @var string */
-    public string $address = '';
-
-    /** @var int */
-    public int $port = 0;
-
-    /** @var string */
-    public string $rootPath = '';
-
-    /** @var string */
-    public string $roleId = '';
-
-    /** @var string */
-    public string $secretId = '';
+    /**
+     * Generate a UUID Version 4
+     *
+     * @return string
+     */
+    public function generateV4(): string;
 }
+

@@ -2752,16 +2752,8 @@ msgstr "En un entorno de supervisión distribuida, el nodo de supervisión (cent
 msgid "Define the timezone of the host's location."
 msgstr "Establece la zona horaria para la ubicación del host."
 
-#: centreon-web/www/include/configuration/configObject/host/help.php:15
-msgid ""
-"This is where you specify the template that you want to inherit properties/variables from. Inherited properties doesn't need to be specified again. \"Local\" object variables always take precedence over variables defined in the template object. Objects can inherit "
-"properties/variables from multiple levels of template objects. When defining multiple sources, the first template specified takes precedence over the later one, in the case where a property is defined in both."
-msgstr ""
-"Esto le permite agregar modelos de host para heredar propiedades / variables de ellos. \n"
-"Las propiedades heredadas no deben ser redefinidas. \n"
-"De hecho, las propiedades / variables definidas localmente en este objeto sobrescribirán las propiedades / variables predefinidas en los modelos vinculados. \n"
-"Los objetos pueden heredar propiedades de múltiples niveles de plantillas. \n"
-"Al definir varios modelos, y en el caso de que la misma propiedad se defina en varios lugares, se dará prioridad a la del primer modelo vinculado."
+# msgid "A host or host template inherits properties from its templates, unless the properties are defined directly on the host or host template itself. A host or host template can inherit from multiple templates. The properties of the first template in the list prevail over the properties of the second one, and so on."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host/help.php:16
 msgid "By enabling this option, the services linked to the template will be created independent of the template and attached to this service."
