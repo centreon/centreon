@@ -73,6 +73,9 @@ class GenerateConfiguration
             if ($monitoringServer === null) {
                 throw ConfigurationMonitoringServerException::notFound($monitoringServerId);
             }
+            if ($monitoringServer->isActivate() === false) {
+                throw ConfigurationMonitoringServerException::disabled($monitoringServerId);
+            }
             $this->info('Generate configuration files for monitoring server #' . $monitoringServerId);
             $this->configurationRepository->generateConfiguration($monitoringServerId);
             $this->info('Move configuration files for monitoring server #' . $monitoringServerId);
