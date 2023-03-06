@@ -147,6 +147,7 @@ export * from './utils/typedMemo';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
 export { default as Image, ImageVariant } from './Image/Image';
-
+export { default as WallpaperPage } from './WallpaperPage';
+export { RichTextEditor } from './RichTextEditor';
 export { default as ActionsList } from './ActionsList';
 export { getStatusColors, SeverityCode } from './utils/statuses';
