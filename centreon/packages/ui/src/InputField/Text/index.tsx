@@ -105,6 +105,7 @@ const TextField = forwardRef(
       autoSizeDefaultWidth = 0,
       externalValueForAutoSize,
       autoSizeCustomPadding,
+      defaultValue,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -121,6 +122,8 @@ const TextField = forwardRef(
     });
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
+
+    const valueProps = defaultValue ? { defaultValue } : { value: innerValue };
 
     return (
       <>
@@ -141,6 +144,7 @@ const TextField = forwardRef(
             value={innerValue}
             onChange={changeInputValue}
             {...rest}
+            {...valueProps}
             InputProps={{
               className: cx(
                 classes.inputBase,
