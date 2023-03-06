@@ -89,7 +89,7 @@ This package provides the scripts and config files necessary for database and ce
 
 # ocf-scripts
 %defattr(0755, root, root, -)
-%{_prefix}/lib/ocf/lib/heartbeat/mysql-centreon
+%{_prefix}/lib/ocf/resource.d/heartbeat/mysql-centreon
 
 
 ###################
