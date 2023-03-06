@@ -33,6 +33,8 @@ use Authen::Simple::Password;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use IO::Poll qw(POLLIN POLLPRI);
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -247,14 +249,23 @@ sub run {
     });
     $self->read_zmq_events();
 
-    $ENV{MOJO_REACTOR} = 'EV'; # need EV version 4.32
-    my $watcher_io = EV::io(
-        $self->{internal_socket}->get_fd(),
-        EV::READ,
-        sub {
-            $connector->read_zmq_events();
-        }
-    );
+    my $type = ref(Mojo::IOLoop->singleton->reactor);
+    my $watcher_io;
+    if ($type eq 'Mojo::Reactor::Poll') {
+        Mojo::IOLoop->singleton->reactor->{io}{ $self->{internal_socket}->get_fd()} = {
+            cb => sub { $connector->read_zmq_events(); },
+            mode => POLLIN | POLLPRI
+        };
+    }  else {
+        # need EV version 4.32
+        $watcher_io = EV::io(
+            $self->{internal_socket}->get_fd(),
+            EV::READ,
+            sub {
+                $connector->read_zmq_events();
+            }
+        );
+    }
 
     #my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
     #my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
