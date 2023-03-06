@@ -247,12 +247,21 @@ sub run {
     });
     $self->read_zmq_events();
 
-    my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
-    my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
-    Mojo::IOLoop->singleton->reactor->io($socket => sub {
-        $connector->read_zmq_events();
-    });
-    Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
+    $ENV{MOJO_REACTOR} = 'EV'; # need EV version 4.32
+    my $watcher_io = EV::io(
+        $self->{internal_socket}->get_fd(),
+        EV::READ,
+        sub {
+            $connector->read_zmq_events();
+        }
+    );
+
+    #my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
+    #my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
+    #Mojo::IOLoop->singleton->reactor->io($socket => sub {
+    #    $connector->read_zmq_events();
+    #});
+    #Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
 
     Mojo::IOLoop->singleton->recurring(60 => sub {
         $connector->{logger}->writeLogDebug('[httpserverng] recurring timeout loop');

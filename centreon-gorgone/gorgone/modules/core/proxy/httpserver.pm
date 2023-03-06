@@ -32,6 +32,7 @@ use Mojo::Server::Daemon;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -154,12 +155,21 @@ sub run {
     });
     $self->read_zmq_events();
 
-    my $socket_fd = $self->{internal_socket}->get_fd();
-    my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
-    Mojo::IOLoop->singleton->reactor->io($socket => sub {
-        $connector->read_zmq_events();
-    });
-    Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
+    $ENV{MOJO_REACTOR} = 'EV'; # need EV version 4.32
+    my $watcher_io = EV::io(
+        $self->{internal_socket}->get_fd(),
+        EV::READ,
+        sub {
+            $connector->read_zmq_events();
+        }
+    );
+
+    #my $socket_fd = $self->{internal_socket}->get_fd();
+    #my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
+    #Mojo::IOLoop->singleton->reactor->io($socket => sub {
+    #    $connector->read_zmq_events();
+    #});
+    #Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
 
     Mojo::IOLoop->singleton->recurring(60 => sub {
         $connector->{logger}->writeLogDebug('[proxy] httpserver recurring timeout loop');
