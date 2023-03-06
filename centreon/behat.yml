@@ -15,10 +15,6 @@ default:
       paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
       contexts: [ ConfigurationWarningsContext ]
 
-    generate_poller_features:
-      paths: [ "%paths.base%/features/GeneratePoller.feature" ]
-      contexts: [ GeneratePollerContext ]
-
     pagination_select2:
       paths: [ "%paths.base%/features/PaginationSelect2.feature" ]
       contexts: [ PaginationSelect2Context ]

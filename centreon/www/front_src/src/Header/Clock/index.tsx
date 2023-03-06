@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { centreonUi } from '../helpers/index';
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 const useStyles = makeStyles()((theme) => ({
   dateTime: {
@@ -28,7 +28,7 @@ const Clock = (): JSX.Element => {
     time: ''
   });
 
-  const { format, toTime } = centreonUi.useLocaleDateTimeFormat();
+  const { format, toTime } = useLocaleDateTimeFormat();
 
   const updateDateTime = (): void => {
     const now = new Date();

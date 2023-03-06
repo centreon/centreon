@@ -17,7 +17,7 @@
         "is_activated": {
             "type": "boolean"
         },
-        "comments": {
+        "comment": {
             "type": ["string","null"]
         }
     }

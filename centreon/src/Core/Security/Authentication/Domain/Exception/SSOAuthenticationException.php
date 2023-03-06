@@ -228,4 +228,14 @@ class SSOAuthenticationException extends \Exception
     {
         return new self($message, $code);
     }
+
+    /**
+     * Exception thrown when the request to custom endpoint fail
+     *
+     * @return self
+     */
+    public static function requestOnCustomEndpointFailed(): self
+    {
+        return new self(_('Request on custom endpoint failed'));
+    }
 }

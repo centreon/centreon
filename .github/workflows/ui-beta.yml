@@ -1,0 +1,107 @@
+name: centreon-ui
+
+on:
+  pull_request:
+    paths:
+      - "centreon/packages/ui/**"
+      - '.github/workflows/ui-beta.yml'
+    branches:
+      - develop
+  workflow_dispatch:
+
+env:
+  directory: "centreon/packages/ui"
+  centreon_directory: "centreon"
+  package: "ui"
+  base_branch: develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ${{ env.centreon_directory }}
+
+      - name: Lint
+        run: pnpm eslint -o junit.xml -f junit
+        working-directory: ${{ env.directory }}
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path:  ${{ env.directory }}/junit.xml
+          format: java-junit
+          check_name: centreon-ui-eslint-report
+
+  unit-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt update
+          sudo apt install -y google-chrome-stable
+
+      - name: Install Centreon dependencies
+        run: pnpm install
+        working-directory: ${{ env.centreon_directory }}
+
+      - name: Build Storybook
+        run: pnpm build:storybook
+        working-directory: ${{ env.directory }}
+
+      - name: Unit test
+        run: pnpm test:ci
+        working-directory: ${{ env.directory }}
+
+      - name: Upload snapshot diff output results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.centreon_directory }}-images-snapshots-diff-output
+          path: ${{ env.directory }}/src/__image_snapshots__/__diff_output__/
+
+  publish-new-npm-beta-version:
+    runs-on: ubuntu-22.04
+    needs: [lint, unit-test, check-package-version]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/npm-publish-package-beta
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

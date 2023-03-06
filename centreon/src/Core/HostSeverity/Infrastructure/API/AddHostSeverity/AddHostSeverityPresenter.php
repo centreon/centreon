@@ -59,7 +59,7 @@ class AddHostSeverityPresenter extends AbstractPresenter
                 'level' => $payload->level,
                 'icon_id' => $payload->iconId,
                 'is_activated' => $payload->isActivated,
-                'comments' => $payload->comment,
+                'comment' => $payload->comment,
             ]);
 
             // NOT setting location as required route does not currently exist

@@ -30,7 +30,7 @@ Feature:
                 "level": 42,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": "blabla bla"
+                "comment": "blabla bla"
             }
         ],
         "meta": {
@@ -43,7 +43,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin with ACL filters
+  Scenario: Host severities listing as non-admin with ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
@@ -76,7 +76,7 @@ Feature:
                 "level": 2,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -89,7 +89,7 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin without ACL filters
+  Scenario: Host severities listing as non-admin without ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
@@ -121,7 +121,7 @@ Feature:
                 "level": 1,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             },
             {
                 "id": 2,
@@ -130,7 +130,7 @@ Feature:
                 "level": 2,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -247,7 +247,7 @@ Feature:
         "alias": "  host-sev-alias  ",
         "level": 2,
         "icon_id": 1,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "201"
@@ -260,7 +260,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
 
@@ -273,7 +273,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "409"
@@ -287,7 +287,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "409"

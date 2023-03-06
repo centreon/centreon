@@ -28,22 +28,20 @@ jobs:
 
   package-rpm:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: package ${{ matrix.distrib }}
     container:
-      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -72,23 +70,21 @@ jobs:
 
   sign-rpm:
     needs: [package-rpm]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
-          - image: packaging-centos7
-            distrib: el7
           - image: packaging-alma8
             distrib: el8
           - image: packaging-alma9
             distrib: el9
     name: sign rpm ${{ matrix.distrib }}
     container:
-      image: docker.centreon.com/rpm-signing:ubuntu
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
       options: -t
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - run: apt-get install -y zstd
@@ -114,7 +110,7 @@ jobs:
 
   package-deb:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         include:
@@ -122,10 +118,10 @@ jobs:
             distrib: bullseye
     name: package ${{ matrix.distrib }}
     container:
-      image: docker.centreon.com/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-        password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -151,7 +147,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8, el9]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -160,14 +156,14 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: 0
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
+          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
@@ -190,11 +186,11 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: perl-libssh-session
+          module_name: perl-filesys-smbclient
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
+          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

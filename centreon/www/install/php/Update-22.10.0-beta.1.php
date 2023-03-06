@@ -69,7 +69,7 @@ $migrateRemoteServerRelations = function(\CentreonDB $pearDB): void
             $deleteRemoteStatement->execute();
         }
     }
-}
+};
 
 try {
     $errorMessage = "Impossible to update 'cb_field' table";

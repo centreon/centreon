@@ -1,8 +1,8 @@
-FROM docker-proxy.centreon.com/almalinux:9
+FROM docker.centreon.com/proxy/almalinux:9
 
 RUN <<EOF
 
-dnf install -y rpm-build rpm-sign zstd perl-devel
+dnf install -y rpm-build rpm-sign zstd perl perl-devel
 dnf clean all
 
 EOF

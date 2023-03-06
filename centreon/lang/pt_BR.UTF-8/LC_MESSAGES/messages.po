@@ -9909,8 +9909,8 @@ msgstr "Comunidade SNMP"
 
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:242
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:442
-msgid "A host can have multiple templates, their orders have a significant importance"
-msgstr "Um host pode ter múltiplos modelos, a ordem deles tem importância significativa"
+# msgid "A host or host template can have several templates. See help for more details."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:244
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:444
@@ -15920,4 +15920,76 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on service groups"
+#  msgstr ""
+
+#  msgid "Error while searching for service groups"
+#  msgstr ""
+
+#  msgid "Error while deleting a service group"
+#  msgstr ""
+
+#  msgid "Error while adding a service group"
+#  msgstr ""
+
+#  msgid "Error while retrieving newly created service group"
+#  msgstr ""
+
+#  msgid "The service group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service categories"
+#  msgstr ""
+
+#  msgid "Error while deleting service category"
+#  msgstr ""
+
+#  msgid "Error while creating service category"
+#  msgstr ""
+
+#  msgid "Service category name already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service category"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service severities"
+#  msgstr ""
+
+#  msgid "Error while deleting service severity"
+#  msgstr ""
+
+#  msgid "Error while creating service severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service severity"
+#  msgstr ""
+
+#  msgid "Service severity name already exists"
+#  msgstr ""
+
+#  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""

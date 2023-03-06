@@ -1,14 +1,13 @@
 ---
-name: Create centreon widget graph monitoring version
+name: Create graph monitoring version
 
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-graph-monitoring/**"
   workflow_dispatch:
