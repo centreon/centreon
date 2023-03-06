@@ -42,9 +42,6 @@ jobs:
           - package_extension: rpm
             image: packaging-centos7
             distrib: el7
-          - package_extension: deb
-            image: packaging-bullseye
-            distrib: bullseye
 
     uses: ./.github/workflows/package.yml
     with:
@@ -94,27 +91,3 @@ jobs:
           yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
-  delivery-deb:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
-    strategy:
-      matrix:
-        include:
-          - module_name: ha
-            distrib: bullseye
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Delivery
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: ${{ matrix.module_name }}
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
