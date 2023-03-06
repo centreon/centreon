@@ -43,7 +43,7 @@ Centreon HA
 
 # ocf-scripts
 %{__install} -d %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat
-%{__install} -d %buildroot%{_prefix}/lib/ocf/lib/heartbeat
+%{__cp} -r centreon-ha/ocf-scripts/* %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat/
 
 # systemd
 %{__install} -d %buildroot%{_unitdir}
