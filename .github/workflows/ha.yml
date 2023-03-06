@@ -64,7 +64,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el7, el8]
         include:
           - module_name: ha
 
