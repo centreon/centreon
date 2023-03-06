@@ -28,9 +28,6 @@ final class UpdateVaultConfigurationRequest
     /** @var int */
     public int $vaultConfigurationId = 0;
 
-    /** @var string */
-    public string $name = '';
-
     /** @var int */
     public int $typeId = 0;
 
@@ -39,9 +36,6 @@ final class UpdateVaultConfigurationRequest
 
     /** @var int */
     public int $port = 0;
-
-    /** @var string */
-    public string $storage = '';
 
     /** @var string */
     public string $roleId = '';

@@ -1,4 +1,4 @@
-FROM centreon.jfrog.io/docker/almalinux:9 AS web_fresh
+FROM docker.centreon.com/proxy/almalinux:9 AS web_fresh
 
 RUN <<EOF
 
@@ -25,58 +25,10 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-# Add temporary artifactory repo for collect 23.04 rpms
-echo "
-#[centreon-stable-noarch]
-#name=Centreon open source software repository.
-#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/noarch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
+dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm/standard/23.04/el9/centreon.repo
+dnf config-manager --set-enabled 'centreon*'
 
-#[centreon-stable]
-#name=Centreon open source software repository.
-#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/\$basearch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-#[centreon-testing-noarch]
-#name=Centreon open source software repository. (UNSUPPORTED)
-#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/noarch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-#[centreon-testing]
-#name=Centreon open source software repository. (UNSUPPORTED)
-#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/\$basearch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-[centreon-unstable-noarch]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/unstable/noarch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-
-[centreon-unstable]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/unstable/\$basearch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-" > /etc/yum.repos.d/centreon.repo
-
-dnf clean all
+dnf clean all --enablerepo=*
 
 EOF
 
@@ -84,7 +36,7 @@ RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
-yum clean all --enablerepo=*
+
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
@@ -97,7 +49,7 @@ echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-dnf clean all
+dnf clean all --enablerepo=*
 
 EOF
 
@@ -156,7 +108,7 @@ COPY --chmod=+x ./.github/scripts/install-centreon-widget.php /tmp/install-centr
 RUN <<EOF
 
 dnf install -y 'centreon-widget-*'
-dnf clean all
+dnf clean all --enablerepo=*
 
 service mysql start
 for w in graph-monitoring host-monitoring hostgroup-monitoring httploader live-top10-cpu-usage live-top10-memory-usage service-monitoring servicegroup-monitoring tactical-overview ; do

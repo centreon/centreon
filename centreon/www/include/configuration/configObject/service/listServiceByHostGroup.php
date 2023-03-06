@@ -101,7 +101,7 @@ if (!$centreon->user->admin) {
         $aclAccessGroupsParams[':access_' . $index] = str_replace("'", "", $accessGroupId);
     }
     $queryParams = implode(',', array_keys($aclAccessGroupsParams));
-    $aclFrom = ", $aclDbName.centreon_acl acl ";
+    $aclFrom = ", `$aclDbName`.centreon_acl acl ";
     $aclCond = " AND sv.service_id = acl.service_id
                  AND acl.group_id IN (" . $queryParams . ") ";
     $distinct = " DISTINCT ";
