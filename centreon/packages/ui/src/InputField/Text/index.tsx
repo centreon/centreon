@@ -141,10 +141,9 @@ const TextField = forwardRef(
             label={label}
             ref={ref}
             size={size || 'small'}
-            value={innerValue}
             onChange={changeInputValue}
-            {...rest}
             {...valueProps}
+            {...rest}
             InputProps={{
               className: cx(
                 classes.inputBase,
