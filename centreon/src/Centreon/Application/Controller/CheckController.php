@@ -301,7 +301,10 @@ class CheckController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_CHECK)) {
+        if (
+            ! $contact->isAdmin()
+            && !$contact->hasRole(Contact::ROLE_SERVICE_CHECK)
+        ) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 

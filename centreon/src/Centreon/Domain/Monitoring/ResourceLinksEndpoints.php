@@ -70,6 +70,16 @@ class ResourceLinksEndpoints
     private $notificationPolicy;
 
     /**
+     * @var string|null
+     */
+    private ?string $check;
+
+    /**
+     * @var string|null
+     */
+    private ?string $forcedCheck;
+
+    /**
      * @return string|null
      */
     public function getDetails(): ?string
@@ -217,6 +227,43 @@ class ResourceLinksEndpoints
     public function setNotificationPolicy(?string $notificationPolicy): self
     {
         $this->notificationPolicy = $notificationPolicy;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCheck(): ?string
+    {
+        return $this->check;
+    }
+
+    /**
+     * @param string|null $check
+     * @return self
+     */
+    public function setCheck(?string $check): self
+    {
+        $this->check = $check;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForcedCheck(): ?string
+    {
+        return $this->forcedCheck;
+    }
+
+    /**
+     * @param string|null $forcedCheck
+     * @return self
+     */
+    public function setForcedCheck(?string $forcedCheck): self
+    {
+        $this->forcedCheck = $forcedCheck;
 
         return $this;
     }
