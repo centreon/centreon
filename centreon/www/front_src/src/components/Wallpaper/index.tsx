@@ -1,36 +1,30 @@
-import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
-
-import { Fade } from '@mui/material';
 
 import memoizeComponent from '../../Resources/memoizedComponent';
 
-import BackgroundImage, { defaultBackground } from './BackgroundImage';
-import { imageAtom } from './loadImageAtom';
+import { Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
+
+import useWallpaper from './useWallpaper';
 
 const useStyles = makeStyles()({
   placeholder: {
-    background: defaultBackground,
     bottom: 0,
     left: 0,
     position: 'absolute',
     right: 0,
-    top: 0
+    top: 0,
+    height: '100vh',
+    width: '100vw',
   }
 });
 
 const Wallpaper = (): JSX.Element => {
   const { classes } = useStyles();
 
-  const image = useAtomValue(imageAtom);
+  const imagePath = useWallpaper();
 
   return (
-    <>
-      <Fade in>
-        <div className={classes.placeholder} />
-      </Fade>
-      <BackgroundImage image={image} />
-    </>
+    <Image imagePath={imagePath} alt="wallpaper" className={classes.placeholder} fallback={<LoadingSkeleton className={classes.placeholder} />} />
   );
 };
 

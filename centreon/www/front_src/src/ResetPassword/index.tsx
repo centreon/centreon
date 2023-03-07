@@ -6,11 +6,11 @@ import { isNil, not } from 'ramda';
 import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import { makeStyles } from 'tss-react/mui';
+import { CentreonLogo } from '@centreon/ui';
 
 import { Paper, Typography } from '@mui/material';
 
 import routeMap from '../reactRoutes/routeMap';
-import Logo from '../Login/Logo';
 
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 import { labelResetYourPassword } from './translatedLabels';
@@ -69,7 +69,7 @@ const ResetPassword = (): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
-      <Logo />
+      <CentreonLogo />
       <Paper className={classes.paper}>
         <Typography variant="h4">{t(labelResetYourPassword)}</Typography>
         <Formik<ResetPasswordValues>
