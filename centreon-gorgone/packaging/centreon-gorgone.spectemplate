@@ -16,8 +16,8 @@ Requires:   perl-Libssh-Session >= 0.8
 Requires:   perl-CryptX
 Requires:   perl(Archive::Tar)
 Requires:   perl(Schedule::Cron)
-Requires:   perl(ZMQ::LibZMQ4)
-Requires:   perl(ZMQ::Constants)
+Requires:   perl(ZMQ::FFI)
+Requires:   perl(EV)
 Requires:   perl(JSON::XS)
 Requires:   perl(JSON::PP)
 Requires:   perl(XML::Simple)
