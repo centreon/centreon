@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -69,6 +69,7 @@ require_once dirname(__FILE__) . '/resource.class.php';
 require_once dirname(__FILE__) . '/engine.class.php';
 require_once dirname(__FILE__) . '/broker.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
+require_once dirname(__FILE__) . '/vault.class.php
 
 class Generate
 {
@@ -260,6 +261,7 @@ class Generate
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
 
+        Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
             $this->current_poller['id'],
             $this->current_poller['localhost']

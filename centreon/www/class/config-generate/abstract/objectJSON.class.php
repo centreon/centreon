@@ -89,8 +89,16 @@ abstract class AbstractObjectJSON
         }
     }
 
-    protected function generateFile($object)
+    protected function generateFile($object, $brokerType = true)
     {
-        $this->content = json_encode(['centreonBroker' => $object], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+        $data = [];
+
+        if ($brokerType) {
+            $data = ['centreonBroker' => $object];
+        } else {
+            $data = $object;
+        }
+
+        $this->content = json_encode($data, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
     }
 }
