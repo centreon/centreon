@@ -56,6 +56,7 @@ Centreon HA
 
 %package common
 Summary:    Centreon HA common files for database and central nodes
+License:    Apache-2.0
 
 %{?systemd_requires}
 BuildRequires:  systemd
