@@ -426,14 +426,14 @@ sub check {
 
     # We check synclog/ping/ping request timeout 
     foreach (keys %$synctime_nodes) {
-        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss|pullwss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
             if ((time() - $constatus_ping->{$_}->{in_progress_ping_pull}) > $ping_timeout) {
                 $constatus_ping->{$_}->{in_progress_ping} = 0;
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
             }
         }
-        if ($register_nodes->{$_}->{type} !~ /^(?:pull|wss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
+        if ($register_nodes->{$_}->{type} !~ /^(?:pull|wss|pullwss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             if (time() - $constatus_ping->{ $_ }->{last_ping_sent} > $config->{pong_discard_timeout}) {
                 $options{logger}->writeLogInfo("[proxy] Ping timeout from '" . $_ . "'");
                 $constatus_ping->{$_}->{in_progress_ping} = 0;
