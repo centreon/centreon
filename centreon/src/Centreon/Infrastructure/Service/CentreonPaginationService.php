@@ -296,7 +296,6 @@ class CentreonPaginationService
      */
     public function getListing(): DataRepresenter\Listing
     {
-        // $repository = $this->db->getRepository($this->repository);
         $repository = $this->symfonyContainer->get($this->repository);
 
         $entities = $repository
