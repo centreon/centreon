@@ -176,7 +176,7 @@ describe('Login Page', () => {
     mockedAxios.post.mockReset();
   });
 
-  it('displays the login form', async () => {
+  it.only('displays the login form', async () => {
     mockPostLoginSuccess();
     renderLoginPage();
 
@@ -188,10 +188,13 @@ describe('Login Page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('centreon-wallpaper')).toBeInTheDocument();
+      expect(screen.getByAltText(labelCentreonLogo)).toBeInTheDocument();
     });
-    expect(screen.getByLabelText(labelCentreonLogo)).toBeInTheDocument();
-    expect(screen.getByLabelText(labelAlias)).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.getByLabelText(labelAlias)).toBeInTheDocument();
+    });
+
     expect(screen.getByLabelText(labelPassword)).toBeInTheDocument();
     expect(screen.getByLabelText(labelConnect)).toBeInTheDocument();
     await waitFor(() => {

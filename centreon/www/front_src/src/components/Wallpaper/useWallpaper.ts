@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { always, lte, cond } from 'ramda';
+import { always, lte, cond, T, gt } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -14,12 +14,14 @@ const useWallpaper = (): string => {
   const imagePath = useMemo(
     (): string =>
       cond<Array<number>, string>([
-        [lte(theme.breakpoints.values.xl), always(centreonWallpaperXl)],
-        [lte(theme.breakpoints.values.lg), always(centreonWallpaperLg)],
-        [lte(theme.breakpoints.values.sm), always(centreonWallpaperSm)]
+        [gt(theme.breakpoints.values.sm), always(centreonWallpaperSm)],
+        [gt(theme.breakpoints.values.lg), always(centreonWallpaperLg)],
+        [T, always(centreonWallpaperXl)]
       ])(window.innerWidth),
     []
   );
+
+  console.log(window.innerWidth, imagePath)
 
   return imagePath;
 };
