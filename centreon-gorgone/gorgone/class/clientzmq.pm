@@ -112,6 +112,7 @@ sub init {
 sub close {
     my ($self, %options) = @_;
     
+    delete $self->{core_watcher};
     $sockets->{ $self->{identity} }->close();
 }
 

@@ -297,6 +297,8 @@ sub action_proxystopreadchannel {
     $self->{logger}->writeLogInfo("[proxy] Stop read channel for $data->{id}");
 
     $self->{clients}->{ $data->{id} }->{com_read_internal} = 0;
+
+    delete $self->{watchers}->{ $data->{id} };
 }
 
 sub close_connections {

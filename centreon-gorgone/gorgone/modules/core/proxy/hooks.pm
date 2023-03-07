@@ -570,7 +570,7 @@ sub pathway {
             $synctime_nodes->{$_}->{channel_read_stop} = 1;
             routing(
                 target => $_,
-                action => 'PROXYCLOSEREADCHANNEL',
+                action => 'PROXYSTOPREADCHANNEL',
                 frame => gorgone::class::frame->new(data => { id => $_ }),
                 gorgone => $options{gorgone},
                 dbh => $options{dbh},
