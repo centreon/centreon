@@ -12,7 +12,6 @@ import { Page } from '../models';
 import { headerHeight } from '../../Header';
 
 import Logo from './Logo';
-import MiniLogo from './Logo/LogoMini';
 import NavigationMenu from './Menu';
 
 export const openedDrawerWidth = 165;
@@ -87,11 +86,7 @@ export default ({ navigationData }: Props): JSX.Element => {
     <Box data-testid="sidebar" sx={{ display: 'flex' }}>
       <Drawer open={open} variant="permanent">
         <DrawerHeader>
-          {open ? (
-            <Logo onClick={toggleNavigation} />
-          ) : (
-            <MiniLogo onClick={toggleNavigation} />
-          )}
+          <Logo onClick={toggleNavigation} isMiniLogo={!open} />
         </DrawerHeader>
         <NavigationMenu isDrawerOpen={open} navigationData={navigationData} />
       </Drawer>

@@ -5,19 +5,21 @@ import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
 import { labelCentreonLogo } from '../../translatedLabels';
 
-import logoLight from './Centreon_Logo_Blanc.svg';
+import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
+import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
 
 interface Props {
   onClick: () => void;
+  isMiniLogo: boolean;
 }
 const useStyles = makeStyles()((theme) => ({
   logo: {
-    height: theme.spacing(5),
-    width: theme.spacing(16.9)
+    height: theme.spacing(4.2),
+    maxWidth: theme.spacing(16.9)
   }
 }));
 
-const Logo = ({ onClick }: Props): JSX.Element => {
+const Logo = ({ onClick, isMiniLogo }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -31,7 +33,7 @@ const Logo = ({ onClick }: Props): JSX.Element => {
         fallback={
           <LoadingSkeleton className={classes.logo} variant="circular" />
         }
-        imagePath={logoLight}
+        imagePath={isMiniLogo ? centreonLogoWhiteMini : centreonLogoWhite}
         variant={ImageVariant.Contain}
       />
     </IconButton>
