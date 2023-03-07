@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import { Link } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
@@ -50,15 +52,11 @@ export default ({ counters }: CounterProps): JSX.Element => {
     <ul className={classes.container}>
       {counters.map(
         ({ to, ariaLabel, onClick, count, severityCode }, index) => (
-          <>
+          <Fragment key={to.toString().replace(/\W/g, '')}>
             {index === 2 && (
-              <li
-                aria-hidden="true"
-                className={classes.splitter}
-                key={`${to}-splitter`}
-              />
+              <li aria-hidden="true" className={classes.splitter} />
             )}
-            <li className={classes.item} key={to}>
+            <li className={classes.item}>
               <Link
                 aria-label={ariaLabel}
                 className={classes.link}
@@ -68,7 +66,7 @@ export default ({ counters }: CounterProps): JSX.Element => {
                 <StatusCounter count={count} severityCode={severityCode} />
               </Link>
             </li>
-          </>
+          </Fragment>
         )
       )}
     </ul>
