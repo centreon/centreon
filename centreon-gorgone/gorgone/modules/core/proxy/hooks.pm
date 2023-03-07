@@ -550,7 +550,7 @@ sub pathway {
 
     my $first_target;
     foreach (@targets) {
-        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss)$/ && !defined($register_nodes->{$_}->{identity})) {
+        if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss|pullwss)$/ && !defined($register_nodes->{$_}->{identity})) {
             $options{logger}->writeLogDebug("[proxy] skip node " . $register_nodes->{$_}->{type} . " target '$_' for node '$target' - never connected");
             next;
         }
