@@ -46,7 +46,7 @@ const FederatedModules = ({
         )}
       </>
     ),
-    memoProps: [federatedModulesConfigurations, ...(rest || undefined)]
+    memoProps: [federatedModulesConfigurations, rest]
   });
 };
 
