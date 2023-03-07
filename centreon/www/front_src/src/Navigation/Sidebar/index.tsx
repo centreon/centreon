@@ -76,19 +76,19 @@ export interface Props {
 }
 
 export default ({ navigationData }: Props): JSX.Element => {
-  const [open, setOpen] = useState(false);
+  const [isMenuOpened, setIsMenuOpened] = useState(false);
 
   const toggleNavigation = (): void => {
-    setOpen(!open);
+    setIsMenuOpened((currentIsMenuOpened) => !currentIsMenuOpened);
   };
 
   return (
     <Box data-testid="sidebar" sx={{ display: 'flex' }}>
-      <Drawer open={open} variant="permanent">
+      <Drawer open={isMenuOpened} variant="permanent">
         <DrawerHeader>
-          <Logo onClick={toggleNavigation} isMiniLogo={!open} />
+          <Logo onClick={toggleNavigation} isMiniLogo={!isMenuOpened} />
         </DrawerHeader>
-        <NavigationMenu isDrawerOpen={open} navigationData={navigationData} />
+        <NavigationMenu isDrawerOpen={isMenuOpened} navigationData={navigationData} />
       </Drawer>
     </Box>
   );

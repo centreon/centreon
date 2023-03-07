@@ -7,6 +7,7 @@ import { useAtom } from 'jotai';
 import { selectedNavigationItemsAtom } from './sideBarAtoms';
 
 import SideBar from './index';
+import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
 
 describe('Navigation menu', () => {
   beforeEach(() => {
@@ -28,17 +29,19 @@ describe('Navigation menu', () => {
   });
 
   it('matches the current snapshot "initial menu"', () => {
-    cy.get("[alt='mini logo']").should('be.visible');
+    cy.findByAltText(labelMiniCentreonLogo).should('be.visible');
     cy.get('li').each(($li) => {
       cy.wrap($li).get('svg').should('be.visible');
     });
 
-    cy.matchImageSnapshot();
+    cy.matchImageSnapshot().then(() => {
+      cy.findByLabelText(labelMiniCentreonLogo).click();
+    });
   });
 
   it('expands the menu when the logo is clicked', () => {
-    cy.get("[alt='mini logo']").click();
-    cy.get("[alt='logo']").should('be.visible');
+    cy.findByLabelText(labelMiniCentreonLogo).click();
+    cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.get('li').each(($li, index) => {
       cy.wrap($li).as('element').get('svg').should('be.visible');
       if (index === 0) {
@@ -68,7 +71,7 @@ describe('Navigation menu', () => {
   });
 
   it('highlights the parent item when the item is clicked', () => {
-    cy.get("[alt='mini logo']").click();
+    cy.findByLabelText(labelMiniCentreonLogo).click();
     cy.get('li').eq(2).trigger('mouseover');
     cy.get('[data-testid=ExpandMoreIcon]').should('be.visible');
     cy.get('[data-cy=collapse]').as('collapse').should('be.visible');
