@@ -86,9 +86,12 @@ export default ({ navigationData }: Props): JSX.Element => {
     <Box data-testid="sidebar" sx={{ display: 'flex' }}>
       <Drawer open={isMenuOpened} variant="permanent">
         <DrawerHeader>
-          <Logo onClick={toggleNavigation} isMiniLogo={!isMenuOpened} />
+          <Logo isMiniLogo={!isMenuOpened} onClick={toggleNavigation} />
         </DrawerHeader>
-        <NavigationMenu isDrawerOpen={isMenuOpened} navigationData={navigationData} />
+        <NavigationMenu
+          isDrawerOpen={isMenuOpened}
+          navigationData={navigationData}
+        />
       </Drawer>
     </Box>
   );

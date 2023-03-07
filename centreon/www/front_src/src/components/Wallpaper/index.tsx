@@ -1,20 +1,20 @@
 import { makeStyles } from 'tss-react/mui';
 
-import memoizeComponent from '../../Resources/memoizedComponent';
+import { Image, LoadingSkeleton } from '@centreon/ui';
 
-import { Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
+import memoizeComponent from '../../Resources/memoizedComponent';
 
 import useWallpaper from './useWallpaper';
 
 const useStyles = makeStyles()({
   placeholder: {
     bottom: 0,
+    height: '100vh',
     left: 0,
     position: 'absolute',
     right: 0,
     top: 0,
-    height: '100vh',
-    width: '100vw',
+    width: '100vw'
   }
 });
 
@@ -24,7 +24,12 @@ const Wallpaper = (): JSX.Element => {
   const imagePath = useWallpaper();
 
   return (
-    <Image imagePath={imagePath} alt="wallpaper" className={classes.placeholder} fallback={<LoadingSkeleton className={classes.placeholder} />} />
+    <Image
+      alt="wallpaper"
+      className={classes.placeholder}
+      fallback={<LoadingSkeleton className={classes.placeholder} />}
+      imagePath={imagePath}
+    />
   );
 };
 

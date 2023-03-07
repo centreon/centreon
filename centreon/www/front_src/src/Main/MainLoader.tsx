@@ -34,7 +34,12 @@ export const MainLoader = (): JSX.Element => {
 
   return (
     <div className={classes.loader}>
-      <Image alt={label} imagePath={logoCentreon} className={classes.logo} fallback={<LoadingSkeleton className={classes.logo} />} />
+      <Image
+        alt={label}
+        className={classes.logo}
+        fallback={<LoadingSkeleton className={classes.logo} />}
+        imagePath={logoCentreon}
+      />
       <Typography>{t(labelCentreonIsLoading)}</Typography>
     </div>
   );
@@ -45,7 +50,12 @@ export const MainLoaderWithoutTranslation = (): JSX.Element => {
 
   return (
     <div className={classes.loader}>
-      <Image alt={labelCentreonLogo} imagePath={logoCentreon} className={classes.logo} fallback={<LoadingSkeleton className={classes.logo} />} />
+      <Image
+        alt={labelCentreonLogo}
+        className={classes.logo}
+        fallback={<LoadingSkeleton className={classes.logo} />}
+        imagePath={logoCentreon}
+      />
       <Typography>{labelCentreonIsLoading}</Typography>
     </div>
   );

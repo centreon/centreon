@@ -12,7 +12,6 @@ import { CentreonLogo, LoadingSkeleton } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import useLoadWallpaper from '../components/Wallpaper/useWallpaper';
 import Wallpaper from '../components/Wallpaper';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 

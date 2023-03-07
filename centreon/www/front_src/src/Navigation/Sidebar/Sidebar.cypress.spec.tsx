@@ -4,10 +4,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
 import { useAtom } from 'jotai';
 
+import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
+
 import { selectedNavigationItemsAtom } from './sideBarAtoms';
 
 import SideBar from './index';
-import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
 
 describe('Navigation menu', () => {
   beforeEach(() => {

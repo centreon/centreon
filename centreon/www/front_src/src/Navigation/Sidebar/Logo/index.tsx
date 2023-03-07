@@ -3,14 +3,16 @@ import { useTranslation } from 'react-i18next';
 
 import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
-import { labelCentreonLogo, labelMiniCentreonLogo } from '../../translatedLabels';
-
+import {
+  labelCentreonLogo,
+  labelMiniCentreonLogo
+} from '../../translatedLabels';
 import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
 import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
 
 interface Props {
-  onClick: () => void;
   isMiniLogo: boolean;
+  onClick: () => void;
 }
 const useStyles = makeStyles()((theme) => ({
   logo: {
@@ -26,17 +28,17 @@ const Logo = ({ onClick, isMiniLogo }: Props): JSX.Element => {
   const label = t(isMiniLogo ? labelMiniCentreonLogo : labelCentreonLogo);
 
   return (
-    <div aria-label={label} title={label} onClick={onClick}>
+    <IconButton ariaLabel={label} title={label} onClick={onClick}>
       <Image
         alt={label}
         className={classes.logo}
         fallback={
           <LoadingSkeleton className={classes.logo} variant="circular" />
         }
-        imagePath={centreonLogoWhite}
+        imagePath={isMiniLogo ? centreonLogoWhiteMini : centreonLogoWhite}
         variant={ImageVariant.Contain}
       />
-    </div>
+    </IconButton>
   );
 };
 
