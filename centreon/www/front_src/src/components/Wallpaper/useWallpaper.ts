@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { always, lte, cond, T, gt } from 'ramda';
+import { always, cond, T, gt } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -20,8 +20,6 @@ const useWallpaper = (): string => {
       ])(window.innerWidth),
     []
   );
-
-  console.log(window.innerWidth, imagePath)
 
   return imagePath;
 };

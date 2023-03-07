@@ -190,7 +190,7 @@ describe('Login Page', () => {
     await waitFor(() => {
       expect(screen.getByAltText(labelCentreonLogo)).toBeInTheDocument();
     });
-    
+
     await waitFor(() => {
       expect(screen.getByLabelText(labelAlias)).toBeInTheDocument();
     });
