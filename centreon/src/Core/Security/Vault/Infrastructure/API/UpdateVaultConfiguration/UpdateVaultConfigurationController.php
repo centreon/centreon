@@ -53,10 +53,8 @@ final class UpdateVaultConfigurationController extends AbstractController
 
         /**
          * @var array{
-         *  "name": string,
          *  "address": string,
          *  "port": integer,
-         *  "storage": string,
          *  "role_id": string,
          *  "secret_id": string
          * } $decodedRequest
@@ -81,10 +79,8 @@ final class UpdateVaultConfigurationController extends AbstractController
      * @param int $vaultId
      * @param int $vaultConfigurationId
      * @param array{
-     *  "name": string,
      *  "address": string,
      *  "port": integer,
-     *  "storage": string,
      *  "role_id": string,
      *  "secret_id": string
      * } $decodedRequest
@@ -98,11 +94,9 @@ final class UpdateVaultConfigurationController extends AbstractController
     ): UpdateVaultConfigurationRequest {
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
         $updateVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
-        $updateVaultConfigurationRequest->name = $decodedRequest['name'];
         $updateVaultConfigurationRequest->typeId = $vaultId;
         $updateVaultConfigurationRequest->address = $decodedRequest['address'];
         $updateVaultConfigurationRequest->port = $decodedRequest['port'];
-        $updateVaultConfigurationRequest->storage = $decodedRequest['storage'];
         $updateVaultConfigurationRequest->roleId = $decodedRequest['role_id'];
         $updateVaultConfigurationRequest->secretId = $decodedRequest['secret_id'];
 

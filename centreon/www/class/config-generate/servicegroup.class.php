@@ -228,7 +228,7 @@ class Servicegroup extends AbstractObject
         $this->object_name = self::TAG_OBJECT_NAME;
         $this->attributes_write = [
             'id',
-            'name',
+            'tag_name',
             'type',
         ];
         $this->attributes_array = [];
@@ -243,7 +243,7 @@ class Servicegroup extends AbstractObject
 
             $tag = [
                 'id' => $value['servicegroup_id'],
-                'name' => $value['servicegroup_name'],
+                'tag_name' => $value['servicegroup_name'],
                 'type' => self::TAG_TYPE,
             ];
 

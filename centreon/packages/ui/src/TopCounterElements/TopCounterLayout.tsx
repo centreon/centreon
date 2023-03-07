@@ -96,7 +96,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-interface ItemLayoutProps {
+interface TopCounterLayoutProps {
   Icon: typeof SvgIcon;
   renderIndicators: () => JSX.Element;
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
@@ -104,13 +104,13 @@ interface ItemLayoutProps {
   title: string;
 }
 
-const ItemLayout = ({
+const TopCounterLayout = ({
   Icon,
   title,
   renderIndicators,
   renderSubMenu,
   showPendingBadge
-}: ItemLayoutProps): JSX.Element => {
+}: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
 
@@ -186,4 +186,4 @@ const ItemLayout = ({
   );
 };
 
-export default ItemLayout;
+export default TopCounterLayout;

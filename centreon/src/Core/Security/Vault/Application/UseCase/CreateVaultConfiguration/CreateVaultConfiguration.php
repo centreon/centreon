@@ -51,11 +51,11 @@ final class CreateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        readonly private ReadVaultRepositoryInterface $readVaultRepository,
-        readonly private NewVaultConfigurationFactory $newVaultConfigurationFactory,
-        readonly private ContactInterface $user
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -81,7 +81,7 @@ final class CreateVaultConfiguration
                 $this->readVaultConfigurationRepository->existsSameConfiguration(
                     $createVaultConfigurationRequest->address,
                     $createVaultConfigurationRequest->port,
-                    $createVaultConfigurationRequest->storage,
+                    $createVaultConfigurationRequest->rootPath,
                 )
             ) {
                 $this->error(
@@ -89,7 +89,7 @@ final class CreateVaultConfiguration
                     [
                         'address' => $createVaultConfigurationRequest->address,
                         'port' => $createVaultConfigurationRequest->port,
-                        'storage' => $createVaultConfigurationRequest->storage,
+                        'rootPath' => $createVaultConfigurationRequest->rootPath,
                     ]
                 );
                 $presenter->setResponseStatus(

@@ -33,10 +33,15 @@ runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: kduret/cache@pdotl/zstd-hotfix
+      uses: actions/cache@v3
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
+
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish DEBS to Nexus
       run: |
@@ -53,13 +58,13 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          if [[ "${{ inputs.stability }}" == "stable" ]]; then
-            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-${{ inputs.version }}-${{ inputs.stability }}/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
-          else
-            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/apt-${{ inputs.version }}-${{ inputs.stability }}/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "$FILE"
-          fi
+          jf rt upload "$FILE" "apt-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
+
+          #if [[ "${{ inputs.stability }}" == "stable" ]]; then
+          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
+          #else
+          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
+          #fi
 
         done
       shell: bash

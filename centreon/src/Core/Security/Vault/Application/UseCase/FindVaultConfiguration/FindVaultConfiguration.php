@@ -43,9 +43,9 @@ final class FindVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private ReadVaultRepositoryInterface $readVaultRepository,
-        readonly private ContactInterface $user
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -124,7 +124,7 @@ final class FindVaultConfiguration
         $findVaultConfigurationResponse->vaultConfiguration['vault_id'] = $vaultConfiguration->getVault()->getId();
         $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
         $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();
-        $findVaultConfigurationResponse->vaultConfiguration['storage'] = $vaultConfiguration->getStorage();
+        $findVaultConfigurationResponse->vaultConfiguration['root_path'] = $vaultConfiguration->getRootPath();
 
         return $findVaultConfigurationResponse;
     }

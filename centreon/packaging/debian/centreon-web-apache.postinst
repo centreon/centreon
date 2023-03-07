@@ -9,8 +9,11 @@ if [ "$1" = "configure" ] ; then
     a2enmod alias proxy proxy_fcgi
     a2enconf php8.1-fpm
     a2dismod php8.0
-    # Remove default Debian Apache configuration
-    rm /etc/apache2/sites-enabled/000-default.conf
+    # Remove default Debian Apache configuration (if exists)
+    if [ -L /etc/apache2/sites-enabled/000-default.conf ]; then
+      echo "Removing Apache default configuration file ..."
+      rm /etc/apache2/sites-enabled/000-default.conf
+    fi
     # Restart apache2
     systemctl restart apache2 php8.1-fpm
   fi

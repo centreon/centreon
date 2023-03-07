@@ -27,19 +27,19 @@ const useStyles = makeStyles()((theme) => ({
       : theme.palette.primary.dark,
     display: 'flex',
     height: theme.spacing(headerHeight),
-    padding: `0 ${theme.spacing(3)}`
+    padding: `${theme.spacing(1)} ${theme.spacing(3)}`
   },
   item: {
     '&:first-of-type': {
       borderRight: `solid 1px ${theme.palette.common.white}`,
-      marginRight: theme.spacing(3.25),
-      paddingRight: theme.spacing(3.25)
+      marginRight: theme.spacing(3),
+      paddingRight: theme.spacing(3)
     },
     flex: 'initial',
     [theme.breakpoints.down(768)]: {
-      marginRight: theme.spacing(5.5)
+      marginRight: theme.spacing(4)
     },
-    marginRight: theme.spacing(6.5)
+    marginRight: theme.spacing(4)
   },
   leftContainer: {
     alignItems: 'center',
