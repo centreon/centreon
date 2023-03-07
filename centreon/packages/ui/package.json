@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.30",
+  "version": "23.4.32",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
@@ -48,8 +48,13 @@
     "storybook-dark-mode": "^1.1.0"
   },
   "dependencies": {
+    "@lexical/link": "0.8.0",
+    "@lexical/react": "0.8.0",
+    "@lexical/selection": "0.8.0",
+    "@lexical/utils": "0.8.0",
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.27.3",
+    "lexical": "0.8.0",
     "notistack": "^2.0.8",
     "react-transition-group": "^4.4.5",
     "ulog": "^2.0.0-beta.19"
