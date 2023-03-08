@@ -80,7 +80,7 @@ class GenerateAllConfigurations
                     continue;
                 }
                 if ($monitoringServer->isActivate() === false) {
-                    $this->error('Monitoring server #' . $lastMonitoringServerId . 'is disabled');
+                    $this->error('Monitoring server #' . $lastMonitoringServerId . ' is disabled');
                     continue;
                 }
                 $this->info('Generate configuration files for monitoring server #' . $lastMonitoringServerId);
