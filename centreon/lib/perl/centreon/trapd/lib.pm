@@ -392,10 +392,14 @@ sub get_macros_host {
             set_macro(\%macros, '$_HOSTSNMPVERSION$', $value->{host_snmp_version});
         }
     
-        ($dstatus, $sth) = $cdb->query("SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id);
+        ($dstatus, $sth) = $cdb->query("SELECT host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id);
         return -1 if ($dstatus == -1);
         while ($value = $sth->fetchrow_hashref()) {
-            set_macro(\%macros, $value->{host_macro_name}, $value->{host_macro_value});
+            if ($_->[2] == 1) {
+                set_macro(\%macros, $value->{host_macro_name}, "{$value->{host_macro_name}::secret::$value->{host_macro_value}}");
+            } else {
+                set_macro(\%macros, $value->{host_macro_name}, $value->{host_macro_value});
+            }
         }
     
         ($dstatus, $sth) = $cdb->query("SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = " . $lhost_id . " ORDER BY `order` DESC");
