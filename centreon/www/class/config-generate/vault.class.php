@@ -34,6 +34,9 @@ class Vault extends AbstractObjectJSON
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\LegacyLogger::class);
         $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
 
+        if ($vaultConfiguration === null) {
+            return 1;
+        }
         // Base parameters
         $object[$vaultConfiguration->getRootPath()] = [
             'vault-address'=> $vaultConfiguration->getAddress(),
