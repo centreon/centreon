@@ -291,10 +291,7 @@ sub saas_register_metrics {
 
     my $register_centreon_metrics = {};
     my ($query, $query_append) = ('', '');
-<<<<<<< HEAD
-=======
     my @bind_values = ();
->>>>>>> centreon-gorgone/gorgone-save-memory
 
     $self->{generate_metrics_lua} = 0;
     foreach (keys %{$self->{centreon_metrics}}) {
