@@ -7,7 +7,7 @@ Feature:
     Given a running instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
-  Scenario: Check resources
+  Scenario: Check on resources
     Given I am logged in
     And the following CLAPI import data:
     """
@@ -25,6 +25,9 @@ Feature:
     When I send a POST request to '/api/v21.10/monitoring/resources/check' with body:
     """
     {
+      "check": {
+        "is_forced": true
+      },
       "resources": [
         {
           "type": "host",
@@ -45,3 +48,45 @@ Feature:
     Then the response code should be 204
     And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_HOST_CHECK;test/"
     And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_SVC_CHECK;test;test_service1/" (tries: 3)
+
+  Scenario: Forced check on resources
+    Given I am logged in
+    And the following CLAPI import data:
+    """
+    HOST;ADD;test;Test host;127.0.0.1;generic-host;central;
+    SERVICE;ADD;test;test_service1;Ping-LAN;
+    """
+    And the configuration is generated and exported
+    And I wait until service "test_service1" from host "test" is monitored
+    And I send a GET request to '/api/v21.10/monitoring/services?search={"$and":[{"host.name":"test"},{"service.description":"test_service1"}]}'
+    And I store response values in:
+      | name      | path              |
+      | hostId    | result[0].host.id |
+      | serviceId | result[0].id      |
+
+    When I send a POST request to '/api/v21.10/monitoring/resources/check' with body:
+    """
+    {
+      "check": {
+        "is_forced": false
+      },
+      "resources": [
+        {
+          "type": "host",
+          "id": <hostId>,
+          "parent": null
+        },
+        {
+          "type": "service",
+          "id": <serviceId>,
+          "parent": {
+            "id": <hostId>
+          }
+        }
+      ]
+    }
+    """
+
+    Then the response code should be 204
+    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_HOST_FORCED_CHECK;test/"
+    And the content of file "/var/log/centreon-engine/centengine.log" should match "/SCHEDULE_SVC_FORCED_CHECK;test;test_service1/" (tries: 3)
