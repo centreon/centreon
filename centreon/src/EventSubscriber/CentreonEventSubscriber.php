@@ -358,7 +358,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
          * If we don't do that a HTML error will appeared.
          */
         if ($errorIsBeforeController) {
-            if ($event->getThrowable()->getCode() >= 501) {
+            if ($event->getThrowable()->getCode() >= 500) {
                 $errorCode = $event->getThrowable()->getCode() > 0
                     ? $event->getThrowable()->getCode()
                     : Response::HTTP_INTERNAL_SERVER_ERROR;
