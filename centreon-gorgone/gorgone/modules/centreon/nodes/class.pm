@@ -97,7 +97,7 @@ sub check_debug {
     my $debug_gorgone = 0;
     $debug_gorgone = $datas->[0]->[0] if (defined($datas->[0]->[0]));
     if (!defined($self->{debug_gorgone}) || $self->{debug_gorgone} != $debug_gorgone) {
-        $self->send_internal_action({action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } });
+        $self->send_internal_action({ action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } });
     }
 
     $self->{debug_gorgone} = $debug_gorgone;
