@@ -5,6 +5,15 @@
     "required": ["resources"],
     "additionalProperties": false,
     "properties": {
+        "check": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "is_forced" : {
+                    "type": "boolean"
+                }
+            }
+        },
         "resources": {
             "type": "array",
             "items": {

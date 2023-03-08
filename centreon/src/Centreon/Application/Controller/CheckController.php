@@ -449,12 +449,12 @@ class CheckController extends AbstractController
          * @var CheckRequest $checkRequest
          */
         $checkRequest = $serializer->deserialize(
-            (string)$request->getContent(),
+            (string) $request->getContent(),
             CheckRequest::class,
             'json'
         );
 
-        $checkRequest->setCheck((new Check())->setCheckTime(new DateTime()));
+        $checkRequest->getCheck()->setCheckTime(new DateTime());
 
         foreach ($checkRequest->getResources() as $resource) {
             // start check process

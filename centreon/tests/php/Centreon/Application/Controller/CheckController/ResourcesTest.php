@@ -39,6 +39,9 @@ class ResourcesTest extends TestCase
     protected const REQUIRED_ROLE_FOR_ADMIN = Contact::ROLE_SERVICE_CHECK;
 
     private const CORRECT_REQUEST_DATA = [
+        'check' => [
+            'is_forced' => true
+        ],
         'resources' => [
             ['id' => 1,'type' => 'host', 'parent' => null,],
             ['id' => 2, 'type' => 'service', 'parent' => ['id' => 1,],],
@@ -75,7 +78,14 @@ class ResourcesTest extends TestCase
         $hostResource = new ResourceEntity();
         $hostResource->setType(ResourceEntity::TYPE_HOST);
 
-        $sut->checkResources($this->mockRequest($requestContent), $this->mockSerializerWithResources([$hostResource]));
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
+        $sut->checkResources(
+            $this->mockRequest($requestContent),
+            $this->mockSerializerWithResources([$hostResource], $check)
+        );
     }
 
     /**
@@ -113,9 +123,13 @@ class ResourcesTest extends TestCase
         $hostResource = new ResourceEntity();
         $hostResource->setType(ResourceEntity::TYPE_HOST);
 
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
         $sut->checkResources(
             $this->mockRequest($serializedRequestContent),
-            $this->mockSerializerWithResources([$hostResource])
+            $this->mockSerializerWithResources([$hostResource], $check)
         );
     }
 
@@ -157,7 +171,12 @@ class ResourcesTest extends TestCase
         $request = $this->mockRequest(json_encode(self::CORRECT_REQUEST_DATA));
         $hostResource = new ResourceEntity();
         $hostResource->setType(ResourceEntity::TYPE_HOST);
-        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource]));
+
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
+        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource], $check));
 
         $this->assertEquals($view, View::create());
     }
@@ -185,7 +204,12 @@ class ResourcesTest extends TestCase
         $request = $this->mockRequest(json_encode(self::CORRECT_REQUEST_DATA));
         $hostResource = new ResourceEntity();
         $hostResource->setType(ResourceEntity::TYPE_HOST);
-        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource]));
+
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
+        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource]), $check);
 
         $this->assertEquals($view, View::create());
     }
@@ -223,7 +247,12 @@ class ResourcesTest extends TestCase
         $sut->setContainer($container);
 
         $request = $this->mockRequest(json_encode(self::CORRECT_REQUEST_DATA));
-        $view = $sut->checkResources($request, $this->mockSerializerWithResources($resources));
+
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
+        $view = $sut->checkResources($request, $this->mockSerializerWithResources($resources, $check));
 
         $this->assertEquals($view, View::create());
     }
@@ -246,12 +275,13 @@ class ResourcesTest extends TestCase
     /**
      * @param ResourceEntity[] $resources
      */
-    protected function mockSerializerWithResources(array $resources): SerializerInterface
+    protected function mockSerializerWithResources(array $resources, Check $check): SerializerInterface
     {
         $mock = $this->createMock(SerializerInterface::class);
 
         $checkRequest = new CheckRequest();
         $checkRequest->setResources($resources);
+        $checkRequest->setCheck($check);
 
         $mock
             ->method('deserialize')
@@ -270,9 +300,13 @@ class ResourcesTest extends TestCase
         $hostResource = new ResourceEntity();
         $hostResource->setType(ResourceEntity::TYPE_HOST);
 
+        $check = (new Check())
+            ->setCheckTime(new \DateTime())
+            ->setForced(true);
+
         return [
             $this->mockRequest(json_encode(self::CORRECT_REQUEST_DATA)),
-            $this->mockSerializerWithResources([$hostResource])
+            $this->mockSerializerWithResources([$hostResource], $check)
         ];
     }
 }
