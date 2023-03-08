@@ -658,7 +658,7 @@ sub run {
     );
 
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
-    $self-->{http} = gorgone::class::http::http->new(logger => $self->{logger});
+    $self->{http} = gorgone::class::http::http->new(logger => $self->{logger});
 
     $self->{internal_socket} = gorgone::standard::library::connect_com(
         context => $self->{zmq_context},
