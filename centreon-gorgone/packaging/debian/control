@@ -36,7 +36,7 @@ Depends:
   libssh-session-perl,
   libzmq-constants-perl,
   libzmq5,
-  zmq-libzmq4-perl,
+  libzmq-libzmq4-perl,
   sudo,
   ${shlibs:Depends},
   ${misc:Depends}

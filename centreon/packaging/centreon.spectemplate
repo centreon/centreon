@@ -305,12 +305,12 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install systemd configuration files
 %{__install} -d -m 0755 %buildroot%{_unitdir}
-%{__install} -m 0644 centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
-%{__install} -m 0644 centreon/tmpl/install/redhat/centreon.systemd %buildroot%{_unitdir}/centreon.service
+%{__install} -m 0644 centreon/tmpl/install/systemd/centreontrapd.systemd %buildroot%{_unitdir}/centreontrapd.service
+%{__install} -m 0644 centreon/tmpl/install/systemd/centreon.systemd %buildroot%{_unitdir}/centreon.service
 
 # Install centreontrapd sysconfig files
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
-%{__install} -m 0755 centreon/tmpl/install/redhat/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
+%{__install} -m 0755 centreon/tmpl/install/systemd/centreontrapd.sysconfig %buildroot%{_sysconfdir}/sysconfig/centreontrapd
 
 # Install perl lib
 %{__install} -d -m 0755 %buildroot%{perl_vendorlib}/
@@ -381,7 +381,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 
 # Install examples.
 %{__install} -d -m 0775 %buildroot%{_datadir}/centreon/examples
-%{__cp} centreon/tmpl/install/redhat/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
+%{__cp} centreon/tmpl/install/systemd/centreontrapd.systemd %buildroot%{_datadir}/centreon/examples/
 %{__cp} additional/centreon-apache.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.conf
 %{__cp} additional/centreon-apache-https.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.https.conf
 
