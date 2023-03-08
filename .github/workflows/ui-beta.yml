@@ -5,8 +5,6 @@ on:
     paths:
       - "centreon/packages/ui/**"
       - '.github/workflows/ui-beta.yml'
-    branches:
-      - develop
   workflow_dispatch:
 
 env:
