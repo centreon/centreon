@@ -43,6 +43,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHOICE = Assert::INVALID_CHOICE;
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
     public const VALUE_NULL = Assert::VALUE_NULL;
+    public const INVALID_BASE64 = Assert::INVALID_BASE64;
 
     /**
      * The extended constructor is here only to enforce the types used
@@ -414,6 +415,26 @@ class AssertionException extends \Assert\InvalidArgumentException
                 $value
             ),
             self::INVALID_IP,
+            $propertyPath,
+            $value
+        );
+    }
+
+    /**
+     * Exception when value is not a valid base64 string
+     *
+     * @param string $value Tested value
+     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
+     */
+    public static function base64(string $value, string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value \'%s\' is not a valid base64 string'),
+                $propertyPath,
+                $value
+            ),
+            self::INVALID_BASE64,
             $propertyPath,
             $value
         );

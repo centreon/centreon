@@ -310,4 +310,19 @@ class Assertion
 
         return $result;
     }
+
+    /**
+     * Assert that value is a valid base64 string
+     *
+     * @param string $value
+     * @param string|null $propertyPath
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function base64(string $value, string $propertyPath = null): void
+    {
+        if (false === base64_decode($value, true)) {
+            throw AssertionException::base64($value, $propertyPath);
+        }
+    }
 }
