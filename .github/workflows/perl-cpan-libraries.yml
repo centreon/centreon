@@ -110,7 +110,7 @@ jobs:
             build_deb: "false"
           - name: "FFI::Platypus"
             build_deb: "false"
-            rpm_provides: "perl(FFI::Platypus::Buffer),perl(FFI::Platypus::Memory)"
+            rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
           - name: "JSON::Path"
             version: "1.0.3"
           - name: "ZMQ::FFI"
@@ -213,11 +213,6 @@ jobs:
 
           DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build $PACKAGE_VERSION --cpan ${{ matrix.name }}
         shell: bash
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.${{ matrix.package_extension }}
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: actions/upload-artifact@v3
         with:
