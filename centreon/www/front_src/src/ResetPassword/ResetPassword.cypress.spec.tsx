@@ -63,7 +63,7 @@ const mountComponentAndStub = (
   return useNavigate;
 };
 
-describe('Rest Password', () => {
+describe('Reset Password', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'resetPassword',
@@ -95,6 +95,8 @@ describe('Rest Password', () => {
     cy.findByLabelText(labelNewPassword).should('be.visible');
     cy.findByLabelText(labelNewPasswordConfirmation).should('be.visible');
     cy.findByAltText(labelCentreonLogo).should('be.visible');
+
+    cy.matchImageSnapshot();
   });
 
   it('displays errors when the form is not correctly filled', () => {
@@ -117,6 +119,8 @@ describe('Rest Password', () => {
     cy.contains(labelNewPasswordsMustMatch).should('be.visible');
 
     cy.findByLabelText(labelResetPassword).should('be.disabled');
+
+    cy.matchImageSnapshot();
   });
 
   it('redirects the user back to the login page when the page does not have the required information', () => {
