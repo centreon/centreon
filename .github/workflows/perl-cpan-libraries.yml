@@ -48,6 +48,7 @@ jobs:
             "Digest::MD5::File",
             "Digest::SHA1",
             "Email::Send::SMTP::Gmail",
+            "EV",
             "File::SearchPath",
             "Hash::Merge",
             "HTTP::Daemon",
@@ -82,10 +83,11 @@ jobs:
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
             "YAML::LibYAML",
-            "ZMQ::Constants",
-            "ZMQ::LibZMQ4",
+            "ZMQ::FFI",
           ]
         include:
+          - build_rpm: "true"
+          - build_deb: "true"
           - rpm_dependencies: ""
           - deb_dependencies: ""
           - version: ""
@@ -99,13 +101,12 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "EV"
+            build_deb: "false"
           - name: "JSON::Path"
             version: "1.0.3"
-          - name: "ZMQ::LibZMQ4"
-            rpm_dependencies: "zeromq"
-            deb_dependencies: "libzmq5"
-            version: "0.01"
-            use_dh_make_perl: "false"
+          - name: "ZMQ::FFI"
+            build_deb: "false"
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
@@ -127,7 +128,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - if: ${{ matrix.package_extension == 'rpm' }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
@@ -156,7 +157,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
@@ -183,7 +184,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
         run: |
           apt update
           apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev libmodule-install-perl
