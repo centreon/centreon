@@ -119,7 +119,7 @@ describe('Rest Password', () => {
     cy.findByLabelText(labelResetPassword).should('be.disabled');
   });
 
-  it('redirects the user back to the login page when the page does not have required informations', () => {
+  it('redirects the user back to the login page when the page does not have the required information', () => {
     const useNavigate = mountComponentAndStub(null);
 
     cy.findByAltText(labelCentreonLogo)

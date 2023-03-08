@@ -176,7 +176,7 @@ describe('Login Page', () => {
     mockedAxios.post.mockReset();
   });
 
-  it.only('displays the login form', async () => {
+  it('displays the login form', async () => {
     mockPostLoginSuccess();
     renderLoginPage();
 
