@@ -51,6 +51,8 @@ jobs:
             "EV",
             "FFI::CheckLib",
             "FFI::Platypus",
+            "FFI::Platypus::Buffer",
+            "FFI::Platypus::Memory",
             "File::SearchPath",
             "Hash::Merge",
             "HTTP::Daemon",
@@ -108,6 +110,10 @@ jobs:
           - name: "FFI::CheckLib"
             build_deb: "false"
           - name: "FFI::Platypus"
+            build_deb: "false"
+          - name: "FFI::Platypus::Buffer"
+            build_deb: "false"
+          - name: "FFI::Platypus::Memory"
             build_deb: "false"
           - name: "JSON::Path"
             version: "1.0.3"
