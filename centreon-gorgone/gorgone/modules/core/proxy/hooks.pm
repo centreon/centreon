@@ -151,7 +151,7 @@ sub routing {
             json_encode => 1
         });
         return undef;
-    };
+    }
 
     if ($options{action} eq 'PONG') {
         return undef if (!defined($data->{data}->{id}) || $data->{data}->{id} eq '');
