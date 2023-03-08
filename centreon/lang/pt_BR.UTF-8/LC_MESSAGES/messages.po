@@ -12255,8 +12255,8 @@ msgid "Performance Management"
 msgstr "Gerenciamento de Performance"
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Pacotes de Plugin"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisão"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -12948,8 +12948,8 @@ msgstr "Mostrar Gráficos"
 msgid "Recurrent downtimes"
 msgstr "Manutenções recorrentes"
 
-msgid "Plugin Packs"
-msgstr "Pacote de Plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de Supervisão"
 
 msgid "Manager"
 msgstr "Gerencia"
