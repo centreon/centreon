@@ -115,7 +115,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
             'name' => 'tp_name',
             'alias' => 'tp_alias',
         ]);
-        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS tp.* FROM `centreon`.timeperiod tp');
+        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS tp.* FROM `:db`.timeperiod tp');
 
         // Search
         $request .= $sqlRequestTranslator->translateSearchParameterToSql();
