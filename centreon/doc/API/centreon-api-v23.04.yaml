@@ -8454,51 +8454,67 @@ components:
             '{"root": {"children": [{"detail": 0, "format": 0, "mode": "normal", "style": "",
             "text": "Welcome on Centreon", "type": "text", "version": 1}]'
           nullable: true
-        icon:
-          type: object
-          description: "Select custom icon"
-          properties:
-            id:
-              type: number
-              description: "Id of the icon"
-              example: 1
-            name:
-              type: string
-              description: "Name of the icon"
-              example: "my_custom_icon.png"
-            directory:
-              type: string
-              description: "directory of the icon"
-              example: "ppm"
-            url:
-              type: string
-              description: "URL for the icon"
-              example: "/centreon/img/media/ppm/my_custom_icon.png"
-          nullable: true
-        image:
-          type: object
-          description: "Select custom image"
-          properties:
-            id:
-              type: number
-              description: "Id of the image"
-              example: 2
-            name:
-              type: string
-              description: "Name of the image"
-              example: "my_custom_image.png"
-            directory:
-              type: string
-              description: "directory of the image"
-              example: "ppm"
-            url:
-              type: string
-              description: "URL for the image"
-              example: "/centreon/img/media/ppm/my_custom_image.png"
-          nullable: true
         text_position:
           type: string
           enum: [top, bottom]
+    Configuration.Platform.Customization.Read:
+      allOf:
+        - $ref: "#/components/schemas/Configuration.Platform.Customization"
+          properties:
+            icon:
+              type: object
+              description: "Select custom icon"
+              properties:
+                id:
+                  type: number
+                  description: "Id of the icon"
+                  example: 1
+                name:
+                  type: string
+                  description: "Name of the icon"
+                  example: "my_custom_icon.png"
+                directory:
+                  type: string
+                  description: "directory of the icon"
+                  example: "ppm"
+                url:
+                  type: string
+                  description: "URL for the icon"
+                  example: "/centreon/img/media/ppm/my_custom_icon.png"
+              nullable: true
+            image:
+              type: object
+              description: "Select custom image"
+              properties:
+                id:
+                  type: number
+                  description: "Id of the image"
+                  example: 2
+                name:
+                  type: string
+                  description: "Name of the image"
+                  example: "my_custom_image.png"
+                directory:
+                  type: string
+                  description: "directory of the image"
+                  example: "ppm"
+                url:
+                  type: string
+                  description: "URL for the image"
+                  example: "/centreon/img/media/ppm/my_custom_image.png"
+              nullable: true
+    Configuration.Platform.Customization.Write:
+      allOf:
+        - $ref: "#/components/schemas/Configuration.Platform.Customization"
+          properties:
+            icon_id:
+              type: number
+              description: "Select custom icon id"
+              nullable: true
+            image_id:
+              type: number
+              description: "Select custom image id"
+              nullable: true
     Configuration.Platform.Customization.Login:
       type: object
       description: "Platform customization configuration"
