@@ -71,16 +71,9 @@ mkdir -p $TMP_DIR/final/centreontrapd
 # Prepare init.d
 DISTRIB=""
 find_OS "DISTRIB"
-if [ "$DISTRIB" = "DEBIAN" ]; then
-	cp -f $BASE_DIR/tmpl/install/debian/centreontrapd.init.d $TMP_DIR/src
-	cp -f $BASE_DIR/tmpl/install/debian/centreontrapd.default $TMP_DIR/src
-elif [ "$DISTRIB" = "SUSE" ]; then
-    cp -f $BASE_DIR/tmpl/install/suse/centreontrapd.init.d $TMP_DIR/src
-    cp -f $BASE_DIR/tmpl/install/suse/centreontrapd.sysconfig $TMP_DIR/src
-else
-	cp -f $BASE_DIR/tmpl/install/redhat/centreontrapd.init.d $TMP_DIR/src
-	cp -f $BASE_DIR/tmpl/install/redhat/centreontrapd.sysconfig $TMP_DIR/src
-fi
+
+cp -f $BASE_DIR/tmpl/install/systemd/centreontrapd.systemd $TMP_DIR/src
+cp -f $BASE_DIR/tmpl/install/systemd/centreontrapd.sysconfig $TMP_DIR/src
 
 ## Create centreon_traps directory
 $INSTALL_DIR/cinstall $cinstall_opts \
@@ -118,26 +111,19 @@ ${SED} -e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' \
 	-e 's|@CENTREONTRAPD_BINDIR@|'"$CENTREONTRAPD_BINDIR"'|g' \
 	-e 's|@CENTREON_USER@|'"$CENTREON_USER"'|g' \
 	-e 's|@CENTSTORAGE_BINDIR@|'"$CENTSTORAGE_BINDIR"'|g' \
-	$TMP_DIR/src/centreontrapd.init.d > $TMP_DIR/work/centreontrapd.init.d
+	$TMP_DIR/src/centreontrapd.systemd > $TMP_DIR/work/centreontrapd.systemd
 check_result $? "$(gettext "Replace CentreonTrapd init script Macro")"
 
-if [ "$DISTRIB" = "DEBIAN" ]; then
-	${SED} -e 's|"NO"|"YES"|g' -e "s|@CENTREON_LOG@|$CENTREON_LOG|g" -e "s|@CENTREON_ETC@|$CENTREON_ETC|g" -e "s|@CENTREON_USER@|$CENTREON_USER|g" $TMP_DIR/src/centreontrapd.default > $TMP_DIR/work/centreontrapd.default
-	check_result $? "$(gettext "Replace CentreonTrapd default script Macro")"
-	cp $TMP_DIR/work/centreontrapd.default $TMP_DIR/final/centreontrapd.default
-	cp $TMP_DIR/final/centreontrapd.default $INSTALL_DIR_CENTREON/examples/centreontrapd.default
-elif [ "$DISTRIB" = "REDHAT" -o "$DISTRIB" = "SUSE" ]; then
-	${SED} -e "s|@CENTREON_USER@|$CENTREON_USER|g" \
-        -e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' \
-		-e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' \
-		$TMP_DIR/src/centreontrapd.sysconfig > $TMP_DIR/work/centreontrapd.sysconfig
-	check_result $? "$(gettext "Replace CentreonTrapd sysconfig script Macro")"
-	cp $TMP_DIR/work/centreontrapd.sysconfig $TMP_DIR/final/centreontrapd.sysconfig
-	cp $TMP_DIR/final/centreontrapd.sysconfig $INSTALL_DIR_CENTREON/examples/centreontrapd.sysconfig
-fi
+${SED} -e "s|@CENTREON_USER@|$CENTREON_USER|g" \
+	-e 's|@CENTREON_ETC@|'"$CENTREON_ETC"'|g' \
+	-e 's|@CENTREON_LOG@|'"$CENTREON_LOG"'|g' \
+	$TMP_DIR/src/centreontrapd.sysconfig > $TMP_DIR/work/centreontrapd.sysconfig
+check_result $? "$(gettext "Replace CentreonTrapd sysconfig script Macro")"
+cp $TMP_DIR/work/centreontrapd.sysconfig $TMP_DIR/final/centreontrapd.sysconfig
+cp $TMP_DIR/final/centreontrapd.sysconfig $INSTALL_DIR_CENTREON/examples/centreontrapd.sysconfig
 
-cp $TMP_DIR/work/centreontrapd.init.d $TMP_DIR/final/centreontrapd.init.d
-cp $TMP_DIR/final/centreontrapd.init.d $INSTALL_DIR_CENTREON/examples/centreontrapd.init.d
+cp $TMP_DIR/work/centreontrapd.systemd $TMP_DIR/final/centreontrapd.systemd
+cp $TMP_DIR/final/centreontrapd.systemd $INSTALL_DIR_CENTREON/examples/centreontrapd.systemd
 
 RC="1"
 if [ ! "${CENTREONTRAPD_INSTALL_INIT}" ] ; then
@@ -146,18 +132,18 @@ if [ ! "${CENTREONTRAPD_INSTALL_INIT}" ] ; then
 elif [ "${CENTREONTRAPD_INSTALL_INIT}" -eq 1 ] ; then
 	RC="0"
 fi
-if [ "$RC" -eq "0" ] ; then 
+if [ "$RC" -eq "0" ] ; then
 	log "INFO" "$(gettext "CentreonTrapd init script installed")"
     $INSTALL_DIR/cinstall $cinstall_opts -m 755 \
-	    $TMP_DIR/final/centreontrapd.init.d \
-        $INIT_D/centreontrapd
+	    $TMP_DIR/final/centreontrapd.systemd \
+        /lib/systemd/system/centreontrapd
 	check_result $? "$(gettext "CentreonTrapd init script installed")"
 	log "INFO" "$(gettext "CentreonTrapd init script installed")"
 	RC="1"
 	if [ "$DISTRIB" = "DEBIAN" ]; then
 		log "INFO" "$(gettext "CentreonTrapd default script installed")"
 			$INSTALL_DIR/cinstall $cinstall_opts -m 644 \
-				 $TMP_DIR/final/centreontrapd.default \
+				 $TMP_DIR/final/centreontrapd.sysconfig \
 				 /etc/default/centreontrapd >> $LOG_FILE 2>&1
 		check_result $? "$(gettext "CentreonTrapd default script installed")"
 		log "INFO" "$(gettext "CentreonTrapd default script installed")"
