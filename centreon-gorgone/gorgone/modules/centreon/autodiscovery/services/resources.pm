@@ -429,14 +429,18 @@ sub get_macros_host {
         }
 
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
-            request => "SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
+            request => "SELECT host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
             mode => 2
         );
         if ($status == -1) {
             return (-1, 'get macro: cannot get on_demand_macro_host');
         }
         foreach (@$datas) {
-            set_macro(\%macros, $_->[0], $_->[1]);
+            if ($_->[2] == 1) {
+                set_macro(\%macros, $_->[0], "{$_->[0]::secret::$_->[1]}");
+            } else {
+                set_macro(\%macros, $_->[0], $_->[1]);
+            }
         }
 
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
