@@ -15,7 +15,7 @@ Feature:
     HC;ADD;severity1;severity1-alias
     HC;setparam;severity1;hc_activate;1
     HC;setmember;severity1;test
-    HC;setseverity;severity1;42;logos/centreon.png
+    HC;setseverity;severity1;42;logos/logo-centreon-colors.png
     """
     And the configuration is generated and exported
     And I wait until host "test" is monitored
@@ -34,7 +34,7 @@ Feature:
                 "icon": {
                     "id": 1,
                     "name": "centreon",
-                    "url": "logos/centreon.png"
+                    "url": "logos/logo-centreon-colors.png"
                 }
             }
         ],
