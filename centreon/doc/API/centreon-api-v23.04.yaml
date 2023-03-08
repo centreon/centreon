@@ -7072,6 +7072,13 @@ components:
     Check.Resources:
       type: object
       properties:
+        check:
+          type: object
+          properties:
+            is_forced:
+              type: boolean
+              description: "If set to true check on resources will be forced (ignore check period)"
+              example: true
         resources:
           type: array
           items:
