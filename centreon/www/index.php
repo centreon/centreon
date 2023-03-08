@@ -233,3 +233,4 @@ function manageRedirection(Centreon $centreon, CentreonDB $pearDB): void
     }
     header("Location: " . $headerRedirection);
 }
+
