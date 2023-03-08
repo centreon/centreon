@@ -1,34 +1,36 @@
-import { lazy, Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
-import { isNil } from 'ramda';
+import { isNil, T } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
-import { LoadingSkeleton } from '@centreon/ui';
+import {
+  LoadingSkeleton,
+  WallpaperPage,
+  Image,
+  RichTextEditor
+} from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import useLoadWallpaper from '../components/Wallpaper/useLoadWallpaper';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+import backgroundImage from '../assets/centreon-wallpaper-xl.jpg';
 
 import useValidationSchema from './validationSchema';
 import { LoginFormValues } from './models';
 import useLogin from './useLogin';
-import { labelLogin } from './translatedLabels';
+import { labelCentreonWallpaper, labelLogin } from './translatedLabels';
+import Logo from './Logo';
 
 const ExternalProviders = lazy(() => import('./ExternalProviders'));
 
 const Copyright = lazy(() => import('./Copyright'));
 
-const Wallpaper = lazy(() => import('../components/Wallpaper'));
-
 const LoginForm = lazy(() => import('./Form'));
-
-const Logo = lazy(() => import('./Logo'));
 
 const useStyles = makeStyles()((theme) => ({
   copyrightAndVersion: {
@@ -72,8 +74,8 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
-  const { submitLoginForm, providersConfiguration } = useLogin();
-  useLoadWallpaper();
+  const { submitLoginForm, providersConfiguration, loginConfiguration } =
+    useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
@@ -87,74 +89,126 @@ const LoginPage = (): JSX.Element => {
   return (
     <div>
       <Suspense fallback={<LoadingSkeleton />}>
-        <Wallpaper />
-      </Suspense>
-      <div className={classes.loginBackground}>
-        <Paper className={classes.loginPaper}>
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={60} variant="text" width={250} />
-            }
-          >
-            <Logo />
-          </Suspense>
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={30} variant="text" width={115} />
-            }
-          >
-            <Typography variant="h5">{t(labelLogin)}</Typography>
-          </Suspense>
-          <div>
-            <Formik<LoginFormValues>
-              validateOnMount
-              initialValues={initialValues}
-              validationSchema={validationSchema}
-              onSubmit={submitLoginForm}
+        <WallpaperPage
+          wallpaperAlt={t(labelCentreonWallpaper)}
+          wallpaperSource={
+            !isNil(loginConfiguration.imageSource)
+              ? loginConfiguration.imageSource
+              : backgroundImage
+          }
+        >
+          <>
+            <Stack
+              direction={{ sm: 'row', xs: 'column' }}
+              spacing={{ md: 4, sm: 2, xs: 1 }}
             >
               <Suspense
                 fallback={
-                  <LoadingSkeleton height={45} variant="text" width={250} />
+                  <LoadingSkeleton height={60} variant="text" width={250} />
                 }
               >
-                <LoginForm />
+                {!isNil(loginConfiguration.iconSource) ? (
+                  <Image
+                    alt="login icon platform"
+                    fallback={
+                      <LoadingSkeleton height={60} variant="text" width={250} />
+                    }
+                    height={50}
+                    imagePath={loginConfiguration?.iconSource}
+                    width={50}
+                  />
+                ) : (
+                  <Logo />
+                )}
               </Suspense>
-            </Formik>
-            {hasProvidersConfiguration && (
-              <Suspense
-                fallback={
-                  <LoadingSkeleton height={45} variant="text" width={250} />
-                }
-              >
-                <ExternalProviders
-                  providersConfiguration={providersConfiguration}
-                />
-              </Suspense>
-            )}
-          </div>
-          <div className={classes.copyrightAndVersion}>
+              <Typography variant="h4">
+                {!isNil(loginConfiguration.platformName) &&
+                  loginConfiguration.platformName}
+              </Typography>
+            </Stack>
             <Suspense
               fallback={
-                <LoadingSkeleton
-                  className={classes.copyrightSkeleton}
-                  variant="text"
-                />
+                <LoadingSkeleton height={30} variant="text" width={115} />
               }
             >
-              <Copyright />
+              {!isNil(loginConfiguration.customText) &&
+                loginConfiguration.textPosition === 'top' && (
+                  <RichTextEditor
+                    editable={false}
+                    editorState={loginConfiguration?.customText}
+                    minInputHeight={0}
+                    namespace="PreviewTop"
+                  />
+                )}
             </Suspense>
-            {isNil(platformVersions) ? (
-              <LoadingSkeleton variant="text" width="40%" />
-            ) : (
-              <Typography variant="body2">
-                v. {platformVersions?.web.version}
-              </Typography>
-            )}
-          </div>
-        </Paper>
-      </div>
+
+            <Suspense
+              fallback={
+                <LoadingSkeleton height={30} variant="text" width={115} />
+              }
+            >
+              <Typography variant="h5">{t(labelLogin)}</Typography>
+            </Suspense>
+            <div>
+              <Formik<LoginFormValues>
+                validateOnMount
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={submitLoginForm}
+              >
+                <Suspense
+                  fallback={
+                    <LoadingSkeleton height={45} variant="text" width={250} />
+                  }
+                >
+                  <LoginForm />
+                </Suspense>
+              </Formik>
+              {hasProvidersConfiguration && (
+                <Suspense
+                  fallback={
+                    <LoadingSkeleton height={45} variant="text" width={250} />
+                  }
+                >
+                  <ExternalProviders
+                    providersConfiguration={providersConfiguration}
+                  />
+                </Suspense>
+              )}
+            </div>
+            {!isNil(loginConfiguration.customText) &&
+              loginConfiguration.textPosition === 'bottom' && (
+                <RichTextEditor
+                  editable={false}
+                  editorState={loginConfiguration?.customText}
+                  minInputHeight={0}
+                  namespace="PreviewBottom"
+                />
+              )}
+            <div className={classes.copyrightAndVersion}>
+              <Suspense
+                fallback={
+                  <LoadingSkeleton
+                    className={classes.copyrightSkeleton}
+                    variant="text"
+                  />
+                }
+              >
+                <Copyright />
+              </Suspense>
+              {isNil(platformVersions) ? (
+                <LoadingSkeleton variant="text" width="40%" />
+              ) : (
+                <Typography variant="body2">
+                  v. {platformVersions?.web.version}
+                </Typography>
+              )}
+            </div>
+          </>
+        </WallpaperPage>
+      </Suspense>
     </div>
   );
 };
 
-export default LoginPage;
+export default memo(LoginPage, T);

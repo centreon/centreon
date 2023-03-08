@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
@@ -13,11 +13,18 @@ import {
   reject,
   path,
   pathEq,
-  equals
+  equals,
+  prop
 } from 'ramda';
 import { useUpdateAtom } from 'jotai/utils';
 
-import { useRequest, useSnackbar, getData } from '@centreon/ui';
+import {
+  useSnackbar,
+  useFetchQuery,
+  Method,
+  useMutationQuery,
+  ResponseError
+} from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
@@ -26,46 +33,83 @@ import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInf
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 
-import postLogin from './api';
-import { providersConfigurationDecoder, redirectDecoder } from './api/decoder';
+import {
+  loginConfigurationDecoder,
+  providersConfigurationDecoder,
+  redirectDecoder
+} from './api/decoder';
 import {
   labelLoginSucceeded,
   labelPasswordHasExpired
 } from './translatedLabels';
-import { providersConfigurationEndpoint } from './api/endpoint';
+import {
+  loginConfigurationEndpoints,
+  loginEndpoint,
+  providersConfigurationEndpoint
+} from './api/endpoint';
 import {
   LoginFormValues,
   Redirect,
   RedirectAPI,
-  ProviderConfiguration
+  ProviderConfiguration,
+  LoginConfiguration
 } from './models';
 
 interface UseLoginState {
+  loginConfiguration: LoginConfiguration;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
-  sendLogin: (values) => Promise<Redirect>;
+  sendLogin: (payload: unknown) => Promise<Redirect | ResponseError>;
   submitLoginForm: (
     values: LoginFormValues,
     { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ) => void;
 }
 
+const getForcedProviders = filter<ProviderConfiguration>(
+  (provider): boolean =>
+    not(isNil(provider.isForced)) &&
+    (provider.isForced as boolean) &&
+    not(equals(provider.name, 'local'))
+);
+
+const getExternalProviders = reject<ProviderConfiguration>(
+  propEq('name', 'local')
+);
+
+const getActiveProviders = filter<ProviderConfiguration>(
+  propEq('isActive', true)
+);
+
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
-  const [providersConfiguration, setProvidersConfiguration] =
-    useState<Array<ProviderConfiguration> | null>(null);
 
-  const { sendRequest: sendLogin } = useRequest<Redirect>({
+  const { mutateAsync: sendLogin } = useMutationQuery({
     decoder: redirectDecoder,
+    getEndpoint: () => loginEndpoint,
     httpCodesBypassErrorSnackbar: [401],
-    request: postLogin
+    method: Method.POST
   });
 
-  const { sendRequest: getProvidersConfiguration } = useRequest<
-    Array<ProviderConfiguration>
-  >({
+  const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
-    request: getData
+    getEndpoint: () => providersConfigurationEndpoint,
+    getQueryKey: () => ['providerConfiguration'],
+    queryOptions: {
+      refetchOnMount: false,
+      suspense: false
+    }
+  });
+
+  const { data: loginConfigurationData } = useFetchQuery<LoginConfiguration>({
+    decoder: loginConfigurationDecoder,
+    getEndpoint: () => loginConfigurationEndpoints,
+    getQueryKey: () => ['loginConfiguration'],
+    httpCodesBypassErrorSnackbar: [404],
+    queryOptions: {
+      retry: false,
+      suspense: false
+    }
   });
 
   const { getInternalTranslation, getExternalTranslation } =
@@ -114,10 +158,12 @@ const useLogin = (): UseLoginState => {
       login: values.alias,
       password: values.password
     })
-      .then(({ redirectUri }) => {
+      .then((response) => {
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().finally(() =>
-          loadUser()?.then(() => navigate(redirectUri))
+        getInternalTranslation().then(() =>
+          loadUser()?.then(() =>
+            navigate(prop('redirectUri', response as Redirect))
+          )
         );
       })
       .catch((error) =>
@@ -131,41 +177,34 @@ const useLogin = (): UseLoginState => {
     getExternalTranslation().then(() =>
       i18n.changeLanguage?.(getBrowserLocale())
     );
-
-    getProvidersConfiguration({
-      endpoint: providersConfigurationEndpoint
-    }).then((providers) => {
-      const forcedProviders = filter<ProviderConfiguration>(
-        (provider): boolean =>
-          not(isNil(provider.isForced)) &&
-          (provider.isForced as boolean) &&
-          not(equals(provider.name, 'local')),
-        providers || []
-      );
-
-      if (not(isEmpty(forcedProviders))) {
-        window.location.replace(forcedProviders[0].authenticationUri);
-
-        return;
-      }
-
-      const externalProviders = reject<ProviderConfiguration>(
-        propEq('name', 'local'),
-        providers
-      );
-
-      const activeProviders = filter<ProviderConfiguration>(
-        propEq('isActive', true),
-        externalProviders || []
-      );
-
-      setProvidersConfiguration(activeProviders);
-    });
   }, []);
 
+  const forcedProviders = getForcedProviders(providers || []);
+
+  const externalProviders = getExternalProviders(providers || []);
+
+  const activeProviders = getActiveProviders(externalProviders || []);
+
+  const initialConfiguration: LoginConfiguration = {
+    customText: null,
+    iconSource: null,
+    imageSource: null,
+    platformName: null,
+    textPosition: null
+  };
+
+  const loginConfiguration = loginConfigurationData || initialConfiguration;
+
+  useEffect(() => {
+    if (not(isEmpty(forcedProviders))) {
+      window.location.replace(forcedProviders[0].authenticationUri);
+    }
+  }, [forcedProviders]);
+
   return {
+    loginConfiguration,
     platformInstallationStatus,
-    providersConfiguration,
+    providersConfiguration: activeProviders,
     sendLogin,
     submitLoginForm
   };

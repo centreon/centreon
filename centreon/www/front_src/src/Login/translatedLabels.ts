@@ -10,3 +10,4 @@ export const labelHideThePassword = 'Hide the password';
 export const labelOr = 'or';
 export const labelLoginWith = 'Login with';
 export const labelPasswordHasExpired = 'Password has expired';
+export const labelCentreonWallpaper = 'Centreon wallpaper';

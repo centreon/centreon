@@ -30,6 +30,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     flexDirection: 'column',
     justifyItems: 'center',
+    maxWidth: '60%',
     minWidth: theme.spacing(30),
     padding: theme.spacing(4, 5),
     rowGap: theme.spacing(4)
