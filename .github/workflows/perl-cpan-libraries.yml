@@ -49,6 +49,8 @@ jobs:
             "Digest::SHA1",
             "Email::Send::SMTP::Gmail",
             "EV",
+            "FFI::CheckLib",
+            "FFI::Platypus",
             "File::SearchPath",
             "Hash::Merge",
             "HTTP::Daemon",
@@ -102,6 +104,10 @@ jobs:
             package_extension: deb
             image: packaging-bullseye
           - name: "EV"
+            build_deb: "false"
+          - name: "FFI::CheckLib"
+            build_deb: "false"
+          - name: "FFI::Platypus"
             build_deb: "false"
           - name: "JSON::Path"
             version: "1.0.3"
