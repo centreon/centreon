@@ -110,7 +110,7 @@ jobs:
             build_deb: "false"
           - name: "FFI::Platypus"
             build_deb: "false"
-            rpm_provides: "FFI::Platypus::Memory,FFI::Platypus::Buffer"
+            rpm_provides: "perl(FFI::Platypus::Buffer),perl(FFI::Platypus::Memory)"
           - name: "JSON::Path"
             version: "1.0.3"
           - name: "ZMQ::FFI"
