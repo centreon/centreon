@@ -15532,3 +15532,6 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""

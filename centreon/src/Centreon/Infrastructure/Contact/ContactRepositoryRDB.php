@@ -57,7 +57,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
             t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
-            LEFT JOIN centreon.contact as template
+            LEFT JOIN `:db`.contact as template
                 ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
@@ -91,7 +91,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
             t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
-            LEFT JOIN centreon.contact as template
+            LEFT JOIN `:db`.contact as template
                 ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
@@ -124,7 +124,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
             t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
-            LEFT JOIN centreon.contact as template
+            LEFT JOIN `:db`.contact as template
                 ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
@@ -156,7 +156,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
             t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
-            LEFT JOIN centreon.contact as template
+            LEFT JOIN `:db`.contact as template
                 ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
@@ -195,7 +195,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
                 t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
                 FROM `:db`.contact
-                LEFT JOIN centreon.contact as template
+                LEFT JOIN `:db`.contact as template
                     ON contact.contact_template_id = template.contact_id
                 LEFT JOIN `:db`.contact_password cp
                     ON cp.contact_id = contact.contact_id

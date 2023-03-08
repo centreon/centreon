@@ -69,6 +69,13 @@ jobs:
         run: pnpm test:ci
         working-directory: ${{ env.directory }}
 
+      - name: Upload snapshot diff output results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.centreon_directory }}-images-snapshots-diff-output
+          path: ${{ env.directory }}/src/__image_snapshots__/__diff_output__/
+
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: [lint, unit-test, check-package-version]
