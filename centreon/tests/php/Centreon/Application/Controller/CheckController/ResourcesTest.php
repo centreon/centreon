@@ -209,7 +209,7 @@ class ResourcesTest extends TestCase
             ->setCheckTime(new \DateTime())
             ->setForced(true);
 
-        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource]), $check);
+        $view = $sut->checkResources($request, $this->mockSerializerWithResources([$hostResource], $check));
 
         $this->assertEquals($view, View::create());
     }
