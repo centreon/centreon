@@ -359,9 +359,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
          */
         if ($errorIsBeforeController) {
             if ($event->getThrowable()->getCode() >= 500) {
-                $errorCode = $event->getThrowable()->getCode() > 0
-                    ? $event->getThrowable()->getCode()
-                    : Response::HTTP_INTERNAL_SERVER_ERROR;
+                $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
             } elseif ($event->getThrowable() instanceof NotFoundHttpException) {
                 $errorCode = Response::HTTP_NOT_FOUND;
