@@ -33,8 +33,8 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 make pure_install PERL_INSTALL_ROOT=$RPM_BUILD_ROOT
-find $RPM_BUILD_ROOT -type f -name '*.bs' -a -size 0 -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} ';'
+find $RPM_BUILD_ROOT -type f -name '*.bs' -a -size 0 -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type d -depth -exec rmdir {} 2>/dev/null ';'
 %{_fixperms} $RPM_BUILD_ROOT/*
 
