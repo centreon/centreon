@@ -2382,8 +2382,8 @@ msgid "Recurrent downtimes"
 msgstr "Tiempos de parada recurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de Supervisión"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -3056,8 +3056,8 @@ msgid "Performance Management"
 msgstr "Gestión de datos de rendimiento."
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
