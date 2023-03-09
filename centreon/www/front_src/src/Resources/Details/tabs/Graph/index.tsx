@@ -104,6 +104,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
                 displayModal
                 modalData={modalData}
                 path="/anomaly-detection"
+                styleMenuSkeleton={{ height: 0, width: 0 }}
               />
             }
             renderAdditionalLines={({

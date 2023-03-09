@@ -51,7 +51,7 @@ const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
-    display: 'inline',
+    display: 'flex',
     flexDirection: 'row'
   }
 }));
@@ -141,22 +141,22 @@ const GraphActions = ({
         <>
           <IconButton
             disableTouchRipple
-            ariaLabel={t(labelPerformancePage)}
+            ariaLabel={t(labelPerformancePage) as string}
             color="primary"
             data-testid={labelPerformancePage}
             size="small"
-            title={t(labelPerformancePage)}
+            title={t(labelPerformancePage) as string}
             onClick={goToPerformancePage}
           >
             <LaunchIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             disableTouchRipple
-            ariaLabel={t(labelExport)}
+            ariaLabel={t(labelExport) as string}
             data-testid={labelExport}
             disabled={isNil(timeline)}
             size="small"
-            title={t(labelExport)}
+            title={t(labelExport) as string}
             onClick={openSizeExportMenu}
           >
             <SaveAsImageIcon fontSize="inherit" />
@@ -166,6 +166,7 @@ const GraphActions = ({
               displayButtonConfiguration
               buttonConfigurationData={{ resource }}
               path="/anomaly-detection"
+              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
             />
             {renderAdditionalGraphActions}
           </>
