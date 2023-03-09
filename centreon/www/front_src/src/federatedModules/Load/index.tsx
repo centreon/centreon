@@ -6,7 +6,6 @@ import { isEmpty } from 'ramda';
 import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import NotFoundPage from '../../FallbackPages/NotFoundPage';
-import memoizeComponent from '../../Resources/memoizedComponent';
 
 import loadComponent from './loadComponent';
 
@@ -97,11 +96,6 @@ const LoadComponent = ({
     </Suspense>
   );
 };
-
-const MemoizedLoadComponent = memoizeComponent<LoadComponentProps>({
-  Component: LoadComponent,
-  memoProps: ['name', 'component', 'isFederatedModule']
-});
 
 interface RemoteProps extends LoadComponentProps {
   moduleName: string;

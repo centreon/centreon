@@ -51,6 +51,7 @@ const FederatedModules = ({
 };
 
 interface LoadableComponentsContainerProps {
+  [props: string]: unknown;
   path: string;
 }
 

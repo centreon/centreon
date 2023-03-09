@@ -91,7 +91,7 @@ const CustomTimePeriodPickers = ({
   acceptDate,
   isCompact: isMinimalWidth
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ isMinimalWidth });
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] =
     useState<AnchorReference['anchorEl']>(undefined);
@@ -111,7 +111,7 @@ const CustomTimePeriodPickers = ({
   return (
     <>
       <Button
-        aria-label={t(labelCompactTimePeriod)}
+        aria-label={t(labelCompactTimePeriod) as string}
         className={classes.button}
         color="primary"
         data-testid={labelCompactTimePeriod}
