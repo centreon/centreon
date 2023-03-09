@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DesktopDateTimePicker } from '@mui/x-date-pickers';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -30,6 +30,7 @@ const renderDateTimePickerTextField =
       <TextField
         // eslint-disable-next-line react/no-unstable-nested-components
         EndAdornment={(): JSX.Element => <div>{InputProps?.endAdornment}</div>}
+        dataTestId="calendar"
         inputProps={{
           ...inputProps,
           ref: inputRef,
@@ -91,11 +92,14 @@ const DateTimePickerInput = ({
   };
 
   return (
-    <DateTimePicker<dayjs.Dayjs>
+    <DesktopDateTimePicker<dayjs.Dayjs>
       hideTabs
       PopperProps={{
         open: isOpen
       }}
+      dayOfWeekFormatter={(day: string): string =>
+        day.substring(0, 2).toUpperCase()
+      }
       disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
