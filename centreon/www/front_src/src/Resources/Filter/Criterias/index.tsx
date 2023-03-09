@@ -72,7 +72,7 @@ const CriteriasContent = (): JSX.Element => {
 
   return (
     <PopoverMenu
-      canOpen={allowPopoverToOpen}
+      canOpen={canOpenPopover}
       icon={<TuneIcon fontSize="small" />}
       popperPlacement="bottom-start"
       title={t(labelSearchOptions) as string}
