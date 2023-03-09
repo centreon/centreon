@@ -39,8 +39,8 @@ const useStyles = makeStyles()((theme) => ({
 const CriteriasContent = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const openedItem = useAtomValue(hoveredNavigationItemsAtom);
-  const allowPopoverToOpen = isNil(openedItem);
+  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
