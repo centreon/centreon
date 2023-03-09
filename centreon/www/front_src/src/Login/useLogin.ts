@@ -18,13 +18,7 @@ import {
 } from 'ramda';
 import { useUpdateAtom } from 'jotai/utils';
 
-import {
-  useSnackbar,
-  useFetchQuery,
-  Method,
-  useMutationQuery,
-  ResponseError
-} from '@centreon/ui';
+import { useSnackbar, useFetchQuery } from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
@@ -35,8 +29,7 @@ import useInitializeTranslation from '../Main/useInitializeTranslation';
 
 import {
   loginConfigurationDecoder,
-  providersConfigurationDecoder,
-  redirectDecoder
+  providersConfigurationDecoder
 } from './api/decoder';
 import {
   labelLoginSucceeded,
@@ -44,7 +37,6 @@ import {
 } from './translatedLabels';
 import {
   loginConfigurationEndpoints,
-  loginEndpoint,
   providersConfigurationEndpoint
 } from './api/endpoint';
 import {
@@ -54,12 +46,12 @@ import {
   ProviderConfiguration,
   LoginConfiguration
 } from './models';
+import usePostLogin from './usePostLogin';
 
 interface UseLoginState {
   loginConfiguration: LoginConfiguration;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
-  sendLogin: (payload: unknown) => Promise<Redirect | ResponseError>;
   submitLoginForm: (
     values: LoginFormValues,
     { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
@@ -84,12 +76,7 @@ const getActiveProviders = filter<ProviderConfiguration>(
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
 
-  const { mutateAsync: sendLogin } = useMutationQuery({
-    decoder: redirectDecoder,
-    getEndpoint: () => loginEndpoint,
-    httpCodesBypassErrorSnackbar: [401],
-    method: Method.POST
-  });
+  const { sendLogin } = usePostLogin();
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
@@ -205,7 +192,6 @@ const useLogin = (): UseLoginState => {
     loginConfiguration,
     platformInstallationStatus,
     providersConfiguration: activeProviders,
-    sendLogin,
     submitLoginForm
   };
 };
