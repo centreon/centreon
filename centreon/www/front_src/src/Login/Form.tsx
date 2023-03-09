@@ -93,6 +93,7 @@ const LoginForm = (): JSX.Element => {
         ariaLabel={labelPassword}
         error={passwordError}
         inputProps={{
+          'aria-label': t(labelPassword) as string,
           autocomplete: 'new-password'
         }}
         label={t(labelPassword)}

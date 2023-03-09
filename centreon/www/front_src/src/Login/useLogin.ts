@@ -11,14 +11,12 @@ import {
   not,
   propEq,
   reject,
-  path,
-  pathEq,
   equals,
   prop
 } from 'ramda';
 import { useUpdateAtom } from 'jotai/utils';
 
-import { useSnackbar, useFetchQuery } from '@centreon/ui';
+import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
@@ -83,6 +81,10 @@ const defaultLoginPageCustomisation: LoginPageCustomisation = {
   textPosition: null
 };
 
+export const router = {
+  useNavigate
+};
+
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
 
@@ -117,7 +119,7 @@ const useLogin = (): UseLoginState => {
 
   const { showSuccessMessage, showWarningMessage, showErrorMessage } =
     useSnackbar();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const loadUser = useUser();
 
   const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
@@ -127,10 +129,10 @@ const useLogin = (): UseLoginState => {
 
   const checkPasswordExpiration = useCallback(
     ({ error, alias, setSubmitting }) => {
-      const isUserNotAllowed = pathEq(['response', 'status'], 401, error);
+      const isUserNotAllowed = propEq('statusCode', 401, error);
 
-      const { password_is_expired: passwordIsExpired } = path(
-        ['response', 'data'],
+      const { password_is_expired: passwordIsExpired } = prop(
+        'additionalInformation',
         error
       ) as RedirectAPI;
 
@@ -145,7 +147,7 @@ const useLogin = (): UseLoginState => {
       }
 
       setSubmitting(false);
-      showErrorMessage(path(['response', 'data', 'message'], error) as string);
+      showErrorMessage(prop('message', error) as string);
     },
     []
   );
@@ -159,6 +161,15 @@ const useLogin = (): UseLoginState => {
       password: values.password
     })
       .then((response) => {
+        if ((response as ResponseError).isError) {
+          checkPasswordExpiration({
+            alias: values.alias,
+            error: response as ResponseError,
+            setSubmitting
+          });
+
+          return;
+        }
         showSuccessMessage(t(labelLoginSucceeded));
         getInternalTranslation().then(() =>
           loadUser()?.then(() =>
