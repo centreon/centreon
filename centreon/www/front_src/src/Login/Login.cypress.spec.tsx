@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { replace } from 'ramda';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import Sinon from 'cypress/types/sinon';
 
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
@@ -109,7 +108,7 @@ const TestComponent = (): JSX.Element => (
   </BrowserRouter>
 );
 
-const mountComponentAndStubs = (): Cypress.Agent<Sinon.SinonStub> => {
+const mountComponentAndStubs = (): unknown => {
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -268,6 +267,7 @@ describe('Login Page', () => {
     cy.contains(labelInvalidCredentials)
       .should('be.visible')
       .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 
@@ -351,6 +351,7 @@ describe('Login Page', () => {
     cy.contains(labelError)
       .should('be.visible')
       .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 

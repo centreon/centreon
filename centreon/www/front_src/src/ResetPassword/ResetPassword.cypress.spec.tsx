@@ -1,7 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'jotai';
 import { replace } from 'ramda';
-import Sinon from 'cypress/types/sinon';
 
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
@@ -43,7 +42,7 @@ const retrievedLogin = {
 
 const mountComponentAndStub = (
   initialValues: unknown = resetPasswordInitialValues
-): Cypress.Agent<Sinon.SinonStub> => {
+): unknown => {
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
