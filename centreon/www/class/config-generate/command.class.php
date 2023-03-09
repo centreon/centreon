@@ -117,7 +117,6 @@ class Command extends AbstractObject
         $command_line = str_replace("\n", " \\\n", $command_line);
         $command_line = str_replace("\r", "", $command_line);
 
-        error_log(sprintf("isCentreonCloudPlatform: %s, isVaultEnabled: %s", $this->isCentreonCloudPlatform, $this->isVaultEnabled));
         if (
             $this->isCentreonCloudPlatform
             && $this->isVaultEnabled
