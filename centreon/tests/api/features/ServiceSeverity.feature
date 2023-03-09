@@ -13,7 +13,7 @@ Feature:
     """
     SC;ADD;severity1;service-severity-alias
     SC;setparam;severity1;sc_activate;1
-    SC;setseverity;severity1;42;logos/centreon.png
+    SC;setseverity;severity1;42;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/services/severities'
@@ -45,9 +45,9 @@ Feature:
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
-    SC;setseverity;service-sev1;1;logos/centreon.png
+    SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
     SC;ADD;service-sev2;service-sev2-alias
-    SC;setseverity;service-sev2;2;logos/centreon.png
+    SC;setseverity;service-sev2;2;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localservice.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -90,9 +90,9 @@ Feature:
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
-    SC;setseverity;service-sev1;1;logos/centreon.png
+    SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
     SC;ADD;service-sev2;service-sev2-alias
-    SC;setseverity;service-sev2;2;logos/centreon.png
+    SC;setseverity;service-sev2;2;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localservice.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -143,7 +143,7 @@ Feature:
     And the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
-    SC;setseverity;service-sev1;1;logos/centreon.png
+    SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/services/severities'
@@ -179,7 +179,7 @@ Feature:
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
-    SC;setseverity;service-sev1;1;logos/centreon.png
+    SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localservice.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -208,7 +208,7 @@ Feature:
     Given the following CLAPI import data:
     """
     SC;ADD;service-sev1;service-sev1-alias
-    SC;setseverity;service-sev1;1;logos/centreon.png
+    SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localservice.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
