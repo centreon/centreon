@@ -26,7 +26,7 @@ Feature:
     """
     {
       "check": {
-        "is_forced": true
+        "is_forced": false
       },
       "resources": [
         {
@@ -68,7 +68,7 @@ Feature:
     """
     {
       "check": {
-        "is_forced": false
+        "is_forced": true
       },
       "resources": [
         {
