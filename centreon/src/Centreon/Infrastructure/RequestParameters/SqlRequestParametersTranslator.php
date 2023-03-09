@@ -28,6 +28,8 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Utility\SqlConcatenator;
 
+/* REMOVE ME */
+
 /**
  * @package Centreon\Infrastructure\RequestParameters
  */
