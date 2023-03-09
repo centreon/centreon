@@ -155,12 +155,12 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
             $this->translateDbName(
                 <<<SQL
                 SELECT vi.*, vid.dir_name AS `img_dir`
-                    FROM `view_img` AS `vi`
+                    FROM `:db`.`view_img` AS `vi`
                 LEFT JOIN `:db`.`view_img_dir_relation` AS `vidr`
                     ON vi.img_id = vidr.img_img_id
                 LEFT JOIN `:db`.`view_img_dir` AS `vid`
                     ON vid.dir_id = vidr.dir_dir_parent_id
-                WHERE view_img.img_id = :id
+                WHERE vi.img_id = :id
                 SQL
             )
         );
@@ -168,7 +168,7 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
         $statement->execute();
 
         $icon = null;
-        if ($row = $statement->fetch(\PDO::FETCH_ASSOC) !== false) {
+        if (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $icon = new Icon();
             $icon
                 ->setId((int) $row['img_id'])
