@@ -1,8 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'jotai';
 import { replace } from 'ramda';
+import Sinon from 'cypress/types/sinon';
 
-import { SnackbarProvider } from '@centreon/ui';
+import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
@@ -42,7 +43,7 @@ const retrievedLogin = {
 
 const mountComponentAndStub = (
   initialValues: unknown = resetPasswordInitialValues
-): void => {
+): Cypress.Agent<Sinon.SinonStub> => {
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -50,11 +51,13 @@ const mountComponentAndStub = (
     Component: (
       <BrowserRouter>
         <SnackbarProvider>
-          <Provider
-            initialValues={[[passwordResetInformationsAtom, initialValues]]}
-          >
-            <ResetPassword />
-          </Provider>
+          <TestQueryProvider>
+            <Provider
+              initialValues={[[passwordResetInformationsAtom, initialValues]]}
+            >
+              <ResetPassword />
+            </Provider>
+          </TestQueryProvider>
         </SnackbarProvider>
       </BrowserRouter>
     )
