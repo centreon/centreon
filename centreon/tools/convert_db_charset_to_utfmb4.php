@@ -22,13 +22,13 @@
 
 
 require_once(__DIR__ . '/../bootstrap.php');
+require _CENTREON_ETC_ . '/centreon.conf.php';
 $pearDB = new CentreonDB("centreon");
 $pearDBO = new CentreonDB("centstorage");
 
-convertCharset("centreon", $pearDB, "security_token");
+convertCharset(db, $pearDB, "security_token");
 
-convertCharset("centreon_storage", $pearDBO);
-
+convertCharset(dbcstg, $pearDBO);
 
 function convertCharset($dbName, $db, $excluded_table = "")
 {
