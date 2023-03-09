@@ -4,7 +4,6 @@ which is higher than version A, within the same MAJOR.
 
 Background:
 Given an admin user with valid non-default credentials
-And a database root user with valid non-default credentials
 And a system user root
 
 Scenario: Administrator performs a platform update procedure

@@ -11,7 +11,7 @@ const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
 };
 
 const setDatabaseUserRootDefaultCredentials = (): Cypress.Chainable => {
-  const query = `FLUSH PRIVILEGES;ALTER USER 'root'@'localhost' IDENTIFIED BY '${nonDefaultPassword}';FLUSH PRIVILEGES;`;
+  const query = `ALTER USER 'root'@'localhost' IDENTIFIED BY '${nonDefaultPassword}';`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
@@ -32,8 +32,25 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const installEnginStatusWidget = (): Cypress.Chainable => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "dnf -y install centreon-widget-engine-status"`
+    )
+    .then(({ stdout }): Cypress.Chainable<null> | null => {
+      if (stdout) {
+        return null;
+      }
+
+      throw new Error(`Cannot download engine status widget.`);
+    });
+};
+
 export {
   setUserAdminDefaultCredentials,
   setDatabaseUserRootDefaultCredentials,
-  checkIfSystemUserRoot
+  checkIfSystemUserRoot,
+  installEnginStatusWidget
 };
