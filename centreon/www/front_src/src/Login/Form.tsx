@@ -92,6 +92,9 @@ const LoginForm = (): JSX.Element => {
         StartAdornment={LockIcon}
         ariaLabel={labelPassword}
         error={passwordError}
+        inputProps={{
+          autocomplete: 'new-password'
+        }}
         label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
         value={passwordValue || ''}
