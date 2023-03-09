@@ -1,4 +1,4 @@
-import { FC, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 import { isNil } from 'ramda';
@@ -30,14 +30,14 @@ const useStyles = makeStyles<Pick<Props, 'width' | 'height' | 'variant'>>()(
   })
 );
 
-const ImageContent: FC<Omit<Props, 'fallback'>> = ({
+const ImageContent = ({
   alt,
   className,
   height,
   width,
   imagePath,
   variant = ImageVariant.Cover
-}) => {
+}: Omit<Props, 'fallback'>): JSX.Element => {
   const { classes, cx } = useStyles({ height, variant, width });
   const image = useLoadImage({ alt, imageSrc: imagePath });
   image.read();

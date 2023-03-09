@@ -1,6 +1,10 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { LoginConfiguration, ProviderConfiguration, Redirect } from '../models';
+import {
+  LoginPageCustomisation,
+  ProviderConfiguration,
+  Redirect
+} from '../models';
 
 export const redirectDecoder = JsonDecoder.object<Redirect>(
   {
@@ -30,23 +34,24 @@ const providerConfigurationDecoder = JsonDecoder.object<ProviderConfiguration>(
   }
 );
 
-export const loginConfigurationDecoder = JsonDecoder.object<LoginConfiguration>(
-  {
-    customText: JsonDecoder.nullable(JsonDecoder.string),
-    iconSource: JsonDecoder.nullable(JsonDecoder.string),
-    imageSource: JsonDecoder.nullable(JsonDecoder.string),
-    platformName: JsonDecoder.nullable(JsonDecoder.string),
-    textPosition: JsonDecoder.nullable(JsonDecoder.string)
-  },
-  'Provider Condifugration',
-  {
-    customText: 'custom_text',
-    iconSource: 'icon_source',
-    imageSource: 'image_source',
-    platformName: 'platform_name',
-    textPosition: 'text_position'
-  }
-);
+export const loginPageCustomisationDecoder =
+  JsonDecoder.object<LoginPageCustomisation>(
+    {
+      customText: JsonDecoder.nullable(JsonDecoder.string),
+      iconSource: JsonDecoder.nullable(JsonDecoder.string),
+      imageSource: JsonDecoder.nullable(JsonDecoder.string),
+      platformName: JsonDecoder.nullable(JsonDecoder.string),
+      textPosition: JsonDecoder.nullable(JsonDecoder.string)
+    },
+    'Provider Condifugration',
+    {
+      customText: 'custom_text',
+      iconSource: 'icon_source',
+      imageSource: 'image_source',
+      platformName: 'platform_name',
+      textPosition: 'text_position'
+    }
+  );
 
 export const providersConfigurationDecoder = JsonDecoder.array(
   providerConfigurationDecoder,

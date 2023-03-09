@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
+import { isNil } from 'ramda';
 
 import { Paper } from '@mui/material';
 
@@ -10,7 +11,7 @@ import LoadingSkeleton from '../LoadingSkeleton';
 interface WallpaperPageProps {
   children: ReactElement;
   wallpaperAlt: string;
-  wallpaperSource: string;
+  wallpaperSource: string | null;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -49,14 +50,18 @@ const WallpaperPage = ({
 }: WallpaperPageProps): JSX.Element => {
   const { classes } = useStyles();
 
+  const hasWallpaperSource = !isNil(wallpaperSource);
+
   return (
     <div>
-      <Image
-        alt={wallpaperAlt}
-        className={classes.wallpaper}
-        fallback={<LoadingSkeleton />}
-        imagePath={wallpaperSource}
-      />
+      {hasWallpaperSource && (
+        <Image
+          alt={wallpaperAlt}
+          className={classes.wallpaper}
+          fallback={<LoadingSkeleton className={classes.wallpaper} />}
+          imagePath={wallpaperSource}
+        />
+      )}
       <div className={classes.contentBackground}>
         <Paper className={classes.contentPaper}>{children}</Paper>
       </div>

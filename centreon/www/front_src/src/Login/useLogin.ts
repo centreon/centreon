@@ -26,9 +26,10 @@ import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
+import centreonLogo from '../assets/logo-centreon-colors.svg';
 
 import {
-  loginConfigurationDecoder,
+  loginPageCustomisationDecoder,
   providersConfigurationDecoder
 } from './api/decoder';
 import {
@@ -36,7 +37,7 @@ import {
   labelPasswordHasExpired
 } from './translatedLabels';
 import {
-  loginConfigurationEndpoints,
+  loginPageCustomisationEndpoint,
   providersConfigurationEndpoint
 } from './api/endpoint';
 import {
@@ -44,12 +45,13 @@ import {
   Redirect,
   RedirectAPI,
   ProviderConfiguration,
-  LoginConfiguration
+  LoginPageCustomisation
 } from './models';
 import usePostLogin from './usePostLogin';
+import useWallpaper from './useWallpaper';
 
 interface UseLoginState {
-  loginConfiguration: LoginConfiguration;
+  loginPageCustomisation: LoginPageCustomisation;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
   submitLoginForm: (
@@ -73,6 +75,14 @@ const getActiveProviders = filter<ProviderConfiguration>(
   propEq('isActive', true)
 );
 
+const defaultLoginPageCustomisation: LoginPageCustomisation = {
+  customText: null,
+  iconSource: null,
+  imageSource: null,
+  platformName: null,
+  textPosition: null
+};
+
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
 
@@ -88,19 +98,22 @@ const useLogin = (): UseLoginState => {
     }
   });
 
-  const { data: loginConfigurationData } = useFetchQuery<LoginConfiguration>({
-    decoder: loginConfigurationDecoder,
-    getEndpoint: () => loginConfigurationEndpoints,
-    getQueryKey: () => ['loginConfiguration'],
-    httpCodesBypassErrorSnackbar: [404],
-    queryOptions: {
-      retry: false,
-      suspense: false
-    }
-  });
+  const { data: loginPageCustomisationData, isLoading } =
+    useFetchQuery<LoginPageCustomisation>({
+      decoder: loginPageCustomisationDecoder,
+      getEndpoint: () => loginPageCustomisationEndpoint,
+      getQueryKey: () => ['loginPageCustomisation'],
+      httpCodesBypassErrorSnackbar: [404],
+      queryOptions: {
+        retry: false,
+        suspense: false
+      }
+    });
 
   const { getInternalTranslation, getExternalTranslation } =
     useInitializeTranslation();
+
+  const wallpaper = useWallpaper();
 
   const { showSuccessMessage, showWarningMessage, showErrorMessage } =
     useSnackbar();
@@ -172,24 +185,32 @@ const useLogin = (): UseLoginState => {
 
   const activeProviders = getActiveProviders(externalProviders || []);
 
-  const initialConfiguration: LoginConfiguration = {
-    customText: null,
-    iconSource: null,
-    imageSource: null,
-    platformName: null,
-    textPosition: null
-  };
-
-  const loginConfiguration = loginConfigurationData || initialConfiguration;
+  const loginPageCustomisation: LoginPageCustomisation = isLoading
+    ? defaultLoginPageCustomisation
+    : {
+        customText:
+          loginPageCustomisationData?.customText ||
+          defaultLoginPageCustomisation.customText,
+        iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
+        imageSource: loginPageCustomisationData?.imageSource || wallpaper,
+        platformName:
+          loginPageCustomisationData?.platformName ||
+          defaultLoginPageCustomisation.platformName,
+        textPosition:
+          loginPageCustomisationData?.textPosition ||
+          defaultLoginPageCustomisation.textPosition
+      };
 
   useEffect(() => {
-    if (not(isEmpty(forcedProviders))) {
-      window.location.replace(forcedProviders[0].authenticationUri);
+    if (isEmpty(forcedProviders)) {
+      return;
     }
+
+    window.location.replace(forcedProviders[0].authenticationUri);
   }, [forcedProviders]);
 
   return {
-    loginConfiguration,
+    loginPageCustomisation,
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm

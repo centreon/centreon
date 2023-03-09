@@ -3,42 +3,32 @@ import { lazy, memo, Suspense } from 'react';
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
-import { isNil, T } from 'ramda';
+import { equals, isNil, T } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Stack, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
-import {
-  LoadingSkeleton,
-  WallpaperPage,
-  Image,
-  RichTextEditor
-} from '@centreon/ui';
+import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
-import backgroundImage from '../assets/centreon-wallpaper-xl.jpg';
 
 import useValidationSchema from './validationSchema';
 import { LoginFormValues } from './models';
 import useLogin from './useLogin';
-import { labelCentreonWallpaper, labelLogin } from './translatedLabels';
-import Logo from './Logo';
+import {
+  labelCentreonWallpaper,
+  labelLogin,
+  labelPoweredByCentreon
+} from './translatedLabels';
+import CustomText from './CustomText';
 
 const ExternalProviders = lazy(() => import('./ExternalProviders'));
-
-const Copyright = lazy(() => import('./Copyright'));
-
 const LoginForm = lazy(() => import('./Form'));
+const LoginHeader = lazy(() => import('./LoginHeader'));
 
 const useStyles = makeStyles()((theme) => ({
-  copyrightAndVersion: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: theme.spacing(0.5)
-  },
   copyrightSkeleton: {
     width: theme.spacing(16)
   },
@@ -61,6 +51,12 @@ const useStyles = makeStyles()((theme) => ({
     minWidth: theme.spacing(30),
     padding: theme.spacing(4, 5),
     rowGap: theme.spacing(4)
+  },
+  poweredByAndVersion: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: theme.spacing(0.5)
   }
 }));
 
@@ -74,7 +70,7 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
-  const { submitLoginForm, providersConfiguration, loginConfiguration } =
+  const { submitLoginForm, providersConfiguration, loginPageCustomisation } =
     useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
@@ -91,64 +87,16 @@ const LoginPage = (): JSX.Element => {
       <Suspense fallback={<LoadingSkeleton />}>
         <WallpaperPage
           wallpaperAlt={t(labelCentreonWallpaper)}
-          wallpaperSource={
-            !isNil(loginConfiguration.imageSource)
-              ? loginConfiguration.imageSource
-              : backgroundImage
-          }
+          wallpaperSource={loginPageCustomisation.imageSource}
         >
           <>
-            <Stack
-              direction={{ sm: 'row', xs: 'column' }}
-              spacing={{ md: 4, sm: 2, xs: 1 }}
-            >
-              <Suspense
-                fallback={
-                  <LoadingSkeleton height={60} variant="text" width={250} />
-                }
-              >
-                {!isNil(loginConfiguration.iconSource) ? (
-                  <Image
-                    alt="login icon platform"
-                    fallback={
-                      <LoadingSkeleton height={60} variant="text" width={250} />
-                    }
-                    height={50}
-                    imagePath={loginConfiguration?.iconSource}
-                    width={50}
-                  />
-                ) : (
-                  <Logo />
-                )}
-              </Suspense>
-              <Typography variant="h4">
-                {!isNil(loginConfiguration.platformName) &&
-                  loginConfiguration.platformName}
-              </Typography>
-            </Stack>
-            <Suspense
-              fallback={
-                <LoadingSkeleton height={30} variant="text" width={115} />
-              }
-            >
-              {!isNil(loginConfiguration.customText) &&
-                loginConfiguration.textPosition === 'top' && (
-                  <RichTextEditor
-                    editable={false}
-                    editorState={loginConfiguration?.customText}
-                    minInputHeight={0}
-                    namespace="PreviewTop"
-                  />
-                )}
+            <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
+              <LoginHeader loginPageCustomisation={loginPageCustomisation} />
             </Suspense>
-
-            <Suspense
-              fallback={
-                <LoadingSkeleton height={30} variant="text" width={115} />
-              }
-            >
-              <Typography variant="h5">{t(labelLogin)}</Typography>
-            </Suspense>
+            {equals(loginPageCustomisation.textPosition, 'top') && (
+              <CustomText loginPageCustomisation={loginPageCustomisation} />
+            )}
+            <Typography variant="h5">{t(labelLogin)}</Typography>
             <div>
               <Formik<LoginFormValues>
                 validateOnMount
@@ -176,26 +124,13 @@ const LoginPage = (): JSX.Element => {
                 </Suspense>
               )}
             </div>
-            {!isNil(loginConfiguration.customText) &&
-              loginConfiguration.textPosition === 'bottom' && (
-                <RichTextEditor
-                  editable={false}
-                  editorState={loginConfiguration?.customText}
-                  minInputHeight={0}
-                  namespace="PreviewBottom"
-                />
-              )}
-            <div className={classes.copyrightAndVersion}>
-              <Suspense
-                fallback={
-                  <LoadingSkeleton
-                    className={classes.copyrightSkeleton}
-                    variant="text"
-                  />
-                }
-              >
-                <Copyright />
-              </Suspense>
+            {equals(loginPageCustomisation.textPosition, 'bottom') && (
+              <CustomText loginPageCustomisation={loginPageCustomisation} />
+            )}
+            <div className={classes.poweredByAndVersion}>
+              <Typography variant="body2">
+                {t(labelPoweredByCentreon)}
+              </Typography>
               {isNil(platformVersions) ? (
                 <LoadingSkeleton variant="text" width="40%" />
               ) : (

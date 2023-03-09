@@ -26,7 +26,7 @@ export interface ProviderConfiguration {
   name: string;
 }
 
-export interface LoginConfiguration {
+export interface LoginPageCustomisation {
   customText: string | null;
   iconSource: string | null;
   imageSource: string | null;
