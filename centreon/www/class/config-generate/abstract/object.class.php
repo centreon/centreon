@@ -85,7 +85,7 @@ abstract class AbstractObject
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (isset($result) && $result['value'] === 'yes') {
+        if (is_array($result) && $result['value'] === 'yes') {
             $this->isCentreonCloudPlatform = true;
         } else {
             $this->isCentreonCloudPlatform = false;
