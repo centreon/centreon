@@ -18,16 +18,10 @@ runs:
   using: "composite"
   steps:
     - if: ${{ inputs.format == 'php-junit' }}
-      uses: EnricoMi/publish-unit-test-result-action@v2
+      uses: ./.github/actions/publish-unit-test-result
       with:
+        path: "${{ inputs.path }}"
         check_name: "${{ inputs.check_name }}"
-        comment_mode: off
-        compare_to_earlier_commit: false
-        ignore_runs: true
-        check_run_annotations: none
-        job_summary: false
-        junit_files: "${{ inputs.path }}"
-        fail_on: nothing
 
     - if: ${{ inputs.format == 'cypress' }}
       uses: ./.github/actions/publish-cypress-report
@@ -35,7 +29,13 @@ runs:
         path: "${{ inputs.path }}"
         urlFilePrefix: "${{ inputs.urlFilePrefix }}"
 
-    - if: ${{ inputs.format != 'php-junit' && inputs.format != 'cypress' }}
+    - if: ${{ inputs.format == 'eslint' }}
+      uses: ./.github/actions/publish-lint-report
+      with:
+        path: ${{ inputs.path }}
+        check_name: ${{ inputs.check_name }}
+
+    - if: ${{ inputs.format != 'php-junit' && inputs.format != 'eslint' && inputs.format != 'cypress' }}
       uses: dorny/test-reporter@v1
       with:
         name: "${{ inputs.check_name }}"                  # Name of the check run which will be created

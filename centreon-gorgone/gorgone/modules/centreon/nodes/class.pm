@@ -28,10 +28,9 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use MIME::Base64;
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -98,7 +97,7 @@ sub check_debug {
     my $debug_gorgone = 0;
     $debug_gorgone = $datas->[0]->[0] if (defined($datas->[0]->[0]));
     if (!defined($self->{debug_gorgone}) || $self->{debug_gorgone} != $debug_gorgone) {
-        $self->send_internal_action(action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } );
+        $self->send_internal_action({ action => 'BCASTLOGGER', data => { content => { severity => $map_values->{$debug_gorgone} } } });
     }
 
     $self->{debug_gorgone} = $debug_gorgone;
@@ -197,9 +196,9 @@ sub action_centreonnodessync {
         }
     }
 
-    $self->send_internal_action(action => 'SETCOREID', data => { id => $core_id } ) if (defined($core_id));
-    $self->send_internal_action(action => 'REGISTERNODES', data => { nodes => $register_nodes } );
-    $self->send_internal_action(action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } );
+    $self->send_internal_action({ action => 'SETCOREID', data => { id => $core_id } }) if (defined($core_id));
+    $self->send_internal_action({ action => 'REGISTERNODES', data => { nodes => $register_nodes } });
+    $self->send_internal_action({ action => 'UNREGISTERNODES', data => { nodes => $unregister_nodes } });
 
     $self->{logger}->writeLogDebug("[nodes] Finish resync");
     $self->send_log(code => GORGONE_ACTION_FINISH_OK, token => $options{token}, data => { message => 'action nodesresync finished' });
@@ -208,29 +207,23 @@ sub action_centreonnodessync {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+sub periodic_exec {
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[nodes] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
+    if ($self->{stop} == 1) {
+        $self->{logger}->writeLogInfo("[nodes] -class- $$ has quit");
+        exit(0);
+    }
 
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+    if (time() - $self->{resync_time} > $self->{last_resync_time}) {
+        $self->{last_resync_time} = time();
+        $self->action_centreonnodessync();
     }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Database creation. We stay in the loop still there is an error
     $self->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
         user => $self->{config_db_centreon}->{username},
@@ -238,41 +231,26 @@ sub run {
         force => 0,
         logger => $self->{logger}
     );
-    ##### Load objects #####
     $self->{class_object} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-nodes',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'CENTREONNODESREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[nodes] -class- $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
+    });
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_centreonnodessync();
-        }
-    }
+    $self->periodic_exec();
+
+    my $watcher_timer = $self->{loop}->timer(5, 5, sub { $self->periodic_exec() } );
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

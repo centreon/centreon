@@ -59,7 +59,7 @@ $release = $dbResult->fetchRow();
                     <a href="https://centreon.github.io/">community</a>
                 </td>
                 <td style="text-align: center" rowspan="3">
-                    <img src="./img/centreon.png" alt="logo centreon" />
+                    <div id="centreonLogo" />
                 </td>
             </tr>
             <tr>

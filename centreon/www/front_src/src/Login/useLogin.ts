@@ -26,24 +26,18 @@ import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInf
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 
-import postLogin from './api';
-import { providersConfigurationDecoder, redirectDecoder } from './api/decoder';
+import { providersConfigurationDecoder } from './api/decoder';
 import {
   labelLoginSucceeded,
   labelPasswordHasExpired
 } from './translatedLabels';
 import { providersConfigurationEndpoint } from './api/endpoint';
-import {
-  LoginFormValues,
-  Redirect,
-  RedirectAPI,
-  ProviderConfiguration
-} from './models';
+import { LoginFormValues, RedirectAPI, ProviderConfiguration } from './models';
+import usePostLogin from './usePostLogin';
 
 interface UseLoginState {
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
-  sendLogin: (values) => Promise<Redirect>;
   submitLoginForm: (
     values: LoginFormValues,
     { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
@@ -55,11 +49,7 @@ const useLogin = (): UseLoginState => {
   const [providersConfiguration, setProvidersConfiguration] =
     useState<Array<ProviderConfiguration> | null>(null);
 
-  const { sendRequest: sendLogin } = useRequest<Redirect>({
-    decoder: redirectDecoder,
-    httpCodesBypassErrorSnackbar: [401],
-    request: postLogin
-  });
+  const { sendLogin } = usePostLogin();
 
   const { sendRequest: getProvidersConfiguration } = useRequest<
     Array<ProviderConfiguration>
@@ -166,7 +156,6 @@ const useLogin = (): UseLoginState => {
   return {
     platformInstallationStatus,
     providersConfiguration,
-    sendLogin,
     submitLoginForm
   };
 };

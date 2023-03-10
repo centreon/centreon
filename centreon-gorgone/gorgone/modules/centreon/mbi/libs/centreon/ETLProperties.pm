@@ -52,7 +52,7 @@ sub getProperties {
     my (%etlProperties, %dataRetention);
 
     my $query = "SELECT `opt_key`, `opt_value` FROM `mod_bi_options` WHERE `opt_key` like 'etl.%'";
-    my $sth = $self->{centreon}->query($query);
+    my $sth = $self->{centreon}->query({ query => $query });
     while (my $row = $sth->fetchrow_hashref()) {
         if ($row->{opt_key} =~ /etl.retention.(.*)/) {
             $dataRetention{$1} = $row->{opt_value};
@@ -86,7 +86,7 @@ sub getMaxRetentionPeriodFor {
     $query .= "  date_format(DATE_ADD(NOW(), INTERVAL MAX(CAST(`opt_value` as SIGNED INTEGER))*-1 DAY), '%Y-%m-%d') as period_start";
     $query .= " FROM `mod_bi_options` ";
     $query .= " WHERE `opt_key` IN ('etl.retention.".$type.".hourly','etl.retention.".$type.".daily', 'etl.retention.".$type.".raw')";
-    my $sth = $self->{centreon}->query($query);
+    my $sth = $self->{centreon}->query({ query => $query });
 
     if (my $row = $sth->fetchrow_hashref()) {
         return ($row->{period_start}, $row->{period_end});
@@ -105,7 +105,7 @@ sub getRetentionPeriods {
     $query .= " opt_key ";
     $query .= " FROM `mod_bi_options` ";
     $query .= " WHERE `opt_key` like ('etl.retention.%')";
-    my $sth = $self->{centreon}->query($query);
+    my $sth = $self->{centreon}->query({ query => $query });
     my %periods = ();
     while (my $row = $sth->fetchrow_hashref()) {
         $row->{'opt_key'} =~ s/etl.retention.//; 

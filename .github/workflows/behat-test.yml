@@ -45,7 +45,7 @@ jobs:
     needs: [behat-test-list]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.behat-test-list.outputs.features) }}
     name: ${{ matrix.feature }}

@@ -34,9 +34,8 @@ Depends:
   libauthen-simple-net-perl,
   libnet-curl-perl,
   libssh-session-perl,
-  libzmq-constants-perl,
-  libzmq5,
-  zmq-libzmq4-perl,
+  libev-perl,
+  libzmq-ffi-perl,
   sudo,
   ${shlibs:Depends},
   ${misc:Depends}
