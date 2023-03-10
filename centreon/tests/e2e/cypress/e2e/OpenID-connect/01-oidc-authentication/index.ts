@@ -95,7 +95,8 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    cy.logout().reload();
+    cy.get('[aria-label="Profile"]').click();
+    cy.contains('Logout').click();
   }
 );
 
