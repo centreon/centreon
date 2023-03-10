@@ -222,11 +222,7 @@ class CentreonLogAction
         $query = "SELECT name FROM hosts WHERE host_id = " . $host_id;
         $DBRESULT3 = $pearDBO->query($query);
         $info = $DBRESULT3->fetchRow();
-        if (isset($info['name'])) {
-            return $info['name'];
-        }
-
-        return -1;
+        return $info['name'] ?? -1;
     }
 
     public function getHostGroupName($hg_id)
