@@ -212,12 +212,20 @@ class CentreonLogAction
             return $info['host_name'];
         }
 
-        $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = $host_id";
+        $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = " . $host_id;
         $DBRESULT2 = $pearDBO->query($query);
         $info = $DBRESULT2->fetchRow();
         if (isset($info['object_name'])) {
             return $info['object_name'];
         }
+        
+        $query = "SELECT name FROM hosts WHERE host_id = " . $host_id;
+        $DBRESULT3 = $pearDBO->query($query);
+        $info = $DBRESULT3->fetchRow();
+        if (isset($info['name'])) {
+            return $info['name'];
+        }
+
         return -1;
     }
 
