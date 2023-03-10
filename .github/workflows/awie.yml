@@ -32,7 +32,7 @@ jobs:
   package:
     needs: [get-version]
 
-    #if: ${{ contains('refs/head/master', github.ref) }}
+    if: ${{ contains('refs/head/master', github.ref) }}
 
     strategy:
       fail-fast: true
