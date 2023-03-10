@@ -26,7 +26,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import {
   MenuSkeleton,
-  postData,
   getData,
   useRequest,
   useSnackbar,
@@ -190,7 +189,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const refreshTimeout = useRef<NodeJS.Timeout>();
   const userIconRef = useRef<SVGSVGElement | null>(null);
   const { sendRequest: logoutRequest } = useRequest({
-    request: postData
+    request: getData
   });
   const { sendRequest } = useRequest<UserData>({
     request: getData
@@ -224,7 +223,6 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
 
   const logout = (): void => {
     logoutRequest({
-      data: {},
       endpoint: logoutEndpoint
     }).then(() => {
       setAreUserParametersLoaded(false);
