@@ -2383,7 +2383,7 @@ msgstr "Tiempos de parada recurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
 msgid "Monitoring Connectors"
-msgstr "Conectores de Supervisión"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
