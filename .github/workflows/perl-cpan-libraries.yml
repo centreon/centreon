@@ -114,6 +114,8 @@ jobs:
             version: "1.0.3"
           - name: "ZMQ::FFI"
             build_deb: "false"
+            rpm_dependencies: "zeromq"
+            deb_dependencies: "libzmq5"
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
