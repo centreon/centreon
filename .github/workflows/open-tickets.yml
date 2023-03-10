@@ -68,8 +68,6 @@ jobs:
     strategy:
       matrix:
         distrib: [el8, el9]
-        include:
-          - module_name: open-tickets
 
     steps:
       - name: Checkout sources
@@ -78,7 +76,6 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
@@ -99,9 +96,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        include:
-          - module_name: open-tickets
-            distrib: bullseye
+        distrib: [bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -109,7 +104,6 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}

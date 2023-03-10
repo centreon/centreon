@@ -129,7 +129,6 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: lua-curl
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: 0

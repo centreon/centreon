@@ -55,8 +55,6 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: widget-${{ inputs.widget_name }}
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
@@ -86,8 +84,6 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: ${{ inputs.widget_name }}
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
           nexus_username: ${{ secrets.nexus_username }}
