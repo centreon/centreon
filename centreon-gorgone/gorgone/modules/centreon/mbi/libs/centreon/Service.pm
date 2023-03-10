@@ -61,14 +61,13 @@ sub getServicesWithHostAndCategory {
     my (@results);
 	# getting services linked to hosts
 	my $query = "SELECT service_description, service_id, host_id, service_template_model_stm_id as tpl".
-				" FROM host, service, host_service_relation".
-				" WHERE host_id = host_host_id and service_service_id = service_id".
-				" AND service_register = '1'".
-				" AND host_activate = '1'".
-				" AND service_activate = '1'";
-				
+        " FROM host, service, host_service_relation".
+        " WHERE host_id = host_host_id and service_service_id = service_id".
+        " AND service_register = '1'".
+        " AND host_activate = '1'".
+        " AND service_activate = '1'";
 
-	my $sth = $centreon->query($query);
+	my $sth = $centreon->query({ query => $query });
     while(my $row = $sth->fetchrow_hashref()) {
     	# getting all host entries
     	my $serviceHostTable = $hosts->{$row->{"host_id"}};
@@ -102,16 +101,16 @@ sub getServicesWithHostAndCategory {
 	}
 	#getting services linked to hostgroup
 	$query = "SELECT DISTINCT service_description, service_id, host_id, service_template_model_stm_id as tpl".
-			" FROM host, service, host_service_relation hr, hostgroup_relation hgr".
-			" WHERE  hr.hostgroup_hg_id is not null".
-			" AND hr.service_service_id = service_id".
-			" AND hr.hostgroup_hg_id = hgr.hostgroup_hg_id".
-			" AND hgr.host_host_id = host_id".
-			" AND service_register = '1'".
-			" AND host_activate = '1'".
-			" AND service_activate = '1'";
-			
-	$sth = $centreon->query($query);
+        " FROM host, service, host_service_relation hr, hostgroup_relation hgr".
+        " WHERE  hr.hostgroup_hg_id is not null".
+        " AND hr.service_service_id = service_id".
+        " AND hr.hostgroup_hg_id = hgr.hostgroup_hg_id".
+        " AND hgr.host_host_id = host_id".
+        " AND service_register = '1'".
+        " AND host_activate = '1'".
+        " AND service_activate = '1'";
+
+	$sth = $centreon->query({ query => $query });
     while(my $row = $sth->fetchrow_hashref()) {
 		# getting all host entries
     	my $serviceHostTable = $hosts->{$row->{"host_id"}};
@@ -153,7 +152,7 @@ sub getServicesTemplatesCategories {
 	my %results = ();
 	
 	my $query = "SELECT service_id, service_description, service_template_model_stm_id FROM service WHERE service_register = '0'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
     while(my $row = $sth->fetchrow_hashref()) {
 		my $currentTemplate = $row->{"service_id"};
 		my $categories = $self->getServiceCategories($row->{"service_id"});
@@ -165,7 +164,7 @@ sub getServicesTemplatesCategories {
 				my $parentQuery = "SELECT service_id, service_template_model_stm_id ";
 				$parentQuery .= "FROM service ";
 				$parentQuery .= "WHERE service_register = '0' and service_id=".$parentId;
-				my $sthparentQuery = $db->query($parentQuery);
+				my $sthparentQuery = $db->query({ query => $parentQuery });
 	   			if(my $parentQueryRow = $sthparentQuery->fetchrow_hashref()) {
 	   				my $newCategories = $self->getServiceCategories($parentQueryRow->{"service_id"});
 	   				while(my ($sc_id, $sc_name) = each(%$newCategories)) {
@@ -204,7 +203,7 @@ sub getServiceCategories {
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
 		$query .= " AND sc.sc_id IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	while(my $row = $sth->fetchrow_hashref()) {
 	 	$results{$row->{"sc_id"}} = $row->{"sc_name"};
 	}

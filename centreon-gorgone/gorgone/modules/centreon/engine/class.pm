@@ -28,8 +28,7 @@ use JSON::XS;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -227,7 +226,7 @@ sub action_run {
         return -1;
     }
 
-    zmq_close($socket_log);
+    $socket_log->close();
 }
 
 sub create_child {
@@ -266,48 +265,46 @@ sub create_child {
 }
 
 sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[engine] Event: $message");
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
+
+        $self->{logger}->writeLogDebug("[engine] Event: $message");
 
         if ($message !~ /^\[ACK\]/) {
-            $connector->create_child(message => $message);
-        }        
+            $self->create_child(message => $message);
+        }
+    }
+}
+
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[engine] $$ has quit");
+        exit(0);
     }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-engine',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'ENGINEREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[engine] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    });
+
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

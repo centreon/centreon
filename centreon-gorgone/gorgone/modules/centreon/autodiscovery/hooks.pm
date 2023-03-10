@@ -70,20 +70,20 @@ sub routing {
     }
     
     if (gorgone::class::core::waiting_ready(ready => \$autodiscovery->{ready}) == 0) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { msg => 'gorgoneautodiscovery: still no ready' },
             json_encode => 1
-        );
+        });
         return undef;
     }
     
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-autodiscovery',
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }

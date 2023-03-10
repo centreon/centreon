@@ -44,7 +44,7 @@ sub createTables {
     my ($etl, $periods, $options, $notTimedTables) = @_;
 
     #Creating all centreon bi tables exept the one already created
-    my $sth = $etl->{run}->{dbmon_centstorage_con}->query("SHOW TABLES LIKE 'mod_bi_%'");
+    my $sth = $etl->{run}->{dbmon_centstorage_con}->query({ query => "SHOW TABLES LIKE 'mod_bi_%'" });
     while (my @row = $sth->fetchrow_array()) {
         my $name = $row[0];
         if (!$biTables->tableExists($name)) { 
@@ -82,7 +82,7 @@ sub createTables {
     }
 
     my $tables = join('|', @$notTimedTables);
-    $sth = $etl->{run}->{dbmon_centstorage_con}->query("SHOW TABLES LIKE 'mod_bam_reporting_%'");
+    $sth = $etl->{run}->{dbmon_centstorage_con}->query({ query => "SHOW TABLES LIKE 'mod_bam_reporting_%'" });
     while (my @row = $sth->fetchrow_array()) {
         my $name = $row[0];
         next if ($name =~ /^(?:$tables)$/);
@@ -115,7 +115,7 @@ sub extractData {
         push @{$action->{sql}}, [ "[CREATE] Add table [$name]", $structure ];
         if ($name eq 'hoststateevents' || $name eq 'servicestateevents') {
             # add drop indexes
-            my $indexes = $etl->{run}->{dbmon_centstorage_con}->query("SHOW INDEX FROM " . $name);
+            my $indexes = $etl->{run}->{dbmon_centstorage_con}->query({ query => "SHOW INDEX FROM " . $name });
             my $previous = '';
             while (my $row = $indexes->fetchrow_hashref()) {
                 if ($row->{Key_name} ne $previous) {
@@ -330,7 +330,7 @@ sub selectTables {
         }
     }
 
-	my $sth = $etl->{run}->{dbmon_centreon_con}->query("SELECT id FROM modules_informations WHERE name='centreon-bam-server'");
+	my $sth = $etl->{run}->{dbmon_centreon_con}->query({ query => "SELECT id FROM modules_informations WHERE name='centreon-bam-server'" });
 	if (my $row = $sth->fetchrow_array() && $etlProperties->{'statistics.type'} ne 'perfdata') {
             push @notTimedTables, "mod_bam_reporting_ba_availabilities";
 			push @notTimedTables, "mod_bam_reporting_ba";

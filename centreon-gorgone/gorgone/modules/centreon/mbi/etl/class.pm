@@ -28,8 +28,6 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use XML::LibXML::Simple;
 use JSON::XS;
 use gorgone::modules::centreon::mbi::libs::Messages;
@@ -38,6 +36,7 @@ use gorgone::modules::centreon::mbi::etl::event::main;
 use gorgone::modules::centreon::mbi::etl::perfdata::main;
 use gorgone::modules::centreon::mbi::libs::centreon::ETLProperties;
 use Try::Tiny;
+use EV;
 
 use constant NONE => 0;
 use constant RUNNING => 1;
@@ -174,7 +173,7 @@ sub db_parse_xml {
 sub execute_action {
     my ($self, %options) = @_;
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -184,7 +183,7 @@ sub execute_action {
                 timeout => 43200
             }
         ]
-    );
+    });
 
     my $content =  {
         dbmon => $self->{run}->{dbmon},
@@ -201,14 +200,14 @@ sub execute_action {
         $content->{options} = $self->{run}->{options};
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $options{action},
         token => $self->{module_id} . '-' . $self->{run}->{token} . '-' . $options{substep},
         data => {
             instant => 1,
             content => $content
         }
-    );
+    });
 }
 
 sub watch_etl_event {
@@ -767,7 +766,7 @@ sub action_centreonmbietlkill {
 
     $self->{logger}->writeLogDebug('[mbi-etl] kill sent to the module etlworkers');
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'KILL',
         token => $options{token},
         data => {
@@ -775,7 +774,7 @@ sub action_centreonmbietlkill {
                 package => 'gorgone::modules::centreon::mbi::etlworkers::hooks'
             }
         }
-    );
+    });
 
     # RUNNING or STOP
     $self->send_log(
@@ -847,56 +846,34 @@ sub action_centreonmbietlstatus {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
 
-        $connector->{logger}->writeLogDebug("[mbi-etl] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
 
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[" . $connector->{module_id} . "] $$ has quit");
+        exit(0);
     }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-' . $self->{module_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'CENTREONMBIETLREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        }
-    ];
+    });
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[" . $self->{module_id} . "] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;
