@@ -27,11 +27,10 @@ use warnings;
 use gorgone::class::db;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use gorgone::modules::centreon::judge::type::distribute;
 use gorgone::modules::centreon::judge::type::spare;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -384,25 +383,6 @@ sub action_judgelistener {
     return 1;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[judge] -class- event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
-    }
-}
-
 sub check_alive {
     my ($self, %options) = @_;
 
@@ -493,12 +473,12 @@ sub add_pipeline_config_reload_poller {
         };
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDPIPELINE',
         token => $options{token},
         timeout => $options{pipeline_timeout},
         data => $actions
-    );
+    });
 }
 
 sub test_types {
@@ -534,27 +514,31 @@ sub test_types {
     );
 }
 
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[judge] -class- $$ has quit");
+        exit(0);
+    }
+
+    $connector->check_alive();
+    $connector->test_types();
+}
+
 sub run {
     my ($self, %options) = @_;
 
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-judge',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $connector->send_internal_action({
         action => 'JUDGEREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
     $self->{db_centstorage} = gorgone::class::db->new(
         dsn => $self->{config_db_centstorage}->{dsn},
@@ -584,17 +568,9 @@ sub run {
         logger => $self->{logger}
     );
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[judge] -class- $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-
-        $self->check_alive();
-        $self->test_types();
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

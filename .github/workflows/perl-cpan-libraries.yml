@@ -48,6 +48,9 @@ jobs:
             "Digest::MD5::File",
             "Digest::SHA1",
             "Email::Send::SMTP::Gmail",
+            "EV",
+            "FFI::CheckLib",
+            "FFI::Platypus",
             "File::SearchPath",
             "Hash::Merge",
             "HTTP::Daemon",
@@ -81,13 +84,14 @@ jobs:
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
-            "YAML::LibYAML",
-            "ZMQ::Constants",
-            "ZMQ::LibZMQ4",
+            "ZMQ::FFI",
           ]
         include:
+          - build_rpm: "true"
+          - build_deb: "true"
           - rpm_dependencies: ""
           - deb_dependencies: ""
+          - rpm_provides: ""
           - version: ""
           - use_dh_make_perl: "true"
           - distrib: el8
@@ -99,13 +103,17 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "EV"
+            build_deb: "false"
+          - name: "FFI::CheckLib"
+            build_deb: "false"
+          - name: "FFI::Platypus"
+            build_deb: "false"
+            rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
           - name: "JSON::Path"
             version: "1.0.3"
-          - name: "ZMQ::LibZMQ4"
-            rpm_dependencies: "zeromq"
-            deb_dependencies: "libzmq5"
-            version: "0.01"
-            use_dh_make_perl: "false"
+          - name: "ZMQ::FFI"
+            build_deb: "false"
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
@@ -127,7 +135,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - if: ${{ matrix.package_extension == 'rpm' }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
@@ -149,14 +157,22 @@ jobs:
             done
           fi
 
+          if [ -z "${{ matrix.rpm_provides }}" ]; then
+            PACKAGE_PROVIDES=""
+          else
+            for PACKAGE_PROVIDE in `echo "${{ matrix.rpm_provides }}"`; do
+              PACKAGE_PROVIDES="$PACKAGE_PROVIDES --provides $PACKAGE_PROVIDE"
+            done
+          fi
+
           cpanm Module::Build::Tiny
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
@@ -183,7 +199,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
         run: |
           apt update
           apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev libmodule-install-perl
@@ -196,11 +212,6 @@ jobs:
 
           DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build $PACKAGE_VERSION --cpan ${{ matrix.name }}
         shell: bash
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.${{ matrix.package_extension }}
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: actions/upload-artifact@v3
         with:

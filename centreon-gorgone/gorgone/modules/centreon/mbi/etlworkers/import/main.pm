@@ -33,9 +33,9 @@ sub sql {
     foreach (@{$options{params}->{sql}}) {
         $etlwk->{messages}->writeLog('INFO', $_->[0]);
         if ($options{params}->{db} eq 'centstorage') {
-            $etlwk->{dbbi_centstorage_con}->query($_->[1]);
+            $etlwk->{dbbi_centstorage_con}->query({ query => $_->[1] });
         } elsif ($options{params}->{db} eq 'centreon') {
-            $etlwk->{dbbi_centreon_con}->query($_->[1]);
+            $etlwk->{dbbi_centreon_con}->query({ query => $_->[1] });
         }
     }
 }
@@ -75,9 +75,9 @@ sub load {
     command($etlwk, params => { command => $options{params}->{dump}, message => $options{params}->{message} });
 
     if ($options{params}->{db} eq 'centstorage') {
-        $etlwk->{dbbi_centstorage_con}->query($options{params}->{load});
+        $etlwk->{dbbi_centstorage_con}->query({ query => $options{params}->{load} });
     } elsif ($options{params}->{db} eq 'centreon') {
-        $etlwk->{dbbi_centreon_con}->query($options{params}->{load});
+        $etlwk->{dbbi_centreon_con}->query({ query => $options{params}->{load} });
     }
 
     unlink($options{params}->{file});

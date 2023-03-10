@@ -20,24 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/actions/frontend-lint
         with:
-          version: 7
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: ${{ env.centreon_directory }}
-
-      - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
-        working-directory: ${{ env.directory }}
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path:  ${{ env.directory }}/junit.xml
-          format: java-junit
-          check_name: centreon-ui-eslint-report
+          frontend_directory: ${{ env.directory }}
+          installation_directory: ${{ env.centreon_directory }}
+          module_name: centreon-ui
 
   unit-test:
     runs-on: ubuntu-22.04
