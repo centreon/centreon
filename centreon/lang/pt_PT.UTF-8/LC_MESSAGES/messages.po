@@ -12962,7 +12962,7 @@ msgid "Recurrent downtimes"
 msgstr "Manutenções recorrentes"
 
 msgid "Monitoring Connectors"
-msgstr "Conectores de Supervisão"
+msgstr "Conectores de supervisão"
 
 msgid "Manager"
 msgstr "Gerencia"
