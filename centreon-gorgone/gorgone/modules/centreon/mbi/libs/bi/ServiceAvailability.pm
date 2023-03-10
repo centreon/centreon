@@ -112,14 +112,14 @@ sub insertStats {
 		$counter++;
 
         if ($counter >= $insertParam) {
-            $self->{centstorage}->query($query);
+            $self->{centstorage}->query({ query => $query });
             $query = $query_start;
 			$counter = 0;
             $append = '';
 		}
 	}
 
-	$self->{centstorage}->query($query) if ($counter > 0);
+	$self->{centstorage}->query({ query => $query }) if ($counter > 0);
 }
 
 sub getCurrentNbLines {
@@ -157,7 +157,7 @@ sub getHGMonthAvailability {
 	$query .= " STRAIGHT_JOIN mod_bi_servicecategories sc ON (s.sc_id=sc.sc_id AND s.sc_name=sc.sc_name)";
 	$query .= " WHERE t.year = YEAR('".$start."') AND t.month = MONTH('".$start."') and t.hour=0";
 	$query .= " GROUP BY s.hg_id, s.hc_id, s.sc_id, sa.liveservice_id";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 
 	my @data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -213,7 +213,7 @@ sub getHGMonthAvailability_optimised {
 	#hg_id | hc_id | sc_id | liveservice_id | hcat_id | group_id | scat_id | av_percent | av_time    | unav_time | degraded_time | 
 	#unav_opened | unav_closed | deg_opened | deg_closed | other_opened | other_closed | hg_id | hc_id | sc_id | 
 	#modbiliveservice_id | warningEvents | criticalEvents | unknownEvents 
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	
 	my @data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
