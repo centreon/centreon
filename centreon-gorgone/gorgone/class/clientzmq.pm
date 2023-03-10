@@ -261,7 +261,6 @@ sub is_connected {
     return -1;
 }
 
-# TODO PING
 sub ping {
     my ($self, %options) = @_;
     my $status = 0;
