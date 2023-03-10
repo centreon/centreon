@@ -36,9 +36,10 @@ const AutorefreshButton = ({
 
   return (
     <IconButton
-      ariaLabel={t(label)}
+      ariaLabel={t(label) as string}
+      data-testid="Disable autorefresh"
       size="small"
-      title={t(label)}
+      title={t(label) as string}
       onClick={toggleAutorefresh}
     >
       {enabledAutorefresh ? <IconPause /> : <IconPlay />}
@@ -67,7 +68,7 @@ const RefreshActions = ({ onRefresh }: Props): JSX.Element => {
       <Grid item>
         <IconButton
           ariaLabel={t(labelRefresh)}
-          data-testid={labelRefresh}
+          data-testid="Refresh"
           disabled={sending}
           size="small"
           title={t(labelRefresh)}
