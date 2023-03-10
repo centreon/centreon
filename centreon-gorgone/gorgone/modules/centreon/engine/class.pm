@@ -204,8 +204,15 @@ sub action_enginecommand {
 
 sub action_run {
     my ($self, %options) = @_;
-    
+
+    my $context;
+    {
+        local $SIG{__DIE__};
+        $context = ZMQ::FFI->new();
+    }
+
     my $socket_log = gorgone::standard::library::connect_com(
+        context => $context,
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-engine-'. $$,
         logger => $self->{logger},
