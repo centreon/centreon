@@ -1,9 +1,13 @@
-import { Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
+  checkIfConfigurationIsExported,
+  insertHost
+} from '../../Poller-configuration/common';
+import {
   checkIfSystemUserRoot,
-  installEnginStatusWidget,
-  setUserAdminDefaultCredentials
+  setUserAdminDefaultCredentials,
+  updatePlatformPackages
 } from '../common';
 
 beforeEach(() => {
@@ -13,28 +17,35 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_module&action=list'
-  }).as('getCentreonModulesList');
+    url: '/centreon/install/step_upgrade/step1.php'
+  }).as('getStep1');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_administration_widget&action=listInstalled&page_limit=60&page=1'
-  }).as('loadInstalledWidgets');
+    url: '/centreon/install/step_upgrade/step2.php'
+  }).as('getStep2');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/install/step_upgrade/step3.php'
+  }).as('getStep3');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/install/step_upgrade/step4.php'
+  }).as('getStep4');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/install/step_upgrade/step5.php'
+  }).as('getStep5');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/internal.php?object=centreon_module&action=install&id=engine-status&type=widget'
-  }).as('installExtensions');
+    url: '/centreon/install/steps/process/generationCache.php'
+  }).as('generatingCache');
+  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    'monitoringEndpoint'
+  );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/widgets/engine-status/index.php'
-  }).as('getEngineStatusView');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list&page_limit=60&page=1'
-  }).as('loadPollersList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_home_customview&action=listViews'
-  }).as('getCustomViewsList');
+    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+  }).as('generateAndReloadPollers');
 });
 
 Given('an admin user with valid non-default credentials', () => {
@@ -45,97 +56,72 @@ Given('a system user root', () => {
   checkIfSystemUserRoot();
 });
 
-Given('a running platform in version_A with all extensions installed', () => {
-  installEnginStatusWidget();
+Given('a running platform in version_A', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
+});
 
+When('administrator updates packages', () => {
+  updatePlatformPackages();
+});
+
+When('administrator runs the update procedure', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
+
+  cy.wait('@getStep1').then(() => {
+    cy.get('.btc.bt_info').eq(0).click();
+  });
+
+  cy.wait('@getStep2').then(() => {
+    cy.get('.btc.bt_info').eq(0).click();
+  });
+
+  cy.wait('@getStep3').then(() => {
+    cy.get('.btc.bt_info').eq(0).click();
+  });
+
+  cy.wait('@generatingCache').then(() => {
+    cy.get('.btc.bt_info').eq(0).click();
+  });
+
+  cy.wait('@getStep5').then(() => {
+    cy.get('.btc.bt_success').eq(0).click();
+  });
+});
+
+Then('monitoring should be up and running after procedure is complete', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin-with-nondefault-credentials'
   });
 
-  cy.navigateTo({
-    page: 'Manager',
-    rootItemNumber: 4,
-    subMenu: 'Extensions'
-  });
+  cy.url().should('include', '/monitoring/resources');
 
-  cy.wait('@getCentreonModulesList');
+  cy.wait('@monitoringEndpoint').its('response.statusCode').should('eq', 200);
 
-  cy.get('button').eq(8).contains('Install all').click();
+  cy.setUserTokenApiV1('admin-with-nondefault-credentials.json');
+});
 
-  cy.wait('@installExtensions').then(() => {
-    cy.get('.SnackbarContent-root > .MuiPaper-root')
-      .contains('Successful Installation')
-      .should('have.length', 1);
+Given('a successfully updated platform', () => {
+  cy.visit(`${Cypress.config().baseUrl}`);
+
+  cy.loginByTypeOfUser({
+    jsonName: 'admin-with-nondefault-credentials'
   });
 });
 
-Given(
-  'this platform has existing configuration for all the installed extensions',
-  () => {
-    cy.loginByTypeOfUser({
-      jsonName: 'admin'
-    });
+When('administrator exports Poller configuration', () => {
+  insertHost();
 
-    cy.navigateTo({
-      page: 'Custom Views',
-      rootItemNumber: 0
-    });
+  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
 
-    cy.wait('@getCustomViewsList');
+  cy.get('button[data-testid="Export configuration"]').click();
 
-    cy.getIframeBody().find('div[class="toggleEdit"]').eq(0).click();
+  cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
 
-    cy.getIframeBody().find('.cntn > .addView').eq(0).click();
+  cy.wait('@generateAndReloadPollers').then(() => {
+    cy.get('.SnackbarContent-root > .MuiPaper-root')
+      .contains('Configuration exported and reloaded')
+      .should('have.length', 1);
+  });
 
-    cy.getIframeBody()
-      .find('input[name="name"]')
-      .eq(0)
-      .clear()
-      .type('test view');
-
-    cy.getIframeBody().find('input[name="submit"]').eq(0).click();
-
-    cy.getIframeBody().find('.cntn > .addWidget').eq(0).click();
-
-    cy.getIframeBody()
-      .find('input[name="widget_title"]')
-      .eq(0)
-      .clear()
-      .type('Engine status');
-
-    cy.getIframeBody()
-      .find('[name="formAddWidget"] #select2-widget_model_id-container')
-      .eq(0)
-      .click({ force: true });
-
-    cy.wait('@loadInstalledWidgets').then(() => {
-      cy.getIframeBody().find('[title="Engine-status"]').eq(0).click();
-
-      cy.getIframeBody()
-        .find('[name="formAddWidget"] [name="submit"]')
-        .eq(0)
-        .click();
-    });
-
-    cy.wait('@getEngineStatusView').then(() => {
-      cy.getIframeBody().find('.ui-icon.ui-icon-wrench').eq(0).click();
-    });
-
-    cy.getIframeBody()
-      .find('[name="Form"] .select2-selection__rendered')
-      .eq(0)
-      .click({ force: true });
-
-    cy.wait('@loadPollersList').then(() => {
-      cy.getIframeBody().find('[title="Central"]').eq(0).click();
-
-      cy.getIframeBody()
-        .find('[name="Form"] [name="param_2"]')
-        .eq(0)
-        .clear()
-        .type('1');
-
-      cy.getIframeBody().find('[name="Form"] [name="submit"]').eq(0).click();
-    });
-  }
-);
+  checkIfConfigurationIsExported();
+});

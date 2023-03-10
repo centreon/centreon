@@ -35,25 +35,28 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
-  return cy.fixture('users/admin.json').then((userAdmin) => {
-    return cy
-      .request({
-        body: {
-          password: userAdmin.password,
-          username: userAdmin.login
-        },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        method: 'POST',
-        url: `${apiActionV1}?action=authenticate`
-      })
-      .then(({ body }) =>
-        window.localStorage.setItem('userTokenApiV1', body.authToken)
-      );
-  });
-});
+Cypress.Commands.add(
+  'setUserTokenApiV1',
+  (fixtureFile = 'admin'): Cypress.Chainable => {
+    return cy.fixture(`users/${fixtureFile}.json`).then((userAdmin) => {
+      return cy
+        .request({
+          body: {
+            password: userAdmin.password,
+            username: userAdmin.login
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          method: 'POST',
+          url: `${apiActionV1}?action=authenticate`
+        })
+        .then(({ body }) =>
+          window.localStorage.setItem('userTokenApiV1', body.authToken)
+        );
+    });
+  }
+);
 
 Cypress.Commands.add(
   'loginKeycloack',
@@ -179,7 +182,7 @@ declare global {
         database,
         query
       }: requestOnDatabaseProps) => Cypress.Chainable;
-      setUserTokenApiV1: () => Cypress.Chainable;
+      setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }

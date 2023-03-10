@@ -32,19 +32,25 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
-const installEnginStatusWidget = (): Cypress.Chainable => {
+const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .exec(
-      `docker exec -i ${Cypress.env(
+      `docker cp cypress/scripts/platform-update-commands.sh ${Cypress.env(
         'dockerName'
-      )} sh -c "dnf -y install centreon-widget-engine-status"`
+      )}:/tmp/platform-update-commands.sh`
     )
-    .then(({ stdout }): Cypress.Chainable<null> | null => {
-      if (stdout) {
-        return null;
-      }
+    .then(() => {
+      cy.exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} bash /tmp/platform-update-commands.sh`
+      );
 
-      throw new Error(`Cannot download engine status widget.`);
+      cy.exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} chmod 777 -R /var/cache/centreon/symfony/`
+      );
     });
 };
 
@@ -52,5 +58,5 @@ export {
   setUserAdminDefaultCredentials,
   setDatabaseUserRootDefaultCredentials,
   checkIfSystemUserRoot,
-  installEnginStatusWidget
+  updatePlatformPackages
 };
