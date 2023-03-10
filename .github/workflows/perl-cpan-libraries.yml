@@ -84,7 +84,6 @@ jobs:
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
-            "YAML::LibYAML",
             "ZMQ::FFI",
           ]
         include:
@@ -138,7 +137,6 @@ jobs:
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
         run: |
-          set -x
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
