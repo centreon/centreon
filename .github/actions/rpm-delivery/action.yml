@@ -67,7 +67,7 @@ runs:
 
     - name: Publish RPMs
       run: |
-        PROJECT_LOCATIONS=""
+        LOCATIONS=""
         INVALIDATION_PATHS=""
         METADATAS=""
 
@@ -106,15 +106,13 @@ runs:
           TARGET="/srv/centreon-yum/yum.centreon.com/standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/RPMS"
           jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
 
-          echo "[DEBUG] - Folder: $FOLDER"
-          echo "[DEBUG] - Project : $PROJECT"
           echo "[DEBUG] - Target : $TARGET"
 
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
 
-          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH"
-          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/*"
+          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/*"
         done
 
         # Update repository metadata
