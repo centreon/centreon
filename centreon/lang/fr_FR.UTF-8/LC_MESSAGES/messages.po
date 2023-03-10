@@ -2603,7 +2603,7 @@ msgstr "Plages de maintenance récurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
 msgid "Monitoring Connectors"
-msgstr "Connecteurs de Supervision"
+msgstr "Connecteurs de supervision"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
