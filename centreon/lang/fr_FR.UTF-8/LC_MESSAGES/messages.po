@@ -17413,17 +17413,8 @@ msgstr "la communauté"
 msgid "Project leaders"
 msgstr "Responsables du projet"
 
-msgid "Developers"
-msgstr "Développeurs"
-
-msgid "Contributors"
-msgstr "Contributeurs"
-
 msgid "Security acknowledgement"
 msgstr "Remerciements pour la sécurité"
-
-msgid "And many others..."
-msgstr "Et beaucoup d'autres..."
 
 msgid "You can see the full list on the"
 msgstr "Vous pouvez voir la liste complète sur le"
