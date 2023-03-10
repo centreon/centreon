@@ -15986,3 +15986,39 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""

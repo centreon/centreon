@@ -1,7 +1,7 @@
 export const labelCentreon = 'Centreon';
 export const labelDevelopedBy = 'Developed by';
 export const labelAnd = 'and';
-export const labelCommunity = 'community';
+export const labelCommunity = 'the community';
 export const labelProjectLeaders = 'Project leaders';
 export const labelDevelopers = 'Developers';
 export const labelContributors = 'Contributors';
