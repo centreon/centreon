@@ -162,7 +162,7 @@ jobs:
           if [ -z "${{ matrix.rpm_provides }}" ]; then
             PACKAGE_PROVIDES=""
           else
-            for PACKAGE_PROVIDE in `echo ${{ matrix.rpm_provides }}`; do
+            for PACKAGE_PROVIDE in `echo "${{ matrix.rpm_provides }}"`; do
               PACKAGE_PROVIDES="$PACKAGE_PROVIDES --provides $PACKAGE_PROVIDE"
             done
           fi
