@@ -131,8 +131,6 @@ jobs:
           module_name: lua-curl
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: 0
-          release: ${{ needs.get-version.outputs.release }}
           nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
           nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}

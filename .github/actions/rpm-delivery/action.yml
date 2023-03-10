@@ -13,12 +13,6 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
-  minor_version:
-    description: "Centreon packaged version"
-    required: true
-  release:
-    description: The release number
-    required: true
   cache_key:
     description: "The cached package key"
     required: true
@@ -99,8 +93,6 @@ runs:
           echo "[DEBUG] - Arch: $ARCH"
 
           MAJOR=${{ inputs.version }}
-          MINOR=${{ inputs.minor_version }}
-          RELEASE=${{ inputs.release }}
 
           # Delivery with proper repository structure according to stability
           TARGET="/srv/centreon-yum/yum.centreon.com/standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/RPMS"

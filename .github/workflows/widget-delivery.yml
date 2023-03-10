@@ -1,17 +1,7 @@
 on:
   workflow_call:
     inputs:
-      widget_name:
-        required: true
-        type: string
       major_version:
-        required: true
-        type: string
-      minor_version:
-        required: true
-        type: string
-      release:
-        description: The release number
         required: true
         type: string
       stability:
@@ -57,8 +47,6 @@ jobs:
         with:
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
-          minor_version: ${{ inputs.minor_version }}
-          release: ${{ inputs.release }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
           artifactory_token: ${{ secrets.artifactory_token }}
