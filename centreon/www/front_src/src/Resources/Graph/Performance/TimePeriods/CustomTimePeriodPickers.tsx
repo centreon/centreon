@@ -20,7 +20,6 @@ import {
   labelTo
 } from '../../../translatedLabels';
 
-import { AnchorReference } from './models';
 import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
 
 interface AcceptDateProps {
@@ -60,6 +59,9 @@ const useStyles = makeStyles()((theme) => ({
     flex: 1,
     paddingRight: 4
   },
+  error: {
+    textAlign: 'center'
+  },
   fromTo: {
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
@@ -93,8 +95,7 @@ const CustomTimePeriodPickers = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const [anchorEl, setAnchorEl] =
-    useState<AnchorReference['anchorEl']>(undefined);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const { format } = useLocaleDateTimeFormat();
 
@@ -153,13 +154,22 @@ const CustomTimePeriodPickers = ({
         </div>
       </Button>
       <PopoverCustomTimePeriodPickers
-        acceptDate={acceptDate}
-        anchorReference="anchorEl"
-        classNamePicker={classes.picker}
-        customTimePeriod={customTimePeriod}
-        open={displayPopover}
-        reference={{ anchorEl }}
-        onClose={closePopover}
+        customStyle={{
+          classNameError: classes.error,
+          classNamePicker: classes.picker
+        }}
+        pickersData={{
+          acceptDate,
+          customTimePeriod,
+          maxDatePickerStartInput: customTimePeriod.end,
+          minDatePickerEndInput: customTimePeriod.start
+        }}
+        popoverData={{
+          anchorEl,
+          anchorReference: 'anchorEl',
+          onClose: closePopover,
+          open: displayPopover
+        }}
       />
     </>
   );

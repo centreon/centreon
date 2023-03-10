@@ -12,15 +12,13 @@ import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 interface Props {
   changeDate: (props) => void;
-  date: Date | dayjs.Dayjs;
+  date: Date | dayjs.Dayjs | null;
   disabled?: boolean;
   maxDate?: Date | dayjs.Dayjs;
   minDate?: Date | dayjs.Dayjs;
   onClosePicker?: (isClosed: boolean) => void;
   property: CustomTimePeriodProperty;
-  setDate: Dispatch<SetStateAction<Date>>;
-  setWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
-  withoutInitialValue?: boolean;
+  setDate: Dispatch<SetStateAction<Date | null>>;
 }
 
 const renderDateTimePickerTextField =
@@ -48,8 +46,7 @@ const DateTimePickerInput = ({
   property,
   changeDate,
   setDate,
-  withoutInitialValue = false,
-  setWithoutInitialValue,
+
   onClosePicker,
   disabled = false
 }: Props): JSX.Element => {
@@ -62,8 +59,6 @@ const DateTimePickerInput = ({
     newValue: dayjs.Dayjs | null,
     keyBoardValue: string | undefined
   ): void => {
-    setWithoutInitialValue?.(false);
-
     if (isOpen) {
       changeDate({ date: dayjs(newValue).toDate(), property });
 
@@ -105,7 +100,7 @@ const DateTimePickerInput = ({
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
-      value={withoutInitialValue ? null : (date as dayjs.Dayjs)}
+      value={date as dayjs.Dayjs}
       onChange={changeTime}
       onClose={close}
       onOpen={open}

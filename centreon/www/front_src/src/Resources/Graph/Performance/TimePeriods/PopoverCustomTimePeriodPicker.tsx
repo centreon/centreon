@@ -1,26 +1,17 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai/utils';
-import { and, cond, equals } from 'ramda';
+import { and, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import {
-  FormHelperText,
-  Popover,
-  PopoverOrigin,
-  PopoverReference,
-  Typography
-} from '@mui/material';
+import { FormHelperText, Popover, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
 
-import {
-  CustomTimePeriod,
-  CustomTimePeriodProperty
-} from '../../../Details/tabs/Graph/models';
+import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
   labelEndDate,
   labelEndDateGreaterThanStartDate,
@@ -31,12 +22,16 @@ import {
 import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 import DateTimePickerInput from './DateTimePickerInput';
-import { AnchorReference } from './models';
+import {
+  CustomStyle,
+  OriginHorizontalEnum,
+  OriginVerticalEnum,
+  PickersData,
+  PopoverData,
+  anchorReferenceEnum
+} from './models';
 
 const useStyles = makeStyles()((theme) => ({
-  error: {
-    textAlign: 'center'
-  },
   paper: {
     '& .MuiPopover-paper': {
       minWidth: 250,
@@ -45,82 +40,93 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-interface AcceptDateProps {
-  date: Date;
-  property: CustomTimePeriodProperty;
-}
+const defaultPickersData = {
+  disabledPickerEndInput: false,
+  disabledPickerStartInput: false,
+  getIsErrorDatePicker: (): void => undefined,
+  maxDatePickerEndInput: undefined,
+  maxDatePickerStartInput: undefined,
+  minDatePickerEndInput: undefined,
+  minDatePickerStartInput: undefined,
+  onCloseEndPicker: (): void => undefined,
+  onCloseStartPicker: (): void => undefined
+};
 
-interface Props {
-  acceptDate: (props: AcceptDateProps) => void;
-  anchorOrigin?: PopoverOrigin;
-  anchorReference?: PopoverReference;
-  classNameError?: string;
-  classNamePaper?: string;
-  classNamePicker?: string;
-  customTimePeriod: CustomTimePeriod;
-  disabledPickerEndInput?: boolean;
-  disabledPickerStartInput?: boolean;
-  getIsErrorDatePicker?: (value: boolean) => void;
-  maxDatePickerEndInput?: Date | dayjs.Dayjs;
-  maxDatePickerStartInput?: Date;
-  minDatePickerEndInput?: Date;
-  minDatePickerStartInput?: Date;
-  onClose: () => void;
-  onCloseEndPicker?: (isClosed: boolean) => void;
-  onCloseStartPicker?: (isClosed: boolean) => void;
-  open: boolean;
-  pickerEndWithoutInitialValue?: boolean;
-  pickerStartWithoutInitialValue?: boolean;
-  reference?: AnchorReference;
+const defaultPopoverData = {
+  anchorEl: undefined,
+  anchorOrigin: {
+    horizontal: OriginHorizontalEnum.center,
+    vertical: OriginVerticalEnum.top
+  },
+  anchorPosition: undefined,
+  anchorReference: anchorReferenceEnum.none,
+  onClose: (): void => undefined,
+  transformOrigin: {
+    horizontal: OriginHorizontalEnum.center,
+    vertical: OriginVerticalEnum.top
+  }
+};
+
+const defaultCustomStyle = {
+  classNameError: undefined,
+  classNamePaper: undefined,
+  classNamePicker: undefined
+};
+
+export interface Props {
+  customStyle?: CustomStyle;
+  pickersData: PickersData;
+  popoverData: PopoverData;
   renderBody?: JSX.Element;
   renderFooter?: JSX.Element;
   renderTitle?: JSX.Element;
-  setPickerEndWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
-  setPickerStartWithoutInitialValue?: Dispatch<SetStateAction<boolean>>;
-  transformOrigin?: PopoverOrigin;
 }
 
 const PopoverCustomTimePeriodPickers = ({
-  reference,
-  anchorReference = 'none',
-  anchorOrigin = {
-    horizontal: 'center',
-    vertical: 'top'
-  },
-  transformOrigin = {
-    horizontal: 'center',
-    vertical: 'top'
-  },
-  open,
-  classNamePaper,
-  classNamePicker,
-  customTimePeriod,
-  acceptDate,
+  popoverData,
+  customStyle = defaultCustomStyle,
   renderTitle,
   renderBody,
   renderFooter,
-  pickerStartWithoutInitialValue,
-  pickerEndWithoutInitialValue,
-  setPickerStartWithoutInitialValue,
-  setPickerEndWithoutInitialValue,
-  maxDatePickerStartInput = customTimePeriod?.end,
-  minDatePickerStartInput,
-  minDatePickerEndInput = customTimePeriod?.start,
-  maxDatePickerEndInput,
-  classNameError,
-  getIsErrorDatePicker,
-  onCloseStartPicker,
-  onCloseEndPicker,
-  disabledPickerEndInput,
-  disabledPickerStartInput,
-  onClose
+  pickersData
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
-  const [start, setStart] = useState<Date>(customTimePeriod.start);
-  const [error, setError] = useState(false);
-  const [end, setEnd] = useState<Date>(customTimePeriod.end);
+  const { classNamePaper, classNameError, classNamePicker } = customStyle;
+  const {
+    open,
+    onClose,
+    anchorOrigin,
+    transformOrigin,
+    anchorPosition,
+    anchorReference,
+    anchorEl
+  } = {
+    ...defaultPopoverData,
+    ...popoverData
+  };
 
+  const {
+    acceptDate,
+    customTimePeriod,
+    disabledPickerEndInput,
+    disabledPickerStartInput,
+    getIsErrorDatePicker,
+    maxDatePickerEndInput,
+    maxDatePickerStartInput,
+    minDatePickerEndInput,
+    minDatePickerStartInput,
+    onCloseEndPicker,
+    onCloseStartPicker
+  } = { ...defaultPickersData, ...pickersData };
+
+  const [start, setStart] = useState<Date | null>(
+    !isNil(customTimePeriod) ? customTimePeriod.start : null
+  );
+  const [error, setError] = useState(false);
+  const [end, setEnd] = useState<Date | null>(
+    !isNil(customTimePeriod) ? customTimePeriod.end : null
+  );
   const { locale } = useAtomValue(userAtom);
   const { Adapter } = useDateTimePickerAdapter();
 
@@ -129,14 +135,13 @@ const PopoverCustomTimePeriodPickers = ({
 
   const changeDate = ({ property, date }): void => {
     const currentDate = customTimePeriod[property];
-
     cond([
       [
-        (): boolean => equals(CustomTimePeriodProperty.start, property),
+        (): boolean => equals(CustomTimePeriodProperty?.start, property),
         (): void => setStart(date)
       ],
       [
-        (): boolean => equals(CustomTimePeriodProperty.end, property),
+        (): boolean => equals(CustomTimePeriodProperty?.end, property),
         (): void => setEnd(date)
       ]
     ])();
@@ -165,19 +170,11 @@ const PopoverCustomTimePeriodPickers = ({
   }, [customTimePeriod.start, customTimePeriod.end]);
 
   useEffect(() => {
-    if (pickerStartWithoutInitialValue || pickerEndWithoutInitialValue) {
-      return;
-    }
     if (!end || !start) {
       return;
     }
     setError(isInvalidDate({ endDate: end, startDate: start }));
-  }, [
-    end,
-    start,
-    pickerStartWithoutInitialValue,
-    pickerEndWithoutInitialValue
-  ]);
+  }, [end, start]);
 
   useEffect(() => {
     getIsErrorDatePicker?.(error);
@@ -185,9 +182,9 @@ const PopoverCustomTimePeriodPickers = ({
 
   return (
     <Popover
-      anchorEl={reference?.anchorEl}
+      anchorEl={anchorEl}
       anchorOrigin={anchorOrigin}
-      anchorPosition={reference?.anchorPosition}
+      anchorPosition={anchorPosition}
       anchorReference={anchorReference}
       className={cx(classes.paper)}
       open={open}
@@ -201,43 +198,35 @@ const PopoverCustomTimePeriodPickers = ({
           locale={locale.substring(0, 2)}
         >
           <div className={classNamePicker}>
-            <div>
-              <Typography>{t(labelFrom)}</Typography>
-              <div aria-label={t(labelStartDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={start}
-                  disabled={disabledPickerStartInput}
-                  maxDate={maxDatePickerStartInput}
-                  minDate={minDatePickerStartInput}
-                  property={CustomTimePeriodProperty.start}
-                  setDate={setStart}
-                  setWithoutInitialValue={setPickerStartWithoutInitialValue}
-                  withoutInitialValue={pickerStartWithoutInitialValue}
-                  onClosePicker={onCloseStartPicker}
-                />
-              </div>
+            <Typography>{t(labelFrom)}</Typography>
+            <div aria-label={t(labelStartDate) as string}>
+              <DateTimePickerInput
+                changeDate={changeDate}
+                date={start}
+                disabled={disabledPickerStartInput}
+                maxDate={maxDatePickerStartInput}
+                minDate={minDatePickerStartInput}
+                property={CustomTimePeriodProperty.start}
+                setDate={setStart}
+                onClosePicker={onCloseStartPicker}
+              />
             </div>
-            <div>
-              <Typography>{t(labelTo)}</Typography>
-              <div aria-label={t(labelEndDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={end}
-                  disabled={disabledPickerEndInput}
-                  maxDate={maxDatePickerEndInput}
-                  minDate={minDatePickerEndInput}
-                  property={CustomTimePeriodProperty.end}
-                  setDate={setEnd}
-                  setWithoutInitialValue={setPickerEndWithoutInitialValue}
-                  withoutInitialValue={pickerEndWithoutInitialValue}
-                  onClosePicker={onCloseEndPicker}
-                />
-              </div>
+            <Typography>{t(labelTo)}</Typography>
+            <div aria-label={t(labelEndDate) as string}>
+              <DateTimePickerInput
+                changeDate={changeDate}
+                date={end}
+                disabled={disabledPickerEndInput}
+                maxDate={maxDatePickerEndInput}
+                minDate={minDatePickerEndInput}
+                property={CustomTimePeriodProperty.end}
+                setDate={setEnd}
+                onClosePicker={onCloseEndPicker}
+              />
             </div>
           </div>
           {error && (
-            <FormHelperText error className={cx(classes.error, classNameError)}>
+            <FormHelperText error className={classNameError}>
               {t(labelEndDateGreaterThanStartDate)}
             </FormHelperText>
           )}
