@@ -1,30 +1,27 @@
-%define cpan_name ZMQ-LibZMQ4
+%define cpan_name FFI-CheckLib
 
-Name:		perl-ZMQ-LibZMQ4
-Version:	0.01
+Name:		perl-FFI-CheckLib
+Version:	0.31
 Release:	1%{?dist}
-Summary:	A libzmq 4.x wrapper for Perl
+Summary:	Check that a library is available for FFI
 Group:		Development/Libraries
 License:	GPL or Artistic
-URL:		https://metacpan.org/pod/ZMQ::LibZMQ4
-Source0:	https://cpan.metacpan.org/authors/id/M/MO/MOSCONI/%{cpan_name}-%{version}.tar.gz
+URL:		https://metacpan.org/pod/FFI::CheckLib
+Source0:	https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/%{cpan_name}-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  gcc
-BuildRequires:  make
-BuildRequires:  perl(Devel::PPPort)
-BuildRequires:  perl(ExtUtils::MakeMaker)
-BuildRequires:  zeromq-devel
+Provides:       perl(FFI::CheckLib)
 
-Provides:	perl(ZMQ::LibZMQ4)
-Requires:	perl
-Requires:   zeromq
-Requires:   perl(ExtUtils::ParseXS)
-Requires:   perl(ZMQ::Constants)
-AutoReqProv:    no
+BuildRequires:  make
+BuildRequires:  perl(ExtUtils::MakeMaker)
+
+Requires:       perl(File::Which)
+Requires:       perl(List::Util)
 
 %description
-The ZMQ::LibZMQ4 module is a wrapper of the 0MQ message passing library for Perl.
+This module checks whether a particular dynamic library is available for FFI to use. It is modeled heavily on Devel::CheckLib, but will find dynamic libraries even when development packages are not installed. It also provides a find_lib function that will return the full path to the found dynamic library, which can be feed directly into FFI::Platypus or another FFI system.
+
+%global debug_package %{nil}
 
 %prep
 %setup -q -n %{cpan_name}-%{version}
@@ -50,7 +47,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc Changes
-%{perl_vendorarch}/
+%{perl_vendorlib}/
 %{_mandir}/man3/*.3*
 
 %changelog
