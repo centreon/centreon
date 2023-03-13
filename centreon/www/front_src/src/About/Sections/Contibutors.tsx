@@ -6,7 +6,7 @@ import NamesList from '../NamesList';
 import {
   labelAndManyOthers,
   labelCentreonsGithub,
-  labelYouCanSeeFullListOnThe
+  labelYouCanSeeFullListOn
 } from '../translatedLabels';
 
 export const contributors = [
@@ -60,7 +60,7 @@ const Contributors = (): JSX.Element => {
       <NamesList columns={3} names={contributors} />
       <Typography>{t(labelAndManyOthers)}</Typography>
       <Typography>
-        {t(labelYouCanSeeFullListOnThe)}{' '}
+        {t(labelYouCanSeeFullListOn)}{' '}
         <Link
           aria-label={t(labelCentreonsGithub)}
           href="https://github.com/centreon/centreon/graphs/contributors"
