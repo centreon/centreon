@@ -379,7 +379,7 @@ describe('Default custom login page', () => {
     );
   });
 
-  it('displays the login page with default custom login data and module it edition extensions installed', () => {
+  it('displays the login page with default custom login data when the IT edition extensions module is installed', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getDefaultLoginCustomization');
@@ -419,7 +419,7 @@ describe('Custom login page with data', () => {
     );
   });
 
-  it('displays the login page with custom login data', () => {
+  it('displays the login page when it is customized', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getLoginCustomization');
@@ -462,7 +462,7 @@ describe('Login page without module it edition extensions installed', () => {
     );
   });
 
-  it('displays the login page without custom login', () => {
+  it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getNoModuleForLoginCustomization');
