@@ -59,7 +59,7 @@ class LoginController extends AbstractController
     ): object {
         $request = LoginRequest::createForOpenId(
             $request->getClientIp() ?: '',
-            $request->query->get("code") ?: ''
+            $request->query->get("code", '');
         );
 
         $useCase($request, $presenter);
