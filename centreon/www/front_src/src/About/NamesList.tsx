@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { Fade, List, ListItem, useTheme } from '@mui/material';
 
 interface Props {
@@ -8,6 +10,8 @@ interface Props {
 const NamesList = ({ names, columns = 2 }: Props): JSX.Element => {
   const theme = useTheme();
 
+  const sortedNames = useMemo(() => names.sort(), [names]);
+
   return (
     <List
       dense
@@ -17,7 +21,7 @@ const NamesList = ({ names, columns = 2 }: Props): JSX.Element => {
         gridTemplateColumns: `repeat(${columns}, max-content)`
       }}
     >
-      {names.map((name, idx) => (
+      {sortedNames.map((name, idx) => (
         <Fade
           in
           key={name}

@@ -44,7 +44,12 @@ export const contributors = [
   'SuL',
   'Colin Gagnaire',
   'Lotfi Zaouche',
-  'Stéphane Chapron'
+  'Stéphane Chapron',
+  'Hamza Yahiaoui',
+  'El Mahdi Abbassi',
+  'Mohamed El Meziani',
+  'Nouha Al Abrouki',
+  'Yassir Ben Boubker'
 ];
 
 const Contributors = (): JSX.Element => {
