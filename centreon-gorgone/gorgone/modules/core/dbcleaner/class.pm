@@ -27,9 +27,8 @@ use warnings;
 use gorgone::class::db;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {}, DIE => {});
 my ($connector);
@@ -99,7 +98,6 @@ sub exit_process {
     my ($self, %options) = @_;
 
     $self->{logger}->writeLogInfo("[dbcleaner] $$ has quit");
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -121,10 +119,14 @@ sub action_dbclean {
     ) if (!defined($options{cycle}));
 
     $self->{logger}->writeLogDebug("[dbcleaner] Purge database in progress...");
-    my ($status) = $self->{db_gorgone}->query("DELETE FROM gorgone_identity WHERE `mtime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_sessions_time}));
-    my ($status2) = $self->{db_gorgone}->query(
-        "DELETE FROM gorgone_history WHERE (instant = 1 AND `ctime` <  " . (time() - 86400) . ") OR `ctime` <  " . $self->{db_gorgone}->quote(time() - $self->{config}->{purge_history_time})
-    );
+    my ($status) = $self->{db_gorgone}->query({
+        query => 'DELETE FROM gorgone_identity WHERE `mtime` < ?',
+        bind_values => [time() - $self->{config}->{purge_sessions_time}]
+    });
+    my ($status2) = $self->{db_gorgone}->query({
+        query => "DELETE FROM gorgone_history WHERE (instant = 1 AND `ctime` <  " . (time() - 86400) . ") OR `ctime` < ?",
+        bind_values => [time() - $self->{config}->{purge_history_time}]
+    });
     $self->{purge_timer} = time();
 
     $self->{logger}->writeLogDebug("[dbcleaner] Purge finished");
@@ -150,47 +152,29 @@ sub action_dbclean {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[dbcleaner] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->exit_process();
     }
+
+    $connector->action_dbclean(cycle => 1);
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-dbcleaner',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'DBCLEANERREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
     $self->{db_gorgone} = gorgone::class::db->new(
         type => $self->get_core_config(name => 'gorgone_db_type'),
@@ -203,14 +187,9 @@ sub run {
         logger => $self->{logger}
     );
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->exit_process();
-        }
-
-        $self->action_dbclean(cycle => 1);
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

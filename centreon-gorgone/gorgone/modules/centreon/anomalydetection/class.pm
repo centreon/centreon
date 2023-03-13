@@ -28,11 +28,10 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
 use gorgone::class::http::http;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use IO::Compress::Bzip2;
 use MIME::Base64;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -254,18 +253,22 @@ sub save_centreon_previous_register {
     my ($self, %options) = @_;
 
     my ($query, $query_append) = ('', '');
+    my @bind_values = ();
     foreach (keys %{$self->{unregister_metrics_centreon}}) {
         $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
-            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}) . ',' .
-            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} . ',' .
-            ' saas_update_date = ' . $self->{unregister_metrics_centreon}->{$_}->{creation_date} .
-            ' WHERE `id` = ' . $_;
+            ' saas_model_id = ?,' .
+            ' saas_metric_id = ?,' .
+            ' saas_creation_date = ?, ' .
+            ' saas_update_date = ?'
+            ' WHERE `id` = ?';
         $query_append = ';';
+        push @bind_values, $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}, $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id},
+            $self->{unregister_metrics_centreon}->{$_}->{creation_date}, $self->{unregister_metrics_centreon}->{$_}->{creation_date}, $_;
     }
+
     if ($query ne '') {
-        my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
+        my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query, bind_values => \@bind_values);
         if ($status == -1) {
             $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot save centreon previous register');
             return 1;
@@ -288,6 +291,7 @@ sub saas_register_metrics {
 
     my $register_centreon_metrics = {};
     my ($query, $query_append) = ('', '');
+    my @bind_values = ();
 
     $self->{generate_metrics_lua} = 0;
     foreach (keys %{$self->{centreon_metrics}}) {
@@ -360,17 +364,19 @@ sub saas_register_metrics {
 
         $query .= $query_append .
             'UPDATE mod_anomaly_service SET' .
-            ' saas_model_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_model_id}) . ',' .
-            ' saas_metric_id = ' . $self->{class_object_centreon}->quote(value => $register_centreon_metrics->{$_}->{saas_metric_id}) . ',' .
-            ' saas_creation_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} . ',' .
-            ' saas_update_date = ' . $register_centreon_metrics->{$_}->{saas_creation_date} .
-            ' WHERE `id` = ' . $_;
+            ' saas_model_id = ?,' . 
+            ' saas_metric_id = ?,' .
+            ' saas_creation_date = ?,' .
+            ' saas_update_date = ?' .
+            ' WHERE `id` = ?';
         $query_append = ';';
+        push @bind_values, $register_centreon_metrics->{$_}->{saas_model_id}, $register_centreon_metrics->{$_}->{saas_metric_id},
+            $register_centreon_metrics->{$_}->{saas_creation_date}, $register_centreon_metrics->{$_}->{saas_creation_date}, $_;
     }
 
     return 0 if ($query eq '');
 
-    my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
+    my $status = $self->{class_object_centreon}->transaction_query_multi(request => $query, bind_values => \@bind_values);
     if ($status == -1) {
         $self->{unregister_metrics_centreon} = $register_centreon_metrics;
         $self->{logger}->writeLogError('[anomalydetection] -class- database: cannot update centreon register');
@@ -465,13 +471,13 @@ sub generate_lua_filter_file {
 
     $self->{logger}->writeLogDebug('[anomalydetection] -class- reload centreon-broker');
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'COMMAND',
         token => $options{token},
         data => {
             content => [ { command => 'sudo ' . $poller->{broker_reload_command} } ]
-        },
-    );
+        }
+    });
 
     return 0;
 }
@@ -522,14 +528,14 @@ sub saas_get_predicts {
         $encoded_content = MIME::Base64::encode_base64($encoded_content, '');
 
         my $poller = $self->get_poller(instance => $self->{centreon_metrics}->{$_}->{instance_id});
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $self->{centreon_metrics}->{$_}->{instance_id},
             token => $options{token},
             data => {
                 content => [ { command => 'mkdir -p ' . $poller->{cfg_dir} . '/anomaly/' . '; echo -n ' . $encoded_content . ' | base64 -d | bzcat -d > "' . $poller->{cfg_dir} . '/anomaly/' . $_ . '.json"' } ]
             }
-        );
+        });
 
         $engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} } = [] if (!defined($engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }));
         push @{$engine_reload->{ $self->{centreon_metrics}->{$_}->{instance_id} }}, $poller->{cfg_dir} . '/anomaly/' . $_ . '.json';
@@ -554,13 +560,13 @@ sub saas_get_predicts {
             };
         }
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'CENTREONCOMMAND',
             token => $options{token},
             data => {
                 content => $contents
             }
-        );
+        });
     }
 
     $status = $self->{class_object_centreon}->transaction_query_multi(request => $query);
@@ -627,22 +633,16 @@ sub action_saasregister {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[anomalydetection] -class- $$ has quit");
+        exit(0);
+    }
 
-        $connector->{logger}->writeLogDebug("[anomalydetection] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+    if (time() - $connector->{resync_time} > $connector->{last_resync_time}) {
+        $connector->{last_resync_time} = time();
+        $connector->action_saasregister();
+        $connector->action_saaspredict();
     }
 }
 
@@ -657,43 +657,25 @@ sub run {
         logger => $self->{logger}
     );
 
-    ##### Load objects #####
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(logger => $self->{logger}, db_centreon => $self->{db_centreon});
     $self->{http} = gorgone::class::http::http->new(logger => $self->{logger});
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-anomalydetection',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'CENTREONADREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[anomalydetection] -class- $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
+    });
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_saasregister();
-            $self->action_saaspredict();
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

@@ -1,8 +1,6 @@
 import PollerIcon from '@mui/icons-material/DeviceHub';
 
-import { MenuSkeleton } from '@centreon/ui';
-
-import ItemLayout from '../sharedUI/ItemLayout';
+import { MenuSkeleton, TopCounterLayout } from '@centreon/ui';
 
 import PollerStatusIcon from './PollerStatusIcon';
 import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';
@@ -21,7 +19,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   }
 
   return (
-    <ItemLayout
+    <TopCounterLayout
       Icon={PollerIcon}
       renderIndicators={(): JSX.Element => (
         <PollerStatusIcon iconSeverities={data.iconSeverities} />

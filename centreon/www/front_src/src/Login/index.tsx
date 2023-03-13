@@ -8,11 +8,11 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Typography } from '@mui/material';
 
-import { LoadingSkeleton } from '@centreon/ui';
+import { CentreonLogo, LoadingSkeleton } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
-import useLoadWallpaper from '../components/Wallpaper/useLoadWallpaper';
+import Wallpaper from '../components/Wallpaper';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import useValidationSchema from './validationSchema';
@@ -24,11 +24,7 @@ const ExternalProviders = lazy(() => import('./ExternalProviders'));
 
 const Copyright = lazy(() => import('./Copyright'));
 
-const Wallpaper = lazy(() => import('../components/Wallpaper'));
-
 const LoginForm = lazy(() => import('./Form'));
-
-const Logo = lazy(() => import('./Logo'));
 
 const useStyles = makeStyles()((theme) => ({
   copyrightAndVersion: {
@@ -73,7 +69,6 @@ const LoginPage = (): JSX.Element => {
   const validationSchema = useValidationSchema();
 
   const { submitLoginForm, providersConfiguration } = useLogin();
-  useLoadWallpaper();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
@@ -86,9 +81,7 @@ const LoginPage = (): JSX.Element => {
 
   return (
     <div>
-      <Suspense fallback={<LoadingSkeleton />}>
-        <Wallpaper />
-      </Suspense>
+      <Wallpaper />
       <div className={classes.loginBackground}>
         <Paper className={classes.loginPaper}>
           <Suspense
@@ -96,7 +89,7 @@ const LoginPage = (): JSX.Element => {
               <LoadingSkeleton height={60} variant="text" width={250} />
             }
           >
-            <Logo />
+            <CentreonLogo />
           </Suspense>
           <Suspense
             fallback={

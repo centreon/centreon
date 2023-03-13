@@ -27,13 +27,12 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::misc;
 use gorgone::standard::api;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use HTTP::Daemon;
 use HTTP::Status;
 use MIME::Base64;
 use JSON::XS;
 use Socket;
+use EV;
 
 my $time = time();
 
@@ -104,15 +103,6 @@ sub class_handle_HUP {
     }
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[httpserver] Event: $message");
-    }
-}
-
 sub init_dispatch {
     my ($self, $config_dispatch) = @_;
 
@@ -150,33 +140,34 @@ sub load_peer_subnets {
     }
 }
 
+sub stop_ev {
+    $connector->{loop}->break();
+}
+
 sub run {
     my ($self, %options) = @_;
 
     $self->load_peer_subnets();
 
     # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserver',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'HTTPSERVERREADY',
         data => {}
-    );
+    });
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    gorgone::standard::api::set_module($self);
 
-    my $rev = zmq_poll($self->{poll}, 4000);
+    my $watcher_timer = $self->{loop}->timer(4, 0, \&stop_ev);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, \&gorgone::standard::api::event);
+    $self->{loop}->run();
 
     $self->init_dispatch();
 
@@ -213,7 +204,6 @@ sub run {
         if ($self->{stop} == 1) {
             $self->{logger}->writeLogInfo("[httpserver] $$ has quit");
             $connection->close() if (defined($connection));
-            zmq_close($connector->{internal_socket});
             exit(0);
         }
 

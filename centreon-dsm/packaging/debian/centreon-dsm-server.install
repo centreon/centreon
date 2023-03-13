@@ -1,5 +1,8 @@
+#!/usr/bin/dh-exec
+
 www/modules/centreon-dsm/*          usr/share/centreon/www/modules/centreon-dsm
 cron/centreon-dsm                   etc/cron.d
 bin/dsmd.pl                         usr/share/centreon/bin
-debian/lib/systemd/dsmd.service     lib/systemd/system
-debian/lib/sysconfig/dsmd           etc/sysconfig
+
+libinstall/systemd/dsmd.systemd => lib/systemd/system/dsmd.service
+libinstall/systemd/dsmd.sysconfig => etc/default/dsmd

@@ -1,10 +1,12 @@
 import HostIcon from '@mui/icons-material/Dns';
 
-import { MenuSkeleton } from '@centreon/ui';
+import {
+  MenuSkeleton,
+  TopCounterLayout,
+  TopCounterResourceCounters,
+  TopCounterResourceSubMenu
+} from '@centreon/ui';
 
-import ItemLayout from '../../sharedUI/ItemLayout';
-import ResourceCounters from '../../sharedUI/ResourceCounters';
-import ResourceSubMenu from '../../sharedUI/ResourceSubMenu';
 import useResourceCounters from '../useResourceCounters';
 import { hostStatusEndpoint } from '../../api/endpoints';
 import { hostStatusDecoder } from '../../api/decoders';
@@ -26,7 +28,7 @@ const HostStatusCounter = (): JSX.Element | null => {
   });
 
   if (isLoading) {
-    return <MenuSkeleton width={20} />;
+    return <MenuSkeleton width={11} />;
   }
 
   if (!isAllowed || !data) {
@@ -34,12 +36,14 @@ const HostStatusCounter = (): JSX.Element | null => {
   }
 
   return (
-    <ItemLayout
+    <TopCounterLayout
       Icon={HostIcon}
       renderIndicators={(): JSX.Element => (
-        <ResourceCounters counters={data.counters} />
+        <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => <ResourceSubMenu items={data.items} />}
+      renderSubMenu={(): JSX.Element => (
+        <TopCounterResourceSubMenu items={data.items} />
+      )}
       showPendingBadge={data.hasPending}
       title={labelHosts}
     />

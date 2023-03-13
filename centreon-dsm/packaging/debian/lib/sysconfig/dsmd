@@ -1,2 +1,0 @@
-# dsmd command line options
-OPTIONS="--logfile=/var/log/centreon/centreon-dsm.log --severity=error --config=/etc/centreon/conf.pm"

@@ -49,7 +49,7 @@ sub getLiveServicesByName {
 	my $query = "SELECT `id`, `name`";
 	$query .= " FROM `mod_bi_liveservice`";
 	$query .= " WHERE `name` like '".$name."%'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		$result{ $row->{name} } = $row->{id};
@@ -64,7 +64,7 @@ sub getLiveServicesByTpId {
 	my $interval = shift;
 	my $query = "SELECT `id`, `timeperiod_id`";
 	$query .= " FROM `mod_bi_liveservice` ";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		$result{$row->{'timeperiod_id'}} = $row->{"id"};
@@ -79,7 +79,7 @@ sub getLiveServicesByNameForTpId {
 	my $query = "SELECT `id`, `name`";
 	$query .= " FROM `mod_bi_liveservice` ";
 	$query .= "WHERE timeperiod_id = ".$tpId;
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my ($name, $id);
 	
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -99,7 +99,7 @@ sub getLiveServiceIdsInString {
 	my $query = "SELECT `id`";
 	$query .= " FROM mod_bi_liveservice";
 	$query .= " WHERE timeperiod_id IN (".$ids.")";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
     while (my $row = $sth->fetchrow_hashref()) {
     	$idStr .= $row->{'id'}.",";
@@ -128,7 +128,7 @@ sub getLiveServicesByNameForTpIds {
 	my $query = "SELECT `id`, `name`";
 	$query .= " FROM mod_bi_liveservice";
 	$query .= " WHERE timeperiod_id IN (".$idStr.")";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
     while (my $row = $sth->fetchrow_hashref()) {
     	$result{ $row->{name} } = $row->{id};
@@ -142,7 +142,7 @@ sub getTimeperiodName {
 	
 	my $id = shift;
 	my $query = "SELECT name FROM mod_bi_liveservice WHERE timeperiod_id=".$id;
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my $name = "";
 	if (my $row = $sth->fetchrow_hashref()) {
 		$name = $row->{'name'};
@@ -156,7 +156,7 @@ sub getTimeperiodId {
 	
 	my $name = shift;
 	my $query = "SELECT timeperiod_id FROM mod_bi_liveservice WHERE name='".$name."'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my $id = 0;
 	if (my $row = $sth->fetchrow_hashref()) {
 		$id = $row->{'timeperiod_id'};
@@ -171,7 +171,7 @@ sub insert {
 	my $name = shift;
 	my $id = shift;
 	my $query = "INSERT INTO `mod_bi_liveservice` (`name`, `timeperiod_id`) VALUES ('".$name."', ".$id.")";
-	my $sth = $db->query($query);	
+	my $sth = $db->query({ query => $query });
 }
 
 sub insertList {
@@ -199,7 +199,7 @@ sub update {
 	my $name = shift;
 	my $id = shift;
 	my $query = "UPDATE `mod_bi_liveservice` SET `timeperiod_id`=".$id." WHERE name='".$name."'";
-	$db->query($query);	
+	$db->query({ query => $query });
 }
 
 sub updateById {
@@ -208,7 +208,7 @@ sub updateById {
 	
 	my ($id, $name) = (shift, shift);
 	my $query = "UPDATE `mod_bi_liveservice` SET `name`='".$name."' WHERE timeperiod_id=".$id;
-	$db->query($query);	
+	$db->query({ query => $query });
 }
 
 sub truncateTable {
@@ -216,8 +216,8 @@ sub truncateTable {
 	my $db = $self->{"centstorage"};
 	
 	my $query = "TRUNCATE TABLE `mod_bi_liveservice`";
-	$db->query($query);
-	$db->query("ALTER TABLE `mod_bi_liveservice` AUTO_INCREMENT=1");
+	$db->query({ query => $query });
+	$db->query({ query => "ALTER TABLE `mod_bi_liveservice` AUTO_INCREMENT=1" });
 }
 
 1;

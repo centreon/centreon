@@ -29,9 +29,8 @@ use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use gorgone::class::sqlquery;
 use gorgone::class::tpapi::clapi;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use File::Copy;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -154,7 +153,7 @@ sub send_external_commands {
 
     foreach my $target (@$targets) {
         next if (!defined($self->{bulk_commands}->{$target}) || scalar(@{$self->{bulk_commands}->{$target}}) <= 0);
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ENGINECOMMAND',
             target => $target,
             token => $token,
@@ -167,7 +166,7 @@ sub send_external_commands {
                     ]
                 }
             }
-        );
+        });
 
         $self->{logger}->writeLogDebug("[legacycmd] send external commands for '$target'");
         $self->{bulk_commands}->{$target} = [];
@@ -180,7 +179,7 @@ sub add_external_command {
     $options{param} =~ s/[\Q$self->{gorgone_illegal_characters}\E]//g
         if (defined($self->{gorgone_illegal_characters}) && $self->{gorgone_illegal_characters} ne '');
     if ($options{action} == 1) {
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ENGINECOMMAND',
             target => $options{target},
             token => $options{token},
@@ -193,7 +192,7 @@ sub add_external_command {
                     ]
                 }
             }
-        );
+        });
     } else {
         $self->{bulk_commands}->{ $options{target} } = [] if (!defined($self->{bulk_commands}->{ $options{target} }));
         push @{$self->{bulk_commands}->{ $options{target} }}, $options{param};
@@ -234,7 +233,7 @@ sub execute_cmd {
         my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         # engine
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'REMOTECOPY',
             target => $options{target},
             token => $token,
@@ -252,9 +251,9 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
         # broker
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'REMOTECOPY',
             target => $options{target},
             token => $token,
@@ -272,7 +271,7 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
     } elsif ($options{cmd} eq 'SENDEXPORTFILE') {
         if (!defined($self->{clapi_password})) {
             return (-1, 'need centreon clapi password to execute SENDEXPORTFILE command');
@@ -283,7 +282,7 @@ sub execute_cmd {
         my $remote_dir = (defined($connector->{config}->{remote_dir})) ?
             $connector->{config}->{remote_dir} : '/var/cache/centreon/config/remote-data/';
         # remote server
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'REMOTECOPY',
             target => $options{target},
             token => $token,
@@ -300,12 +299,12 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
 
         # Forward data use to be done by createRemoteTask as well as task_id in a gorgone command
         # Command name: AddImportTaskWithParent
         # Data: ['parent_id' => $task->getId()]
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDIMPORTTASKWITHPARENT',
             token => $options{token},
             target => $options{target},
@@ -316,14 +315,14 @@ sub execute_cmd {
                     cbd_reload => 'sudo ' . $self->{pollers}->{ $options{target} }->{broker_reload_command}
                 }
             }
-        );
+        });
     } elsif ($options{cmd} eq 'SYNCTRAP') {
         my $cache_dir = (defined($connector->{config}->{cache_dir}) && $connector->{config}->{cache_dir} ne '') ?
             $connector->{config}->{cache_dir} : '/var/cache/centreon';
         my $cache_dir_trap = (defined($connector->{config}->{cache_dir_trap}) && $connector->{config}->{cache_dir_trap} ne '') ?
             $connector->{config}->{cache_dir_trap} : '/etc/snmp/centreon_traps/';
         # centreontrapd
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'REMOTECOPY',
             target => $options{target},
             token => $token,
@@ -341,10 +340,10 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
     } elsif ($options{cmd} eq 'ENGINERESTART') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ACTIONENGINE',
             target => $options{target},
             token => $token,
@@ -359,10 +358,10 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
     } elsif ($options{cmd} eq 'RESTART') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_restart_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -378,10 +377,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'ENGINERELOAD') {
         my $cmd = $self->{pollers}->{ $options{target} }->{engine_reload_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ACTIONENGINE',
             target => $options{target},
             token => $token,
@@ -396,10 +395,10 @@ sub execute_cmd {
                     }
                 }
             }
-        );
+        });
     } elsif ($options{cmd} eq 'RELOAD') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_reload_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -415,10 +414,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'START') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_start_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -434,10 +433,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'STOP') {
         my $cmd = $self->{pollers}->{$options{target}}->{engine_stop_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -453,10 +452,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'RELOADBROKER') {
         my $cmd = $self->{pollers}->{$options{target}}->{broker_reload_command};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -472,10 +471,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'RESTARTCENTREONTRAPD') {
         my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -491,10 +490,10 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'RELOADCENTREONTRAPD') {
         my $cmd = $self->{pollers}->{$options{target}}->{init_script_centreontrapd};
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => $options{target},
             token => $token,
@@ -510,7 +509,7 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     } elsif ($options{cmd} eq 'STARTWORKER') {
         if (!defined($self->{clapi_password})) {
             return (-1, 'need centreon clapi password to execute STARTWORKER command');
@@ -519,7 +518,7 @@ sub execute_cmd {
             $connector->{config}->{centreon_dir} : '/usr/share/centreon';
         my $cmd = $centreon_dir . '/bin/centreon -u "' . $self->{clapi_user} . '" -p "' .
             $self->{clapi_password} . '" -w -o CentreonWorker -a processQueue';
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             target => undef,
             token => $token,
@@ -534,7 +533,7 @@ sub execute_cmd {
                     }
                 ]
             }
-        );
+        });
     }
 
     return 0;
@@ -574,7 +573,7 @@ sub action_addimporttaskwithparent {
         $connector->{config}->{centreon_dir} : '/usr/share/centreon';
     my $cmd = $centreon_dir . '/bin/centreon -u "' . $self->{clapi_user} . '" -p "' .
         $self->{clapi_password} . '" -w -o CentreonWorker -a processQueue';
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'COMMAND',
         token => $options{token},
         data => {
@@ -586,8 +585,8 @@ sub action_addimporttaskwithparent {
             ],
             parameters => { no_fork => 1 }
         }
-    );
-    $self->send_internal_action(
+    });
+    $self->send_internal_action({
         action => 'COMMAND',
         token => $options{token},
         data => {
@@ -598,7 +597,7 @@ sub action_addimporttaskwithparent {
                 }
             ]
         }
-    );
+    });
 
     $self->send_log(
         code => GORGONE_ACTION_FINISH_OK,
@@ -774,23 +773,14 @@ sub action_centreoncommand {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[legacycmd] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[legacycmd] $$ has quit");
+        exit(0);
     }
+
+    $connector->cache_refresh();
+    $connector->handle_cmd_files();
 }
 
 sub run {
@@ -805,17 +795,18 @@ sub run {
     $self->{clapi_password} = $self->{tpapi_clapi}->get_password(protected => 1);
 
     # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-legacycmd',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'LEGACYCMDREADY',
         data => {}
-    );
+    });
 
     $self->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
@@ -829,24 +820,9 @@ sub run {
         db_centreon => $self->{db_centreon}
     );
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 2000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[legacycmd] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-
-        $self->cache_refresh();
-        $self->handle_cmd_files();
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

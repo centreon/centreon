@@ -1,2 +1,5 @@
-debian/extra/centreon-common/centreon.service   lib/systemd/system
-debian/extra/centreon-common/config.yaml        etc/centreon
+#!/usr/bin/dh-exec
+
+www/install/var/config.yaml etc/centreon
+
+tmpl/install/systemd/centreon.systemd => lib/systemd/system/centreon.service

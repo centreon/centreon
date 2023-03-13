@@ -3,19 +3,20 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
 import { isNil, not } from 'ramda';
-import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Typography } from '@mui/material';
 
+import { CentreonLogo } from '@centreon/ui';
+
 import routeMap from '../reactRoutes/routeMap';
-import Logo from '../Login/Logo';
+import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 import { labelResetYourPassword } from './translatedLabels';
 import { ResetPasswordValues } from './models';
-import useResetPassword from './useResetPassword';
+import useResetPassword, { router } from './useResetPassword';
 import Form from './Form';
 
 const useStyles = makeStyles()((theme) => ({
@@ -26,8 +27,8 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     height: '100vh',
     justifyContent: 'center',
-    rowGap: theme.spacing(2),
-    width: '100vw'
+    maxWidth: theme.spacing(60),
+    rowGap: theme.spacing(2)
   },
   paper: {
     padding: theme.spacing(4, 3)
@@ -43,7 +44,7 @@ const initialValues = {
 const ResetPassword = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
 
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);
 
@@ -64,12 +65,12 @@ const ResetPassword = (): JSX.Element | null => {
     isNil(passwordResetInformations) ||
     not(passwordResetInformations?.alias)
   ) {
-    return null;
+    return <MainLoaderWithoutTranslation />;
   }
 
   return (
     <div className={classes.container}>
-      <Logo />
+      <CentreonLogo />
       <Paper className={classes.paper}>
         <Typography variant="h4">{t(labelResetYourPassword)}</Typography>
         <Formik<ResetPasswordValues>

@@ -135,25 +135,12 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
-
-      - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
+      - uses: ./.github/actions/frontend-lint
         with:
-          path: "centreon/junit.xml"
-          format: "java-junit"
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -279,11 +266,12 @@ jobs:
 
     strategy:
       matrix:
+        os: [alma9]
         include:
           - project: centreon-web
-            distrib: alma9
-            distrib_rpm: el9
-            module_name: web
+          - os: alma9
+            distrib: el9
+            package_extension: rpm
 
     steps:
       - name: Checkout sources
@@ -296,40 +284,40 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Use cache RPM files
+      - name: Restore ${{ matrix.package_extension }} files
         uses: actions/cache@v3
         with:
-          path: ./*.rpm
-          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
+          path: ./*.${{ matrix.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: docker/setup-buildx-action@v2
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_fresh
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_standard
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_widgets
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-widgets-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [dockerize, changes]

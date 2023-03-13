@@ -194,50 +194,55 @@ sub get_date {
 }
 
 sub writeLog {
-    my ($self, %options) = @_;
+    my ($self) = shift;
 
-    my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
-    my $withseverity = (defined $options{withseverity}) ? $options{withseverity} : 1;
+    my $withdate = (defined $_[0]->{withdate}) ? $_[0]->{withdate} : 1;
+    my $withseverity = (defined $_[0]->{withseverity}) ? $_[0]->{withseverity} : 1;
 
-    my $msg = $options{message};
-    $msg = (($self->{withpid} == 1) ? "$$ - $msg " : $msg);
-    my $newmsg = ($withseverity) 
-      ? $options{severity_str} . " - $msg" : $msg;
-    $newmsg = ($withdate) 
-      ? $self->get_date . " - $newmsg" : $newmsg;
-
-    if (($self->{severity} & $options{severity}) == 0) {
+    if (($self->{severity} & $_[0]->{severity}) == 0) {
         return;
     }
 
-    chomp($newmsg);
+    if (length($_[0]->{message}) > 20000) {
+        $_[0]->{message} = substr($_[0]->{message}, 0, 20000) . '...';
+    }
+    if ($self->{log_mode} == 2) {
+        syslog($severities{$_[0]->{severity}}, $_[0]->{message});
+        return;
+    }
+
+    $_[0]->{message} = (($self->{withpid} == 1) ? "$$ - $_[0]->{message} " : $_[0]->{message});
+    $_[0]->{message} = ($withseverity)
+      ? $_[0]->{severity_str} . " - $_[0]->{message}" : $_[0]->{message};
+    $_[0]->{message} = ($withdate)
+      ? $self->get_date . " - $_[0]->{message}" : $_[0]->{message};
+
+    chomp($_[0]->{message});
     if ($self->{log_mode} == 0) {
-        print "$newmsg\n";
+        print "$_[0]->{message}\n";
     } elsif ($self->{log_mode} == 1) {
         if (defined $self->{filehandler}) {
-            print { $self->{filehandler} } "$newmsg\n";
+            print { $self->{filehandler} } "$_[0]->{message}\n";
         }
-    } elsif ($self->{log_mode} == 2) {
-        syslog($severities{$options{severity}}, $msg);
     }
 }
 
 sub writeLogDebug {
-    my ($self, $msg) = @_;
+    my ($self) = shift;
     
-    $self->writeLog(severity => 4, severity_str => 'DEBUG', message => $msg);
+    $self->writeLog({ severity => 4, severity_str => 'DEBUG', message => $_[0] });
 }
 
 sub writeLogInfo {
-    my ($self, $msg) = @_;
+    my ($self) = shift;
     
-    $self->writeLog(severity => 2, severity_str => 'INFO', message => $msg);
+    $self->writeLog({ severity => 2, severity_str => 'INFO', message => $_[0] });
 }
 
 sub writeLogError {
-    my ($self, $msg) = @_;
+    my ($self) = shift;
     
-    $self->writeLog(severity => 1, severity_str => 'ERROR', message => $msg);
+    $self->writeLog({ severity => 1, severity_str => 'ERROR', message => $_[0] });
 }
 
 sub DESTROY {
