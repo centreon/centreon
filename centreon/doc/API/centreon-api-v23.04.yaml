@@ -8452,7 +8452,7 @@ components:
           description: "Custom text display on login page in JSON format"
           example: |
             '{"root": {"children": [{"detail": 0, "format": 0, "mode": "normal", "style": "",
-            "text": "Welcome on Centreon", "type": "text", "version": 1}]'
+            "text": "Welcome to Centreon", "type": "text", "version": 1}]'
           nullable: true
         text_position:
           type: string
