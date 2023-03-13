@@ -80,7 +80,7 @@ final class AddHostCategory
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
                 if (! $hostCategory) {
                     $presenter->setResponseStatus(
-                        new ErrorResponse(HostCategoryException::errorWhileRetrievingJustCreated())
+                        new ErrorResponse(HostCategoryException::errorWhileRetrievingObject())
                     );
 
                     return;
@@ -103,6 +103,7 @@ final class AddHostCategory
 
     /**
      * @param HostCategory|null $hostCategory
+     *
      * @return AddHostCategoryResponse
      */
     private function createResponse(?HostCategory $hostCategory): AddHostCategoryResponse

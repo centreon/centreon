@@ -51,6 +51,17 @@ class HostCategoryException extends \Exception
 
     /**
      * @param \Throwable $ex
+     * @param int $hostCategoryId
+     *
+     * @return self
+     */
+    public static function findHostCategory(\Throwable $ex, int $hostCategoryId): self
+    {
+        return new self(sprintf(_('Error when searching for the host category #%d'), $hostCategoryId), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
      *
      * @return self
      */
@@ -90,8 +101,8 @@ class HostCategoryException extends \Exception
     /**
      * @return self
      */
-    public static function errorWhileRetrievingJustCreated(): self
+    public static function errorWhileRetrievingObject(): self
     {
-        return new self(_('Error while retrieving recently created host category'));
+        return new self(_('Error while retrieving a host category'));
     }
 }

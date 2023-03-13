@@ -21,65 +21,79 @@
 
 declare(strict_types=1);
 
-namespace Core\HostCategory\Application\UseCase\FindHostCategories;
+namespace Core\HostCategory\Application\UseCase\FindHostCategory;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostCategory\Application\UseCase\FindHostCategories\FindHostCategoriesResponse;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-final class FindHostCategories
+final class FindHostCategory
 {
     use LoggerTrait;
 
     /**
      * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface
-     * @param RequestParametersInterface $requestParameters
      * @param ContactInterface $user
      */
     public function __construct(
         private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private RequestParametersInterface $requestParameters,
         private ContactInterface $user
     ) {
     }
 
     /**
+     * @param int $hostCategoryId
      * @param PresenterInterface $presenter
      */
-    public function __invoke(PresenterInterface $presenter): void
+    public function __invoke(int $hostCategoryId, PresenterInterface $presenter): void
     {
         try {
             if ($this->user->isAdmin()) {
-                $hostCategories = $this->readHostCategoryRepository->findAll($this->requestParameters);
-                $presenter->present($this->createResponse($hostCategories));
+                if (! $this->readHostCategoryRepository->exists($hostCategoryId)) {
+                    $this->error('Host category not found', [
+                        'hostcategory_id' => $hostCategoryId,
+                    ]);
+                    $presenter->setResponseStatus(new NotFoundResponse('Host category'));
+
+                    return;
+                }
+
+                $this->retrieveObjectAndSetResponse($presenter, $hostCategoryId);
             } elseif (
                 $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
                 || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
             ) {
                 $this->debug(
                     'User is not admin, use ACLs to retrieve host categories',
-                    ['user' => $this->user->getName()]
+                    ['user_id' => $this->user->getId()]
                 );
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups(
-                    $accessGroups,
-                    $this->requestParameters
-                );
-                $presenter->present($this->createResponse($hostCategories));
+
+                if (! $this->readHostCategoryRepository->existsByAccessGroups($hostCategoryId, $accessGroups)) {
+                    $this->error('Host category not found', [
+                        'hostcategory_id' => $hostCategoryId,
+                        'accessgroups' => $accessGroups,
+                    ]);
+                    $presenter->setResponseStatus(new NotFoundResponse('Host category'));
+
+                    return;
+                }
+
+                $this->retrieveObjectAndSetResponse($presenter, $hostCategoryId);
             } else {
                 $this->error('User doesn\'t have sufficient rights to see host categories', [
                     'user_id' => $this->user->getId(),
+                    'host_category_id' => $hostCategoryId,
                 ]);
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(HostCategoryException::accessNotAllowed()->getMessage())
@@ -87,31 +101,47 @@ final class FindHostCategories
             }
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostCategoryException::findHostCategories($ex)->getMessage())
+                new ErrorResponse(HostCategoryException::findHostCategory($ex, $hostCategoryId)->getMessage())
             );
             $this->error($ex->getMessage());
         }
     }
 
     /**
-     * @param HostCategory[] $hostCategories
-     * @return FindHostCategoriesResponse
+     * @param HostCategory $hostCategory
+     *
+     * @return FindHostCategoryResponse
      */
     private function createResponse(
-        array $hostCategories,
-    ): FindHostCategoriesResponse {
-        $response = new FindHostCategoriesResponse();
+        HostCategory $hostCategory,
+    ): FindHostCategoryResponse {
+        $response = new FindHostCategoryResponse();
 
-        foreach ($hostCategories as $hostCategory) {
-            $response->hostCategories[] = [
-                'id' => $hostCategory->getId(),
-                'name' => $hostCategory->getName(),
-                'alias' => $hostCategory->getAlias(),
-                'is_activated' => $hostCategory->isActivated(),
-                'comment' => $hostCategory->getComment(),
-            ];
-        }
+        $response->id = $hostCategory->getId();
+        $response->name = $hostCategory->getName();
+        $response->alias = $hostCategory->getAlias();
+        $response->is_activated = $hostCategory->isActivated();
+        $response->comment = $hostCategory->getComment();
 
         return $response;
+    }
+
+    /**
+     * Retrieve host category and set response with object or error if retrieving fails.
+     *
+     * @param PresenterInterface $presenter
+     * @param int $hostCategoryId
+     */
+    private function retrieveObjectAndSetResponse(PresenterInterface $presenter, int $hostCategoryId): void
+    {
+        $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
+        if (! $hostCategory) {
+            $presenter->setResponseStatus(
+                new ErrorResponse(HostCategoryException::errorWhileRetrievingObject())
+            );
+
+            return;
+        }
+        $presenter->present($this->createResponse($hostCategory));
     }
 }
