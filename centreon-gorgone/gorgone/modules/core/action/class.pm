@@ -27,8 +27,6 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
 use File::Basename;
 use File::Copy;
@@ -38,6 +36,8 @@ use MIME::Base64;
 use Digest::MD5::File qw(file_md5_hex);
 use Archive::Tar;
 use Fcntl;
+use Try::Tiny;
+use EV;
 
 $Archive::Tar::SAME_PERMISSIONS = 1;
 $Archive::Tar::WARN = 0;
@@ -318,12 +318,11 @@ sub validate_plugins {
     return (1, $message) if (!$rv);
 
     my $plugins;
-    eval {
+    try {
         $plugins = JSON::XS->new->decode($content);
-    };
-    if ($@) {
+    } catch {
         return (1, 'cannot decode json');
-    }
+    };
 
     # nothing to validate. so it's ok, show must go on!! :)
     if (ref($plugins) ne 'HASH' || scalar(keys %$plugins) <= 0) {
@@ -731,8 +730,15 @@ sub action_actionengine {
 
 sub action_run {
     my ($self, %options) = @_;
-    
+
+    my $context;
+    {
+        local $SIG{__DIE__};
+        $context = ZMQ::FFI->new();
+    }
+
     my $socket_log = gorgone::standard::library::connect_com(
+        context => $context,
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-action-'. $$,
         logger => $self->{logger},
@@ -755,8 +761,6 @@ sub action_run {
         );
         return -1;
     }
-
-    zmq_close($socket_log);
 }
 
 sub create_child {
@@ -806,65 +810,61 @@ sub create_child {
 }
 
 sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[action] Event: $message");
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
+
+        $self->{logger}->writeLogDebug("[action] Event: $message");
         
         if ($message !~ /^\[ACK\]/) {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
             
             my ($action, $token) = ($1, $2);
-            my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
+            my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
             next if ($rv);
 
             if (defined($data->{parameters}->{no_fork})) {
-                if ((my $method = $connector->can('action_' . lc($action)))) {
-                    $method->($connector, token => $token, data => $data);
+                if ((my $method = $self->can('action_' . lc($action)))) {
+                    $method->($self, token => $token, data => $data);
                 }
             } else {
-                $connector->create_child(action => $action, token => $token, data => $data);
+                $self->create_child(action => $action, token => $token, data => $data);
             }
         }
+    }
+}
+
+sub periodic_exec {
+    $connector->check_childs();
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[action] $$ has quit");
+        exit(0);
     }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-action',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'ACTIONREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
     $self->get_package_manager();
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        $self->check_childs();
-
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[action] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

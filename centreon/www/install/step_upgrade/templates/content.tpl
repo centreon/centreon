@@ -1,7 +1,7 @@
 <table cellspacing="0" cellpadding="0" border="0" align="center" class="shell">
     <tr class="install-header">
         <th class="logo-wrapper">
-            <a href="http://www.centreon.com" target="_blank"><img src="../img/centreon.png" alt="Centreon" border="0"/></a>
+            <a href="http://www.centreon.com" target="_blank"><img src="../img/logo-centreon-colors.svg" style="width: 200px;height: 50px;object-fit: contain;" alt="Centreon" border="0"/></a>
         </th>
         <th class="step-wrapper">
             <h3><span>{$step}</span> {$title}</h3>

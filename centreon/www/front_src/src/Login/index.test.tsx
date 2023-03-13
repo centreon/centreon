@@ -37,7 +37,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const cancelTokenRequestParam = { cancelToken: {} };
 
-jest.mock('../assets/logo-centreon-colors.png');
+jest.mock('../assets/logo-centreon-colors.svg');
 jest.mock('../assets/centreon-wallpaper-xl.jpg');
 jest.mock('../assets/centreon-wallpaper-lg.jpg');
 jest.mock('../assets/centreon-wallpaper-sm.jpg');
@@ -188,10 +188,13 @@ describe('Login Page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('centreon-wallpaper')).toBeInTheDocument();
+      expect(screen.getByAltText(labelCentreonLogo)).toBeInTheDocument();
     });
-    expect(screen.getByLabelText(labelCentreonLogo)).toBeInTheDocument();
-    expect(screen.getByLabelText(labelAlias)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(labelAlias)).toBeInTheDocument();
+    });
+
     expect(screen.getByLabelText(labelPassword)).toBeInTheDocument();
     expect(screen.getByLabelText(labelConnect)).toBeInTheDocument();
     await waitFor(() => {
