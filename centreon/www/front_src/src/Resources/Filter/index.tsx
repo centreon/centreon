@@ -499,8 +499,6 @@ const Filter = (): JSX.Element => {
     ...customFilterOptions
   ];
 
-  console.log(options.map(pick(['id', 'name', 'type', 'testId'])));
-
   const canDisplaySelectedFilter = find(
     propEq('id', currentFilter.id),
     options
