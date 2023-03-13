@@ -47,7 +47,7 @@ sub do {
     my ($self, %options) = @_;
     my $mode = defined($options{mode}) ? $options{mode} : 0;
     
-    my ($status, $sth) = $self->{db_centreon}->query($options{request});
+    my ($status, $sth) = $self->{db_centreon}->query({ query => $options{request}, bind_values => $options{bind_values} });
     if ($status == -1) {
         return (-1, undef);
     }
@@ -90,12 +90,17 @@ sub transaction_query_multi {
     $status = $self->transaction_mode(1);
     return -1 if ($status == -1);
 
-    ($status, $sth) = $self->{db_centreon}->query($options{request}, prepare_only => 1);
+    ($status, $sth) = $self->{db_centreon}->query({ query => $options{request}, prepare_only => 1 });
     if ($status == -1) {
         $self->rollback();
         return -1;
     }
-    $sth->execute();
+
+    if (defined($options{bind_values}) && scalar(@{$options{bind_values}}) > 0) {
+        $sth->execute(@{$options{bind_values}});
+    } else {
+        $sth->execute();
+    }
     do {
         if ($sth->err) {
             $self->rollback();
@@ -127,12 +132,6 @@ sub transaction_query {
     return -1 if ($status == -1);
 
     return 0;
-}
-
-sub quote {
-    my ($self, %options) = @_;
-
-    return $self->{db_centreon}->quote($options{value});
 }
 
 sub transaction_mode {

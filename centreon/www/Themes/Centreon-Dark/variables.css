@@ -238,5 +238,6 @@
     --view-body-portlet-border-color: var(--color-divider-dark);
     --chart-legend-color: var(--color-white);
     /* license manager error page variables */
-    --license-manager-error-message-color: var(--color-primary-dark)
+    --license-manager-error-message-color: var(--color-primary-dark);
+    --centreon-logo-url: url(../../img/logo-centreon-white.svg);
 }

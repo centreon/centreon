@@ -49,6 +49,10 @@ export const large = (): JSX.Element => (
   <TextField placeholder="Large" size="large" />
 );
 
+export const defaultValue = (): JSX.Element => (
+  <TextField defaultValue="Default" label="Default value" />
+);
+
 export const transparent = (): JSX.Element => (
   <TextField transparent placeholder="Transparent" />
 );
