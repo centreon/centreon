@@ -163,44 +163,48 @@ const mockPostLoginServerError = (): void => {
   });
 };
 
+const setupBeforeEach = () => {
+  cy.clock(mockNow);
+
+  cy.interceptAPIRequest({
+    alias: 'getTranslations',
+    method: Method.GET,
+    path: `${replace('./', '**', externalTranslationEndpoint)}`,
+    response: retrievedTranslations
+  });
+  cy.interceptAPIRequest({
+    alias: 'getProvidersConfiguration',
+    method: Method.GET,
+    path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+    response: retrievedProvidersConfiguration
+  });
+  cy.interceptAPIRequest({
+    alias: 'getUser',
+    method: Method.GET,
+    path: `${replace('./', '**', userEndpoint)}`,
+    response: retrievedUser
+  });
+
+  i18next.use(initReactI18next).init({
+    fallbackLng: 'en',
+    keySeparator: false,
+    lng: 'en',
+    nsSeparator: false,
+    resources: {}
+  });
+};
+
 describe('Login Page', () => {
   beforeEach(() => {
-    cy.clock(mockNow);
-
-    cy.interceptAPIRequest({
-      alias: 'getTranslations',
-      method: Method.GET,
-      path: `${replace('./', '**', externalTranslationEndpoint)}`,
-      response: retrievedTranslations
-    });
-    cy.interceptAPIRequest({
-      alias: 'getProvidersConfiguration',
-      method: Method.GET,
-      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
-      response: retrievedProvidersConfiguration
-    });
+    setupBeforeEach();
     cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
-        alias: 'getLoginCustomization',
+        alias: 'getDefaultLoginCustomization',
         method: Method.GET,
         path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
         response: fixture
       })
     );
-    cy.interceptAPIRequest({
-      alias: 'getUser',
-      method: Method.GET,
-      path: `${replace('./', '**', userEndpoint)}`,
-      response: retrievedUser
-    });
-
-    i18next.use(initReactI18next).init({
-      fallbackLng: 'en',
-      keySeparator: false,
-      lng: 'en',
-      nsSeparator: false,
-      resources: {}
-    });
   });
 
   it('displays the login page', () => {
@@ -208,7 +212,7 @@ describe('Login Page', () => {
 
     cy.waitForRequest('@getTranslations');
     cy.waitForRequest('@getProvidersConfiguration');
-    cy.waitForRequest('@getLoginCustomization');
+    cy.waitForRequest('@getDefaultLoginCustomization');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
@@ -356,6 +360,129 @@ describe('Login Page', () => {
       });
 
     cy.findByLabelText(labelAlias).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Default custom login page', () => {
+  beforeEach(() => {
+    setupBeforeEach();
+
+    cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
+      cy.interceptAPIRequest({
+        alias: 'getDefaultLoginCustomization',
+        method: Method.GET,
+        path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+        response: fixture
+      })
+    );
+  });
+
+  it('displays the login page with default custom login data and module it edition extensions installed', () => {
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getDefaultLoginCustomization');
+
+    cy.findByAltText(labelCentreonLogo).should('be.visible');
+    cy.findByAltText(labelCentreonWallpaper).should('be.visible');
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.findByLabelText(labelPassword).should('be.visible');
+    cy.findByLabelText(labelConnect).should('be.visible');
+    cy.contains(labelPoweredByCentreon).should('be.visible');
+    cy.contains('v. 21.10.1').should('be.visible');
+    cy.findByLabelText(`${labelLoginWith} openid`).should(
+      'have.attr',
+      'href',
+      '/centreon/authentication/providers/configurations/openid'
+    );
+
+    cy.get('#loginHeader').children().should('have.length', 1);
+    cy.get('#Previewtop').should('not.exist');
+    cy.get('#Previewbottom').should('not.exist');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Custom login page with data', () => {
+  beforeEach(() => {
+    setupBeforeEach();
+
+    cy.fixture('login/loginPageCustomization.json').then((fixture) =>
+      cy.interceptAPIRequest({
+        alias: 'getLoginCustomization',
+        method: Method.GET,
+        path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+        response: fixture
+      })
+    );
+  });
+
+  it('displays the login page with custom login data', () => {
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getLoginCustomization');
+
+    cy.findByAltText(labelCentreonLogo).should('be.visible');
+    cy.findByAltText(labelCentreonWallpaper).should('be.visible');
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.findByLabelText(labelPassword).should('be.visible');
+    cy.findByLabelText(labelConnect).should('be.visible');
+    cy.contains(labelPoweredByCentreon).should('be.visible');
+    cy.contains('v. 21.10.1').should('be.visible');
+    cy.findByLabelText(`${labelLoginWith} openid`).should(
+      'have.attr',
+      'href',
+      '/centreon/authentication/providers/configurations/openid'
+    );
+
+    cy.get('#loginHeader').children().should('have.length', 2);
+    cy.findByText('Gendarmerie de la Haute-Garonne').should('be.visible');
+    cy.get('#Previewtop').should('not.exist');
+    cy.get('#Previewbottom').should('be.visible').contains('centreon');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Login page without module it edition extensions installed', () => {
+  beforeEach(() => {
+    setupBeforeEach();
+
+    cy.fixture('login/noModuleInstalledForLoginPageCustomization.json').then(
+      (fixture) =>
+        cy.interceptAPIRequest({
+          alias: 'getNoModuleForLoginCustomization',
+          method: Method.GET,
+          path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+          response: fixture,
+          statusCode: 404
+        })
+    );
+  });
+
+  it('displays the login page without custom login', () => {
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getNoModuleForLoginCustomization');
+
+    cy.findByAltText(labelCentreonLogo).should('be.visible');
+    cy.findByAltText(labelCentreonWallpaper).should('be.visible');
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.findByLabelText(labelPassword).should('be.visible');
+    cy.findByLabelText(labelConnect).should('be.visible');
+    cy.contains(labelPoweredByCentreon).should('be.visible');
+    cy.contains('v. 21.10.1').should('be.visible');
+    cy.findByLabelText(`${labelLoginWith} openid`).should(
+      'have.attr',
+      'href',
+      '/centreon/authentication/providers/configurations/openid'
+    );
+
+    cy.get('#loginHeader').children().should('have.length', 1);
+    cy.get('#Previewtop').should('not.exist');
+    cy.get('#Previewbottom').should('not.exist');
 
     cy.matchImageSnapshot();
   });

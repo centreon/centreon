@@ -27,7 +27,7 @@ const LoginHeader = ({ loginPageCustomisation }: Props): JSX.Element => {
   const hasIconSource = !isNil(loginPageCustomisation.iconSource);
 
   return (
-    <div>
+    <div id="loginHeader">
       {hasIconSource && (
         <Image
           alt={t(labelCentreonLogo)}
@@ -37,9 +37,11 @@ const LoginHeader = ({ loginPageCustomisation }: Props): JSX.Element => {
           imagePath={loginPageCustomisation.iconSource || ''}
         />
       )}
-      <Typography className={classes.loginElementItem} variant="h4">
-        {loginPageCustomisation.platformName}
-      </Typography>
+      {loginPageCustomisation?.platformName && (
+        <Typography className={classes.loginElementItem} variant="h4">
+          {loginPageCustomisation.platformName}
+        </Typography>
+      )}
     </div>
   );
 };
