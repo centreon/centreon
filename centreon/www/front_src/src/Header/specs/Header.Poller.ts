@@ -23,7 +23,12 @@ import {
 import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
 import useNavigation from '../../Navigation/useNavigation';
 
-import { initialize } from './Header.testUtils';
+import {
+  initialize,
+  submenuShouldBeClosed,
+  submenuShouldBeOpened,
+  openSubMenu
+} from './Header.testUtils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelPollers, timeout: 5000 }).as(
@@ -32,35 +37,6 @@ const getElements = (): void => {
 
   cy.findByRole('status', { name: 'database' }).as('databaseIndicator');
   cy.findByRole('status', { name: 'latency' }).as('latencyIndicator');
-};
-
-const submenuShouldBeClosed = (label): void => {
-  cy.findByRole('button', { name: label })
-    .as('button')
-    .should('have.attr', 'aria-expanded', 'false');
-
-  cy.get('@button').within(() => {
-    cy.findByTestId('ExpandLessIcon').should('be.visible');
-  });
-  cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
-};
-
-const openSubMenu = (label: string): void => {
-  cy.findByRole('button', {
-    name: label
-  }).click();
-  submenuShouldBeOpened(label);
-};
-
-const submenuShouldBeOpened = (label: string): void => {
-  cy.findByRole('button', { name: label })
-    .as('button')
-    .should('have.attr', 'aria-expanded', 'true');
-
-  cy.get('@button').within(() => {
-    cy.findByTestId('ExpandMoreIcon').should('be.visible');
-  });
-  cy.get(`#${label}-menu`).should('be.visible').should('exist');
 };
 
 export default (): void =>
@@ -95,6 +71,25 @@ export default (): void =>
     });
 
     describe('top status indicators', () => {
+      it('displays green indicators when no issues are detected', () => {
+        initialize({
+          pollersListIssues: {
+            issues: []
+          }
+        });
+        getElements();
+
+        cy.get('@databaseIndicator').should(
+          'contain.text',
+          labelDatabaseUpdateAndActive
+        );
+
+        cy.get('@latencyIndicator').should(
+          'contain.text',
+          labelNoLatencyDetected
+        );
+      });
+
       describe('database', () => {
         it('alert user about database critical issues', () => {
           initialize({

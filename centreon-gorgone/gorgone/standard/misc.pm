@@ -26,6 +26,7 @@ use vars qw($centreon_config);
 use POSIX ":sys_wait_h";
 use File::Path;
 use File::Basename;
+use Try::Tiny;
 
 sub reload_db_config {
     my ($logger, $config_file, $cdb, $csdb) = @_;
@@ -79,7 +80,10 @@ sub get_all_options_config {
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
     
-    my ($status, $stmt) = $centreon_db_centreon->query("SELECT `key`, `value` FROM options WHERE `key` LIKE " . $centreon_db_centreon->quote($prefix . "_%") . " LIMIT 1");
+    my ($status, $stmt) = $centreon_db_centreon->query({
+        query => 'SELECT `key`, `value` FROM options WHERE `key` LIKE ? LIMIT 1',
+        bind_values => [$prefix . '_%']
+    });
     if ($status == -1) {
         $centreon_db_centreon->force($save_force);
         return ;
@@ -101,7 +105,10 @@ sub get_option_config {
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
     
-    my ($status, $stmt) = $centreon_db_centreon->query("SELECT value FROM options WHERE `key` = " . $centreon_db_centreon->quote($prefix . "_" . $key) . " LIMIT 1");
+    my ($status, $stmt) = $centreon_db_centreon->query({
+        query => 'SELECT value FROM options WHERE `key` = ? LIMIT 1',
+        bind_values => [$prefix . '_' . $key]
+    });
     if ($status == -1) {
         $centreon_db_centreon->force($save_force);
         return ;
@@ -116,8 +123,10 @@ sub get_option_config {
 sub check_debug {
     my ($logger, $key, $cdb, $name) = @_;
     
-    my $request = "SELECT value FROM options WHERE `key` = " . $cdb->quote($key);
-    my ($status, $sth) =  $cdb->query($request);
+    my ($status, $sth) =  $cdb->query({
+        query => 'SELECT `value` FROM options WHERE `key` = ?',
+        bind_values => [$key]
+    });
     return -1 if ($status == -1);
     my $data = $sth->fetchrow_hashref();
     if (defined($data->{'value'}) && $data->{'value'} == 1) {
@@ -164,7 +173,7 @@ sub backtick {
     }
     
     if ($pid) {
-        eval {
+        try {
            local $SIG{ALRM} = sub { die "Timeout by signal ALARM\n"; };
            alarm( $arg{timeout} );
            while (<KID>) {
@@ -173,22 +182,20 @@ sub backtick {
            }
 
            alarm(0);
-        };
-        if ($@) {
+        } catch {
             if ($pid != -1) {
                 kill -9, $pid;
             }
 
             alarm(0);
             return (-1000, "Command too long to execute (timeout)...", -1);
-        } else {
-            if ($arg{wait_exit} == 1) {
-                # We're waiting the exit code                
-                waitpid($pid, 0);
-                $return_code = ($? >> 8);
-            }
-            close KID;
+        };
+        if ($arg{wait_exit} == 1) {
+            # We're waiting the exit code                
+            waitpid($pid, 0);
+            $return_code = ($? >> 8);
         }
+        close KID;
     } else {
         # child
         # set the child process to be a group leader, so that

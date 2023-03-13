@@ -55,9 +55,11 @@ When(
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
-      .click();
+      .click({ force: true });
     configureOpenIDConnect();
-    cy.getByLabel({ label: 'Authentication conditions' }).click();
+    cy.getByLabel({ label: 'Authentication conditions' }).click({
+      force: true
+    });
     cy.getByLabel({ label: 'Blacklist client addresses' })
       .clear()
       .type('127.0.0.1{enter}');

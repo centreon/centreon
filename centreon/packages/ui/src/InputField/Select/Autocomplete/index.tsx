@@ -25,6 +25,9 @@ import getNormalizedId from '../../../utils/getNormalizedId';
 export type Props = {
   autoFocus?: boolean;
   dataTestId?: string;
+  autoSize?: boolean;
+  autoSizeCustomPadding?: number;
+  autoSizeDefaultWidth?: number;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
@@ -47,6 +50,9 @@ const textfieldHeight = (hideInput?: boolean): number | undefined =>
   hideInput ? 0 : undefined;
 
 const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
+  hiddenText: {
+    transform: 'scale(0)'
+  },
   input: {
     '&:after': {
       borderBottom: 0
@@ -60,7 +66,6 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
     },
     height: textfieldHeight(hideInput)
   },
-
   inputLabel: {
     '&&': {
       fontSize: theme.typography.body1.fontSize,
@@ -150,11 +155,15 @@ const AutocompleteField = ({
   autoFocus = false,
   hideInput = false,
   dataTestId,
+  autoSize = false,
+  autoSizeDefaultWidth = 0,
+  autoSizeCustomPadding,
   ...autocompleteProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
   const { t } = useTranslation();
   const theme = useTheme();
+
   const areSelectEntriesEqual = (option, value): boolean => {
     const identifyingProps = ['id', 'name'];
 
@@ -188,10 +197,14 @@ const AutocompleteField = ({
         }
       }}
       autoFocus={autoFocus}
+      autoSize={autoSize}
+      autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
+      autoSizeDefaultWidth={autoSizeDefaultWidth}
       classes={{
         root: classes.textfield
       }}
       error={error}
+      externalValueForAutoSize={autocompleteProps?.value?.name}
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
@@ -201,7 +214,7 @@ const AutocompleteField = ({
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
       required={required}
-      value={inputValue || ''}
+      value={inputValue || undefined}
       onChange={onTextChange}
     />
   );

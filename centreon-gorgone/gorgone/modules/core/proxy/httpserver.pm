@@ -27,13 +27,13 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::Constants qw(:all);
-use ZMQ::LibZMQ4;
 use Mojolicious::Lite;
 use Mojo::Server::Daemon;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use IO::Poll qw(POLLIN POLLPRI);
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -140,28 +140,46 @@ sub run {
         }
     }
 
-    # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-proxy-httpserver',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PROXYREADY',
         data => {
             httpserver => 1
         }
-    );
+    });
     $self->read_zmq_events();
 
-    my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
-    my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
-    Mojo::IOLoop->singleton->reactor->io($socket => sub {
-        $connector->read_zmq_events();
-    });
-    Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
+    my $type = ref(Mojo::IOLoop->singleton->reactor);
+    my $watcher_io;
+    if ($type eq 'Mojo::Reactor::Poll') {
+        Mojo::IOLoop->singleton->reactor->{io}{ $self->{internal_socket}->get_fd()} = {
+            cb => sub { $connector->read_zmq_events(); },
+            mode => POLLIN | POLLPRI
+        };
+    }  else {
+        # need EV version 4.32
+        $watcher_io = EV::io(
+            $self->{internal_socket}->get_fd(),
+            EV::READ,
+            sub {
+                $connector->read_zmq_events();
+            }
+        );
+    }
+
+    #my $socket_fd = $self->{internal_socket}->get_fd();
+    #my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
+    #Mojo::IOLoop->singleton->reactor->io($socket => sub {
+    #    $connector->read_zmq_events();
+    #});
+    #Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
 
     Mojo::IOLoop->singleton->recurring(60 => sub {
         $connector->{logger}->writeLogDebug('[proxy] httpserver recurring timeout loop');
@@ -187,7 +205,6 @@ sub run {
 
     $daemon->run();
 
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -201,25 +218,25 @@ sub read_message_client {
         my ($rv, $data) = $connector->json_decode(argument => $3);
         return undef if ($rv == 1);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => 'PONG',
             data => $data,
             token => $token,
             target => ''
-        );
+        });
         $connector->read_zmq_events();
     } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS|SETLOGS)\]/) {
         return undef if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms);
 
         my ($action, $token, $data)  = ($1, $2, $3);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => $action,
             data => $data,
             data_noencode => 1,
             token => $token,
             target => ''
-        );
+        });
         $connector->read_zmq_events();
     }
 }
@@ -286,13 +303,9 @@ sub proxy {
 sub read_zmq_events {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my $message = $connector->read_message();
-            proxy(message => $message);
-        } else {
-            last;
-        }
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $connector->read_message();
+        proxy(message => $message);
     }
 }
 

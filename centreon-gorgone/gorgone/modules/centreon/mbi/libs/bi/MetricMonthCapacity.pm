@@ -77,13 +77,13 @@ sub insertStats {
         $append = ',';
         $counter++;
         if ($counter >= $insertParam) {
-            $db->query($query);
+            $db->query({ query => $query });
             $query = $query_start;
             $counter = 0;
             $append = '';
         }
     }
-    $db->query($query) if ($counter > 0);
+    $db->query({ query => $query }) if ($counter > 0);
 }
 
 1;

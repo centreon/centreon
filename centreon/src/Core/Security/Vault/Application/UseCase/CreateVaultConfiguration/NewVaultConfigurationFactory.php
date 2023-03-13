@@ -67,7 +67,7 @@ class NewVaultConfigurationFactory
             $vault,
             $request->address,
             $request->port,
-            $request->storage,
+            $request->rootPath,
             $request->roleId,
             $request->secretId
         );

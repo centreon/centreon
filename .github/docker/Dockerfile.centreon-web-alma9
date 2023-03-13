@@ -11,6 +11,7 @@ dnf install -y dnf-plugins-core
 dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
 echo "[server]
 skip-grant-tables
@@ -25,58 +26,10 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-# Add temporary artifactory repo for collect 23.04 rpms
-echo "
-#[centreon-stable-noarch]
-#name=Centreon open source software repository.
-#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/noarch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
+dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm/standard/23.04/el9/centreon.repo
+dnf config-manager --set-enabled 'centreon*'
 
-#[centreon-stable]
-#name=Centreon open source software repository.
-#baseurl=https://yum.centreon.com/standard/23.04/el9/stable/\$basearch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-#[centreon-testing-noarch]
-#name=Centreon open source software repository. (UNSUPPORTED)
-#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/noarch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-#[centreon-testing]
-#name=Centreon open source software repository. (UNSUPPORTED)
-#baseurl=https://yum.centreon.com/standard/23.04/el9/testing/\$basearch/
-#enabled=1
-#gpgcheck=1
-#gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-#module_hotfixes=1
-
-[centreon-unstable-noarch]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/unstable/noarch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-
-[centreon-unstable]
-name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://yum.centreon.com/standard/23.04/el9/unstable/\$basearch/
-enabled=1
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-" > /etc/yum.repos.d/centreon.repo
-
-dnf clean all
+dnf clean all --enablerepo=*
 
 EOF
 
@@ -84,7 +37,7 @@ RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN <<EOF
-yum clean all --enablerepo=*
+
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
@@ -97,15 +50,15 @@ echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-dnf clean all
+dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=+x ./.github/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY ./.github/scripts/entrypoint/container.d /usr/share/centreon/container.d
-COPY ./.github/scripts/init/* /etc/init.d/
-COPY --chmod=+x ./.github/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/scripts/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=+x ./.github/docker/centreon-web-alma9/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY ./.github/docker/centreon-web-alma9/entrypoint/container.d /usr/share/centreon/container.d
+COPY ./.github/docker/init/* /etc/init.d/
+COPY --chmod=+x ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
@@ -136,7 +89,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/scripts/sql /tmp/sql
+COPY ./.github/docker/sql /tmp/sql
 
 RUN <<EOF
 
@@ -151,12 +104,12 @@ EOF
 
 FROM web_standard AS web_widgets
 
-COPY --chmod=+x ./.github/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
+COPY --chmod=+x ./.github/docker/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
 
 RUN <<EOF
 
 dnf install -y 'centreon-widget-*'
-dnf clean all
+dnf clean all --enablerepo=*
 
 service mysql start
 for w in graph-monitoring host-monitoring hostgroup-monitoring httploader live-top10-cpu-usage live-top10-memory-usage service-monitoring servicegroup-monitoring tactical-overview ; do

@@ -19,18 +19,32 @@ type Props = {
   className?: string;
   onClick: (event) => void;
   title?: string;
+  tooltipPlacement?:
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'top'
+    | 'bottom-end'
+    | 'bottom-start'
+    | 'left-end'
+    | 'left-start'
+    | 'right-end'
+    | 'right-start'
+    | 'top-end'
+    | 'top-start';
 } & IconButtonProps;
 
 const IconButton = ({
   title = '',
   ariaLabel,
   className,
+  tooltipPlacement,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   return (
-    <Tooltip title={title}>
+    <Tooltip placement={tooltipPlacement} title={title}>
       <span aria-label={undefined}>
         <MuiIconButton
           aria-label={ariaLabel}

@@ -9910,8 +9910,8 @@ msgstr "Comunidade SNMP"
 
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:242
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:442
-msgid "A host can have multiple templates, their orders have a significant importance"
-msgstr "Um host pode ter múltiplos modelos, a ordem deles tem importância significativa"
+# msgid "A host or host template can have several templates. See help for more details."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:244
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:444
@@ -15982,4 +15982,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""

@@ -36,6 +36,7 @@ export interface InputProps {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     endpoint?: string;
     filterKey?: string;
+    getRenderedOptionText?: (option) => string | JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -67,6 +68,7 @@ export interface InputProps {
       label: string;
       value: boolean | string;
     }>;
+    row?: boolean;
   };
   required?: boolean;
   switchInput?: {
