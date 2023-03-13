@@ -28,14 +28,13 @@ use gorgone::standard::misc;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use MIME::Base64;
 use JSON::XS;
 use Data::Dumper;
 use gorgone::modules::plugins::newtest::libs::stubs::ManagementConsoleService;
 use gorgone::modules::plugins::newtest::libs::stubs::errors;
 use Date::Parse;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -177,7 +176,8 @@ sub get_poller_id {
     my ($self, %options) = @_;
 
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => 'SELECT id FROM nagios_server WHERE name = ' . $self->{class_object_centreon}->quote(value => $self->{poller_name}),
+        request => 'SELECT id FROM nagios_server WHERE name = ?',
+        bind_values => [$self->{poller_name}],
         mode => 2
     );
     if ($status == -1) {
@@ -197,17 +197,18 @@ sub get_poller_id {
 sub get_centreondb_cache {
     my ($self, %options) = @_;
     
-    my $request = '
+    my $request = "
         SELECT host.host_name, service.service_description 
         FROM host 
         LEFT JOIN (host_service_relation, service) ON 
             (host_service_relation.host_host_id = host.host_id AND 
              service.service_id = host_service_relation.service_service_id AND 
-             service.service_description LIKE ' . $self->{class_object_centreon}->quote(value => $self->{service_prefix}) . ') 
-        WHERE host_name LIKE ' . $self->{class_object_centreon}->quote(value => $self->{host_prefix}) . " AND host_register = '1'";
+             service.service_description LIKE ?) 
+        WHERE host_name LIKE ? AND host_register = '1'";
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => $request, 
+        request => $request,
+        bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
     );    
     if ($status == -1) {
@@ -229,11 +230,12 @@ sub get_centstoragedb_cache {
     my ($self, %options) = @_;
     
     my $request = 'SELECT hosts.name, services.description, services.last_check 
-                        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ' . $self->{class_object_centstorage}->quote(value => $self->{service_prefix}) . ')  
-                        WHERE name like ' . $self->{class_object_centstorage}->quote(value => $self->{host_prefix});
+        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ?  
+        WHERE name like ?';
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
-        request => $request, 
+        request => $request,
+        bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
     );    
     if ($status == -1) {
@@ -588,7 +590,7 @@ sub action_newtestresync {
 
 sub event {
     while (1) {
-        my $message = $connector->read_message();
+        my ($message) = $connector->read_message();
         last if (!defined($message));
 
         $connector->{logger}->writeLogDebug("gorgone-newtest: class: $message");
@@ -600,6 +602,18 @@ sub event {
                 $method->($connector, token => $token, data => $data);
             }
         }
+    }
+}
+
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[newtest] $$ has quit");
+        exit(0);
+    }
+
+    if (time() - $connector->{resync_time} > $connector->{last_resync_time}) {
+        $connector->{last_resync_time} = time();
+        $connector->action_newtestresync();
     }
 }
 
@@ -627,39 +641,22 @@ sub run {
     $SOAP::Constants::PREFIX_ENV = 'SOAP-ENV';
     $self->{instance} = gorgone::modules::plugins::newtest::libs::stubs::ManagementConsoleService->new();
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-newtest-' . $self->{container_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'NEWTESTREADY',
         data => { container_id => $self->{container_id} }
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[newtest] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            zmq_close($self->{socket_log}) if (defined($self->{socket_log}));
-            exit(0);
-        }
+    });
 
-        if (time() - $self->{resync_time} > $self->{last_resync_time}) {
-            $self->{last_resync_time} = time();
-            $self->action_newtestresync();
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

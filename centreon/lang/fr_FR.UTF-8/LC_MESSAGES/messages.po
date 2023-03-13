@@ -16225,6 +16225,9 @@ msgstr "Erreur lors de la recherche d'un contact"
 msgid "Monitoring server not found (#%d)"
 msgstr "Serveur de supervision non trouvé (#%d)"
 
+msgid "Monitoring server disabled (#%d)"
+msgstr "Serveur de supervision désactivé (#%d)"
+
 msgid "Generation error on monitoring server #%d: %s"
 msgstr "Erreur de génération sur le serveur de supervision #%d : %s"
 

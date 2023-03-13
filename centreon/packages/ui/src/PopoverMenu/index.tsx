@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
@@ -20,6 +20,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 interface Props {
+  canOpen?: boolean;
   children: (props?) => JSX.Element;
   className?: string;
   dataTestId?: string;
@@ -37,6 +38,7 @@ const PopoverMenu = ({
   popperPlacement,
   onOpen,
   onClose,
+  canOpen = true,
   className,
   dataTestId
 }: Props): JSX.Element => {
@@ -66,6 +68,12 @@ const PopoverMenu = ({
     onOpen?.();
     setAnchorEl(event.currentTarget);
   };
+
+  useEffect(() => {
+    if (!canOpen) {
+      close();
+    }
+  }, [canOpen]);
 
   return (
     <>

@@ -47,7 +47,7 @@ sub getCentileParams {
     
     my $centileParams = [];
     my $query = "SELECT `centile_param`, `timeperiod_id` FROM `mod_bi_options_centiles`";
-    my $sth = $centreon->query($query);
+    my $sth = $centreon->query({ query => $query });
     while (my $row = $sth->fetchrow_hashref()) {
     	if (defined($row->{centile_param}) && $row->{centile_param} ne '0' && defined($row->{timeperiod_id}) && $row->{timeperiod_id} ne '0'){
     		push @{$centileParams}, { centile_param => $row->{centile_param}, timeperiod_id => $row->{timeperiod_id} };

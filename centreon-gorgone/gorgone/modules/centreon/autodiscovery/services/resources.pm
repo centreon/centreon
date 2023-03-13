@@ -43,8 +43,9 @@ sub get_pollers {
         $pollers->{$poller_id}->{resources} = {};
         ($status, my $resources) = $options{class_object_centreon}->custom_execute(
             request =>
-                'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource WHERE cfg_resource_instance_relations.instance_id = ' .
-                $options{class_object_centreon}->quote(value => $poller_id) . " AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id AND resource_activate = '1'",
+                'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource WHERE cfg_resource_instance_relations.instance_id = ?' .
+                " AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id AND resource_activate = '1'",
+            bind_values => [$poller_id],
             mode => 2
         );
         if ($status == -1) {
@@ -83,9 +84,8 @@ sub get_audit_user_id {
     my $user_id = 0;
 
     my ($status, $contacts) = $options{class_object_centreon}->custom_execute(
-        request =>
-            'SELECT contact_id FROM contact WHERE contact_alias = ' .
-            $options{class_object_centreon}->quote(value => $options{clapi_user}),
+        request => 'SELECT contact_id FROM contact WHERE contact_alias = ?',
+        bind_values => [$options{clapi_user}],
         mode => 2
     );
     if ($status == -1) {
@@ -106,12 +106,15 @@ sub get_rules {
     if (defined($options{force_rule}) && $options{force_rule} == 1) {
         $filter = '';
     }
+
+    my @bind_values = ();
     if (defined($options{filter_rules}) && scalar(@{$options{filter_rules}}) > 0) {
         my $append = '';
         $filter .= 'rule_alias IN (';
         foreach my $rule (@{$options{filter_rules}}) {
-            $filter .= $append . $options{class_object_centreon}->quote(value => $rule);
+            $filter .= $append . '?';
             $append = ', ';
+            push @bind_values, $rule;
         }
         $filter .= ') AND ';
     }
@@ -120,6 +123,7 @@ sub get_rules {
         request =>
             "SELECT rule_id, rule_alias, service_display_name, rule_disable, rule_update, command_line, service_template_model_id, rule_scan_display_custom, rule_variable_custom
               FROM mod_auto_disco_rule, command WHERE " . $filter . " mod_auto_disco_rule.command_command_id = command.command_id",
+        bind_values => \@bind_values,
         mode => 1,
         keys => 'rule_id'
     );
@@ -306,37 +310,43 @@ sub get_hosts {
 
     my $filter = '';
     my $filter_append = '';
-    foreach (@{$options{host_template}}) {
-        $filter .= $filter_append . $options{class_object_centreon}->quote(value => $_);
-        $filter_append = ', ';
-    }
-    $filter = ' host_template_relation.host_tpl_id IN (' . $filter . ') AND ';
+    my @bind_values = ();
 
     my $filter_host = '';
     if (defined($options{host_lookup}) && ref($options{host_lookup}) eq 'ARRAY' && scalar(@{$options{host_lookup}}) > 0) {
         my $filter_append = '';
         foreach (@{$options{host_lookup}}) {
-            $filter_host .= $filter_append .$options{class_object_centreon}->quote(value => $_);
+            $filter_host .= $filter_append . '?';
             $filter_append = ', ';
+            push @bind_values, $_;
         }
         $filter_host = ' host.host_name IN (' . $filter_host . ') AND ';
     }
-    
+
+    foreach (@{$options{host_template}}) {
+        $filter .= $filter_append . '?';
+        $filter_append = ', ';
+        push @bind_values, $_;
+    }
+    $filter = ' host_template_relation.host_tpl_id IN (' . $filter . ') AND ';
+
     my $filter_poller = '';
     my $join_table = '';
     if (defined($options{poller_lookup}) && ref($options{poller_lookup}) eq 'ARRAY' && scalar(@{$options{poller_lookup}}) > 0) {
         my $filter_append = '';
         foreach (@{$options{poller_lookup}}) {
-            $filter_poller .= $filter_append . $options{class_object_centreon}->quote(value => $_);
+            $filter_poller .= $filter_append . '?';
             $filter_append = ', ';
+            push @bind_values, $_;
         }
         $filter_poller = ' nagios_server.name IN ('. $filter_poller .') AND nagios_server.id = ns_host_relation.nagios_server_id AND ';
         $join_table = ', nagios_server ';
     } elsif (defined($options{poller_id}) && scalar(@{$options{poller_id}}) > 0){
         my $filter_append = '';
         foreach (@{$options{poller_id}}) {
-            $filter_poller .= $filter_append . $options{class_object_centreon}->quote(value => $_);
+            $filter_poller .= $filter_append . '?';
             $filter_append = ', ';
+            push @bind_values, $_;
         }
         $filter_poller =' ns_host_relation.nagios_server_id IN (' . $filter_poller . ') AND nagios_server.id = ns_host_relation.nagios_server_id AND ';
         $join_table = ', nagios_server ';
@@ -349,8 +359,9 @@ sub get_hosts {
             AND " . $filter_poller . " host.host_id = ns_host_relation.host_host_id
             AND `host_activate` = '1'
             ",
+        bind_values => \@bind_values,
         mode => 1,
-        keys => 'host_id',
+        keys => 'host_id'
     );
     if ($status == -1) {
         return (-1, 'cannot host list');
@@ -578,7 +589,8 @@ sub get_service {
     my $service;
     my ($status, $datas) = $options{class_object_centreon}->custom_execute(
         request => 'SELECT service_id, service_template_model_stm_id, service_activate, svc_macro_name, svc_macro_value FROM host, host_service_relation, service LEFT JOIN on_demand_macro_service ON on_demand_macro_service.svc_svc_id = service.service_id WHERE host_id = ' . $options{host_id} . 
-                " AND host.host_id = host_service_relation.host_host_id AND host_service_relation.service_service_id = service.service_id AND service.service_description = " . $options{class_object_centreon}->quote(value => $options{service_name}),
+                " AND host.host_id = host_service_relation.host_host_id AND host_service_relation.service_service_id = service.service_id AND service.service_description = ?",
+        bind_values => [$options{service_name}],
         mode => 2
     );
     if ($status == -1) {

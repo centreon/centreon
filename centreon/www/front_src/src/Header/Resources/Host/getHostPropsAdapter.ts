@@ -1,7 +1,5 @@
-import numeral from 'numeral';
-
 import { SeverityCode } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
+import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
 
 import {
   getHostResourcesUrl,
@@ -14,10 +12,12 @@ import {
 } from '../getResourcesUrl';
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { Adapter } from '../useResourceCounters';
-import type { Criteria } from '../../../Resources/Filter/Criterias/models';
-import type { SubMenuProps } from '../../sharedUI/ResourceSubMenu';
-import type { CounterProps } from '../../sharedUI/ResourceCounters';
 import type { HostStatusResponse } from '../../api/decoders';
+import {
+  formatCount,
+  formatUnhandledOverTotal,
+  getNavigationFunction
+} from '../utils';
 
 import {
   labelDownStatusHosts,
@@ -30,11 +30,6 @@ import {
   labelUp
 } from './translatedLabels';
 
-type ChangeFilterAndNavigate = (params: {
-  criterias: Array<Criteria>;
-  link: string;
-}) => (e: React.MouseEvent<HTMLLinkElement>) => void;
-
 export interface HostPropsAdapterOutput {
   counters: CounterProps['counters'];
   hasPending: boolean;
@@ -43,14 +38,6 @@ export interface HostPropsAdapterOutput {
 
 type GetHostPropsAdapter = Adapter<HostStatusResponse, HostPropsAdapterOutput>;
 
-const formatCount = (number: number | string): string =>
-  numeral(number).format('0a');
-
-const formatUnhandledOverTotal = (
-  unhandled: number | string,
-  total: number | string
-): string => `${formatCount(unhandled)}/${formatCount(total)}`;
-
 const getHostPropsAdapter: GetHostPropsAdapter = ({
   useDeprecatedPages,
   applyFilter,
@@ -58,22 +45,18 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
   t,
   data
 }) => {
-  const changeFilterAndNavigate: ChangeFilterAndNavigate =
-    ({ link, criterias }) =>
-    (e) => {
-      e.preventDefault();
-      if (!useDeprecatedPages) {
-        applyFilter({ criterias, id: '', name: 'New Filter' });
-      }
-
-      navigate(link);
-    };
+  const changeFilterAndNavigate = getNavigationFunction({
+    applyFilter,
+    navigate,
+    useDeprecatedPages
+  });
 
   const unhandledDownHostsCriterias = getDefaultCriterias({
     resourceTypes: hostCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: downCriterias.value as Array<SelectEntry>
   });
+
   const unhandledDownHostsLink = useDeprecatedPages
     ? '/main.php?p=20202&o=h_down&search='
     : getHostResourcesUrl({
@@ -122,7 +105,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
 
   const config = {
     all: {
-      count: numeral(data.total).format('0a'),
+      count: formatCount(data.total),
       label: t(labelAll),
       onClick: changeFilterAndNavigate({
         criterias: hostsCriterias,

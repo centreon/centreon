@@ -15996,3 +15996,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Icon #%d does not exists"
 #  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""

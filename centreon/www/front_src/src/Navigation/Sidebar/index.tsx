@@ -12,10 +12,9 @@ import { Page } from '../models';
 import { headerHeight } from '../../Header';
 
 import Logo from './Logo';
-import MiniLogo from './Logo/LogoMini';
 import NavigationMenu from './Menu';
 
-export const openedDrawerWidth = 165;
+export const openDrawerWidth = 165;
 export const closedDrawerWidth = 6;
 
 const isDarkMode = (theme: Theme): boolean =>
@@ -27,7 +26,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
     easing: theme.transitions.easing.sharp
   }),
-  width: theme.spacing(openedDrawerWidth / 8)
+  width: theme.spacing(openDrawerWidth / 8)
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -61,7 +60,7 @@ const Drawer = styled(MuiDrawer, {
   boxSizing: 'border-box',
   flexShrink: 0,
   whiteSpace: 'nowrap',
-  width: theme.spacing(openedDrawerWidth / 8),
+  width: theme.spacing(openDrawerWidth / 8),
   ...(open && {
     ...openedMixin(theme),
     '& .MuiDrawer-paper': openedMixin(theme)
@@ -77,23 +76,22 @@ export interface Props {
 }
 
 export default ({ navigationData }: Props): JSX.Element => {
-  const [open, setOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleNavigation = (): void => {
-    setOpen(!open);
+    setIsMenuOpen((currentIsMenuOpened) => !currentIsMenuOpened);
   };
 
   return (
     <Box data-testid="sidebar" sx={{ display: 'flex' }}>
-      <Drawer open={open} variant="permanent">
+      <Drawer open={isMenuOpen} variant="permanent">
         <DrawerHeader>
-          {open ? (
-            <Logo onClick={toggleNavigation} />
-          ) : (
-            <MiniLogo onClick={toggleNavigation} />
-          )}
+          <Logo isMiniLogo={!isMenuOpen} onClick={toggleNavigation} />
         </DrawerHeader>
-        <NavigationMenu isDrawerOpen={open} navigationData={navigationData} />
+        <NavigationMenu
+          isDrawerOpen={isMenuOpen}
+          navigationData={navigationData}
+        />
       </Drawer>
     </Box>
   );

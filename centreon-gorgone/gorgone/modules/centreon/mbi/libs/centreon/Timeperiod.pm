@@ -52,7 +52,7 @@ sub getTimeRangesForDay {
 	my $query = "SELECT tp_" . $weekDay;
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_name = '" . $name . "'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
     if (my $row = $sth->fetchrow_hashref()) {
     	if (defined($row->{'tp_'.$weekDay})) {
 			my @ranges = split(",", $row->{'tp_' . $weekDay});
@@ -78,7 +78,7 @@ sub getTimeRangesForDayByDateTime {
 	my $query = "SELECT tp_".$weekDay;
 	$query .= " FROM timeperiod";
 	$query .= " WHERE  tp_name='".$name."'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
     if(my $row = $sth->fetchrow_hashref()) {
     	if (defined($row->{'tp_'.$weekDay})) {
 			my @ranges = split(",", $row->{'tp_'.$weekDay});
@@ -122,7 +122,7 @@ sub getAllRangesForTpId {
 	my $query = "SELECT tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday, tp_sunday";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE  tp_id='".$timeperiod_id."'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	
 	my @results = ();
 	if(my $row = $sth->fetchrow_hashref()) {
@@ -175,7 +175,7 @@ sub getId {
 	my $query = "SELECT tp_id";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_name = '".$name."'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my $result = -1;
     if(my $row = $sth->fetchrow_hashref()) {
     	$result = $row->{'tp_id'};
@@ -191,7 +191,7 @@ sub getPeriodsLike {
 	my $query = "SELECT tp_id, tp_name";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_name like '".$name."%'";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
     while (my $row = $sth->fetchrow_hashref()) {
     	$result{$row->{'tp_id'}} = $row->{'tp_name'};
@@ -220,7 +220,7 @@ sub getPeriods {
 	my $query = "SELECT tp_id, tp_name";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_id IN (".$idStr.")";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
     while (my $row = $sth->fetchrow_hashref()) {
     	$result{$row->{'tp_id'}} = $row->{'tp_name'};
@@ -236,7 +236,7 @@ sub getCentilePeriods {
 	my $query = "SELECT tp_id, tp_name";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_id IN (select timeperiod_id from mod_bi_options_centiles)";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %result = ();
     while (my $row = $sth->fetchrow_hashref()) {
     	$result{$row->{'tp_id'}} = $row->{'tp_name'};
