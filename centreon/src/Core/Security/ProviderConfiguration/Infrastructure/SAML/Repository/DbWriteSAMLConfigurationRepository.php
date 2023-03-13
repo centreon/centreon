@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
      */
     public function updateConfiguration(Configuration $configuration): void
     {
-        $this->info('Updating OpenID Provider in DBMS');
+        $this->info('Updating SAML Provider in DBMS');
         $statement = $this->db->prepare(
             $this->translateDbName(
                 "UPDATE `:db`.`provider_configuration` SET
@@ -64,7 +64,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
 
         $statement->bindValue(
             ':customConfiguration',
-            json_encode($this->buildCustomConfigurationFromOpenIdConfiguration($configuration))
+            json_encode($this->buildCustomConfigurationFromSAMLConfiguration($configuration))
         );
         $statement->bindValue(':name', Provider::SAML);
         $statement->bindValue(':isActive', $configuration->isActive() ? '1' : '0');
@@ -89,12 +89,12 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
-     * Format OpenIdConfiguration for custom_configuration.
+     * Format SAMLConfiguration for custom_configuration.
      *
      * @param Configuration $configuration
      * @return array<string, mixed>
      */
-    private function buildCustomConfigurationFromOpenIdConfiguration(Configuration $configuration): array
+    private function buildCustomConfigurationFromSAMLConfiguration(Configuration $configuration): array
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $configuration->getCustomConfiguration();

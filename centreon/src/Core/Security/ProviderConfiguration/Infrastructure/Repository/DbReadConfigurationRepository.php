@@ -37,7 +37,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
@@ -77,7 +77,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     /**
      * @param int $id
      * @return Configuration
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      * @throws RepositoryException
      * @throws \Throwable
      */
@@ -94,7 +94,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     /**
      * @param Configuration $configuration
      * @return CustomConfigurationInterface
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      * @throws RepositoryException|\Throwable
      */
     private function loadCustomConfigurationFromConfiguration(

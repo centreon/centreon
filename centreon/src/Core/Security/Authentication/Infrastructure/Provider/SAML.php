@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the spceific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  * For more information : contact@centreon.com
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Assert\AssertionFailedException;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
@@ -33,15 +34,23 @@ use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\InvalidArgumentProvidedException;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\InvalidUserIdAttributeException;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\MissingArgumentProvidedException;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\SAML\InvalidMetadataException;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\SAML\ProcessAuthenticationResponseException;
+use Core\Security\Authentication\Infrastructure\Provider\Exception\UserNotAuthenticatedException;
 use Core\Security\Authentication\Infrastructure\Provider\Settings\Formatter\SettingsFormatterInterface;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
@@ -64,16 +73,6 @@ class SAML implements ProviderAuthenticationInterface
      * @var Configuration
      */
     private Configuration $configuration;
-
-    /**
-     * @var NewProviderToken
-     */
-    private NewProviderToken $providerToken;
-
-    /**
-     * @var NewProviderToken|null
-     */
-    private ?NewProviderToken $refreshToken = null;
 
     /**
      * @var Centreon
@@ -100,7 +99,11 @@ class SAML implements ProviderAuthenticationInterface
      * @param ContactRepositoryInterface $contactRepository
      * @param LoginLoggerInterface $loginLogger
      * @param WriteUserRepositoryInterface $userRepository
+     * @param Conditions $conditions
      * @param RolesMapping $rolesMapping
+     * @param GroupsMappingSecurityAccess $groupsMapping
+     * @param SettingsFormatterInterface $formatter
+     * @param SessionInterface $session
      */
     public function __construct(
         private readonly Container $dependencyInjector,
@@ -111,9 +114,8 @@ class SAML implements ProviderAuthenticationInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
-        private readonly SessionInterface $session
-    )
-    {
+        private readonly SessionInterface $session,
+    ) {
     }
 
     /**
@@ -122,39 +124,49 @@ class SAML implements ProviderAuthenticationInterface
      * @throws Error
      * @throws ValidationError
      * @throws AuthenticationConditionsException
+     * @throws Exception
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
+        $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
         $this->auth = new Auth($this->formatter->format($customConfiguration));
         $this->auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $this->auth->getErrors();
         if (!empty($errors)) {
-            dd($errors);
+            $ex =  ProcessAuthenticationResponseException::create();
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => $errors]);
+            throw $ex;
         }
 
         if (!$this->auth->isAuthenticated()) {
-            dd("not auth");
+            $ex = UserNotAuthenticatedException::create();
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage());
+            throw $ex;
         }
+
         $settings = $this->auth->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
         if (!empty($errors)) {
-            dd($errors);
+            $ex = InvalidMetadataException::create();
+            $this->info($ex->getMessage(), ['errors' => $errors]);
+            throw $ex;
         }
 
         $attrs = $this->auth->getAttribute($customConfiguration->getUserIdAttribute());
         if ($attrs === null) {
-            throw new \Exception("invalid user id attribute provided");
+            throw InvalidUserIdAttributeException::create();
         }
+
         $this->username = $attrs[0];
         CentreonSession::writeSessionClose('saml', [
             'samlSessionIndex' => $this->auth->getSessionIndex(),
             'samlNameId' => $this->auth->getNameId()
         ]);
-        session_write_close();
 
+        $this->loginLogger->info(Provider::SAML, 'checking security access rules');
         $this->conditions->validate($this->configuration, $this->auth->getAttributes());
         $this->rolesMapping->validate($this->configuration, $this->auth->getAttributes());
         $this->groupsMapping->validate($this->configuration, $this->auth->getAttributes());
@@ -271,7 +283,8 @@ class SAML implements ProviderAuthenticationInterface
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
-            'contact_theme' => $user->getTheme() ?? 'light'
+            'contact_theme' => $user->getTheme() ?? 'light',
+            'auth_type' => Provider::SAML
         ];
 
         $this->authenticatedUser = $user;
@@ -373,7 +386,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function getAuthenticatedUser(): ?ContactInterface
     {
-        return null;
+        return $this->authenticatedUser;
     }
 
     /**
@@ -400,7 +413,7 @@ class SAML implements ProviderAuthenticationInterface
     /**
      * @return void
      * @throws Throwable
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     private function createUser(): void
     {
@@ -412,11 +425,13 @@ class SAML implements ProviderAuthenticationInterface
             ['user' => $this->username]
         );
 
-        $fullname = $this->auth->getAttribute($customConfiguration->getUserNameBindAttribute())[0];
-        $email = $this->auth->getAttribute($customConfiguration->getEmailBindAttribute())[0];
-        if ($fullname === null || $email === null) {
-            throw new \Exception("invalid bind attributes provided for auto import");
+        $usernameAttrs = $this->auth->getAttribute($customConfiguration->getUserNameBindAttribute());
+        $emailAttrs = $this->auth->getAttribute($customConfiguration->getEmailBindAttribute());
+        if (!isset($usernameAttrs[0]) || !isset($emailAttrs[0])) {
+            throw InvalidArgumentProvidedException::create("invalid bind attributes provided for auto import");
         }
+        $fullname = $usernameAttrs[0];
+        $email = $emailAttrs[0];
 
         $alias = $this->username;
         $user = new NewUser($alias, $fullname, $email);
@@ -445,8 +460,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function logout(): void
     {
-        session_start();
-        $returnTo = "http://localhost:8080";
+        $returnTo = "/login";
         $parameters = [];
         $nameId = null;
         $sessionIndex = null;
@@ -459,6 +473,7 @@ class SAML implements ProviderAuthenticationInterface
             $sessionIndex = $_SESSION['saml']['samlSessionIndex'];
         }
 
+        $this->info('logout from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
     }

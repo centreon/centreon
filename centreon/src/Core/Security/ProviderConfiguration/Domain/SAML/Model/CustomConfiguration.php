@@ -26,11 +26,12 @@ namespace Core\Security\ProviderConfiguration\Domain\SAML\Model;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\SAML\Exception\MissingLogoutUrlException;
 use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, SAMLCustomConfigurationInterface
@@ -115,7 +116,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(array $json)
     {
@@ -396,7 +397,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function create(array $json): void
     {
@@ -407,6 +408,10 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         $this->setRemoteLoginUrl($json['remote_login_url']);
         $this->setPublicCertificate($json['certificate']);
         $this->setLogoutFrom($json['logout_from']);
+        if ($json['is_forced'] === true) {
+            $this->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
+        }
+
         $this->setLogoutFromUrl($json['logout_from_url']);
         $this->setUserIdAttribute($json['user_id_attribute']);
         $this->setAutoImportEnabled($json['auto_import']);
@@ -432,7 +437,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     /**
      * @param array<string,mixed> $json
      * @return void
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryFields(array $json): void
     {
@@ -452,7 +457,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         }
 
         if (!empty($emptyParameters)) {
-            throw OpenIdConfigurationException::missingMandatoryParameters($emptyParameters);
+            throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
         if ($json['auto_import'] === true) {
@@ -463,8 +468,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             );
         }
 
-        if ($json['logout_from'] === true && empty($json['logout_from_url'])) {
-            throw new \Exception("oups il manque logout_from_url");
+        if (($json['logout_from'] === true || $json['is_forced'] === true) && empty($json['logout_from_url'])) {
+            throw MissingLogoutUrlException::create();
         }
     }
 
@@ -474,7 +479,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
      * @param ContactTemplate|null $contactTemplate
      * @param string|null $emailBindAttribute
      * @param string|null $userNameBindAttribute
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
@@ -492,7 +497,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
         if (!empty($missingMandatoryParameters)) {
-            throw OpenIdConfigurationException::missingAutoImportMandatoryParameters(
+            throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );
         }

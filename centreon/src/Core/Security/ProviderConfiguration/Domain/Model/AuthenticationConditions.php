@@ -25,7 +25,7 @@ namespace Core\Security\ProviderConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
  * This class is designed to represent the Authentication Conditions to be able to connect with OpenID Provider
@@ -61,7 +61,7 @@ class AuthenticationConditions
      * @param string $attributePath
      * @param Endpoint|null $endpoint
      * @param string[] $authorizedValues
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
@@ -196,7 +196,7 @@ class AuthenticationConditions
      * @param boolean $isEnabled
      * @param string $attributePath
      * @param string[] $authorizedValues
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledCondition(
         bool $isEnabled,
@@ -212,7 +212,7 @@ class AuthenticationConditions
                 $mandatoryParameters[] = "authorized_values";
             }
             if (! empty($mandatoryParameters)) {
-                throw OpenIdConfigurationException::missingMandatoryParameters($mandatoryParameters);
+                throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }
     }

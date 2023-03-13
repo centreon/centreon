@@ -5,7 +5,7 @@ import routeMap from './routeMap';
 const reactRoutes = [
   {
     comp: lazy(() => import('../route-components/pollerWizard')),
-    path: routeMap.pollerWizard,
+    path: routeMap.pollerWizard
   },
   {
     comp: lazy(() => import('../Extensions')),

@@ -21,10 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
+namespace Core\Security\Authentication\Infrastructure\Provider\Exception\SAML;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface UpdateSAMLConfigurationPresenterInterface extends PresenterInterface
+class ProcessAuthenticationResponseException extends \DomainException
 {
+    public static function create(): self
+    {
+        return new self("Invalid metadata, the validation failed", 400);
+    }
 }

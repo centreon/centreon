@@ -90,9 +90,7 @@ class LogoutSessionTest extends TestCase
     public function testLogout(): void
     {
         $logoutSession = new LogoutSession(
-            $this->writeSessionTokenRepository,
             $this->writeSessionRepository,
-            $this->writeTokenRepository,
             $this->readTokenRepository,
             $this->providerFactory,
             $this->requestStack
@@ -104,13 +102,6 @@ class LogoutSessionTest extends TestCase
             ->expects($this->any())
             ->method('getSession')
             ->willReturn($session);
-
-        $this->writeTokenRepository->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
-
-        $this->writeSessionTokenRepository->expects($this->once())
-            ->method('deleteSession')
-            ->with('session_abcd');
 
         $this->writeSessionRepository->expects($this->once())
             ->method('invalidate');
@@ -124,9 +115,7 @@ class LogoutSessionTest extends TestCase
     public function testLogoutFailed(): void
     {
         $logoutSession = new LogoutSession(
-            $this->writeSessionTokenRepository,
             $this->writeSessionRepository,
-            $this->writeTokenRepository,
             $this->readTokenRepository,
             $this->providerFactory,
             $this->requestStack

@@ -21,10 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
+namespace Core\Security\ProviderConfiguration\Domain\SAML\Exception;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface UpdateSAMLConfigurationPresenterInterface extends PresenterInterface
+class MissingLogoutUrlException extends \DomainException
 {
+    /**
+     * @return static
+     */
+    public static function create(): self
+    {
+        return new self("Logout Url parameter is missing", 400);
+    }
 }

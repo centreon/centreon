@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 interface WriteSAMLConfigurationRepositoryInterface
 {
     /**
-     * Update the OpenId Provider.
+     * Update the SAML Provider.
      *
      * @param Configuration $configuration
      * @throws \Throwable

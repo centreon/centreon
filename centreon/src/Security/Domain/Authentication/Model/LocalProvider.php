@@ -161,6 +161,7 @@ class LocalProvider implements LocalProviderInterface
         }
 
         $this->contactId = (int) $auth->userInfos['contact_id'];
+        $auth->userInfos['auth_type'] = Provider::LOCAL;
         $this->setLegacySession(new \Centreon($auth->userInfos));
         $this->info('[LOCAL PROVIDER] authentication succeed');
     }

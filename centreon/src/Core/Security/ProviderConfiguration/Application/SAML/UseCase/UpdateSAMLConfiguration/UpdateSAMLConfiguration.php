@@ -44,7 +44,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface;
 
@@ -97,7 +97,7 @@ class UpdateSAMLConfiguration
             $requestArray["is_active"] = $request->isActive;
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
-        } catch (AssertionException | AssertionFailedException | OpenIdConfigurationException $ex) {
+        } catch (AssertionException | AssertionFailedException | ConfigurationException $ex) {
             $this->error(
                 'Unable to create SAML Provider because one or several parameters are invalid',
                 ['trace' => $ex->getTraceAsString()]
@@ -106,7 +106,7 @@ class UpdateSAMLConfiguration
             return;
         } catch (\Throwable $ex) {
             $this->error('Error during SAML Provider Update', ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new UpdateSAMLConfigurationErrorResponse());
+            $presenter->setResponseStatus(new UpdateSAMLConfigurationErrorResponse($ex->getMessage()));
             return;
         }
 
@@ -118,7 +118,7 @@ class UpdateSAMLConfiguration
      *
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
      * @return ContactTemplate|null
-     * @throws \Throwable|OpenIdConfigurationException
+     * @throws \Throwable|ConfigurationException
      */
     private function getContactTemplateOrFail(?array $contactTemplateFromRequest): ?ContactTemplate
     {
@@ -126,7 +126,7 @@ class UpdateSAMLConfiguration
             return null;
         }
         if (($contactTemplate = $this->contactTemplateRepository->find($contactTemplateFromRequest["id"])) === null) {
-            throw OpenIdConfigurationException::contactTemplateNotFound(
+            throw ConfigurationException::contactTemplateNotFound(
                 $contactTemplateFromRequest["name"]
             );
         }
@@ -286,18 +286,16 @@ class UpdateSAMLConfiguration
      *  }
      * } $authenticationConditionsParameters
      * @return AuthenticationConditions
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
     {
-        $authenticationConditions = new AuthenticationConditions(
+        return new AuthenticationConditions(
             $authenticationConditionsParameters["is_enabled"],
             $authenticationConditionsParameters["attribute_path"],
           null,
             $authenticationConditionsParameters["authorized_values"],
         );
-
-        return $authenticationConditions;
     }
 
     /**
@@ -317,6 +315,8 @@ class UpdateSAMLConfiguration
      * } $groupsMappingParameters
      *
      * @return GroupsMapping
+     * @throws ConfigurationException
+     * @throws \Throwable
      */
     private function createGroupsMapping(array $groupsMappingParameters): GroupsMapping
     {

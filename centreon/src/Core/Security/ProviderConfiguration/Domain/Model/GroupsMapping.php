@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
  * This class is designed to represent The mapping between OpenID Claims and Centreon Contact Groups.
@@ -50,7 +50,7 @@ class GroupsMapping
      * @param string $attributePath
      * @param Endpoint|null $endpoint
      * @param array $contactGroupRelations
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
@@ -108,7 +108,7 @@ class GroupsMapping
      *
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledGroupsMapping(
         bool $isEnabled,
@@ -120,7 +120,7 @@ class GroupsMapping
                 $mandatoryParameters[] = "attribute_path";
             }
             if (! empty($mandatoryParameters)) {
-                throw OpenIdConfigurationException::missingMandatoryParameters($mandatoryParameters);
+                throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }
     }

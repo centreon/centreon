@@ -44,7 +44,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 
@@ -99,7 +99,7 @@ class UpdateOpenIdConfiguration
 
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
-        } catch (AssertionException | AssertionFailedException | OpenIdConfigurationException $ex) {
+        } catch (AssertionException | AssertionFailedException | ConfigurationException $ex) {
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
                 ['trace' => $ex->getTraceAsString()]
@@ -120,7 +120,7 @@ class UpdateOpenIdConfiguration
      *
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
      * @return ContactTemplate|null
-     * @throws \Throwable|OpenIdConfigurationException
+     * @throws \Throwable|ConfigurationException
      */
     private function getContactTemplateOrFail(?array $contactTemplateFromRequest): ?ContactTemplate
     {
@@ -128,7 +128,7 @@ class UpdateOpenIdConfiguration
             return null;
         }
         if (($contactTemplate = $this->contactTemplateRepository->find($contactTemplateFromRequest["id"])) === null) {
-            throw OpenIdConfigurationException::contactTemplateNotFound(
+            throw ConfigurationException::contactTemplateNotFound(
                 $contactTemplateFromRequest["name"]
             );
         }
@@ -288,7 +288,8 @@ class UpdateOpenIdConfiguration
      *  }
      * } $authenticationConditionsParameters
      * @return AuthenticationConditions
-     * @throws OpenIdConfigurationException
+     * @throws AssertionFailedException
+     * @throws ConfigurationException
      */
     private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
     {

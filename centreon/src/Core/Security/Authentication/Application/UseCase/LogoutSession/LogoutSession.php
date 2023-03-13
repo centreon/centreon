@@ -24,44 +24,26 @@ namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Authentication\Infrastructure\Provider\SAML;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use OneLogin\Saml2\Error;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class LogoutSession
 {
     use LoggerTrait;
 
     /**
-     * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
      * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ReadTokenRepositoryInterface $readTokenRepository
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param RequestStack $requestStack
      */
     public function __construct(
-        private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
         private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
-        private readonly RequestStack $requestStack
     ) {
     }
 
     /**
      * @param mixed $token
      * @param LogoutSessionPresenterInterface $presenter
-     * @throws Error
      */
     public function __invoke(
         mixed $token,
@@ -76,29 +58,6 @@ class LogoutSession
             return;
         }
 
-        $this->deleteTokens();
-
-        /** @var SAML $provider */
-        $provider = $this->providerFactory->create(Provider::SAML);
-        $configuration = $provider->getConfiguration();
-        $customConfiguration = $configuration->getCustomConfiguration();
-        if (
-            $configuration->isActive() &&
-            $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
-        ) {
-            $this->info('Logout from Centreon and SAML IDP...');
-            $provider->logout(); // The redirection is done here by the IDP
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function deleteTokens(): void
-    {
-        $sessionId = $this->requestStack->getSession()->getId();
-        $this->writeTokenRepository->deleteExpiredSecurityTokens();
-        $this->writeSessionTokenRepository->deleteSession($sessionId);
         $this->writeSessionRepository->invalidate();
     }
 }
