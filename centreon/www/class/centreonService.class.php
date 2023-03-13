@@ -61,6 +61,32 @@ class CentreonService
      */
     protected $instanceObj;
 
+    /**
+     * Macros formatted by id
+     * ex:
+     * [
+     *  1 => [
+     *    "macroName" => "KEY"
+     *    "macroValue" => "value"
+     *    "macroPassword" => "1"
+     *  ],
+     *  2 => [
+     *    "macroName" => "KEY_1"
+     *    "macroValue" => "value_1"
+     *    "macroPassword" => "1"
+     *    "originalName" => "MACRO_1"
+     *  ]
+     * ]
+     *
+     * @var array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+     */
+    private array $formattedMacros = [];
+
     private const TABLE_SERVICE_CONFIGURATION = 'service',
                   TABLE_SERVICE_REALTIME = 'services';
 
@@ -479,6 +505,19 @@ class CentreonService
                 );
                 $stored[strtolower($value)] = true;
                 $cnt++;
+
+                //Format macros to improve handling on form submit.
+                $dbResult = $this->db->query("SELECT MAX(svc_macro_id) FROM on_demand_macro_service");
+                $macroId = $dbResult->fetch();
+                $this->formattedMacros[(int) $macroId['MAX(svc_macro_id)']] = [
+                    "macroName" => '_SERVICE' . strtoupper($value),
+                    "macroValue" => $macrovalues[$key],
+                    "macroPassword" => $macroPassword[$key] ?? '0',
+                ];
+                if (isset($_REQUEST['macroOriginalName_' . $key])) {
+                    $this->formattedMacros[(int) $macroId['MAX(svc_macro_id)']]['originalName']
+                        = '_SERVICE' . $_REQUEST['macroOriginalName_' . $key];
+                }
             }
         }
     }
@@ -1884,5 +1923,20 @@ class CentreonService
         }
 
         return $name;
+    }
+
+    /**
+     * Get Macros Information Unified by id
+     *
+     * @return array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+     */
+    public function getFormattedMacros(): array
+    {
+        return $this->formattedMacros;
     }
 }

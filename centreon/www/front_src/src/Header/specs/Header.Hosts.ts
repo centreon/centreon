@@ -10,7 +10,12 @@ import {
   labelUp
 } from '../Resources/Host/translatedLabels';
 
-import { initialize } from './Header.testUtils';
+import {
+  initialize,
+  submenuShouldBeClosed,
+  submenuShouldBeOpened,
+  openSubMenu
+} from './Header.testUtils';
 
 const getElements = (): void => {
   cy.findByRole('button', { name: labelHosts, timeout: 5000 }).as(
@@ -24,35 +29,6 @@ const getElements = (): void => {
   );
 
   cy.findByRole('link', { name: labelUpStatusHosts }).as('upCounter');
-};
-
-const submenuShouldBeClosed = (label: string): void => {
-  cy.findByRole('button', { name: label })
-    .as('button')
-    .should('have.attr', 'aria-expanded', 'false');
-
-  cy.get('@button').within(() => {
-    cy.findByTestId('ExpandLessIcon').should('be.visible');
-  });
-  cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
-};
-
-const openSubMenu = (label: string): void => {
-  cy.findByRole('button', {
-    name: label
-  }).click();
-  submenuShouldBeOpened(label);
-};
-
-const submenuShouldBeOpened = (label: string): void => {
-  cy.findByRole('button', { name: label })
-    .as('button')
-    .should('have.attr', 'aria-expanded', 'true');
-
-  cy.get('@button').within(() => {
-    cy.findByTestId('ExpandMoreIcon').should('be.visible');
-  });
-  cy.get(`#${label}-menu`).should('be.visible').should('exist');
 };
 
 export default (): void =>

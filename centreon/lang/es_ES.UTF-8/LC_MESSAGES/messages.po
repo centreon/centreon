@@ -9303,8 +9303,8 @@ msgstr "Modo de actualización"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
-msgid "A host can have multiple templates, their orders have a significant importance"
-msgstr "Un host puede tener varios modelos, su orden tiene un significado significativo"
+# msgid "A host or host template can have several templates. See help for more details."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
@@ -15531,4 +15531,7 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgstr ""
 
 #  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""

@@ -9,6 +9,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
+import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import {
   labelClear,
   labelSearch,
@@ -37,8 +38,9 @@ const useStyles = makeStyles()((theme) => ({
 
 const CriteriasContent = (): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
+  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
@@ -70,9 +72,10 @@ const CriteriasContent = (): JSX.Element => {
 
   return (
     <PopoverMenu
+      canOpen={canOpenPopover}
       icon={<TuneIcon fontSize="small" />}
       popperPlacement="bottom-start"
-      title={t(labelSearchOptions)}
+      title={t(labelSearchOptions) as string}
       onClose={applyCurrentFilter}
     >
       {(): JSX.Element => (

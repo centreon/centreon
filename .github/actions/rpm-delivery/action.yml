@@ -59,6 +59,11 @@ runs:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
 
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
     - name: Setup awscli
       run: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -66,7 +71,7 @@ runs:
         sudo ./aws/install
       shell: bash
 
-    - name: Publish RPMS to Nexus
+    - name: Publish RPMs
       run: |
         PROJECT_LOCATIONS=""
         INVALIDATION_PATHS=""
@@ -113,12 +118,12 @@ runs:
           # Delivery with proper repository structure according to stability
           if [ "${{ inputs.stability }}" == stable ]; then
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$FILE" -T "./$FILE"
+            jf rt upload "$FILE" "rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
           else
             FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
             PROJECT_LOCATIONS="$PROJECT_LOCATIONS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/$FILE" -T "./$FILE"
+            jf rt upload "$FILE" "rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/"
           fi
 
           echo "[DEBUG] - Folder: $FOLDER"

@@ -73,12 +73,12 @@ sub copyLiveServicesToMonitoringDB {
 
     return if ($etlwk->{dbmon_centstorage_con}->sameParams(%{$options{dbbi}->{centstorage}}) == 1);
 
-    $etlwk->{dbmon_centstorage_con}->query("TRUNCATE TABLE mod_bi_liveservice");
-    my $sth = $etlwk->{dbbi_centstorage_con}->query("SELECT id, name, timeperiod_id FROM mod_bi_liveservice");
+    $etlwk->{dbmon_centstorage_con}->query({ query => "TRUNCATE TABLE mod_bi_liveservice" });
+    my $sth = $etlwk->{dbbi_centstorage_con}->query({ query => "SELECT id, name, timeperiod_id FROM mod_bi_liveservice" });
     while (my $row = $sth->fetchrow_hashref()) {
         my $insertQuery = "INSERT INTO mod_bi_liveservice (id, name, timeperiod_id) VALUES (".
             $row->{'id'} . ",'" . $row->{name} . "'," . $row->{timeperiod_id} . ")";
-        $etlwk->{dbmon_centstorage_con}->query($insertQuery);
+        $etlwk->{dbmon_centstorage_con}->query({ query => $insertQuery });
     }
 }
 
@@ -168,7 +168,7 @@ sub insertCentileParamToBIStorage{
     my $sth;
 
     #Insert potential missing time periods related to centile calculation in mod_bi_liveservices
-    $sth = $etlwk->{dbbi_centreon_con}->query("SELECT tp_id, tp_name FROM timeperiod WHERE tp_id IN (SELECT timeperiod_id FROM mod_bi_options_centiles)");
+    $sth = $etlwk->{dbbi_centreon_con}->query({ query => "SELECT tp_id, tp_name FROM timeperiod WHERE tp_id IN (SELECT timeperiod_id FROM mod_bi_options_centiles)" });
     while (my $row = $sth->fetchrow_hashref()) {
         $result{$row->{tp_id}} = $row->{tp_name};    
     }
@@ -185,13 +185,13 @@ sub insertCentileParamToBIStorage{
 
     #In case of rebuild, delete all centile parameters
     if ($options{options}->{rebuild} == 1){
-        $etlwk->{dbbi_centstorage_con}->query("TRUNCATE TABLE mod_bi_centiles");
+        $etlwk->{dbbi_centstorage_con}->query({ query => "TRUNCATE TABLE mod_bi_centiles" });
     }
-    $sth = $etlwk->{dbbi_centreon_con}->query("select * from mod_bi_options_centiles");
+    $sth = $etlwk->{dbbi_centreon_con}->query({ query => "select * from mod_bi_options_centiles" });
     while (my $row = $sth->fetchrow_hashref()) {
         my ($tpName,$liveServiceId) = $liveService->getLiveServicesByNameForTpId($row->{'timeperiod_id'});
         my $insertQuery = "INSERT IGNORE INTO mod_bi_centiles (id, centile_param, liveservice_id,tp_name) VALUES (".$row->{'id'}.",'".$row->{'centile_param'}."',".$liveServiceId.",'".$tpName."')";
-        $etlwk->{dbbi_centstorage_con}->query($insertQuery);
+        $etlwk->{dbbi_centstorage_con}->query({ query => $insertQuery });
     }
 }
 
@@ -200,12 +200,12 @@ sub copyCentileToMonitoringDB {
 
     return if ($etlwk->{dbmon_centstorage_con}->sameParams(%{$options{dbbi}->{centstorage}}) == 1);
 
-    $etlwk->{dbmon_centstorage_con}->query("TRUNCATE TABLE mod_bi_centiles");
-    my $sth = $etlwk->{dbbi_centstorage_con}->query("SELECT id, centile_param, liveservice_id, tp_name FROM mod_bi_centiles");
+    $etlwk->{dbmon_centstorage_con}->query({ query => "TRUNCATE TABLE mod_bi_centiles" });
+    my $sth = $etlwk->{dbbi_centstorage_con}->query({ query => "SELECT id, centile_param, liveservice_id, tp_name FROM mod_bi_centiles" });
     while (my $row = $sth->fetchrow_hashref()) {
         my $insertQuery = "INSERT INTO mod_bi_centiles (id, centile_param, liveservice_id,tp_name) VALUES (".
             $row->{id} . ",'" . $row->{centile_param} . "'," . $row->{liveservice_id} . ",'" . $row->{tp_name} . "')";
-        $etlwk->{dbmon_centstorage_con}->query($insertQuery);
+        $etlwk->{dbmon_centstorage_con}->query({ query => $insertQuery });
     }
 }
 

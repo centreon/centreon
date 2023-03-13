@@ -67,14 +67,14 @@ sub loadData {
 	my $logger =  $self->{"logger"};
 	my ($tableName, $inFile) = (shift, shift);
 	my $query = "LOAD DATA LOCAL INFILE '".$inFile."' INTO TABLE `".$tableName."` CHARACTER SET UTF8 IGNORE 1 LINES";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 sub disableKeys {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $tableName = shift;
 	my $query = "ALTER TABLE `".$tableName."` DISABLE KEYS";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 
 sub enableKeys {
@@ -82,7 +82,7 @@ sub enableKeys {
 	my $db = $self->{"centstorage"};
 	my $tableName = shift;
 	my $query = "ALTER TABLE `".$tableName."` ENABLE KEYS";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 
 sub dumpTableStructure {
@@ -92,7 +92,7 @@ sub dumpTableStructure {
 	my ($tableName) = (shift);
 
 	my $sql = "";
-	my $sth = $db->query("SHOW CREATE TABLE ".$tableName);
+	my $sth = $db->query({ query => "SHOW CREATE TABLE ".$tableName });
     if (my $row = $sth->fetchrow_hashref()) {
     	$sql = $row->{'Create Table'};
     }else {
@@ -108,14 +108,14 @@ sub truncateTable {
 	my $db = $self->{"centstorage"};
 	my $tableName = shift;
 	my $query = "TRUNCATE TABLE `".$tableName."`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 sub dropTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $tableName = shift;
 	my $query = "DROP TABLE IF EXISTS `".$tableName."`";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 }
 
 1;

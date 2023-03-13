@@ -110,6 +110,7 @@ const ConnectedAutocomplete = ({
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
+        getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}

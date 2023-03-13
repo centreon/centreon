@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useSnackbar, Form, useMutationQuery, Method } from '@centreon/ui';
 
@@ -15,7 +16,6 @@ import { adaptSAMLConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: SAMLConfiguration;
@@ -47,7 +47,7 @@ const SAMLForm = ({
   ): Promise<void> =>
     mutateAsync(adaptSAMLConfigurationToAPI(formikValues))
       .then(() => {
-        queryClient.invalidateQueries([Provider.SAML])
+        queryClient.invalidateQueries([Provider.SAML]);
         loadConfiguration();
         showSuccessMessage(t(labelSAMLConfigurationSaved));
       })

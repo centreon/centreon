@@ -18,7 +18,7 @@ import {
   hoveredNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-import { closedDrawerWidth, openedDrawerWidth } from '../index';
+import { closedDrawerWidth, openDrawerWidth } from '../index';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 
 import CollapsibleItems from './CollapsibleItems';
@@ -74,7 +74,7 @@ const NavigationMenu = ({
   );
 
   const levelName = 'level_0';
-  const currentWidth = isDrawerOpen ? openedDrawerWidth / 8 : closedDrawerWidth;
+  const currentWidth = isDrawerOpen ? openDrawerWidth / 8 : closedDrawerWidth;
   const dismissMenuDuration = theme.transitions.duration.complex;
 
   const hoverItem = ({ e, index, currentPage }): void => {

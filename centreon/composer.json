@@ -85,7 +85,8 @@
         "symfony/validator": "5.4.*",
         "symfony/yaml": "5.4.*",
         "psr/container": "1.1.1",
-        "onelogin/php-saml": "^4.1"
+        "onelogin/php-saml": "^4.1",
+        "symfony/uid": "^6.2"
     },
     "autoload": {
         "psr-4": {

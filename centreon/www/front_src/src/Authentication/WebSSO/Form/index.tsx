@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useSnackbar, Form, useMutationQuery, Method } from '@centreon/ui';
 
@@ -15,7 +16,6 @@ import FormButtons from '../../FormButtons';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   initialValues: WebSSOConfiguration;
@@ -48,7 +48,7 @@ const WebSSOForm = ({
   ): Promise<void> => {
     return mutateAsync(adaptWebSSOConfigurationToAPI(values))
       .then(() => {
-        queryClient.invalidateQueries([Provider.WebSSO])
+        queryClient.invalidateQueries([Provider.WebSSO]);
         loadWebSSOonfiguration();
         showSuccessMessage(t(labelWebSSOConfigurationSaved));
       })

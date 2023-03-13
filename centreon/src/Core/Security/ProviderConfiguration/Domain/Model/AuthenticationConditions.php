@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 
@@ -126,7 +127,7 @@ class AuthenticationConditions
     /**
      * @param string[] $trustedClientAddresses
      * @return self
-     * @throws AssertionException
+     * @throws \Assert\AssertionFailedException
      */
     public function setTrustedClientAddresses(array $trustedClientAddresses): self
     {
@@ -141,7 +142,7 @@ class AuthenticationConditions
     /**
      * @param string $trustedClientAddress
      * @return self
-     * @throws AssertionException
+     * @throws \Assert\AssertionFailedException
      */
     public function addTrustedClientAddress(string $trustedClientAddress): self
     {
@@ -154,7 +155,7 @@ class AuthenticationConditions
     /**
      * @param string[] $blacklistClientAddresses
      * @return self
-     * @throws AssertionException
+     * @throws \Assert\AssertionFailedException
      */
     public function setBlacklistClientAddresses(array $blacklistClientAddresses): self
     {
@@ -169,7 +170,7 @@ class AuthenticationConditions
     /**
      * @param string $blacklistClientAddress
      * @return self
-     * @throws AssertionException
+     * @throws \Assert\AssertionFailedException
      */
     public function addBlacklistClientAddress(string $blacklistClientAddress): self
     {
@@ -182,19 +183,11 @@ class AuthenticationConditions
     /**
      * @param string $clientAddress
      * @param string $fieldName
-     * @throws AssertionException
+     * @throws \Assert\AssertionFailedException
      */
     private function validateClientAddressOrFail(string $clientAddress, string $fieldName): void
     {
-        if (
-            filter_var($clientAddress, FILTER_VALIDATE_IP) === false
-            && filter_var($clientAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false
-        ) {
-            throw AssertionException::ipOrDomain(
-                $clientAddress,
-                'AuthenticationConditions::' . $fieldName
-            );
-        }
+        Assertion::ipOrDomain($clientAddress, 'AuthenticationConditions::' . $fieldName);
     }
 
     /**

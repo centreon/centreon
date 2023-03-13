@@ -1,2 +1,4 @@
-debian/extra/centreon-database/80-centreon.cnf  etc/mysql/mariadb.conf.d
-debian/extra/centreon-database/centreon.conf    etc/systemd/system/mariadb.service.d
+#!/usr/bin/dh-exec
+
+packaging/src/centreon-mysql.cnf => etc/mysql/mariadb.conf.d/80-centreon.cnf
+packaging/src/mariadb-systemd.conf => etc/systemd/system/mariadb.service.d/centreon.conf
