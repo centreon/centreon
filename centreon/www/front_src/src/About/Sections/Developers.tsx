@@ -5,7 +5,8 @@ export const developers = [
   'Adrien Morais',
   'Allyriane Launois',
   'Arnaud Buathier',
-  "Bruno D'auria",
+  "Bruno D'Auria",
+
   'David Boucher',
   'Dmytro Iosypenko',
   'Jérémy Delpierre',

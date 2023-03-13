@@ -8463,11 +8463,11 @@ components:
           properties:
             icon:
               type: object
-              description: "Select custom icon"
+              description: "Select a custom icon"
               properties:
                 id:
                   type: number
-                  description: "Id of the icon"
+                  description: "ID of the icon"
                   example: 1
                 name:
                   type: string
@@ -8488,7 +8488,7 @@ components:
               properties:
                 id:
                   type: number
-                  description: "Id of the image"
+                  description: "ID of the image"
                   example: 2
                 name:
                   type: string
@@ -8509,11 +8509,11 @@ components:
           properties:
             icon_id:
               type: number
-              description: "Select custom icon id"
+              description: "Select custom icon ID"
               nullable: true
             image_id:
               type: number
-              description: "Select custom image id"
+              description: "Select custom image ID"
               nullable: true
     Configuration.Platform.Customization.Login:
       type: object
@@ -8526,10 +8526,10 @@ components:
           nullable: true
         custom_text:
           type: string
-          description: "Custom text display on login page on JSON format"
+          description: "Custom text display on login page in JSON format"
           example: |
             '{"root": {"children": [{"detail": 0, "format": 0, "mode": "normal", "style": "",
-            "text": "Welcome on Centreon", "type": "text", "version": 1}]'
+            "text": "Welcome to Centreon", "type": "text", "version": 1}]'
           nullable: true
         icon_source:
           type: string
@@ -8548,7 +8548,7 @@ components:
       properties:
         id:
           type: number
-          description: "Id of the image to resize"
+          description: "ID of the image to resize"
           example: 2
         width:
           type: number
