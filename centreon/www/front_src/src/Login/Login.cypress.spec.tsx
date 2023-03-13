@@ -163,7 +163,7 @@ const mockPostLoginServerError = (): void => {
   });
 };
 
-const setupBeforeEach = () => {
+const setupBeforeEach = (): void => {
   cy.clock(mockNow);
 
   cy.interceptAPIRequest({
