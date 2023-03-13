@@ -46,8 +46,7 @@ class LoginRequest
         public ?string $refererQueryParameters = null,
         public ?string $requestId = null,
         public ?string $assertion = null
-    )
-    {
+    ) {
     }
 
     /**
@@ -62,8 +61,7 @@ class LoginRequest
         string $password,
         ?string $clientIp = null,
         ?string $refererQueryParameters = null
-    ): self
-    {
+    ): self {
 
         return new self(
             Provider::LOCAL,

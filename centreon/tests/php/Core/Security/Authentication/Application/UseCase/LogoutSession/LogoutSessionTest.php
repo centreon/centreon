@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Application\Security\UseCase\LogoutSession;
 
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
@@ -31,6 +33,8 @@ use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryIn
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class LogoutSessionTest extends TestCase
 {
@@ -54,12 +58,30 @@ class LogoutSessionTest extends TestCase
      */
     private $logoutSessionPresenter;
 
+    /**
+     * @var ReadTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private ReadTokenRepositoryInterface $readTokenRepository;
+
+    /**
+     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private ProviderAuthenticationFactoryInterface $providerFactory;
+
+    /**
+     * @var RequestStack&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private RequestStack $requestStack;
+
     public function setUp(): void
     {
         $this->writeSessionTokenRepository = $this->createMock(WriteSessionTokenRepositoryInterface::class);
         $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
         $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class);
         $this->logoutSessionPresenter = $this->createMock(LogoutSessionPresenterInterface::class);
+        $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class);
+        $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
+        $this->requestStack = $this->createMock(RequestStack::class);
     }
 
     /**
@@ -71,21 +93,27 @@ class LogoutSessionTest extends TestCase
             $this->writeSessionTokenRepository,
             $this->writeSessionRepository,
             $this->writeTokenRepository,
+            $this->readTokenRepository,
+            $this->providerFactory,
+            $this->requestStack
         );
+
+        $session = new Session();
+        $session->setId('session_abcd');
+        $this->requestStack
+            ->expects($this->any())
+            ->method('getSession')
+            ->willReturn($session);
 
         $this->writeTokenRepository->expects($this->once())
             ->method('deleteExpiredSecurityTokens');
 
         $this->writeSessionTokenRepository->expects($this->once())
             ->method('deleteSession')
-            ->with('token');
+            ->with('session_abcd');
 
         $this->writeSessionRepository->expects($this->once())
             ->method('invalidate');
-
-        $this->logoutSessionPresenter->expects($this->once())
-            ->method('setResponseStatus')
-            ->with(new NoContentResponse());
 
         $logoutSession('token', $this->logoutSessionPresenter);
     }
@@ -99,6 +127,9 @@ class LogoutSessionTest extends TestCase
             $this->writeSessionTokenRepository,
             $this->writeSessionRepository,
             $this->writeTokenRepository,
+            $this->readTokenRepository,
+            $this->providerFactory,
+            $this->requestStack
         );
 
         $this->logoutSessionPresenter->expects($this->once())

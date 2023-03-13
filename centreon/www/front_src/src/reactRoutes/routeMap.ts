@@ -9,7 +9,8 @@ const routeMap = {
   pollerWizard: '/poller-wizard/1',
   resetPassword: '/reset-password',
   resources: '/monitoring/resources',
-  upgrade: '/install/upgrade.php'
+  upgrade: '/install/upgrade.php',
+  logout: '/logout',
 };
 
 export default routeMap;

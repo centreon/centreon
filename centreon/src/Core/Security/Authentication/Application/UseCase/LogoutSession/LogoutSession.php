@@ -45,6 +45,8 @@ class LogoutSession
      * @param WriteSessionRepositoryInterface $writeSessionRepository
      * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ReadTokenRepositoryInterface $readTokenRepository
+     * @param ProviderAuthenticationFactoryInterface $providerFactory
+     * @param RequestStack $requestStack
      */
     public function __construct(
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
@@ -53,8 +55,7 @@ class LogoutSession
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ProviderAuthenticationFactoryInterface $providerFactory,
         private readonly RequestStack $requestStack
-    )
-    {
+    ) {
     }
 
     /**
@@ -86,10 +87,8 @@ class LogoutSession
             $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
         ) {
             $this->info('Logout from Centreon and SAML IDP...');
-            $provider->logout();
+            $provider->logout(); // The redirection is done here by the IDP
         }
-
-        $presenter->setResponseStatus(new NoContentResponse());
     }
 
     /**

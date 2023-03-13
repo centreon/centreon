@@ -14,6 +14,8 @@ import useNavigation from '../../Navigation/useNavigation';
 import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
+import reactRoutes from '../../reactRoutes';
+import routeMap from '../../reactRoutes/routeMap';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
@@ -77,10 +79,14 @@ const ReactRouterContent = ({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
-          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => (
+          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
+            const isLogoutPage = path === routeMap.logout;
+            const isAllowedPage = isLogoutPage || isNil(allowedPages) || allowedPages.includes(path);
+            
+            return (
             <Route
               element={
-                isNil(allowedPages) || allowedPages.includes(path) ? (
+                isAllowedPage ? (
                   <PageContainer>
                     <BreadcrumbTrail path={path} />
                     <Comp />
@@ -93,7 +99,7 @@ const ReactRouterContent = ({
               path={path}
               {...rest}
             />
-          ))}
+          )})}
           {getExternalPageRoutes({ allowedPages, federatedModules })}
           {externalPagesFetched && (
             <Route element={<NotFoundPage />} path="*" />

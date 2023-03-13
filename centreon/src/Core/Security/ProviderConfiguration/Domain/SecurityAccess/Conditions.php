@@ -26,6 +26,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -66,7 +67,11 @@ class Conditions implements SecurityAccessInterface
         $customConfiguration = $configuration->getCustomConfiguration();
         $conditionsConfiguration = $customConfiguration->getAuthenticationConditions();
         $localConditions = $conditionsConfiguration->getAuthorizedValues();
-        $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+
+        $authenticationAttributePath[] = $conditionsConfiguration->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+        }
 
         $this->loginLogger->info($scope, "Configured attribute path found", $authenticationAttributePath);
         $this->loginLogger->info($scope, "Configured authorized values", $localConditions);

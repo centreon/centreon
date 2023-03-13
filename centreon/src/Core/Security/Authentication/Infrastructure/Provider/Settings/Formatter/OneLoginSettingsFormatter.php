@@ -60,7 +60,6 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
                 'entityId' => $this->getHost(true),
                 'assertionConsumerService' => [
                     'url' => $acsUrl,
-                    'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                 ],
             ],
             'idp' => [
@@ -70,7 +69,6 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
                 ],
                 'singleLogoutService' => [
                     'url' => $customConfiguration->getLogoutFromUrl(),
-                    'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                 ],
                 'x509cert' => $customConfiguration->getPublicCertificate(),
             ],

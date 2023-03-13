@@ -28,6 +28,7 @@ use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsExcept
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -80,7 +81,10 @@ class GroupsMapping implements SecurityAccessInterface
         $this->loginLogger->info($this->scope, "Groups Mapping Enabled");
         $this->info("Groups Mapping Enabled");
 
-        $groupsAttributePath = explode(".", $groupsMapping->getAttributePath());
+        $groupsAttributePath[] = $groupsMapping->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $groupsAttributePath = explode(".", $groupsMapping->getAttributePath());
+        }
 
         $this->loginLogger->info($this->scope, "Configured groups mapping attribute path found", $groupsAttributePath);
         $this->info("Configured groups mapping attribute path found", $groupsAttributePath);

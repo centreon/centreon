@@ -9,7 +9,7 @@ centreon_security_authentication_login_openid:
     controller: 'Core\Security\Authentication\Infrastructure\Api\Login\OpenId\LoginController'
 
 centreon_security_authentication_logout:
-    methods: POST
+    methods: GET
     path: /logout
     controller: 'Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionController'
 

@@ -215,7 +215,7 @@ it(
             ->method('authenticateOrFail');
 
         $this->provider
-            ->expects($this->never())
+            ->expects($this->once())
             ->method('isAutoImportEnabled');
 
         $this->provider
@@ -261,12 +261,12 @@ it(
 
         $this->provider
             ->expects($this->once())
-            ->method('findUserOrFail');
-
-        $this->provider
-            ->expects($this->once())
             ->method('isAutoImportEnabled')
             ->willReturn(true);
+
+        $this->provider
+            ->expects($this->never())
+            ->method('findUserOrFail');
 
         $this->provider
             ->expects($this->once())

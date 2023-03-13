@@ -33,6 +33,8 @@ use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionP
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LogoutSessionControllerTest extends TestCase
 {
@@ -51,11 +53,17 @@ class LogoutSessionControllerTest extends TestCase
      */
     private $logoutSessionPresenter;
 
+    /**
+     * @var UrlGeneratorInterface&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private UrlGeneratorInterface $urlGenerator;
+
     public function setUp(): void
     {
         $this->request = $this->createMock(Request::class);
         $this->useCase = $this->createMock(LogoutSession::class);
         $this->logoutSessionPresenter = new LogoutSessionPresenter(new JsonFormatter());
+        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
     }
 
     /**
@@ -63,7 +71,7 @@ class LogoutSessionControllerTest extends TestCase
      */
     public function testLogout(): void
     {
-        $logoutSessionController = new LogoutSessionController();
+        $logoutSessionController = new LogoutSessionController($this->urlGenerator);
 
         $this->request->cookies = new InputBag(['PHPSESSID' => 'token']);
 
@@ -75,10 +83,7 @@ class LogoutSessionControllerTest extends TestCase
 
         $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
 
-        $this->assertEquals(
-            new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT),
-            $response
-        );
+        $this->assertEquals('/login', $response->headers->get('location'));
     }
 
     /**
@@ -86,7 +91,7 @@ class LogoutSessionControllerTest extends TestCase
      */
     public function testLogoutFailed(): void
     {
-        $logoutSessionController = new LogoutSessionController();
+        $logoutSessionController = new LogoutSessionController($this->urlGenerator);
 
         $this->request->cookies = new InputBag([]);
 
@@ -98,15 +103,6 @@ class LogoutSessionControllerTest extends TestCase
 
         $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
 
-        $this->assertEquals(
-            new JsonResponse(
-                [
-                    'code' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => 'No session token provided',
-                ],
-                JsonResponse::HTTP_INTERNAL_SERVER_ERROR
-            ),
-            $response
-        );
+        $this->assertEquals('/login', $response->headers->get('location'));
     }
 }

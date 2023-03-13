@@ -84,7 +84,6 @@ trait HttpUrlTrait
     /**
      * Get base URI (example: /centreon)
      *
-     * @param bool $withApiVersion
      * @return string
      */
     protected function getBaseUri(): string
