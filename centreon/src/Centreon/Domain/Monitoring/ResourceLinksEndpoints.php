@@ -23,60 +23,38 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring;
 
 /**
- * Resource Links Endpoints model for resource repository
- *
- * @package Centreon\Domain\Monitoring
+ * Resource Links Endpoints model for resource repository.
  */
 class ResourceLinksEndpoints
 {
-    /**
-     * @var string|null
-     */
-    private $details;
+    /** @var string|null */
+    private ?string $details;
 
-    /**
-     * @var string|null
-     */
-    private $timeline;
+    /** @var string|null */
+    private ?string $timeline;
 
-    /**
-     * @var string|null
-     */
-    private $statusGraph;
+    /** @var string|null */
+    private ?string $statusGraph;
 
-    /**
-     * @var string|null
-     */
-    private $performanceGraph;
+    /** @var string|null */
+    private ?string $performanceGraph;
 
-    /**
-     * @var string|null
-     */
-    private $acknowledgement;
+    /** @var string|null */
+    private ?string $acknowledgement;
 
-    /**
-     * @var string|null
-     */
-    private $downtime;
+    /** @var string|null */
+    private ?string $downtime;
 
-    /**
-     * @var string|null
-     */
-    private $metrics;
+    /** @var string|null */
+    private ?string $metrics;
 
-    /**
-     * @var string|null
-     */
-    private $notificationPolicy;
+    /** @var string|null */
+    private ?string $notificationPolicy;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $check;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $forcedCheck;
 
     /**
@@ -89,6 +67,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $details
+     *
      * @return self
      */
     public function setDetails(?string $details): self
@@ -108,6 +87,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $timeline
+     *
      * @return self
      */
     public function setTimeline(?string $timeline): self
@@ -127,6 +107,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $statusGraph
+     *
      * @return self
      */
     public function setStatusGraph(?string $statusGraph): self
@@ -146,6 +127,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $performanceGraph
+     *
      * @return self
      */
     public function setPerformanceGraph(?string $performanceGraph): self
@@ -165,6 +147,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $acknowledgement
+     *
      * @return self
      */
     public function setAcknowledgement(?string $acknowledgement): self
@@ -184,6 +167,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $downtime
+     *
      * @return self
      */
     public function setDowntime(?string $downtime): self
@@ -203,6 +187,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $metrics
+     *
      * @return self
      */
     public function setMetrics(?string $metrics): self
@@ -222,6 +207,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $notificationPolicy
+     *
      * @return self
      */
     public function setNotificationPolicy(?string $notificationPolicy): self
@@ -241,11 +227,13 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $check
+     *
      * @return self
      */
     public function setCheck(?string $check): self
     {
         $this->check = $check;
+
         return $this;
     }
 
@@ -259,6 +247,7 @@ class ResourceLinksEndpoints
 
     /**
      * @param string|null $forcedCheck
+     *
      * @return self
      */
     public function setForcedCheck(?string $forcedCheck): self
