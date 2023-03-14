@@ -101,7 +101,7 @@ class URIContext extends CentreonContext
                 return true;
             },
             'Cannot find link in service output',
-            20
+            50
         );
     }
 
