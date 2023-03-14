@@ -21,7 +21,7 @@
 
 class Vault extends AbstractObjectJSON
 {
-    protected $generate_filename = null;
+    protected $generateFilename= null;
 
     private function generate($poller_id, $localhost)
     {
