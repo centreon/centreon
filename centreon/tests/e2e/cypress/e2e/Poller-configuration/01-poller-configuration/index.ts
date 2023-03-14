@@ -176,7 +176,7 @@ Then('the configuration is generated on selected pollers', () => {
 Then('the selected pollers are {string}', (poller_action: string) => {
   checkIfMethodIsAppliedToPollers(poller_action);
 
-  cy.logout().reload();
+  cy.logout();
 
   removeFixtures();
 });
@@ -197,7 +197,7 @@ Then(
       .should('be.visible')
       .and('contain', 'Compulsory Poller');
 
-    cy.logout().reload();
+    cy.logout();
 
     removeFixtures();
   }

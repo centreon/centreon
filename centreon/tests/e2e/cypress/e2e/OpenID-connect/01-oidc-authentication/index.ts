@@ -85,7 +85,7 @@ Then(
       .should('be.checked')
       .and('have.value', 'false');
 
-    cy.logout().reload();
+    cy.logout();
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-OIDC-authentication'
@@ -95,7 +95,7 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
