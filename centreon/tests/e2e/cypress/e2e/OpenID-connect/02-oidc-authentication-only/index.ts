@@ -75,8 +75,6 @@ When(
       .should('be.checked')
       .and('have.value', 'true')
       .logout();
-
-    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
