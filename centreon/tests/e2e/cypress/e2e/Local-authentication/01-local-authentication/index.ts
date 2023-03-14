@@ -92,6 +92,8 @@ Given(
       .isInProfileMenu('Edit profile');
 
     cy.contains('Logout').click();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -127,6 +129,8 @@ When(
     cy.get('#Save').click({ force: true });
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -159,6 +163,8 @@ Then(
       );
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -199,6 +205,8 @@ When(
     });
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -256,6 +264,8 @@ When(
     });
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -347,6 +357,8 @@ Then('user can not reuse the last passwords more than 3 times', () => {
   });
 
   cy.logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
@@ -397,6 +409,8 @@ When(
     });
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -419,6 +433,8 @@ Then(
       .should('include', '/monitoring/resources');
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -449,6 +465,8 @@ When(
       .click({ force: true });
 
     cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
