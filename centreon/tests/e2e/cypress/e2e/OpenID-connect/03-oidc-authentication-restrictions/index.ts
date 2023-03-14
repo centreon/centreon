@@ -103,8 +103,9 @@ Then(
         .wait('@getNavigationList')
         .url()
         .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .logout();
+
+      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
   }
 );
