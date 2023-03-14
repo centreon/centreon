@@ -21,10 +21,12 @@
 
 class Vault extends AbstractObjectJSON
 {
-    protected $generateFilename= null;
+    protected $vaultConfiguration = null;
 
-    private function generate($poller_id, $localhost)
+    public function __construct(\Pimple\Container $dependencyInjector)
     {
+        parent::__construct($dependencyInjector);
+
         // Get Centeron Vault Storage configuration
         $kernel = \App\Kernel::createForWeb();
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
@@ -32,26 +34,29 @@ class Vault extends AbstractObjectJSON
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\LegacyLogger::class);
-        $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+        $this->vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    }
 
-        if ($vaultConfiguration === null) {
-            return 1;
+    private function generate($poller_id, $localhost): void
+    {
+        if ($this->vaultConfiguration === null) {
+            return;
         }
         // Base parameters
-        $object[$vaultConfiguration->getRootPath()] = [
-            'vault-address'=> $vaultConfiguration->getAddress(),
-            'vault-port' => $vaultConfiguration->getPort(),
+        $object[$this->vaultConfiguration->getName()] = [
+            'vault-address'=> $this->vaultConfiguration->getAddress(),
+            'vault-port' => $this->vaultConfiguration->getPort(),
             'vault-protocol' => 'https'
-        ];         
+        ];
 
         // Generate file
-        $this->generateFilename = 'centreonvault.json';
+        $this->generate_filename = 'centreonvault.json';
         $this->generateFile($object, false);
         $this->writeFile($this->backend_instance->getPath());
     }
 
 
-    public function generateFromPoller($poller)
+    public function generateFromPoller($poller): void
     {
         $this->generate($poller['id'], $poller['localhost']);
     }

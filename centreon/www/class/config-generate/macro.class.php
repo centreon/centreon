@@ -47,12 +47,8 @@ class Macro extends AbstractObject
     {
         parent::__construct($dependencyInjector);
 
-        if (is_null($this->isVaultEnabled)) {
+        if (! $this->isVaultEnabled) {
             $this->getVaultConfigurationStatus();
-        }
-
-        if (is_null($this->isCentreonCloudPlatform)) {
-            $this->getCentreonPlatofrmStatus();
         }
 
         $this->buildCache();
@@ -78,9 +74,8 @@ class Macro extends AbstractObject
 
             # Modify macro value for Centreon Vault Storage
             if (
-                $this->isCentreonCloudPlatform
-                && $this->isVaultEnabled
-                && ($macro['is_password'] == 1 || preg_match(self::VAULT_PATH_REGEX, $macro['svc_macro_value']))
+                $this->isVaultEnabled
+                && $macro['is_password'] === 1
             ) {
                 $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
             }
@@ -120,9 +115,8 @@ class Macro extends AbstractObject
 
             # Modify macro value for Centreon Vault Storage
             if (
-                $this->isCentreonCloudPlatform
-                && $this->isVaultEnabled
-                && ($macro['is_password'] == 1 || preg_match(self::VAULT_PATH_REGEX, $macro['svc_macro_value']))
+                $this->isVaultEnabled
+                && $macro['is_password'] === 1
             ) {
                 $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
             }

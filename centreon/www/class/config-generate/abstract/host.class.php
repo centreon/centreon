@@ -197,12 +197,8 @@ abstract class AbstractHost extends AbstractObject
             return 1;
         }
 
-        if (is_null($this->isVaultEnabled)) {
+        if (! $this->isVaultEnabled) {
             $this->getVaultConfigurationStatus();
-        }
-
-        if (is_null($this->isCentreonCloudPlatform)) {
-            $this->getCentreonPlatofrmStatus();
         }
 
         if (is_null($this->stmt_macro)) {
@@ -225,10 +221,8 @@ abstract class AbstractHost extends AbstractObject
 
             # Modify macro value for Centreon Vault Storage
             if (
-                $this->isCentreonCloudPlatform
-                && $this->isVaultEnabled
-                && ( $macro['is_password'] == 1
-                || preg_match(self::VAULT_PATH_REGEX, $macro['host_macro_value']))
+                $this->isVaultEnabled
+                && $macro['is_password'] === 1
             ) {
                 $macro['host_macro_value'] = sprintf("{%s::%s}", $hostMacroName, $macro['host_macro_value']);
             }

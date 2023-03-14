@@ -35,7 +35,7 @@
 
 abstract class AbstractObject
 {
-    const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
+    protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
 
     protected $backend_instance = null;
     protected $generate_subpath = 'nagios';
@@ -54,7 +54,6 @@ abstract class AbstractObject
     protected $dependencyInjector;
 
     protected $isVaultEnabled = false;
-    protected $isCentreonCloudPlatform = false;
 
     /*
      * Get Centreon Vault Configuration Status
@@ -70,20 +69,7 @@ abstract class AbstractObject
         $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
-    }
-
-    /*
-     * Get Centreon Cloud Platform Status
-     */
-    public function getCentreonPlatofrmStatus(): void
-    {
-        $query = "SELECT `value` FROM informations WHERE `key` = 'is_cloud'";
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (is_array($result) && $result['value'] === 'yes') {
-            $this->isCentreonCloudPlatform = true;
+        }
     }
 
     /**

@@ -100,12 +100,8 @@ class Command extends AbstractObject
             $this->getMailBin();
         }
 
-        if (is_null($this->isVaultEnabled)) {
+        if (! $this->isVaultEnabled) {
             $this->getVaultConfigurationStatus();
-        }
-
-        if (is_null($this->isCentreonCloudPlatform)) {
-            $this->getCentreonPlatofrmStatus();
         }
 
         /*
@@ -118,8 +114,7 @@ class Command extends AbstractObject
         $command_line = str_replace("\r", "", $command_line);
 
         if (
-            $this->isCentreonCloudPlatform
-            && $this->isVaultEnabled
+            $this->isVaultEnabled
             && preg_match("/\\\$CENTREONPLUGINS\\\$\\/centreon/", $command_line)
         ) {
             $command_line .= " --pass-manager=centreonvault";

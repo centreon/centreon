@@ -89,10 +89,8 @@ abstract class AbstractObjectJSON
         }
     }
 
-    protected function generateFile($object, $brokerType = true)
+    protected function generateFile($object, $brokerType = true): void
     {
-        $data = [];
-
         if ($brokerType) {
             $data = ['centreonBroker' => $object];
         } else {
