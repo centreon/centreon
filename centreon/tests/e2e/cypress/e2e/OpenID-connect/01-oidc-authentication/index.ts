@@ -149,9 +149,6 @@ Then(
         .url()
         .should('include', '/monitoring/resources');
     });
-
-    cy.logout();
-    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 

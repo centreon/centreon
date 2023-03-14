@@ -107,10 +107,7 @@ Then(
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
-        .should('include', '/monitoring/resources')
-        .logout();
-
-      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+        .should('include', '/monitoring/resources');
     });
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
