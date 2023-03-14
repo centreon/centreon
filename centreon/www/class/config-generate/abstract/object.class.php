@@ -54,7 +54,7 @@ abstract class AbstractObject
     protected $dependencyInjector;
 
     protected $isVaultEnabled = false;
-    protected $isCentreonCloudPlatform = null;
+    protected $isCentreonCloudPlatform = false;
 
     /*
      * Get Centreon Vault Configuration Status
