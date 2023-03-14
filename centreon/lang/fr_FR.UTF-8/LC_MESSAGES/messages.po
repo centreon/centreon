@@ -17402,4 +17402,4 @@ msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
 
 msgid "Icon #%d does not exist"
-msgstr "l'icône #%d n'existe pas"
+msgstr "L'icône #%d n'existe pas"
