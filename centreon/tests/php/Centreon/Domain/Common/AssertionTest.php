@@ -260,6 +260,9 @@ $successDataProvider = [
     'inArray(NULL, [1, "a", NULL])' => [
         fn() => Assertion::inArray(null, [1, 'a', null], $propertyPath),
     ],
+    'range(1.1, 1.0, 2)' => [
+        fn() => Assertion::range(1, 1.0, 2, $propertyPath),
+    ],
     'regex("1234", "/^\d+$/")' => [
         fn() => Assertion::regex('1234', '/^\d+$/', $propertyPath),
     ],
