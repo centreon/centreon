@@ -27,6 +27,6 @@ class IconException extends \Exception
 {
     public static function iconDoesNotExists(int $id): self
     {
-        return new self(sprintf(_('Icon #%d does not exists'), $id));
+        return new self(sprintf(_('Icon #%d does not exist'), $id));
     }
 }
