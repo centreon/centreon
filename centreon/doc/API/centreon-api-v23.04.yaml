@@ -8,6 +8,7 @@ info:
     + Added host groups endpoints (DELETE, POST)
     + Added host categories endpoints (DELETE, POST)
     + Added host severities endpoints (DELETE)
+    +
     # Updated features
     + Updated host groups endpoint (GET)
     + Updated host categories endpoint (GET)
