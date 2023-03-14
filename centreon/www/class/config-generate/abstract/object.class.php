@@ -70,9 +70,6 @@ abstract class AbstractObject
         $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
-        } else {
-            $this->isVaultEnabled = false;
-        }
     }
 
     /*
