@@ -15994,5 +15994,8 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
+#  msgid "Icon #%d does not exist"
+#  msgstr ""
+
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
