@@ -122,7 +122,7 @@ class Macro extends AbstractObject
             if (
                 $this->isCentreonCloudPlatform
                 && $this->isVaultEnabled
-                && ($macro['is_password'] == 1 || preg_match(VAULT_PATH_REGEX, $macro['svc_macro_value']))
+                && ($macro['is_password'] == 1 || preg_match(self::VAULT_PATH_REGEX, $macro['svc_macro_value']))
             ) {
                 $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
             }
