@@ -22,7 +22,7 @@
 
 
 require_once(__DIR__ . '/../bootstrap.php');
-require _CENTREON_ETC_ . '/centreon.conf.php';
+require_once _CENTREON_ETC_ . '/centreon.conf.php';
 $pearDB = new CentreonDB("centreon");
 $pearDBO = new CentreonDB("centstorage");
 
