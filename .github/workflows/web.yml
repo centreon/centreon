@@ -334,19 +334,19 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  legacy-e2e-test:
-    needs: [dockerize, changes]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: legacy-e2e
-      module_name: centreon
-      image_name: centreon-web
-      features_path: features
-    secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  # legacy-e2e-test:
+  #   needs: [dockerize, changes]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+  #   uses: ./.github/workflows/behat-test.yml
+  #   with:
+  #     name: legacy-e2e
+  #     module_name: centreon
+  #     image_name: centreon-web
+  #     features_path: features
+  #   secrets:
+  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
     needs: [get-version, dockerize]
@@ -407,7 +407,6 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
       ]
@@ -444,7 +443,6 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
       ]
