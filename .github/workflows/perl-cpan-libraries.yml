@@ -121,6 +121,7 @@ jobs:
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
+            spec_file: "./centreon-gorgone/packaging/packages/perl-Libssh-Session.spec"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
@@ -186,7 +187,7 @@ jobs:
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          rpmbuild -ba ${{ matrix.spec_file }}
+          rpmbuild -ba --verbose ${{ matrix.spec_file }}
 
           cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
         shell: bash
