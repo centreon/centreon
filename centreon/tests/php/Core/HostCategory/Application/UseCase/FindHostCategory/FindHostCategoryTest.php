@@ -73,7 +73,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('exists')
         ->willThrowException(new \Exception());
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
@@ -96,7 +96,7 @@ it('should present a ForbiddenResponse when a non-admin user has insufficient ri
             ]
         );
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -114,7 +114,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->method('exists')
         ->willReturn(false);
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
@@ -136,7 +136,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->method('existsByAccessGroups')
         ->willReturn(false);
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
@@ -167,7 +167,7 @@ it('should present a FindHostCategoryResponse when a non-admin user has read onl
         ->method('findById')
         ->willReturn($this->hostCategory);
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     $response = $this->presenter->getPresentedData();
     expect($response)
@@ -207,7 +207,7 @@ it('should present a FindHostCategoryResponse when a non-admin user has read/wri
         ->method('findById')
         ->willReturn($this->hostCategory);
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     $response = $this->presenter->getPresentedData();
     expect($response)
@@ -239,7 +239,7 @@ it('should present a FindHostCategoryResponse with admin user', function () {
         ->method('findById')
         ->willReturn($this->hostCategory);
 
-    ($this->usecase)($this->presenter, $this->hostCategory->getId());
+    ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
     $response = $this->presenter->getPresentedData();
     expect($response)

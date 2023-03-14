@@ -342,9 +342,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/Configuration.Host.Category'
+                $ref: '#/components/schemas/Configuration.Host.Category'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
