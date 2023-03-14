@@ -45,7 +45,7 @@ class Vault extends AbstractObjectJSON
         ];         
 
         // Generate file
-        $this->generate_filename = 'centreonvault.json';
+        $this->generateFilename = 'centreonvault.json';
         $this->generateFile($object, false);
         $this->writeFile($this->backend_instance->getPath());
     }
