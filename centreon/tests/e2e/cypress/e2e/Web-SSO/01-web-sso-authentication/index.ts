@@ -38,7 +38,9 @@ Then(
     cy.getByLabel({ label: 'Mixed', tag: 'input' })
       .should('be.checked')
       .and('have.value', 'false');
-    cy.logout().reload();
+
+    cy.logout();
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')

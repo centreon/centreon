@@ -80,7 +80,7 @@ Then(
         custom();
       }
     });
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -89,9 +89,9 @@ Given(
   () => {
     cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
       .wait('@getLastestUserFilters')
-      .isInProfileMenu('Edit profile')
-      .logout()
-      .reload();
+      .isInProfileMenu('Edit profile');
+
+    cy.contains('Logout').click();
   }
 );
 
@@ -126,7 +126,7 @@ When(
     );
     cy.get('#Save').click({ force: true });
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -158,7 +158,7 @@ Then(
         "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
       );
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -198,7 +198,7 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -255,7 +255,7 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -346,7 +346,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     });
   });
 
-  cy.logout().reload();
+  cy.logout();
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
@@ -396,7 +396,7 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -418,7 +418,7 @@ Then(
       .url()
       .should('include', '/monitoring/resources');
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -448,7 +448,7 @@ When(
       .get('#Save')
       .click({ force: true });
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -490,7 +490,7 @@ Then(
       .url()
       .should('include', '/monitoring/resources');
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
