@@ -95,6 +95,7 @@ jobs:
           - rpm_provides: ""
           - version: ""
           - use_dh_make_perl: "true"
+          - spec_file: ""
           - distrib: el8
             package_extension: rpm
             image: packaging-alma8
@@ -111,6 +112,7 @@ jobs:
           - name: "FFI::Platypus"
             build_deb: "false"
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
+            spec_file: "./centreon-gorgone/packaging/packages/perl-FFI-Platypus.spec"
           - name: "JSON::Path"
             version: "1.0.3"
           - name: "ZMQ::FFI"
@@ -137,7 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
@@ -169,10 +171,24 @@ jobs:
 
           cpanm Module::Build::Tiny
           cpanm Module::Install
-          cpanm $PACKAGE_NAME
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
+        shell: bash
+
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file != '' }}
+        run: |
+          yum install -y yum-utils epel-release git
+          yum config-manager --set-enabled crb || true # alma 9
+          yum config-manager --set-enabled powertools || true # alma 8
+
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
+
+          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+          rpmbuild -ba ${{ matrix.spec_file }}
+
+          cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
         shell: bash
 
       - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
@@ -197,7 +213,6 @@ jobs:
 
           cpanm Module::Build::Tiny
           cpanm Module::Install
-          cpanm $PACKAGE_NAME
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
