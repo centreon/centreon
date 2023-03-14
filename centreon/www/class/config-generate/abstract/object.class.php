@@ -84,9 +84,6 @@ abstract class AbstractObject
 
         if (is_array($result) && $result['value'] === 'yes') {
             $this->isCentreonCloudPlatform = true;
-        } else {
-            $this->isCentreonCloudPlatform = false;
-        }
     }
 
     /**
