@@ -169,6 +169,7 @@ jobs:
 
           cpanm Module::Build::Tiny
           cpanm Module::Install
+          cpanm Test::More
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
@@ -196,6 +197,7 @@ jobs:
 
           cpanm Module::Build::Tiny
           cpanm Module::Install
+          cpanm Test::More
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
