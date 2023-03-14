@@ -16150,3 +16150,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Error when searching for the host severity #%d"
 # msgstr ""
+
+#  msgid "Error when searching for the host category #%d"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""

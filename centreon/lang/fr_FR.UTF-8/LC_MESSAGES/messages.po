@@ -17291,9 +17291,6 @@ msgstr "Ce nom de catégorie d'hôtes existe déjà"
 msgid "Error while creating host category"
 msgstr "Erreur lors de la création d'une catégorie d'hôtes"
 
-msgid "Error while retrieving recently created host category"
-msgstr "Error lors de la récupération de la catégorie d'hôtes nouvellement créée"
-
 msgid "You are not allowed to access host severities"
 msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
 
@@ -17552,3 +17549,9 @@ msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
 
 msgid "Error when searching for the host severity #%d"
 msgstr "Erreur lors de la recherche de la sévérité d'hôtes #%d"
+
+msgid "Error when searching for the host category #%d"
+msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
+
+msgid "Error while retrieving a host category"
+msgstr "Error lors de la récupération de la catégorie d'hôtes"
