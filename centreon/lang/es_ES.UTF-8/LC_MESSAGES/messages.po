@@ -15726,3 +15726,6 @@ msgstr ""
 
 #  msgid "You are not allowed to access host templates"
 #  msgstr ""
+
+#  msgid "Error while updating the host category"
+#  msgstr ""
