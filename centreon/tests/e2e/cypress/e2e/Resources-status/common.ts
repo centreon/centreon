@@ -6,7 +6,6 @@ import {
   loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
-  logout,
   insertFixture
 } from '../../commons';
 
@@ -57,8 +56,7 @@ const insertResourceFixtures = (): Cypress.Chainable => {
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(submitResultsViaClapi)
-    .then(checkThatFixtureServicesExistInDatabase)
-    .then(logout);
+    .then(checkThatFixtureServicesExistInDatabase);
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -94,8 +92,7 @@ const tearDownResource = (): Cypress.Chainable => {
   return cy
     .setUserTokenApiV1()
     .then(() => cy.removeResourceData())
-    .then(applyConfigurationViaClapi)
-    .then(logout);
+    .then(applyConfigurationViaClapi);
 };
 
 const actionBackgroundColors = {
