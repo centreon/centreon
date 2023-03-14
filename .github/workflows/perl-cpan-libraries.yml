@@ -187,7 +187,7 @@ jobs:
 
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
-          rpmbuild -ba --verbose ${{ matrix.spec_file }}
+          rpmbuild --undefine=_disable_source_fetch -ba ${{ matrix.spec_file }}
 
           cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
         shell: bash
