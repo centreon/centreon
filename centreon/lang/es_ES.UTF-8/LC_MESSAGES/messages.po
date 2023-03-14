@@ -15535,3 +15535,44 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything Ok"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "Ok status services"
+# msgstr ""
