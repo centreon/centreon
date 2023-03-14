@@ -15246,10 +15246,10 @@ msgstr ""
 # msgid "Pollers not running"
 # msgstr ""
 
-# msgid "Everything Ok"
+# msgid "Everything OK"
 # msgstr ""
 
-# msgid "All pollers:"
+# msgid "All pollers :"
 # msgstr ""
 
 #: www/front_src/src/Header/Resources/Host
@@ -15275,5 +15275,5 @@ msgstr ""
 # msgid "Unknown status services"
 # msgstr ""
 
-# msgid "Ok status services"
+# msgid "OK status services"
 # msgstr ""
