@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import axios from 'axios';
-import { waitFor } from '@testing-library/dom';
+import { waitFor } from '@testing-library/jest-dom';
 
 import useNavigation from './useNavigation';
 import { retrievedNavigation, allowedPages, reactRoutes } from './mocks';
