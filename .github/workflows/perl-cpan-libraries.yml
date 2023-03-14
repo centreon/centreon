@@ -34,56 +34,56 @@ jobs:
         distrib: [el8, el9, bullseye]
         name:
           [
-            "boolean",
-            "Carp::Assert",
-            "Clone",
-            "Clone::Choose",
-            "common::sense",
-            "Convert::EBCDIC",
-            "Crypt::Argon2",
-            "Crypt::Blowfish_PP",
-            "Device::Modbus",
-            "Device::Modbus::RTU::Client",
-            "Device::Modbus::TCP::Client",
-            "Digest::MD5::File",
-            "Digest::SHA1",
-            "Email::Send::SMTP::Gmail",
+            # "boolean",
+            # "Carp::Assert",
+            # "Clone",
+            # "Clone::Choose",
+            # "common::sense",
+            # "Convert::EBCDIC",
+            # "Crypt::Argon2",
+            # "Crypt::Blowfish_PP",
+            # "Device::Modbus",
+            # "Device::Modbus::RTU::Client",
+            # "Device::Modbus::TCP::Client",
+            # "Digest::MD5::File",
+            # "Digest::SHA1",
+            # "Email::Send::SMTP::Gmail",
             "EV",
             "FFI::CheckLib",
             "FFI::Platypus",
-            "File::SearchPath",
-            "Hash::Merge",
-            "HTTP::Daemon",
-            "HTTP::Daemon::SSL",
-            "HTTP::ProxyPAC",
-            "JMX::Jmx4Perl",
-            "JSON::Parse",
-            "JSON::Path",
-            "JSON::WebToken",
-            "Libssh::Session",
-            "LV",
-            "Net::Curl::Easy",
-            "Net::FTPSSL",
-            "Net::HTTPTunnel",
-            "Net::NTP",
-            "Net::SMTPS",
-            "Net::SMTP_auth",
-            "Net::Subnet",
-            "Net::TFTP",
-            "Schedule::Cron",
-            "Statistics::Descriptive",
-            "Statistics::Regression",
-            "Sys::SigAction",
-            "Term::Clui",
-            "Term::ShellUI",
-            "URI::Encode",
-            "URI::Template",
-            "URL::Encode",
-            "UUID",
-            "UUID::URandom",
-            "XML::Filter::BufferText",
-            "XML::LibXML::Simple",
-            "XML::SAX::Writer",
+            # "File::SearchPath",
+            # "Hash::Merge",
+            # "HTTP::Daemon",
+            # "HTTP::Daemon::SSL",
+            # "HTTP::ProxyPAC",
+            # "JMX::Jmx4Perl",
+            # "JSON::Parse",
+            # "JSON::Path",
+            # "JSON::WebToken",
+            # "Libssh::Session",
+            # "LV",
+            # "Net::Curl::Easy",
+            # "Net::FTPSSL",
+            # "Net::HTTPTunnel",
+            # "Net::NTP",
+            # "Net::SMTPS",
+            # "Net::SMTP_auth",
+            # "Net::Subnet",
+            # "Net::TFTP",
+            # "Schedule::Cron",
+            # "Statistics::Descriptive",
+            # "Statistics::Regression",
+            # "Sys::SigAction",
+            # "Term::Clui",
+            # "Term::ShellUI",
+            # "URI::Encode",
+            # "URI::Template",
+            # "URL::Encode",
+            # "UUID",
+            # "UUID::URandom",
+            # "XML::Filter::BufferText",
+            # "XML::LibXML::Simple",
+            # "XML::SAX::Writer",
             "ZMQ::FFI",
           ]
         include:
@@ -110,22 +110,22 @@ jobs:
           - name: "FFI::Platypus"
             build_deb: "false"
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
-          - name: "JSON::Path"
-            version: "1.0.3"
+          # - name: "JSON::Path"
+          #   version: "1.0.3"
           - name: "ZMQ::FFI"
             build_deb: "false"
             rpm_dependencies: "zeromq"
-          - name: "Libssh::Session"
-            rpm_dependencies: "libssh"
-            deb_dependencies: "libssh2-1"
-          - name: "Device::Modbus::RTU::Client"
-            version: "0.022"
-          - name: "Device::Modbus::TCP::Client"
-            version: "0.026"
-          - name: "Statistics::Regression"
-            version: "0.53"
-          - name: "UUID"
-            use_dh_make_perl: "false"
+          # - name: "Libssh::Session"
+          #   rpm_dependencies: "libssh"
+          #   deb_dependencies: "libssh2-1"
+          # - name: "Device::Modbus::RTU::Client"
+          #   version: "0.022"
+          # - name: "Device::Modbus::TCP::Client"
+          #   version: "0.026"
+          # - name: "Statistics::Regression"
+          #   version: "0.53"
+          # - name: "UUID"
+          #   use_dh_make_perl: "false"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
