@@ -53,7 +53,7 @@ abstract class AbstractObject
     protected $broker = false;
     protected $dependencyInjector;
 
-    protected $isVaultEnabled = null;
+    protected $isVaultEnabled = false;
     protected $isCentreonCloudPlatform = null;
 
     /*
