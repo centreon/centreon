@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: 16.2.0
+        node-version: 16
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
