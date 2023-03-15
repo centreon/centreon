@@ -10,7 +10,7 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
-      - "./github/actions/web-frontend-component-test/**"
+      - ".github/actions/web-frontend-component-test/**"
   push:
     branches:
       - develop
