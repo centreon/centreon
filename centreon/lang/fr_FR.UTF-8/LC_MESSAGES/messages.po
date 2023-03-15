@@ -17554,4 +17554,4 @@ msgid "Error when searching for the host category #%d"
 msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
-msgstr "Error lors de la récupération de la catégorie d'hôtes"
+msgstr "Erreur lors de la récupération de la catégorie d'hôtes"

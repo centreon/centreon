@@ -144,7 +144,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->toBe('Host category not found');
 });
 
-it('should present a FindHostCategoryResponse when a non-admin user has read only rights', function (): void {
+it('should present a FindHostCategoryResponse when a non-admin user has read-only rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
