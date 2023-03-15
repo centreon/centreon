@@ -13,7 +13,7 @@ runs:
         node-version: 17
 
     - name: Cypress web component testing
-      uses: cypress-io/github-action@v4
+      uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
@@ -32,4 +32,5 @@ runs:
       uses: ./.github/actions/publish-report
       with:
         check_name: web-frontend-component-tests-report
-        path: "${{ inputs.working_directory }}/cypress/results/cypress-fe.xml"
+        path: ${{ inputs.module }}/cypress/results/mochawesome.json
+        format: cypress
