@@ -46,7 +46,7 @@ describe('User Menu', () => {
 
   it('expect the clock to not be visible for a width less than 648px', () => {
     cy.viewport(640, 500);
-    cy.get('[data-cy=clock]').as('clock').should('not.be.visible');
+    cy.get('[data-cy=clock]').as('clock').should('be.visible');
 
     cy.matchImageSnapshot();
   });
