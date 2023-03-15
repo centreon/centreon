@@ -46,7 +46,6 @@ const DateTimePickerInput = ({
   property,
   changeDate,
   setDate,
-
   onClosePicker,
   disabled = false
 }: Props): JSX.Element => {
