@@ -15235,3 +15235,9 @@ msgstr ""
 
 #~ msgid "Please update your PHP to 7.2 or upper."
 #~ msgstr "Bitte aktualisieren Sie ihre PHP-Version auf 7.2 oder höher."
+
+#~ msgid "Centreon wallpaper"
+#~ msgstr ""
+
+#~ msgid "Powered by Centreon"
+#~ msgstr ""

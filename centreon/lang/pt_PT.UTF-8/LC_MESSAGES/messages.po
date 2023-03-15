@@ -15989,3 +15989,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
+#  msgstr ""
