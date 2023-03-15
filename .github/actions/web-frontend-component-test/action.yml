@@ -19,6 +19,7 @@ runs:
         component: true
         install-command: npm ci --legacy-peer-deps
         working-directory: ${{ inputs.working_directory }}
+        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
