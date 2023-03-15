@@ -33,5 +33,5 @@ runs:
       uses: ./.github/actions/publish-report
       with:
         check_name: web-frontend-component-tests-report
-        path: ${{ inputs.module }}/cypress/results/reports/mochawesome.json
+        path: ${{ inputs.working_directory }}/cypress/results/mochawesome.json
         format: cypress
