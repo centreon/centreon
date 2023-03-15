@@ -10,7 +10,6 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
-      - ".github/actions/web-frontend-component-test/**"
   push:
     branches:
       - develop
@@ -170,7 +169,7 @@ jobs:
 
   frontend-component-test:
     needs: [changes]
-    # if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
