@@ -97,7 +97,7 @@ class HostCategoryException extends \Exception
      */
     public static function updateHostCategory(\Throwable $ex): self
     {
-        return new self(_('Error while updating host category'), 0, $ex);
+        return new self(_('Error while updating the host category'), 0, $ex);
     }
 
     /**
