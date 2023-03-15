@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import axios from 'axios';
-import { waitFor } from '@testing-library/jest-dom';
+import { waitFor } from '@testing-library/dom';
 
 import usePlatformVersions from '../Main/usePlatformVersions';
 
