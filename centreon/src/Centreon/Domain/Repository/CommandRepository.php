@@ -197,7 +197,7 @@ SQL;
             TRUNCATE TABLE `command_categories_relation`;
             TRUNCATE TABLE `command_categories`;
             TRUNCATE TABLE `on_demand_macro_command`;
-        SQL;
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }
