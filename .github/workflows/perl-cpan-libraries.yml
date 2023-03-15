@@ -138,14 +138,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel
+        shell: bash
 
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
-
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
+        run: |
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
           else
@@ -177,12 +179,6 @@ jobs:
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file != '' }}
         run: |
-          yum install -y yum-utils epel-release git
-          yum config-manager --set-enabled crb || true # alma 9
-          yum config-manager --set-enabled powertools || true # alma 8
-
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel
-
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
           rpmbuild --undefine=_disable_source_fetch -ba ${{ matrix.spec_file }}
