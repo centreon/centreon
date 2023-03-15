@@ -1,17 +1,17 @@
-FROM docker.centreon.com/proxy/almalinux:8 AS web_fresh
+FROM docker.centreon.com/proxy/almalinux:9 AS web_fresh
 
 RUN <<EOF
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
 dnf module reset -y php
 dnf module install -y php:remi-8.1
 
 dnf install -y dnf-plugins-core
 
-dnf config-manager --set-enabled powertools
+dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
 echo "[server]
 skip-grant-tables
@@ -26,7 +26,7 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm/standard/23.04/el8/centreon.repo
+dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm/standard/23.04/el9/centreon.repo
 dnf config-manager --set-enabled 'centreon*'
 
 dnf clean all --enablerepo=*
