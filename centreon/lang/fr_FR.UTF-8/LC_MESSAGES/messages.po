@@ -17412,10 +17412,10 @@ msgstr "Incident sur la base de données"
 msgid "Pollers not running"
 msgstr "Collecteurs hors service"
 
-msgid "Everything OK"
+msgid "Everything is OK"
 msgstr "Tout est OK"
 
-msgid "All pollers :"
+msgid "All pollers:"
 msgstr "Tous les collecteurs :"
 
 #: www/front_src/src/Header/Resources/Host

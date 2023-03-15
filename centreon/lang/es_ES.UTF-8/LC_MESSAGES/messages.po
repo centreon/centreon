@@ -15545,10 +15545,10 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 # msgid "Pollers not running"
 # msgstr ""
 
-# msgid "Everything OK"
+# msgid "Everything is OK"
 # msgstr ""
 
-# msgid "All pollers :"
+# msgid "All pollers:"
 # msgstr ""
 
 #: www/front_src/src/Header/Resources/Host

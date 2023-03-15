@@ -24,7 +24,7 @@ export const labelDatabaseNotActive =
   'Some database poller updates are not active; check your configuration';
 export const labelDatabaseUpdatesNotActive = 'Database issue';
 export const labelPollerNotRunning = 'Pollers not running';
-export const labelPollerRunning = 'Everything OK';
+export const labelPollerRunning = 'Everything is OK';
 export const labelConfigurePollers = 'Configure pollers';
-export const labelAllPollers = 'All pollers :';
+export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
