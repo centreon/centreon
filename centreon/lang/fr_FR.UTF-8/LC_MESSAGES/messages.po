@@ -2602,8 +2602,8 @@ msgid "Recurrent downtimes"
 msgstr "Plages de maintenance récurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Connecteurs de supervision"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -3322,8 +3322,8 @@ msgid "Performance Management"
 msgstr "Gestion des données de performance"
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Connecteurs de supervision"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -17400,3 +17400,6 @@ msgstr "Ce nom de sévérité de services existe déjà"
 
 msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
+
+msgid "Icon #%d does not exist"
+msgstr "L'icône #%d n'existe pas"
