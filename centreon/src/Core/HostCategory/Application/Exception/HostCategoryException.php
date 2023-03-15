@@ -91,6 +91,16 @@ class HostCategoryException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function updateHostCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while updating host category'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function hostNameAlreadyExists(): self

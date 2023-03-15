@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -277,7 +278,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function existsByName(string $hostCategoryName): bool
+    public function existsByName(TrimmedString $hostCategoryName): bool
     {
         $this->info('Check existence of host category with name ' . $hostCategoryName);
 
@@ -285,7 +286,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             'SELECT 1 FROM `:db`.hostcategories hc WHERE hc.hc_name = :hostCategoryName'
         );
         $statement = $this->db->prepare($request);
-        $statement->bindValue(':hostCategoryName', $hostCategoryName, \PDO::PARAM_STR);
+        $statement->bindValue(':hostCategoryName', $hostCategoryName->value, \PDO::PARAM_STR);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
