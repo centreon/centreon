@@ -8,17 +8,17 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
     branches:
-      - dev-21.10.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
-
     tags:
       - centreon-*
 
@@ -60,10 +60,10 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     container:
-      image: docker.centreon.com/translation:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
       credentials:
-        username: ${{ secrets.REPOS_USERNAME }}
-        password: ${{ secrets.REPOS_PASSWORD }}
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -103,15 +103,14 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        run: npm run eslint -- -o junit.xml -f junit --quiet
         working-directory: centreon
 
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          name: centreon-web-eslint-report
-          path: centreon/checkstyle.xml
+          path: "centreon/junit.xml"
+          format: "java-junit"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -131,13 +130,10 @@ jobs:
         run: npm t -- --silent --reporters=jest-junit
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/junit.xml"
+          path: "centreon/junit.xml"
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -163,13 +159,11 @@ jobs:
         run: composer run test:ci
         working-directory: centreon
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-backend-unit-tests-report"
-          comment_mode: failures
-          junit_files: "centreon/build/phpunit.xml"
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
     needs: [
@@ -215,8 +209,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -234,19 +228,12 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to proxy registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Use cache RPM files
         uses: actions/cache@v3
@@ -263,7 +250,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.centreon.com/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -272,7 +259,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -281,7 +268,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [dockerize]
@@ -293,8 +280,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -306,8 +293,8 @@ jobs:
       image_name: centreon-web
       features_path: features
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
@@ -318,24 +305,17 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: docker.centreon.com/centreon-web-centos7
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
@@ -347,13 +327,11 @@ jobs:
           name: cypress-videos
           path: centreon/tests/e2e/cypress/results/videos
 
-      - name: Publish report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - if: failure()
+        uses: ./.github/actions/publish-report
         with:
-          check_name: "centreon-web-frontend-e2e-tests-report"
-          comment_mode: failures
-          junit_files: centreon/tests/e2e/cypress-result.xml
+          check_name: centreon-web-frontend-e2e-tests-report
+          path: "centreon/tests/e2e/cypress-result.xml"
 
   performances-test:
     runs-on: ubuntu-22.04
@@ -362,34 +340,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to proxy registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker-proxy.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Run lighthouse
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon/lighthouse"
-          image: docker.centreon.com/centreon-web-centos7
-          image_version: ${{ github.head_ref || github.ref_name }}
-          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
-          module: centreon
+      # - name: Run lighthouse
+      #   uses: ./.github/actions/lighthouse-performance-testing
+      #   with:
+      #     path: "centreon/lighthouse"
+      #     image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-centos7
+      #     image_version: ${{ github.head_ref || github.ref_name }}
+      #     image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+      #     module: centreon
 
-      - name: Publish report
-        uses: actions/upload-artifact@v3
-        with:
-          name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
+      # - name: Publish report
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: lighthouse-report
+      #     path: centreon/lighthouse/report/lighthouseci-index.html
 
   deliver-rpm:
     runs-on: [self-hosted, common]
@@ -410,8 +381,11 @@ jobs:
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}

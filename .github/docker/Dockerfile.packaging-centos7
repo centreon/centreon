@@ -1,4 +1,4 @@
-FROM docker-proxy.centreon.com/centos:7
+FROM docker.centreon.com/proxy/centos:7
 
 RUN <<EOF
 

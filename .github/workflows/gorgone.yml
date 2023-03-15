@@ -8,13 +8,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/gorgone.yml"
       - "centreon-gorgone/**"
   push:
     branches:
-      - dev-21.10.x
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/gorgone.yml"
       - "centreon-gorgone/**"
     tags:
       - centreon-gorgone-*
@@ -55,8 +56,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   deliver-rpm:
     runs-on: [self-hosted, common]
@@ -73,12 +74,15 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: centreon-gorgone
+          module_name: gorgone
           repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.REPOS_USERNAME }}
-          nexus_password: ${{ secrets.REPOS_PASSWORD }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}

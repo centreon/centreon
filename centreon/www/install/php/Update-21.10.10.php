@@ -44,6 +44,7 @@ try {
             ON DELETE CASCADE"
         );
     }
+
 } catch (\Exception $e) {
     $centreonLog->insertLog(
         4,

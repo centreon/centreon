@@ -15,7 +15,7 @@ Summary:        Centreon-dsm add-on for Centreon
 %define nextmajor 21.11.0
 
 Group:          System Environment/Base
-License:        GPLv2
+License:        Apache-2.0
 URL:            https://github.com/centreon/centreon-dsm
 Source0:        %{name}-%{version}.tar.gz
 Source1:        centreon-macroreplacement.txt
@@ -33,6 +33,7 @@ events.
 %package server
 Summary:        Centreon-dsm server
 Group:          Networking/Other
+License:        Apache-2.0
 Requires(post): /sbin/chkconfig
 Requires:	centreon-web >= %{thismajor}
 Requires:       centreon-web < %{nextmajor}
@@ -43,6 +44,7 @@ Centreon-dsm server package
 %package client
 Summary:	Centreon-dsm client
 Group:		Networking/Other
+License:	Apache-2.0
 
 %description client
 Centreon-dsm client package
