@@ -17,19 +17,15 @@ runs:
   steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
+          node-version: 16
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci --legacy-peer-deps
         working-directory: ${{ inputs.installation_directory || inputs.frontend_directory }}
         shell: bash
 
       - name: Run ESLint
-        run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
+        run: npm run eslint -- -f json -o eslint-report.json --max-warnings 0
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
 
