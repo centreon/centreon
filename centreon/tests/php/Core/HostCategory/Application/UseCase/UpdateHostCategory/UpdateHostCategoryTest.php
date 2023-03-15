@@ -163,7 +163,7 @@ it('should present an ErrorResponse if the existing host category cannot be retr
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostCategoryException::errorWhileRetrievingObject());
+        ->toBe(HostCategoryException::errorWhileRetrievingObject()->getMessage());
 });
 
 it('should present a ConflictResponse when name is already used', function () {
