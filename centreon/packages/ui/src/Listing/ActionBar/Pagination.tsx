@@ -22,6 +22,7 @@ const Pagination = (props): JSX.Element => {
         toolbar: classes.toolbar
       }}
       component="div"
+      data-testid="Listing Pagination"
       {...props}
     />
   );

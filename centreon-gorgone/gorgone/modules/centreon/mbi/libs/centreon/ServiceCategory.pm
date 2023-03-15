@@ -63,7 +63,7 @@ sub getCategory {
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
 		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
     if(my $row = $sth->fetchrow_hashref()) {
 		$result = $row->{"sc_id"};
 	}else {
@@ -84,7 +84,7 @@ sub getAllEntries {
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
 		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @entries = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @entries, $row->{"sc_id"}.";".$row->{"sc_name"};

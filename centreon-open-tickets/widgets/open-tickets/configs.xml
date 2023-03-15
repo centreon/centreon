@@ -76,9 +76,14 @@
     </preference>
     <preference label="Refresh Interval (seconds)" name="refresh_interval" defaultValue="30" type="text" header="Misc"/>
     <preference label="Enable pagination and more actions" name="more_views" defaultValue="1" type="boolean"/>
+    <preference label="Automatically close action popups" name="auto_close_action_popup" defaultValue="0" type="boolean"/>
     <preference label="Enable toolbar buttons" name="toolbar_buttons" defaultValue="0" type="boolean"/>
     <preference label="Enable action tickets for hosts" name="action_open_hosts" defaultValue="1" type="boolean"/>
     <preference label="Enable action tickets for services" name="action_open_services" defaultValue="1" type="boolean"/>
     <preference label="Enable action acknowledgement" name="action_ack" defaultValue="0" type="boolean"/>
+    <preference label="Enable schedule service forced check" name="action_service_forced_check" defaultValue="0" type="boolean"/>
+    <preference label="Enable schedule service check" name="action_service_check" defaultValue="0" type="boolean"/>
+    <preference label="Enable schedule host forced check" name="action_host_forced_check" defaultValue="0" type="boolean"/>
+    <preference label="Enable schedule host check" name="action_host_check" defaultValue="0" type="boolean"/>
   </preferences>
 </configs>

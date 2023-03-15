@@ -8,8 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { putData, useRequest, useSnackbar } from '@centreon/ui';
 
 import useUser from '../Main/useUser';
-import useLogin from '../Login/useLogin';
 import { labelLoginSucceeded } from '../Login/translatedLabels';
+import usePostLogin from '../Login/usePostLogin';
 
 import { ResetPasswordValues } from './models';
 import {
@@ -37,9 +37,13 @@ function differentPasswords(this, newPassword?: string): boolean {
   return not(equals(newPassword, this.parent.oldPassword));
 }
 
+export const router = {
+  useNavigate
+};
+
 const useResetPassword = (): UseResetPasswordState => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
 
   const { showSuccessMessage } = useSnackbar();
   const { sendRequest } = useRequest({
@@ -49,7 +53,7 @@ const useResetPassword = (): UseResetPasswordState => {
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);
 
   const loadUser = useUser();
-  const { sendLogin } = useLogin();
+  const { sendLogin } = usePostLogin();
 
   const submitResetPassword = (
     values: ResetPasswordValues,

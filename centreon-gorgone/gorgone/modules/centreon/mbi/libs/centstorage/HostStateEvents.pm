@@ -71,7 +71,7 @@ sub agreggateEventsByTimePeriod {
 	
 	
 	my $hostEventObjects = $self->{"biHostStateEventsObj"};
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	$hostEventObjects->createTempBIEventsTable();
 	$hostEventObjects->prepareTempQuery();
 
@@ -154,7 +154,7 @@ sub dailyPurge {
 	
 	$logger->writeLog("DEBUG", "[PURGE] [hoststateevents] purging data older than ".$end);
 	my $query = "DELETE FROM `hoststateevents` where end_time < UNIX_TIMESTAMP('".$end."')";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub getNbEvents{
@@ -171,9 +171,8 @@ sub getNbEvents{
 	$query .= " WHERE start_time < ".$end."";
 	$query .= " AND end_time > ".$start."";
 	$query .= " AND in_downtime = 0 ";
-	
-	
-	my $sth = $db->query($query);
+
+	my $sth = $db->query({ query => $query });
 
 	while (my $row = $sth->fetchrow_hashref()) {
 		$nbEvents = $row->{'nbEvents'};
