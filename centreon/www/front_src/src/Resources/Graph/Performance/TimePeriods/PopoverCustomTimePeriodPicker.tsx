@@ -136,14 +136,8 @@ const PopoverCustomTimePeriodPickers = ({
   const changeDate = ({ property, date }): void => {
     const currentDate = customTimePeriod[property];
     cond([
-      [
-        equals(CustomTimePeriodProperty?.start),
-        (): void => setStart(date)
-      ],
-      [
-        equals(CustomTimePeriodProperty?.end),
-        (): void => setEnd(date)
-      ]
+      [equals(CustomTimePeriodProperty?.start), (): void => setStart(date)],
+      [equals(CustomTimePeriodProperty?.end), (): void => setEnd(date)]
     ])(property);
 
     if (dayjs(date).isSame(dayjs(currentDate)) || !dayjs(date).isValid()) {
