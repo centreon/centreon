@@ -466,9 +466,7 @@ Then('the user is locked after reaching the number of allowed attempts', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
     preserveToken: false
-  })
-    .get('.SnackbarContent-root > .MuiPaper-root')
-    .contains('User is blocked');
+  }).contains('User is blocked');
 
   cy.reload();
 });
