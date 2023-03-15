@@ -34,7 +34,6 @@ use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
@@ -43,7 +42,6 @@ use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\Exception\InvalidArgumentProvidedException;
 use Core\Security\Authentication\Infrastructure\Provider\Exception\InvalidUserIdAttributeException;
-use Core\Security\Authentication\Infrastructure\Provider\Exception\MissingArgumentProvidedException;
 use Core\Security\Authentication\Infrastructure\Provider\Exception\SAML\InvalidMetadataException;
 use Core\Security\Authentication\Infrastructure\Provider\Exception\SAML\ProcessAuthenticationResponseException;
 use Core\Security\Authentication\Infrastructure\Provider\Exception\UserNotAuthenticatedException;
@@ -60,6 +58,7 @@ use DateTimeImmutable;
 use Exception;
 use OneLogin\Saml2\Auth;
 use OneLogin\Saml2\Error;
+use OneLogin\Saml2\Utils;
 use OneLogin\Saml2\ValidationError;
 use Pimple\Container;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -476,5 +475,26 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('logout from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
+    }
+
+    public function handleCallbackLogoutResponse(): void
+    {
+        $this->info("SAML SLS invoked");
+
+        /** @var SAML $provider */
+        $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
+        if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
+            $requestID = $_SESSION['LogoutRequestID'];
+        } else {
+            $requestID = null;
+        }
+
+        $auth->processSLO(true, $requestID);
+
+        // Avoid 'Open Redirect' attacks
+        if (isset($_GET['RelayState']) && Utils::getSelfURL() != $_GET['RelayState']) {
+            $auth->redirectTo($_GET['RelayState']);
+            exit;
+        }
     }
 }

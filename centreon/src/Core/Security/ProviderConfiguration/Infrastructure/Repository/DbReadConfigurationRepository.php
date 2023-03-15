@@ -61,13 +61,15 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     }
 
     /**
-     * @param string $providerName
+     * @param string $providerType
      * @return Configuration
+     * @throws ConfigurationException
+     * @throws RepositoryException
      * @throws \Throwable
      */
-    public function getConfigurationByType(string $providerName): Configuration
+    public function getConfigurationByType(string $providerType): Configuration
     {
-        $configuration = $this->loadConfigurationByType($providerName);
+        $configuration = $this->loadConfigurationByType($providerType);
         $customConfiguration = $this->loadCustomConfigurationFromConfiguration($configuration);
         $configuration->setCustomConfiguration($customConfiguration);
 

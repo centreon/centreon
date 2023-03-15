@@ -98,6 +98,6 @@ class LoginRequest
      */
     public static function createForSAML(string $clientIp): self
     {
-        return new self(providerName: Provider::SAML, clientIp: $clientIp);
+        return new self(Provider::SAML, $clientIp);
     }
 }

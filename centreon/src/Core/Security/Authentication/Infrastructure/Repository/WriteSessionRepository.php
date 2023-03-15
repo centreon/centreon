@@ -30,9 +30,6 @@ use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInte
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use Exception;
-use phpDocumentor\Reflection\Utils;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface

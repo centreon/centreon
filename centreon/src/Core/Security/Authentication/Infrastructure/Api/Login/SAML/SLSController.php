@@ -38,6 +38,7 @@ use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
+use Core\Security\Authentication\Application\UseCase\LogoutSession\SAML\LogoutFromIdp;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\Authentication\Infrastructure\Provider\Settings\Formatter\SettingsFormatterInterface;
@@ -59,46 +60,13 @@ class SLSController extends AbstractController
     use LoggerTrait;
 
     /**
-     * @param SettingsFormatterInterface $settingsFormatter
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param RequestStack $requestStack
-     */
-    public function __construct(
-        private readonly SettingsFormatterInterface $settingsFormatter,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
-        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly RequestStack $requestStack,
-    ) {
-    }
-
-    /**
      * @param Request $request
+     * @param LogoutFromIdp $usecase
      * @return void
-     * @throws Error
      */
-    public function __invoke(Request $request): void
+    public function __invoke(Request $request, LogoutFromIdp $usecase): void
     {
-        session_start();
         $this->info("SAML SLS invoked");
-        /** @var SAML $provider */
-        $provider = $this->providerFactory->create(Provider::SAML);
-        $configuration = $provider->getConfiguration();
-        $auth = new Auth($this->settingsFormatter->format($configuration->getCustomConfiguration()));
-        if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
-            $requestID = $_SESSION['LogoutRequestID'];
-        } else {
-            $requestID = null;
-        }
-
-        $this->writeSessionRepository->invalidate();
-
-        $auth->processSLO(true, $requestID);
-
-        // Avoid 'Open Redirect' attacks
-        if (isset($_GET['RelayState']) && Utils::getSelfURL() != $_GET['RelayState']) {
-            $auth->redirectTo($_GET['RelayState']);
-            exit;
-        }
+        $usecase();
     }
 }
