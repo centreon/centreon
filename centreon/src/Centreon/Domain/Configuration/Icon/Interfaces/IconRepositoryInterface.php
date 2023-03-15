@@ -39,4 +39,12 @@ interface IconRepositoryInterface
      * @return Icon[]
      */
     public function getIconsWithoutRequestParameters(): array;
+
+    /**
+     * Retrieve an icon based on its id
+     *
+     * @param integer $id
+     * @return Icon|null
+     */
+    public function getIcon(int $id): ?Icon;
 }
