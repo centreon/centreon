@@ -2,8 +2,6 @@ import { createRoot } from 'react-dom/client';
 
 import Main from './Main';
 
-console.log('erst');
-
 const container = document.getElementById('root') as HTMLElement;
 
 const createApp = async (): Promise<void> => {
