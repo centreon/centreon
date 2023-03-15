@@ -15365,7 +15365,7 @@ msgstr "Pourcentage de changement de statut"
 msgid "Resource name"
 msgstr "Nom de la ressource"
 
-msgid "Resource problems"
+msgid "All alerts"
 msgstr "Problèmes de ressources"
 
 msgid "Rows per page"
@@ -15437,7 +15437,7 @@ msgstr "Commande de contrôle envoyée"
 msgid "Type of resource"
 msgstr "Type de ressource"
 
-msgid "Unhandled problems"
+msgid "Unhandled alerts"
 msgstr "Problèmes non traités"
 
 msgid "Unhandled"
