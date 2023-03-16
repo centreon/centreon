@@ -1,4 +1,4 @@
-FROM docker.centreon.com/proxy/almalinux:9 AS web_fresh
+FROM almalinux:9 AS web_fresh
 
 RUN <<EOF
 

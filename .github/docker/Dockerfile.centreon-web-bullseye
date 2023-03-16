@@ -1,4 +1,4 @@
-FROM docker.centreon.com/proxy/debian:bullseye AS web_fresh
+FROM debian:bullseye AS web_fresh
 
 ENV DEBIAN_FRONTEND noninteractive
 
