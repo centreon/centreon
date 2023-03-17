@@ -13,6 +13,7 @@ interface Props {
   label: string;
   onClick: () => void;
   permitted?: boolean;
+  testId: string;
 }
 
 const ResourceActionButton = ({
@@ -20,6 +21,7 @@ const ResourceActionButton = ({
   label,
   onClick,
   disabled,
+  testId,
   permitted = true,
 }: Props): JSX.Element => {
   const theme = useTheme();
@@ -32,7 +34,7 @@ const ResourceActionButton = ({
   if (displayCondensed) {
     return (
       <IconButton
-        data-testid={label}
+        data-testid={testId}
         disabled={disabled}
         size="large"
         title={title}
@@ -47,7 +49,7 @@ const ResourceActionButton = ({
     <Tooltip title={permitted ? '' : labelActionNotPermitted}>
       <span>
         <ActionButton
-          data-testid={label}
+          data-testid={testId}
           disabled={disabled}
           startIcon={icon}
           variant="contained"
