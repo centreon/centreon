@@ -22,9 +22,12 @@ export default defineConfig({
     dockerName: 'centreon-dev'
   },
   execTimeout: 60000,
-  reporter: 'junit',
+  reporter: 'mochawesome',
   reporterOptions: {
-    mochaFile: 'cypress/results/dev/reports/junit-report.xml'
+    html: false,
+    json: true,
+    overwrite: true,
+    reportDir: 'cypress/results/dev/reports'
   },
   requestTimeout: 10000,
   retries: 0,
