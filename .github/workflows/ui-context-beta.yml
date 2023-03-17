@@ -30,16 +30,11 @@ jobs:
         run: npm ci --legacy-peer-deps
         working-directory: ${{ env.centreon_directory }}
 
-      - name: Lint
-        run: npm run eslint -- -o checkstyle.xml -f checkstyle
-        working-directory: ${{ env.directory }}
-
-      - name: Publish report
-        if: ${{ always() }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+      - uses: ./.github/actions/frontend-lint
         with:
-          name: centreon-ui-context-eslint-report
-          path: ${{ env.directory }}/checkstyle.xml
+          frontend_directory: ${{ env.directory }}
+          installation_directory: ${{ env.centreon_directory }}
+          module_name: centreon-ui
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04

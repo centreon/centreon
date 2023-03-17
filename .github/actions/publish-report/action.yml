@@ -25,7 +25,13 @@ runs:
         junit_files: "${{ inputs.path }}"
         fail_on: nothing
 
-    - if: ${{ inputs.format != 'php-junit' }}
+    - if: ${{ inputs.format == 'eslint' }}
+      uses: ./.github/actions/publish-lint-report
+      with:
+        path: ${{ inputs.path }}
+        check_name: ${{ inputs.check_name }}
+
+    - if: ${{ inputs.format != 'php-junit' && inputs.format != 'eslint' }}
       uses: dorny/test-reporter@v1
       with:
         name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
