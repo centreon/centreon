@@ -381,7 +381,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Configuration.Host.Category.Add"
       responses:
-        '200':
+        '204':
           description: "OK"
         '400':
           $ref: '#/components/responses/BadRequest'

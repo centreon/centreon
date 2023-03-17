@@ -378,7 +378,7 @@ Feature:
         "comment": "blablabla"
       }
       """
-    Then the response code should be "200"
+    Then the response code should be "201"
     And the JSON should be equal to:
       """
       {
@@ -397,7 +397,7 @@ Feature:
         "comment": null
       }
       """
-    Then the response code should be "200"
+    Then the response code should be "204"
     When I send a GET request to '/api/latest/configuration/hosts/categories'
     Then the response code should be "200"
     And the JSON should be equal to:
@@ -441,7 +441,7 @@ Feature:
         "comment": "blablabla"
       }
       """
-    Then the response code should be "200"
+    Then the response code should be "201"
     And the JSON should be equal to:
       """
       {
