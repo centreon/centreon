@@ -30,6 +30,7 @@ runs:
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
+        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
@@ -48,5 +49,5 @@ runs:
         retention-days: 1
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/cypress/results/mochawesome.json ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.json
       shell: bash

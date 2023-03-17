@@ -44,7 +44,7 @@ runs:
       shell: bash
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
+      uses: cypress-io/github-action@v5
       with:
         browser: chrome
         install: false
@@ -87,12 +87,12 @@ runs:
 
     - name: Archive Broker logs
       uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
       with:
         name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
         path: broker.log
         retention-days: 1
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/cypress-fe.xml ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.xml
+      if: always()
+      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/mochawesome.json ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.json
       shell: bash
