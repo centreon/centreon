@@ -32,9 +32,7 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int $resultCountForPagination */
     private int $resultCountForPagination = 0;
 
     /**
@@ -66,10 +64,7 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
 
         $isWhere = false;
         if ($filters !== null) {
-            if (
-                array_key_exists('search', $filters)
-                && $filters['search']
-            ) {
+            if ($filters['search'] ?? false) {
                 $sql .= ' WHERE `cg_name` LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
@@ -91,7 +86,7 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
             }
         }
 
-        if (! empty($ordering['field'])) {
+        if ($ordering['field'] ?? false) {
             $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
         }
 

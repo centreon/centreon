@@ -32,12 +32,10 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int $resultCountForPagination */
     private int $resultCountForPagination = 0;
 
-    private array $concordanceArray = [
+    private const CONCORDANCE_ARRAY = [
         'id' => 'id',
         'name' => 'name',
         'localhost' => 'localhost',
@@ -98,7 +96,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         if ($filters !== null) {
             $isWhere = false;
 
-            if (! empty($filters['search'])) {
+            if ($filters['search'] ?? false) {
                 $sql .= ' WHERE `name` LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
@@ -107,6 +105,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
+                && [] !== $filters['ids']
             ) {
                 $idsListKey = [];
 
@@ -118,13 +117,13 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
                 }
 
                 $sql .= $isWhere ? ' AND' : ' WHERE';
-                $sql .= ' `' . $this->concordanceArray['id']
+                $sql .= ' `' . self::CONCORDANCE_ARRAY['id']
                     . '` IN (' . implode(',', $idsListKey) . ')';
             }
         }
 
         if (!empty($ordering['field'])) {
-            $sql .= ' ORDER BY `' . $this->concordanceArray[$ordering['field']] . '` '
+            $sql .= ' ORDER BY `' . self::CONCORDANCE_ARRAY[$ordering['field']] . '` '
                 . $ordering['order'];
         } else {
             $sql .= ' ORDER BY `name` ASC';

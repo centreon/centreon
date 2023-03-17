@@ -32,9 +32,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int $resultCountForPagination */
     private int $resultCountForPagination = 0;
 
     /**
@@ -94,10 +92,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
 
         $isWhere = false;
         if ($filters !== null) {
-            if (
-                array_key_exists('search', $filters)
-                && $filters['search']
-            ) {
+            if ($filters['search'] ?? false) {
                 $sql .= ' WHERE (`tp_name` LIKE :search OR `tp_alias` LIKE :search)';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
@@ -106,6 +101,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
+                && [] !== $filters['ids']
             ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {

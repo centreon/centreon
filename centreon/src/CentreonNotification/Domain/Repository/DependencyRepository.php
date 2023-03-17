@@ -45,7 +45,7 @@ class DependencyRepository extends AbstractRepositoryRDB
     {
         $request = <<<SQL
             DELETE FROM `:db`.`dependency` WHERE dep_id = :dependencyId
-        SQL;
+            SQL;
 
         $collector = new StatementCollector();
         $collector->addValue(':dependencyId', $id);

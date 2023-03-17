@@ -32,15 +32,10 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int $resultCountForPagination */
     private int $resultCountForPagination = 0;
 
-    /**
-     * @var array $concordanceArray
-     */
-    private array $concordanceArray = [
+    private const CONCORDANCE_ARRAY = [
         'id' => 'acl_group_id',
         'name' => 'acl_group_name',
         'alias' => 'acl_group_alias',
@@ -81,17 +76,14 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     {
         $request = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
-        SQL;
+            SQL;
 
         $collector = new StatementCollector();
 
         $isWhere = false;
         if ($filters !== null) {
-            if (
-                array_key_exists('search', $filters)
-                && $filters['search']
-            ) {
-                $request .= ' WHERE t.' . $this->concordanceArray['name'] . ' LIKE :search';
+            if ($filters['search'] ?? false) {
+                $request .= ' WHERE t.' . self::CONCORDANCE_ARRAY['name'] . ' LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
             }
@@ -111,11 +103,11 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
                 }
 
                 $request .= $isWhere ? ' AND' : ' WHERE';
-                $request .= ' t.' . $this->concordanceArray['id'] . ' IN (' . implode(',', $idsListKey) . ')';
+                $request .= ' t.' . self::CONCORDANCE_ARRAY['id'] . ' IN (' . implode(',', $idsListKey) . ')';
             }
         }
 
-        $request .= ' ORDER BY t.' . $this->concordanceArray['name'] . ' ASC';
+        $request .= ' ORDER BY t.' . self::CONCORDANCE_ARRAY['name'] . ' ASC';
 
         if ($limit !== null) {
             $request .= ' LIMIT :limit';

@@ -32,9 +32,7 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int $resultCountForPagination */
     private int $resultCountForPagination = 0;
 
     /**
@@ -79,10 +77,7 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
 
         $isWhere = false;
         if ($filters !== null) {
-            if (
-                array_key_exists('search', $filters)
-                && $filters['search']
-            ) {
+            if ($filters['search'] ?? false) {
                 $sql .= ' WHERE `esc_name` LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
