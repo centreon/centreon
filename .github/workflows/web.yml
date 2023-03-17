@@ -92,25 +92,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-        working-directory: centreon
-
-      - name: Lint
-        run: npm run eslint -- -o junit.xml -f junit --quiet
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
+      - uses: ./.github/actions/frontend-lint
         with:
-          path: "centreon/junit.xml"
-          format: "java-junit"
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -118,7 +105,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 16
 
       - uses: actions/checkout@v3
 
@@ -335,20 +322,6 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
-
-      - name: Archive videos
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/videos
-          retention-days: 1
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          check_name: centreon-web-frontend-e2e-tests-report
-          path: "centreon/tests/e2e/cypress-result.xml"
 
   performances-test:
     runs-on: ubuntu-22.04

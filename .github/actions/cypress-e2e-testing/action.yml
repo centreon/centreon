@@ -24,3 +24,18 @@ runs:
     - name: "Run Cypress"
       run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/.github/scripts/cypress-e2e-testing.sh" --net="host" docker.centreon.com/centreon/cypress:${{ inputs.image_cypress_version }}
       shell: bash
+
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos
+        retention-days: 1
+
+    - if: failure()
+      uses: ./.github/actions/publish-report
+      with:
+        check_name: centreon-web-frontend-e2e-tests-report
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/reports/mochawesome.json
+        format: cypress
