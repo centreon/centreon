@@ -114,7 +114,12 @@ const SelectField = ({
             }
 
             return (
-              <MenuItem key={key} style={{ backgroundColor: color }} data-testid={testId} value={id}>
+              <MenuItem
+                data-testid={testId}
+                key={key}
+                style={{ backgroundColor: color }}
+                value={id}
+              >
                 <Option>{name}</Option>
               </MenuItem>
             );
