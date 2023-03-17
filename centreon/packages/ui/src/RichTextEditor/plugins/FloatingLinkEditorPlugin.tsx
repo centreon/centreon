@@ -117,6 +117,7 @@ const FloatingLinkEditor = ({
         {editMode ? (
           <InputField
             autoFocus
+            dataTestId="InputLinkField"
             defaultValue={linkUrl}
             label={t(labelInputLink)}
             size="small"

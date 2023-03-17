@@ -10,7 +10,10 @@
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
     "test:storyshot": "pnpm test storyshots.test.js",
-    "test:ci": "node testRunner.js --silent --reporter=jest-junit"
+    "test:ci": "node testRunner.js --silent --reporter=jest-junit",
+    "cypress:ui": "cypress open --component --browser=chrome",
+    "cypress:cli:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
+    "cypress:cli": "cypress run --component --browser=chrome"
   },
   "sideEffects": false,
   "repository": {
@@ -28,6 +31,8 @@
   },
   "homepage": "https://github.com/centreon/centreon#readme",
   "devDependencies": {
+    "@cypress/react": "^7.0.2",
+    "@cypress/webpack-dev-server": "^3.2.3",
     "@mdx-js/react": "^2.1.4",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",
@@ -36,16 +41,23 @@
     "@storybook/manager-webpack5": "^6.5.11",
     "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/react": "^6.5.11",
+    "@testing-library/cypress": "^8.0.7",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "^27.5.0",
     "@types/ramda": "^0.28.12",
     "axios-mock-adapter": "^1.20.0",
     "babel-plugin-require-context-hook": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
+    "cypress": "^12.8.0",
+    "cypress-image-snapshot": "^4.0.1",
+    "html-webpack-plugin": "link:@storybook/manager-webpack5/html-webpack-plugin",
     "identity-obj-proxy": "^3.0.0",
     "puppeteer": "^13.7.0",
     "react-test-renderer": "^18.1.0",
     "storybook-addon-mock": "^2.4.1",
-    "storybook-dark-mode": "^1.1.0"
+    "storybook-dark-mode": "^1.1.0",
+    "webpack": "^5.76.1"
   },
   "dependencies": {
     "@lexical/link": "0.8.0",
@@ -56,6 +68,7 @@
     "humanize-duration": "^3.27.3",
     "lexical": "0.8.0",
     "notistack": "^2.0.8",
+    "react": "^18.2.0",
     "react-transition-group": "^4.4.5",
     "ulog": "^2.0.0-beta.19"
   },
@@ -85,6 +98,9 @@
   },
   "jest-junit": {
     "suiteName": "jest tests",
-    "output": "./junit.xml"
+    "output": "./junit.,xml"
+  },
+  "resolutions": {
+    "@storybook/manager-webpack5/html-webpack-plugin": "^5.0.0"
   }
 }
