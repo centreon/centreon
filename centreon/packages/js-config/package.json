@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "22.10.11",
+  "version": "22.10.12",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -15,8 +15,7 @@
   "bugs": {
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "files": [
     "eslint",
