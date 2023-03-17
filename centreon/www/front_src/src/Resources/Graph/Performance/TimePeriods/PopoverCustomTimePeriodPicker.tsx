@@ -40,18 +40,6 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const defaultPickersData = {
-  disabledPickerEndInput: false,
-  disabledPickerStartInput: false,
-  getIsErrorDatePicker: (): void => undefined,
-  maxDatePickerEndInput: undefined,
-  maxDatePickerStartInput: undefined,
-  minDatePickerEndInput: undefined,
-  minDatePickerStartInput: undefined,
-  onCloseEndPicker: (): void => undefined,
-  onCloseStartPicker: (): void => undefined
-};
-
 const defaultPopoverData = {
   anchorEl: undefined,
   anchorOrigin: {
@@ -106,19 +94,7 @@ const PopoverCustomTimePeriodPickers = ({
     ...popoverData
   };
 
-  const {
-    acceptDate,
-    customTimePeriod,
-    disabledPickerEndInput,
-    disabledPickerStartInput,
-    getIsErrorDatePicker,
-    maxDatePickerEndInput,
-    maxDatePickerStartInput,
-    minDatePickerEndInput,
-    minDatePickerStartInput,
-    onCloseEndPicker,
-    onCloseStartPicker
-  } = { ...defaultPickersData, ...pickersData };
+  const { acceptDate, customTimePeriod } = pickersData;
 
   const [start, setStart] = useState<Date | null>(
     !isNil(customTimePeriod) ? customTimePeriod.start : null
@@ -171,7 +147,7 @@ const PopoverCustomTimePeriodPickers = ({
   }, [end, start]);
 
   useEffect(() => {
-    getIsErrorDatePicker?.(error);
+    pickersData?.getIsErrorDatePicker?.(error);
   }, [error]);
 
   return (
@@ -197,12 +173,12 @@ const PopoverCustomTimePeriodPickers = ({
               <DateTimePickerInput
                 changeDate={changeDate}
                 date={start}
-                disabled={disabledPickerStartInput}
-                maxDate={maxDatePickerStartInput}
-                minDate={minDatePickerStartInput}
+                disabled={pickersData?.disabledPickerStartInput}
+                maxDate={pickersData?.maxDatePickerStartInput}
+                minDate={pickersData?.minDatePickerStartInput}
                 property={CustomTimePeriodProperty.start}
                 setDate={setStart}
-                onClosePicker={onCloseStartPicker}
+                onClosePicker={pickersData?.onCloseStartPicker}
               />
             </div>
             <Typography>{t(labelTo)}</Typography>
@@ -210,12 +186,12 @@ const PopoverCustomTimePeriodPickers = ({
               <DateTimePickerInput
                 changeDate={changeDate}
                 date={end}
-                disabled={disabledPickerEndInput}
-                maxDate={maxDatePickerEndInput}
-                minDate={minDatePickerEndInput}
+                disabled={pickersData?.disabledPickerEndInput}
+                maxDate={pickersData?.maxDatePickerEndInput}
+                minDate={pickersData?.minDatePickerEndInput}
                 property={CustomTimePeriodProperty.end}
                 setDate={setEnd}
-                onClosePicker={onCloseEndPicker}
+                onClosePicker={pickersData?.onCloseEndPicker}
               />
             </div>
           </div>
