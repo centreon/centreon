@@ -54,7 +54,8 @@ final class UpdateHostCategory
 
     /**
      * @param UpdateHostCategoryRequest $request
-     * @param UpdateHostCategoryPresenter $presenter
+     * @param PresenterInterface $presenter
+ $presenter
      */
     public function __invoke(UpdateHostCategoryRequest $request, PresenterInterface $presenter): void
     {
