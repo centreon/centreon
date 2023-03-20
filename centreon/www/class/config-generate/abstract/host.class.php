@@ -231,7 +231,7 @@ abstract class AbstractHost extends AbstractObject
         }
         if (!is_null($host['host_snmp_community']) && $host['host_snmp_community'] != '') {
             if (preg_match(self::VAULT_PATH_REGEX, $host['host_snmp_community'])) {
-                $host['macros']['_SNMPCOMMUNITY'] = sprintf("{%s::%s}", "_SNMPCOMMUNITY", $host['host_snmp_community']);
+                $host['macros']['_SNMPCOMMUNITY'] = sprintf("{%s::%s}", "_HOSTSNMPCOMMUNITY", $host['host_snmp_community']);
             } else {
                 $host['macros']['_SNMPCOMMUNITY'] = $host['host_snmp_community'];
             }

@@ -35,7 +35,7 @@
 
 abstract class AbstractObject
 {
-    protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
+    protected const VAULT_PATH_REGEX = '/^secret::/';
 
     protected $backend_instance = null;
     protected $generate_subpath = 'nagios';
