@@ -24,6 +24,6 @@ Feature: Check health of the Image APIs
             "limit":1
         },
         "entities":[
-            {"id":1,"name":"centreon","preview":"img\/media\/logos\/logo-centreon-colors.png"}
+            {"id":1,"name":"centreon","preview":"img\/media\/logos\/logo-centreon-colors.svg"}
         ]}
     """

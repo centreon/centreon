@@ -15,7 +15,7 @@ Feature:
     HC;ADD;severity1;severity1-alias
     HC;setparam;severity1;hc_activate;1
     HC;setmember;severity1;test
-    HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    HC;setseverity;severity1;42;logos/logo-centreon-colors.svg
     """
     And the configuration is generated and exported
     And I wait until host "test" is monitored
@@ -34,7 +34,7 @@ Feature:
                 "icon": {
                     "id": 1,
                     "name": "centreon",
-                    "url": "logos/logo-centreon-colors.png"
+                    "url": "logos/logo-centreon-colors.svg"
                 }
             }
         ],
@@ -57,7 +57,7 @@ Feature:
     SC;ADD;severity1;severity1-alias
     SC;setparam;severity1;sc_activate;1
     SC;addservicetemplate;severity1;Ping-LAN
-    SC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    SC;setseverity;severity1;42;logos/logo-centreon-colors.svg
     """
     And the configuration is generated and exported
     And I wait until host "test" is monitored
@@ -77,7 +77,7 @@ Feature:
                 "icon": {
                     "id": 1,
                     "name": "centreon",
-                    "url": "logos/logo-centreon-colors.png"
+                    "url": "logos/logo-centreon-colors.svg"
                 }
             }
         ],
