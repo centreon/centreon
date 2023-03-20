@@ -17403,3 +17403,9 @@ msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas
 
 msgid "Icon #%d does not exist"
 msgstr "L'icône #%d n'existe pas"
+
+msgid "Centreon wallpaper"
+msgstr "Arrière-plan Centreon"
+
+msgid "Powered by Centreon"
+msgstr "Propulsé par Centreon"
