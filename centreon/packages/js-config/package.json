@@ -39,6 +39,7 @@
     "eslint",
     "jest",
     "tsconfig",
-    "webpack"
+    "webpack",
+    "cypress"
   ]
 }

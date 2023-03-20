@@ -51,8 +51,6 @@ runs:
 
     - name: Configure tag
       run: |
-        ls ${{ env.directory }}
-        git branch
         echo "TAG=${{ github.head_ref }}" >> $GITHUB_ENV
       shell: bash
 
