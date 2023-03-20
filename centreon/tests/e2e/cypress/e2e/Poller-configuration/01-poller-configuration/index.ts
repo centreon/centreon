@@ -61,7 +61,7 @@ Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
     cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
 
-    cy.getIframeBody().find('form #pollercmd_controls').click();
+    cy.getIframeBody().find('form #pollercmd_add span').click();
 
     cy.getIframeBody()
       .find('form #pollercmd_0')

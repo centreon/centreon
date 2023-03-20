@@ -12268,8 +12268,8 @@ msgid "Performance Management"
 msgstr "Gerenciamento de Performance"
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Pacotes de Plugin"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisão"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -12961,8 +12961,8 @@ msgstr "Mostrar Gráficos"
 msgid "Recurrent downtimes"
 msgstr "Manutenções recorrentes"
 
-msgid "Plugin Packs"
-msgstr "Pacote de Plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de supervisão"
 
 msgid "Manager"
 msgstr "Gerencia"
@@ -15984,8 +15984,14 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
-#  msgid "Icon #%d does not exists"
+#  msgid "Icon #%d does not exist"
 #  msgstr ""
 
 #  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
 #  msgstr ""
