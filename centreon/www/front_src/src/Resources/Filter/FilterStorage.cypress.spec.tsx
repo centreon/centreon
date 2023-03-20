@@ -7,7 +7,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import {
   labelSearch,
-  labelUnhandledProblems,
+  labelUnhandledAlerts,
   labelAll,
   labelSearchOptions,
   labelType,
@@ -154,7 +154,7 @@ describe('Filter storage', () => {
   it('populates filter with values from localStorage if available', () => {
     cy.waitForRequest('@filterRequest');
 
-    cy.findByLabelText(labelUnhandledProblems).should('not.exist');
+    cy.findByLabelText(labelUnhandledAlerts).should('not.exist');
 
     const searchField = cy.findByPlaceholderText(labelSearch);
 

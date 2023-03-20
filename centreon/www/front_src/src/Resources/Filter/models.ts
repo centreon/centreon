@@ -3,8 +3,8 @@ import { isNil } from 'ramda';
 import {
   labelAll,
   labelNewFilter,
-  labelUnhandledProblems,
-  labelResourceProblems
+  labelUnhandledAlerts,
+  labelAllAlerts
 } from '../translatedLabels';
 
 import getDefaultCriterias from './Criterias/default';
@@ -45,7 +45,7 @@ const unhandledProblemsFilter: Filter = {
     statuses: [warningStatus, downStatus, criticalStatus, unknownStatus]
   }),
   id: 'unhandled_problems',
-  name: labelUnhandledProblems
+  name: labelUnhandledAlerts
 };
 
 const resourceProblemsFilter: Filter = {
@@ -53,7 +53,7 @@ const resourceProblemsFilter: Filter = {
     statuses: [warningStatus, downStatus, criticalStatus, unknownStatus]
   }),
   id: 'resource_problems',
-  name: labelResourceProblems
+  name: labelAllAlerts
 };
 
 const standardFilterById = {

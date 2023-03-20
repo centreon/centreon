@@ -42,10 +42,7 @@ jobs:
     needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
-      widget_name: servicegroup-monitoring
       major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       nexus_username: ${{ secrets.NEXUS_USERNAME }}
