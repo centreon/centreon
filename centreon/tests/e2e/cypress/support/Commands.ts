@@ -207,11 +207,9 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
-  return cy.request({
-    body: {},
-    method: 'POST',
-    url: apiLogout
-  });
+  cy.getByLabel({ label: 'Profile' }).click();
+
+  return cy.contains('Logout').click();
 });
 
 Cypress.Commands.add('removeACL', (): Cypress.Chainable => {

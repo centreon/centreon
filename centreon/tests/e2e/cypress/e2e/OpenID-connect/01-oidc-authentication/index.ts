@@ -62,8 +62,9 @@ Then('the configuration is saved and secrets are not visible', () => {
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
     .should('have.attr', 'type', 'password')
-    .logout()
-    .reload();
+    .logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
 When('the administrator configures the authentication mode', () => {
@@ -85,7 +86,9 @@ Then(
       .should('be.checked')
       .and('have.value', 'false');
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-OIDC-authentication'
@@ -95,7 +98,7 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
@@ -129,8 +132,9 @@ When(
       })
       .should('be.checked')
       .and('have.value', 'on')
-      .logout()
-      .reload();
+      .logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -143,9 +147,7 @@ Then(
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .wait('@getNavigationList')
         .url()
-        .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .should('include', '/monitoring/resources');
     });
   }
 );

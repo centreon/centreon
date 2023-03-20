@@ -407,9 +407,9 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
+        legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
@@ -439,9 +439,9 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
+        legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:

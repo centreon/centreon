@@ -26,6 +26,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../ResetPassword')),
     path: routeMap.resetPassword
+  },
+  {
+    comp: lazy(() => import('../Logout')),
+    path: routeMap.logout
   }
 ];
 

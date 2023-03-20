@@ -93,14 +93,14 @@ final class Login
             $this->provider = $this->providerFactory->create($loginRequest->providerName);
 
             $this->provider->authenticateOrFail($loginRequest);
-            $user = $this->provider->findUserOrFail();
-
-            if ($loginRequest->providerName === Provider::LOCAL && !$user->isAllowedToReachWeb()) {
-                throw LegacyAuthenticationException::notAllowedToReachWebApplication();
-            }
 
             if ($this->provider->isAutoImportEnabled()) {
                 $this->provider->importUser();
+            }
+
+            $user = $this->provider->findUserOrFail();
+            if ($loginRequest->providerName === Provider::LOCAL && !$user->isAllowedToReachWeb()) {
+                throw LegacyAuthenticationException::notAllowedToReachWebApplication();
             }
 
             $this->updateACL($user);

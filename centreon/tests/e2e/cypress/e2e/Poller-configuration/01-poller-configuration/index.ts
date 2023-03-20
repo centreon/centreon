@@ -176,7 +176,9 @@ Then('the configuration is generated on selected pollers', () => {
 Then('the selected pollers are {string}', (poller_action: string) => {
   checkIfMethodIsAppliedToPollers(poller_action);
 
-  cy.logout().reload();
+  cy.logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
   removeFixtures();
 });
@@ -197,7 +199,9 @@ Then(
       .should('be.visible')
       .and('contain', 'Compulsory Poller');
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     removeFixtures();
   }
@@ -224,7 +228,9 @@ Then('a success message is displayed', () => {
 Then('the configuration is generated on all pollers', () => {
   checkIfConfigurationIsExported();
 
-  cy.logout().reload();
+  cy.logout()
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
   removeFixtures();
 });

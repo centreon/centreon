@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 
 /**
@@ -42,7 +41,7 @@ class ACLConditions
         private bool $isEnabled,
         private bool $applyOnlyFirstRole,
         private string $attributePath,
-        private Endpoint $endpoint,
+        private ?Endpoint $endpoint,
         private array $relations = []
     ) {
         $this->guard();
@@ -73,9 +72,9 @@ class ACLConditions
     }
 
     /**
-     * @return Endpoint
+     * @return Endpoint|null
      */
-    public function getEndpoint(): Endpoint
+    public function getEndpoint(): ?Endpoint
     {
         return $this->endpoint;
     }

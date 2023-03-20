@@ -21,10 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
  * This class is designed to represent The mapping between OpenID Claims and Centreon Contact Groups.
@@ -49,20 +48,17 @@ class GroupsMapping
     /**
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @param Endpoint $endpoint
-     * @param ContactGroupRelation[] $contactGroupRelations
+     * @param Endpoint|null $endpoint
+     * @param array $contactGroupRelations
+     * @throws ConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
         private string $attributePath,
-        private Endpoint $endpoint,
+        private ?Endpoint $endpoint,
         private array $contactGroupRelations
     ) {
-        $this->validateMandatoryParametersForEnabledGroupsMapping(
-            $isEnabled,
-            $attributePath,
-            $contactGroupRelations
-        );
+        $this->validateMandatoryParametersForEnabledGroupsMapping($isEnabled, $attributePath);
     }
 
     /**
@@ -100,9 +96,9 @@ class GroupsMapping
     }
 
     /**
-     * @return Endpoint
+     * @return Endpoint|null
      */
-    public function getEndpoint(): Endpoint
+    public function getEndpoint(): ?Endpoint
     {
         return $this->endpoint;
     }
@@ -112,7 +108,7 @@ class GroupsMapping
      *
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledGroupsMapping(
         bool $isEnabled,
@@ -124,7 +120,7 @@ class GroupsMapping
                 $mandatoryParameters[] = "attribute_path";
             }
             if (! empty($mandatoryParameters)) {
-                throw OpenIdConfigurationException::missingMandatoryParameters($mandatoryParameters);
+                throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }
     }
