@@ -3,22 +3,10 @@
 
 import { defineConfig } from 'cypress';
 
-import setupNodeEvents from './plugins';
+import setupNodeEvents from './plugins.ts';
 
-interface CypressConfigOptions {
-  cypressFolder?: string;
-  dockerName?: string;
-  isDevelopment?: boolean;
-  specPattern: string;
-}
-
-export default ({
-  specPattern,
-  cypressFolder = 'cypress',
-  isDevelopment = false,
-  dockerName = 'centreon-dev'
-}: CypressConfigOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder}/results${
+export default ({ specPattern, cypressFolder, isDevelopment, dockerName }) => {
+  const resultsFolder = `${cypressFolder || 'cypress'}/results${
     isDevelopment ? '/dev' : ''
   }`;
 
@@ -35,7 +23,7 @@ export default ({
       specPattern
     },
     env: {
-      dockerName
+      dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
     reporter: 'mochawesome',

@@ -4,18 +4,10 @@ const {
   addMatchImageSnapshotPlugin
 } = require('cypress-image-snapshot/plugin');
 
-interface DefineCypressConfig {
-  cypressFolder?: string;
-  specPattern: string;
-  webpackConfig;
-}
+module.exports = ({ webpackConfig, cypressFolder, specPattern }) => {
+  const mainCypressFolder = cypressFolder || 'cypress';
 
-module.exports = ({
-  webpackConfig,
-  cypressFolder = 'cypress',
-  specPattern
-}: DefineCypressConfig): unknown =>
-  defineConfig({
+  return defineConfig({
     component: {
       devServer: {
         bundler: 'webpack',
@@ -26,7 +18,7 @@ module.exports = ({
         addMatchImageSnapshotPlugin(on, config);
       },
       specPattern,
-      supportFile: `${cypressFolder}/support/component.tsx`
+      supportFile: `${mainCypressFolder}/support/component.tsx`
     },
     env: {
       baseUrl: 'http://localhost:9092'
@@ -36,9 +28,10 @@ module.exports = ({
       html: false,
       json: true,
       overwrite: true,
-      reportDir: `${cypressFolder}/results`,
+      reportDir: `${mainCypressFolder}/results`,
       reportFilename: '[name]-report.json'
     },
     video: true,
-    videosFolder: `${cypressFolder}/results/videos`
+    videosFolder: `${mainCypressFolder}/results/videos`
   });
+};
