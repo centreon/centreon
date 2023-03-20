@@ -12,6 +12,7 @@ export enum OriginHorizontalEnum {
   left = 'left',
   right = 'right'
 }
+
 export enum OriginVerticalEnum {
   bottom = 'bottom',
   center = 'center',
