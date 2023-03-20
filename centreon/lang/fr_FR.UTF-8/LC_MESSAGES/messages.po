@@ -17436,10 +17436,10 @@ msgid "Critical status services"
 msgstr "Service au statut Critique"
 
 msgid "Warning status services"
-msgstr "Service au statut Alerte"
+msgstr "Services au statut Alerte"
 
 msgid "Unknown status services"
-msgstr "Service au statut Inconnu"
+msgstr "Services au statut Inconnu"
 
 msgid "OK status services"
-msgstr "Service au statut OK"
+msgstr "Services au statut OK"
