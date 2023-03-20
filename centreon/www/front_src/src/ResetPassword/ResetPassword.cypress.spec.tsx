@@ -2,11 +2,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'jotai';
 import { replace } from 'ramda';
 
-import { SnackbarProvider } from '@centreon/ui';
+import { SnackbarProvider, Method } from '@centreon/ui';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
-import { Method } from '../../../../cypress/support/commands';
 import { userEndpoint } from '../api/endpoint';
 
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';

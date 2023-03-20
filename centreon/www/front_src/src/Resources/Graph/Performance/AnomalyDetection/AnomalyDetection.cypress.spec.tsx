@@ -1,8 +1,8 @@
-import React from 'react';
-
 import { act, renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, useAtom } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
+
+import { Method } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 import { detailsAtom } from '../../../Details/detailsAtoms';
@@ -37,7 +37,6 @@ import {
   labelSlider
 } from '../../../translatedLabels';
 import ExportablePerformanceGraphWithTimeline from '../ExportableGraphWithTimeline';
-import { Method } from '../../../../../../../cypress/support/commands';
 
 import AnomalyDetectionGraphActions from './graph/AnomalyDetectionGraphActions';
 import { getDisplayAdditionalLinesCondition } from './graph';
