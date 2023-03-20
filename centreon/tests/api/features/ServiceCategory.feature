@@ -151,7 +151,7 @@ Feature:
     Given the following CLAPI import data:
         """
         SC;ADD;service-sev1;service-sev1-alias
-        SC;setseverity;service-sev1;1;logos/logo-centreon-colors.svg
+        SC;setseverity;service-sev1;1;logos/logo-centreon-colors.png
         """
 
     When I send a GET request to '/api/latest/configuration/services/categories?search={"name":{"$lk":"service-cat%"}}'

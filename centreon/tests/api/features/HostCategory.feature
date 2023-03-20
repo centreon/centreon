@@ -149,7 +149,7 @@ Feature:
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.svg
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/hosts/categories'
