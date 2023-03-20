@@ -32,7 +32,7 @@ const initializeOIDCUserAndGetLoginPage = (): void => {
 const removeContact = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
     cy.executeActionViaClapi({
-      bodyContebt: {
+      bodyContent: {
         action: 'DEL',
         object: 'CONTACT',
         values: 'oidc'
