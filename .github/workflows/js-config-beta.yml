@@ -21,8 +21,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
 
       - uses: ./.github/actions/npm-publish-package-beta
         with:
