@@ -17,7 +17,7 @@ curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- -
 #echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-stable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
 #echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
 echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
-echo "deb https://centreon.jfrog.io/artifactory/apt-connectors-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-connectors-unstable.list
+echo "deb https://centreon.jfrog.io/artifactory/apt-plugins-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://centreon.jfrog.io/artifactory/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
 

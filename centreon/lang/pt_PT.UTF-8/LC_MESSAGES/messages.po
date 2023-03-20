@@ -14869,7 +14869,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14941,7 +14941,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Oops, something went wrong"

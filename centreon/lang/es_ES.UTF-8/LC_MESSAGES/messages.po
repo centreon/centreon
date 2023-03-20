@@ -14407,7 +14407,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14479,7 +14479,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Unhandled"
