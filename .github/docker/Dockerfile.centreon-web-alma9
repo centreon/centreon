@@ -91,8 +91,8 @@ FROM web_fresh AS web_standard
 
 COPY ./.github/docker/sql /tmp/sql
 
-COPY  --chown=apache:apache --chmod=644 ../../centreon/www/img/logo-centreon-colors.svg /usr/share/centreon/www/img/media/logos
-COPY --chown=apache:apache --chmod=644 ../../centreon/www/img/logo-centreon-white.svg /usr/share/centreon/www/img/media/logos
+COPY  --chown=apache:apache --chmod=644 ../../centreon/www/img/logo-centreon-colors.svg /usr/share/centreon/www/img/media/logos/logo-centreon-colors.svg
+COPY --chown=apache:apache --chmod=644 ../../centreon/www/img/logo-centreon-white.svg /usr/share/centreon/www/img/media/logos/logo-centreon-white.svg
 
 RUN <<EOF
 
