@@ -252,8 +252,8 @@ if ($prepareSelect->execute()) {
                             );
                             // If we can't find the host name in the DB, we can get it in the object name
                             if (
-                                $host_name === -1 && str_contains($objectName, '/')
-                                || str_contains($objectName, $host_name.'/')
+                                ((int) $host_name === -1 && str_contains($objectName, '/'))
+                                || str_contains($objectName, $host_name . '/')
                             ) {
                                 $objectValues = explode('/', $objectName, 2);
                                 $host_name = $objectValues[0];
