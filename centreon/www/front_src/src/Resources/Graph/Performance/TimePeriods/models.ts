@@ -23,6 +23,7 @@ export enum anchorReferenceEnum {
   anchorPosition = 'anchorPosition',
   none = 'none'
 }
+
 export interface AcceptDateProps {
   date: Date;
   property: CustomTimePeriodProperty;
