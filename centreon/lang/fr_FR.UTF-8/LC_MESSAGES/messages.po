@@ -17433,7 +17433,7 @@ msgstr "Hôtes au statut Disponible"
 #: www/front_src/src/Header/Resources/Services
 
 msgid "Critical status services"
-msgstr "Service au statut Critique"
+msgstr "Services au statut Critique"
 
 msgid "Warning status services"
 msgstr "Services au statut Alerte"
