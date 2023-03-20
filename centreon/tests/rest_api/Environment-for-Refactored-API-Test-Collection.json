@@ -1,0 +1,75 @@
+{
+	"id": "b354ab6b-de67-42a3-862f-bb68c7a88fc6",
+	"name": "Environment for independent test scenarios collection",
+	"values": [
+		{
+			"key": "protocol",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "server",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "port",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "version",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "baseUrl",
+			"value": "{{protocol}}://{{server}}:{{port}}/centreon/api/{{version}}",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "api_login",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "api_password",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "exportTimeoutInMilliseconds",
+			"value": "4000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "currentUserName",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "currentUserID",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2023-01-18T10:24:48.938Z",
+	"_postman_exported_using": "Postman/10.8.1"
+}
