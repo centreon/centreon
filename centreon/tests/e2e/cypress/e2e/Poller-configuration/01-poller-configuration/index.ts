@@ -66,8 +66,7 @@ Given('some post-generation commands are configured for each poller', () => {
     cy.waitUntil(() => 
       cy.getIframeBody()
       .then((element) => {
-        console.log(element);
-        return true;
+        return element.length > 0;
       })
     );
 
