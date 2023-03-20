@@ -1,34 +1,26 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { and, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
 import { makeStyles } from 'tss-react/mui';
 
-import { FormHelperText, Typography, Button, Popover } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
-import {
-  labelEndDate,
-  labelStartDate,
-  labelEndDateGreaterThanStartDate,
-  labelTo,
-  labelCompactTimePeriod,
-  labelFrom
-} from '../../../translatedLabels';
 import {
   CustomTimePeriod,
   CustomTimePeriodProperty
 } from '../../../Details/tabs/Graph/models';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
+import {
+  labelCompactTimePeriod,
+  labelFrom,
+  labelTo
+} from '../../../translatedLabels';
 
-import DateTimePickerInput from './DateTimePickerInput';
+import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
 
 interface AcceptDateProps {
   date: Date;
@@ -76,35 +68,18 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateColumns: 'repeat(2, auto)'
   },
-  minimalFromTo: {
-    display: 'grid',
-    gridTemplateRows: 'repeat(2, min-content)',
-    rowGap: theme.spacing(0.3)
-  },
   minimalPickers: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'grid',
     gridTemplateColumns: 'min-content auto'
   },
-  pickerText: {
-    cursor: 'pointer',
-    lineHeight: '1.2'
-  },
-  pickers: {
-    alignItems: 'center',
-    columnGap: theme.spacing(0.5),
-    display: 'grid',
-    gridTemplateColumns: `minmax(${theme.spacing(15)}, ${theme.spacing(
-      17
-    )}px) min-content minmax(${theme.spacing(15)}, ${theme.spacing(17)})`
-  },
-  popover: {
-    display: 'grid',
-    gridTemplateRows: 'auto auto auto',
+  picker: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
     justifyItems: 'center',
-    padding: theme.spacing(1, 2),
-    rowGap: theme.spacing(1)
+    padding: theme.spacing(1, 2)
   },
   timeContainer: {
     alignItems: 'center',
@@ -120,72 +95,24 @@ const CustomTimePeriodPickers = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const [start, setStart] = useState<Date>(customTimePeriod.start);
-  const [end, setEnd] = useState<Date>(customTimePeriod.end);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
+
   const { format } = useLocaleDateTimeFormat();
-  const { locale } = useAtomValue(userAtom);
-  const { Adapter } = useDateTimePickerAdapter();
-
-  const isInvalidDate = ({ startDate, endDate }): boolean =>
-    dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
-
-  const changeDate = ({ property, date }): void => {
-    const currentDate = customTimePeriod[property];
-
-    cond([
-      [
-        (): boolean => equals(CustomTimePeriodProperty.start, property),
-        (): void => setStart(date)
-      ],
-      [
-        (): boolean => equals(CustomTimePeriodProperty.end, property),
-        (): void => setEnd(date)
-      ]
-    ])();
-
-    if (
-      dayjs(date).isSame(dayjs(currentDate)) ||
-      isInvalidDate({ endDate: end, startDate: start }) ||
-      !dayjs(date).isValid()
-    ) {
-      return;
-    }
-    acceptDate({
-      date,
-      property
-    });
-  };
-
-  useEffect(() => {
-    if (
-      and(
-        dayjs(customTimePeriod.start).isSame(dayjs(start), 'minute'),
-        dayjs(customTimePeriod.end).isSame(dayjs(end), 'minute')
-      )
-    ) {
-      return;
-    }
-    setStart(customTimePeriod.start);
-    setEnd(customTimePeriod.end);
-  }, [customTimePeriod.start, customTimePeriod.end]);
 
   const openPopover = (event: MouseEvent): void => {
     setAnchorEl(event.currentTarget);
   };
 
   const closePopover = (): void => {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const displayPopover = Boolean(anchorEl);
 
-  const error = isInvalidDate({ endDate: end, startDate: start });
-
   return (
     <>
       <Button
-        aria-label={t(labelCompactTimePeriod)}
+        aria-label={t(labelCompactTimePeriod) as string}
         className={classes.button}
         color="primary"
         data-testid={labelCompactTimePeriod}
@@ -226,57 +153,24 @@ const CustomTimePeriodPickers = ({
           </div>
         </div>
       </Button>
-      <Popover
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          horizontal: 'center',
-          vertical: 'top'
+      <PopoverCustomTimePeriodPickers
+        customStyle={{
+          classNameError: classes.error,
+          classNamePicker: classes.picker
         }}
-        open={displayPopover}
-        transformOrigin={{
-          horizontal: 'center',
-          vertical: 'top'
+        pickersData={{
+          acceptDate,
+          customTimePeriod,
+          maxDatePickerStartInput: customTimePeriod.end,
+          minDatePickerEndInput: customTimePeriod.start
         }}
-        onClose={closePopover}
-      >
-        <LocalizationProvider
-          adapterLocale={locale.substring(0, 2)}
-          dateAdapter={Adapter}
-        >
-          <div className={classes.popover}>
-            <div>
-              <Typography>{t(labelFrom)}</Typography>
-              <div aria-label={t(labelStartDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={start}
-                  maxDate={customTimePeriod.end}
-                  property={CustomTimePeriodProperty.start}
-                  setDate={setStart}
-                />
-              </div>
-            </div>
-            <div>
-              <Typography>{t(labelTo)}</Typography>
-              <div aria-label={t(labelEndDate)}>
-                <DateTimePickerInput
-                  changeDate={changeDate}
-                  date={end}
-                  minDate={customTimePeriod.start}
-                  property={CustomTimePeriodProperty.end}
-                  setDate={setEnd}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <FormHelperText error className={classes.error}>
-                {t(labelEndDateGreaterThanStartDate)}
-              </FormHelperText>
-            )}
-          </div>
-        </LocalizationProvider>
-      </Popover>
+        popoverData={{
+          anchorEl,
+          anchorReference: 'anchorEl',
+          onClose: closePopover,
+          open: displayPopover
+        }}
+      />
     </>
   );
 };
