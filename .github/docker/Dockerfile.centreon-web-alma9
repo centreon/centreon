@@ -91,6 +91,9 @@ FROM web_fresh AS web_standard
 
 COPY ./.github/docker/sql /tmp/sql
 
+COPY ../../centreon/www/img/logo-centreon-colors.svg /usr/share/centreon/www/img/media/logos
+COPY ../../centreon/www/img/logo-centreon-white.svg /usr/share/centreon/www/img/media/logos
+
 RUN <<EOF
 
 service mysql start
@@ -110,6 +113,7 @@ RUN <<EOF
 
 dnf install -y 'centreon-widget-*'
 dnf clean all --enablerepo=*
+
 
 service mysql start
 for w in graph-monitoring host-monitoring hostgroup-monitoring httploader live-top10-cpu-usage live-top10-memory-usage service-monitoring servicegroup-monitoring tactical-overview ; do
