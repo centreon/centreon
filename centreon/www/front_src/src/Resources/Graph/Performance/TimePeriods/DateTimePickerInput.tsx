@@ -12,11 +12,13 @@ import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 interface Props {
   changeDate: (props) => void;
-  date: Date;
-  maxDate?: Date;
-  minDate?: Date;
+  date: Date | dayjs.Dayjs | null;
+  disabled?: boolean;
+  maxDate?: Date | dayjs.Dayjs;
+  minDate?: Date | dayjs.Dayjs;
+  onClosePicker?: (isClosed: boolean) => void;
   property: CustomTimePeriodProperty;
-  setDate: Dispatch<SetStateAction<Date>>;
+  setDate: Dispatch<SetStateAction<Date | null>>;
 }
 
 const renderDateTimePickerTextField =
@@ -26,6 +28,7 @@ const renderDateTimePickerTextField =
       <TextField
         // eslint-disable-next-line react/no-unstable-nested-components
         EndAdornment={(): JSX.Element => <div>{InputProps?.endAdornment}</div>}
+        dataTestId="calendar"
         inputProps={{
           ...inputProps,
           ref: inputRef,
@@ -42,9 +45,12 @@ const DateTimePickerInput = ({
   minDate,
   property,
   changeDate,
-  setDate
+  setDate,
+  onClosePicker,
+  disabled = false
 }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+
   const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =
     useDateTimePickerAdapter();
 
@@ -69,6 +75,15 @@ const DateTimePickerInput = ({
   const blur = (): void => {
     changeDate({ date, property });
   };
+  const close = (): void => {
+    setIsOpen(false);
+    onClosePicker?.(true);
+  };
+
+  const open = (): void => {
+    setIsOpen(true);
+    onClosePicker?.(false);
+  };
 
   return (
     <DesktopDateTimePicker<dayjs.Dayjs>
@@ -76,16 +91,18 @@ const DateTimePickerInput = ({
       PopperProps={{
         open: isOpen
       }}
-      dayOfWeekFormatter={(day): string => day.substring(0, 2).toUpperCase()}
+      dayOfWeekFormatter={(day: string): string =>
+        day.substring(0, 2).toUpperCase()
+      }
+      disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
-      showToolbar={false}
-      value={date}
+      value={date as dayjs.Dayjs}
       onChange={changeTime}
-      onClose={(): void => setIsOpen(false)}
-      onOpen={(): void => setIsOpen(true)}
+      onClose={close}
+      onOpen={open}
     />
   );
 };

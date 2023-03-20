@@ -1,13 +1,11 @@
 import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
-import WrenchIcon from '@mui/icons-material/Build';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
@@ -18,35 +16,30 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
+import FederatedComponent from '../../../components/FederatedComponents';
+import { detailsAtom } from '../../Details/detailsAtoms';
+import { ResourceDetails } from '../../Details/models';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
+import { Resource } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
   labelExport,
   labelMediumSize,
-  labelPerformanceGraphAD,
   labelPerformancePage,
   labelSmallSize
 } from '../../translatedLabels';
-import { ResourceDetails } from '../../Details/models';
-import { Resource } from '../../models';
-import { detailsAtom } from '../../Details/detailsAtoms';
 
-import { showModalAnomalyDetectionAtom } from './AnomalyDetection/anomalyDetectionAtom';
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 import {
   getDatesDerivedAtom,
   selectedTimePeriodAtom
 } from './TimePeriods/timePeriodAtoms';
-import { GetDisplayAdditionalLinesConditionProps } from './models';
 
 interface Props {
   customTimePeriod?: CustomTimePeriod;
-  getDisplayAdditionalLinesCondition:
-    | GetDisplayAdditionalLinesConditionProps
-    | undefined;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
   renderAdditionalGraphActions?: ReactNode;
@@ -58,7 +51,7 @@ const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
     alignItems: 'center',
     columnGap: theme.spacing(1),
-    display: 'inline',
+    display: 'flex',
     flexDirection: 'row'
   }
 }));
@@ -69,8 +62,7 @@ const GraphActions = ({
   timeline,
   performanceGraphRef,
   open,
-  renderAdditionalGraphActions,
-  getDisplayAdditionalLinesCondition
+  renderAdditionalGraphActions
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -91,9 +83,7 @@ const GraphActions = ({
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const [start, end] = getIntervalDates(selectedTimePeriod);
   const details = useAtomValue(detailsAtom);
-  const setShowModalAnomalyDetection = useUpdateAtom(
-    showModalAnomalyDetectionAtom
-  );
+
   const graphToCsvEndpoint = `${details?.links.endpoints.performance_graph}/download?start_date=${start}&end_date=${end}`;
 
   const exportToCsv = (): void => {
@@ -151,43 +141,35 @@ const GraphActions = ({
         <>
           <IconButton
             disableTouchRipple
-            ariaLabel={t(labelPerformancePage)}
+            ariaLabel={t(labelPerformancePage) as string}
             color="primary"
             data-testid={labelPerformancePage}
             size="small"
-            title={t(labelPerformancePage)}
+            title={t(labelPerformancePage) as string}
             onClick={goToPerformancePage}
           >
             <LaunchIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             disableTouchRipple
-            ariaLabel={t(labelExport)}
+            ariaLabel={t(labelExport) as string}
             data-testid={labelExport}
             disabled={isNil(timeline)}
             size="small"
-            title={t(labelExport)}
+            title={t(labelExport) as string}
             onClick={openSizeExportMenu}
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          {getDisplayAdditionalLinesCondition?.condition(
-            resource as ResourceDetails
-          ) && (
-            <>
-              <IconButton
-                disableTouchRipple
-                ariaLabel={t(labelPerformanceGraphAD)}
-                data-testid={labelPerformanceGraphAD}
-                size="small"
-                title={t(labelPerformanceGraphAD)}
-                onClick={(): void => setShowModalAnomalyDetection(true)}
-              >
-                <WrenchIcon fontSize="inherit" />
-              </IconButton>
-              {renderAdditionalGraphActions}
-            </>
-          )}
+          <>
+            <FederatedComponent
+              displayButtonConfiguration
+              buttonConfigurationData={{ resource }}
+              path="/anomaly-detection"
+              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+            />
+            {renderAdditionalGraphActions}
+          </>
           <Menu
             keepMounted
             anchorEl={menuAnchor}

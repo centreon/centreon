@@ -12255,8 +12255,8 @@ msgid "Performance Management"
 msgstr "Gerenciamento de Performance"
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Pacotes de Plugin"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisão"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -12948,8 +12948,8 @@ msgstr "Mostrar Gráficos"
 msgid "Recurrent downtimes"
 msgstr "Manutenções recorrentes"
 
-msgid "Plugin Packs"
-msgstr "Pacote de Plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de supervisão"
 
 msgid "Manager"
 msgstr "Gerencia"
@@ -14870,7 +14870,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14942,7 +14942,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Oops, something went wrong"
@@ -15994,6 +15994,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
+#  msgid "Icon #%d does not exist"
+#  msgstr ""
+
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
 
@@ -16031,4 +16034,43 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Centreon website"
+# msgstr ""
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
 # msgstr ""
