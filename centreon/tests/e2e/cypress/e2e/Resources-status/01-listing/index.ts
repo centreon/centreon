@@ -38,7 +38,7 @@ beforeEach(() => {
 
 Then('the unhandled problems filter is selected', (): void => {
   cy.visit(`${Cypress.config().baseUrl}`);
-  cy.contains('Unhandled problems');
+  cy.contains('Unhandled alerts');
 });
 
 Then('only non-ok resources are displayed', () => {

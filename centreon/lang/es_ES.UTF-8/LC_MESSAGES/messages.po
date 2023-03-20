@@ -14407,7 +14407,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14479,7 +14479,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Unhandled"
@@ -15535,3 +15535,44 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""
