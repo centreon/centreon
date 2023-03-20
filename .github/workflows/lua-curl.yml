@@ -129,13 +129,9 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: lua-curl
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: 0
-          release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
-          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
