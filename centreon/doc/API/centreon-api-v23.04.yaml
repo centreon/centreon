@@ -8,9 +8,6 @@ info:
     + Added host groups endpoints (DELETE, POST)
     + Added host categories endpoints (DELETE, POST)
     + Added host severities endpoints (DELETE)
-    + Added platform custom configuration endpoints (GET, PUT)
-    + Added platform custom configuration for login (GET)
-    + Added image resizing endpoints (POST)
     # Updated features
     + Updated host groups endpoint (GET)
     + Updated host categories endpoint (GET)
