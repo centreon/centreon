@@ -12,6 +12,7 @@ export enum OriginHorizontalEnum {
   left = 'left',
   right = 'right'
 }
+
 export enum OriginVerticalEnum {
   bottom = 'bottom',
   center = 'center',
@@ -23,6 +24,7 @@ export enum anchorReferenceEnum {
   anchorPosition = 'anchorPosition',
   none = 'none'
 }
+
 export interface AcceptDateProps {
   date: Date;
   property: CustomTimePeriodProperty;
@@ -43,6 +45,7 @@ export interface PopoverData {
   open: boolean;
   transformOrigin?: PopoverOrigin;
 }
+
 export interface PickersData {
   acceptDate: (props: AcceptDateProps) => void;
   customTimePeriod: CustomTimePeriod;
