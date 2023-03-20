@@ -8,7 +8,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import {
   labelSearch,
-  labelResourceProblems,
+  labelAllAlerts,
   labelAll,
   labelSearchOptions,
   labelType,
@@ -100,7 +100,7 @@ const customFilters = [
     }
   ],
   [
-    labelResourceProblems,
+    labelAllAlerts,
     {
       resourceTypes: [],
       states: [],
@@ -199,7 +199,7 @@ describe('Filter', () => {
     cy.viewport(1200, 1000);
   });
 
-  it('executes a listing request with "Unhandled problems" filter by default', () => {
+  it('executes a listing request with "Unhandled alerts" filter by default', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.matchImageSnapshot();
