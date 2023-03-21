@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d8fb3daf68d830dd130103ab14950af3",
+    "content-hash": "3dd682ba29548bf97f7cd64b07842b1e",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6722,16 +6722,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-fix-engine-reload",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "5b5aae4811a096f6a944396d7889e25d35983161"
+                "reference": "ce1b847d539c62f2eefd1f7a8a0281bb4e7681cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/5b5aae4811a096f6a944396d7889e25d35983161",
-                "reference": "5b5aae4811a096f6a944396d7889e25d35983161",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/ce1b847d539c62f2eefd1f7a8a0281bb4e7681cb",
+                "reference": "ce1b847d539c62f2eefd1f7a8a0281bb4e7681cb",
                 "shasum": ""
             },
             "require": {
@@ -6755,6 +6755,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6778,9 +6779,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/fix-engine-reload"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2023-03-21T08:13:12+00:00"
+            "time": "2023-03-21T13:32:04+00:00"
         },
         {
             "name": "composer/pcre",
