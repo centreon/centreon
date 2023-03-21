@@ -62,12 +62,6 @@ class Macro extends AbstractObject
         ");
         $stmt->execute();
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            $serviceMacroName = preg_replace(
-                '/\$_SERVICE(.*)\$/',
-                '_$1',
-                $macro['svc_macro_name']
-            );
-
             if (!isset($this->macro_service_cache[$macro['svc_svc_id']])) {
                 $this->macro_service_cache[$macro['svc_svc_id']] = array();
             }
@@ -77,9 +71,19 @@ class Macro extends AbstractObject
                 $this->isVaultEnabled
                 && $macro['is_password'] === 1
             ) {
+                $serviceMacroName = preg_replace(
+                    '/\$(_SERVICE.*)\$/',
+                    '$1',
+                    $macro['svc_macro_name']
+                );
                 $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
             }
 
+            $serviceMacroName = preg_replace(
+                '/\$_SERVICE(.*)\$/',
+                '_$1',
+                $macro['svc_macro_name']
+            );
             $this->macro_service_cache[$macro['svc_svc_id']][$serviceMacroName] = $macro['svc_macro_value'];
         }
     }
