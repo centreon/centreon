@@ -15996,18 +15996,6 @@ msgstr ""
 msgid "Forced check comment sent"
 msgstr ""
 
-msgid "Forced check"
-msgstr ""
-
-msgid "Check selected resources only within configured check period"
-msgstr ""
-
-msgid "Check selected resources even outside configured check period"
-msgstr ""
-
-msgid "Forced check comment sent"
-msgstr ""
-
 #  msgid "Icon #%d does not exist"
 #  msgstr ""
 
