@@ -120,4 +120,4 @@ jobs:
 
     steps:
       - name: Promote rpm to stable
-        uses: ./.github/workflows/promote-to-stable
+        uses: ./.github/actions/promote-to-stable
