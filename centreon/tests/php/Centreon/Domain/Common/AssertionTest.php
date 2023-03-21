@@ -131,6 +131,16 @@ $failDataProvider = [
         AssertionException::inArray(2, [1, 'a', null], $propertyPath)->getMessage(),
         AssertionException::INVALID_CHOICE,
     ],
+    'range(0.9, 1.0, 2)' => [
+        fn() => Assertion::range(0.9, 1.0, 2, $propertyPath),
+        AssertionException::range(0.9, 1.0, 2, $propertyPath)->getMessage(),
+        AssertionException::INVALID_RANGE,
+    ],
+    'range(2.1, 1.0, 2)' => [
+        fn() => Assertion::range(2.1, 1.0, 2, $propertyPath),
+        AssertionException::range(2.1, 1.0, 2, $propertyPath)->getMessage(),
+        AssertionException::INVALID_RANGE,
+    ],
     'regex("abc123", "/^\d+$/")' => [
         fn() => Assertion::regex('abc123', '/^\d+$/', $propertyPath),
         AssertionException::matchRegex('abc123', '/^\d+$/', $propertyPath)->getMessage(),
@@ -259,6 +269,18 @@ $successDataProvider = [
     ],
     'inArray(NULL, [1, "a", NULL])' => [
         fn() => Assertion::inArray(null, [1, 'a', null], $propertyPath),
+    ],
+    'range(1.1, 1.0, 2)' => [
+        fn() => Assertion::range(1.1, 1.0, 2, $propertyPath),
+    ],
+    'range(1, 1.0, 2)' => [
+        fn() => Assertion::range(1, 1.0, 2, $propertyPath),
+    ],
+    'range(2, 1.0, 2)' => [
+        fn() => Assertion::range(2, 1.0, 2, $propertyPath),
+    ],
+    'range(2.0, 1.0, 2)' => [
+        fn() => Assertion::range(2.0, 1.0, 2, $propertyPath),
     ],
     'regex("1234", "/^\d+$/")' => [
         fn() => Assertion::regex('1234', '/^\d+$/', $propertyPath),

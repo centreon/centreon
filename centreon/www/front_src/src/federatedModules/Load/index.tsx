@@ -1,12 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 
 import { atom, useAtom } from 'jotai';
-import { isEmpty } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 
 import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import NotFoundPage from '../../FallbackPages/NotFoundPage';
-import memoizeComponent from '../../Resources/memoizedComponent';
+import { StyleMenuSkeleton } from '../models';
 
 import loadComponent from './loadComponent';
 
@@ -76,18 +76,37 @@ interface LoadComponentProps {
   component: string;
   isFederatedModule?: boolean;
   moduleFederationName: string;
+  styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 const LoadComponent = ({
   moduleFederationName,
   component,
   isFederatedModule,
+  styleMenuSkeleton,
   ...props
 }: LoadComponentProps): JSX.Element => {
   const Component = useMemo(
     () => lazy(loadComponent({ component, moduleFederationName })),
     [moduleFederationName]
   );
+  if (!isNil(styleMenuSkeleton) && !isEmpty(styleMenuSkeleton)) {
+    const { height, width, className } = styleMenuSkeleton;
+
+    return (
+      <Suspense
+        fallback={
+          isFederatedModule ? (
+            <MenuSkeleton className={className} height={height} width={width} />
+          ) : (
+            <PageSkeleton />
+          )
+        }
+      >
+        <Component {...props} />
+      </Suspense>
+    );
+  }
 
   return (
     <Suspense
@@ -98,14 +117,10 @@ const LoadComponent = ({
   );
 };
 
-const MemoizedLoadComponent = memoizeComponent<LoadComponentProps>({
-  Component: LoadComponent,
-  memoProps: ['name', 'component', 'isFederatedModule']
-});
-
 interface RemoteProps extends LoadComponentProps {
   moduleName: string;
   remoteEntry: string;
+  styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 export const Remote = ({
@@ -114,6 +129,7 @@ export const Remote = ({
   moduleName,
   moduleFederationName,
   isFederatedModule,
+  styleMenuSkeleton,
   ...props
 }: RemoteProps): JSX.Element => {
   const { ready, failed } = useDynamicLoadRemoteEntry({
@@ -122,6 +138,16 @@ export const Remote = ({
   });
 
   if (!ready) {
+    if (!isNil(styleMenuSkeleton) && !isEmpty(styleMenuSkeleton)) {
+      const { height, width, className } = styleMenuSkeleton;
+
+      return isFederatedModule ? (
+        <MenuSkeleton className={className} height={height} width={width} />
+      ) : (
+        <PageSkeleton />
+      );
+    }
+
     return isFederatedModule ? <MenuSkeleton /> : <PageSkeleton />;
   }
 
@@ -130,10 +156,11 @@ export const Remote = ({
   }
 
   return (
-    <MemoizedLoadComponent
+    <LoadComponent
       component={component}
       isFederatedModule={isFederatedModule}
       moduleFederationName={moduleFederationName}
+      styleMenuSkeleton={styleMenuSkeleton}
       {...props}
     />
   );
