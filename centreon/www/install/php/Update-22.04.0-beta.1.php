@@ -90,6 +90,24 @@ try {
         $pearDB->query("ALTER TABLE `security_token` DROP INDEX `unique_token`");
     }
 
+    $errorMessage = "Unable to find key token_index from security_token";
+    $tokenIndexKeyExistsStatement = $pearDB->query(
+        <<<'SQL'
+        SHOW indexes
+            FROM security_token
+            WHERE Key_name='token_index'
+        SQL
+    );
+    if ($tokenIndexKeyExistsStatement->fetch() !== false) {
+        $errorMessage = "Unable to remove key token_index from security_token";
+        $pearDB->query(
+            <<<'SQL'
+            DROP INDEX token_index
+                ON security_token
+            SQL
+        );
+    }
+
     $errorMessage = "Unable to alter table security_token";
     $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
 
@@ -147,7 +165,7 @@ try {
         WHERE type_shortname = 'sql'"
     );
 
-    $errorMessage = "Unable to add 'unifed_sql' broker configuration output";
+    $errorMessage = "Unable to add 'unified_sql' broker configuration output";
     addNewUnifiedSqlOutput($pearDB);
     $errorMessage = "Unable to migrate broker config to unified_sql";
     migrateBrokerConfigOutputsToUnifiedSql($pearDB);
@@ -414,8 +432,7 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
         WHERE tfr.cb_type_id = t.cb_type_id
         AND t.type_shortname in ('sql', 'storage')
         AND tfr.cb_field_id = f.cb_field_id
-        AND f.fieldname NOT LIKE 'db_type'
-        ORDER BY tfr.order_display"
+        AND f.fieldname NOT LIKE 'db_type'"
     );
     $inputs = $statement->fetchAll();
     if (empty($inputs)) {

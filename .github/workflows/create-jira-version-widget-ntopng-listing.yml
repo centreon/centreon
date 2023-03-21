@@ -1,17 +1,13 @@
 ---
-name: Create centreon widget ntopng listing version
-
+name: Create widget ntopng listing jira version
 on:
   pull_request_target:
     types:
       - closed
     branches:
-      - "master"
-      - "*.x"
-      - "!dev*"
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/actions/release/action.yml"
-      - ".github/workflows/release-widget-ntopng-listing.yml"
       - "widgets/centreon-widget-ntopng-listing/**"
   workflow_dispatch:
 

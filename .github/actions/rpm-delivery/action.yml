@@ -46,6 +46,9 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
+  artifactory_token:
+    description: "Artifactory token"
+    required: true
 
 runs:
   using: "composite"
@@ -65,6 +68,10 @@ runs:
 
     - name: Publish RPMS to Nexus
       run: |
+        PROJECT_LOCATIONS=""
+        INVALIDATION_PATHS=""
+        METADATAS=""
+
         FILES="*.rpm";
         echo "[DEBUG] - Rpm FILES: $FILES"
 
@@ -76,7 +83,17 @@ runs:
           echo "[DEBUG] - File: $FILE"
 
           VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
+
+          if [ -z "${{ inputs.distrib }}" ]; then
+            DISTRIB=$(echo $FILE | grep -oP 'el[0-9]' || echo '')
+          else
+            DISTRIB="${{ inputs.distrib }}"
+          fi
+          if [ -z "${DISTRIB}" ]; then
+            echo "package distribution not set"
+            exit 1
+          fi
+
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
           echo "[DEBUG] - Version: $VERSION"
@@ -95,10 +112,12 @@ runs:
           # Delivery with proper repository structure according to stability
           if [ "${{ inputs.stability }}" == stable ]; then
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$FILE" -T "./$FILE"
           else
             FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
-            PROJECT_LOCATION="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+            PROJECT_LOCATIONS="$PROJECT_LOCATIONS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
+            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/$FILE" -T "./$FILE"
           fi
 
           echo "[DEBUG] - Folder: $FOLDER"
@@ -108,30 +127,39 @@ runs:
 
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
           scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
-          #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -6 | xargs rm -rf"
+
+          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
+          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
         done
 
         # Cleanup is done on unstable repository only
         if [ "${{ inputs.stability }}" == unstable ]; then
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
+          PROJECT_LOCATIONS=`echo "$PROJECT_LOCATIONS" | xargs -n1 | sort -u | xargs`
+          for PROJECT_LOCATION in `echo $PROJECT_LOCATIONS`; do
+            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
+          done
         fi
 
         # Update repository metadata
-        METADATAS="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
-        ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATAS" 2>&-
+        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
+        for METADATA in `echo $METADATAS`; do
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
+        done
 
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
-        PATHS="/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+        # Remove duplicated invalidation paths
+        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
         ITERATIONS=1
 
-        until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$PATHS"; do
-          if [ ${ITERATIONS} -eq 10 ]; then
-            return 0
-          fi
-          echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
-          sleep 30s
-          ITERATIONS=$((ITERATIONS+1))
-
+        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
+          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
+            if [ ${ITERATIONS} -eq 10 ]; then
+              return 0
+            fi
+            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+            sleep 30s
+            ITERATIONS=$((ITERATIONS+1))
+          done
         done
       shell: bash

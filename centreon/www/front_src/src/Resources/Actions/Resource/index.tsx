@@ -211,6 +211,7 @@ const ResourceActions = (): JSX.Element => {
             icon={<IconAcknowledge />}
             label={t(labelAcknowledge)}
             permitted={isAcknowledgePermitted}
+            testId="Multiple Acknowledge"
             onClick={prepareToAcknowledge}
           />
         </div>
@@ -220,6 +221,7 @@ const ResourceActions = (): JSX.Element => {
             icon={<IconDowntime />}
             label={t(labelSetDowntime)}
             permitted={isDowntimePermitted}
+            testId="Multiple Set Downtime"
             onClick={prepareToSetDowntime}
           />
         </div>
@@ -229,6 +231,7 @@ const ResourceActions = (): JSX.Element => {
             icon={<IconCheck />}
             label={t(labelCheck)}
             permitted={isCheckPermitted}
+            testId="Multiple Check"
             onClick={prepareToCheck}
           />
         </div>
@@ -280,6 +283,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableDisacknowledge}
               label={labelDisacknowledge}
               permitted={isDisacknowledgePermitted}
+              testId="Multiple Disacknowledge"
               onClick={(): void => {
                 close();
                 prepareToDisacknowledge();
@@ -289,6 +293,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableSubmitStatus}
               label={labelSubmitStatus}
               permitted={isSubmitStatusPermitted}
+              testId="Submit a status"
               onClick={(): void => {
                 close();
                 prepareToSubmitStatus();
@@ -299,6 +304,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableAddComment}
               label={labelAddComment}
               permitted={isAddCommentPermitted}
+              testId="Add a comment"
               onClick={(): void => {
                 close();
                 prepareToAddComment();

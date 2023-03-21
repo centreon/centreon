@@ -1,0 +1,16 @@
+name: "publish-lint-report"
+description: "Publish ESLint report"
+inputs:
+  check_name:
+    description: "Name of the check and comment"
+    default: "${{ github.workflow }}-${{ github.job }}-report"
+  path:
+    description: "Path to the report files"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        node ./.github/actions/publish-lint-report/formatJsonToMarkdown.js ${{ inputs.path }} $GITHUB_WORKSPACE
+        cat eslint-report.md >> $GITHUB_STEP_SUMMARY
+      shell: bash

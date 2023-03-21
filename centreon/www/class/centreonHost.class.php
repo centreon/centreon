@@ -63,15 +63,13 @@ class CentreonHost
     protected $serviceObj;
 
     /**
-     * Constructor
-     *
      * @param CentreonDB $db
-     * @return void
+     * @throws PDOException
      */
-    public function __construct($db)
+    public function __construct(CentreonDB $db)
     {
         $this->db = $db;
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db);
         $this->serviceObj = new CentreonService($db);
     }
 
@@ -375,25 +373,15 @@ class CentreonHost
      */
     public function getHostName($hostId)
     {
-        static $hosts = null;
-
         if (!isset($hostId) || !$hostId) {
             return null;
         }
 
-        if (is_null($hosts)) {
-            $hosts = array();
-            $query = 'SELECT host_id, host_name FROM host';
-            $res = $this->db->query($query);
-            if (!$res) {
-                throw new \Exception("An error occured");
-            }
-            while ($row = $res->fetch()) {
-                $hosts[$row['host_id']] = $row['host_name'];
-            }
-        }
-        if (isset($hosts[$hostId])) {
-            return $hosts[$hostId];
+        $statement = $this->db->prepare('SELECT host_name FROM host WHERE host_id = :host_id');
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+        if ($hostName = $statement->fetchColumn()) {
+            return $hostName;
         }
         return null;
     }
@@ -683,16 +671,30 @@ class CentreonHost
      */
     public function replaceMacroInString($hostParam, $string, $antiLoop = null)
     {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
+            return $string;
+        }
         if (is_numeric($hostParam)) {
-            $hostId = $hostParam;
+            $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
+              FROM host
+              LEFT JOIN ns_host_relation ns
+                ON ns.host_host_id = host.host_id
+              WHERE host_id = :hostId 
+              LIMIT 1';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':hostId', (int) $hostParam, \PDO::PARAM_INT);
         } elseif (is_string($hostParam)) {
-            $hostId = $this->getHostId($hostParam);
+            $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
+              FROM host
+              LEFT JOIN ns_host_relation ns
+                ON ns.host_host_id = host.host_id
+              WHERE host_name = :hostName
+              LIMIT 1';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':hostName', $hostParam);
         } else {
             return $string;
         }
-        $query = 'SELECT host_register FROM host WHERE host_id = :hostId LIMIT 1';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
             throw new \Exception("An error occured");
@@ -702,31 +704,36 @@ class CentreonHost
             return $string;
         }
         $row = $stmt->fetch();
+        $hostId = (int) $row['host_id'];
 
         /*
          * replace if not template
          */
         if ($row['host_register'] == 1) {
-            if (strpos($string, "\$HOSTADDRESS$")) {
-                $string = str_replace("\$HOSTADDRESS\$", $this->getHostAddress($hostId), $string);
+            if (strpos($string, '$HOSTADDRESS$') !== false) {
+                $string = str_replace('$HOSTADDRESS$', $row['host_address'], $string);
             }
-            if (strpos($string, "\$HOSTNAME$")) {
-                $string = str_replace("\$HOSTNAME\$", $this->getHostName($hostId), $string);
+            if (strpos($string, '$HOSTNAME$') !== false) {
+                $string = str_replace('$HOSTNAME$', $row['host_name'], $string);
             }
-            if (strpos($string, "\$HOSTALIAS$")) {
-                $string = str_replace("\$HOSTALIAS\$", $this->getHostAlias($hostId), $string);
+            if (strpos($string, '$HOSTALIAS$') !== false) {
+                $string = str_replace('$HOSTALIAS$', $row['host_alias'], $string);
             }
-            if (preg_match("\$INSTANCENAME\$", $string)) {
+            if (strpos($string, '$INSTANCENAME$') !== false) {
+                $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
                 $string = str_replace(
-                    "\$INSTANCENAME\$",
-                    $this->instanceObj->getParam($this->getHostPollerId($hostId), 'name'),
+                    '$INSTANCENAME$',
+                    $this->instanceObj->getParam((int) $pollerId, 'name'),
                     $string
                 );
             }
-            if (preg_match("\$INSTANCEADDRESS\$", $string)) {
+            if (strpos($string, '$INSTANCEADDRESS$') !== false) {
+                if (!isset($pollerId)) {
+                    $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
+                }
                 $string = str_replace(
-                    "\$INSTANCEADDRESS\$",
-                    $this->instanceObj->getParam($this->getHostPollerId($hostId), 'ns_ip_address'),
+                    '$INSTANCEADDRESS$',
+                    $this->instanceObj->getParam($pollerId, 'ns_ip_address'),
                     $string
                 );
             }
@@ -743,7 +750,7 @@ class CentreonHost
                 'WHERE host_host_id = :hostId ' .
                 'AND host_macro_name LIKE :macro';
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
             $stmt->bindParam(':macro', $matches[1][$i], PDO::PARAM_STR);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
@@ -757,7 +764,7 @@ class CentreonHost
         if ($i) {
             $query2 = 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :host ORDER BY `order`';
             $stmt2 = $this->db->prepare($query2);
-            $stmt2->bindParam(':host', $hostId, PDO::PARAM_INT);
+            $stmt2->bindValue(':host', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt2->execute();
             if (!$dbResult) {
                 throw new \Exception("An error occured");

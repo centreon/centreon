@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "22.4.5",
+  "version": "22.4.11",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
@@ -82,9 +82,6 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "yup": "^0.32.11",
-    "jotai": "^1.5.3",
-    "ramda": "^0.28.0",
     "@dnd-kit/core": "^5.0.1",
     "@dnd-kit/modifiers": "^5.0.0",
     "@dnd-kit/sortable": "^6.0.0",
@@ -102,15 +99,18 @@
     "formik": "^2.2.9",
     "humanize-duration": "^3.27.1",
     "i18next": "^21.6.10",
+    "jotai": "^1.5.3",
     "notistack": "2.0.3",
     "numeral": "^2.0.6",
     "prop-types": "^15.8.1",
+    "ramda": "^0.28.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-i18next": "^11.15.3",
     "react-router-dom": "^6.2.1",
     "resize-observer-polyfill": "^1.5.1",
     "ts.data.json": "^2.1.0",
-    "ulog": "^2.0.0-beta.19"
+    "ulog": "^2.0.0-beta.19",
+    "yup": "^0.32.11"
   }
 }
