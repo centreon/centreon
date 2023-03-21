@@ -1,4 +1,4 @@
-import { equals, includes, not, isNil, isEmpty } from 'ramda';
+import { equals, includes, not, isNil, isEmpty, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
@@ -9,14 +9,20 @@ import { userAtom } from '@centreon/ui-context';
 import {
   MemoizedListing as Listing,
   SeverityCode,
-  useSnackbar
+  useRequest,
+  useSnackbar,
+  postData
 } from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
 import { rowColorConditions } from '../colors';
 import Actions from '../Actions';
 import { Resource, SortOrder } from '../models';
-import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
+import {
+  labelForcedCheckCommandSent,
+  labelSelectAtLeastOneColumn,
+  labelStatus
+} from '../translatedLabels';
 import {
   openDetailsTabIdAtom,
   selectedResourceUuidAtom,
@@ -25,7 +31,6 @@ import {
 } from '../Details/detailsAtoms';
 import {
   resourcesToAcknowledgeAtom,
-  resourcesToCheckAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../Actions/actionsAtoms';
@@ -34,6 +39,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
+import { adjustedCheckedResources } from '../Actions/Resource/Check/helpers';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadResources from './useLoadResources';
@@ -52,8 +58,8 @@ const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const { showWarningMessage } = useSnackbar();
-
+  const { showWarningMessage, showSuccessMessage } = useSnackbar();
+  const { sendRequest: checkResource } = useRequest({ request: postData });
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
   );
@@ -79,7 +85,6 @@ const ResourceListing = (): JSX.Element => {
   const setLimit = useUpdateAtom(limitAtom);
   const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
-  const setResourcesToCheck = useUpdateAtom(resourcesToCheckAtom);
   const setCriteriaAndNewFilter = useUpdateAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
@@ -128,13 +133,26 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
+  const onForcedCheck = (resource: Resource): void => {
+    const endpoint = path(['links', 'endpoints', 'forced_check'], resource);
+    checkResource({
+      data: {
+        check: { is_forced: true },
+        resources: adjustedCheckedResources({ resources: [resource] })
+      },
+      endpoint
+    }).then(() => {
+      showSuccessMessage(t(labelForcedCheckCommandSent));
+    });
+  };
+
   const columns = getColumns({
     actions: {
       onAcknowledge: (resource): void => {
         setResourcesToAcknowledge([resource]);
       },
       onCheck: (resource): void => {
-        setResourcesToCheck([resource]);
+        onForcedCheck(resource);
       },
       onDisplayGraph: (resource): void => {
         setOpenDetailsTabId(graphTabId);

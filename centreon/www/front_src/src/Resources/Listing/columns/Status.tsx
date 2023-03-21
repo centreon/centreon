@@ -1,9 +1,9 @@
-import { pathEq } from 'ramda';
+import { path, pathEq, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import IconAcknowledge from '@mui/icons-material/Person';
-import IconCheck from '@mui/icons-material/Sync';
+import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 
 import { SeverityCode, StatusChip, IconButton } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
@@ -13,7 +13,7 @@ import IconDowntime from '../../icons/Downtime';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
-  labelCheck,
+  labelForcedCheck,
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
@@ -46,7 +46,7 @@ const StatusColumnOnHover = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const { canAcknowledge, canDowntime, canCheck } = useAclQuery();
+  const { canAcknowledge, canDowntime } = useAclQuery();
 
   const isResourceOk = pathEq(
     ['status', 'severity_code'],
@@ -56,11 +56,14 @@ const StatusColumnOnHover = ({
 
   const isAcknowledePermitted = canAcknowledge([row]);
   const isDowntimePermitted = canDowntime([row]);
-  const isCheckPermitted = canCheck([row]);
+
+  const isForcedCheckPermitted = !isNil(
+    path(['links', 'endpoints', 'forced_check'], row)
+  );
 
   const disableAcknowledge = !isAcknowledePermitted || isResourceOk;
   const disableDowntime = !isDowntimePermitted;
-  const disableCheck = !isCheckPermitted;
+  const disableForcedCheck = !isForcedCheckPermitted;
 
   const getActionTitle = ({ labelAction, isActionPermitted }): string => {
     const translatedLabelAction = t(labelAction);
@@ -99,18 +102,19 @@ const StatusColumnOnHover = ({
       >
         <IconDowntime fontSize="small" />
       </IconButton>
+
       <IconButton
-        ariaLabel={`${t(labelCheck)} ${row.name}`}
-        data-testid={`${labelCheck} ${row.name}`}
-        disabled={disableCheck}
+        ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
+        data-testid={`${labelForcedCheck} ${row.name}`}
+        disabled={disableForcedCheck}
         size="large"
         title={getActionTitle({
-          isActionPermitted: isCheckPermitted,
-          labelAction: labelCheck
+          isActionPermitted: isForcedCheckPermitted,
+          labelAction: labelForcedCheck
         })}
         onClick={(): void => actions.onCheck(row)}
       >
-        <IconCheck fontSize="small" />
+        <IconForcedCheck fontSize="small" />
       </IconButton>
     </div>
   );

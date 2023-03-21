@@ -15983,3 +15983,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
+
+msgid "Forced check"
+msgstr ""
+
+msgid "Check selected resources only within configured check period"
+msgstr ""
+
+msgid "Check selected resources even outside configured check period"
+msgstr ""
+
+msgid "Forced check comment sent"
+msgstr ""

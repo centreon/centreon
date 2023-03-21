@@ -13,8 +13,9 @@ interface Props {
   disabled: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: () => void;
+  onClick: (event) => void;
   permitted?: boolean;
+  secondaryIcon?: JSX.Element;
 }
 
 const ResourceActionButton = ({
@@ -22,7 +23,8 @@ const ResourceActionButton = ({
   label,
   onClick,
   disabled,
-  permitted = true
+  permitted = true,
+  secondaryIcon
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -37,7 +39,7 @@ const ResourceActionButton = ({
   if (displayCondensed) {
     return (
       <IconButton
-        ariaLabel={t(label)}
+        ariaLabel={t(label) as string}
         data-testid={label}
         disabled={disabled}
         size="large"
@@ -53,9 +55,10 @@ const ResourceActionButton = ({
     <Tooltip title={permitted ? '' : labelActionNotPermitted}>
       <span>
         <ActionButton
-          aria-label={t(label)}
+          aria-label={t(label) as string}
           data-testid={label}
           disabled={disabled}
+          endIcon={secondaryIcon}
           startIcon={icon}
           variant="contained"
           onClick={onClick}

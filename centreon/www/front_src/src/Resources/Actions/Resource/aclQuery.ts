@@ -31,6 +31,7 @@ interface AclQuery {
   canDisacknowledgeServices: () => boolean;
   canDowntime: (resources) => boolean;
   canDowntimeServices: () => boolean;
+  canForcedCheck: (resource) => boolean;
   canSubmitStatus: (resources) => boolean;
   getAcknowledgementDeniedTypeAlert: (resources) => string | undefined;
   getDisacknowledgementDeniedTypeAlert: (resources) => string | undefined;
@@ -40,6 +41,8 @@ interface AclQuery {
 const useAclQuery = (): AclQuery => {
   const { t } = useTranslation();
   const acl = useAtomValue(aclAtom);
+
+  // console.log({ acl });
 
   const toType = ({ type }): string => ResourceCategory[type];
 
@@ -113,6 +116,9 @@ const useAclQuery = (): AclQuery => {
   const canCheck = (resources: Array<Resource>): boolean => {
     return can({ action: 'check', resources });
   };
+  const canForcedCheck = (resources: Array<Resource>): boolean => {
+    return can({ action: 'forced_check', resources });
+  };
 
   const canDisacknowledge = (resources: Array<Resource>): boolean => {
     return can({ action: 'disacknowledgement', resources });
@@ -144,6 +150,7 @@ const useAclQuery = (): AclQuery => {
     canDisacknowledgeServices,
     canDowntime,
     canDowntimeServices,
+    canForcedCheck,
     canSubmitStatus,
     getAcknowledgementDeniedTypeAlert,
     getDisacknowledgementDeniedTypeAlert,
