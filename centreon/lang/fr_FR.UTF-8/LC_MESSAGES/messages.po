@@ -17409,7 +17409,6 @@ msgstr "Arrière-plan Centreon"
 
 msgid "Powered by Centreon"
 msgstr "Propulsé par Centreon"
-
 #: www/front_src/src/Header/Poller
 
 msgid "Database issue"
