@@ -1,5 +1,9 @@
 name: "promote testing to stable"
 description: "Promote testing packages to stable."
+inputs:
+  artifactory_token:
+    description: "Artifactory token"
+    required: true
 
 runs:
   using: "composite"
