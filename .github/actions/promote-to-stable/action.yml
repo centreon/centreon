@@ -1,7 +1,6 @@
 name: "promote testing to stable"
 description: "Promote testing packages to stable."
 
-
 runs:
   using: "composite"
   steps:
@@ -13,5 +12,5 @@ runs:
     - name: Promote package
       run: |
         echo "[DEBUG] - Promote to repository: $REPO "
-        jf rt cp --dry-run rpm/centreon-business/ rpm-business/
+        jf rt cp --dry-run rpm/centreon-business/ rpm-business/centreon-promote-test/
       shell: bash
