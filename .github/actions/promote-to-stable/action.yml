@@ -26,7 +26,6 @@ runs:
         SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm/standard/23.04/el8/testing/noarch/gorgone/centreon-gorgone-23.04.0-1 | jq -r '.[].path')
 
         echo "[DEBUG] - Promoting testing artifacts to stable."
-        jf rt cp --dry-run $SRC_PATH/* $TARGET_PATH/
-        done
+        jf rt cp $SRC_PATH/* $TARGET_PATH/
 
       shell: bash
