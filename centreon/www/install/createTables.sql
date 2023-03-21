@@ -2465,7 +2465,6 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
   `secret_id` VARCHAR(255) NOT NULL,
   `salt` CHAR(128) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_vault_configuration` (`url`, `port`, `root_path`),
   CONSTRAINT `vault_configuration_vault_id`
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
