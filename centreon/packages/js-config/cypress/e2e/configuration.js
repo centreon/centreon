@@ -1,9 +1,9 @@
-/* eslint-disable global-require */
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
 
 import { defineConfig } from 'cypress';
 
-import setupNodeEvents from './plugins.ts';
+import setupNodeEvents from './plugins';
 
 export default ({
   specPattern,
