@@ -5,13 +5,21 @@ import { defineConfig } from 'cypress';
 
 import setupNodeEvents from './plugins';
 
+interface ConfigurationOptions {
+  cypressFolder?: string;
+  dockerName?: string;
+  env?: Record<string, unknown>;
+  isDevelopment?: boolean;
+  specPattern: string;
+}
+
 export default ({
   specPattern,
   cypressFolder,
   isDevelopment,
   dockerName,
   env
-}) => {
+}: ConfigurationOptions): Cypress.ConfigOptions => {
   const resultsFolder = `${cypressFolder || 'cypress'}/results${
     isDevelopment ? '/dev' : ''
   }`;
