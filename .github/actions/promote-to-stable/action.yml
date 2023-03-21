@@ -4,6 +4,9 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  module:
+    description: "Module"
+    required: true
 
 runs:
   using: "composite"
