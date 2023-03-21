@@ -104,9 +104,8 @@ jobs:
 
       - uses: ./.github/actions/frontend-lint
         with:
-          frontend_directory: ${{ env.directory }}
-          installation_directory: ${{ env.centreon_directory }}
-          module_name: centreon-ui
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon-web
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
