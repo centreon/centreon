@@ -20,12 +20,13 @@ runs:
       run: |
         REPO="stable"
         echo "[DEBUG] - Promote to repository: $REPO"
-        TARGET_PATH="rpm/standard/23.04/el8/stable/noarch/RPMS/"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
         SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm/standard/23.04/el8/testing/noarch/gorgone/centreon-gorgone-23.04.0-1 | jq -r '.[].path')
 
+        TARGET_PATH="rpm/standard/23.04/el8/stable/noarch/RPMS/"
+
         echo "[DEBUG] - Promoting testing artifacts to stable."
-        jf rt cp $SRC_PATH/* $TARGET_PATH/
+        jf rt cp --recursive=false $SRC_PATH/* $TARGET_PATH/
 
       shell: bash
