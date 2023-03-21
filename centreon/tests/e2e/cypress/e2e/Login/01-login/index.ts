@@ -6,7 +6,7 @@ import { insertContactFixture, removeContact } from '../common';
 before(() => {
   insertContactFixture();
   cy.intercept(
-    '/centreon/api/internal.php?object=centreon_topcounter&action=user',
+    '/centreon/api/internal.php?object=centreon_topcounter&action=user'
   ).as('userTopCounterEndpoint');
 });
 

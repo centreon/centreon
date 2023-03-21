@@ -30,6 +30,7 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         distrib: [el8, el9, bullseye]
         name:
@@ -48,6 +49,9 @@ jobs:
             "Digest::MD5::File",
             "Digest::SHA1",
             "Email::Send::SMTP::Gmail",
+            "EV",
+            "FFI::CheckLib",
+            "FFI::Platypus",
             "File::SearchPath",
             "Hash::Merge",
             "HTTP::Daemon",
@@ -81,13 +85,17 @@ jobs:
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
-            "YAML::LibYAML",
-            "ZMQ::Constants",
-            "ZMQ::LibZMQ4",
+            "ZMQ::FFI",
           ]
         include:
-          - dependencies: ""
+          - build_rpm: "true"
+          - build_deb: "true"
+          - rpm_dependencies: ""
+          - deb_dependencies: ""
+          - rpm_provides: ""
           - version: ""
+          - use_dh_make_perl: "true"
+          - spec_file: ""
           - distrib: el8
             package_extension: rpm
             image: packaging-alma8
@@ -97,12 +105,29 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "EV"
+            build_deb: "false"
+          - name: "FFI::CheckLib"
+            build_deb: "false"
+          - name: "FFI::Platypus"
+            build_deb: "false"
+            rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
           - name: "JSON::Path"
             version: "1.0.3"
-          - name: "ZMQ::LibZMQ4"
-            dependencies: "zeromq"
+          - name: "ZMQ::FFI"
+            build_deb: "false"
+            rpm_dependencies: "zeromq"
           - name: "Libssh::Session"
-            dependencies: "libssh"
+            rpm_dependencies: "libssh"
+            deb_dependencies: "libssh2-1"
+          - name: "Device::Modbus::RTU::Client"
+            version: "0.022"
+          - name: "Device::Modbus::TCP::Client"
+            version: "0.026"
+          - name: "Statistics::Regression"
+            version: "0.53"
+          - name: "UUID"
+            use_dh_make_perl: "false"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -113,25 +138,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - if: ${{ matrix.package_extension == 'rpm' }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel
+        shell: bash
 
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel
-
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
+        run: |
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
           else
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
-          if [ -z "${{ matrix.dependencies }}" ]; then
+          if [ -z "${{ matrix.rpm_dependencies }}" ]; then
             PACKAGE_DEPENDENCIES=""
           else
-            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.rpm_dependencies }}`; do
               PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
+            done
+          fi
+
+          if [ -z "${{ matrix.rpm_provides }}" ]; then
+            PACKAGE_PROVIDES=""
+          else
+            for PACKAGE_PROVIDE in `echo "${{ matrix.rpm_provides }}"`; do
+              PACKAGE_PROVIDES="$PACKAGE_PROVIDES --provides $PACKAGE_PROVIDE"
             done
           fi
 
@@ -139,25 +174,34 @@ jobs:
           cpanm Module::Install
 
           gem install fpm
-          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
+          fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && !contains(matrix.name, '-') && !contains(matrix.name, '_') }}
+      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file != '' }}
+        run: |
+          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+          rpmbuild --undefine=_disable_source_fetch -ba ${{ matrix.spec_file }}
+
+          cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
+        shell: bash
+
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
 
-          PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g'`
+          PACKAGE_NAME=`echo ${{ matrix.name }} | sed -e 's/::/-/g' | tr '[A-Z]' '[a-z]' | sed -e 's/^/lib/g' | sed -e 's/$/-perl/g' | sed -e 's/liblib/lib/g'`
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
           else
             PACKAGE_VERSION=" -v ${{ matrix.version }}"
           fi
 
-          if [ -z "${{ matrix.dependencies }}" ]; then
+          if [ -z "${{ matrix.deb_dependencies }}" ]; then
             PACKAGE_DEPENDENCIES=""
           else
-            for PACKAGE_DEPENDENCY in `echo ${{ matrix.dependencies }}`; do
+            for PACKAGE_DEPENDENCY in `echo ${{ matrix.deb_dependencies }}`; do
               PACKAGE_DEPENDENCIES="$PACKAGE_DEPENDENCIES --depends $PACKAGE_DEPENDENCY"
             done
           fi
@@ -169,18 +213,19 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.package_extension == 'deb' && (contains(matrix.name, '-') || contains(matrix.name, '_')) }}
+      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
         run: |
           apt update
-          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl
+          apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev libmodule-install-perl
 
-          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build --cpan ${{ matrix.name }}
+          if [ -z "${{ matrix.version }}" ]; then
+            PACKAGE_VERSION=""
+          else
+            PACKAGE_VERSION="--version ${{ matrix.version }}-${{ matrix.distrib }}"
+          fi
+
+          DEB_BUILD_OPTIONS="nocheck nodocs notest" dh-make-perl make --build $PACKAGE_VERSION --cpan ${{ matrix.name }}
         shell: bash
-
-      - uses: actions/cache@v3
-        with:
-          path: ./*.${{ matrix.package_extension }}
-          key: unsigned-${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -253,14 +298,9 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-cpan-libraries
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: 0
-          release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
-          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
           cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
@@ -283,11 +323,10 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: perl-cpan-libraries
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.AUTOMATION_USERNAME }}
-          nexus_password: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

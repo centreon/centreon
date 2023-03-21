@@ -27,9 +27,8 @@ use warnings;
 use gorgone::class::db;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -84,7 +83,7 @@ sub send_listener {
     my $current = $self->{pipelines}->{ $options{token} }->{current};
 
     $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{created} = time();
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -96,14 +95,14 @@ sub send_listener {
                 log_pace => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{log_pace}
             }
         ]
-    );
+    });
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{action},
         target => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{target},
         token => $options{token} . '-' . $current,
         data => $self->{pipelines}->{ $options{token} }->{pipe}->[$current]->{data}
-    );
+    });
 
     $self->{logger}->writeLogDebug("[pipeline] -class- pipeline '$options{token}' run $current");
     $self->send_log(
@@ -212,58 +211,34 @@ sub check_timeout {
     }
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[pipeline] -class- event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[pipeline] -class- $$ has quit");
+        exit(0);
     }
+
+    $connector->check_timeout();
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-pipeline',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'PIPELINEREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[pipeline] -class- $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-
-        $self->check_timeout();
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

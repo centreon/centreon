@@ -13,3 +13,9 @@ interface PageComponent {
   component: string;
   route: string;
 }
+
+export interface StyleMenuSkeleton {
+  className?: string;
+  height?: number;
+  width?: number;
+}

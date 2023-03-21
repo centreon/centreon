@@ -2382,8 +2382,8 @@ msgid "Recurrent downtimes"
 msgstr "Tiempos de parada recurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -3056,8 +3056,8 @@ msgid "Performance Management"
 msgstr "Gestión de datos de rendimiento."
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -14407,7 +14407,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14479,7 +14479,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Unhandled"
@@ -15544,3 +15544,46 @@ msgstr "Verifique los recursos seleccionados incluso fuera del período configur
 
 msgid "Forced check comment sent"
 msgstr "Comentario de verificación forzada enviado"
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""

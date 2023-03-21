@@ -16,6 +16,7 @@ interface Props {
   onClick: (event) => void;
   permitted?: boolean;
   secondaryIcon?: JSX.Element;
+  testId: string;
 }
 
 const ResourceActionButton = ({
@@ -23,6 +24,7 @@ const ResourceActionButton = ({
   label,
   onClick,
   disabled,
+  testId,
   permitted = true,
   secondaryIcon
 }: Props): JSX.Element => {
@@ -40,7 +42,7 @@ const ResourceActionButton = ({
     return (
       <IconButton
         ariaLabel={t(label) as string}
-        data-testid={label}
+        data-testid={testId}
         disabled={disabled}
         size="large"
         title={title}
@@ -56,7 +58,7 @@ const ResourceActionButton = ({
       <span>
         <ActionButton
           aria-label={t(label) as string}
-          data-testid={label}
+          data-testid={testId}
           disabled={disabled}
           endIcon={secondaryIcon}
           startIcon={icon}

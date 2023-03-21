@@ -205,20 +205,28 @@ class CentreonLogAction
     {
         global $pearDB, $pearDBO;
 
-        $query = "SELECT host_name FROM host WHERE host_register = '1' AND host_id = " . $host_id;
-        $DBRESULT2 = $pearDB->query($query);
-        $info = $DBRESULT2->fetchRow();
+        $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_register = '1' AND host_id = :host_id");
+        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->execute();
+        $info = $statement->fetchRow();
         if (isset($info['host_name'])) {
             return $info['host_name'];
         }
 
-        $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = $host_id";
-        $DBRESULT2 = $pearDBO->query($query);
-        $info = $DBRESULT2->fetchRow();
+        $statement = $pearDBO->prepare("SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :host_id");
+        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->execute();
+        $info = $statement->fetchRow();
         if (isset($info['object_name'])) {
             return $info['object_name'];
         }
-        return -1;
+
+        $statement = $pearDBO->prepare("SELECT name FROM hosts WHERE host_id = :host_id");
+        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->execute();
+        $info = $statement->fetchRow();
+
+        return $info['name'] ?? -1;
     }
 
     public function getHostGroupName($hg_id)
