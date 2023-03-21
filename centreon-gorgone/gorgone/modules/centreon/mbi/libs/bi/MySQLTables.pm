@@ -46,7 +46,7 @@ sub tableExists {
 	my $self = shift;
 
 	my ($name) = (shift);
-	my $statement = $self->{centstorage}->query("SHOW TABLES LIKE '".$name."'");
+	my $statement = $self->{centstorage}->query({ query => "SHOW TABLES LIKE '".$name."'" });
 
 	if (!(my @row = $statement->fetchrow_array())) {
 		return 0;
@@ -60,11 +60,11 @@ sub createTable {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
 	my ($name, $structure, $mode) = @_;
-	my $statement = $db->query("SHOW TABLES LIKE '".$name."'");
+	my $statement = $db->query({ query => "SHOW TABLES LIKE '".$name."'" });
 	if (!$self->tableExists($name)) {
 		if (defined($structure)) {
 			$logger->writeLog("DEBUG", "[CREATE] table [".$name."]");
-   			$db->query($structure);
+   			$db->query({ query => $structure });
    			return 0;
 		}else {
 			$logger->writeLog("FATAL", "[CREATE] Cannot find table [".$name."] structure");
@@ -78,7 +78,7 @@ sub dumpTableStructure {
 	my ($tableName) = (shift);
 	
 	my $sql = "";
-	my $sth = $self->{centstorage}->query("SHOW CREATE TABLE " . $tableName);
+	my $sth = $self->{centstorage}->query({ query => "SHOW CREATE TABLE " . $tableName });
     if (my $row = $sth->fetchrow_hashref()) {
 	  $sql = $row->{'Create Table'};
 	  $sql =~ s/(CONSTRAINT.*\n)//g;
@@ -115,7 +115,7 @@ sub createParts {
 	my @partName = split (/\-/, $runningStart);
 	$tableStructure .= "PARTITION p".$partName[0].$partName[1].$partName[2]." VALUES LESS THAN (FLOOR(UNIX_TIMESTAMP('".$runningStart."'))));";
 	$logger->writeLog("DEBUG", "[CREATE] table partitionned [".$tableName."] min value: ".$start.", max value: ".$runningStart.", range:  1 DAY\n");
-	$db->query($tableStructure);
+	$db->query({ query => $tableStructure });
 	return 0;
 }
 
@@ -136,7 +136,7 @@ sub updateParts {
 			$logger->writeLog("DEBUG", "[UPDATE PARTS] Updating partitions for table [".$tableName."] (last range : ".$range.")");
 			my @partName = split (/\-/, $range);
 			my $query = "ALTER TABLE `".$tableName."` ADD PARTITION (PARTITION `p".$partName[0].$partName[1].$partName[2]."` VALUES LESS THAN(FLOOR(UNIX_TIMESTAMP('".$range."'))))";
-			$db->query($query);
+			$db->query({ query => $query });
 			$range = $timeObj->addDateInterval($range, 1, "DAY");
 		}
 	}
@@ -147,7 +147,7 @@ sub isTablePartitioned {
 	my $tableName = shift;
 	my $db = $self->{"centstorage"};
 
-	my $sth = $db->query("SHOW TABLE STATUS LIKE '".$tableName."'");
+	my $sth = $db->query({ query => "SHOW TABLE STATUS LIKE '".$tableName."'" });
 	if (my $row = $sth->fetchrow_hashref()) {
 		my $createOptions = $row->{"Create_options"};
 		if (defined($createOptions) && $createOptions =~ m/partitioned/i) {
@@ -166,7 +166,7 @@ sub getLastPartRange {
     my $query = "SHOW CREATE TABLE $tableName";
 
     my $partName;
-    my $sth = $self->{centstorage}->query($query);
+    my $sth = $self->{centstorage}->query({ query => $query });
     if (my $row = $sth->fetchrow_hashref()) {
         while ($row->{'Create Table'} =~ /PARTITION.*?p(\d{4})(\d{2})(\d{2}).*?VALUES LESS THAN \([0-9]+?\)/g) {
             $partName = "$1-$2-$3";
@@ -187,15 +187,15 @@ sub deleteEntriesForRebuild {
 	my ($start, $end, $tableName) = @_;
 	
 	if (!$self->isTablePartitioned($tableName)) {
-		$db->query("DELETE FROM ".$tableName." WHERE time_id >= UNIX_TIMESTAMP('".$start."') AND time_id < UNIX_TIMESTAMP('".$end."')");
-	}else {
+		$db->query({ query => "DELETE FROM ".$tableName." WHERE time_id >= UNIX_TIMESTAMP('".$start."') AND time_id < UNIX_TIMESTAMP('".$end."')" });
+	} else {
 		my $query = "SELECT partition_name FROM information_schema.partitions ";
 		$query .= "WHERE table_name='".$tableName."' AND table_schema='".$db->db."'";
 		$query .= " AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) > UNIX_TIMESTAMP('".$start."')";
 		$query .= " AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) <= UNIX_TIMESTAMP('".$end."')";
-		my $sth = $db->query($query);
+		my $sth = $db->query({ query => $query });
 		while(my $row = $sth->fetchrow_hashref()) {
-			$db->query("ALTER TABLE ".$tableName." TRUNCATE PARTITION ".$row->{'partition_name'});	
+			$db->query({ query => "ALTER TABLE ".$tableName." TRUNCATE PARTITION ".$row->{'partition_name'} });
 		}
 		$self->updateParts($end, $tableName);	
 	}	
@@ -213,14 +213,14 @@ sub emptyTableForRebuild {
 	$structure =~ s/KEY.*\(\`$column\`\)//g;
 	$structure =~ s/\,[\n\s+]+\)/\n\)/g;
 	if (!defined($_[0]) || !$self->isPartitionEnabled()) {
-		$db->query("DROP TABLE IF EXISTS ".$tableName);
-		$db->query($structure);
-	}else {
+		$db->query({ query => "DROP TABLE IF EXISTS ".$tableName });
+		$db->query({ query => $structure });
+	} else {
 		my ($start, $end) = @_;
-		$db->query("DROP TABLE IF EXISTS ".$tableName);
+		$db->query({ query => "DROP TABLE IF EXISTS ".$tableName });
 		$self->createParts($start, $end, $structure, $tableName, $column);		
 	}
-	$db->query("ALTER TABLE `".$tableName."` ADD INDEX `idx_".$tableName."_".$column."` (`".$column."`)");
+	$db->query({ query => "ALTER TABLE `".$tableName."` ADD INDEX `idx_".$tableName."_".$column."` (`".$column."`)" });
 }
 
 sub dailyPurge {
@@ -230,16 +230,16 @@ sub dailyPurge {
 	
 	my ($retentionDate, $tableName, $column) = @_;
 	if (!$self->isTablePartitioned($tableName)) {
-		$db->query("DELETE FROM `".$tableName."` WHERE ".$column." < UNIX_TIMESTAMP('".$retentionDate."')"); 
-	}else {
+		$db->query({ query => "DELETE FROM `".$tableName."` WHERE ".$column." < UNIX_TIMESTAMP('".$retentionDate."')" });
+	} else {
 		my $query = "SELECT GROUP_CONCAT(partition_name SEPARATOR ',') as partition_names FROM information_schema.partitions ";
 		$query .= "WHERE table_name='".$tableName."' AND table_schema='".$db->db."'";
 		$query .= " AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) < UNIX_TIMESTAMP('".$retentionDate."')";
-		my $sth = $db->query($query);
+		my $sth = $db->query({ query => $query });
 		if(my $row = $sth->fetchrow_hashref()) {
 			if (defined($row->{'partition_names'}) && $row->{'partition_names'} ne "") {
-				$db->query("ALTER TABLE ".$tableName." DROP PARTITION ".$row->{'partition_names'});
-			}	
+				$db->query({ query => "ALTER TABLE ".$tableName." DROP PARTITION ".$row->{'partition_names'} });
+            }
 		}
 	}
 }
@@ -254,7 +254,7 @@ sub checkPartitionContinuity {
 	$query .= " where table_schema = '".$db->{"db"}."' and table_name = '".$table."' and PARTITION_ORDINAL_POSITION=1)), SIGNED INTEGER) as nbDays,";
 	$query .= " CONVERT(PARTITION_ORDINAL_POSITION, SIGNED INTEGER) as ordinalPosition ";
 	$query .= " from information_schema.partitions where table_schema = '".$db->{"db"}."' and table_name = '".$table."' order by PARTITION_ORDINAL_POSITION desc limit 1 ";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 	my $nbDays = int($row->{'nbDays'});
 	my $ordinalPosition = int($row->{'ordinalPosition'});
@@ -276,7 +276,7 @@ sub checkLastTablePartition{
 	my $query = "select from_unixtime(PARTITION_DESCRIPTION) as last_partition, IF(from_unixtime(PARTITION_DESCRIPTION)=CURDATE() AND HOUR(from_unixtime(PARTITION_DESCRIPTION))=0,1,0) as partition_uptodate ";
 	$query .="from information_schema.partitions where table_schema = '".$db->{"db"}."'";
 	$query .= "and table_name = '".$table."'order by PARTITION_ORDINAL_POSITION desc limit 1";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		if($row->{'partition_uptodate'} == 0){
 			$message = $row->{'last_partition'};
@@ -290,15 +290,14 @@ sub dropIndexesFromReportingTable {
 	my $self = shift;
     my $table = shift;
 	my $db = $self->{"centstorage"};
-    my $indexes = $db->query("SHOW INDEX FROM ".$table);
+    my $indexes = $db->query({ query => "SHOW INDEX FROM ".$table });
     my $previous = "";
     while (my $row = $indexes->fetchrow_hashref()) {
-        
         if ($row->{"Key_name"} ne $previous) {
             if (lc($row->{"Key_name"}) eq lc("PRIMARY")) {
-                $db->query("ALTER TABLE `".$table."` DROP PRIMARY KEY");
-            }else {
-                $db->query("ALTER TABLE `".$table."` DROP INDEX ".$row->{"Key_name"});
+                $db->query({ query => "ALTER TABLE `".$table."` DROP PRIMARY KEY" });
+            } else {
+                $db->query({ query => "ALTER TABLE `".$table."` DROP INDEX ".$row->{"Key_name"} });
             }
         }
         $previous = $row->{"Key_name"};

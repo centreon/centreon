@@ -27,14 +27,14 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::Constants qw(:all);
-use ZMQ::LibZMQ4;
 use Mojolicious::Lite;
 use Mojo::Server::Daemon;
 use Authen::Simple::Password;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
+use IO::Poll qw(POLLIN POLLPRI);
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -236,24 +236,43 @@ sub run {
 
     # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $connector->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-httpserverng',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'HTTPSERVERNGREADY',
         data => {}
-    );
+    });
     $self->read_zmq_events();
 
-    my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
-    my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
-    Mojo::IOLoop->singleton->reactor->io($socket => sub {
-        $connector->read_zmq_events();
-    });
-    Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
+    my $type = ref(Mojo::IOLoop->singleton->reactor);
+    my $watcher_io;
+    if ($type eq 'Mojo::Reactor::Poll') {
+        Mojo::IOLoop->singleton->reactor->{io}{ $self->{internal_socket}->get_fd()} = {
+            cb => sub { $connector->read_zmq_events(); },
+            mode => POLLIN | POLLPRI
+        };
+    }  else {
+        # need EV version 4.32
+        $watcher_io = EV::io(
+            $self->{internal_socket}->get_fd(),
+            EV::READ,
+            sub {
+                $connector->read_zmq_events();
+            }
+        );
+    }
+
+    #my $socket_fd = gorgone::standard::library::zmq_getfd(socket => $self->{internal_socket});
+    #my $socket = IO::Handle->new_from_fd($socket_fd, 'r');
+    #Mojo::IOLoop->singleton->reactor->io($socket => sub {
+    #    $connector->read_zmq_events();
+    #});
+    #Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
 
     Mojo::IOLoop->singleton->recurring(60 => sub {
         $connector->{logger}->writeLogDebug('[httpserverng] recurring timeout loop');
@@ -303,7 +322,6 @@ sub run {
 
     $daemon->run();
 
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -378,29 +396,25 @@ sub read_listener {
 sub read_zmq_events {
     my ($self, %options) = @_;
 
-    while (my $events = gorgone::standard::library::zmq_events(socket => $self->{internal_socket})) {
-        if ($events & ZMQ_POLLIN) {
-            my $message = $connector->read_message();
-            $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
-            if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
-                my ($action, $token, $data) = ($1, $2, $3);
-                if (defined($connector->{token_watch}->{$token})) {
-                    if ($action eq 'HTTPSERVERNGLISTENER') {
-                        $connector->read_listener(token => $token, data => $data);
-                    } elsif ($token =~ /-log$/) {
-                        $connector->read_log_event(token => $token, data => $data);
-                    }
-                }
-                if ((my $method = $connector->can('action_' . lc($action)))) {
-                    my ($rv, $decoded) = $connector->json_decode(argument => $data, token => $token);
-                    if (!$rv) {
-                        $method->($connector, token => $token, data => $decoded);
-                    }
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $connector->read_message();
+        $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
+        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
+            $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
+            my ($action, $token, $data) = ($1, $2, $3);
+            if (defined($connector->{token_watch}->{$token})) {
+                if ($action eq 'HTTPSERVERNGLISTENER') {
+                    $connector->read_listener(token => $token, data => $data);
+                } elsif ($token =~ /-log$/) {
+                    $connector->read_log_event(token => $token, data => $data);
                 }
             }
-        } else {
-            last;
+            if ((my $method = $connector->can('action_' . lc($action)))) {
+                my ($rv, $decoded) = $connector->json_decode(argument => $data, token => $token);
+                if (!$rv) {
+                    $method->($connector, token => $token, data => $decoded);
+                }
+            }
         }
     }
 }
@@ -449,11 +463,11 @@ sub get_log {
     my ($self, %options) = @_;
 
     if (defined($options{target}) && $options{target} ne '') {
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $options{target},
             action => 'GETLOG',
             data => {}
-        );
+        });
         $self->read_zmq_events();
     }
 
@@ -468,14 +482,14 @@ sub get_log {
         mojo => $options{mojo}
     };
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'GETLOG',
         token => $token_log,
         data => {
             token => $options{token},
             %{$options{parameters}}
         }
-    );
+    });
 
     $self->read_zmq_events();
 
@@ -500,7 +514,7 @@ sub call_action {
             results => []
         };
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -512,16 +526,16 @@ sub call_action {
                     timeout => 110
                 }
             ]
-        );
+        });
         $self->read_zmq_events();
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => $options{action},
         target => $options{target},
         token => $action_token,
         data => $options{data}
-    );
+    });
     $self->read_zmq_events();
 
     if ($options{async} == 1) {

@@ -229,6 +229,27 @@ class Assertion
     }
 
     /**
+     * Assert that the value is in range.
+     *
+     * @param int|float $value
+     * @param int|float $minValue
+     * @param int|float $maxValue
+     * @param string|null $propertyPath
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function range(
+        int|float $value,
+        int|float $minValue,
+        int|float $maxValue,
+        ?string $propertyPath = null
+    ): void {
+        if ($value < $minValue || $value > $maxValue) {
+            throw AssertionException::range($value, $minValue, $maxValue, $propertyPath);
+        }
+    }
+
+    /**
      * Assert that a value match a regex.
      *
      * @param mixed $value

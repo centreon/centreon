@@ -135,25 +135,12 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
-
-      - name: Lint
-        run: pnpm eslint -o junit.xml -f junit
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
+      - uses: ./.github/actions/frontend-lint
         with:
-          path: "centreon/junit.xml"
-          format: "java-junit"
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -436,13 +423,8 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
@@ -473,7 +455,6 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}

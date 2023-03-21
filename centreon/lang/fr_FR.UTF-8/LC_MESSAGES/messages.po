@@ -2602,8 +2602,8 @@ msgid "Recurrent downtimes"
 msgstr "Plages de maintenance récurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Connecteurs de supervision"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -3322,8 +3322,8 @@ msgid "Performance Management"
 msgstr "Gestion des données de performance"
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Connecteurs de supervision"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -15365,7 +15365,7 @@ msgstr "Pourcentage de changement de statut"
 msgid "Resource name"
 msgstr "Nom de la ressource"
 
-msgid "Resource problems"
+msgid "All alerts"
 msgstr "Problèmes de ressources"
 
 msgid "Rows per page"
@@ -15437,7 +15437,7 @@ msgstr "Commande de contrôle envoyée"
 msgid "Type of resource"
 msgstr "Type de ressource"
 
-msgid "Unhandled problems"
+msgid "Unhandled alerts"
 msgstr "Problèmes non traités"
 
 msgid "Unhandled"
@@ -17400,3 +17400,46 @@ msgstr "Ce nom de sévérité de services existe déjà"
 
 msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
+
+msgid "Icon #%d does not exist"
+msgstr "L'icône #%d n'existe pas"
+
+#: www/front_src/src/Header/Poller
+
+msgid "Database issue"
+msgstr "Incident sur la base de données"
+
+msgid "Pollers not running"
+msgstr "Collecteurs hors service"
+
+msgid "Everything is OK"
+msgstr "Tout est OK"
+
+msgid "All pollers:"
+msgstr "Tous les collecteurs :"
+
+#: www/front_src/src/Header/Resources/Host
+
+msgid "Down status hosts"
+msgstr "Hôtes au statut Indisponible"
+
+msgid "Unreachable status hosts"
+msgstr "Hôtes au statut Injoignable"
+
+msgid "Up status hosts"
+msgstr "Hôtes au statut Disponible"
+
+
+#: www/front_src/src/Header/Resources/Services
+
+msgid "Critical status services"
+msgstr "Services au statut Critique"
+
+msgid "Warning status services"
+msgstr "Services au statut Alerte"
+
+msgid "Unknown status services"
+msgstr "Services au statut Inconnu"
+
+msgid "OK status services"
+msgstr "Services au statut OK"

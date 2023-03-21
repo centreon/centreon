@@ -118,7 +118,7 @@ echo _("Overview");
 echo _("Parameters");
 echo _("Performance Management");
 echo _("Performances");
-echo _("Plugin packs");
+echo _("Monitoring Connectors Manager");
 echo _("Poller Statistics");
 echo _("Pollers");
 echo _("Reload ACL");

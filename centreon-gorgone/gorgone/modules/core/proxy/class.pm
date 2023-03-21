@@ -28,9 +28,8 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::clientzmq;
 use gorgone::modules::core::proxy::sshclient;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -43,6 +42,8 @@ sub new {
     $connector->{pool_id} = $options{pool_id};
     $connector->{clients} = {};
     $connector->{internal_channels} = {};
+    $connector->{watchers} = {};
+
 
     $connector->set_signal_handlers();
     return $connector;
@@ -88,10 +89,10 @@ sub exit_process {
     $self->close_connections();
     foreach (keys %{$self->{internal_channels}}) {
         $self->{logger}->writeLogInfo("[proxy] Close internal connection for $_");
-        zmq_close($self->{internal_channels}->{$_});
+        $self->{internal_channels}->{$_}->close();
     }
     $self->{logger}->writeLogInfo("[proxy] Close control connection");
-    zmq_close($self->{internal_socket});
+    $self->{internal_socket}->close();
     exit(0);
 }
 
@@ -113,25 +114,25 @@ sub read_message_client {
 
         # if we get a pong response, we can open the internal com read
         $connector->{clients}->{ $client_identity }->{com_read_internal} = 1;
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => 'PONG',
             data => $data,
             token => $token,
             target => ''
-        );
+        });
     } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS)\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms) {
             return undef;
         }
         my ($action, $token, $data)  = ($1, $2, $3);
 
-        $connector->send_internal_action(
+        $connector->send_internal_action({
             action => $action,
             data => $data,
             data_noencode => 1,
             token => $token,
             target => ''
-        );
+        });
     } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
         my ($code, $data) = $connector->json_decode(argument => $2);
         return undef if ($code == 1);
@@ -139,12 +140,12 @@ sub read_message_client {
         # we set the id (distant node can not have id in configuration)
         $data->{data}->{id} = $client_identity;
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
-            $connector->send_internal_action(
+            $connector->send_internal_action({
                 action => 'SETLOGS',
                 data => $data,
                 token => $1,
                 target => ''
-            );
+            });
         }
     }
 }
@@ -154,6 +155,8 @@ sub connect {
 
     if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
         $self->{clients}->{$options{id}}->{class} = gorgone::class::clientzmq->new(
+            context => $self->{zmq_context},
+            core_loop => $self->{loop},
             identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id}, 
             cipher => $self->{clients}->{ $options{id} }->{cipher}, 
             vector => $self->{clients}->{ $options{id} }->{vector},
@@ -218,27 +221,35 @@ sub action_proxyaddnode {
 
         $self->{logger}->writeLogInfo("[proxy] Recreate session for $data->{id}");
         # we send a pong reset. because the ping can be lost
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'PONGRESET',
             data => '{ "data": { "id": ' . $data->{id} . ' } }',
             data_noencode => 1,
             token => $self->generate_token(),
             target => ''
-        );
+        });
 
         $self->{clients}->{ $data->{id} }->{class}->close();
     } else {
         $self->{internal_channels}->{ $data->{id} } = gorgone::standard::library::connect_com(
+            context => $self->{zmq_context},
             zmq_type => 'ZMQ_DEALER',
             name => 'gorgone-proxy-channel-' . $data->{id},
             logger => $self->{logger},
             type => $self->get_core_config(name => 'internal_com_type'),
             path => $self->get_core_config(name => 'internal_com_path')
         );
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'PROXYREADY',
             data => {
                 node_id => $data->{id}
+            }
+        });
+        $self->{watchers}->{ $data->{id} } = $self->{loop}->io(
+            $self->{internal_channels}->{ $data->{id} }->get_fd(),
+            EV::READ,
+            sub {
+                $connector->event(channel => $data->{id});
             }
         );
     }
@@ -286,6 +297,8 @@ sub action_proxystopreadchannel {
     $self->{logger}->writeLogInfo("[proxy] Stop read channel for $data->{id}");
 
     $self->{clients}->{ $data->{id} }->{com_read_internal} = 0;
+
+    delete $self->{watchers}->{ $data->{id} };
 }
 
 sub close_connections {
@@ -310,12 +323,12 @@ sub proxy_ssh {
             $self->{clients}->{ $options{target_client} }->{delete} = 1;
         } else {
             $self->{clients}->{ $options{target_client} }->{com_read_internal} = 1;
-            $self->send_internal_action(
+            $self->send_internal_action({
                 action => 'PONG',
                 data => { data => { id => $options{target_client} } },
                 token => $options{token},
                 target => ''
-            );
+            });
         }
         return ;
     }
@@ -458,109 +471,88 @@ sub proxy {
     }
 }
 
-=begin comment
-    perl binding zmq_poll order fired events (first of the array,...)
-    the first array element is: the control channel
-=cut
-sub event_internal {
-    my (%options) = @_;
+sub event {
+    my ($self, %options) = @_;
 
-    return if (
-        defined($connector->{clients}->{ $options{channel} }) && 
-        ($connector->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $connector->{clients}->{ $options{channel} }->{delete} == 1)
-    );
+    my $socket;
+    if (defined($options{channel})) {
+        return if (
+            defined($self->{clients}->{ $options{channel} }) && 
+            ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
+        );
 
-    my $socket = $options{channel} eq 'control' ? $connector->{internal_socket} : $connector->{internal_channels}->{ $options{channel} };
-    while (1) {
-        my $message = $connector->read_message(socket => $socket);
-        last if (!defined($message));
+        $socket = $options{channel} eq 'control' ? $self->{internal_socket} : $self->{internal_channels}->{ $options{channel} };
+    } else {
+        $socket = $options{socket};
+        $options{channel} = 'control';
+    }
+
+    while ($socket->has_pollin()) {
+        my ($message) = $self->read_message(socket => $socket);
+        next if (!defined($message));
 
         proxy(message => $message, channel => $options{channel});
-        if ($connector->{stop} == 1 && (time() - $connector->{exit_timeout}) > $connector->{stop_time}) {
-            $connector->exit_process();
+        if ($self->{stop} == 1 && (time() - $self->{exit_timeout}) > $self->{stop_time}) {
+            $self->exit_process();
         }
         return if (
-            defined($connector->{clients}->{ $options{channel} }) && 
-            ($connector->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $connector->{clients}->{ $options{channel} }->{delete} == 1)
+            defined($self->{clients}->{ $options{channel} }) && 
+            ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
         );
     }
 }
 
-sub generate_internal_cb {
-    my (%options) = @_;
+sub periodic_exec {
+    foreach (keys %{$connector->{clients}}) {
+        if (defined($connector->{clients}->{$_}->{delete}) && $connector->{clients}->{$_}->{delete} == 1) {
+            $connector->send_internal_action({
+                action => 'PONGRESET',
+                data => '{ "data": { "id": ' . $_ . ' } }',
+                data_noencode => 1,
+                token => $connector->generate_token(),
+                target => ''
+            });
+            $connector->{clients}->{$_}->{class}->close() if (defined($connector->{clients}->{$_}->{class}));
+            $connector->{clients}->{$_}->{class} = undef;
+            $connector->{clients}->{$_}->{delete} = 0;
+            $connector->{clients}->{$_}->{com_read_internal} = 0;
+            next;
+        }
+    }
 
-    my $channel = $options{channel};
-    return sub {
-        event_internal(channel => $channel);
-    };
+    if ($connector->{stop} == 1) {
+        $connector->exit_process();
+    }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect canal internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-proxy-' . $self->{pool_id},
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PROXYREADY',
         data => {
             pool_id => $self->{pool_id}
         }
+    });
+
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io(
+        $self->{internal_socket}->get_fd(),
+        EV::READ,
+        sub {
+            $connector->event(channel => 'control');
+        }
     );
-    my $poll = {
-        socket   => $self->{internal_socket},
-        events   => ZMQ_POLLIN,
-        callback => sub {
-            event_internal(channel => 'control');
-        }
-    };
-    while (1) {
-        my $polls = [$poll];
-        foreach (keys %{$self->{clients}}) {
-            if (defined($self->{clients}->{$_}->{delete}) && $self->{clients}->{$_}->{delete} == 1) {
-                $self->send_internal_action(
-                    action => 'PONGRESET',
-                    data => '{ "data": { "id": ' . $_ . ' } }',
-                    data_noencode => 1,
-                    token => $self->generate_token(),
-                    target => ''
-                );
-                $self->{clients}->{$_}->{class}->close() if (defined($self->{clients}->{$_}->{class}));
-                $self->{clients}->{$_}->{class} = undef;
-                $self->{clients}->{$_}->{delete} = 0;
-                $self->{clients}->{$_}->{com_read_internal} = 0;
-                next;
-            }
 
-            if ($self->{clients}->{$_}->{com_read_internal} == 1) {
-                push @$polls, {
-                    socket  => $self->{internal_channels}->{$_},
-                    events  => ZMQ_POLLIN,
-                    callback => generate_internal_cb(channel => $self->{clients}->{$_}->{id})
-                };
-            }
-            if (defined($self->{clients}->{$_}->{class}) && $self->{clients}->{$_}->{type} eq 'push_zmq') {
-                push @$polls, $self->{clients}->{$_}->{class}->get_poll();
-            }
-        }
-
-        # we try to do all we can
-        my $rv = scalar(zmq_poll($polls, 5000));
-
-        # Sometimes (with big message) we have a undef ??!!!
-        if ($rv == -1) {
-            $self->{logger}->writeLogError("[proxy] zmq_poll failed: $!");
-        }
-
-        if ($rv == 0 && $self->{stop} == 1) {
-            $self->exit_process();
-        }
-    }
+    $self->{loop}->run();
 }
 
 1;

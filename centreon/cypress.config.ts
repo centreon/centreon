@@ -21,9 +21,12 @@ module.exports = defineConfig({
   env: {
     baseUrl: 'http://localhost:9090'
   },
-  reporter: 'junit',
+  reporter: 'mochawesome',
   reporterOptions: {
-    mochaFile: 'cypress/results/cypress-fe.xml'
+    reportDir: 'cypress/results',
+    overwrite: true,
+    html: false,
+    json: true,
   },
   video: true,
   videosFolder: 'cypress/results/videos'
