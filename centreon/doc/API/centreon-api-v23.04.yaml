@@ -8357,4 +8357,4 @@ components:
           example: "centreon"
         role_id:
           type: string
-          description: "Vault role id"
+          description: "Vault role ID"
