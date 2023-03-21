@@ -191,6 +191,7 @@ const ResourceActions = (): JSX.Element => {
           <CheckActionButton
             selectedResources={selectedResources}
             setSelectedResources={setSelectedResources}
+            testId="Multiple Check"
           />
         </div>
         {resourcesToAcknowledge.length > 0 && (

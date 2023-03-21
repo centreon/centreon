@@ -31,11 +31,13 @@ interface DisplaySelectedOption {
 interface Props {
   selectedResources: Array<Resource>;
   setSelectedResources: (update: SetStateAction<Array<Resource>>) => void;
+  testId: string;
 }
 
 const CheckActionButton = ({
   selectedResources,
-  setSelectedResources
+  setSelectedResources,
+  testId
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -120,6 +122,7 @@ const CheckActionButton = ({
           label={t(labelCheck)}
           permitted={isCheckPermitted}
           secondaryIcon={<IconArrow />}
+          testId={testId}
           onClick={displayPopover}
         />
         <ListCheckOptions
@@ -144,6 +147,7 @@ const CheckActionButton = ({
           label={t(labelForcedCheck)}
           permitted={isForcedCheckPermitted}
           secondaryIcon={<IconArrow />}
+          testId={testId}
           onClick={displayPopover}
         />
         <ListCheckOptions
@@ -180,6 +184,7 @@ const CheckActionButton = ({
           : isCheckPermitted
       }
       secondaryIcon={<IconArrow />}
+      testId={testId}
       onClick={(): void => undefined}
     />
   );
