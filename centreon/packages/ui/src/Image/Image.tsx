@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
+import { Suspense, memo } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { useLoadImage } from './useLoadImage';
 
@@ -63,4 +63,4 @@ const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element | null => {
   );
 };
 
-export default SuspendedImage;
+export default memo(SuspendedImage, equals);

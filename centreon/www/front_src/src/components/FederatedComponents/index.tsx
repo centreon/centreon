@@ -7,14 +7,19 @@ import { useMemoComponent } from '@centreon/ui';
 
 import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { Remote } from '../../federatedModules/Load';
-import { FederatedModule } from '../../federatedModules/models';
+import {
+  FederatedModule,
+  StyleMenuSkeleton
+} from '../../federatedModules/models';
 
 interface Props {
   federatedModulesConfigurations: Array<FederatedModule>;
+  styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 const FederatedModules = ({
   federatedModulesConfigurations,
+  styleMenuSkeleton,
   ...rest
 }: Props): JSX.Element | null => {
   return useMemoComponent({
@@ -37,6 +42,7 @@ const FederatedModules = ({
                     moduleFederationName={moduleFederationName}
                     moduleName={moduleName}
                     remoteEntry={remoteEntry}
+                    styleMenuSkeleton={styleMenuSkeleton}
                     {...rest}
                   />
                 );
@@ -46,12 +52,14 @@ const FederatedModules = ({
         )}
       </>
     ),
-    memoProps: [federatedModulesConfigurations]
+    memoProps: [federatedModulesConfigurations, rest]
   });
 };
 
 interface LoadableComponentsContainerProps {
+  [props: string]: unknown;
   path: string;
+  styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 interface LoadableComponentsProps extends LoadableComponentsContainerProps {
@@ -76,8 +84,15 @@ const getLoadableComponents = ({
   return components;
 };
 
+const defaultStyleMenuSkeleton = {
+  className: undefined,
+  height: undefined,
+  width: undefined
+};
+
 const LoadableComponentsContainer = ({
   path,
+  styleMenuSkeleton = defaultStyleMenuSkeleton,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
   const federatedModules = useAtomValue(federatedModulesAtom);
@@ -94,6 +109,7 @@ const LoadableComponentsContainer = ({
   return (
     <FederatedModules
       federatedModulesConfigurations={federatedModulesToDisplay}
+      styleMenuSkeleton={styleMenuSkeleton}
       {...props}
     />
   );
