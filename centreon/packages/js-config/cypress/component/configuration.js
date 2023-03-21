@@ -4,7 +4,7 @@ const {
   addMatchImageSnapshotPlugin
 } = require('cypress-image-snapshot/plugin');
 
-module.exports = ({ webpackConfig, cypressFolder, specPattern }) => {
+module.exports = ({ webpackConfig, cypressFolder, specPattern, env }) => {
   const mainCypressFolder = cypressFolder || 'cypress';
 
   return defineConfig({
@@ -21,6 +21,7 @@ module.exports = ({ webpackConfig, cypressFolder, specPattern }) => {
       supportFile: `${mainCypressFolder}/support/component.tsx`
     },
     env: {
+      ...env,
       baseUrl: 'http://localhost:9092'
     },
     reporter: 'mochawesome',
