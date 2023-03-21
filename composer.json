@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "centreon/centreon-test-lib": "dev-master"
+    }
+}
