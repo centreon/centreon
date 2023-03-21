@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  if [ -f "/etc/apache2/sites-available/centreon.conf" ]; then
+    # Prepare php upgrade
+    systemctl disable php8.0-fpm
+    systemctl stop php8.0-fpm
+  fi
+
+fi
+
+exit 0
