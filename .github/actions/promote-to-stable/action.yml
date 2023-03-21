@@ -11,6 +11,7 @@ runs:
 
     - name: Promote package
       run: |
+        $REPO="stable"
         echo "[DEBUG] - Promote to repository: $REPO "
         jf rt cp --dry-run rpm/centreon-business/ rpm-business/centreon-promote-test/
       shell: bash

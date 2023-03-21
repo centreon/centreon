@@ -124,3 +124,5 @@ jobs:
 
       - name: Promote rpm to stable
         uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
