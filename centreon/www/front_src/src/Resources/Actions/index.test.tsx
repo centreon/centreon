@@ -1,19 +1,11 @@
-import mockDate from 'mockdate';
-import axios from 'axios';
-import { last, pick, map, head } from 'ramda';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'jotai';
+import axios from 'axios';
 import dayjs from 'dayjs';
+import { Provider } from 'jotai';
+import mockDate from 'mockdate';
+import { head, last, map, pick } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
-import {
-  render,
-  RenderResult,
-  waitFor,
-  fireEvent,
-  act,
-  screen
-} from '@centreon/ui/src/testRenderer';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -21,55 +13,65 @@ import {
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
-
 import {
-  labelAcknowledgedBy,
-  labelDowntimeBy,
-  labelRefresh,
-  labelDisableAutorefresh,
-  labelEnableAutorefresh,
+  act,
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor
+} from '@centreon/ui/src/testRenderer';
+
+import useDetails from '../Details/useDetails';
+import useListing from '../Listing/useListing';
+import useLoadResources from '../Listing/useLoadResources';
+import { Resource } from '../models';
+import Context, { ResourceContext } from '../testUtils/Context';
+import useActions from '../testUtils/useActions';
+import useFilter from '../testUtils/useFilter';
+import useLoadDetails from '../testUtils/useLoadDetails';
+import {
   labelAcknowledge,
-  labelSetDowntime,
-  labelSetDowntimeOnServices,
+  labelAcknowledgedBy,
   labelAcknowledgeServices,
-  labelNotify,
-  labelFixed,
+  labelAddComment,
   labelCheck,
-  labelHostsDenied,
-  labelMoreActions,
+  labelCheckDescription,
+  labelCritical,
+  labelDisableAutorefresh,
   labelDisacknowledge,
   labelDisacknowledgeServices,
-  labelSubmitStatus,
-  labelUp,
-  labelUnreachable,
   labelDown,
+  labelDowntimeBy,
+  labelDuration,
+  labelEnableAutorefresh,
+  labelEndDateGreaterThanStartDate,
+  labelEndTime,
+  labelFixed,
+  labelForcedCheckDescription,
+  labelHostsDenied,
+  labelInvalidFormat,
+  labelMoreActions,
+  labelNotify,
+  labelOk,
   labelOutput,
   labelPerformanceData,
-  labelSubmit,
-  labelOk,
-  labelWarning,
-  labelCritical,
-  labelUnknown,
-  labelAddComment,
-  labelEndTime,
-  labelEndDateGreaterThanStartDate,
-  labelInvalidFormat,
+  labelRefresh,
+  labelSetDowntime,
+  labelSetDowntimeOnServices,
   labelStartTime,
-  labelDuration
+  labelSubmit,
+  labelSubmitStatus,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../translatedLabels';
-import useLoadResources from '../Listing/useLoadResources';
-import useListing from '../Listing/useListing';
-import useFilter from '../testUtils/useFilter';
-import Context, { ResourceContext } from '../testUtils/Context';
-import { Resource } from '../models';
-import useLoadDetails from '../testUtils/useLoadDetails';
-import useDetails from '../Details/useDetails';
-import useActions from '../testUtils/useActions';
 
 import {
   acknowledgeEndpoint,
-  downtimeEndpoint,
-  checkEndpoint
+  checkEndpoint,
+  downtimeEndpoint
 } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
@@ -104,6 +106,7 @@ const mockAcl = {
       comment: true,
       disacknowledgement: true,
       downtime: true,
+      forced_check: true,
       submit_status: true
     },
     service: {
@@ -112,6 +115,7 @@ const mockAcl = {
       comment: true,
       disacknowledgement: true,
       downtime: true,
+      forced_check: true,
       submit_status: true
     }
   }
@@ -613,13 +617,9 @@ describe(Actions, () => {
   });
 
   it('sends a check request when Resources are selected and the Check action is clicked', async () => {
-    const { getByText } = renderActions();
+    const { getByText, findByText } = renderActions();
 
     const selectedResources = [host, service];
-
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
 
     mockedAxios.get.mockResolvedValueOnce({ data: {} });
     mockedAxios.all.mockResolvedValueOnce([]);
@@ -629,12 +629,21 @@ describe(Actions, () => {
       expect(getByText(labelCheck)).toBeInTheDocument();
     });
 
+    act(() => {
+      context.setSelectedResources?.(selectedResources);
+    });
+
+    await findByText(labelCheck);
     fireEvent.click(getByText(labelCheck));
 
+    expect(getByText(labelForcedCheckDescription)).toBeInTheDocument();
+    expect(getByText(labelCheckDescription)).toBeInTheDocument();
+    fireEvent.click(getByText(labelCheckDescription));
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         checkEndpoint,
         {
+          check: { is_forced: false },
           resources: map(pick(['type', 'id', 'parent']), selectedResources)
         },
         expect.anything()
