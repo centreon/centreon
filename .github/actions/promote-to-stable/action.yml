@@ -28,7 +28,6 @@ runs:
         for PATH in $ARTIFACTS
         do
           echo "[DEBUG] - Promoting $PATH"
-          jf rt cp --dry-run $PATH $TARGET
         done
 
       shell: bash
