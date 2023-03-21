@@ -16,6 +16,7 @@ import {
 } from 'ramda';
 import { useUpdateAtom } from 'jotai/utils';
 
+import { platformNameAtom } from '@centreon/ui-context';
 import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
@@ -126,6 +127,7 @@ const useLogin = (): UseLoginState => {
   const setPasswordResetInformations = useUpdateAtom(
     passwordResetInformationsAtom
   );
+  const setPlatformName = useUpdateAtom(platformNameAtom);
 
   const checkPasswordExpiration = useCallback(
     ({ error, alias, setSubmitting }) => {
@@ -171,6 +173,14 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
+
+        if (
+          loginPageCustomisationData &&
+          loginPageCustomisationData.platformName
+        ) {
+          setPlatformName(loginPageCustomisationData);
+        }
+
         getInternalTranslation().then(() =>
           loadUser()?.then(() =>
             navigate(prop('redirectUri', response as Redirect))

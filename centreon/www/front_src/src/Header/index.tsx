@@ -45,7 +45,12 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex'
   },
-  userMenuContainer: {
+  platformName: {
+    marginRight: theme.spacing(4)
+  },
+  rigthContainer: {
+    alignItems: 'center',
+    display: 'flex',
     marginLeft: 'auto'
   }
 }));
@@ -74,7 +79,11 @@ const Header = (): JSX.Element => {
         </div>
       </div>
 
-      <div className={classes.userMenuContainer}>
+      <div className={classes.rigthContainer}>
+        <div className={classes.platformName}>
+          <FederatedComponent path="/it-edition-extensions/header/platformName" />
+        </div>
+
         <UserMenu headerRef={headerRef} />
       </div>
     </header>
