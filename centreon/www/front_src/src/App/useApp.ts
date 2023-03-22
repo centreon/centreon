@@ -4,24 +4,29 @@ import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  platformNameAtom,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import type { Actions } from '@centreon/ui';
 
-import { logoutEndpoint } from '../api/endpoint';
+import {
+  logoutEndpoint,
+  loginPageCustomisationEndpoint
+} from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
-import { DefaultParameters } from './models';
+import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
 
@@ -58,12 +63,20 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
+  const { sendRequest: getCustomPlatformRequest } =
+    useRequest<CustomLoginPlatform>({
+      httpCodesBypassErrorSnackbar: [404],
+      request: getData
+    });
+
   const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
   const setAcknowledgement = useUpdateAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
+
+  const setPlaformName = useSetAtom(platformNameAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -87,9 +100,12 @@ const useApp = (): UseAppState => {
       }),
       getAcl({
         endpoint: aclEndpoint
+      }),
+      getCustomPlatformRequest({
+        endpoint: loginPageCustomisationEndpoint
       })
     ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+      .then(([retrievedParameters, retrievedAcl, customLoginPlatform]) => {
         setDowntime({
           duration: parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
@@ -117,6 +133,7 @@ const useApp = (): UseAppState => {
           ...currentUser,
           resourceStatusViewMode: retrievedParameters.resource_status_view_mode
         }));
+        setPlaformName(customLoginPlatform.platform_name);
       })
       .catch((error) => {
         if (pathEq(['response', 'status'], 401)(error)) {
