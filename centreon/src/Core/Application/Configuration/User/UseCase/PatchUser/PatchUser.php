@@ -94,6 +94,8 @@ final class PatchUser
             try {
                 $this->debug('New theme', ['theme' => $request->theme]);
                 $user->setTheme($request->theme);
+                $this->debug('New view mode', ['view_mode' => $request->viewMode]);
+                $user->setViewMode($request->viewMode);
                 $this->writeUserRepository->update($user);
                 $this->updateUserSessions($request);
             } catch (\Throwable $ex) {

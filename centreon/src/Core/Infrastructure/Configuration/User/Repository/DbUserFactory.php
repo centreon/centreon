@@ -39,7 +39,8 @@ class DbUserFactory
             $user['contact_name'],
             $user['contact_email'],
             $user['contact_admin'] === '1',
-            $user['contact_theme']
+            $user['contact_theme'],
+            $user['contact_view_mode']
         );
     }
 }

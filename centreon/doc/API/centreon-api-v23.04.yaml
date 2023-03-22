@@ -1497,6 +1497,10 @@ paths:
                     type: string
                     description: Selected theme of the current user
                     example: light
+                  view_mode:
+                    type: string
+                    description: Selected view mode for the web interface of the current user
+                    example: light
                   default_page:
                     type: string
                     nullable: true
@@ -1516,6 +1520,7 @@ paths:
         The available parameters to be updated are :
 
         * theme
+        * view_mode
       requestBody:
         required: true
         content:
@@ -1528,6 +1533,11 @@ paths:
                   description: Theme
                   enum: [ light, dark ]
                   example: light
+                view_mode:
+                  type: string
+                  description: View Mode
+                  enum: [ compact, extended ]
+                  example: compact
       responses:
         204:
           description: "User updated"

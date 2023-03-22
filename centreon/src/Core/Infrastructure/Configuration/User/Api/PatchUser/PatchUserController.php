@@ -70,6 +70,7 @@ final class PatchUserController extends AbstractController
         $requestData = json_decode((string) $request->getContent(), true);
         $updateUserRequest = new PatchUserRequest();
         $updateUserRequest->theme = $requestData['theme'];
+        $updateUserRequest->viewMode = $requestData['view_mode'];
         $updateUserRequest->userId = $userId;
         return $updateUserRequest;
     }

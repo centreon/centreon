@@ -42,6 +42,7 @@ beforeEach(function () {
     $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
     $this->request = new PatchUserRequest();
     $this->request->theme = 'light';
+    $this->request->viewMode = 'compact';
     $this->request->userId = 1;
     $this->presenter = new PatchUserPresenter(new JsonFormatter());
 });
@@ -81,7 +82,7 @@ it('tests the exception while searching for the user', function () {
 });
 
 it('tests the error message when there are no available themes', function () {
-    $user = new User(1, 'alias', 'name', 'email', true, 'light');
+    $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact');
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')
@@ -103,7 +104,7 @@ it('tests the error message when there are no available themes', function () {
 });
 
 it('tests the error message when the given theme is not in the list of available themes', function () {
-    $user = new User(1, 'alias', 'name', 'email', true, 'light');
+    $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact');
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')
@@ -124,7 +125,7 @@ it('tests the error message when the given theme is not in the list of available
 });
 
 it('tests the exception while searching for available themes', function () {
-    $user = new User(1, 'alias', 'name', 'email', true, 'light');
+    $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact');
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')
@@ -147,7 +148,7 @@ it('tests the exception while searching for available themes', function () {
 });
 
 it('tests the exception while updating the theme of user', function () {
-    $user = new User(1, 'alias', 'name', 'email', true, 'light');
+    $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact');
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')

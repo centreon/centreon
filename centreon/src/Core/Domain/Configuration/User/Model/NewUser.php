@@ -40,7 +40,9 @@ class NewUser
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 VIEW_MODE_COMPACT = 'compact',
+                 VIEW_MODE_EXTENDED = 'extended';
 
     /**
      * @var bool
@@ -56,6 +58,11 @@ class NewUser
      * @var string
      */
     protected string $theme = self::THEME_LIGHT;
+
+    /**
+     * @var string
+     */
+    protected string $viewMode = self::VIEW_MODE_COMPACT;
 
     /**
      * @var ContactTemplate|null
@@ -169,6 +176,14 @@ class NewUser
     }
 
     /**
+     * @return string
+     */
+    public function getViewMode(): string
+    {
+        return $this->viewMode;
+    }
+
+    /**
      * @param string $theme
      * @return self
      * @throws \Assert\AssertionFailedException
@@ -178,6 +193,19 @@ class NewUser
         Assertion::minLength($theme, self::MIN_THEME_LENGTH, 'User::theme');
         Assertion::maxLength($theme, self::MAX_THEME_LENGTH, 'User::theme');
         $this->theme = $theme;
+        return $this;
+    }
+
+    /**
+     * @param string $viewMode
+     * @return self
+     * @throws \Assert\AssertionFailedException
+     */
+    public function setViewMode(string $viewMode): self
+    {
+        Assertion::minLength($viewMode, self::MIN_THEME_LENGTH, 'User::viewMode');
+        Assertion::maxLength($viewMode, self::MAX_THEME_LENGTH, 'User::viewMode');
+        $this->viewMode = $viewMode;
         return $this;
     }
 

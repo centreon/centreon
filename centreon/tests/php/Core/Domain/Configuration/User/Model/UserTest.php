@@ -51,7 +51,8 @@ class UserTest extends TestCase
             'name',
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -78,7 +79,8 @@ class UserTest extends TestCase
             'name',
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -105,7 +107,8 @@ class UserTest extends TestCase
             $name,
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -132,7 +135,8 @@ class UserTest extends TestCase
             $name,
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -159,7 +163,8 @@ class UserTest extends TestCase
             'name',
             $email,
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -186,7 +191,8 @@ class UserTest extends TestCase
             'name',
             $email,
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -200,6 +206,8 @@ class UserTest extends TestCase
         $name = 'name';
         $email = 'root@localhost';
         $isAdmin = true;
+        $theme = User::THEME_LIGHT;
+        $viewMode = User::VIEW_MODE_COMPACT;
 
         $user = new User(
             $id,
@@ -207,7 +215,8 @@ class UserTest extends TestCase
             $name,
             $email,
             $isAdmin,
-            'light'
+            'light',
+            'compact'
         );
 
         $this->assertEquals($id, $user->getId());
@@ -215,5 +224,7 @@ class UserTest extends TestCase
         $this->assertEquals($name, $user->getName());
         $this->assertEquals($email, $user->getEmail());
         $this->assertEquals($isAdmin, $user->isAdmin());
+        $this->assertEquals($theme, $user->getTheme());
+        $this->assertEquals($viewMode, $user->getViewMode());
     }
 }

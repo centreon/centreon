@@ -197,6 +197,11 @@ class Contact implements UserInterface, ContactInterface
     private $theme;
 
     /**
+     * @var string|null
+     */
+    private $viewMode;
+
+    /**
      * @param int $timezoneId
      * @return self
      */
@@ -723,5 +728,17 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    public function setViewMode(string $viewMode): self
+    {
+        $this->viewMode = $viewMode;
+
+        return $this;
+    }
+
+    public function getViewMode(): ?string
+    {
+        return $this->viewMode;
     }
 }

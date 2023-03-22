@@ -34,7 +34,9 @@ class User extends NewUser
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 VIEW_MODE_COMPACT = 'compact',
+                 VIEW_MODE_EXTENDED = 'extended';
 
     /**
      * @param int $id
@@ -43,6 +45,7 @@ class User extends NewUser
      * @param string $email
      * @param bool $isAdmin
      * @param string $theme
+     * @param string $viewMode
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -52,9 +55,11 @@ class User extends NewUser
         protected string $email,
         protected bool $isAdmin,
         protected string $theme,
+        protected string $viewMode
     ) {
         parent::__construct($alias, $name, $email);
         $this->setTheme($theme);
+        $this->setViewMode($viewMode);
     }
 
     /**

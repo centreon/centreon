@@ -24,3 +24,5 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `contact` ADD COLUMN `contact_view_mode` enum('compact','extended') DEFAULT 'compact';

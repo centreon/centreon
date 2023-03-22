@@ -27,4 +27,5 @@ class PatchUserRequest
 {
     public int $userId;
     public string $theme;
+    public string $viewMode;
 }

@@ -6,6 +6,10 @@
     "properties": {
         "theme": {
             "type": "string"
+        },
+        "view_mode": {
+            "type": "string",
+            "enum": ["compact", "extended"]
         }
     }
 }

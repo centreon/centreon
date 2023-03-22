@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.0-beta.1: ';
 $errorMessage = '';
 
@@ -32,7 +32,7 @@ $errorMessage = '';
  *
  * @param CentreonDB $pearDB
  */
-$decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
+$decodeIllegalCharactersNagios = function (CentreonDB $pearDB): void
 {
     $configs = $pearDB->query(
         <<<'SQL'
@@ -75,20 +75,19 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
 
 try {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $errorMessage = 'Impossible to update cfg_centreonbroker table';
         $pearDB->query(
-            "ALTER TABLE `cfg_centreonbroker`
+            'ALTER TABLE `cfg_centreonbroker`
             ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-            AFTER `event_queue_max_size`"
+            AFTER `event_queue_max_size`'
         );
     }
 
-    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $errorMessage = 'Impossible to delete color picker topology_js entries';
     $pearDB->query(
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
     );
-
 
     // Transactional queries
     $pearDB->beginTransaction();
@@ -98,7 +97,7 @@ try {
     $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
     // insert entry ldap_connection_timeout  with default value
     if (! $ldapResult) {
-        $errorMessage = "Unable to add default ldap connection timeout";
+        $errorMessage = 'Unable to add default ldap connection timeout';
         $pearDB->query(
             "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
                         (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"

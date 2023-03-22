@@ -95,7 +95,8 @@ class UserController extends AbstractController
             'use_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'is_export_button_enabled' => $this->getAuthorizationForRole(Contact::ROLE_GENERATE_CONFIGURATION),
             'theme' => $user->getTheme(),
-            'default_page' => $user->getDefaultPage()?->getRedirectionUri()
+            'default_page' => $user->getDefaultPage()?->getRedirectionUri(),
+            'view_mode' => $user->getViewMode(),
         ]);
     }
 

@@ -437,7 +437,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setLocale($contactLocale)
             ->setDefaultPage($page)
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
-            ->setTheme($contact['contact_theme']);
+            ->setTheme($contact['contact_theme'])
+            ->setViewMode($contact['contact_view_mode']);
 
         if ($contact->isAdmin()) {
             $contact
