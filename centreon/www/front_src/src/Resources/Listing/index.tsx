@@ -39,7 +39,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { adjustedCheckedResources } from '../Actions/Resource/Check/helpers';
+import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadResources from './useLoadResources';
@@ -138,7 +138,7 @@ const ResourceListing = (): JSX.Element => {
     checkResource({
       data: {
         check: { is_forced: true },
-        resources: adjustedCheckedResources({ resources: [resource] })
+        resources: adjustCheckedResources({ resources: [resource] })
       },
       endpoint
     }).then(() => {

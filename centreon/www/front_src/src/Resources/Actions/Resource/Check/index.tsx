@@ -20,7 +20,7 @@ import { checkEndpoint } from '../../api/endpoint';
 import useAclQuery from '../aclQuery';
 import ResourceActionButton from '../ResourceActionButton';
 
-import { adjustedCheckedResources } from './helpers';
+import { adjustCheckedResources } from './helpers';
 import ListCheckOptions from './ListCheckOptions';
 
 interface DisplaySelectedOption {
@@ -75,7 +75,7 @@ const CheckActionButton = ({
     checkResource({
       data: {
         check: { is_forced: true },
-        resources: adjustedCheckedResources({ resources: selectedResources })
+        resources: adjustCheckedResources({ resources: selectedResources })
       },
       endpoint: checkEndpoint
     }).then(() => {
@@ -94,7 +94,7 @@ const CheckActionButton = ({
     checkResource({
       data: {
         check: { is_forced: false },
-        resources: adjustedCheckedResources({ resources: selectedResources })
+        resources: adjustCheckedResources({ resources: selectedResources })
       },
       endpoint: checkEndpoint
     }).then(() => {
