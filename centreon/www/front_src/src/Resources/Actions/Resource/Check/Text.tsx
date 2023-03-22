@@ -28,7 +28,7 @@ const Text = ({ title, description }: Props): JSX.Element => {
     return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
   };
 
-  const formattedDescription = (data: string): string => {
+  const formatDescription = (data: string): string => {
     const words = data.split(' ');
 
     const newWords = words.map((word, index) => {
