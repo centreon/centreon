@@ -1,6 +1,9 @@
-name: "rpm-package"
+name: "rpm-delivery"
 description: "Package RPM Centreon"
 inputs:
+  module_name:
+    description: "The package module name"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -9,21 +12,6 @@ inputs:
     required: true
   cache_key:
     description: "The cached package key"
-    required: true
-  yum_repo_url:
-    description: "The legacy yum repo url"
-    required: true
-  update_repo_path:
-    description: "The update repo script path"
-    required: true
-  cloudfront_id:
-    description: "The cloudfront ID for repo url"
-    required: true
-  yum_repo_address:
-    description: "The legacy yum repo address"
-    required: true
-  yum_repo_key:
-    description: "The repo key"
     required: true
   stability:
     description: "The package stability (stable, testing, unstable)"
@@ -46,24 +34,9 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
-    - name: Setup awscli
-      run: |
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        sudo unzip -q awscliv2.zip
-        sudo ./aws/install
-      shell: bash
-
     - name: Publish RPMs
       run: |
-        LOCATIONS=""
-        INVALIDATION_PATHS=""
-        METADATAS=""
-
         FILES="*.rpm"
-        echo "[DEBUG] - Rpm FILES: $FILES"
-
-        eval `ssh-agent`
-        ssh-add - <<< "${{ inputs.yum_repo_key }}"
 
         for FILE in $FILES
         do
@@ -80,6 +53,11 @@ runs:
             exit 1
           fi
 
+          if [ -z "${{ inputs.module_name }} ]; then
+            echo "module name is required"
+            exit 1
+          fi
+
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
           echo "[DEBUG] - Version: ${{ inputs.version }}"
@@ -88,39 +66,15 @@ runs:
 
           MAJOR=${{ inputs.version }}
 
-          # Delivery with proper repository structure according to stability
-          TARGET="/srv/centreon-yum/yum.centreon.com/standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/RPMS"
-          jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
+          if [ "${{ inputs.stability }}" == "stable" ]; then
+            FOLDER=""
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER"
+          else
+            FOLDER="/${{ inputs.module_name }}"
+            jf rt upload --sync-deletes "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER"
+            #jf rt delete "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
+          fi
 
-          echo "[DEBUG] - Target : $TARGET"
-
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
-          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
-
-          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH"
-          INVALIDATION_PATHS="$INVALIDATION_PATHS /standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/*"
-        done
-
-        # Update repository metadata
-        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
-        for METADATA in `echo $METADATAS`; do
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
-        done
-
-        # Invalidate cloudfront cache
-        ID="${{ inputs.cloudfront_id }}"
-        # Remove duplicated invalidation paths
-        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
-        ITERATIONS=1
-
-        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
-          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
-            if [ ${ITERATIONS} -eq 10 ]; then
-              return 0
-            fi
-            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
-            sleep 30s
-            ITERATIONS=$((ITERATIONS+1))
-          done
+          
         done
       shell: bash

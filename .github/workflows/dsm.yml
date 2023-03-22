@@ -7,8 +7,8 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - "centreon-dsm/**"
+    # paths:
+    #   - "centreon-dsm/**"
   push:
     branches:
       - develop
@@ -76,14 +76,11 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
+          module_name: dsm
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
@@ -102,8 +99,6 @@ jobs:
         with:
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

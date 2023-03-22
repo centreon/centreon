@@ -1,14 +1,8 @@
-name: "deb-package"
+name: "deb-delivery"
 description: "Package deb Centreon"
 inputs:
   distrib:
     description: "The distribution used for packaging"
-    required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
     required: true
   version:
     description: "Centreon packaged version"
@@ -37,10 +31,9 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
-    - name: Publish DEBS to Nexus
+    - name: Publish DEBs
       run: |
-        FILES="*.deb";
-        echo "[DEBUG] - Deb FILES: $FILES"
+        FILES="*.deb"
 
         for FILE in $FILES
         do
@@ -53,12 +46,5 @@ runs:
           echo "[DEBUG] - Version: $VERSION"
 
           jf rt upload "$FILE" "apt-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
-
-          #if [[ "${{ inputs.stability }}" == "stable" ]]; then
-          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
-          #else
-          #  curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
-          #fi
-
         done
       shell: bash
