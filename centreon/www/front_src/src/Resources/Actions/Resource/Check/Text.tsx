@@ -31,11 +31,11 @@ const Text = ({ title, description }: Props): JSX.Element => {
   const formatDescription = (data: string): string => {
     const words = data.split(' ');
 
-    const newWords = words.map((word, index) => {
+    const wordsWithLineBreak = words.map((word, index) => {
       return equals(index, Math.round(words.length / 2)) ? `${word}\n` : word;
     });
 
-    return newWords.join(' ');
+    return wordsWithLineBreak.join(' ');
   };
 
   return (
