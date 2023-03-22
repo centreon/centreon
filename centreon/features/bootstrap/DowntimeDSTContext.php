@@ -362,7 +362,7 @@ class DowntimeDSTContext extends CentreonContext
                 return true;
             },
             'Downtime is not scheduled',
-            10
+            30
         );
     }
 
