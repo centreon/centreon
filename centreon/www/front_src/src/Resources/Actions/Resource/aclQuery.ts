@@ -1,26 +1,26 @@
+import { useAtomValue } from 'jotai/utils';
 import {
-  pipe,
+  always,
   any,
-  map,
-  pathEq,
-  partition,
-  propEq,
+  equals,
   find,
   head,
   ifElse,
-  isNil,
-  always,
-  equals,
   isEmpty,
+  isNil,
+  map,
+  partition,
+  pathEq,
+  pipe,
+  propEq,
   reject
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
 
 import { aclAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceCategory } from '../../models';
-import { labelServicesDenied, labelHostsDenied } from '../../translatedLabels';
+import { labelHostsDenied, labelServicesDenied } from '../../translatedLabels';
 
 interface AclQuery {
   canAcknowledge: (resources) => boolean;
@@ -41,8 +41,6 @@ interface AclQuery {
 const useAclQuery = (): AclQuery => {
   const { t } = useTranslation();
   const acl = useAtomValue(aclAtom);
-
-  // console.log({ acl });
 
   const toType = ({ type }): string => ResourceCategory[type];
 
