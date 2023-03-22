@@ -83,7 +83,7 @@ jobs:
             release* | hotfix*)
               STABILITY="testing"
               ;;
-            master | [2-9][0-9].[0-9][0-9].x)
+            master | [2-9][0-9].[0-9][0-9].x | MON-16968-update-workflows-to-make-release-to-stable-faster )
               STABILITY="stable"
               ;;
             *)
