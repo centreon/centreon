@@ -17315,11 +17315,11 @@ msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
 msgid "Error while creating host severity"
 msgstr "Erreur lors de la création d'une sévérité d'hôtes"
 
-msgid "You are not allowed to create host severities"
-msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+msgid "You are not allowed to create/modify a host severity"
+msgstr "Vous n'êtes pas autorisé à créer/modifier des sévérités d'hôtes"
 
-msgid "Error while retrieving recently created host severity"
-msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+msgid "Error while retrieving host severity"
+msgstr "Error lors de la récupération d'une sévérité d'hôtes"
 
 msgid "Host severity name already exists"
 msgstr "Ce nom de sévérité d'hôtes existe déjà"
@@ -17552,3 +17552,9 @@ msgstr "Association des rôles"
 
 msgid "Groups mapping"
 msgstr "Association des groupes"
+
+msgid "Error while updating host severity"
+msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+msgid "Error when searching for the host severity #%d"
+msgstr "Erreur lors de la recherche de la sévérité d'hôtes #%d"
