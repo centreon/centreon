@@ -2,8 +2,8 @@
 
 if [ "$1" = "configure" ] ; then
 
-  if [ -f "/etc/apache2/sites-available/centreon.conf" ]; then
-    # Prepare php upgrade
+  # Prepare php upgrade
+  if systemctl --all --type service | grep -q "php8.0-fpm" ; then
     systemctl disable php8.0-fpm
     systemctl stop php8.0-fpm
   fi
