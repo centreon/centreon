@@ -7,6 +7,15 @@ inputs:
   module:
     description: "Module"
     required: true
+  distrib:
+    description: "The distribution used for packaging"
+    required: true
+  version:
+    description: "Centreon packaged version"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
 
 runs:
   using: "composite"
@@ -18,12 +27,11 @@ runs:
 
     - name: Promote package
       run: |
-        REPO="stable"
-        echo "[DEBUG] - Promote to repository: $REPO"
-        TARGET_PATH="rpm/standard/23.04/el8/stable/noarch/RPMS/"
+        echo "[DEBUG] - Promote to repository: ${{ inputs.stability }}"
+        TARGET_PATH="rpm/standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/noarch/RPMS/"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
-        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm/standard/23.04/el8/testing/noarch/gorgone/centreon-gorgone-23.04.0-1 | jq -r '.[].path')
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm/standard/${{ inputs.version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.version }}-1 | jq -r '.[].path')
 
         echo "[DEBUG] - Promoting testing artifacts to stable."
         jf rt cp --flat=true $SRC_PATH/* $TARGET_PATH/

@@ -126,6 +126,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: ${{ env.module }}
+          module: dsm
+          distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           stability: ${{ needs.get-version.outputs.stability }}
