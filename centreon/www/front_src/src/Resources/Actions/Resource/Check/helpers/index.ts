@@ -16,7 +16,7 @@ interface PayloadCheckedResource {
   type: ResourceCategory;
 }
 
-export const adjustedCheckedResources = ({
+export const adjustCheckedResources = ({
   resources
 }: CheckedResources): Array<PayloadCheckedResource> => {
   const payload = resources.map(({ type, id, parent, service_id }) => ({
