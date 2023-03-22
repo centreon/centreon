@@ -28,6 +28,7 @@ runs:
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
 
     - uses: jfrog/setup-jfrog-cli@v3
       env:
@@ -36,6 +37,7 @@ runs:
 
     - name: Publish RPMs
       run: |
+        set -x
         FILES="*.rpm"
 
         for FILE in $FILES
@@ -53,7 +55,7 @@ runs:
             exit 1
           fi
 
-          if [ -z "${{ inputs.module_name }} ]; then
+          if [ -z "${{ inputs.module_name }}" ]; then
             echo "module name is required"
             exit 1
           fi
@@ -74,7 +76,6 @@ runs:
             jf rt upload --sync-deletes "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER"
             #jf rt delete "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
           fi
-
           
         done
       shell: bash

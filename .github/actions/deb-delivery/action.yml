@@ -25,6 +25,7 @@ runs:
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
 
     - uses: jfrog/setup-jfrog-cli@v3
       env:
