@@ -73,7 +73,7 @@ runs:
             jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER"
           else
             FOLDER="/${{ inputs.module_name }}"
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER" --sync-deletes="rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/" --sync-deletes="rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
             #jf rt delete "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
           fi
           
