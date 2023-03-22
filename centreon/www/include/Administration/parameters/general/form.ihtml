@@ -145,8 +145,7 @@
     </tr>
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_sort_problems_by">{$form.global_sort_type.label}</td><td class="FormRowValue">{$form.global_sort_type.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_order_sort_problems">{$form.global_sort_order.label}</td><td class="FormRowValue">{$form.global_sort_order.html}</td></tr>
-    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_resource_status_view_mode">{$form.resource_status_view_mode.label}</td><td class="FormRowValue">{$form.resource_status_view_mode.html}</td></tr>
-    
+
 	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
         <h4>{$genOpt_problem_display}</h4>

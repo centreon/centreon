@@ -24,5 +24,3 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_view_mode', 'compact');

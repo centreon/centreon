@@ -248,8 +248,3 @@ $help['tip_display_comment_chart'] = dgettext(
     'If this option is enable, the comments will be displayed on status chart.<br>' .
     '<b>Warning</b> : This option can slow down the display of chart.'
 );
-
-$help['tip_resource_status_view_mode'] = dgettext(
-    'help',
-    'In compact mode, line height and font weight are reduced so as to take up less space and display more information'
-);
