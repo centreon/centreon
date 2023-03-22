@@ -42,7 +42,7 @@ const Text = ({ title, description }: Props): JSX.Element => {
     <>
       <Typography className={classes.title}>{t(formatLabel(title))}</Typography>
       <Typography className={classes.description}>
-        {formattedDescription(t(description))}
+        {formatDescription(t(description))}
       </Typography>
     </>
   );
