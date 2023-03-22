@@ -53,7 +53,7 @@ Cypress.Commands.add(
   }: InterceptAPIRequestProps<T>): void => {
     cy.interceptRequest(
       method,
-      path,
+      path.replace('./', '**'),
       (req, res, ctx) => {
         return res(ctx.delay(500), ctx.json(response), ctx.status(statusCode));
       },
