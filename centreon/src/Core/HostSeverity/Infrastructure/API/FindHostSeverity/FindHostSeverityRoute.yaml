@@ -1,0 +1,7 @@
+FindHostSeverity:
+  methods: GET
+  path: /configuration/hosts/severities/{hostSeverityId}
+  requirements:
+    hostSeverityId: '\d+'
+  controller: 'Core\HostSeverity\Infrastructure\API\FindHostSeverity\FindHostSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"

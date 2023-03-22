@@ -1,0 +1,7 @@
+UpdateHostSeverity:
+  methods: PUT
+  path: /configuration/hosts/severities/{hostSeverityId}
+  requirements:
+    hostSeverityId: '\d+'
+  controller: 'Core\HostSeverity\Infrastructure\API\UpdateHostSeverity\UpdateHostSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"
