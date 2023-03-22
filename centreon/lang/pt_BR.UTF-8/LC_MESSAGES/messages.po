@@ -16005,6 +16005,7 @@ msgstr "Verifique os recursos selecionados mesmo fora do período de verificaç�
 
 msgid "Forced check comment sent"
 msgstr "Comentário de verificação forçada enviado"
+
 #  msgid "Icon #%d does not exist"
 #  msgstr ""
 
