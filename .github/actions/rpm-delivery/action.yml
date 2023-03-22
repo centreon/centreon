@@ -37,7 +37,6 @@ runs:
 
     - name: Publish RPMs
       run: |
-        set -x
         FILES="*.rpm"
 
         for FILE in $FILES
@@ -69,12 +68,9 @@ runs:
           MAJOR=${{ inputs.version }}
 
           if [ "${{ inputs.stability }}" == "stable" ]; then
-            FOLDER=""
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER"
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
           else
-            FOLDER="/${{ inputs.module_name }}"
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/" --sync-deletes="rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
-            #jf rt delete "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH$FOLDER/"
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
           fi
           
         done
