@@ -34,11 +34,11 @@ const getIssueSeverityCode = ({
 }): SeverityCode => {
   const issueExists = !isEmpty(issues) && !isNil(issues[key]);
 
-  if (issueExists && issues[key].warning.total > 0) {
+  if (issueExists && issues[key].warning?.total > 0) {
     return SeverityCode.Medium;
   }
 
-  if (issueExists && issues[key].critical.total > 0) {
+  if (issueExists && issues[key].critical?.total > 0) {
     return SeverityCode.High;
   }
 
@@ -72,7 +72,7 @@ export const getPollerPropsAdapter = ({
   // api inconsistency return an empty array when there is no issues
   const formatedIssues = !is(Array, issues)
     ? Object.keys(issues)
-        .filter((key) => !!issues[key] && issues[key].total > 0)
+        .filter((key) => !!issues[key] && issues[key]?.total > 0)
         .map((key) => ({
           key,
           text: t(pollerIssueKeyToMessage[key]),
