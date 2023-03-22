@@ -25,7 +25,15 @@ export enum Method {
 Cypress.Commands.add('mount', ({ Component, options }) => {
   const wrapped = (
     <ThemeProvider>
-      <Box sx={{ backgroundColor: 'background.paper' }}>{Component}</Box>
+      <Box
+        sx={{
+          backgroundColor: 'background.paper',
+          height: '100%',
+          width: '100%'
+        }}
+      >
+        {Component}
+      </Box>
     </ThemeProvider>
   );
 
