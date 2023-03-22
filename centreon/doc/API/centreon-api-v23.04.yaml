@@ -545,6 +545,52 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+        - Host severity
+      summary: "Get a host severity"
+      description: |
+        Get a host severity configuration
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Severity'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Host severity
+      summary: "Update a host severity"
+      description: |
+        Update a host severity
+      parameters:
+        - $ref: '#/components/parameters/HostSeverityId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration.Host.Severity.Add"
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups:
     get:
       tags:
@@ -6329,6 +6375,32 @@ components:
           type: integer
           description: "Host severity id"
           example: 1
+        name:
+          type: string
+          description: "Host severity name"
+          example: "host-severity"
+        alias:
+          type: string
+          description: "Host severity alias"
+          example: "host-severity"
+        level:
+          type: integer
+          description: "Host severity priority"
+          example: 2
+        icon_id:
+          type: integer
+          description: "Define the image ID associated with this severity"
+          example: 1
+        comment:
+          type: string
+          description: "Host severity comment"
+          nullable: true
+        is_activated:
+          type: boolean
+          description: "Indicates whether this host severity is enabled or not"
+    Configuration.Host.Severity.Add:
+      type: object
+      properties:
         name:
           type: string
           description: "Host severity name"
