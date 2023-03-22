@@ -52,12 +52,6 @@ runs:
           exit 1
         fi
 
-        if [ "${{ inputs.stability }}" != "stable" ]; then
-          for ARCH in "noarch" "x86_64"; do
-            jf rt delete "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
-          done
-        fi
-
         mkdir noarch x86_64
 
         for FILE in $FILES; do
@@ -73,9 +67,9 @@ runs:
         for ARCH in "noarch" "x86_64"; do
           if [ "$(ls -A $ARCH)" ]; then
             if [ "${{ inputs.stability }}" == "stable" ]; then
-              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/ --flat"
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
             else
-              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/ --flat"
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
             fi
           fi
         done
