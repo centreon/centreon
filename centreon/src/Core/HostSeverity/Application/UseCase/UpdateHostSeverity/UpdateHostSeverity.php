@@ -144,7 +144,7 @@ final class UpdateHostSeverity
 
             $this->writeHostSeverityRepository->update($hostSeverity);
 
-            $presenter->present(new NoContentResponse());
+            $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
