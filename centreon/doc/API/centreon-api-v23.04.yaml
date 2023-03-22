@@ -8,7 +8,6 @@ info:
     + Added host groups endpoints (DELETE, POST)
     + Added host categories endpoints (DELETE, POST)
     + Added host severities endpoints (DELETE)
-    +
     # Updated features
     + Updated host groups endpoint (GET)
     + Updated host categories endpoint (GET)
@@ -8375,4 +8374,4 @@ components:
           example: "centreon"
         role_id:
           type: string
-          description: "Vault role id"
+          description: "Vault role ID"

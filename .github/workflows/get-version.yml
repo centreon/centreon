@@ -74,7 +74,14 @@ jobs:
             BRANCHNAME="$GITHUB_HEAD_REF"
           fi
 
-          echo "release=1" >> $GITHUB_OUTPUT
+          case "$BRANCHNAME" in
+            master | [2-9][0-9].[0-9][0-9].x | release* | hotfix*)
+              echo "release=1" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              ;;
+          esac
 
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)
