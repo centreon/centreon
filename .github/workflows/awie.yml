@@ -32,7 +32,6 @@ jobs:
   package:
     needs: [get-version]
 
-#    if: ${{ contains('refs/head/master', github.ref) }}
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
