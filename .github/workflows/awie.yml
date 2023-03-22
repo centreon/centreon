@@ -32,7 +32,8 @@ jobs:
   package:
     needs: [get-version]
 
-    if: ${{ contains('refs/head/master', github.ref) }}
+#    if: ${{ contains('refs/head/master', github.ref) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
       fail-fast: true
@@ -65,7 +66,7 @@ jobs:
 
   delivery-rpm:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -90,7 +91,7 @@ jobs:
 
   delivery-deb:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -113,10 +114,11 @@ jobs:
 
   promote:
     needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el8, el9, bullseye]
 
     steps:
       - name: Checkout sources
