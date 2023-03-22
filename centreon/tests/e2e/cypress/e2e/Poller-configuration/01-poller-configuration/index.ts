@@ -217,8 +217,7 @@ When('I click on the export configuration action and confirm', () => {
 
 Then('a success message is displayed', () => {
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.get('.SnackbarContent-root > .MuiPaper-root')
-      .contains('Configuration exported and reloaded')
+    cy.contains('Configuration exported and reloaded')
       .should('have.length', 1);
   });
 });
