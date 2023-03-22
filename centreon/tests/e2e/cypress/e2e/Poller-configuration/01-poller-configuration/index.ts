@@ -58,24 +58,21 @@ Given('some pollers are created', () => {
 });
 
 Given('some post-generation commands are configured for each poller', () => {
-  cy.get('@pollerId').then((pollerId) => {
-    cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
+  cy.visit(`/centreon/main.php?p=60901&o=c&server_id=1`);
 
-    cy.getIframeBody().find('form #pollercmd_add').click();
+  cy.getIframeBody().find('form #pollercmd_add').click();
 
-    cy.getIframeBody()
-      .getIframeBody()
-      .find('form select')
-      .eq(0)
-      .select(2)
-      .should('have.value', 39);
+  cy.getIframeBody()
+    .find('form select')
+    .eq(0)
+    .select(2)
+    .should('have.value', 39);
 
-    cy.getIframeBody()
-      .find('form input[name="submitC"]')
-      .eq(0)
-      .contains('Save')
-      .click({ force: true });
-  });
+  cy.getIframeBody()
+    .find('form input[name="submitC"]')
+    .eq(0)
+    .contains('Save')
+    .click({ force: true });
 });
 
 When('I visit the export configuration page', () => {
