@@ -428,6 +428,20 @@ sub get_macros_host {
             set_macro(\%macros, '$_HOSTSNMPVERSION$', $datas->[0]->[1]);
         }
 
+        # Search if a vault is configured
+        ($status, $datas) = $options{class_object_centreon}->custom_execute(
+            request => "SELECT count(id) FROM vault_configuration",
+            mode => 2
+        );
+        if ($status == -1) {
+            return (-1, 'get macro: cannot get vault_configuration');
+        }
+        my $vault_conf_count = $datas->[0]->[0];
+        # Complete command with vault
+        if ($vault_conf_count > 0) {
+
+        }
+
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
             request => "SELECT host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
             mode => 2
@@ -436,10 +450,14 @@ sub get_macros_host {
             return (-1, 'get macro: cannot get on_demand_macro_host');
         }
         foreach (@$datas) {
-            if ($_->[2] == 1) {
-                set_macro(\%macros, $_->[0], "{$_->[0]::secret::$_->[1]}");
+            my $macro_name = $_->[0];
+            my $macro_value = $_->[1];
+            my $is_password = $_->[2];
+            # Replace macro value if a vault is used
+            if ($is_password == 1 && $vault_conf_count > 0) {
+                set_macro(\%macros, $macro_name, "{" . $macro_name . "::secret::" . $macro_value . "}");
             } else {
-                set_macro(\%macros, $_->[0], $_->[1]);
+                set_macro(\%macros, $macro_name, $macro_value);
             }
         }
 
