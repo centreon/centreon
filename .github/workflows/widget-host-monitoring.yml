@@ -7,8 +7,8 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    # paths:
-    #   - "widgets/centreon-widget-host-monitoring/**"
+    paths:
+      - "widgets/centreon-widget-host-monitoring/**"
   push:
     branches:
       - develop
