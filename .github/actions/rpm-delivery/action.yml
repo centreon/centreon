@@ -39,38 +39,38 @@ runs:
       run: |
         FILES="*.rpm"
 
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
+        if [ "${{ inputs.stability }}" != "stable" ]; then
+          for ARCH in "noarch" "x86_64"; do
+            jf rt delete "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+          done
+        fi
+
         for FILE in $FILES
         do
           echo "[DEBUG] - File: $FILE"
 
-          if [ -z "${{ inputs.distrib }}" ]; then
-            DISTRIB=$(echo $FILE | grep -oP 'el[0-9]' || echo '')
-          else
-            DISTRIB="${{ inputs.distrib }}"
-          fi
-
-          if [ -z "${DISTRIB}" ]; then
-            echo "package distribution not set"
-            exit 1
-          fi
-
-          if [ -z "${{ inputs.module_name }}" ]; then
-            echo "module name is required"
-            exit 1
-          fi
-
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
           echo "[DEBUG] - Version: ${{ inputs.version }}"
-          echo "[DEBUG] - Distrib: $DISTRIB"
+          echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
           echo "[DEBUG] - Arch: $ARCH"
 
           MAJOR=${{ inputs.version }}
 
           if [ "${{ inputs.stability }}" == "stable" ]; then
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/"
           else
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+            jf rt upload "$FILE" "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
           fi
           
         done
