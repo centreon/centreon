@@ -63,14 +63,8 @@ Given('some post-generation commands are configured for each poller', () => {
 
     cy.getIframeBody().find('form #pollercmd_add').click();
 
-    cy.waitUntil(() => 
-      cy.getIframeBody()
-      .then((element) => {
-        return element.length > 0;
-      })
-    );
-
     cy.getIframeBody()
+      .getIframeBody()
       .find('form select')
       .eq(0)
       .select(2)
