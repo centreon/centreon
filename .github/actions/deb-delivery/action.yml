@@ -36,8 +36,7 @@ runs:
       run: |
         FILES="*.deb"
 
-        for FILE in $FILES
-        do
+        for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
           VERSION=${{ inputs.version }}

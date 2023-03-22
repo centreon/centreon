@@ -39,6 +39,9 @@ runs:
       run: |
         FILES="*.rpm"
 
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
         if [ -z "${{ inputs.module_name }}" ]; then
           echo "module name is required"
           exit 1
@@ -51,27 +54,29 @@ runs:
 
         if [ "${{ inputs.stability }}" != "stable" ]; then
           for ARCH in "noarch" "x86_64"; do
-            jf rt delete "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+            jf rt delete "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
           done
         fi
 
-        for FILE in $FILES
-        do
+        mkdir noarch x86_64
+
+        for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
-          echo "[DEBUG] - Version: ${{ inputs.version }}"
-          echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
           echo "[DEBUG] - Arch: $ARCH"
 
-          MAJOR=${{ inputs.version }}
+          mv "$FILE" "$ARCH"
+        done
 
-          if [ "${{ inputs.stability }}" == "stable" ]; then
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/"
-          else
-            jf rt upload "$FILE" "rpm-standard/$MAJOR/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+        for ARCH in "noarch" "x86_64"; do
+          if [ "$(ls -A $ARCH)" ]; then
+            if [ "${{ inputs.stability }}" == "stable" ]; then
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/"
+            else
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+            fi
           fi
-          
         done
       shell: bash
