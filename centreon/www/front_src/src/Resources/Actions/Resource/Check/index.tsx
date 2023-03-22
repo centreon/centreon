@@ -65,27 +65,11 @@ const CheckActionButton = ({
     setAnchorEl(null);
   };
 
-  const handleForcedCheck = (): void => {
-    setDisplaySelectedOption({ checked: false, forcedChecked: true });
-    setAnchorEl(null);
-    if (selectedResources.length <= 0) {
-      return;
-    }
-
-    checkResource({
-      data: {
-        check: { is_forced: true },
-        resources: adjustCheckedResources({ resources: selectedResources })
-      },
-      endpoint: checkEndpoint
-    }).then(() => {
-      setSelectedResources([]);
-      showSuccessMessage(t(labelForcedCheckCommandSent));
+  const handleCheckResource = ({ checked, forcedChecked }): void => {
+    setDisplaySelectedOption({
+      checked,
+      forcedChecked
     });
-  };
-
-  const handleCheck = (): void => {
-    setDisplaySelectedOption({ checked: true, forcedChecked: false });
     setAnchorEl(null);
     if (selectedResources.length <= 0) {
       return;
@@ -93,13 +77,15 @@ const CheckActionButton = ({
 
     checkResource({
       data: {
-        check: { is_forced: false },
+        check: { is_forced: forcedChecked },
         resources: adjustCheckedResources({ resources: selectedResources })
       },
       endpoint: checkEndpoint
     }).then(() => {
       setSelectedResources([]);
-      showSuccessMessage(t(labelCheckCommandSent));
+      showSuccessMessage(
+        checked ? t(labelCheckCommandSent) : t(labelForcedCheckCommandSent)
+      );
     });
   };
 
@@ -130,8 +116,12 @@ const CheckActionButton = ({
           anchorEl={anchorEl}
           disabled={{ disableCheck, disableForcedCheck }}
           open={Boolean(anchorEl)}
-          onClickCheck={handleCheck}
-          onClickForcedCheck={handleForcedCheck}
+          onClickCheck={(): void =>
+            handleCheckResource({ checked: true, forcedChecked: false })
+          }
+          onClickForcedCheck={(): void =>
+            handleCheckResource({ checked: false, forcedChecked: true })
+          }
           onClose={closePopover}
         />
       </>
@@ -155,8 +145,12 @@ const CheckActionButton = ({
           disabled={{ disableCheck, disableForcedCheck }}
           isDefaultChecked={false}
           open={Boolean(anchorEl)}
-          onClickCheck={handleCheck}
-          onClickForcedCheck={handleForcedCheck}
+          onClickCheck={(): void =>
+            handleCheckResource({ checked: true, forcedChecked: false })
+          }
+          onClickForcedCheck={(): void =>
+            handleCheckResource({ checked: false, forcedChecked: true })
+          }
           onClose={closePopover}
         />
       </>
