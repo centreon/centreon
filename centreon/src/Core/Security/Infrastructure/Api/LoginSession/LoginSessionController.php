@@ -74,8 +74,8 @@ class LoginSessionController extends AbstractController
         $requestData = json_decode((string) $request->getContent(), true);
 
         $loginSessionRequest = new LoginSessionRequest();
-        $loginSessionRequest->login = $requestData['login'];
-        $loginSessionRequest->password = $requestData['password'];
+        $loginSessionRequest->login =  (string) ($requestData['login']?? '');
+        $loginSessionRequest->password = (string) ($requestData['password']?? '');
         $loginSessionRequest->baseUri = $this->getBaseUri();
         $referer = $request->headers->get('referer');
         if ($referer !== null) {
