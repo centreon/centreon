@@ -9,7 +9,7 @@ export const labelEnableSAMLAuthentication = 'Enable SAMLv2 authentication';
 export const labelSAMLOnly = 'SAML only';
 export const labelRemoteLoginUrl = 'Remote login URL';
 export const labelEntityIdURL = 'Issuer (Entity ID) URL';
-export const labelCertificate = 'Copy/paster x.509 certificate';
+export const labelCertificate = 'Copy/paste x.509 certificate';
 export const labelUserIdAttribute =
   'User ID (login) attribute for Centreon user';
 export const labelEmailAttribute = 'Email attribute';
