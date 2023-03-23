@@ -142,6 +142,14 @@ Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
   );
 });
 
+Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
+  return cy.exec(
+    `docker exec ${Cypress.env(
+      'dockerName'
+    )} /bin/sh -c "mysql centreon -e \\"${request}\\""`
+  );
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -160,6 +168,7 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
+      executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
