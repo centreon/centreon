@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 interface ApiErrorResponse {
@@ -38,7 +39,7 @@ export const customFetch = <T>({
   isMutation = false,
   payload,
   method = 'GET'
-}: CustomFetchProps<T>): Promise<T | ResponseError> => {
+}: CustomFetchProps<T>): Promise<T | ResponseError | Record<never, never>> => {
   const defaultOptions = { headers, method, signal };
 
   const options = isMutation
@@ -50,6 +51,8 @@ export const customFetch = <T>({
 
   return fetch(endpoint, options)
     .then((response) => {
+      if (equals(response.status, 204)) return {};
+
       return response.json().then((data) => {
         if (!response.ok) {
           const defaultError = {

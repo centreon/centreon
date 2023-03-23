@@ -1,13 +1,13 @@
 import { SetStateAction, useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconArrow from '@mui/icons-material/KeyboardArrowDownOutlined';
 import IconCheck from '@mui/icons-material/Sync';
 
-import { postData, useRequest, useSnackbar } from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import {
@@ -44,7 +44,10 @@ const CheckActionButton = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [displaySelectedOption, setDisplaySelectedOption] =
     useState<DisplaySelectedOption | null>(null);
-  const { sendRequest: checkResource } = useRequest({ request: postData });
+  const { mutateAsync: checkResource } = useMutationQuery({
+    getEndpoint: () => checkEndpoint,
+    method: Method.POST
+  });
 
   const { canForcedCheck, canCheck } = useAclQuery();
   const { showSuccessMessage } = useSnackbar();
@@ -74,13 +77,9 @@ const CheckActionButton = ({
     if (selectedResources.length <= 0) {
       return;
     }
-
     checkResource({
-      data: {
-        check: { is_forced: forcedChecked },
-        resources: adjustCheckedResources({ resources: selectedResources })
-      },
-      endpoint: checkEndpoint
+      check: { is_forced: forcedChecked },
+      resources: adjustCheckedResources({ resources: selectedResources })
     }).then(() => {
       setSelectedResources([]);
       showSuccessMessage(
