@@ -58,8 +58,8 @@ class LoginController extends AbstractController
         SessionInterface $session
     ): object {
         $request = LoginRequest::createForOpenId(
-            $request->getClientIp(),
-            $request->query->get("code")
+            $request->getClientIp() ?: '',
+            $request->query->get("code", '')
         );
 
         $useCase($request, $presenter);
