@@ -30,6 +30,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../Logout')),
     path: routeMap.logout
+  },
+  {
+    comp: lazy(() => import('../About/About')),
+    path: routeMap.about
   }
 ];
 

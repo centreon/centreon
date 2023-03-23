@@ -17401,6 +17401,33 @@ msgstr "Ce nom de sévérité de services existe déjà"
 msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
 
+msgid "Developed by"
+msgstr "Développé par"
+
+msgid "and"
+msgstr "et"
+
+msgid "the community"
+msgstr "la communauté"
+
+msgid "Project leaders"
+msgstr "Responsables du projet"
+
+msgid "Security acknowledgement"
+msgstr "Remerciements pour la sécurité"
+
+msgid "You can see the full list on the"
+msgstr "Vous pouvez voir la liste complète sur le"
+
+msgid "Centreon's Github"
+msgstr "Github de Centreon"
+
+msgid "Many thanks to all the contributors to the security of Centreon"
+msgstr "Un grand merci à tous les contributeurs pour la sécurité de Centreon"
+
+msgid "Centreon website"
+msgstr "Site web de Centreon"
+
 msgid "Icon #%d does not exist"
 msgstr "L'icône #%d n'existe pas"
 
@@ -17428,7 +17455,6 @@ msgstr "Hôtes au statut Injoignable"
 
 msgid "Up status hosts"
 msgstr "Hôtes au statut Disponible"
-
 
 #: www/front_src/src/Header/Resources/Services
 
