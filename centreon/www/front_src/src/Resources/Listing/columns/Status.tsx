@@ -1,6 +1,7 @@
 import { path, pathEq, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useUpdateAtom } from 'jotai/utils';
 
 import IconAcknowledge from '@mui/icons-material/Person';
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
@@ -17,6 +18,7 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 
 import { ColumnProps } from '.';
 
@@ -45,6 +47,10 @@ const StatusColumnOnHover = ({
 }: StatusColumnProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const setForcedCheckInlineEndpoint = useUpdateAtom(
+    forcedCheckInlineEndpointAtom
+  );
 
   const { canAcknowledge, canDowntime } = useAclQuery();
 
@@ -112,7 +118,15 @@ const StatusColumnOnHover = ({
           isActionPermitted: isForcedCheckPermitted,
           labelAction: labelForcedCheck
         })}
-        onClick={(): void => actions.onCheck(row)}
+        onClick={(): void => {
+          const forcedCheckEndpoint = path(
+            ['links', 'endpoints', 'forced_check'],
+            row
+          );
+          setForcedCheckInlineEndpoint(forcedCheckEndpoint);
+
+          actions.onCheck(row);
+        }}
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>

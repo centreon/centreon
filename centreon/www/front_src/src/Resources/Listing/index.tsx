@@ -1,48 +1,48 @@
-import { equals, includes, not, isNil, isEmpty, path } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme, alpha } from '@mui/material';
+import { alpha, useTheme } from '@mui/material';
 
-import { userAtom } from '@centreon/ui-context';
 import {
   MemoizedListing as Listing,
+  Method,
   SeverityCode,
-  useRequest,
-  useSnackbar,
-  postData
+  useMutationQuery,
+  useSnackbar
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { graphTabId } from '../Details/tabs';
-import { rowColorConditions } from '../colors';
 import Actions from '../Actions';
+import {
+  resourcesToAcknowledgeAtom,
+  resourcesToSetDowntimeAtom,
+  selectedResourcesAtom
+} from '../Actions/actionsAtoms';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
+import { rowColorConditions } from '../colors';
+import {
+  openDetailsTabIdAtom,
+  panelWidthStorageAtom,
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
+} from '../Details/detailsAtoms';
+import { graphTabId } from '../Details/tabs';
+import {
+  getCriteriaValueDerivedAtom,
+  searchAtom,
+  setCriteriaAndNewFilterDerivedAtom
+} from '../Filter/filterAtoms';
 import { Resource, SortOrder } from '../models';
 import {
   labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
   labelStatus
 } from '../translatedLabels';
-import {
-  openDetailsTabIdAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom,
-  panelWidthStorageAtom
-} from '../Details/detailsAtoms';
-import {
-  resourcesToAcknowledgeAtom,
-  resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
-} from '../Actions/actionsAtoms';
-import {
-  getCriteriaValueDerivedAtom,
-  searchAtom,
-  setCriteriaAndNewFilterDerivedAtom
-} from '../Filter/filterAtoms';
-import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
-import useLoadResources from './useLoadResources';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -51,6 +51,7 @@ import {
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
+import useLoadResources from './useLoadResources';
 
 export const okStatuses = ['OK', 'UP'];
 
@@ -59,7 +60,7 @@ const ResourceListing = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { showWarningMessage, showSuccessMessage } = useSnackbar();
-  const { sendRequest: checkResource } = useRequest({ request: postData });
+
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
   );
@@ -80,7 +81,7 @@ const ResourceListing = (): JSX.Element => {
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const { resourceStatusViewMode } = useAtomValue(userAtom);
-
+  const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
   const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
@@ -90,6 +91,10 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+  const { mutateAsync: checkResource } = useMutationQuery({
+    getEndpoint: () => forcedCheckInlineEndpoint,
+    method: Method.POST
+  });
 
   const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
@@ -134,13 +139,9 @@ const ResourceListing = (): JSX.Element => {
   };
 
   const onForcedCheck = (resource: Resource): void => {
-    const endpoint = path(['links', 'endpoints', 'forced_check'], resource);
     checkResource({
-      data: {
-        check: { is_forced: true },
-        resources: adjustCheckedResources({ resources: [resource] })
-      },
-      endpoint
+      check: { is_forced: true },
+      resources: adjustCheckedResources({ resources: [resource] })
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });
