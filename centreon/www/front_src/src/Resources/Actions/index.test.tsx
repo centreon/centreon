@@ -5,7 +5,7 @@ import { Provider } from 'jotai';
 import mockDate from 'mockdate';
 import { head, last, map, pick } from 'ramda';
 
-import { SeverityCode } from '@centreon/ui';
+import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -16,8 +16,11 @@ import {
 import {
   act,
   fireEvent,
+  getFetchCall,
+  mockResponse,
   render,
   RenderResult,
+  resetMocks,
   screen,
   waitFor
 } from '@centreon/ui/src/testRenderer';
@@ -48,6 +51,7 @@ import {
   labelEndDateGreaterThanStartDate,
   labelEndTime,
   labelFixed,
+  labelForcedCheck,
   labelForcedCheckDescription,
   labelHostsDenied,
   labelInvalidFormat,
@@ -65,8 +69,7 @@ import {
   labelUnknown,
   labelUnreachable,
   labelUp,
-  labelWarning,
-  labelForcedCheck
+  labelWarning
 } from '../translatedLabels';
 
 import {
@@ -150,7 +153,11 @@ jest.mock('./Resource/useMediaQueryListing', () => {
 const ActionsWithLoading = (): JSX.Element => {
   useLoadResources();
 
-  return <Actions onRefresh={onRefresh} />;
+  return (
+    <TestQueryProvider>
+      <Actions onRefresh={onRefresh} />
+    </TestQueryProvider>
+  );
 };
 
 let context: ResourceContext;
@@ -247,6 +254,7 @@ describe(Actions, () => {
 
     mockDate.set(mockNow);
     onRefresh.mockReset();
+    mockResponse({ data: {} });
   });
 
   afterEach(() => {
@@ -256,6 +264,7 @@ describe(Actions, () => {
 
     mockDate.reset();
     mockedAxios.get.mockReset();
+    resetMocks();
   });
 
   it('executes a listing request when the refresh button is clicked', async () => {
@@ -629,7 +638,6 @@ describe(Actions, () => {
 
       mockedAxios.get.mockResolvedValueOnce({ data: {} });
       mockedAxios.all.mockResolvedValueOnce([]);
-      mockedAxios.post.mockResolvedValueOnce({});
 
       await waitFor(() => {
         expect(getByText(labelCheck)).toBeInTheDocument();
@@ -643,16 +651,16 @@ describe(Actions, () => {
       fireEvent.click(getByText(labelCheck));
 
       expect(getByText(commendDescription)).toBeInTheDocument();
+
+      const payload = {
+        check: { is_forced },
+        resources: map(pick(['id', 'parent', 'type']), selectedResources)
+      };
       fireEvent.click(getByText(commendDescription));
+
       await waitFor(() => {
-        expect(mockedAxios.post).toHaveBeenCalledWith(
-          checkEndpoint,
-          {
-            check: { is_forced },
-            resources: map(pick(['type', 'id', 'parent']), selectedResources)
-          },
-          expect.anything()
-        );
+        expect(getFetchCall(0)).toEqual(`${checkEndpoint}`);
+        expect(getFetchCall(0, 1)?.body).toEqual(JSON.stringify(payload));
       });
     }
   );
