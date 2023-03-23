@@ -24,10 +24,10 @@ import getNormalizedId from '../../../utils/getNormalizedId';
 
 export type Props = {
   autoFocus?: boolean;
-  dataTestId?: string;
   autoSize?: boolean;
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
+  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
