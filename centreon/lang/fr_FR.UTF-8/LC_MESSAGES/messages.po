@@ -2958,6 +2958,10 @@ msgstr "Activités métiers"
 msgid "Business Views"
 msgstr "Vues métiers"
 
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestionnaire de connecteurs de supervision"
+
 #: centreon-web/www/install/menu_translation.php:51
 msgid "By Host"
 msgstr "Par hôte"
