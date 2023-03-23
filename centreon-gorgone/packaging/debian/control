@@ -12,6 +12,7 @@ Package: centreon-gorgone
 Architecture: any
 Depends:
   centreon-common (>= ${centreon:version}~),
+  centreon-common (< 23.05),
   libdatetime-perl,
   libtry-tiny-perl,
   libxml-simple-perl,

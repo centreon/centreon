@@ -10,5 +10,6 @@ Package: centreon-widget-single-metric
 Architecture: all
 Depends:    ${misc:Depends},
             ${shlibs:Depends},
-            centreon-web (>= ${centreon:version}~)
+            centreon-web (>= ${centreon:version}~),
+            centreon-web (< 23.05)
 Description: Add homepage with Centreon Widgets

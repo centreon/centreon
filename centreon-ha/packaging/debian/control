@@ -21,7 +21,9 @@ Depends:
   libcommon-sense-perl,
   liblinux-inotify2-perl,
   centreon-common (>= ${centreon:version}~),
-  centreon-gorgone (>= ${centreon:version}~)
+  centreon-gorgone (>= ${centreon:version}~),
+  centreon-common (< 23.05),
+  centreon-gorgone (< 23.05)
 
 
 Package: centreon-ha-web
@@ -32,4 +34,6 @@ Depends:
   ${shlibs:Depends},
   resource-agents,
   centreon-ha-common (>= ${centreon:version}~),
-  centreon-web (>= ${centreon:version}~)
+  centreon-web (>= ${centreon:version}~),
+  centreon-ha-common (< 23.05),
+  centreon-web (< 23.05)
