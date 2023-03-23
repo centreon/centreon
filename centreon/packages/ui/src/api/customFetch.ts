@@ -1,6 +1,5 @@
 import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-import { equals } from 'ramda';
 
 import { Method } from './useMutationQuery';
 
@@ -61,16 +60,18 @@ export const customFetch = <T>({
         };
       }
 
-      return response.json().then((data) => {
-        if (!response.ok) {
-          const defaultError = {
-            code: -1,
-            message: data.message || defaultFailureMessage
-          };
-          catchError({
-            data: data || defaultError,
-            statusCode: response.status
-          });
+      return response
+        .json()
+        .then((data) => {
+          if (!response.ok) {
+            const defaultError = {
+              code: -1,
+              message: data.message || defaultFailureMessage
+            };
+            catchError({
+              data: data || defaultError,
+              statusCode: response.status
+            });
 
             return {
               isError: true,
