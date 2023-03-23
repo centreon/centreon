@@ -30,6 +30,7 @@ innodb_fast_shutdown=0 \
 
 
 dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/noarch && \
+dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/x86_64 && \
 
 dnf clean all --enablerepo=* && \
 
