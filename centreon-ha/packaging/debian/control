@@ -22,8 +22,8 @@ Depends:
   liblinux-inotify2-perl,
   centreon-common (>= ${centreon:version}~),
   centreon-gorgone (>= ${centreon:version}~),
-  centreon-common (< 23.05),
-  centreon-gorgone (< 23.05)
+  centreon-common (< ${centreon:versionThreshold}~),
+  centreon-gorgone (< ${centreon:versionThreshold}~)
 
 
 Package: centreon-ha-web
@@ -35,5 +35,5 @@ Depends:
   resource-agents,
   centreon-ha-common (>= ${centreon:version}~),
   centreon-web (>= ${centreon:version}~),
-  centreon-ha-common (< 23.05),
-  centreon-web (< 23.05)
+  centreon-ha-common (< ${centreon:versionThreshold}~),
+  centreon-web (< ${centreon:versionThreshold}~)
