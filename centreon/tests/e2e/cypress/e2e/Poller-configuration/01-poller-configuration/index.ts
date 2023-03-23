@@ -58,14 +58,20 @@ Given('some pollers are created', () => {
 });
 
 Given('some post-generation commands are configured for each poller', () => {
-  cy.executeSqlRequestInContainer('INSERT INTO poller_command_relations VALUES (1,39,1);');
-  
-  cy.reload();
+  cy.get('@pollerId').then((pollerId) => {
+    cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
+
+    cy.executeSqlRequestInContainer(`INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`);
+
+    cy.getIframeBody()
+      .find('form input[name="submitC"]')
+      .eq(0)
+      .contains('Save')
+      .click({ force: true });
+  })
 });
 
 When('I visit the export configuration page', () => {
-  cy.wait('@getNavigationList');
-
   cy.navigateTo({
     page: 'Pollers',
     rootItemNumber: 0,
