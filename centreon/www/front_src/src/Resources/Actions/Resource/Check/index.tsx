@@ -74,9 +74,7 @@ const CheckActionButton = ({
       forcedChecked
     });
     setAnchorEl(null);
-    if (selectedResources.length <= 0) {
-      return;
-    }
+
     checkResource({
       check: { is_forced: forcedChecked },
       resources: adjustCheckedResources({ resources: selectedResources })
