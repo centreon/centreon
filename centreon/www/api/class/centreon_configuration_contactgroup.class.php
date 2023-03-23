@@ -99,6 +99,10 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
         $contactgroupList = array();
         foreach ($aclCgs['items'] as $id => $contactgroup) {
+            if (($this->arguments['type'] == 'local') && ($contactgroup['cg_type'] == 'ldap')) {
+                $aclCgs['total'] -= 1;
+                continue;
+            }
             $sText = $contactgroup['cg_name'];
             if ($contactgroup['cg_type'] == 'ldap') {
                 $sText .= " (LDAP : " . $contactgroup['ar_name'] . ")";
@@ -111,23 +115,25 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
         }
 
         # get Ldap contactgroups
-        $ldapCgs = array();
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            $maxItem = $this->arguments['page_limit'] * $this->arguments['page'];
-            if ($aclCgs['total'] <= $maxItem) {
+        if ($this->arguments['type'] != 'local') {
+            $ldapCgs = array();
+            if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+                $maxItem = $this->arguments['page_limit'] * $this->arguments['page'];
+                if ($aclCgs['total'] <= $maxItem) {
+                    $ldapCgs = $cg->getLdapContactgroups($ldapFilter);
+                }
+            } else {
                 $ldapCgs = $cg->getLdapContactgroups($ldapFilter);
             }
-        } else {
-            $ldapCgs = $cg->getLdapContactgroups($ldapFilter);
-        }
 
-        foreach ($ldapCgs as $key => $value) {
-            $sTemp = $value;
-            if (!$this->uniqueKey($sTemp, $contactgroupList)) {
-                $contactgroupList[] = array(
-                    'id' => $key,
-                    'text' => $value
-                );
+            foreach ($ldapCgs as $key => $value) {
+                $sTemp = $value;
+                if (!$this->uniqueKey($sTemp, $contactgroupList)) {
+                    $contactgroupList[] = array(
+                        'id' => $key,
+                        'text' => $value
+                    );
+                }
             }
         }
 
