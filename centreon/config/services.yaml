@@ -20,7 +20,7 @@ parameters:
     translation_path: "%centreon_path%/www/locale"
     log_path: "%env(_CENTREON_LOG_)%"
     media_path: "img/media"
-    media_full_path: "%centreon_path%www/%media_path%"
+    media_full_path: "%centreon_path%/www/%media_path%"
     redirect_default_page: "/monitoring/resources"
     session_expiration_delay: 120
     required_php_version: "%env(_CENTREON_PHP_VERSION_)%"
