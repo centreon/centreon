@@ -336,6 +336,8 @@ paths:
       summary: "Get a host category"
       description: |
         Get a host category configuration
+      parameters:
+        - $ref: '#/components/parameters/HostCategoryId'
       responses:
         "200":
           description: "OK"
