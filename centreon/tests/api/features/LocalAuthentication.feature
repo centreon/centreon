@@ -33,7 +33,7 @@ Feature:
     """
     {
         "code": 401,
-        "message": "User is blocked"
+        "message": "Authentication failed"
     }
     """
 
@@ -43,6 +43,6 @@ Feature:
     """
     {
         "code": 401,
-        "message": "User is blocked"
+        "message": "Authentication failed"
     }
     """
