@@ -65,7 +65,7 @@ final class UpdateHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::addNotAllowed())
+                    new ForbiddenResponse(HostCategoryException::writingActionsNotAllowed())
                 );
 
                 return;

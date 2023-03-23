@@ -63,7 +63,7 @@ final class AddHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::addNotAllowed())
+                    new ForbiddenResponse(HostCategoryException::writingActionsNotAllowed())
                 );
             } elseif ($this->readHostCategoryRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error('Host category name already exists', [

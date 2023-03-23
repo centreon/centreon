@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostCategory\Application\UseCase\UpdateHostCategory\UpdateHostCategory;
 use Core\HostCategory\Application\UseCase\UpdateHostCategory\UpdateHostCategoryRequest;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Request;
 
 final class UpdateHostCategoryController extends AbstractController
@@ -39,7 +40,7 @@ final class UpdateHostCategoryController extends AbstractController
      * @param int $hostCategoryId
      * @param Request $request
      * @param UpdateHostCategory $useCase
-     * @param UpdateHostCategoryPresenter $presenter
+     * @param DefaultPresenter $presenter
      *
      * @return object
      */
@@ -47,7 +48,7 @@ final class UpdateHostCategoryController extends AbstractController
         int $hostCategoryId,
         Request $request,
         UpdateHostCategory $useCase,
-        UpdateHostCategoryPresenter $presenter
+        DefaultPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

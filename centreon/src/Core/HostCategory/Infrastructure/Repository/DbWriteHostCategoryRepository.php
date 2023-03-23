@@ -107,6 +107,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
                     hc_comment = :comment,
                     hc_activate = :isActivated
                 WHERE hc_id = :id
+                AND hc.level IS NULL
                 SQL
         );
         $statement = $this->db->prepare($request);

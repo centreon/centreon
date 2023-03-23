@@ -25,7 +25,6 @@ namespace Tests\Core\HostCategory\Application\UseCase\UpdateHostCategory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -93,7 +92,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostCategoryException::addNotAllowed()->getMessage());
+        ->toBe(HostCategoryException::writingActionsNotAllowed()->getMessage());
 });
 
 it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
