@@ -51,7 +51,9 @@ export const customFetch = <T>({
 
   return fetch(endpoint, options)
     .then((response) => {
-      if (equals(response.status, 204)) return {};
+      if (equals(response.status, 204)) {
+        return {};
+      }
 
       return response.json().then((data) => {
         if (!response.ok) {
