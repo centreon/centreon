@@ -15993,7 +15993,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Check selected resources even outside configured check period"
 # msgstr ""
 
-# msgid "Forced check comment sent"
+# msgid "Forced check command sent"
 # msgstr ""
 
 #  msgid "Icon #%d does not exist"

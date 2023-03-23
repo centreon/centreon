@@ -17410,7 +17410,7 @@ msgstr "Vérifier les ressources sélectionnées uniquement pendant la période 
 msgid "Check selected resources even outside configured check period"
 msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
 
-msgid "Forced check comment sent"
+msgid "Forced check command sent"
 msgstr "Contrôle forcé commande envoyé"
 
 msgid "Developed by"

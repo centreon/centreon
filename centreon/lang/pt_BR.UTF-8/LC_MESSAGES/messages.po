@@ -16003,8 +16003,8 @@ msgstr "Verifique os recursos selecionados apenas dentro do período de verifica
 msgid "Check selected resources even outside configured check period"
 msgstr "Verifique os recursos selecionados mesmo fora do período de verificação configurado"
 
-msgid "Forced check comment sent"
-msgstr "Comentário de verificação forçada enviado"
+msgid "Forced check command sent"
+msgstr "Comando de verificação forçada enviado"
 
 #  msgid "Icon #%d does not exist"
 #  msgstr ""

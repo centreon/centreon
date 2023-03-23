@@ -15542,8 +15542,8 @@ msgstr "Verifique los recursos seleccionados solo dentro del período de verific
 msgid "Check selected resources even outside configured check period"
 msgstr "Verifique los recursos seleccionados incluso fuera del período configurado de verificación"
 
-msgid "Forced check comment sent"
-msgstr "Comentario de verificación forzada enviado"
+msgid "Forced check command sent"
+msgstr "Comando de verificación forzada enviado"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""

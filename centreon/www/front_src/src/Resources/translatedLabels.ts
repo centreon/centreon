@@ -283,4 +283,4 @@ export const labelForcedCheck = 'Forced check';
 export const labelCheckDescription = `Check selected resources only within configured check period`;
 export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
-export const labelForcedCheckCommandSent = 'Forced check comment sent';
+export const labelForcedCheckCommandSent = 'Forced check command sent';
