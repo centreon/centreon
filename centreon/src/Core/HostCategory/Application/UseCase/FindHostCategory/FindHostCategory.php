@@ -120,7 +120,7 @@ final class FindHostCategory
         $response->id = $hostCategory->getId();
         $response->name = $hostCategory->getName();
         $response->alias = $hostCategory->getAlias();
-        $response->is_activated = $hostCategory->isActivated();
+        $response->isActivated = $hostCategory->isActivated();
         $response->comment = $hostCategory->getComment();
 
         return $response;

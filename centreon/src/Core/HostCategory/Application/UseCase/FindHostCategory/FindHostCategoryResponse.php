@@ -31,7 +31,7 @@ final class FindHostCategoryResponse
 
     public string $alias = '';
 
-    public bool $is_activated = true;
+    public bool $isActivated = true;
 
     public string|null $comment = null;
 }

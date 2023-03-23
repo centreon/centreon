@@ -178,7 +178,7 @@ it('should present a FindHostCategoryResponse when a non-admin user has read-onl
         ->toBe($this->responseArray['name'])
         ->and($response->alias)
         ->toBe($this->responseArray['alias'])
-        ->and($response->is_activated)
+        ->and($response->isActivated)
         ->toBe($this->responseArray['is_activated'])
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
@@ -218,7 +218,7 @@ it('should present a FindHostCategoryResponse when a non-admin user has read/wri
         ->toBe($this->responseArray['name'])
         ->and($response->alias)
         ->toBe($this->responseArray['alias'])
-        ->and($response->is_activated)
+        ->and($response->isActivated)
         ->toBe($this->responseArray['is_activated'])
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
@@ -250,7 +250,7 @@ it('should present a FindHostCategoryResponse with admin user', function () {
         ->toBe($this->responseArray['name'])
         ->and($response->alias)
         ->toBe($this->responseArray['alias'])
-        ->and($response->is_activated)
+        ->and($response->isActivated)
         ->toBe($this->responseArray['is_activated'])
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
