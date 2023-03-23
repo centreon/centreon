@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.36",
+  "version": "23.4.37",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
