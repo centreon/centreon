@@ -17402,7 +17402,7 @@ msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
 
 msgid "Forced check"
-msgstr "vérification forcée"
+msgstr "Vérification forcée"
 
 msgid "Check selected resources only within configured check period"
 msgstr "Vérifier les ressources sélectionnées uniquement pendant la période de vérification configurée"
