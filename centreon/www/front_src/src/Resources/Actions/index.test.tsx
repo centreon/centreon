@@ -65,7 +65,8 @@ import {
   labelUnknown,
   labelUnreachable,
   labelUp,
-  labelWarning
+  labelWarning,
+  labelForcedCheck
 } from '../translatedLabels';
 
 import {
@@ -616,40 +617,45 @@ describe(Actions, () => {
     );
   });
 
-  it('sends a check request when Resources are selected and the Check action is clicked', async () => {
-    const { getByText, findByText } = renderActions();
+  it.each([
+    [labelForcedCheck, labelForcedCheckDescription, { is_forced: true }],
+    [labelCheck, labelCheckDescription, { is_forced: false }]
+  ])(
+    'sends a %p request when Resources are selected and the %p is clicked',
+    async (_, commendDescription, { is_forced }) => {
+      const { getByText, findByText } = renderActions();
 
-    const selectedResources = [host, service];
+      const selectedResources = [host, service];
 
-    mockedAxios.get.mockResolvedValueOnce({ data: {} });
-    mockedAxios.all.mockResolvedValueOnce([]);
-    mockedAxios.post.mockResolvedValueOnce({});
+      mockedAxios.get.mockResolvedValueOnce({ data: {} });
+      mockedAxios.all.mockResolvedValueOnce([]);
+      mockedAxios.post.mockResolvedValueOnce({});
 
-    await waitFor(() => {
-      expect(getByText(labelCheck)).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(getByText(labelCheck)).toBeInTheDocument();
+      });
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    await findByText(labelCheck);
-    fireEvent.click(getByText(labelCheck));
+      await findByText(labelCheck);
+      fireEvent.click(getByText(labelCheck));
 
-    expect(getByText(labelForcedCheckDescription)).toBeInTheDocument();
-    expect(getByText(labelCheckDescription)).toBeInTheDocument();
-    fireEvent.click(getByText(labelCheckDescription));
-    await waitFor(() => {
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        checkEndpoint,
-        {
-          check: { is_forced: false },
-          resources: map(pick(['type', 'id', 'parent']), selectedResources)
-        },
-        expect.anything()
-      );
-    });
-  });
+      expect(getByText(commendDescription)).toBeInTheDocument();
+      fireEvent.click(getByText(commendDescription));
+      await waitFor(() => {
+        expect(mockedAxios.post).toHaveBeenCalledWith(
+          checkEndpoint,
+          {
+            check: { is_forced },
+            resources: map(pick(['type', 'id', 'parent']), selectedResources)
+          },
+          expect.anything()
+        );
+      });
+    }
+  );
 
   it('sends a submit status request when a Resource is selected and the Submit status action is clicked', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
