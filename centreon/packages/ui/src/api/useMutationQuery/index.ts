@@ -31,7 +31,7 @@ export interface UseMutationQueryState<T> {
   isError: boolean;
   isMutating: boolean;
   mutate: (payload) => void;
-  mutateAsync: (payload) => Promise<T | ResponseError | Record<never, never>>;
+  mutateAsync: (payload) => Promise<T | ResponseError>;
 }
 
 const useMutationQuery = <T extends object>({
@@ -45,8 +45,8 @@ const useMutationQuery = <T extends object>({
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
-  const queryData = useMutation<T | ResponseError | Record<never, never>>(
-    (payload): Promise<T | ResponseError | Record<never, never>> =>
+  const queryData = useMutation<T | ResponseError>(
+    (payload): Promise<T | ResponseError> =>
       customFetch<T>({
         catchError,
         decoder,

@@ -37,6 +37,6 @@ class AuthenticationException extends \Exception
      */
     public static function userBlocked(): self
     {
-        return new self(_('User is blocked'));
+        return new self(_('Authentication failed'));
     }
 }

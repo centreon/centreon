@@ -39,7 +39,7 @@ export const customFetch = <T>({
   isMutation = false,
   payload,
   method = 'GET'
-}: CustomFetchProps<T>): Promise<T | ResponseError | Record<never, never>> => {
+}: CustomFetchProps<T>): Promise<T | ResponseError> => {
   const defaultOptions = { headers, method, signal };
 
   const options = isMutation
@@ -52,7 +52,10 @@ export const customFetch = <T>({
   return fetch(endpoint, options)
     .then((response) => {
       if (equals(response.status, 204)) {
-        return {};
+        return {
+          isError: false,
+          message: ''
+        };
       }
 
       return response.json().then((data) => {
