@@ -9,7 +9,7 @@ import {
   render,
   RenderResult,
   screen,
-  waitFor
+  waitFor,
 } from '@centreon/ui/src/testRenderer';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';

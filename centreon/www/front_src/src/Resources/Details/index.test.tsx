@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import {
   setUrlQueryParameters,
   getUrlQueryParameters,
-  getSearchQueryParameterValue
+  getSearchQueryParameterValue,
 } from '@centreon/ui';
 import {
   render,
@@ -16,7 +16,7 @@ import {
   fireEvent,
   RenderResult,
   act,
-  screen
+  screen,
 } from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 

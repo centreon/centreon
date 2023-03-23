@@ -10,7 +10,7 @@ import {
   RenderResult,
   resetMocks,
   screen,
-  waitFor
+  waitFor,
 } from '@centreon/ui/src/testRenderer';
 
 import { Provider } from '../models';

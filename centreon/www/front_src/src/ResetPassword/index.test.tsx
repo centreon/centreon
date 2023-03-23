@@ -8,7 +8,7 @@ import {
   render,
   RenderResult,
   screen,
-  waitFor
+  waitFor,
 } from '@centreon/ui/src/testRenderer';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';

@@ -12,7 +12,7 @@ import {
   waitFor,
   fireEvent,
   act,
-  screen
+  screen,
 } from '@centreon/ui/src/testRenderer';
 import {
   acknowledgementAtom,

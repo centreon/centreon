@@ -28,7 +28,7 @@ import {
   waitFor,
   fireEvent,
   Matcher,
-  act
+  act,
 } from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 

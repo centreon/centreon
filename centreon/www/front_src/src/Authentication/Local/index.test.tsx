@@ -9,7 +9,7 @@ import {
   waitFor,
   resetMocks,
   mockResponseOnce,
-  getFetchCall
+  getFetchCall,
 } from '@centreon/ui/src/testRenderer';
 
 import {

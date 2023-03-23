@@ -5,7 +5,7 @@ import {
   render,
   waitFor,
   fireEvent,
-  screen
+  screen,
 } from '@centreon/ui/src/testRenderer';
 
 import HostStatusCounter from '.';

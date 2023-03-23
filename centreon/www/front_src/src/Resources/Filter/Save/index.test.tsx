@@ -9,7 +9,7 @@ import {
   RenderResult,
   fireEvent,
   waitFor,
-  act
+  act,
 } from '@centreon/ui/src/testRenderer';
 
 import useFilter from '../../testUtils/useFilter';

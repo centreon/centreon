@@ -5,7 +5,7 @@ import {
   render,
   RenderResult,
   waitFor,
-  screen
+  screen,
 } from '@centreon/ui/src/testRenderer';
 
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';

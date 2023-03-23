@@ -8,7 +8,7 @@ import {
   render,
   waitFor,
   fireEvent,
-  act
+  act,
 } from '@centreon/ui/src/testRenderer';
 
 import Context, { ResourceContext } from '../../testUtils/Context';

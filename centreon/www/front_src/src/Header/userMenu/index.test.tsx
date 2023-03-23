@@ -8,7 +8,7 @@ import {
   render,
   RenderResult,
   waitFor,
-  screen
+  screen,
 } from '@centreon/ui/src/testRenderer';
 import { userAtom } from '@centreon/ui-context';
 
