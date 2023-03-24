@@ -24,7 +24,7 @@ runs:
       shell: bash
 
     - name: Cache vendor directory
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.base_directory }}/vendor
         key: ${{ inputs.cache_key }}
