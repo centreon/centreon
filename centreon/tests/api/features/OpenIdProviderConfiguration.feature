@@ -145,8 +145,7 @@ Feature: OpenId Provider Configuration API
                 "custom_endpoint": "/my/custom/endpoint"
             },
             "relations": []
-        },
-        "redirect_url": null
+        }
       }
     """
 
