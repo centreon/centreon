@@ -44,16 +44,6 @@ jobs:
     with:
       widget_name: global-health
       major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_PASSWORD }}
       artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
-

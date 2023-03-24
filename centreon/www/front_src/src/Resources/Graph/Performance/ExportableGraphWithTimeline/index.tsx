@@ -26,9 +26,10 @@ import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
 import MemoizedGraphActions from '../GraphActions';
 import {
-  AdditionalDataProps,
-  GetDisplayAdditionalLinesConditionProps,
-  GraphOptionId
+  AdditionalLines,
+  FilterLines,
+  GraphOptionId,
+  NewLines
 } from '../models';
 import {
   adjustTimePeriodDerivedAtom,
@@ -57,11 +58,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
 }));
 
 interface Props {
-  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
+  filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   graphHeight: number;
   interactWithGraph: boolean;
   limitLegendRows?: boolean;
   renderAdditionalGraphAction?: ReactNode;
+  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource?: Resource | ResourceDetails;
 }
 
@@ -70,10 +72,10 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
   graphHeight,
   limitLegendRows,
   interactWithGraph,
-  additionalData,
   renderAdditionalGraphAction,
-  getDisplayAdditionalLinesCondition
-}: Props & AdditionalDataProps<T>): JSX.Element => {
+  renderAdditionalLines,
+  filterLines
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const [timeline, setTimeline] = useState<Array<TimelineEvent>>();
   const [performanceGraphRef, setPerformanceGraphRef] =
@@ -200,21 +202,15 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
       >
         <PerformanceGraph<T>
           toggableLegend
-          additionalData={additionalData}
           adjustTimePeriod={adjustTimePeriod}
           customTimePeriod={customTimePeriod}
           displayEventAnnotations={displayEventAnnotations}
           endpoint={graphEndpoint}
-          getDisplayAdditionalLinesCondition={
-            getDisplayAdditionalLinesCondition
-          }
+          filterLines={filterLines}
           getPerformanceGraphRef={getPerformanceGraphRef}
           graphActions={
             <MemoizedGraphActions
               customTimePeriod={customTimePeriod}
-              getDisplayAdditionalLinesCondition={
-                getDisplayAdditionalLinesCondition
-              }
               open={interactWithGraph}
               performanceGraphRef={
                 performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
@@ -228,6 +224,7 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
           interactWithGraph={interactWithGraph}
           isInViewport={isInViewport}
           limitLegendRows={limitLegendRows}
+          renderAdditionalLines={renderAdditionalLines}
           resource={resource as Resource}
           resourceDetailsUpdated={resourceDetailsUpdated}
           timeline={timeline}

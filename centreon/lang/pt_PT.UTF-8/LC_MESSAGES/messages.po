@@ -12964,6 +12964,10 @@ msgstr "Manutenções recorrentes"
 msgid "Monitoring Connectors"
 msgstr "Conectores de supervisão"
 
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisão"
+
 msgid "Manager"
 msgstr "Gerencia"
 
@@ -14869,7 +14873,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14941,7 +14945,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Oops, something went wrong"
@@ -15989,3 +15993,78 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""

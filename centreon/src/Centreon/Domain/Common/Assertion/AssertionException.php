@@ -39,6 +39,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_MAX_LENGTH = Assert::INVALID_MAX_LENGTH;
     public const INVALID_MIN = Assert::INVALID_MIN;
     public const INVALID_MIN_LENGTH = Assert::INVALID_MIN_LENGTH;
+    public const INVALID_RANGE = Assert::INVALID_RANGE;
     public const INVALID_REGEX = Assert::INVALID_REGEX;
     public const INVALID_CHOICE = Assert::INVALID_CHOICE;
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
@@ -346,6 +347,35 @@ class AssertionException extends \Assert\InvalidArgumentException
                 implode('|', $expectedValues)
             ),
             self::INVALID_CHOICE,
+            $propertyPath,
+            $value
+        );
+    }
+
+    /**
+     * Exception when the value is not in the range.
+     *
+     * @param int|float $value
+     * @param int|float $minValue
+     * @param int|float $maxValue
+     * @param string|null $propertyPath
+     *
+     * @return self
+     */
+    public static function range(
+        int|float $value,
+        int|float $minValue,
+        int|float $maxValue,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _('Number "%s" was expected to be at least "%d" and at most "%d"'),
+                $value,
+                $minValue,
+                $maxValue
+            ),
+            self::INVALID_RANGE,
             $propertyPath,
             $value
         );
