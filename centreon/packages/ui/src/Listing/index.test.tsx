@@ -196,13 +196,11 @@ describe('Listing', () => {
   });
 
   it('resets the page number to 0 when changing the limit and the current page is different than 0', () => {
-    const { getByLabelText, getByRole, getByText } = render(
-      <PaginationTable />
-    );
+    const { getByRole, getByText } = render(<PaginationTable />);
 
     expect(getByText('41-50 of 100'));
 
-    fireEvent.mouseDown(getByLabelText('Rows per page'));
+    fireEvent.mouseDown(getByText('10'));
 
     const listbox = within(getByRole('listbox'));
 
