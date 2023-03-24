@@ -114,7 +114,21 @@ runs:
         ls -lath .
 
         if [ -f "debian/substvars" ]; then
+          MAJOR=${{ inputs.major_version }}
+          MAJOR_LEFT_PART=$( echo $MAJOR | cut -d . -f 1 )
+          echo "[DEBUG]: MAJOR_LEFT_PART = $MAJOR_LEFT_PART"
+          MAJOR_RIGHT_PART=$( echo $VERSION | cut -d - -f 1 | cut -d . -f 2 )
+          echo "[DEBUG]: MAJOR_RIGHT_PART = $MAJOR_RIGHT_PART"
+          BUMP_MAJOR_RIGHT_PART=$(( MAJOR_RIGHT_PART+1 ))
+          echo "[DEBUG]: BUMP_MAJOR_RIGHT_PART = $BUMP_MAJOR_RIGHT_PART"
+          if [ ${#BUMP_MAJOR_RIGHT_PART} -eq 1 ]; then
+              # Add a zero before the new single numeric char
+              BUMP_MAJOR_RIGHT_PART="0$BUMP_MAJOR_RIGHT_PART"
+          fi
+          THRESHOLD="$MAJOR_LEFT_PART.$BUMP_MAJOR_RIGHT_PART.0-bullseye"
+
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+          sed -i "s/^centreon:versionThreshold=.*$/centreon:versionThreshold=$(echo $THRESHOLD | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
