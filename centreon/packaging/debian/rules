@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 export DH_VERBOSE=1
-export CYPRESS_CACHE_FOLDER=$PWD/cypress_cache
+
 %:
 	dh $@
 
@@ -11,7 +11,14 @@ override_dh_gencontrol:
 override_dh_clean:
 
 override_dh_auto_build:
+	sed -i 's#WEB_USER=apache#WEB_USER=www-data#g; s#WEB_GROUP=apache#WEB_GROUP=www-data#g' \
+		packaging/src/instCentWeb.conf \
+		packaging/src/instCentPlugins.conf
+	sed -i 's#"apache"#"www-data"#g' packaging/src/install.conf.php
+	sed -i "s#apache#www-data#g; s#@PHPFPM_LOGFILE@#/var/log/php8.1-fpm-centreon-error.log#g; s#/var/lib/php/session#/var/lib/php/sessions#g" \
+		packaging/src/php-fpm.conf
+	sed -i "s#@LIB_ARCH@#lib#g" packaging/src/centreon-macroreplacement.txt
 	find . -type f -not -path "./vendor/*" | \
-		grep -v debian/extra/centreon-web/centreon-macroreplacement.txt | \
-		xargs -d '\n' sed -i -f debian/extra/centreon-web/centreon-macroreplacement.txt
+		grep -v packaging/src/centreon-macroreplacement.txt | \
+		xargs -d '\n' sed -i -f packaging/src/centreon-macroreplacement.txt
 	mv config/centreon.config.php.template config/centreon.config.php
