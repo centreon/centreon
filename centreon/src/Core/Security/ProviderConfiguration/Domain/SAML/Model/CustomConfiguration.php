@@ -408,7 +408,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         $this->setRemoteLoginUrl($json['remote_login_url']);
         $this->setPublicCertificate($json['certificate']);
         $this->setLogoutFrom($json['logout_from']);
-        if ($json['is_forced'] === true) {
+        if (isset($json['is_forced']) && $json['is_forced'] === true) {
             $this->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
         }
 
@@ -468,7 +468,10 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             );
         }
 
-        if (($json['logout_from'] === true || $json['is_forced'] === true) && empty($json['logout_from_url'])) {
+        if (
+            ($json['logout_from'] === true || (isset($json['is_forced']) && $json['is_forced'] === true)) &&
+            empty($json['logout_from_url'])
+        ) {
             throw MissingLogoutUrlException::create();
         }
     }
