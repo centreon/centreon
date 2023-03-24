@@ -44,7 +44,8 @@ const useUser = (): (() => null | Promise<void>) => {
           themeMode,
           timezone,
           use_deprecated_pages: useDeprecatedPages,
-          default_page: defaultPage
+          default_page: defaultPage,
+          resourceStatusViewMode
         } = retrievedUser as User;
 
         setUser({
@@ -53,6 +54,7 @@ const useUser = (): (() => null | Promise<void>) => {
           isExportButtonEnabled,
           locale: locale || 'en',
           name,
+          resourceStatusViewMode,
           themeMode,
           timezone,
           use_deprecated_pages: useDeprecatedPages
