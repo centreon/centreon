@@ -201,6 +201,7 @@ const MemoListingActionBar = ({
       currentPage,
       moveTablePagination,
       widthToMoveTablePagination,
+      viewMode,
       limit,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
