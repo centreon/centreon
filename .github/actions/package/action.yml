@@ -113,8 +113,8 @@ runs:
 
         if [ -f "debian/substvars" ]; then
           MAJOR=${{ inputs.major_version }}
-          MAJOR_LEFT_PART=$( echo $MAJOR | cut -d . -f 1 )
-          MAJOR_RIGHT_PART=$( echo $MAJOR | cut -d - -f 1 | cut -d . -f 2 )
+          MAJOR_LEFT_PART=$( echo $MAJOR | cut -d "." -f1 )
+          MAJOR_RIGHT_PART=$( echo $MAJOR | cut -d "-" -f1 | cut -d "." -f2 )
           BUMP_MAJOR_RIGHT_PART=$(( MAJOR_RIGHT_PART+1 ))
           if [ ${#BUMP_MAJOR_RIGHT_PART} -eq 1 ]; then
               # Add a zero before the new single numeric char
