@@ -93,6 +93,7 @@ class CentreonHost extends CentreonObject
     public const UNKNOWN_TIMEZONE = "Invalid timezone";
     public const HOST_LOCATION = "timezone";
     public const HOST_SNMP_COMMUNITY_FIELD = "host_snmp_community";
+    const VAULT_DEFAULT_SCHEME = 'https';
     private static ?ReadVaultConfigurationRepositoryInterface $repository = null;
 
     /**
@@ -2025,6 +2026,7 @@ class CentreonHost extends CentreonObject
     ): string {
         try {
             $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = sprintf("%s://%s",VAULT_DEFAULT_SCHEME, $url);
             $body = [
                 "role_id" => $vaultConfiguration->getRoleId(),
                 "secret_id" => $vaultConfiguration->getSecretId(),
@@ -2062,6 +2064,7 @@ class CentreonHost extends CentreonObject
         \CentreonRestHttp $httpClient
     ): array {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/' . $resourceUrl;
+        $url = sprintf("%s://%s",VAULT_DEFAULT_SCHEME, $url);
         $logger->info(sprintf("Search host secrets at: %s", $url));
         try {
             $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
