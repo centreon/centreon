@@ -26,7 +26,6 @@ namespace Tests\Core\Security\Authentication\Application\UseCase\LoginOpenIdSess
 use CentreonDB;
 use Pimple\Container;
 use Centreon\Domain\Contact\Contact;
-use Core\Contact\Domain\Model\ContactGroup;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -35,7 +34,6 @@ use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
@@ -145,7 +143,8 @@ beforeEach(function () {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), []))
+        'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), [])),
+        'redirect_uri' => null
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
     $this->validOpenIdConfiguration = $configuration;
