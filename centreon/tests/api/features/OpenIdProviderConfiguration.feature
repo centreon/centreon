@@ -69,7 +69,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "204"
@@ -144,7 +145,8 @@ Feature: OpenId Provider Configuration API
                 "custom_endpoint": "/my/custom/endpoint"
             },
             "relations": []
-        }
+        },
+        "redirect_url": null
       }
     """
 
@@ -209,7 +211,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "500"
@@ -280,7 +283,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "500"
@@ -351,7 +355,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "500"
@@ -429,7 +434,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "403"
@@ -505,7 +511,8 @@ Feature: OpenId Provider Configuration API
           },
           "relations": [
           ]
-        }
+        },
+        "redirect_url": null
       }
     """
     Then the response code should be "204"
