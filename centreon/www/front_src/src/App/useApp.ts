@@ -10,8 +10,7 @@ import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
-  refreshIntervalAtom,
-  userAtom
+  refreshIntervalAtom
 } from '@centreon/ui-context';
 import type { Actions } from '@centreon/ui';
 
@@ -58,7 +57,6 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
-  const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
@@ -113,10 +111,6 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
-        setUser((currentUser) => ({
-          ...currentUser,
-          resourceStatusViewMode: retrievedParameters.resource_status_view_mode
-        }));
       })
       .catch((error) => {
         if (pathEq(['response', 'status'], 401)(error)) {

@@ -5,11 +5,13 @@ import { useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
 
-import { userAtom } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 import {
   MemoizedListing as Listing,
   SeverityCode,
-  useSnackbar
+  useSnackbar,
+  Method,
+  useMutationQuery
 } from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
@@ -34,6 +36,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
+import { userEndpoint } from '../api/endpoint';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadResources from './useLoadResources';
@@ -67,13 +70,13 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
     selectedResourcesDetailsAtom
   );
+  const [user, setUser] = useAtom(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const { resourceStatusViewMode } = useAtomValue(userAtom);
 
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -85,6 +88,11 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const { mutateAsync } = useMutationQuery({
+    getEndpoint: () => userEndpoint,
+    method: Method.PATCH
+  });
 
   const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
@@ -183,9 +191,22 @@ const ResourceListing = (): JSX.Element => {
     }
   ];
 
+  const changeViewModeTableResources = (): void => {
+    const { resourceStatusViewMode } = user;
+    const mode = equals(resourceStatusViewMode, ListingVariant.compact)
+      ? ListingVariant.extended
+      : ListingVariant.compact;
+    mutateAsync({
+      ui_view_mode: mode
+    }).then(() => {
+      setUser({ ...user, resourceStatusViewMode: mode });
+    });
+  };
+
   return (
     <Listing
       checkable
+      displayViewerMode
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
@@ -222,7 +243,11 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={resourceStatusViewMode}
+      viewMode={user.resourceStatusViewMode}
+      viewerModeData={{
+        onClick: changeViewModeTableResources,
+        title: user.resourceStatusViewMode
+      }}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
