@@ -5471,6 +5471,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - redirect_url
       properties:
         is_active:
           type: boolean
@@ -5682,6 +5683,11 @@ components:
                     type: number
                     description: "priority of the role"
                     example: 1
+        redirect_url:
+          type: string
+          description: "custom redirect url"
+          example: "https://my_custom_domain.com"
+          nullable: true
     ReadAuthenticationOpenIdProvider:
       allOf:
         - $ref: '#/components/schemas/AuthenticationOpenIdProvider'
