@@ -35,5 +35,5 @@ Description: Centreon-dsm server package
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-web (>= ${centreon:version}~)
+  centreon-web (>= ${centreon:version}~),
   centreon-web (< ${centreon:versionThreshold}~)
