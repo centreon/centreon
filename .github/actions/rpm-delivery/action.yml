@@ -91,7 +91,7 @@ runs:
 
           echo "[DEBUG] - Arch: $ARCH"
 
-          mv "$FILE" "$ARCH"
+          cp "$FILE" "$ARCH"
         done
 
         for ARCH in "noarch" "x86_64"; do
