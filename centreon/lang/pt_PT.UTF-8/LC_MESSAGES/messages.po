@@ -12964,6 +12964,10 @@ msgstr "Manutenções recorrentes"
 msgid "Monitoring Connectors"
 msgstr "Conectores de supervisão"
 
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisão"
+
 msgid "Manager"
 msgstr "Gerencia"
 

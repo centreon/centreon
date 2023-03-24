@@ -12258,6 +12258,10 @@ msgstr "Gerenciamento de Performance"
 msgid "Monitoring connectors"
 msgstr "Conectores de supervisão"
 
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisão"
+
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
 msgstr "Estatisticas de Coleta"
