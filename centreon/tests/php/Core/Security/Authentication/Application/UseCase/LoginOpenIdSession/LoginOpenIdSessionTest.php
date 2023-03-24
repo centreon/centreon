@@ -144,7 +144,7 @@ beforeEach(function () {
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
         'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), [])),
-        'redirect_uri' => null
+        'redirect_url' => null
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
     $this->validOpenIdConfiguration = $configuration;
