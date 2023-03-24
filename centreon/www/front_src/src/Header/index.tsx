@@ -30,16 +30,25 @@ const useStyles = makeStyles()((theme) => ({
     padding: `${theme.spacing(1)} ${theme.spacing(3)}`
   },
   item: {
+    '&:empty, &:last-of-type': {
+      marginRight: 0
+    },
     '&:first-of-type': {
       borderRight: `solid 1px ${theme.palette.common.white}`,
-      marginRight: theme.spacing(3),
-      paddingRight: theme.spacing(3)
+      marginRight: theme.spacing(3.5),
+      paddingRight: theme.spacing(3.5),
+
+      [theme.breakpoints.down(960)]: {
+        marginRight: theme.spacing(2.5),
+        paddingRight: theme.spacing(2.5)
+      }
     },
     flex: 'initial',
-    [theme.breakpoints.down(768)]: {
-      marginRight: theme.spacing(4)
-    },
-    marginRight: theme.spacing(4)
+    marginRight: theme.spacing(6),
+
+    [theme.breakpoints.down(960)]: {
+      marginRight: theme.spacing(3.5)
+    }
   },
   leftContainer: {
     alignItems: 'center',
