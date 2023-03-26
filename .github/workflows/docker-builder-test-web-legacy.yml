@@ -1,0 +1,55 @@
+name: Centreon build docker test openid
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/docker/Dockerfile.centreon-web-legacy-alma8"
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/docker/Dockerfile.centreon-web-legacy-alma8"
+
+jobs:
+  generate-input-versions:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate matrix with all available rpms
+        id: set-matrix
+        run: |
+          echo "::set-output name=matrix::$(ls -l | grep '^d' | awk -F ' ' '{print $9}' | jq -R -s -c 'split("/\n") | map(select(length > 0))')"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+  create-and-push-docker:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        version: ${{ fromJson(needs.generate-input-versions.outputs.matrix) }}
+        include:
+          - project: centreon-web
+          - os: alma9
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+      - name: build docker ${{ matrix.project }}
+        run: docker build --build-arg centreon-version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }}-legacy-${{ matrix.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-legacy-${{matrix.os}}:${{ matrix.version }}
+
+      - name: push docker ${{ matrix.project }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-legacy-${{matrix.os}}:${{ matrix.version }}
