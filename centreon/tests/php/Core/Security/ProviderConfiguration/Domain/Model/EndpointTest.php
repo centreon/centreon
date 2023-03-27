@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration;
+namespace Tests\Core\Security\ProviderConfiguration\Domain\Model;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
@@ -62,4 +62,18 @@ it('should throw an exception with a null URL and a custom type', function () {
 
 it('should throw an exception with an empty URL and a custom type', function () {
     (new Endpoint(Endpoint::CUSTOM, ''));
+})->throws(InvalidEndpointException::class, InvalidEndpointException::invalidUrl()->getMessage());
+
+it(
+    'should return an EndpointCondition instance when an URL type is Custom and it contains additional slashes',
+    function () {
+        $urlWithAdditionalShlashes = '   //info/   ';
+        $sanitizedURL = '/info';
+        $endpointCondition = new Endpoint(Endpoint::CUSTOM, $urlWithAdditionalShlashes);
+        expect($endpointCondition->getUrl())->toBe($sanitizedURL);
+    }
+);
+
+it('should throw an exception when a custom type URL contains only spaces and/or slashes', function () {
+    (new Endpoint(Endpoint::CUSTOM, '    ///  '));
 })->throws(InvalidEndpointException::class, InvalidEndpointException::invalidUrl()->getMessage());
