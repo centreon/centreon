@@ -846,6 +846,17 @@ sub launchdiscovery {
     }
     $self->{audit_user_id} = $user_id;
 
+    ##################
+    # get vault config
+    ##################
+    ($status, $message, my $vault_count) = gorgone::modules::centreon::autodiscovery::services::resources::get_vault_configured(
+        class_object_centreon => $self->{class_object_centreon}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        return -1;
+    }
+
     ################
     # get rules
     ################
@@ -854,7 +865,8 @@ sub launchdiscovery {
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
         filter_rules => $data->{content}->{filter_rules},
-        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0
+        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0,
+		vault_count => $vault_count
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -874,7 +886,8 @@ sub launchdiscovery {
             class_object_centreon => $self->{class_object_centreon},
             with_macro => 1,
             host_lookup => $data->{content}->{filter_hosts},
-            poller_lookup => $data->{content}->{filter_pollers}
+            poller_lookup => $data->{content}->{filter_pollers},
+		    vault_count => $vault_count
         );
         if ($status < 0) {
             $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);

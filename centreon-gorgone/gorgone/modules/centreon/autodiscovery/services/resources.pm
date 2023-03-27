@@ -99,6 +99,20 @@ sub get_audit_user_id {
     return (0, '', $user_id);
 }
 
+sub get_vault_configured {
+    my (%options) = @_;
+
+    my ($status, $datas) = $options{class_object_centreon}->custom_execute(
+        request => "SELECT count(id) FROM vault_configuration",
+        mode => 2
+    );
+    if ($status == -1 || !defined($datas->[0])) {
+        return (-1, 'cannot get number of vault configured');
+    }
+
+    return (0, '', $datas->[0]->[0]);
+}
+
 sub get_rules {
     my (%options) = @_;
     
@@ -119,10 +133,12 @@ sub get_rules {
         $filter .= ') AND ';
     }
 
+    my $request = "SELECT rule_id, rule_alias, service_display_name, rule_disable, rule_update, ";
+    $request .= $options{vault_count} > 0 ? " CONCAT(command_line, ' --pass-manager=\"centreonvault\"') as command_line" : " command_line";
+    $request .= ", service_template_model_id, rule_scan_display_custom, rule_variable_custom";
+    $request .= " FROM mod_auto_disco_rule, command WHERE " . $filter . " mod_auto_disco_rule.command_command_id = command.command_id";
     my ($status, $rules) = $options{class_object_centreon}->custom_execute(
-        request =>
-            "SELECT rule_id, rule_alias, service_display_name, rule_disable, rule_update, command_line, service_template_model_id, rule_scan_display_custom, rule_variable_custom
-              FROM mod_auto_disco_rule, command WHERE " . $filter . " mod_auto_disco_rule.command_command_id = command.command_id",
+        request => $request,
         bind_values => \@bind_values,
         mode => 1,
         keys => 'rule_id'
@@ -374,7 +390,11 @@ sub get_hosts {
             if (defined($done_macro_host->{ $host_id })) {
                 $datas->{$host_id}->{macros} = $done_macro_host->{ $host_id };
             } else {
-                ($status, my $message, my $macros) = get_macros_host(host_id => $host_id, class_object_centreon => $options{class_object_centreon});
+                ($status, my $message, my $macros) = get_macros_host(
+                    host_id => $host_id,
+                    class_object_centreon => $options{class_object_centreon},
+                    vault_count => $options{vault_count}
+                );
                 if ($status == -1) {
                     return (-1, $message);
                 }
@@ -428,20 +448,6 @@ sub get_macros_host {
             set_macro(\%macros, '$_HOSTSNMPVERSION$', $datas->[0]->[1]);
         }
 
-        # Search if a vault is configured
-        ($status, $datas) = $options{class_object_centreon}->custom_execute(
-            request => "SELECT count(id) FROM vault_configuration",
-            mode => 2
-        );
-        if ($status == -1) {
-            return (-1, 'get macro: cannot get vault_configuration');
-        }
-        my $vault_conf_count = $datas->[0]->[0];
-        # Complete command with vault
-        if ($vault_conf_count > 0) {
-
-        }
-
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
             request => "SELECT host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
             mode => 2
@@ -454,7 +460,7 @@ sub get_macros_host {
             my $macro_value = $_->[1];
             my $is_password = $_->[2];
             # Replace macro value if a vault is used
-            if ($is_password == 1 && $vault_conf_count > 0) {
+            if ($options{vault_count} > 0 && defined($is_password) && $is_password == 1) {
                 set_macro(\%macros, $macro_name, "{" . $macro_name . "::secret::" . $macro_value . "}");
             } else {
                 set_macro(\%macros, $macro_name, $macro_value);
