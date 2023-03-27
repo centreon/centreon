@@ -1,4 +1,5 @@
 const routeMap = {
+  about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
   extensionsManagerPage: '/administration/extensions/manager',

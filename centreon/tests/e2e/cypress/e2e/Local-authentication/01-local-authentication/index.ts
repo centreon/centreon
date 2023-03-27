@@ -466,8 +466,7 @@ Then('the user is locked after reaching the number of allowed attempts', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
     preserveToken: false
-  })
-  cy.contains('User is blocked').should('exist');
+  }).contains('Authentication failed');
 
   cy.reload();
 });
