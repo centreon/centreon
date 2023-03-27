@@ -25,7 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.default,
     display: 'flex',
     flexDirection: 'column',
-    minWidth: theme.spacing(13.5)
+    minWidth: theme.spacing(13.5),
+    padding:theme.spacing(0,1,0,1)
   },
   icon: {
     minWidth: theme.spacing(3)
