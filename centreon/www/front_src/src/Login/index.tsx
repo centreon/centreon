@@ -25,6 +25,7 @@ import {
 import CustomText from './CustomText';
 
 const ExternalProviders = lazy(() => import('./ExternalProviders'));
+
 const LoginForm = lazy(() => import('./Form'));
 const LoginHeader = lazy(() => import('./LoginHeader'));
 

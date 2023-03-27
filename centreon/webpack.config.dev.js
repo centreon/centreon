@@ -47,6 +47,10 @@ const modules = [
   {
     getDirectoryPath: getStaticDirectoryPath,
     name: 'centreon-it-edition-extensions'
+  },
+  {
+    getDirectoryPath: getStaticDirectoryPath,
+    name: 'centreon-anomaly-detection'
   }
 ];
 

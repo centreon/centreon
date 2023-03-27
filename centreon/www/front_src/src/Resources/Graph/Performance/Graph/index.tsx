@@ -1,4 +1,12 @@
-import { memo, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  MouseEvent,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { AddSVGProps } from '@visx/shape/lib/types';
 import { Event, Grid, Group, Shape, Tooltip as VisxTooltip } from '@visx/visx';
@@ -37,9 +45,8 @@ import {
 } from '../../../translatedLabels';
 import Lines from '../Lines';
 import {
-  AdditionalDataProps,
+  AdditionalLines,
   AdjustTimePeriodProps,
-  GetDisplayAdditionalLinesConditionProps,
   Line as LineModel,
   TimeValue
 } from '../models';
@@ -47,8 +54,11 @@ import {
   getDates,
   getLeftScale,
   getRightScale,
+  getSortedStackedLines,
   getTime,
-  getXScale
+  getUnits,
+  getXScale,
+  getYScale
 } from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
@@ -191,7 +201,6 @@ interface GraphContentProps {
   displayEventAnnotations: boolean;
   displayTimeValues: boolean;
   format: (parameters) => string;
-  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   height: number;
   hideAddCommentTooltip: () => void;
   interactWithGraph: boolean;
@@ -199,6 +208,7 @@ interface GraphContentProps {
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
+  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
   shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
@@ -210,7 +220,7 @@ interface GraphContentProps {
 
 export const bisectDate = bisector(identity).center;
 
-const GraphContent = <T,>({
+const GraphContent = ({
   width,
   height,
   timeSeries,
@@ -235,9 +245,8 @@ const GraphContent = <T,>({
   isInViewport,
   interactWithGraph,
   displayTimeValues,
-  additionalData,
-  getDisplayAdditionalLinesCondition
-}: GraphContentProps & AdditionalDataProps<T>): JSX.Element => {
+  renderAdditionalLines
+}: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
   const theme = useTheme();
@@ -462,7 +471,10 @@ const GraphContent = <T,>({
   const commentTitle = isCommentPermitted ? '' : t(labelActionNotPermitted);
 
   const additionalLinesProps = {
+    getSortedStackedLines,
     getTime,
+    getUnits,
+    getYScale,
     graphHeight,
     graphWidth,
     leftScale,
@@ -512,13 +524,10 @@ const GraphContent = <T,>({
               graphHeight={graphHeight}
               leftScale={leftScale}
               lines={lines}
-              renderAdditionalLines={getDisplayAdditionalLinesCondition?.displayAdditionalLines(
-                {
-                  additionalData,
-                  additionalLinesProps,
-                  resource
-                }
-              )}
+              renderAdditionalLines={renderAdditionalLines?.({
+                additionalLinesProps,
+                resource
+              })}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}
@@ -667,11 +676,10 @@ const propertiesToMemoize = [
   'displayTooltipValues',
   'displayEventAnnotations',
   'containsMetrics',
-  'isInViewport',
-  'additionalData'
+  'isInViewport'
 ];
 
-const Graph = <T,>(
+const Graph = (
   props: Omit<
     GraphContentProps,
     | 'addCommentTooltipLeft'
@@ -682,8 +690,7 @@ const Graph = <T,>(
     | 'format'
     | 'changeMetricsValue'
     | 'isInViewport'
-  > &
-    AdditionalDataProps<T>
+  >
 ): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const {
