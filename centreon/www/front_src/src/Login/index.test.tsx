@@ -19,7 +19,6 @@ import { userEndpoint } from '../api/endpoint';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import {
-  labelCentreonLogo,
   labelDisplayThePassword,
   labelConnect,
   labelLoginSucceeded,
