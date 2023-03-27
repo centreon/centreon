@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     minWidth: theme.spacing(13.5),
-    padding: theme.spacing(0, 1, 0, 1)
+    padding: theme.spacing(0, 1)
   },
   icon: {
     minWidth: theme.spacing(3)
