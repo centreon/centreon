@@ -1,4 +1,4 @@
-FROM docker.centreon.com/proxy/centos:7 AS web_fresh
+FROM centos:7 AS web_fresh
 
 RUN <<EOF
 
