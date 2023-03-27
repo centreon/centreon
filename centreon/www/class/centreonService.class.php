@@ -88,32 +88,6 @@ class CentreonService
      */
     private array $formattedMacros = [];
 
-    /**
-     * Macros formatted by id
-     * ex:
-     * [
-     *  1 => [
-     *    "macroName" => "KEY"
-     *    "macroValue" => "value"
-     *    "macroPassword" => "1"
-     *  ],
-     *  2 => [
-     *    "macroName" => "KEY_1"
-     *    "macroValue" => "value_1"
-     *    "macroPassword" => "1"
-     *    "originalName" => "MACRO_1"
-     *  ]
-     * ]
-     *
-     * @var array<int,array{
-     *  macroName: string,
-     *  macroValue: string,
-     *  macroPassword: '0'|'1',
-     *  originalName?: string
-     * }>
-     */
-    private array $formattedMacros = [];
-
     private const TABLE_SERVICE_CONFIGURATION = 'service',
                   TABLE_SERVICE_REALTIME = 'services';
 
