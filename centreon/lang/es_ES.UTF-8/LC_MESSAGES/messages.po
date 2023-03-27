@@ -15610,3 +15610,6 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 # msgid "OK status services"
 # msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""
