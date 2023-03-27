@@ -60,6 +60,14 @@ const useMain = (): void => {
       endpoint: platformInstallationStatusEndpoint,
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
+
+      if (
+        !retrievedPlatformInstallationStatus?.isInstalled &&
+        !retrievedPlatformInstallationStatus?.hasUpgradeAvailable
+      ) {
+        return;
+      }
+
       getPlatformVersions();
     });
   }, []);
