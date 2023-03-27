@@ -332,6 +332,6 @@ class CentreonStatistics
 
         $result = $this->dbConfig->query($query);
 
-        return $result->fetchColumn();
+        return (int) $result->fetchColumn();
     }
 }
