@@ -1,67 +1,48 @@
-import { useAtom } from 'jotai';
-import { equals, isEmpty, isNil, prop } from 'ramda';
+import { SetStateAction, useAtom } from 'jotai';
+import { isEmpty, isNil, prop } from 'ramda';
 
 import { imagesAtom } from './atoms';
 
-interface Resource {
-  read: () => string;
+interface CreateImageProps {
+  alt: string;
+  image?: string;
+  imageSrc: string;
+  setImages: (update: SetStateAction<Record<string, string>>) => void;
 }
 
-enum Status {
-  error = 'error',
-  pending = 'pending',
-  success = 'success'
-}
-
-const createImage = (imageSrc: string): Resource => {
-  let status = Status.pending;
-  let image;
-
+const createImage = ({
+  setImages,
+  imageSrc,
+  image,
+  alt
+}: CreateImageProps): void => {
   const imageLoaderPromise = new Promise<string>((resolve, reject) => {
     const img = new Image();
     img.src = imageSrc;
     img.onload = (): void => resolve(imageSrc);
     img.onerror = (): void =>
       reject(new Error(`Failed to load image ${imageSrc}`));
-  })
+  });
+
+  if (!isNil(image) || isEmpty(image)) {
+    return;
+  }
+
+  imageLoaderPromise
     .then((result: string): void => {
-      status = Status.success;
-      image = result;
+      setImages((currentImages) => ({ ...currentImages, [alt]: result }));
     })
-    .catch((e: Error) => {
-      status = Status.error;
-      image = e;
+    .catch(() => {
+      setImages((currentImages) => ({ ...currentImages, [alt]: '' }));
     });
-
-  return {
-    read: (): string => {
-      if (equals(Status.pending, status)) {
-        throw imageLoaderPromise;
-      }
-
-      if (equals(Status.error, status)) {
-        return '';
-      }
-
-      return image;
-    }
-  };
 };
 
-export const useLoadImage = ({ imageSrc, alt }): Resource => {
+export const useLoadImage = ({ imageSrc, alt }): boolean => {
   const [images, setImages] = useAtom(imagesAtom);
 
   const image = prop(alt, images);
 
-  if (!isNil(image) || isEmpty(image)) {
-    return {
-      read: () => ''
-    };
-  }
+  createImage({ alt, image, imageSrc, setImages });
 
-  const newImage = createImage(imageSrc);
-
-  setImages((currentImages) => ({ ...currentImages, [alt]: newImage }));
-
-  return newImage;
+  return !isNil(image) || isEmpty(image);
 };
