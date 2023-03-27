@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,14 @@
  *
  */
 
-namespace Centreon\Tests\Domain\Repository;
+declare(strict_types=1);
 
-use Centreon\Domain\Repository\NagiosServerRepository;
-use PHPUnit\Framework\TestCase;
-use Centreon\Tests\Resources\Traits;
+namespace Centreon\Domain\Configuration\Icon;
 
-/**
- * @group Centreon
- * @group ORM-repository
- */
-class NagiosServerRepositoryTest extends TestCase
+class IconException extends \Exception
 {
-    use Traits\CheckListOfIdsTrait;
-
-    /**
-     * Test the method checkListOfIds
-     */
-    public function testCheckListOfIds()
+    public static function iconDoesNotExists(int $id): self
     {
-        $this->checkListOfIdsTrait(
-            NagiosServerRepository::class,
-            'checkListOfIds'
-        );
+        return new self(sprintf(_('Icon #%d does not exist'), $id));
     }
 }

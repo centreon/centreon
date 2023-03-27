@@ -56,6 +56,7 @@ use Symfony\Component\HttpKernel\Event\{
     ExceptionEvent, RequestEvent, ResponseEvent
 };
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\{
     Exception\AccessDeniedException, Security, User\UserInterface
@@ -357,14 +358,19 @@ class CentreonEventSubscriber implements EventSubscriberInterface
          * If we don't do that a HTML error will appeared.
          */
         if ($errorIsBeforeController) {
-            if ($event->getThrowable()->getCode() !== 403) {
-                $errorCode = $event->getThrowable()->getCode() > 0
-                    ? $event->getThrowable()->getCode()
-                    : Response::HTTP_INTERNAL_SERVER_ERROR;
+            if ($event->getThrowable()->getCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
+                $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-            } else {
+            } elseif ($event->getThrowable()->getCode() === Response::HTTP_FORBIDDEN) {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_FORBIDDEN;
+            } elseif ($event->getThrowable() instanceof NotFoundHttpException) {
+                $errorCode = Response::HTTP_NOT_FOUND;
+                $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                $errorCode = $event->getThrowable()->getCode();
+                $statusCode = $event->getThrowable()->getCode()
+                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
             }
             $this->logException($event->getThrowable());
             // Manage exception outside controllers

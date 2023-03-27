@@ -22,7 +22,7 @@ import { labelLogin } from './translatedLabels';
 
 const ExternalProviders = lazy(() => import('./ExternalProviders'));
 
-const Copyright = lazy(() => import('./Copyright'));
+const Copyright = lazy(() => import('../About/Sections/Copyright'));
 
 const LoginForm = lazy(() => import('./Form'));
 

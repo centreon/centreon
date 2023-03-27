@@ -43,6 +43,10 @@ const modules = [
   {
     getDirectoryPath: () => `${__dirname}/www/modules/centreon-map4-web-client`,
     name: 'centreon-map4-web-client'
+  },
+  {
+    getDirectoryPath: getStaticDirectoryPath,
+    name: 'centreon-anomaly-detection'
   }
 ];
 
