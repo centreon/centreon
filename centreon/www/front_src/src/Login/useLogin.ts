@@ -171,7 +171,6 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-
         getInternalTranslation().then(() =>
           loadUser()?.then(() =>
             navigate(prop('redirectUri', response as Redirect))
