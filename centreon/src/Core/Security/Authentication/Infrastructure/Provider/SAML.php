@@ -68,29 +68,19 @@ class SAML implements ProviderAuthenticationInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var Configuration
-     */
+    /** @var Configuration */
     private Configuration $configuration;
 
-    /**
-     * @var Centreon
-     */
+    /** @var Centreon */
     private Centreon $legacySession;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $username;
 
-    /**
-     * @var ContactInterface|null
-     */
+    /** @var ContactInterface|null */
     private ?ContactInterface $authenticatedUser = null;
 
-    /**
-     * @var Auth|null
-     */
+    /** @var Auth|null */
     private ?Auth $auth = null;
 
     /**
