@@ -393,17 +393,16 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     /**
      * Get the default timezone.
      *
-     * @return string
-     *   The timezone name.
+     * @return string The timezone name
      */
     private function getDefaultTimezone(): string
     {
-        $query = <<<SQL
-                SELECT timezone.timezone_name
-                FROM `:db`.timezone
-                JOIN `:db`.options ON timezone.timezone_id = options.value
-                WHERE options.key = 'gmt'
-                SQL;
+        $query = <<<'SQL'
+            SELECT timezone.timezone_name
+            FROM `:db`.timezone
+            JOIN `:db`.options ON timezone.timezone_id = options.value
+            WHERE options.key = 'gmt'
+            SQL;
 
         $query = $this->translateDbName($query);
 
