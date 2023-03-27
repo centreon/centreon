@@ -157,7 +157,7 @@ interface CustomStyle {
   customStyleViewerModeContainer?: string;
   customStyleViewerModeIcon?: string;
 }
-interface ViewerModeData {
+interface ViewerModeConfiguration {
   customStyle?: CustomStyle;
   labelViewerMode?: string;
   onClick: () => void;
@@ -175,7 +175,6 @@ export interface Props<TRow> {
   customPaginationClassName?: string;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
-  displayViewerMode?: boolean;
   getHighlightRowCondition?: (row: TRow) => boolean;
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
@@ -199,7 +198,7 @@ export interface Props<TRow> {
   sortOrder?: SortOrder;
   totalRows?: number;
   viewMode?: ListingVariant;
-  viewerModeData?: ViewerModeData;
+  viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
 }
 
@@ -243,8 +242,7 @@ const Listing = <TRow extends { id: RowId }>({
   viewMode = ListingVariant.compact,
   widthToMoveTablePagination,
   getHighlightRowCondition,
-  viewerModeData,
-  displayViewerMode
+  viewerModeConfiguration
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -532,13 +530,12 @@ const Listing = <TRow extends { id: RowId }>({
             columns={columns}
             currentPage={currentPage}
             customPaginationClassName={customPaginationClassName}
-            displayViewerMode={displayViewerMode}
             limit={limit}
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
             viewMode={viewMode}
-            viewerModeData={viewerModeData}
+            viewerModeConfiguration={viewerModeConfiguration}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}

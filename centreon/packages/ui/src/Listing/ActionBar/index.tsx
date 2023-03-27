@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { equals, isNil, not, pick } from 'ramda';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -85,9 +85,8 @@ type Props = Pick<
   | 'moveTablePagination'
   | 'widthToMoveTablePagination'
   | 'customPaginationClassName'
-  | 'viewerModeData'
-  | 'displayViewerMode'
   | 'viewMode'
+  | 'viewerModeConfiguration'
 >;
 
 const MemoListingActionBar = ({
@@ -106,8 +105,7 @@ const MemoListingActionBar = ({
   moveTablePagination = false,
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
-  viewerModeData,
-  displayViewerMode,
+  viewerModeConfiguration,
   viewMode
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
@@ -136,30 +134,37 @@ const MemoListingActionBar = ({
           <div>{actions}</div>
         </div>
         <div className={classes.subContainer}>
-          {displayViewerMode && viewerModeData && (
-            <IconButton
-              ariaLabel={t(viewerModeData?.labelViewerMode ?? '') as string}
-              className={
-                viewerModeData?.customStyle?.customStyleViewerModeContainer
-              }
-              data-testid={viewerModeData?.testId}
-              size="large"
-              title={viewerModeData?.title}
-              onClick={viewerModeData?.onClick}
-            >
-              <div
-                className={cx(
-                  classes.iconMode,
-                  viewerModeData?.customStyle?.customStyleViewerModeIcon,
-                  { [classes.mode]: equals(viewMode, ListingVariant.extended) }
-                )}
+          {!isEmpty(viewerModeConfiguration) &&
+            !isNil(viewerModeConfiguration) && (
+              <IconButton
+                ariaLabel={
+                  t(viewerModeConfiguration?.labelViewerMode ?? '') as string
+                }
+                className={
+                  viewerModeConfiguration?.customStyle
+                    ?.customStyleViewerModeContainer
+                }
+                data-testid={viewerModeConfiguration?.testId}
+                size="large"
+                title={viewerModeConfiguration?.title}
+                onClick={viewerModeConfiguration?.onClick}
               >
-                <ArrowUpwardIcon fontSize="small" />
-                <Divider />
-                <ArrowDownwardIcon fontSize="small" />
-              </div>
-            </IconButton>
-          )}
+                <div
+                  className={cx(
+                    classes.iconMode,
+                    viewerModeConfiguration?.customStyle
+                      ?.customStyleViewerModeIcon,
+                    {
+                      [classes.mode]: equals(viewMode, ListingVariant.extended)
+                    }
+                  )}
+                >
+                  <ArrowUpwardIcon fontSize="small" />
+                  <Divider />
+                  <ArrowDownwardIcon fontSize="small" />
+                </div>
+              </IconButton>
+            )}
           <div className={classes.ModeViewer} />
           {columnConfiguration?.selectedColumnIds && (
             <ColumnMultiSelect
@@ -230,9 +235,8 @@ const ListingActionBar = ({
   moveTablePagination,
   widthToMoveTablePagination,
   customPaginationClassName,
-  viewerModeData,
-  displayViewerMode = false,
-  viewMode
+  viewMode,
+  viewerModeConfiguration
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -250,13 +254,12 @@ const ListingActionBar = ({
       columns={columns}
       currentPage={currentPage}
       customPaginationClassName={customPaginationClassName}
-      displayViewerMode={displayViewerMode}
       limit={limit}
       moveTablePagination={moveTablePagination}
       paginated={paginated}
       totalRows={totalRows}
       viewMode={viewMode}
-      viewerModeData={viewerModeData}
+      viewerModeConfiguration={viewerModeConfiguration}
       widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
