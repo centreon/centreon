@@ -37,13 +37,13 @@ runs:
       shell: bash
 
     - name: Cache index.html file
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.index_file }}
         key: ${{ inputs.index_cache_key }}
 
     - name: Cache static directory
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.static_directory }}
         key: ${{ inputs.static_cache_key }}
