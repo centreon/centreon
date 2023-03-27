@@ -1,10 +1,10 @@
-FROM docker.centreon.com/proxy/cypress/included:9.7.0
+FROM cypress/included:9.7.0
 
 RUN apt-get update -y && apt-get install -y \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
+  ca-certificates \
+  curl \
+  gnupg \
+  lsb-release
 
 RUN mkdir -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 RUN echo \
