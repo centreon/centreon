@@ -134,8 +134,7 @@ const predefinedRowsSelection = [
 const Story = ({
   columns = defaultColumns,
   checkable = true,
-  displayViewerMode = false,
-  viewerModeData,
+  viewerModeConfiguration,
   ...props
 }: Omit<ListingProps<Entity>, 'columns'> & {
   columns?: Array<Column>;
@@ -151,14 +150,13 @@ const Story = ({
         currentPage={0}
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
         disableRowCondition={(row): boolean => row.disableRow}
-        displayViewerMode={displayViewerMode}
         limit={listing.length}
         predefinedRowsSelection={predefinedRowsSelection}
         rowColorConditions={rowColorConditions}
         rows={listing}
         selectedRows={selected}
         totalRows={listing.length}
-        viewerModeData={viewerModeData}
+        viewerModeConfiguration={viewerModeConfiguration}
         onSelectRows={setSelected}
         {...props}
       />
@@ -176,9 +174,8 @@ export const WithSpecifiedViewMode = (): JSX.Element => {
 
   return (
     <Story
-      displayViewerMode
       viewMode={viewMode}
-      viewerModeData={{
+      viewerModeConfiguration={{
         onClick: () => setViewMode(newViewMode),
         title: viewMode
       }}

@@ -29,7 +29,7 @@ Given('I am logged in', () => {
 });
 
 When('I click on the logout action', () => {
-  cy.contains('Rows per page');
+  cy.contains('Resources Status');
   cy.getByLabel({ label: 'Profile' }).click();
   cy.contains('Logout').click();
 });

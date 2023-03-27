@@ -206,7 +206,6 @@ const ResourceListing = (): JSX.Element => {
   return (
     <Listing
       checkable
-      displayViewerMode
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
@@ -244,7 +243,7 @@ const ResourceListing = (): JSX.Element => {
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
       viewMode={user.resourceStatusViewMode}
-      viewerModeData={{
+      viewerModeConfiguration={{
         onClick: changeViewModeTableResources,
         title: user.resourceStatusViewMode
       }}
