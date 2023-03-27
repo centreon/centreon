@@ -211,7 +211,7 @@ class Assertion
         Assert::notEmpty(
             $value,
             function (array $parameters) {
-                return AssertionException::notEmpty($parameters['propertyPath']);
+                return AssertionException::notEmpty($parameters['propertyPath'])->getMessage();
             },
             $propertyPath
         );
@@ -229,7 +229,7 @@ class Assertion
         Assert::notNull(
             $value,
             function (array $parameters) {
-                return AssertionException::notNull($parameters['propertyPath']);
+                return AssertionException::notNull($parameters['propertyPath'])->getMessage();
             },
             $propertyPath
         );
@@ -278,7 +278,7 @@ class Assertion
                     $parameters['value'],
                     $parameters['choices'],
                     $parameters['propertyPath']
-                );
+                )->getMessage();
             },
             $propertyPath
         );
