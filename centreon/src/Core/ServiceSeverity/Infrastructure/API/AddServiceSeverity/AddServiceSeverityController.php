@@ -57,7 +57,7 @@ final class AddServiceSeverityController extends AbstractController
              *     name: string,
              *     alias: string,
              *     level: int,
-             *     icon_id: positive-int,
+             *     icon_id: int,
              *     is_activated?: bool
              * } $data
              */
@@ -80,7 +80,7 @@ final class AddServiceSeverityController extends AbstractController
      *     name: string,
      *     alias: string,
      *     level: int,
-     *     icon_id: positive-int,
+     *     icon_id: int,
      *     is_activated?: bool
      * } $data
      *

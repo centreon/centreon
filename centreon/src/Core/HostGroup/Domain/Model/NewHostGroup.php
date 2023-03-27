@@ -43,8 +43,8 @@ class NewHostGroup
      * @param string $notes
      * @param string $notesUrl
      * @param string $actionUrl
-     * @param positive-int|null $iconId FK
-     * @param positive-int|null $iconMapId FK
+     * @param int|null $iconId FK
+     * @param int|null $iconMapId FK
      * @param int|null $rrdRetention Days
      * @param GeoCoords|null $geoCoords
      * @param string $comment

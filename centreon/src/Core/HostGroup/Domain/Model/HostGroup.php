@@ -29,18 +29,17 @@ use Core\Domain\Common\GeoCoords;
 
 class HostGroup extends NewHostGroup
 {
-    /** @var positive-int */
     private int $id;
 
     /**
-     * @param positive-int $id
+     * @param int $id
      * @param string $name
      * @param string $alias
      * @param string $notes
      * @param string $notesUrl
      * @param string $actionUrl
-     * @param positive-int|null $iconId FK
-     * @param positive-int|null $iconMapId FK
+     * @param int|null $iconId FK
+     * @param int|null $iconMapId FK
      * @param int|null $rrdRetention Days
      * @param GeoCoords|null $geoCoords
      * @param string $comment
@@ -81,7 +80,7 @@ class HostGroup extends NewHostGroup
     }
 
     /**
-     * @return positive-int
+     * @return int
      */
     public function getId(): int
     {
