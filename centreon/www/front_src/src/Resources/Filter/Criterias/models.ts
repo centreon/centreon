@@ -1,4 +1,4 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
 import {

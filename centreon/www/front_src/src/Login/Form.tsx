@@ -78,7 +78,7 @@ const LoginForm = (): JSX.Element => {
         fullWidth
         required
         StartAdornment={PersonIcon}
-        ariaLabel={t(labelAlias)}
+        ariaLabel={labelAlias}
         error={aliasError}
         label={t(labelAlias)}
         value={aliasValue || ''}
@@ -90,7 +90,7 @@ const LoginForm = (): JSX.Element => {
         required
         EndAdornment={passwordEndAdornment}
         StartAdornment={LockIcon}
-        ariaLabel={t(labelPassword)}
+        ariaLabel={labelPassword}
         error={passwordError}
         label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
@@ -100,7 +100,7 @@ const LoginForm = (): JSX.Element => {
       />
       <Button
         fullWidth
-        aria-label={t(labelConnect)}
+        aria-label={labelConnect}
         color="primary"
         disabled={isDisabled}
         endIcon={isSubmitting && <CircularProgress color="inherit" size={20} />}

@@ -1,6 +1,7 @@
 import { isNil } from 'ramda';
 
-import { ListingModel, useRequest } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 import { TabProps } from '..';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';

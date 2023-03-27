@@ -60,7 +60,11 @@ const Radio = ({
     Component: (
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
-        <RadioGroup value={value} onChange={changeRadio}>
+        <RadioGroup
+          row={radio?.row || false}
+          value={value}
+          onChange={changeRadio}
+        >
           {radio?.options?.map(({ value: optionValue, label: optionLabel }) => (
             <FormControlLabel
               control={
@@ -69,7 +73,7 @@ const Radio = ({
                   disabled={disabled}
                   id={getNormalizedId(`${dataTestId}${optionLabel}`)}
                   inputProps={{
-                    'aria-label': t(optionLabel)
+                    'aria-label': t(optionLabel) || ''
                   }}
                 />
               }

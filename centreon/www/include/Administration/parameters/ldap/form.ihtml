@@ -12,6 +12,7 @@
 		<td class="FormRowField"><img class="helpTooltip" name="ldap_auto_import" /><span>{$form.ldap_auto_import.label}</span></td>
 		<td class="FormRowValue">{$form.ldap_auto_import.html}&nbsp;&nbsp;<input type="button" onClick="javascript:location.href='./main.get.php?p=60301&o=li'" class="btc bt_info" value='{$manualImport}'></td>
 	</tr>
+	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="ldap_connection_timeout" /><span>{$form.ldap_connection_timeout.label}</span></td><td class="FormRowValue">{$form.ldap_connection_timeout.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="ldap_search_limit" /><span>{$form.ldap_search_limit.label}</span></td><td class="FormRowValue">{$form.ldap_search_limit.html}</td></tr>
 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="ldap_search_timeout" /><span>{$form.ldap_search_timeout.label}</span></td><td class="FormRowValue">{$form.ldap_search_timeout.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="ldap_contact_tmpl" /><span>{$form.ldap_contact_tmpl.label}</span></td><td class="FormRowValue">{$form.ldap_contact_tmpl.html}{if $o != 'w'}&nbsp;
@@ -28,16 +29,42 @@
     <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2"><h4>{$form.header.ldapScanOption}</h4></td></tr>
 	<tr class="list_two" id="ldap_auto_sync">
 		<td class="FormRowField">
-			<img class="helpTooltip" name="ldap_auto_sync" />
-			<span>{$form.ldap_auto_sync.label}</span>
+
+
+			<div class="formRowLabel">
+				<div>
+					<img class="helpTooltip" name="ldap_auto_sync" />
+				</div>
+				<div>
+					<p class="fieldLabel">
+						<span>{$form.ldap_auto_sync.label}</span>
+					</p>
+
+				</div>
+			</div>
+
+
 		</td>
 		<td class="FormRowValue">{$form.ldap_auto_sync.html}</td>
 	</tr>
 	{if $hideSyncInterval != 1}
 		<tr class="list_one" id="ldap_sync_interval">
 			<td class="FormRowField">
-				<img class="helpTooltip" name="ldap_sync_interval" />
-				<span>{$form.ldap_sync_interval.label}</span>
+				<div class="formRowLabel">
+					<div>
+						<img class="helpTooltip" name="ldap_sync_interval" />
+					</div>
+					<div>
+						<p class="fieldLabel">
+							<span>{$form.ldap_sync_interval.label}</span>
+						</p>
+
+					</div>
+				</div>
+
+
+
+
 			</td>
 			<td class="FormRowValue">{$form.ldap_sync_interval.html}</td>
 		</tr>

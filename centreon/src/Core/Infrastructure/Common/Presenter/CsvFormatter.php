@@ -26,28 +26,30 @@ namespace Core\Infrastructure\Common\Presenter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class CsvFormatter extends AbstractFormatter implements PresenterFormatterInterface
+class CsvFormatter implements PresenterFormatterInterface
 {
     /**
      * @inheritDoc
      */
-    public function format(mixed $data): Response
+    public function format(mixed $data, array $headers): Response
     {
-        $response = new StreamedResponse(null, Response::HTTP_OK, $this->responseHeaders);
+        $response = new StreamedResponse(null, Response::HTTP_OK, $headers);
         $response->setCallback(function () use ($data): void {
             $handle = fopen('php://output', 'r+');
             if ($handle === false) {
                 throw new \RuntimeException('Unable to open the output buffer');
             }
             $lineHeadersCreated = false;
-            foreach ($data as $oneData) {
-                if (! $lineHeadersCreated) {
-                    $columnNames = array_keys($oneData);
-                    fputcsv($handle, $columnNames, ';');
-                    $lineHeadersCreated = true;
+            if (is_iterable($data)) {
+                foreach ($data as $oneData) {
+                    if (! $lineHeadersCreated) {
+                        $columnNames = array_keys($oneData);
+                        fputcsv($handle, $columnNames, ';');
+                        $lineHeadersCreated = true;
+                    }
+                    $columnValues = array_values($oneData);
+                    fputcsv($handle, $columnValues, ';');
                 }
-                $columnValues = array_values($oneData);
-                fputcsv($handle, $columnValues, ';');
             }
 
             fclose($handle);

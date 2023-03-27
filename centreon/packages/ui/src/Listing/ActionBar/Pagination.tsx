@@ -1,22 +1,32 @@
 import { memo } from 'react';
 
 import { equals } from 'ramda';
-import { withStyles } from 'tss-react/mui';
+import { makeStyles } from 'tss-react/mui';
 
 import TablePagination from '@mui/material/TablePagination';
 
-const styles = {
+const useStyles = makeStyles()((theme) => ({
   toolbar: {
-    height: '32px',
-    minHeight: 'auto',
+    height: theme.spacing(4),
     overflow: 'hidden',
     paddingLeft: 5
   }
-};
+}));
 
-const Pagination = (props): JSX.Element => (
-  <TablePagination component="div" {...props} />
-);
+const Pagination = (props): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <TablePagination
+      classes={{
+        toolbar: classes.toolbar
+      }}
+      component="div"
+      data-testid="Listing Pagination"
+      {...props}
+    />
+  );
+};
 
 const MemoizedPagination = memo(
   Pagination,
@@ -28,4 +38,4 @@ const MemoizedPagination = memo(
     equals(prevProps.className, nextProps.className)
 );
 
-export default withStyles(MemoizedPagination, styles);
+export default MemoizedPagination;

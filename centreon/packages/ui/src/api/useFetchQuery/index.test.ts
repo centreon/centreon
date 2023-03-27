@@ -96,12 +96,10 @@ describe('useFetchQuery', () => {
     });
 
     await waitFor(() => {
-      expect(mockedShowErrorMessage).toHaveBeenCalledWith(
-        'Something went wrong'
-      );
+      expect(mockedShowErrorMessage).toHaveBeenCalledWith('error');
     });
 
-    expect(anyLogger().error).toHaveBeenCalledWith('Something went wrong');
+    expect(anyLogger().error).toHaveBeenCalledWith('error');
   });
 
   it('shows a default failure message via the Snackbar as fallback', async () => {

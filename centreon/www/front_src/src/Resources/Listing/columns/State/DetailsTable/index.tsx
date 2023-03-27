@@ -13,13 +13,8 @@ import {
   Skeleton
 } from '@mui/material';
 
-import {
-  useRequest,
-  getData,
-  ListingModel,
-  Column,
-  ColumnType
-} from '@centreon/ui';
+import { useRequest, getData } from '@centreon/ui';
+import type { ListingModel, ColumnType, Column } from '@centreon/ui';
 
 import {
   labelSomethingWentWrong,

@@ -1,6 +1,9 @@
+import * as React from 'react';
+
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
+import AbcIcon from '@mui/icons-material/Abc';
 
 import TextField from '.';
 
@@ -46,6 +49,10 @@ export const large = (): JSX.Element => (
   <TextField placeholder="Large" size="large" />
 );
 
+export const defaultValue = (): JSX.Element => (
+  <TextField defaultValue="Default" label="Default value" />
+);
+
 export const transparent = (): JSX.Element => (
   <TextField transparent placeholder="Transparent" />
 );
@@ -57,3 +64,48 @@ const CustomTextField = (): JSX.Element => {
 };
 
 export const customTextField = (): JSX.Element => <CustomTextField />;
+
+export const autoSize = (): JSX.Element => (
+  <TextField autoSize autoSizeDefaultWidth={60} placeholder="Auto size" />
+);
+
+export const autoSizeCustomPadding = (): JSX.Element => (
+  <TextField
+    autoSize
+    autoSizeCustomPadding={10}
+    autoSizeDefaultWidth={60}
+    placeholder="Auto size"
+  />
+);
+
+const ControlledTextFieldWithAutoSize = (): JSX.Element => {
+  const [value, setValue] = React.useState('');
+
+  const change = (event): void => {
+    setValue(event.target.value);
+  };
+
+  return (
+    <TextField
+      autoSize
+      autoSizeDefaultWidth={60}
+      placeholder="Auto size"
+      value={value}
+      onChange={change}
+    />
+  );
+};
+
+export const AutoSizeControlled = (): JSX.Element => (
+  <ControlledTextFieldWithAutoSize />
+);
+
+export const autoSizeWithEndAdornment = (): JSX.Element => (
+  <TextField
+    autoSize
+    EndAdornment={AbcIcon}
+    autoSizeCustomPadding={10}
+    autoSizeDefaultWidth={60}
+    placeholder="Auto size"
+  />
+);

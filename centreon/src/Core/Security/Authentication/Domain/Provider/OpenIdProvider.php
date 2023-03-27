@@ -24,39 +24,41 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Domain\Provider;
 
 use Centreon;
-use Exception;
-use Throwable;
-use DateInterval;
-use CentreonUserLog;
-use Pimple\Container;
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Entity\ContactGroup;
-use Symfony\Component\HttpFoundation\Response;
-use Core\Domain\Configuration\User\Model\NewUser;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Authentication\Domain\Model\ProviderToken;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
-use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
-use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Core\Security\Authentication\Domain\Exception\AclConditionsException;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
-use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
+use Centreon\Domain\Entity\ContactGroup;
+use Centreon\Domain\Log\LoggerTrait;
+use CentreonUserLog;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
+use Core\Domain\Configuration\User\Model\NewUser;
+use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
+use Core\Security\Authentication\Domain\Model\ProviderToken;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
+use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
+use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
+use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
+use DateInterval;
+use Exception;
+use Pimple\Container;
+use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+use Throwable;
 
 class OpenIdProvider implements OpenIdProviderInterface
 {
@@ -114,21 +116,16 @@ class OpenIdProvider implements OpenIdProviderInterface
     private array $connectionTokenResponseContent = [];
 
     /**
-     * @var array<string>
-     */
-    private array $rolesMappingFromProvider = [];
-
-    /**
-     * @var ContactGroup[]
-     */
-    private array $userContactGroups = [];
-
-    /**
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
      * @param Container $dependencyInjector
      * @param WriteUserRepositoryInterface $userRepository
+     * @param ReadAttributePathRepositoryInterface $readIntrospectionRepository
+     * @param Conditions $conditions
+     * @param RolesMapping $rolesMapping
+     * @param GroupsMappingSecurityAccess $groupsMapping
+     * @param AttributePathFetcher $attributePathFetcher
      */
     public function __construct(
         private HttpClientInterface $client,
@@ -136,6 +133,11 @@ class OpenIdProvider implements OpenIdProviderInterface
         private ContactServiceInterface $contactService,
         private Container $dependencyInjector,
         private WriteUserRepositoryInterface $userRepository,
+        private readonly ReadAttributePathRepositoryInterface $readIntrospectionRepository,
+        private readonly Conditions $conditions,
+        private readonly RolesMapping $rolesMapping,
+        private readonly GroupsMappingSecurityAccess $groupsMapping,
+        private readonly AttributePathFetcher $attributePathFetcher
     ) {
         $pearDB = $this->dependencyInjector['configuration_db'];
         $this->centreonLog = new CentreonUserLog(-1, $pearDB);
@@ -281,6 +283,9 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $this->sendRequestForConnectionTokenOrFail($authorizationCode);
         $this->createAuthenticationTokens();
+        if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
+            $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent["id_token"]);
+        }
         $this->verifyThatClientIsAllowedToConnectOrFail($clientIp);
         if ($this->providerToken->isExpired() && $this->refreshToken->isExpired()) {
             throw SSOAuthenticationException::tokensExpired($this->configuration->getName());
@@ -289,9 +294,6 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->getUserInformationFromIntrospectionEndpoint();
         }
 
-        if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
-            $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent["id_token"]);
-        }
         $this->username = $this->getUsernameFromLoginClaim();
     }
 
@@ -646,12 +648,9 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Validate that Client IP is allowed to connect to external provider.
      *
      * @param string $clientIp
+     * @throws AclConditionsException
      * @throws AuthenticationConditionsException
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
      * @throws SSOAuthenticationException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
      */
     private function verifyThatClientIsAllowedToConnectOrFail(string $clientIp): void
     {
@@ -659,9 +658,12 @@ class OpenIdProvider implements OpenIdProviderInterface
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
         $authenticationConditions = $customConfiguration->getAuthenticationConditions();
+        $rolesMapping = $customConfiguration->getACLConditions();
+        $groupsMapping = $customConfiguration->getGroupsMapping();
+
         foreach ($authenticationConditions->getBlacklistClientAddresses() as $blackListedAddress) {
             if ($blackListedAddress !== "" && preg_match('/' . $blackListedAddress . '/', $clientIp)) {
-                $this->error('IP Blacklisted', [ 'ip' => '...' . substr($clientIp, -5)]);
+                $this->error('IP Blacklisted', ['ip' => '...' . substr($clientIp, -5)]);
                 throw SSOAuthenticationException::blackListedClient();
             }
         }
@@ -671,14 +673,39 @@ class OpenIdProvider implements OpenIdProviderInterface
                 $trustedClientAddress !== ""
                 && preg_match('/' . $trustedClientAddress . '/', $clientIp)
             ) {
-                $this->error('IP not  Whitelisted', [ 'ip' => '...' . substr($clientIp, -5)]);
+                $this->error('IP not  Whitelisted', ['ip' => '...' . substr($clientIp, -5)]);
                 throw SSOAuthenticationException::notWhiteListedClient();
             }
         }
 
-        $this->validateAuthenticationConditionsOrFail($authenticationConditions);
-        $this->validateAclConditions($customConfiguration);
-        $this->validateGroupsMappingOrFail($customConfiguration->getGroupsMapping());
+        $accessToken = $this->providerToken->getToken();
+
+        $this->conditions->validate(
+            $this->configuration,
+            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
+                $accessToken,
+                $this->configuration,
+                $authenticationConditions->getEndpoint()
+            )
+        );
+
+        $this->rolesMapping->validate(
+            $this->configuration,
+            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
+                $accessToken,
+                $this->configuration,
+                $rolesMapping->getEndpoint()
+            )
+        );
+
+        $this->groupsMapping->validate(
+            $this->configuration,
+            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
+                $accessToken,
+                $this->configuration,
+                $groupsMapping->getEndpoint()
+            )
+        );
     }
 
     /**
@@ -878,7 +905,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         $this->centreonLog->insertLog(
             CentreonUserLog::TYPE_LOGIN,
-            "[Openid] [INFO] $message" . ($content !== null ? ' : ' . json_encode($content) : '')
+            "[openid] [INFO] $message" . ($content !== null ? ' : ' . json_encode($content) : '')
         );
 
         $this->info("$message : ", $content ?: []);
@@ -903,492 +930,10 @@ class OpenIdProvider implements OpenIdProviderInterface
     }
 
     /**
-     * Validate Authentication Conditions or throw an exception.
-     *
-     * @param AuthenticationConditions $authenticationConditions
-     * @throws AuthenticationConditionsException
-     * @throws SSOAuthenticationException
-     */
-    private function validateAuthenticationConditionsOrFail(
-        AuthenticationConditions $authenticationConditions
-    ): void {
-        if ($authenticationConditions->isEnabled()) {
-            $conditions = $this->getConditionsFromProvider($authenticationConditions);
-            $this->validateAuthenticationConditions($conditions, $authenticationConditions);
-        }
-    }
-
-    /**
-     * Get authentication conditions from Provider.
-     *
-     * @param AuthenticationConditions $authenticationConditions
-     * @return array<string,mixed>
-     * @throws SSOAuthenticationException
-     */
-    private function getConditionsFromProvider(
-        AuthenticationConditions $authenticationConditions
-    ): array {
-        $conditionsEndpoint = $authenticationConditions->getEndpoint();
-        switch ($conditionsEndpoint->getType()) {
-            case Endpoint::INTROSPECTION:
-                $conditions = $this->sendRequestForIntrospectionEndpoint();
-                break;
-            case Endpoint::USER_INFORMATION:
-                $conditions = $this->sendRequestForUserInformationEndpoint();
-                break;
-            default:
-                $conditions = $this->sendRequestForCustomAuthenticationConditionEndpoint($conditionsEndpoint->getUrl());
-                break;
-        }
-
-        return $conditions;
-    }
-
-    /**
-     * Send Request to get conditions for conditions custom endpoint.
-     *
-     * @param string $customEndpoint
-     * @return array<string,mixed>
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws SSOAuthenticationException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    private function sendRequestForCustomAuthenticationConditionEndpoint(string $customEndpoint): array
-    {
-        $this->info('Sending Request for authentication conditions...');
-
-        $headers = [
-            'Authorization' => "Bearer " . trim($this->providerToken->getToken())
-        ];
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $this->configuration->getCustomConfiguration();
-        $url = str_starts_with($customEndpoint, '/')
-            ? $customConfiguration->getBaseUrl() . $customEndpoint
-            : $customEndpoint;
-        try {
-            $response = $this->client->request(
-                'GET',
-                $url,
-                [
-                    'headers' => $headers,
-                    'verify_peer' => $customConfiguration->verifyPeer()
-                ]
-            );
-        } catch (Exception $ex) {
-            throw SSOAuthenticationException::requestForUserInformationFail();
-        }
-
-        $statusCode = $response->getStatusCode();
-        if ($statusCode !== Response::HTTP_OK) {
-            $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
-            $this->logExceptionInLoginLogFile(
-                "Unable to get authentication conditions: %s, message: %s",
-                SSOAuthenticationException::requestForCustomAuthenticationConditionsEndpointFail()
-            );
-            throw SSOAuthenticationException::requestForCustomAuthenticationConditionsEndpointFail();
-        }
-        $content = json_decode($response->getContent(false), true);
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('Authentication Conditions Info: ', $content);
-            $this->logErrorFromExternalProvider($content);
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
-        }
-        $this->logAuthenticationInfo('Authentication conditions', $content);
-
-        return $content;
-    }
-
-    /**
-     * Validate Authentication conditions or throw an exception.
-     *
-     * @param array<string,mixed> $conditions
-     * @param AuthenticationConditions $authenticationConditions
-     * @throws AuthenticationConditionsException
-     */
-    private function validateAuthenticationConditions(
-        array $conditions,
-        AuthenticationConditions $authenticationConditions
-    ): void {
-        $authenticationAttributePath = explode(".", $authenticationConditions->getAttributePath());
-        $this->logAuthenticationInfo("Configured attribute path found", $authenticationAttributePath);
-        $this->logAuthenticationInfo("Configured authorized values", $authenticationConditions->getAuthorizedValues());
-        foreach ($authenticationAttributePath as $attribute) {
-            $providerAuthenticationConditions = [];
-            if (array_key_exists($attribute, $conditions)) {
-                $providerAuthenticationConditions = $conditions[$attribute];
-                $conditions = $conditions[$attribute];
-            } else {
-                break;
-            }
-        }
-        if (is_string($providerAuthenticationConditions)) {
-            $providerAuthenticationConditions = explode(",", $providerAuthenticationConditions);
-        }
-
-        $this->validateAuthenticationAttributeOrFail(
-            $providerAuthenticationConditions,
-            $authenticationConditions->getAuthorizedValues()
-        );
-    }
-
-    /**
-     * Validate Authentication Condition Attribute
-     *
-     * @param array<mixed> $providerAuthenticationConditions
-     * @param string[] $configuredAuthorizedValues
-     * @throws AuthenticationConditionsException
-     */
-    private function validateAuthenticationAttributeOrFail(
-        array $providerAuthenticationConditions,
-        array $configuredAuthorizedValues
-    ): void {
-        if (array_is_list($providerAuthenticationConditions) === false) {
-            $errorMessage = "Invalid authentication conditions format, array of strings expected";
-            $this->error(
-                $errorMessage,
-                [
-                    "authentication_condition_from_provider" => $providerAuthenticationConditions
-                ]
-            );
-            $this->logExceptionInLoginLogFile(
-                $errorMessage,
-                AuthenticationConditionsException::invalidAuthenticationConditions()
-            );
-            throw AuthenticationConditionsException::invalidAuthenticationConditions();
-        }
-
-        $conditionMatches = array_intersect($providerAuthenticationConditions, $configuredAuthorizedValues);
-        if (empty($conditionMatches)) {
-            $this->error(
-                "Configured attribute value not found in conditions endpoint",
-                [
-                    "configured_authorized_values" => $configuredAuthorizedValues
-                ]
-            );
-            $this->logExceptionInLoginLogFile(
-                "Configured attribute value not found in conditions endpoint: %s, message: %s",
-                AuthenticationConditionsException::conditionsNotFound()
-            );
-            throw AuthenticationConditionsException::conditionsNotFound();
-        }
-        $this->info("Conditions found", ["conditions" => $conditionMatches]);
-        $this->logAuthenticationInfo("Conditions found", $conditionMatches);
-    }
-
-    /**
-     * Send Request to get conditions for conditions custom endpoint.
-     *
-     * @param string $customEndpoint
-     * @return array<string,mixed>
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws SSOAuthenticationException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    private function sendRequestForCustomAclConditionEndpoint(string $customEndpoint): array
-    {
-        $this->info('Sending request for authentication conditions...');
-
-        $headers = [
-            'Authorization' => "Bearer " . trim($this->providerToken->getToken())
-        ];
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $this->configuration->getCustomConfiguration();
-        $url = str_starts_with($customEndpoint, '/')
-            ? $customConfiguration->getBaseUrl() . $customEndpoint
-            : $customEndpoint;
-        try {
-            $response = $this->client->request(
-                'GET',
-                $url,
-                [
-                    'headers' => $headers,
-                    'verify_peer' => $customConfiguration->verifyPeer()
-                ]
-            );
-        } catch (Exception $ex) {
-            throw SSOAuthenticationException::requestForUserInformationFail();
-        }
-
-        $statusCode = $response->getStatusCode();
-        if ($statusCode !== Response::HTTP_OK) {
-            $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
-            $this->logExceptionInLoginLogFile(
-                "Unable to get authentication conditions: %s, message: %s",
-                SSOAuthenticationException::requestForCustomACLConditionsEndpointFail()
-            );
-            throw SSOAuthenticationException::requestForCustomACLConditionsEndpointFail();
-        }
-        $content = json_decode($response->getContent(false), true);
-
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('Authentication Conditions Info: ', $content);
-            $this->logErrorFromExternalProvider($content);
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
-        }
-        $this->logAuthenticationDebug('Authentication conditions: ', $content);
-
-        return $content;
-    }
-
-    /**
-     * Validate ACL conditions (roles mapping) or throw an exception.
-     *
-     * @param CustomConfiguration $customConfiguration
-     * @throws AuthenticationConditionsException
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws SSOAuthenticationException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    private function validateAclConditions(CustomConfiguration $customConfiguration): void
-    {
-        $aclConditions = $customConfiguration->getACLConditions();
-        if (!$aclConditions->isEnabled()) {
-            $this->logAuthenticationInfo("Roles mapping is disabled");
-            return;
-        }
-
-        $this->logAuthenticationInfo("Roles mapping is enabled");
-
-        $conditions = $this->getAclConditionsFromProvider($customConfiguration);
-        $attributePath = explode(".", $aclConditions->getAttributePath());
-        foreach ($attributePath as $attribute) {
-            $providerConditions = [];
-            if (array_key_exists($attribute, $conditions)) {
-                $providerConditions = $conditions[$attribute];
-                $conditions = $conditions[$attribute];
-            } else {
-                break;
-            }
-        }
-
-        $configuredClaimValues = $aclConditions->getClaimValues();
-        if ($aclConditions->onlyFirstRoleIsApplied() && !empty($configuredClaimValues)) {
-            $configuredClaimValues = [$configuredClaimValues[0]];
-        }
-
-        $this->rolesMappingFromProvider = $providerConditions;
-
-        if (is_string($providerConditions)) {
-            $providerConditions = explode(",", $providerConditions);
-        }
-
-        $this->validateAclAttributeOrFail($providerConditions, $configuredClaimValues);
-    }
-
-    /**
-     * Get Acl conditions from Provider.
-     *
-     * @param CustomConfiguration $customConfiguration
-     * @return array<string,mixed>
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws SSOAuthenticationException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    private function getAclConditionsFromProvider(CustomConfiguration $customConfiguration): array
-    {
-        $aclConditions = $customConfiguration->getACLConditions();
-        $endpoint = $customConfiguration->getACLConditions()->getEndpoint();
-        return match ($aclConditions->getEndpoint()->getType()) {
-            Endpoint::INTROSPECTION => $this->sendRequestForIntrospectionEndpoint(),
-            Endpoint::USER_INFORMATION => $this->sendRequestForUserInformationEndpoint(),
-            default => $this->sendRequestForCustomAclConditionEndpoint($endpoint->getUrl()),
-        };
-    }
-
-    /**
-     * Validate roles mapping (Acl) Condition Attribute
-     *
-     * @param array<mixed> $conditions
-     * @param string[] $configuredAuthorizedValues
-     * @throws AclConditionsException
-     */
-    private function validateAclAttributeOrFail(array $conditions, array $configuredAuthorizedValues): void
-    {
-        if (array_is_list($conditions) === false) {
-            $errorMessage = "Invalid roles mapping (ACL) conditions format, array of strings expected";
-            $this->error($errorMessage, [
-                    "authentication_condition_from_provider" => $conditions
-            ]);
-            $this->logExceptionInLoginLogFile(
-                $errorMessage,
-                AclConditionsException::invalidAclConditions()
-            );
-            throw AclConditionsException::invalidAclConditions();
-        }
-
-        $conditionMatches = array_intersect($conditions, $configuredAuthorizedValues);
-        if (empty($conditionMatches)) {
-            $this->error(
-                "Configured attribute value not found in roles mapping configuration",
-                [
-                    "configured_authorized_values" => $configuredAuthorizedValues,
-                    "provider_conditions" => $conditions
-                ]
-            );
-            $this->logExceptionInLoginLogFile(
-                "Configured attribute value not found in roles mapping configuration",
-                AclConditionsException::conditionsNotFound()
-            );
-            throw AclConditionsException::conditionsNotFound();
-        }
-        $this->info("Role mapping relation found", [
-            "conditions_matches" => $conditionMatches,
-            "provider" => $conditions,
-            "configured" => $configuredAuthorizedValues
-        ]);
-        $this->logAuthenticationInfo("Role mapping relation found", [
-            "conditions_matches" => $conditionMatches,
-            "provider" => $conditions,
-            "configured" => $configuredAuthorizedValues
-        ]);
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getRolesMappingFromProvider(): array
-    {
-        return $this->rolesMappingFromProvider;
-    }
-
-    /**
-     * @param GroupsMapping $groupsMapping
-     */
-    private function validateGroupsMappingOrFail(GroupsMapping $groupsMapping): void
-    {
-        if ($groupsMapping->isEnabled()) {
-            $this->logAuthenticationInfo("Groups Mapping Enabled");
-            $groups = $this->getGroupsFromProvider($groupsMapping->getEndpoint());
-            $this->validateGroupsMapping($groups, $groupsMapping);
-        } else {
-            $this->logAuthenticationInfo("Groups Mapping disabled");
-        }
-    }
-
-    /**
-     * @param Endpoint $endpoint
-     * @return array<string, mixed>
-     */
-    private function getGroupsFromProvider(Endpoint $endpoint): array
-    {
-        switch ($endpoint->getType()) {
-            case Endpoint::INTROSPECTION:
-                $groups = $this->sendRequestForIntrospectionEndpoint();
-                break;
-            case Endpoint::USER_INFORMATION:
-                $groups = $this->sendRequestForUserInformationEndpoint();
-                break;
-            default:
-                $groups = $this->sendRequestForCustomAuthenticationConditionEndpoint($endpoint->getUrl());
-                break;
-        }
-
-        return $groups;
-    }
-
-    /**
-     * @param array<mixed> $groups
-     * @param GroupsMapping $groupsMapping
-     */
-    private function validateGroupsMapping(array $groups, GroupsMapping $groupsMapping): void
-    {
-        $groupsAttributePath = explode(".", $groupsMapping->getAttributePath());
-        $this->logAuthenticationInfo("Configured groups mapping attribute path found", $groupsAttributePath);
-        $this->logAuthenticationInfo(
-            "Groups Relations",
-            array_map(
-                function (ContactGroupRelation $contactGroupRelation) {
-                    return [
-                        "group claim" => $contactGroupRelation->getClaimValue(),
-                        "contact group" => $contactGroupRelation->getContactGroup()->getName()
-                    ];
-                },
-                $groupsMapping->getContactGroupRelations()
-            )
-        );
-        foreach ($groupsAttributePath as $attribute) {
-            $providerGroups = [];
-            if (array_key_exists($attribute, $groups)) {
-                $providerGroups = $groups[$attribute];
-                $groups = $groups[$attribute];
-            } else {
-                break;
-            }
-        }
-        if (is_string($providerGroups)) {
-            $providerGroups = explode(",", $providerGroups);
-        }
-        $this->validateGroupsMappingAttributeOrFail($providerGroups, $groupsMapping->getContactGroupRelations());
-    }
-
-    /**
-     * Validate Authentication Condition Attribute
-     *
-     * @param array<mixed> $providerGroupsMapping
-     * @param ContactGroupRelation[] $contactGroupRelations
-     * @throws AuthenticationConditionsException
-     */
-    private function validateGroupsMappingAttributeOrFail(
-        array $providerGroupsMapping,
-        array $contactGroupRelations
-    ): void {
-        if (array_is_list($providerGroupsMapping) === false) {
-            $errorMessage = "Invalid authentication conditions format, array of strings expected";
-            $this->error(
-                $errorMessage,
-                [
-                    "authentication_condition_from_provider" => $providerGroupsMapping
-                ]
-            );
-            $this->logExceptionInLoginLogFile(
-                $errorMessage,
-                AuthenticationConditionsException::invalidAuthenticationConditions()
-            );
-            throw AuthenticationConditionsException::invalidAuthenticationConditions();
-        }
-        $claimsFromProvider = [];
-        foreach ($contactGroupRelations as $contactGroupRelation) {
-            $claimsFromProvider[] = $contactGroupRelation->getClaimValue();
-        }
-        $groupsMatches = array_intersect($providerGroupsMapping, $claimsFromProvider);
-        $this->userContactGroups = [];
-        foreach ($groupsMatches as $groupsMatch) {
-            foreach ($contactGroupRelations as $contactGroupRelation) {
-                if ($contactGroupRelation->getClaimValue() === $groupsMatch) {
-                    $this->userContactGroups[] = $contactGroupRelation->getContactGroup();
-                }
-            }
-        }
-        if (empty($groupsMatches)) {
-            $this->error(
-                "Configured attribute value not found in groups mapping endpoint",
-                [
-                    "provider_groups_mapping" => $providerGroupsMapping,
-                    "configured_groups_mapping" => $claimsFromProvider
-                ]
-            );
-            $this->logExceptionInLoginLogFile(
-                "Configured attribute value not found in groups mapping endpoint: %s, message: %s",
-                AuthenticationConditionsException::conditionsNotFound()
-            );
-        }
-        $this->info("Groups found", ["group" => $groupsMatches]);
-        $this->logAuthenticationInfo("Groups found", $groupsMatches);
-    }
-
-    /**
      * @return ContactGroup[]
      */
     public function getUserContactGroups(): array
     {
-        return $this->userContactGroups;
+        return $this->groupsMapping->getUserContactGroups();
     }
 }

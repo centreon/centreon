@@ -21,7 +21,24 @@
             <h4>{$notification}</h4>
         </td>
     </tr>
-    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_notification_inheritance">{$form.inheritance_mode.label}</td><td class="FormRowValue">{$form.inheritance_mode.html}</td></tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_notification_inheritance">
+
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.inheritance_mode.label}
+                    </p>
+
+                </div>
+            </div>
+
+        </td>
+        <td class="FormRowValue">{$form.inheritance_mode.html}</td>
+    </tr>
 
     <tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
@@ -29,10 +46,49 @@
       </td>
     </tr>
 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_limit_per_page">{$form.maxViewConfiguration.label}</td><td class="FormRowValue">{$form.maxViewConfiguration.html}</td></tr>
-	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_limit_per_page_for_monitoring">{$form.maxViewMonitoring.label}</td><td class="FormRowValue">{$form.maxViewMonitoring.html}</td></tr>
-	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_graph_per_page_for_performances">{$form.maxGraphPerformances.label}</td><td class="FormRowValue">{$form.maxGraphPerformances.html}</td></tr>
+	<tr class="list_two"><td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_limit_per_page_for_monitoring">
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.maxViewMonitoring.label}
+                    </p>
+
+                </div>
+            </div>
+
+            </td><td class="FormRowValue">{$form.maxViewMonitoring.html}</td></tr>
+	<tr class="list_one"><td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_graph_per_page_for_performances">
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.maxGraphPerformances.label}
+                    </p>
+
+                </div>
+            </div>
+
+            </td><td class="FormRowValue">{$form.maxGraphPerformances.html}</td></tr>
     <tr class="list_two">
-      <td class="FormRowField"><img class="helpTooltip" name="tip_select_paginagion_size">{$form.selectPaginationSize.label}</td>
+      <td class="FormRowField">
+          <div class="formRowLabel">
+              <div>
+                  <img class="helpTooltip" name="tip_select_paginagion_size">
+              </div>
+              <div>
+                  <p class="fieldLabel">
+                      {$form.selectPaginationSize.label}
+                  </p>
+
+              </div>
+          </div>
+
+        </td>
       <td class="FormRowValue">{$form.selectPaginationSize.html}</td>
     </tr>
 	
@@ -48,8 +104,39 @@
         <h4>{$genOpt_refresh_properties}</h4>
       </td>
     </tr>
-	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_refresh_interval_for_statistics">{$form.AjaxTimeReloadStatistic.label}</td><td class="FormRowValue">{$form.AjaxTimeReloadStatistic.html}&nbsp;{$time_sec}</td></tr>
-	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_refresh_interval_for_monitoring">{$form.AjaxTimeReloadMonitoring.label}</td><td class="FormRowValue">{$form.AjaxTimeReloadMonitoring.html}&nbsp;{$time_sec}</td></tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_refresh_interval_for_statistics">
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.AjaxTimeReloadStatistic.label}
+                    </p>
+
+                </div>
+            </div>
+
+        </td>
+        <td class="FormRowValue">{$form.AjaxTimeReloadStatistic.html}&nbsp;{$time_sec}</td>
+    </tr>
+    <tr class="list_two">
+        <td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_refresh_interval_for_monitoring">
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.AjaxTimeReloadMonitoring.label} </p>
+
+
+                </div>
+            </div>
+        </td>
+        <td class="FormRowValue">{$form.AjaxTimeReloadMonitoring.html}&nbsp;{$time_sec}</td>
+    </tr>
  	
     <tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
@@ -58,6 +145,7 @@
     </tr>
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_sort_problems_by">{$form.global_sort_type.label}</td><td class="FormRowValue">{$form.global_sort_type.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_order_sort_problems">{$form.global_sort_order.label}</td><td class="FormRowValue">{$form.global_sort_order.html}</td></tr>
+    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_resource_status_view_mode">{$form.resource_status_view_mode.label}</td><td class="FormRowValue">{$form.resource_status_view_mode.html}</td></tr>
     
 	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
@@ -84,7 +172,23 @@
         <h4>{t}Chart options{/t}</h4>
       </td>
     </tr>
-    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_display_downtime_chart">{$form.display_downtime_chart.label}</td><td class="FormRowValue">{$form.display_downtime_chart.html}</td></tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_display_downtime_chart">
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.display_downtime_chart.label}
+                    </p>
+
+                </div>
+            </div>
+
+        </td>
+        <td class="FormRowValue">{$form.display_downtime_chart.html}</td>
+    </tr>
     <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_display_comment_chart">{$form.display_comment_chart.label}</td><td class="FormRowValue">{$form.display_comment_chart.html}</td></tr>
 
 	<tr class="list_lvl_1">

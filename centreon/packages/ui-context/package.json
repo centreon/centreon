@@ -1,13 +1,13 @@
 {
   "name": "@centreon/ui-context",
-  "version": "23.4.5",
+  "version": "23.4.10",
   "description": "Centreon UI shared context",
-  "main": "src",
+  "main": "src/index.ts",
   "keywords": [],
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "scripts": {
-    "eslint": "eslint ./src --ext .ts",
-    "eslint:fix": "pnpm run eslint --fix"
+    "eslint": "eslint ./src --ext .ts --max-warnings 0",
+    "eslint:fix": "pnpm eslint --fix"
   }
 }

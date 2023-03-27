@@ -8,14 +8,15 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/dsm.yml"
-      - "dsm/**"
+      - "centreon-dsm/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/dsm.yml"
-      - "dsm/**"
+      - "centreon-dsm/**"
     tags:
       - centreon-dsm-*
 
@@ -36,11 +37,11 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
-          - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -57,8 +58,8 @@ jobs:
       release: ${{ needs.get-version.outputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      artifactory_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   delivery-rpm:
     needs: [get-version, package]
@@ -66,11 +67,8 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        include:
-          - module_name: dsm
-            distrib: el7
-          - module_name: dsm
-            distrib: el8
+        distrib: [el8, el9]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -78,17 +76,11 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
-          repository_name: standard
+          module_name: dsm
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
@@ -97,9 +89,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        include:
-          - module_name: dsm
-            distrib: bullseye
+        distrib: [bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -107,10 +97,8 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USER }}
-          nexus_password: ${{ secrets.NEXUS_PASSWD }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

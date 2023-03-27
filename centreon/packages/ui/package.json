@@ -1,21 +1,21 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.9",
+  "version": "23.4.37",
   "description": "Centreon UI Components",
-  "main": "src",
+  "main": "src/index.ts",
   "scripts": {
-    "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
-    "test:storyshot": "node testRunner.js storyshots.test.js",
+    "test:storyshot": "pnpm test storyshots.test.js",
     "test:ci": "node testRunner.js --silent --reporter=jest-junit"
   },
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/centreon-frontend.git"
+    "url": "git+https://github.com/centreon/centreon.git"
   },
   "keywords": [
     "centreon",
@@ -24,9 +24,9 @@
   "author": "centreon@centreon.com",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/centreon/centreon-frontend/issues"
+    "url": "https://github.com/centreon/centreon/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "homepage": "https://github.com/centreon/centreon#readme",
   "devDependencies": {
     "@mdx-js/react": "^2.1.4",
     "@storybook/addon-essentials": "^6.5.11",
@@ -48,10 +48,40 @@
     "storybook-dark-mode": "^1.1.0"
   },
   "dependencies": {
+    "@lexical/link": "0.8.0",
+    "@lexical/react": "0.8.0",
+    "@lexical/selection": "0.8.0",
+    "@lexical/utils": "0.8.0",
     "anylogger": "^1.0.11",
     "humanize-duration": "^3.27.3",
+    "lexical": "0.8.0",
     "notistack": "^2.0.8",
+    "react-transition-group": "^4.4.5",
     "ulog": "^2.0.0-beta.19"
+  },
+  "peerDependencies": {
+    "@centreon/ui-context": "file:../ui-context",
+    "@dnd-kit/core": "6.x",
+    "@dnd-kit/sortable": "6.x",
+    "@dnd-kit/utilities": "6.x",
+    "@mui/icons-material": "5.x",
+    "@mui/lab": "5.x",
+    "@mui/material": "5.x",
+    "@mui/styles": "5.x",
+    "@tanstack/react-query": "4.x",
+    "axios": "0.x",
+    "dayjs": "1.x",
+    "formik": "2.x",
+    "jotai": "1.x",
+    "numeral": "2.x",
+    "ramda": "0.x",
+    "react": "18.x",
+    "react-dom": "18.x",
+    "react-i18next": "12.x",
+    "react-router-dom": "6.x",
+    "resize-observer-polyfill": "1.x",
+    "ts.data.json": "2.x",
+    "tss-react": "4.x"
   },
   "jest-junit": {
     "suiteName": "jest tests",

@@ -2382,8 +2382,8 @@ msgid "Recurrent downtimes"
 msgstr "Tiempos de parada recurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -3056,8 +3056,12 @@ msgid "Performance Management"
 msgstr "Gestión de datos de rendimiento."
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisión"
+
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisión"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -9303,8 +9307,8 @@ msgstr "Modo de actualización"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
-msgid "A host can have multiple templates, their orders have a significant importance"
-msgstr "Un host puede tener varios modelos, su orden tiene un significado significativo"
+# msgid "A host or host template can have several templates. See help for more details."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
@@ -14407,7 +14411,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14479,7 +14483,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Unhandled"
@@ -15361,3 +15365,252 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 #  msgid "Confirm"
 #  msgstr "Confirmar"
+
+#  msgid "Incorrect LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
+#  msgid "Vault configuration with these properties already exists"
+#  msgstr ""
+
+#  msgid "Impossible to create vault configuration"
+#  msgstr ""
+
+#  msgid "Vault provider does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host categories"
+#  msgstr ""
+
+#  msgid "Error while searching for host categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host categories"
+#  msgstr ""
+
+#  msgid "Host category not found"
+#  msgstr ""
+
+#  msgid "Error while deleting host category"
+#  msgstr ""
+
+#  msgid "Error while searching for host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on host groups"
+#  msgstr ""
+
+#  msgid "Host group not found"
+#  msgstr ""
+
+#  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "The host group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving just created host group"
+#  msgstr ""
+
+#  msgid "The host group icon '%s' with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host categories"
+#  msgstr ""
+
+#  msgid "Host category name already exists"
+#  msgstr ""
+
+#  msgid "Error while creating host category"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host severities"
+#  msgstr ""
+
+#  msgid "Error while deleting host severity"
+#  msgstr ""
+
+#  msgid "Error while creating host severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created host severity"
+#  msgstr ""
+
+#  msgid "Host severity name already exists"
+#  msgstr ""
+
+#  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on service groups"
+#  msgstr ""
+
+#  msgid "Error while searching for service groups"
+#  msgstr ""
+
+#  msgid "Error while deleting a service group"
+#  msgstr ""
+
+#  msgid "Error while adding a service group"
+#  msgstr ""
+
+#  msgid "Error while retrieving newly created service group"
+#  msgstr ""
+
+#  msgid "The service group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service categories"
+#  msgstr ""
+
+#  msgid "Error while deleting service category"
+#  msgstr ""
+
+#  msgid "Error while creating service category"
+#  msgstr ""
+
+#  msgid "Service category name already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service category"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service severities"
+#  msgstr ""
+
+#  msgid "Error while deleting service severity"
+#  msgstr ""
+
+#  msgid "Error while creating service severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service severity"
+#  msgstr ""
+
+#  msgid "Service severity name already exists"
+#  msgstr ""
+
+#  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""

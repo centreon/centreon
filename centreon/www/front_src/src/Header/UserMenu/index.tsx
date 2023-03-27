@@ -34,7 +34,6 @@ import {
 } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import SwitchMode from '../SwitchThemeMode/index';
 import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
 import { areUserParametersLoadedAtom } from '../../Main/useUser';
@@ -45,8 +44,9 @@ import {
   selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom
 } from '../../Navigation/Sidebar/sideBarAtoms';
+import { userEndpoint } from '../api/endpoints';
 
-import { userEndpoint } from './api/endpoint';
+import SwitchMode from './SwitchThemeMode';
 import {
   labelCopyAutologinLink,
   labelEditProfile,
@@ -113,7 +113,7 @@ const useStyles = makeStyles()((theme) => ({
     paddingLeft: theme.spacing(3)
   },
   listItem: {
-    '&:first-child': {
+    '&:first-of-type': {
       borderBottom: `1px solid ${theme.palette.divider}`
     },
     '&:hover': {
@@ -124,7 +124,7 @@ const useStyles = makeStyles()((theme) => ({
         ? theme.palette.common.white
         : theme.palette.primary.main
     },
-    '&:last-child': {
+    '&:last-of-type': {
       borderTop: `1px solid ${theme.palette.divider}`
     },
     padding: theme.spacing(1)

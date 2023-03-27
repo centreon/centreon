@@ -6,8 +6,10 @@ import { makeStyles } from 'tss-react/mui';
 import { Button, Grid } from '@mui/material';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { PopoverMenu, SelectEntry, useMemoComponent } from '@centreon/ui';
+import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
+import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import {
   labelClear,
   labelSearch,
@@ -36,8 +38,9 @@ const useStyles = makeStyles()((theme) => ({
 
 const CriteriasContent = (): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
+  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
@@ -69,9 +72,10 @@ const CriteriasContent = (): JSX.Element => {
 
   return (
     <PopoverMenu
+      canOpen={canOpenPopover}
       icon={<TuneIcon fontSize="small" />}
       popperPlacement="bottom-start"
-      title={t(labelSearchOptions)}
+      title={t(labelSearchOptions) as string}
       onClose={applyCurrentFilter}
     >
       {(): JSX.Element => (
@@ -91,13 +95,19 @@ const CriteriasContent = (): JSX.Element => {
           })}
           <Grid container item className={classes.searchButton} spacing={1}>
             <Grid item data-testid={labelClear}>
-              <Button color="primary" size="small" onClick={clearFilter}>
+              <Button
+                color="primary"
+                data-testid="Filter Clear"
+                size="small"
+                onClick={clearFilter}
+              >
                 {t(labelClear)}
               </Button>
             </Grid>
             <Grid item data-testid={labelSearch}>
               <Button
                 color="primary"
+                data-testid="Filter Search"
                 size="small"
                 variant="contained"
                 onClick={applyCurrentFilter}

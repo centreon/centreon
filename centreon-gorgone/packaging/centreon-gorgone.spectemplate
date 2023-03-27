@@ -3,7 +3,7 @@ Version:    23.04.0
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
-License:    Apache2
+License:    Apache-2.0
 URL:        http://www.centreon.com
 Source0:    %{name}-%{version}.tar.gz
 BuildArch:  noarch
@@ -16,8 +16,8 @@ Requires:   perl-Libssh-Session >= 0.8
 Requires:   perl-CryptX
 Requires:   perl(Archive::Tar)
 Requires:   perl(Schedule::Cron)
-Requires:   perl(ZMQ::LibZMQ4)
-Requires:   perl(ZMQ::Constants)
+Requires:   perl(ZMQ::FFI)
+Requires:   perl(EV)
 Requires:   perl(JSON::XS)
 Requires:   perl(JSON::PP)
 Requires:   perl(XML::Simple)
@@ -48,6 +48,7 @@ AutoReqProv: no
 %package centreon-config
 Summary:    Configure Centreon Gorgone for use with Centreon Web
 Group:      Networking/Other
+License:    Apache-2.0
 Requires:   centreon-common
 Requires:   centreon-gorgone
 

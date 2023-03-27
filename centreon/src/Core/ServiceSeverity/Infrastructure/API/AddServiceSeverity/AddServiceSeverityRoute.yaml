@@ -1,0 +1,5 @@
+AddServiceSeverity:
+  methods: POST
+  path: /configuration/services/severities
+  controller: 'Core\ServiceSeverity\Infrastructure\API\AddServiceSeverity\AddServiceSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"

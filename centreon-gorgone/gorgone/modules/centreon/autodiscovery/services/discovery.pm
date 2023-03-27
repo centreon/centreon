@@ -27,8 +27,6 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::modules::centreon::autodiscovery::services::resources;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Net::SMTP;
 use XML::Simple;
 use POSIX qw(strftime);
@@ -182,7 +180,7 @@ sub restart_pollers {
     my $poller_ids = {};
     foreach my $poller_id (keys %{$self->{discovery}->{pollers_reload}}) {
         $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'COMMAND',
             token => $self->{discovery}->{token} . ':config',
             data => {
@@ -192,7 +190,7 @@ sub restart_pollers {
                     }
                 ]
             }
-        );
+        });
     }
 }
 
@@ -201,25 +199,21 @@ sub audit_update {
     
     return if ($self->{discovery}->{audit_enable} != 1);
 
-    my $query = 'INSERT INTO log_action (action_log_date, object_type, object_id, object_name, action_type, log_contact_id) VALUES (' . 
-        time() . ', ' . $self->{class_object_centstorage}->quote(value => $options{object_type}) . ',' . 
-        $self->{class_object_centstorage}->quote(value => $options{object_id}) . ',' . 
-        $self->{class_object_centstorage}->quote(value => $options{object_name}) . ',' .
-        $self->{class_object_centstorage}->quote(value => $options{action_type}) . ',' .
-        $self->{class_object_centstorage}->quote(value => $options{contact_id}) .
-        ')';
-    my ($status, $sth) = $self->{class_object_centstorage}->custom_execute(request => $query);
+    my $query = 'INSERT INTO log_action (action_log_date, object_type, object_id, object_name, action_type, log_contact_id) VALUES (?, ?, ?, ?, ?, ?)';
+    my ($status, $sth) = $self->{class_object_centstorage}->custom_execute(
+        request => $query,
+        bind_values => [time(), $options{object_type}, $options{object_id}, $options{object_name}, $options{action_type}, $options{contact_id}]
+    );
 
     return if (!defined($options{fields}));
 
     my $action_log_id = $self->{class_object_centstorage}->{db_centreon}->last_insert_id();
     foreach (keys %{$options{fields}}) {
-        $query = 'INSERT INTO log_action_modification (action_log_id, field_name, field_value) VALUES (' .
-            $action_log_id . ', '.
-            $self->{class_object_centstorage}->quote(value => $_) .  ', ' .
-            $self->{class_object_centstorage}->quote(value => $options{fields}->{$_}) .
-            ')';
-        ($status) = $self->{class_object_centstorage}->custom_execute(request => $query);
+        $query = 'INSERT INTO log_action_modification (action_log_id, field_name, field_value) VALUES (?, ?, ?)';
+        ($status) = $self->{class_object_centstorage}->custom_execute(
+            request => $query,
+            bind_values => [$action_log_id, $_, $options{fields}->{$_}]
+        );
         if ($status == -1) {
             return -1;
         }
@@ -366,15 +360,21 @@ sub update_service {
     }
     
     foreach (@update_macros) {
-        my $query = 'UPDATE on_demand_macro_service SET svc_macro_value = ' . $self->{class_object_centreon}->quote(value => $_->{value}) . ' WHERE svc_svc_id = ' . $options{service}->{id} .  ' AND svc_macro_name = ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_->{name} . '$');
-        my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        my $query = 'UPDATE on_demand_macro_service SET svc_macro_value = ? WHERE svc_svc_id = ' . $options{service}->{id} .  ' AND svc_macro_name = ?';
+        my ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => [$_->{value}, '$_SERVICE' . $_->{name} . '$']
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot update macro");
         }
     }
     foreach (@insert_macros) {
-        my $query = 'INSERT on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $options{service}->{id} .  ', ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_->{name} . '$') . ', ' . $self->{class_object_centreon}->quote(value => $_->{value}) . ')';
-        my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        my $query = 'INSERT on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $options{service}->{id} .  ', ?, ?)';
+        my ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => ['$_SERVICE' . $_->{name} . '$', $_->{value}]
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot insert macro");
         }
@@ -435,8 +435,11 @@ sub create_service {
 
     return -1 if ($self->database_init_transaction() == -1);
 
-    my $query = 'INSERT INTO service (service_template_model_stm_id, service_description, service_register) VALUES (' . $self->{class_object_centreon}->quote(value => $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id}) . ', ' . $self->{class_object_centreon}->quote(value => $options{discovery_svc}->{service_name}) . ", '1')";
-    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my $query = "INSERT INTO service (service_template_model_stm_id, service_description, service_register) VALUES (?, ?, '1')";
+    my ($status, $sth) = $self->{class_object_centreon}->custom_execute(
+        request => $query,
+        bind_values => [$self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id}, $options{discovery_svc}->{service_name}]
+    );
     if ($status == -1) {
         return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create service");
     }
@@ -455,8 +458,11 @@ sub create_service {
     }
     
     foreach (keys %{$options{macros}}) {
-        $query = 'INSERT INTO on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $service_id . ', ' . $self->{class_object_centreon}->quote(value => '$_SERVICE' . $_ . '$') . ', ' . $self->{class_object_centreon}->quote(value => $options{macros}->{$_}) . ')';
-        ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+        $query = 'INSERT INTO on_demand_macro_service (svc_svc_id, svc_macro_name, svc_macro_value) VALUES (' . $service_id . ', ?, ?)';
+        ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $query,
+            bind_values => ['$_SERVICE' . $_ . '$', $options{macros}->{$_}]
+        );
         if ($status == -1) {
             return $self->database_error_rollback(message => "$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> cannot create macro '$_' => '$options{macros}->{$_}'");
         }
@@ -640,7 +646,9 @@ sub service_response_parsing {
 sub discoverylistener {
     my ($self, %options) = @_;
 
-    return 0 if ($options{data}->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT && $options{data}->{code} != GORGONE_ACTION_FINISH_KO);
+    my $data = $options{frame}->getData();
+
+    return 0 if ($data->{code} != GORGONE_MODULE_ACTION_COMMAND_RESULT && $data->{code} != GORGONE_ACTION_FINISH_KO);
 
     if ($self->{discovery}->{is_manual} == 1) {
         $self->{discovery}->{manual}->{ $options{host_id} } = { rules => {} } if (!defined($self->{discovery}->{manual}->{ $options{host_id} }));
@@ -648,27 +656,27 @@ sub discoverylistener {
     }
 
     # if i have GORGONE_MODULE_ACTION_COMMAND_RESULT, i can't have GORGONE_ACTION_FINISH_KO
-    if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
-        my $exit_code = $options{data}->{data}->{result}->{exit_code};
+    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT) {
+        my $exit_code = $data->{data}->{result}->{exit_code};
         if ($exit_code == 0) {
             $self->service_response_parsing(
                 rule_id => $options{rule_id},
                 host_id => $options{host_id},
                 poller_id => $self->{discovery}->{hosts}->{ $options{host_id} }->{poller_id},
-                response => $options{data}->{data}->{result}->{stdout}
+                response => $data->{data}->{result}->{stdout}
             );
         } else {
             $self->{discovery}->{failed_discoveries}++;
             if ($self->{discovery}->{is_manual} == 1) {
                 $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
-                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{data} = $options{data}->{data};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $data->{data}->{message};
+                $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{data} = $data->{data};
             }
         }
-    } elsif ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
+    } elsif ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         if ($self->{discovery}->{is_manual} == 1) {
             $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{failed} = 1;
-            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $options{data}->{data}->{message};
+            $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{message} = $data->{data}->{message};
         }
         $self->{discovery}->{failed_discoveries}++;
     } else {
@@ -748,7 +756,7 @@ sub service_execute_commands {
                     $host->{host_name} . "] -> substitute string: " . $command
                 );
 
-                $self->send_internal_action(
+                $self->send_internal_action({
                     action => 'ADDLISTENER',
                     data => [
                         {
@@ -760,9 +768,9 @@ sub service_execute_commands {
                             log_pace => 15
                         }
                     ]
-                );
+                });
 
-                $self->send_internal_action(
+                $self->send_internal_action({
                     action => 'COMMAND',
                     target => $poller_id,
                     token => 'svc-disco-' . $self->{uuid} . '-' . $rule_id . '-' . $host_id,
@@ -775,7 +783,7 @@ sub service_execute_commands {
                             }
                         ]
                     }
-                );
+                });
             }
         }
     }
@@ -783,6 +791,8 @@ sub service_execute_commands {
 
 sub launchdiscovery {
     my ($self, %options) = @_;
+
+    my $data = $options{frame}->getData();
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
@@ -840,8 +850,8 @@ sub launchdiscovery {
     
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
-        filter_rules => $options{data}->{content}->{filter_rules},
-        force_rule => (defined($options{data}->{content}->{force_rule}) && $options{data}->{content}->{force_rule} =~ /^1$/) ? 1 : 0
+        filter_rules => $data->{content}->{filter_rules},
+        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -860,8 +870,8 @@ sub launchdiscovery {
             poller_id => $rules->{$rule_id}->{poller_id},
             class_object_centreon => $self->{class_object_centreon},
             with_macro => 1,
-            host_lookup => $options{data}->{content}->{filter_hosts},
-            poller_lookup => $options{data}->{content}->{filter_pollers}
+            host_lookup => $data->{content}->{filter_hosts},
+            poller_lookup => $data->{content}->{filter_pollers}
         );
         if ($status < 0) {
             $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -898,11 +908,11 @@ sub launchdiscovery {
         progress_div => 0,
         rules => $rules,
         manual => {},
-        is_manual => (defined($options{data}->{content}->{manual}) && $options{data}->{content}->{manual} =~ /^1$/) ? 1 : 0,
-        dry_run => (defined($options{data}->{content}->{dry_run}) && $options{data}->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
+        is_manual => (defined($data->{content}->{manual}) && $data->{content}->{manual} =~ /^1$/) ? 1 : 0,
+        dry_run => (defined($data->{content}->{dry_run}) && $data->{content}->{dry_run} =~ /^1$/) ? 1 : 0,
         audit_enable => $audit_enable,
-        no_generate_config => (defined($options{data}->{content}->{no_generate_config}) && $options{data}->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
-        options => defined($options{data}->{content}) ? $options{data}->{content} : {},
+        no_generate_config => (defined($data->{content}->{no_generate_config}) && $data->{content}->{no_generate_config} =~ /^1$/) ? 1 : 0,
+        options => defined($data->{content}) ? $data->{content} : {},
         hosts => $all_hosts,
         journal => [],
         pollers_reload => {}

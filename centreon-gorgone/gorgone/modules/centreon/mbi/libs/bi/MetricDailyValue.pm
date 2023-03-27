@@ -62,9 +62,9 @@ sub dropTempTables {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $query = "DROP TABLE `" . $self->{name_minmaxavg_tmp} . "`";
-	$db->query($query);
+	$db->query({ query => $query });
 	$query = "DROP TABLE `" . $self->{name_firstlast_tmp} . "`";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub insertValues {
@@ -82,7 +82,7 @@ sub insertValues {
 	$query .= " JOIN (metrics m, " . $self->{'today_servicemetrics'} . " sm)";
 	$query .= " ON (mmavt.id_metric = m.metric_id and mmavt.id_metric = sm.metric_id)";
 	$query .= " LEFT JOIN " . $self->{name_firstlast_tmp} . " flvt ON (mmavt.id_metric = flvt.id_metric)";
-	$db->query($query);
+	$db->query({ query => $query });
 
 	$self->dropTempTables();
 } 
@@ -105,7 +105,7 @@ sub getMetricCapacityValuesOnPeriod {
 	$query .=		" AND sc_id IN (".$etlProperties->{'capacity.include.servicecategories'}.")";
 	$query .=		" AND v.servicemetric_id = m.id";
 	$query .=	" GROUP BY servicemetric_id, liveservice_id";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my %data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		my @table = ($row->{"servicemetric_id"}, $row->{"liveservice_id"}, $row->{first_value}, $row->{"total"});
@@ -125,7 +125,7 @@ sub getMetricCapacityValuesOnPeriod {
 	$query .=		" AND v.servicemetric_id = m.id";
 	$query .=	" GROUP BY servicemetric_id, liveservice_id";
 
-	$sth = $db->query($query);
+	$sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
 		my $entry =  $data{$row->{servicemetric_id} . ';' . $row->{liveservice_id}};
 		if (defined($entry)) {

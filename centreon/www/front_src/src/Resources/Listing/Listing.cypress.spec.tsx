@@ -7,8 +7,9 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
 
-import { Column, Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import type { Column } from '@centreon/ui';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';
 import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
@@ -29,8 +30,12 @@ const columns = getColumns({
   t: Ramda.identity
 }) as Array<Column>;
 
-const fillEntities = (): Array<Resource> => {
-  const entityCount = 31;
+const fillEntities = ({
+  entityCount = 31,
+  enableCriticalResource = false
+}): Array<Resource> => {
+  const defaultSeverityCode = enableCriticalResource ? 1 : 4;
+  const defaultSeverityName = enableCriticalResource ? 'CRITICAL' : 'PENDING';
 
   return new Array(entityCount).fill(0).map((_, index) => ({
     acknowledged: index % 2 === 0,
@@ -66,8 +71,8 @@ const fillEntities = (): Array<Resource> => {
     severity_level: index % 3 === 0 ? 1 : 2,
     short_type: index % 4 === 0 ? 's' : 'h',
     status: {
-      name: index % 2 === 0 ? 'OK' : 'PENDING',
-      severity_code: index % 2 === 0 ? 2 : 5
+      name: index % 2 === 0 ? 'OK' : defaultSeverityName,
+      severity_code: index % 2 === 0 ? 5 : defaultSeverityCode
     },
     tries: '1',
     type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
@@ -75,7 +80,7 @@ const fillEntities = (): Array<Resource> => {
   }));
 };
 
-const entities = fillEntities();
+const entities = fillEntities({});
 const retrievedListing = {
   meta: {
     limit: 10,
@@ -85,6 +90,21 @@ const retrievedListing = {
     total: entities.length
   },
   result: entities
+};
+
+const entitiesWithCriticalResources = fillEntities({
+  enableCriticalResource: true,
+  entityCount: 2
+});
+const retrievedListingWithCriticalResources = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: entitiesWithCriticalResources.length
+  },
+  result: entitiesWithCriticalResources
 };
 
 const ListingTest = (): JSX.Element => {
@@ -105,15 +125,27 @@ const fakeData = {
   result: []
 };
 
-before(() => {
-  document.getElementsByTagName('body')[0].style = 'margin:0px';
+const configureUserAtomViewMode = (
+  viewMode: ListingVariant = ListingVariant.compact
+): void => {
   const userData = renderHook(() => useAtomValue(userAtom));
 
   userData.result.current.timezone = 'Europe/Paris';
   userData.result.current.locale = 'en_US';
+  userData.result.current.resourceStatusViewMode = viewMode;
+};
+
+before(() => {
+  configureUserAtomViewMode();
 });
 
-const interceptRequestsAndMountBeforeEach = (): void => {
+const interceptRequestsAndMountBeforeEach = (
+  interceptCriticalResources = false
+): void => {
+  const responseForToListingTable = interceptCriticalResources
+    ? retrievedListingWithCriticalResources
+    : retrievedListing;
+
   cy.interceptAPIRequest({
     alias: 'filterRequest',
     method: Method.GET,
@@ -124,14 +156,12 @@ const interceptRequestsAndMountBeforeEach = (): void => {
     alias: 'dataToListingTable',
     method: Method.GET,
     path: '**/resources?*',
-    response: retrievedListing
+    response: responseForToListingTable
   });
   cy.mount({
     Component: (
       <Router>
-        <div style={{ backgroundColor: '#fff' }}>
-          <ListingTestWithJotai />
-        </div>
+        <ListingTestWithJotai />
       </Router>
     )
   });
@@ -141,10 +171,11 @@ const interceptRequestsAndMountBeforeEach = (): void => {
 
 describe('Resource Listing', () => {
   beforeEach(() => {
-    interceptRequestsAndMountBeforeEach();
+    configureUserAtomViewMode();
   });
 
   it('displays first part of information when multiple (split by \n) are available', () => {
+    interceptRequestsAndMountBeforeEach();
     const [resourcesWithMultipleLines, resourcesWithSingleLines] =
       Ramda.partition(
         Ramda.where({ information: Ramda.includes('\n') }),
@@ -168,6 +199,47 @@ describe('Resource Listing', () => {
 
     cy.matchImageSnapshot();
   });
+
+  it('displays the listing in compact mode', () => {
+    interceptRequestsAndMountBeforeEach();
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the listing in extended mode', () => {
+    interceptRequestsAndMountBeforeEach();
+    configureUserAtomViewMode(ListingVariant.extended);
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays a highlighted row when a resource is in a critical state', () => {
+    interceptRequestsAndMountBeforeEach(true);
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+    interceptRequestsAndMountBeforeEach();
+    cy.waitFiltersAndListingRequests();
+
+    cy.moveSortableElement({
+      ariaLabel: 'Parent Drag handle',
+      direction: 'right'
+    });
+
+    cy.matchImageSnapshot();
+  });
 });
 
 describe('column sorting', () => {
@@ -176,25 +248,6 @@ describe('column sorting', () => {
     .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
   beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: fakeData
-    });
-
-    cy.mount({
-      Component: (
-        <Router>
-          <div style={{ backgroundColor: '#fff' }}>
-            <ListingTestWithJotai />
-          </div>
-        </Router>
-      )
-    });
-
-    cy.viewport(1200, 1000);
-
     columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
       const secondSortCriteria =
@@ -228,6 +281,23 @@ describe('column sorting', () => {
         response: retrievedListing
       });
     });
+
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: fakeData
+    });
+
+    cy.mount({
+      Component: (
+        <Router>
+          <ListingTestWithJotai />
+        </Router>
+      )
+    });
+
+    cy.viewport(1200, 1000);
   });
 
   columnToSort.forEach(({ label }) => {
@@ -247,6 +317,12 @@ describe('column sorting', () => {
   });
 });
 
+const pageNavigationCalls = [
+  { expectedCall: 1, param: 'page=2&limit=30' },
+  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 1, param: 'page=4&limit=30' }
+];
+
 describe('Listing request', () => {
   beforeEach(() => {
     interceptRequestsAndMountBeforeEach();
@@ -261,9 +337,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=2&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Previous page`)
       .should((label) => {
@@ -271,9 +345,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`Last page`)
       .should((label) => {
@@ -281,9 +353,7 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=4&limit=30', request.url.search)).to.be.true;
-    });
+    cy.waitForRequest('@dataToListingTable');
 
     cy.findByLabelText(`First page`)
       .should((label) => {
@@ -291,8 +361,18 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(Ramda.includes('page=1&limit=30', request.url.search)).to.be.true;
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.getRequestCalls('@dataToListingTable').then((calls) => {
+      expect(calls).to.have.length(6);
+      pageNavigationCalls.forEach(({ param, expectedCall }) => {
+        expect(
+          Ramda.filter(
+            (call) => Ramda.includes(param, call.request.url.search),
+            calls
+          )
+        ).to.have.length(expectedCall);
+      });
     });
 
     cy.matchImageSnapshot();
@@ -358,9 +438,13 @@ describe('Display additional columns', () => {
 
     const chipLabel = `${entityInDowntime?.name} ${labelInDowntime}`;
 
-    cy.findByLabelText(chipLabel, {
-      timeout: 10000
-    }).trigger('mouseover');
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains('State').click();
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.findByLabelText(chipLabel).trigger('mouseover');
 
     cy.waitForRequest('@downtimeRequest').then(({ request }) => {
       expect(
@@ -387,11 +471,15 @@ describe('Display additional columns', () => {
       ({ acknowledged }) => acknowledged
     );
 
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains('State').click();
+
+    cy.findByLabelText('Add columns').click();
+
     const chipLabel = `${acknowledgedEntity?.name} ${labelAcknowledged}`;
 
-    cy.findByLabelText(chipLabel, {
-      timeout: 10000
-    }).trigger('mouseover');
+    cy.findByLabelText(chipLabel).trigger('mouseover');
 
     cy.waitForRequest('@acknowledgeRequest').then(({ request }) => {
       expect(
@@ -414,7 +502,7 @@ describe('Display additional columns', () => {
   const columnIds = Ramda.map(Ramda.prop('id'), columns);
 
   const additionalIds = Ramda.reject(
-    Ramda.includes(Ramda.__, defaultSelectedColumnIds),
+    Ramda.includes(Ramda.__, [...defaultSelectedColumnIds, 'state']),
     columnIds
   );
 

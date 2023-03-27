@@ -39,27 +39,27 @@ interface ReadVaultConfigurationRepositoryInterface
     /**
      * @param string $address
      * @param integer $port
-     * @param string $storage
+     * @param string $rootPath
      *
      * @throws \Throwable
      *
      * @return boolean
      */
-    public function existsSameConfiguration(string $address, int $port, string $storage): bool;
+    public function existsSameConfiguration(string $address, int $port, string $rootPath): bool;
 
     /**
      * @param string $address
      * @param int $port
-     * @param string $storage
+     * @param string $rootPath
      *
      * @throws \Throwable
      *
      * @return VaultConfiguration|null
      */
-    public function findByAddressAndPortAndStorage(
+    public function findByAddressAndPortAndRootPath(
         string $address,
         int $port,
-        string $storage
+        string $rootPath
     ): ?VaultConfiguration;
 
     /**

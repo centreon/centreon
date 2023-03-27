@@ -67,13 +67,6 @@ if (($o === HOST_TEMPLATE_MODIFY || $o === HOST_TEMPLATE_WATCH) && isset($host_i
     # Set base value
     if ($statement->rowCount()) {
         $host = array_map("myDecode", $statement->fetch());
-        if (
-            ! empty($host['host_snmp_community'])
-            && (bool) $host['host_snmp_community_is_password'] === true
-            && ! preg_match('/^secret::\\d+::/', $host['host_snmp_community'])
-        ) {
-            $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
-        }
         $cmdId = $host['command_command_id'];
         # Set Host Notification Options
         $tmp = explode(',', $host["host_notification_options"]);
@@ -278,16 +271,6 @@ if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
 $form->addElement('text', 'host_address', _("Address"), $attrsText);
 $form->addElement('select', 'host_snmp_version', _("Version"), array(null => null, 1 => "1", "2c" => "2c", 3 => "3"));
 $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
-$form->addElement(
-    'checkbox',
-    'host_snmp_community_is_password',
-    _('Password'),
-    null,
-    [
-        'id' => 'host_snmp_community_is_password',
-        'onClick' => 'javascript:change_snmp_community_input_type(this)'
-    ]
-);
 
 $timeAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list';
 $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone'
@@ -317,9 +300,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 $form->addElement(
     'static',
     'tplTextParallel',
-    _("A host can have multiple templates, their orders have a significant importance")
-    . "<br><a href='#' onmouseover=\"Tip('<img src=\'img/misc/multiple-templates2.png\'>', OPACITY, 70)"
-    . "\" onmouseout=\"UnTip()\">" . _("Here is a self-explanatory image.") . "</a>"
+    _("A host or host template can have several templates. See help for more details.")
 );
 $form->addElement('static', 'tplText', _("Using a Template allows you to have multi-level Template connection"));
 

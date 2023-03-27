@@ -266,6 +266,7 @@ select {
     appearance: none;
     padding: 4px 20px 4px 6px;
     color: var(--select-color) ;
+    overflow-y: auto;
 }
 
 select::-ms-expand {
@@ -686,7 +687,7 @@ p.description a, p.description a:visited {
     padding: 4px 10px ;
     border: none !important;
     outline: none !important;
-    color: var(--btc-color) ;
+    color: var(--btc-color) !important;
     cursor: pointer;
 }
 
@@ -1208,10 +1209,30 @@ table-form-header-h3 {
     vertical-align:top;
     white-space:normal;
 }
-
+.FormRowField .helpTooltip svg {
+    padding-top: 4px;
+}
 .table .FormRowField {
-    padding: 0 6px;
+    width: 34ch;
+    padding: 5px 32px 4px 6px;
     vertical-align: middle;
+    line-height: 1.5;
+}
+div.oreonbutton{
+    margin-left: 6px;
+}
+#command_line{
+    margin-left: 6px;
+}
+#listOfMacroDiv{
+    margin-bottom: 4px;
+}
+
+.formRowLabel {
+    width:  32ch;
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .table .FormRowValue {
@@ -1911,7 +1932,9 @@ font-size: 12px;
     text-align:justify;
 }
 
-#validForm label {padding:2px 4px;}
+#validForm label {
+    padding: 2px 18px;
+}
 
 .FormFooter,.ListColFooter5,.ListColFooter5 a,.ListColFooterCenter,.ListColFooterLeft,.ListColFooterRight   {font-size:12px;font-weight:700;padding-right:10px;}
 .ListColFooterRight,.ListColRight,.Toolbar_pagelimit {text-align:right;}
@@ -2998,3 +3021,68 @@ ul.module_list {
     font-size: 0;
 }
 
+/* license manager error pages style */
+.notAuthorizedContainer {
+    -webkit-box-align: center;
+    place-items: center;
+    display: grid;
+    grid-template-rows: 2fr 3fr 2fr;
+    height: calc(100vh - 39px);
+    position: relative;
+    width: 100%;
+
+}
+
+.logoSection {
+    align-self: flex-end;
+    height: 88px;
+    width: 29rem;
+}
+
+.messageBlockSection {
+    place-content: center;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    -webkit-box-pack: center;
+    max-width: 40%;
+    overflow: visible;
+    text-align: center;
+}
+
+.messageHeader {
+    margin: 0px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 4rem;
+    line-height: 1;
+    letter-spacing: 0em;
+    color: var(--license-manager-error-message-color);
+    font-weight: 700;
+}
+
+.firstMessage {
+    margin: 0px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    color: var(--badge-color);
+}
+
+.secondMessage {
+    margin: 0px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    font-size: 1.7rem;
+    line-height: 1.6;
+    letter-spacing: 0.0075em;
+    color: var(--badge-color);
+}
+
+.backgroundImage {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+}

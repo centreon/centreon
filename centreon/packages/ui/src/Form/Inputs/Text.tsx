@@ -85,8 +85,8 @@ const Text = ({
       <TextField
         fullWidth
         EndAdornment={passwordEndAdornment}
-        ariaLabel={t(label)}
-        dataTestId={dataTestId}
+        ariaLabel={t(label) || ''}
+        dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}

@@ -20,7 +20,7 @@ on:
 
 jobs:
   get-version:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
@@ -29,8 +29,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - uses: shivammathur/setup-php@v2
         if: ${{ endsWith(inputs.version_file, '.php') }}
@@ -38,8 +36,6 @@ jobs:
           php-version: 8.1
           extensions: none
           tools: none
-        env:
-          runner: self-hosted
 
       - id: get_version
         run: |
@@ -53,6 +49,8 @@ jobs:
             VERSION=`grep '<revision>.*</revision>' ${{ inputs.version_file }} | cut -d '>' -f 2 | cut -d - -f 1`
           elif [[ "${{ inputs.version_file }}" == */*.spectemplate ]]; then
             VERSION=`grep 'Version: ' ${{ inputs.version_file }} | rev | cut -d' ' -f1 | rev`
+          elif [[ "${{ inputs.version_file }}" == */.env ]]; then
+            VERSION=`sed -e '/\[[2-9][0-9].[0-9][0-9].[0-9]+\]/p' ${{ inputs.version_file }} | cut -d '=' -f 2`
           else
             echo "Unable to parse ${{ inputs.version_file }}"
             exit 1
@@ -78,7 +76,7 @@ jobs:
 
           case "$BRANCHNAME" in
             master | [2-9][0-9].[0-9][0-9].x | release* | hotfix*)
-              echo "release=$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
+              echo "release=1" >> $GITHUB_OUTPUT
               ;;
             *)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT

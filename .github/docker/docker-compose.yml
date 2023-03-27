@@ -19,21 +19,21 @@ services:
     links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
   openldap:
-    image: docker.centreon.com/mon-openldap:latest
+    image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]
     profiles: ["openldap"]
 
   squid-simple:
-    image: docker.centreon.com/mon-squid-simple:latest
+    image: docker.centreon.com/centreon/mon-squid-simple:latest
     ports: ["3128"]
     profiles: ["squid-simple"]
 
   squid-basic-auth:
-    image: docker.centreon.com/mon-squid-basic-auth:latest
+    image: docker.centreon.com/centreon/mon-squid-basic-auth:latest
     ports: ["3128"]
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: docker.centreon.com/mon-mediawiki-22.10:latest
+    image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]

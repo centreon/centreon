@@ -8,13 +8,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
     tags:
       - centreon-widget-single-metric-*
@@ -34,8 +35,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      artifactory_username: ${{ secrets.REPOS_USERNAME }}
-      artifactory_password: ${{ secrets.REPOS_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   delivery:
     needs: [get-version, package]
@@ -45,10 +46,4 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_USER }}
-      nexus_password: ${{ secrets.NEXUS_PASSWD }}
-      cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-      update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-      yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-      yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
-      yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}

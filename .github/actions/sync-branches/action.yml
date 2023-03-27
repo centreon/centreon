@@ -17,6 +17,6 @@ runs:
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
         git checkout ${{ inputs.dest_branch }}
-        git rebase ${{ inputs.src_branch }}
+        git merge --strategy-option=theirs ${{ inputs.src_branch }}
         git push origin ${{ inputs.dest_branch }}
       shell: bash

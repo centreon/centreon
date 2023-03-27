@@ -14,9 +14,9 @@ on:
         required: true
         type: string
     secrets:
-      artifactory_username:
+      registry_username:
         required: true
-      artifactory_password:
+      registry_password:
         required: true
 
 jobs:
@@ -25,14 +25,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el7, el8, bullseye]
+        distrib: [el8, el9, bullseye]
         include:
-          - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
           - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
@@ -49,5 +49,5 @@ jobs:
       release: ${{ inputs.release }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      artifactory_username: ${{ secrets.artifactory_username }}
-      artifactory_password: ${{ secrets.artifactory_password }}
+      registry_username: ${{ secrets.registry_username }}
+      registry_password: ${{ secrets.registry_password }}

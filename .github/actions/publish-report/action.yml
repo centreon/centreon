@@ -1,0 +1,47 @@
+name: "publish-report"
+description: "Publish report"
+inputs:
+  check_name:
+    description: "Name of the check and comment"
+    default: "${{ github.workflow }}-${{ github.job }}-report"
+  path:
+    description: "Path to the report files"
+    required: true
+  format:
+    description: "Path to the junit files"
+    default: "jest-junit"
+  urlFilePrefix:
+    description: "Prefix for the Github URL"
+    required: false
+    default: ''
+runs:
+  using: "composite"
+  steps:
+    - if: ${{ inputs.format == 'php-junit' }}
+      uses: ./.github/actions/publish-unit-test-result
+      with:
+        path: "${{ inputs.path }}"
+        check_name: "${{ inputs.check_name }}"
+
+    - if: ${{ inputs.format == 'cypress' }}
+      uses: ./.github/actions/publish-cypress-report
+      with:
+        path: "${{ inputs.path }}"
+        urlFilePrefix: "${{ inputs.urlFilePrefix }}"
+
+    - if: ${{ inputs.format == 'eslint' }}
+      uses: ./.github/actions/publish-lint-report
+      with:
+        path: ${{ inputs.path }}
+        check_name: ${{ inputs.check_name }}
+
+    - if: ${{ inputs.format != 'php-junit' && inputs.format != 'eslint' && inputs.format != 'cypress' }}
+      uses: dorny/test-reporter@v1
+      with:
+        name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
+        path: "${{ inputs.path }}"                     # Path to test results (inside artifact .zip)
+        reporter: java-junit
+        max-annotations: '0'
+        list-suites: 'failed'
+        list-tests: 'failed'
+        fail-on-error: 'false'

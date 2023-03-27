@@ -34,6 +34,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
@@ -355,12 +357,6 @@ services:
     Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadRepositoryInterface:
         class: Centreon\Infrastructure\HostConfiguration\Repository\HostGroupRepositoryRDB
 
-    Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups:
-        class: Centreon\Domain\HostConfiguration\UseCase\V2110\HostGroup\FindHostGroups
-        calls:
-            - method: setMediaPath
-              arguments: ["%media_path%"]
-
     # Service configuration
     Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface:
         class: Centreon\Domain\ServiceConfiguration\ServiceConfigurationService
@@ -441,4 +437,44 @@ services:
 
     Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
         class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
+        public: true
+
+    Utility\Interfaces\UUIDGeneratorInterface:
+        class: Utility\UUIDGenerator
+        public: true
+
+    Centreon\Domain\Repository\ImagesRepository:
+        class: Centreon\Domain\Repository\ImagesRepository
+        public: true
+
+    CentreonUser\Domain\Repository\TimeperiodRepository:
+        class: CentreonUser\Domain\Repository\TimeperiodRepository
+        public: true
+
+    CentreonCommand\Domain\Repository\CommandRepository:
+        class: CentreonCommand\Domain\Repository\CommandRepository
+        public: true
+
+    Centreon\Domain\Repository\NagiosServerRepository:
+        class: Centreon\Domain\Repository\NagiosServerRepository
+        public: true
+
+    Centreon\Domain\Repository\AclGroupRepository:
+        class: Centreon\Domain\Repository\AclGroupRepository
+        public: true
+
+    Centreon\Domain\Repository\ContactGroupRepository:
+        class: Centreon\Domain\Repository\ContactGroupRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\EscalationRepository:
+        class: CentreonNotification\Domain\Repository\EscalationRepository
+        public: true
+
+    Centreon\Domain\Repository\ServiceRepository:
+        class: Centreon\Domain\Repository\ServiceRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\DependencyRepository:
+        class: CentreonNotification\Domain\Repository\DependencyRepository
         public: true

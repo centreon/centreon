@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { Severity } from '../../models';
 

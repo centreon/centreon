@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 interface ApiErrorResponse {
@@ -49,28 +50,45 @@ export const customFetch = <T>({
     : defaultOptions;
 
   return fetch(endpoint, options)
-    .then(async (response) => {
-      const data = await response.json();
-
-      if (!response.ok) {
-        const defaultError = { code: -1, message: defaultFailureMessage };
-        catchError({ data: data || defaultError, statusCode: response.status });
-
+    .then((response) => {
+      if (equals(response.status, 204)) {
         return {
-          isError: true,
-          message: data.message || defaultFailureMessage,
-          statusCode: response.status
+          isError: false,
+          message: ''
         };
       }
 
-      if (decoder) {
-        return decoder.decodeToPromise(data);
-      }
+      return response.json().then((data) => {
+        if (!response.ok) {
+          const defaultError = {
+            code: -1,
+            message: data.message || defaultFailureMessage
+          };
+          catchError({
+            data: data || defaultError,
+            statusCode: response.status
+          });
 
-      return data;
+          return {
+            isError: true,
+            message: data.message || defaultFailureMessage,
+            statusCode: response.status
+          };
+        }
+
+        if (decoder) {
+          return decoder.decodeToPromise(data);
+        }
+
+        return data;
+      });
     })
-    .catch(() => {
-      const defaultError = { code: -1, message: defaultFailureMessage };
+    .catch((error: Error) => {
+      const defaultError = {
+        code: -1,
+        message: error.message || defaultFailureMessage
+      };
+
       catchError({
         data: defaultError,
         statusCode: 0
@@ -78,7 +96,7 @@ export const customFetch = <T>({
 
       return {
         isError: true,
-        message: defaultFailureMessage,
+        message: error.message || defaultFailureMessage,
         statusCode: 0
       };
     });

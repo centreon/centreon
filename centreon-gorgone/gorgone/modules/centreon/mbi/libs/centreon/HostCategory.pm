@@ -58,7 +58,7 @@ sub getAllEntries {
 	if(!defined($etlProperties->{'dimension.all.hostcategories'}) && $etlProperties->{'dimension.hostcategories'} ne ''){
 		$query .= " WHERE `hc_id` IN (".$etlProperties->{'dimension.hostcategories'}.")"; 
 	}
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	my @entries = ();
 	while (my $row = $sth->fetchrow_hashref()) {
 		push @entries, $row->{"hc_id"}.";".$row->{"hc_name"};

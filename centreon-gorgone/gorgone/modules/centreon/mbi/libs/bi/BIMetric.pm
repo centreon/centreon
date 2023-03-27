@@ -54,7 +54,7 @@ sub insert {
 	$self->createTodayTable("false");
 	my $query = "INSERT INTO ".$self->{today_table}. " (id, metric_id, metric_name, sc_id,hg_id,hc_id)";
 	$query .= " SELECT id, metric_id, metric_name,sc_id,hg_id,hc_id FROM " . $self->{table} . " ";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub update {
@@ -69,8 +69,8 @@ sub update {
 	$self->createCRC32Table();
     $self->createTodayTable("false");
 	$self->insertTodayEntries();
-	$db->query("DROP TABLE `".$self->{"tmpTable"}."`");
-	$db->query("DROP TABLE `".$self->{"CRC32"}."`");
+	$db->query({ query => "DROP TABLE `".$self->{"tmpTable"}."`" });
+	$db->query({ query => "DROP TABLE `".$self->{"CRC32"}."`" });
 }
 
 sub insertMetricsIntoTable {
@@ -84,7 +84,7 @@ sub insertMetricsIntoTable {
 	$query .= " FROM `mod_bi_tmp_today_services` s, `metrics` m, `index_data` i";
 	$query .= " WHERE i.id = m.index_id and i.host_id=s.host_id and i.service_id=s.service_id";
 	$query .= " group by s.hg_id, s.hc_id, s.sc_id, m.index_id, m.metric_id";
-	my $sth = $db->query($query);
+	my $sth = $db->query({ query => $query });
 	return $sth;
 }
 
@@ -92,9 +92,9 @@ sub createTempTable {
 	my ($self, $useMemory) = @_;
 
 	my $db = $self->{"centstorage"};
-	$db->query("DROP TABLE IF EXISTS `".$self->{"tmpTable"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"tmpTable"}."`" });
 	my $query = "CREATE TABLE `".$self->{"tmpTable"}."` (";
-	$query .= "`metric_id` int(11) NOT NULL,`metric_name` varchar(255) NOT NULL,`metric_unit` char(10) DEFAULT NULL,";
+	$query .= "`metric_id` int(11) NOT NULL,`metric_name` varchar(255) NOT NULL,`metric_unit` char(32) DEFAULT NULL,";
 	$query .= "`service_id` int(11) NOT NULL,`service_description` varchar(255) DEFAULT NULL,";
 	$query .= "`sc_id` int(11) DEFAULT NULL,`sc_name` varchar(255) DEFAULT NULL,";
 	$query .= "`host_id` int(11) DEFAULT NULL,`host_name` varchar(255) DEFAULT NULL,";
@@ -105,23 +105,23 @@ sub createTempTable {
 	}else {
 		$query .= ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
 	}
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub createCRC32Table {
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
 	
-	$db->query("DROP TABLE IF EXISTS `".$self->{"CRC32"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"CRC32"}."`" });
 	my $query = "CREATE TABLE `".$self->{"CRC32"}."`  CHARSET=utf8 COLLATE=utf8_general_ci";
 	$query .= " SELECT `id`, CRC32(CONCAT_WS('-', COALESCE(metric_id, '?'),";
 	$query .= " COALESCE(service_id, '?'),COALESCE(service_description, '?'),";
 	$query .= " COALESCE(host_id, '?'),COALESCE(host_name, '?'), COALESCE(sc_id, '?'),COALESCE(sc_name, '?'),";
 	$query .= " COALESCE(hc_id, '?'),COALESCE(hc_name, '?'), COALESCE(hg_id, '?'),COALESCE(hg_name, '?'))) as mycrc";
 	$query .= " FROM ".$self->{"table"};
-	$db->query($query);
+	$db->query({ query => $query });
 	$query = "ALTER TABLE `".$self->{"CRC32"}."` ADD INDEX (`mycrc`)";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub insertNewEntries {
@@ -144,14 +144,14 @@ sub insertNewEntries {
 	$query .= " AND tmpTable.hc_id=finalTable.hc_id AND tmpTable.hc_name=finalTable.hc_name";
 	$query .= " AND tmpTable.hg_id=finalTable.hg_id AND tmpTable.hg_name=finalTable.hg_name";
 	$query .= " WHERE finalTable.id is null";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub createTodayTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
 	
-	$db->query("DROP TABLE IF EXISTS `".$self->{"today_table"}."`");
+	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `" . $self->{"today_table"} . "` (";
 	$query .= "`id` INT NOT NULL,";
 	$query .= "`metric_id` int(11) NOT NULL,";
@@ -166,7 +166,7 @@ sub createTodayTable {
 	}else {
 		$query .= ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;";
 	}
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub insertTodayEntries {
@@ -184,7 +184,7 @@ sub insertTodayEntries {
 	$query .= " AND finalTable.sc_id=t.sc_id AND finalTable.sc_name=t.sc_name ";
 	$query .= " AND finalTable.hc_id=t.hc_id AND finalTable.hc_name=t.hc_name ";
 	$query .= " AND finalTable.hg_id=t.hg_id AND finalTable.hg_name=t.hg_name ";
-	$db->query($query);
+	$db->query({ query => $query });
 }
 
 sub truncateTable {
@@ -192,8 +192,8 @@ sub truncateTable {
 	my $db = $self->{"centstorage"};
 	
 	my $query = "TRUNCATE TABLE `".$self->{"table"}."`";
-	$db->query($query);
-	$db->query("ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1");
+	$db->query({ query => $query });
+	$db->query({ query => "ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1" });
 }
 
 1;

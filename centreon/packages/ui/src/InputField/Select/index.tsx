@@ -37,6 +37,7 @@ export interface SelectEntry {
   id: number | string;
   inputValue?: string;
   name: string;
+  testId?: string;
   type?: 'header';
   url?: string;
 }
@@ -47,7 +48,7 @@ type Props = {
   dataTestId: string;
   error?: string;
   label?: string;
-  onChange;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<SelectEntry>;
   selectedOptionId: number | string;
 } & Omit<SelectProps, 'error'>;
@@ -81,7 +82,6 @@ const SelectField = ({
     <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
       {label && <InputLabel>{label}</InputLabel>}
       <Select
-        disableUnderline
         displayEmpty
         fullWidth={fullWidth}
         inputProps={{
@@ -104,7 +104,7 @@ const SelectField = ({
       >
         {options
           .filter(({ id }) => id !== '')
-          .map(({ id, name, color, type }) => {
+          .map(({ id, name, color, type, testId }) => {
             const key = `${id}-${name}`;
             if (type === 'header') {
               return [
@@ -114,7 +114,12 @@ const SelectField = ({
             }
 
             return (
-              <MenuItem key={key} style={{ backgroundColor: color }} value={id}>
+              <MenuItem
+                data-testid={testId}
+                key={key}
+                style={{ backgroundColor: color }}
+                value={id}
+              >
                 <Option>{name}</Option>
               </MenuItem>
             );

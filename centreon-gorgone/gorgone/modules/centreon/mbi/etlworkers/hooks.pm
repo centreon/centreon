@@ -67,19 +67,16 @@ sub init {
 sub routing {
     my (%options) = @_;
 
-    my $data;
-    eval {
-        $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
-        $options{logger}->writeLogError("[proxy] Cannot decode json data: $@");
-        gorgone::standard::library::add_history(
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
+        $options{logger}->writeLogError("[" . NAME . "] Cannot decode json data: " . $options{frame}->getLastError());
+        gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => NAME . ' - cannot decode json' },
             json_encode => 1
-        );
+        });
         return undef;
     }
 
@@ -92,13 +89,13 @@ sub routing {
 
     my $pool_id = rr_pool();
     if (!defined($pool_id)) {
-        gorgone::standard::library::add_history(
+        gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => { message => NAME . ' - no pool ready' },
             json_encode => 1
-        );
+        });
         return undef;
     }
 
@@ -107,7 +104,7 @@ sub routing {
     $options{gorgone}->send_internal_message(
         identity => $identity,
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }
