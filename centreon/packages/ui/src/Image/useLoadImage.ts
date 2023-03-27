@@ -16,19 +16,20 @@ const createImage = ({
   image,
   alt
 }: CreateImageProps): void => {
-  const imageLoaderPromise = new Promise<string>((resolve, reject) => {
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = (): void => resolve(imageSrc);
-    img.onerror = (): void =>
-      reject(new Error(`Failed to load image ${imageSrc}`));
-  });
+  const imageLoaderPromise = (): Promise<string> =>
+    new Promise<string>((resolve, reject) => {
+      const img = new Image();
+      img.src = imageSrc;
+      img.onload = (): void => resolve(imageSrc);
+      img.onerror = (): void =>
+        reject(new Error(`Failed to load image ${imageSrc}`));
+    });
 
   if (!isNil(image) || isEmpty(image)) {
     return;
   }
 
-  imageLoaderPromise
+  imageLoaderPromise()
     .then((result: string): void => {
       setImages((currentImages) => ({ ...currentImages, [alt]: result }));
     })
