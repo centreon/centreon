@@ -263,7 +263,6 @@ const ConnectedAutocompleteField = (
       }
     }, [optionsOpen]);
 
-
     useEffect(() => {
       if (!optionsOpen) {
         return;
