@@ -54,10 +54,10 @@ final class UpdateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        readonly private ReadVaultRepositoryInterface $readVaultRepository,
-        readonly private ContactInterface $user
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -109,7 +109,7 @@ final class UpdateVaultConfiguration
                     [
                         'address' => $request->address,
                         'port' => $request->port,
-                        'root_path' => $vaultConfiguration->getRootPath()
+                        'root_path' => $vaultConfiguration->getRootPath(),
                     ]
                 );
                 $presenter->setResponseStatus(

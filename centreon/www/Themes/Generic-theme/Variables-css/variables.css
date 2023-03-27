@@ -825,5 +825,5 @@
     --custom-macros-command-background-color: var(--color-menthol);
     --custom-macros-template-background-color: var(--color-rayola);
     /* license manager error page variables */
-    --license-manager-error-message-color: var(--color-primary-light)
+    --license-manager-error-message-color: var(--color-primary-light);
 }

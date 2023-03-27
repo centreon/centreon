@@ -43,9 +43,9 @@ final class FindVaultConfigurations
      * @param ContactInterface $user
      */
     public function __construct(
-        readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        readonly private ReadVaultRepositoryInterface $readVaultRepository,
-        readonly private ContactInterface $user
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ContactInterface $user
     ) {
     }
 

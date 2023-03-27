@@ -27,9 +27,8 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use Schedule::Cron;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -86,7 +85,7 @@ sub action_getcron {
     if (defined($id) && $id ne '') {
         if (defined($parameter) && $parameter =~ /^status$/) {
             $self->{logger}->writeLogInfo("[cron] Get logs results for definition '" . $id . "'");
-            $self->send_internal_action(
+            $self->send_internal_action({
                 action => 'GETLOG',
                 token => $options{token},
                 data => {
@@ -96,8 +95,10 @@ sub action_getcron {
                     limit => $options{data}->{parameters}->{limit},
                     code => $options{data}->{parameters}->{code}
                 }
-            );
-            my $rev = zmq_poll($connector->{poll}, 5000);
+            });
+            my $watcher_timer = $self->{loop}->timer(5, 0, \&stop_ev);
+            $self->{loop}->run();
+
             $data = $connector->{ack}->{data}->{data}->{result};
         } else {
             my $idx;
@@ -372,39 +373,46 @@ sub action_deletecron {
 }
 
 sub event {
-    while (1) {
-        my $message = $connector->read_message(); 
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[cron] Event: $message");
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message(); 
+        next if (!defined($message));
+
+        $self->{logger}->writeLogDebug("[cron] Event: $message");
         if ($message =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m) {
             my $token = $1;
-            my ($rv, $data) = $connector->json_decode(argument => $2, token => $token);
+            my ($rv, $data) = $self->json_decode(argument => $2, token => $token);
             next if ($rv);
 
-            $connector->{ack} = {
+            $self->{ack} = {
                 token => $token,
                 data => $data
             };
         } else {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-            if ((my $method = $connector->can('action_' . lc($1)))) {
+            if ((my $method = $self->can('action_' . lc($1)))) {
                 $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
                 my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
+                my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
                 next if ($rv);
 
-                $method->($connector, token => $token, data => $data);
+                $method->($self, token => $token, data => $data);
             }
-        }        
+        }
     }
 }
 
+sub stop_ev {
+    $connector->{loop}->break();
+}
+
 sub cron_sleep {
-    my $rev = zmq_poll($connector->{poll}, 1000);
-    if ($rev == 0 && $connector->{stop} == 1) {
+    my $watcher_timer = $connector->{loop}->timer(1, 0, \&stop_ev);
+    $connector->{loop}->run();
+
+    if ($connector->{stop} == 1) {
         $connector->{logger}->writeLogInfo("[cron] $$ has quit");
-        zmq_close($connector->{internal_socket});
         exit(0);
     }
 }
@@ -417,7 +425,7 @@ sub dispatcher {
     my $token = (defined($options->{definition}->{keep_token})) && $options->{definition}->{keep_token} =~ /true|1/i
         ? $options->{definition}->{id} : undef;
 
-    $options->{connector}->send_internal_action(
+    $options->{connector}->send_internal_action({
         socket => $options->{socket},
         token => $token,
         action => $options->{definition}->{action},
@@ -426,41 +434,27 @@ sub dispatcher {
             content => $options->{definition}->{parameters}
         },
         json_encode => 1
-    );
+    });
  
-    my $poll = [
-        {
-            socket  => $options->{socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
-    my $rev = zmq_poll($poll, 5000);
+    my $watcher_timer = $options->{connector}->{loop}->timer(5, 0, \&stop_ev);
+    $options->{connector}->{loop}->run();
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-cron',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'CRONREADY',
         data => {}
-    );
-    $connector->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
     # need at least one cron to get sleep working
     push @{$self->{config}->{cron}}, {
@@ -485,9 +479,10 @@ sub run {
         );
     }
 
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+
     $self->{cron}->run(sleep => \&cron_sleep);
 
-    zmq_close($connector->{internal_socket});
     exit(0);
 }
 

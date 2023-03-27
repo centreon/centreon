@@ -27,12 +27,11 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::class::sqlquery;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
 use File::Path qw(make_path);
 use JSON::XS;
 use Time::HiRes;
 use RRDs;
+use EV;
 
 my $result;
 my %handlers = (TERM => {}, HUP => {});
@@ -175,7 +174,7 @@ sub action_brokerstats {
             "[statistics] Collecting Broker statistics file '" . $statistics_file . "' from target '" . $target . "'"
         );
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -188,9 +187,9 @@ sub action_brokerstats {
                     log_pace => $self->{log_pace}
                 }
             ]
-        );
+        });
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $target,
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
@@ -208,7 +207,7 @@ sub action_brokerstats {
                     }
                 ]
             }
-        );
+        });
     }
 
     $self->send_log(
@@ -247,7 +246,7 @@ sub action_enginestats {
             "[statistics] Collecting Engine statistics from target '" . $target . "'"
         );
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -260,9 +259,9 @@ sub action_enginestats {
                     log_pace => $self->{log_pace}
                 }
             ]
-        );
+        });
         
-        $self->send_internal_action(
+        $self->send_internal_action({
             target => $target,
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
@@ -279,7 +278,7 @@ sub action_enginestats {
                     }
                 ]
             }
-        );
+        });
     }
 
     $self->send_log(
@@ -582,40 +581,28 @@ sub rrd_update {
     return 0;
 }
 
-sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
-
-        $connector->{logger}->writeLogDebug("[statistics] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
-            if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
-
-                $method->($connector, token => $token, data => $data);
-            }
-        }
+sub periodic_exec {
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[statistics] $$ has quit");
+        exit(0);
     }
 }
 
 sub run {
     my ($self, %options) = @_;
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-statistics',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'STATISTICSREADY',
         data => {}
-    );
+    });
 
     $self->{db_centreon} = gorgone::class::db->new(
         dsn => $self->{config_db_centreon}->{dsn},
@@ -641,31 +628,18 @@ sub run {
         db_centreon => $self->{db_centstorage}
     );
 
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
-
     if (defined($self->{config}->{cron})) {
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDCRON', 
             data => {
-                content => $self->{config}->{cron},
+                content => $self->{config}->{cron}
             }
-        );
+        });
     }
 
-    while (1) {
-        my $rev = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[statistics] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;

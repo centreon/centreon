@@ -33,7 +33,7 @@ class VaultConfiguration
 {
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 255;
-    public const NAME_MAX_LENGTH = 50;
+    public const NAME_MAX_LENGTH = NewVaultConfiguration::NAME_MAX_LENGTH;
     public const MIN_PORT_VALUE = 1;
     public const MAX_PORT_VALUE = 65535;
     public const SALT_LENGTH = 128;

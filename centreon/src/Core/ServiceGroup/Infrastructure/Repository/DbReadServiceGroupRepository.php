@@ -80,6 +80,74 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findOne(int $serviceGroupId): ?ServiceGroup
+    {
+        $concatenator = $this->getFindServiceGroupConcatenator();
+
+        return $this->retrieveServiceGroup($concatenator, $serviceGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findOneByAccessGroups(int $serviceGroupId, array $accessGroups): ?ServiceGroup
+    {
+        if ([] === $accessGroups) {
+            return null;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
+
+        return $this->retrieveServiceGroup($concatenator, $serviceGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsOne(int $serviceGroupId): bool
+    {
+        $concatenator = $this->getFindServiceGroupConcatenator();
+
+        return $this->existsServiceGroup($concatenator, $serviceGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsOneByAccessGroups(int $serviceGroupId, array $accessGroups): bool
+    {
+        if ([] === $accessGroups) {
+            return false;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
+
+        return $this->existsServiceGroup($concatenator, $serviceGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function nameAlreadyExists(string $serviceGroupName): bool
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1 FROM `:db`.`servicegroup` WHERE sg_name = :name
+                    SQL
+            )
+        );
+        $statement->bindValue(':name', $serviceGroupName);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
@@ -195,6 +263,72 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $serviceGroups;
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $serviceGroupId
+     *
+     * @throws \PDOException
+     *
+     * @return bool
+     */
+    private function existsServiceGroup(SqlConcatenator $concatenator, int $serviceGroupId): bool
+    {
+        $concatenator
+            // We override the select because we just need to get the ID to check the existence.
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT 1
+                    SQL
+            )
+            // We add the filtering by service group id.
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE sg.sg_id = :servicegroup_id
+                    SQL
+            )
+            ->storeBindValue(':servicegroup_id', $serviceGroupId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $serviceGroupId
+     *
+     * @throws InvalidGeoCoordException
+     * @throws \PDOException
+     * @throws AssertionFailedException
+     *
+     * @return ServiceGroup|null
+     */
+    private function retrieveServiceGroup(SqlConcatenator $concatenator, int $serviceGroupId): ?ServiceGroup
+    {
+        // We add the filtering by service group id.
+        $concatenator
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE sg.sg_id = :servicegroup_id
+                    SQL
+            )
+            ->storeBindValue(':servicegroup_id', $serviceGroupId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        // Retrieve the first row
+        /** @var null|false|ServiceGroupResultSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createServiceGroupFromArray($data) : null;
     }
 
     /**

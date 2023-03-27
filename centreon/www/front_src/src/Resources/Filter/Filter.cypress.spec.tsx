@@ -8,7 +8,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import {
   labelSearch,
-  labelResourceProblems,
+  labelAllAlerts,
   labelAll,
   labelSearchOptions,
   labelType,
@@ -56,45 +56,37 @@ const webAccessServiceGroup = {
   name: 'Web-access'
 };
 
-type FilterParameter = [string, string, Record<string, unknown>];
-
-const filterParams: Array<FilterParameter> = [
-  [labelType, labelHost, { resourceTypes: ['host'] }],
-  [
-    labelState,
-    labelAcknowledged,
-    {
-      states: ['acknowledged']
-    }
-  ],
-  [
-    labelStatus,
-    labelOk,
-    {
-      statuses: ['OK']
-    }
-  ],
-  [
-    labelStatusType,
-    labelSoft,
-    {
-      statusTypes: ['soft']
-    }
-  ],
-  [
-    labelHostGroup,
-    linuxServersHostGroup.name,
-    {
-      hostGroups: [linuxServersHostGroup.name]
-    }
-  ],
-  [
-    labelServiceGroup,
-    webAccessServiceGroup.name,
-    {
-      serviceGroups: [webAccessServiceGroup.name]
-    }
-  ]
+const filterParams = [
+  {
+    criteria: labelType,
+    endpointParam: { resourceTypes: ['host'] },
+    value: labelHost
+  },
+  {
+    criteria: labelState,
+    endpointParam: { states: ['acknowledged'] },
+    value: labelAcknowledged
+  },
+  {
+    criteria: labelStatus,
+    endpointParam: { statuses: ['OK'] },
+    value: labelOk
+  },
+  {
+    criteria: labelStatusType,
+    endpointParam: { statusTypes: ['soft'] },
+    value: labelSoft
+  },
+  {
+    criteria: labelHostGroup,
+    endpointParam: { hostGroups: [linuxServersHostGroup.name] },
+    value: linuxServersHostGroup.name
+  },
+  {
+    criteria: labelServiceGroup,
+    endpointParam: { serviceGroups: [webAccessServiceGroup.name] },
+    value: webAccessServiceGroup.name
+  }
 ];
 
 const customFilters = [
@@ -108,7 +100,7 @@ const customFilters = [
     }
   ],
   [
-    labelResourceProblems,
+    labelAllAlerts,
     {
       resourceTypes: [],
       states: [],
@@ -207,7 +199,7 @@ describe('Filter', () => {
     cy.viewport(1200, 1000);
   });
 
-  it('executes a listing request with "Unhandled problems" filter by default', () => {
+  it('executes a listing request with "Unhandled alerts" filter by default', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.matchImageSnapshot();
@@ -289,7 +281,7 @@ describe('Custom filters', () => {
       }
     });
 
-    filterParams.forEach(([criteriaName, _, endpointParamChanged]) => {
+    filterParams.forEach(({ criteria, endpointParam }) => {
       const searchValue = 'foobar';
 
       const endpoint = getListingEndpoint({
@@ -298,11 +290,11 @@ describe('Custom filters', () => {
         states: [],
         statusTypes: [],
         statuses: [],
-        ...endpointParamChanged
+        ...endpointParam
       });
 
       cy.interceptAPIRequest({
-        alias: `request/${criteriaName}`,
+        alias: `request/${criteria}`,
         method: Method.GET,
         path: Ramda.replace('./api/latest/monitoring', '**', endpoint)
       });
@@ -339,8 +331,8 @@ describe('Custom filters', () => {
     });
   });
 
-  filterParams.forEach(([criteriaName, optionToSelect]) => {
-    it(`executes a listing request with current search and selected ${criteriaName} criteria when it's changed`, () => {
+  filterParams.forEach(({ criteria, value }) => {
+    it(`executes a listing request with current search and selected ${criteria} criteria when it's changed`, () => {
       const searchValue = 'foobar';
 
       cy.findByPlaceholderText(labelSearch).clear();
@@ -349,13 +341,13 @@ describe('Custom filters', () => {
 
       cy.findByLabelText(labelSearchOptions).click();
 
-      cy.findByText(criteriaName).click();
+      cy.findByText(criteria).click();
 
-      cy.findByText(optionToSelect).click();
+      cy.findByText(value).click();
 
       cy.findByText(labelSearch).click();
 
-      cy.waitForRequest(`@request/${criteriaName}`);
+      cy.waitForRequest(`@request/${criteria}`);
 
       cy.matchImageSnapshot();
     });

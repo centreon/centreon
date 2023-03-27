@@ -78,20 +78,23 @@ class CentreonHost
      *    "originalName" => "MACRO_1"
      *  ]
      * ]
-     * @var array
-     */
+     * @var array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+    */
     private array $formattedMacros = [];
 
     /**
-     * Constructor
-     *
      * @param CentreonDB $db
-     * @return void
+     * @throws PDOException
      */
-    public function __construct($db)
+    public function __construct(CentreonDB $db)
     {
         $this->db = $db;
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db);
         $this->serviceObj = new CentreonService($db);
     }
 
@@ -704,7 +707,7 @@ class CentreonHost
               WHERE host_id = :hostId 
               LIMIT 1';
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':hostId', (int) $hostParam, \PDO::PARAM_INT);
+            $stmt->bindValue(':hostId', (int) $hostParam, \PDO::PARAM_INT);
         } elseif (is_string($hostParam)) {
             $query = 'SELECT host_id, ns.nagios_server_id, host_register, host_address, host_name, host_alias
               FROM host
@@ -713,7 +716,7 @@ class CentreonHost
               WHERE host_name = :hostName
               LIMIT 1';
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':hostName', $hostParam);
+            $stmt->bindValue(':hostName', $hostParam);
         } else {
             return $string;
         }
@@ -772,7 +775,7 @@ class CentreonHost
                 'WHERE host_host_id = :hostId ' .
                 'AND host_macro_name LIKE :macro';
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
             $stmt->bindParam(':macro', $matches[1][$i], PDO::PARAM_STR);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
@@ -786,7 +789,7 @@ class CentreonHost
         if ($i) {
             $query2 = 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :host ORDER BY `order`';
             $stmt2 = $this->db->prepare($query2);
-            $stmt2->bindParam(':host', $hostId, PDO::PARAM_INT);
+            $stmt2->bindValue(':host', $hostId, PDO::PARAM_INT);
             $dbResult = $stmt2->execute();
             if (!$dbResult) {
                 throw new \Exception("An error occured");

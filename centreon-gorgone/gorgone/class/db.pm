@@ -49,7 +49,6 @@ sub new {
     $self->{die} = defined($options{die}) ? 1 : 0;
     $self->{instance} = undef;
     $self->{transaction_begin} = 0;
-    $self->{args} = [];
     bless $self, $class;
     return $self;
 }
@@ -149,17 +148,6 @@ sub password {
 sub last_insert_id {
     my $self = shift;
     return $self->{instance}->last_insert_id(undef, undef, undef, undef);
-}
-
-sub quote {
-    my $self = shift;
-
-    if (defined($self->{instance})) {
-        return $self->{instance}->quote($_[0]);
-    }
-    my $num = scalar(@{$self->{args}});
-    push @{$self->{args}}, $_[0];
-    return "##__ARG__$num##";
 }
 
 sub set_inactive_destroy {
@@ -338,50 +326,45 @@ Query: $query
 sub prepare {
     my ($self, $query) = @_;
 
-    return $self->query($query, prepare_only => 1);
+    return $self->query({ query => $query, prepare_only => 1 });
 }
 
 sub query {
-    my $self = shift;
-    my $query = shift;
-    my (%options) = @_;
+    my ($self) = shift;
     my ($status, $count) = (0, -1);
     my $statement_handle;
 
     while (1) {
         if (!defined($self->{instance})) {
             $status = $self->connect();
-            if ($status != -1) {
-                for (my $i = 0; $i < scalar(@{$self->{args}}); $i++) {
-                    my $str_quoted = $self->quote(${$self->{args}}[$i]);
-                    $query =~ s/##__ARG__$i##/$str_quoted/;
-                }
-                $self->{args} = [];
-            }
             if ($status == -1) {
-                $self->{args} = [];
                 last;
             }
         }
 
         $count++;
-        $statement_handle = $self->{instance}->prepare($query);
+        $statement_handle = $self->{instance}->prepare($_[0]->{query});
         if (!defined($statement_handle)) {
-            $self->error($self->{instance}->errstr, $query);
+            $self->error($self->{instance}->errstr, $_[0]->{query});
             $status = -1;
             last if ($self->{force} == 0 || ($self->{force} == 2 && $count == 1));
             sleep(1);
             next;
         }
 
-        if (defined($options{prepare_only})) {
+        if (defined($_[0]->{prepare_only})) {
             return $statement_handle if ($self->{die} == 1);
             return ($status, $statement_handle);
         }
 
-        my $rv = $statement_handle->execute();
+        my $rv;
+        if (defined($_[0]->{bind_values}) && scalar(@{$_[0]->{bind_values}}) > 0) {
+            $rv = $statement_handle->execute(@{$_[0]->{bind_values}});
+        } else {
+            $rv = $statement_handle->execute();
+        }
         if (!$rv) {
-            $self->error($statement_handle->errstr, $query);
+            $self->error($statement_handle->errstr, $_[0]->{query});
             $status = -1;
             last if ($self->{force} == 0 || ($self->{force} == 2 && $count == 1));
             sleep(1);

@@ -7,15 +7,26 @@ import {
   insertResourceFixtures,
   tearDownResource
 } from '../common';
+import { submitResultsViaClapi } from '../../../commons';
 
 const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  insertResourceFixtures();
+  insertResourceFixtures().then(submitResultsViaClapi);
 });
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    preserveToken: true
+  });
+
   cy.get('[aria-label="Add columns"]').click();
 
   cy.contains('State').click();
@@ -48,6 +59,8 @@ Then('the problematic Resource is displayed as acknowledged', () => {
           val.css('background-color') === actionBackgroundColors.acknowledge
         );
       });
+  }, {
+    timeout: 15000
   });
 });
 
@@ -65,6 +78,9 @@ When('I select the downtime action on a problematic Resource', () => {
 });
 
 Then('the problematic Resource is displayed as in downtime', () => {
+  cy.get(stateFilterContainer).click();
+  cy.get('li[data-value="all"]').click({ force: true });
+
   cy.waitUntil(() => {
     return cy
       .refreshListing()
@@ -75,6 +91,8 @@ Then('the problematic Resource is displayed as in downtime', () => {
           val.css('background-color') === actionBackgroundColors.inDowntime
         );
       });
+  }, {
+    timeout: 60000
   });
 });
 

@@ -1,0 +1,59 @@
+name: centreon-ui-context
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "centreon/packages/ui-context/**"
+      - '.github/workflows/ui-context.yml'
+    branches:
+      - develop
+
+env:
+  directory: "centreon/packages/ui-context"
+  centreon_directory: "centreon"
+  package: 'ui-context'
+  base_branch: develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.directory }}
+          installation_directory: ${{ env.centreon_directory }}
+          module_name: centreon-ui-context
+
+  publish-new-npm-beta-version:
+    runs-on: ubuntu-22.04
+    needs: [lint, check-package-version]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/npm-publish-package-beta
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          package: ${{ env.package }}
+          release_branch: ${{ env.base_branch }}
+
+  check-package-version:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/check-package-version
+        with:
+          base_branch: ${{ env.base_branch }}
+          directory: ${{ env.directory }}

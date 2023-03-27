@@ -23,7 +23,7 @@ runs:
           replace: ''
 
     - name: Cypress web component testing
-      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
+      uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
@@ -38,7 +38,16 @@ runs:
       with:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/results/videos
+        retention-days: 1
+
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/screenshots
+        retention-days: 1
 
     - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/cypress-fe.xml ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.xml
+      run: mv ${{ inputs.module }}/cypress/results/mochawesome.json ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.json
       shell: bash

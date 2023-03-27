@@ -68,7 +68,7 @@ class DbVaultConfigurationFactory
             (string) $recordData['root_path'],
             (string) $recordData['role_id'],
             (string) $recordData['secret_id'],
-            (string) $recordData['salt']
+            (string) $recordData['salt'],
         );
     }
 }

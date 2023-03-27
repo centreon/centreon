@@ -14,7 +14,7 @@ Feature:
     HC;ADD;severity1;host-severity-alias
     HC;setparam;severity1;hc_comment;blabla bla
     HC;setparam;severity1;hc_activate;1
-    HC;setseverity;severity1;42;logos/centreon.png
+    HC;setseverity;severity1;42;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/hosts/severities'
@@ -30,7 +30,7 @@ Feature:
                 "level": 42,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": "blabla bla"
+                "comment": "blabla bla"
             }
         ],
         "meta": {
@@ -43,13 +43,13 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin with ACL filters
+  Scenario: Host severities listing as non-admin with ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     HC;ADD;host-sev2;host-sev2-alias
-    HC;setseverity;host-sev2;2;logos/centreon.png
+    HC;setseverity;host-sev2;2;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -76,7 +76,7 @@ Feature:
                 "level": 2,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -89,13 +89,13 @@ Feature:
     }
     """
 
-  Scenario: Host categories listing as non-admin without ACL filters
+  Scenario: Host severities listing as non-admin without ACL filters
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     HC;ADD;host-sev2;host-sev2-alias
-    HC;setseverity;host-sev2;2;logos/centreon.png
+    HC;setseverity;host-sev2;2;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -121,7 +121,7 @@ Feature:
                 "level": 1,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             },
             {
                 "id": 2,
@@ -130,7 +130,7 @@ Feature:
                 "level": 2,
                 "icon_id": 1,
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -148,7 +148,7 @@ Feature:
     And the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/hosts/severities'
@@ -184,7 +184,7 @@ Feature:
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -213,7 +213,7 @@ Feature:
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
@@ -247,7 +247,7 @@ Feature:
         "alias": "  host-sev-alias  ",
         "level": 2,
         "icon_id": 1,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "201"
@@ -260,7 +260,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
 
@@ -273,7 +273,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "409"
@@ -287,7 +287,7 @@ Feature:
         "level": 2,
         "icon_id": 1,
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "409"

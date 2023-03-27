@@ -24,6 +24,7 @@ use strict;
 use warnings;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::library;
+use gorgone::class::frame;
 
 sub new {
     my ($class, %options) = @_;
@@ -38,23 +39,24 @@ sub new {
 }
 
 sub event_log {
-    my ($self, %options) = @_;
+    my ($self) = shift;
 
-    return if (!defined($self->{tokens}->{$options{token}}));
+    return if (!defined($self->{tokens}->{ $_[0]->{token}}));
 
     # we want to avoid loop
-    my $events = $self->{tokens}->{ $options{token} };
-    if ($options{code} == GORGONE_ACTION_FINISH_KO || $options{code} == GORGONE_ACTION_FINISH_OK) {
-        delete $self->{tokens}->{ $options{token} };
+    my $events = $self->{tokens}->{ $_[0]->{token} };
+    if ($_[0]->{code} == GORGONE_ACTION_FINISH_KO || $_[0]->{code} == GORGONE_ACTION_FINISH_OK) {
+        delete $self->{tokens}->{ $_[0]->{token} };
     }
 
     foreach (keys %{$events->{events}}) {
-        $self->{logger}->writeLogDebug("[listener] trigger event '$options{token}'");
+        $self->{logger}->writeLogDebug("[listener] trigger event '$_[0]->{token}'");
 
-        $self->{gorgone_core}->message_run(
-            message => '[' . $_ . '] [' . $options{token} . '] [] { "code": ' . $options{code} . ', "data": ' . $options{data} . ' }',
-            router_type => 'internal'
-        );
+        my $message = '[' . $_ . '] [' . $_[0]->{token} . '] [] { "code": ' . $_[0]->{code} . ', "data": ' . ${$_[0]->{data}} . ' }';
+        my $frame = gorgone::class::frame->new();
+        $frame->setFrame(\$message);
+
+        $self->{gorgone_core}->message_run({ frame => $frame, router_type => 'internal' });
     }
 }
 
@@ -91,10 +93,11 @@ sub check_getlog_token {
         return if (defined($self->{gorgone_core}->{id}) && $self->{gorgone_core}->{id} == $self->{tokens}->{$options{token}}->{target});
         
         if ((time() - $self->{tokens}->{$options{token}}->{log_pace}) > $self->{tokens}->{$options{token}}->{getlog_last}) {
-            $self->{gorgone_core}->message_run(
-                message => "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}",
-                router_type => 'internal'
-            );
+            my $message = "[GETLOG] [] [$self->{tokens}->{$options{token}}->{target}] {}";
+            my $frame = gorgone::class::frame->new();
+            $frame->setFrame(\$message);
+            
+            $self->{gorgone_core}->message_run({ frame => $frame, router_type => 'internal' });
 
             $self->{tokens}->{$options{token}}->{getlog_last} = time();
         }
@@ -107,12 +110,12 @@ sub check {
     foreach my $token (keys %{$self->{tokens}}) {
         if (time() - $self->{tokens}->{$token}->{created} > $self->{tokens}->{$token}->{timeout}) {
             $self->{logger}->writeLogDebug("[listener] delete token '$token': timeout");
-            gorgone::standard::library::add_history(
+            gorgone::standard::library::add_history({
                 dbh => $self->{gorgone_core}->{db_gorgone},
                 code => GORGONE_ACTION_FINISH_KO,
                 token => $token,
                 data => '{ "message": "listener token ' . $token . ' timeout reached" }'
-            );
+            });
             delete $self->{tokens}->{$token};
             next;
         }

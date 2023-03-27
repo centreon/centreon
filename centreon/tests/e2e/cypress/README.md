@@ -33,7 +33,7 @@ optional parameters :
 
 1. Version centreon [default = the last of master]
 2. Image docker name [default = ‘mon-web’]
-3. distribution [default = centos7]
+3. distribution [default = alma9]
 
 ### Start and Stop dockers testing environment
 

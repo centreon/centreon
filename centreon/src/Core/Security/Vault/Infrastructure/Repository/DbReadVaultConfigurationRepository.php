@@ -106,13 +106,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
-     * @param string $address
-     * @param integer $port
-     * @param string $rootPath
-     *
-     * @throws \Throwable
-     *
-     * @return boolean
+     * @inheritDoc
      */
     public function existsSameConfiguration(string $address, int $port, string $rootPath): bool
     {

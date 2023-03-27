@@ -25,7 +25,7 @@ Feature:
                 "name": "host-cat1",
                 "alias": "host-cat1-alias",
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -67,7 +67,7 @@ Feature:
                 "name": "host-cat2",
                 "alias": "host-cat2-alias",
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -108,14 +108,14 @@ Feature:
                 "name": "host-cat1",
                 "alias": "host-cat1-alias",
                 "is_activated": true,
-                "comments": null
+                "comment": null
             },
             {
                 "id": 2,
                 "name": "host-cat2",
                 "alias": "host-cat2-alias",
                 "is_activated": true,
-                "comments": null
+                "comment": null
             }
         ],
         "meta": {
@@ -149,7 +149,7 @@ Feature:
     Given the following CLAPI import data:
     """
     HC;ADD;host-sev1;host-sev1-alias
-    HC;setseverity;host-sev1;1;logos/centreon.png
+    HC;setseverity;host-sev1;1;logos/logo-centreon-colors.png
     """
 
     When I send a GET request to '/api/latest/configuration/hosts/categories'
@@ -226,9 +226,9 @@ Feature:
     When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
     """
     {
-        "name": "host-cat-name",
-        "alias": "host-cat-alias",
-        "comments": "blablabla"
+        "name": "  host-cat-name  ",
+        "alias": "  host-cat-alias  ",
+        "comment": "blablabla"
     }
     """
     Then the response code should be "201"
@@ -239,7 +239,7 @@ Feature:
         "name": "host-cat-name",
         "alias": "host-cat-alias",
         "is_activated": true,
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
@@ -247,7 +247,7 @@ Feature:
     {
         "name": "host-cat-name",
         "alias": "host-cat-alias",
-        "comments": "blablabla"
+        "comment": "blablabla"
     }
     """
     Then the response code should be "409"

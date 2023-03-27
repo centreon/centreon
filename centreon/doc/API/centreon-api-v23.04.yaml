@@ -8,7 +8,6 @@ info:
     + Added host groups endpoints (DELETE, POST)
     + Added host categories endpoints (DELETE, POST)
     + Added host severities endpoints (DELETE)
-    +
     # Updated features
     + Updated host groups endpoint (GET)
     + Updated host categories endpoint (GET)
@@ -314,6 +313,8 @@ paths:
       summary: "Create a host category"
       description: |
         Create a host category
+
+        This endpoint does NOT update the ACL rights with the new host category
       requestBody:
         required: true
         content:
@@ -342,6 +343,82 @@ paths:
         Delete a host category configuration
       parameters:
         - $ref: '#/components/parameters/HostCategoryId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/categories:
+    get:
+      tags:
+        - Service category
+      summary: "List service categories"
+      description: |
+        List of service category configurations
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * alias
+        * is_activated
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Host.Category'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Service category
+      summary: "Create a service category"
+      description: |
+        Create a service category
+
+        This endpoint does NOT update the ACL rights with the new service category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration.Service.Category.Add"
+      responses:
+        '201':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/categories/{service_category_id}:
+    delete:
+      tags:
+        - Host category
+      summary: "Delete a service category"
+      description: |
+        Delete a service category configuration
+      parameters:
+        - $ref: '#/components/parameters/ServiceCategoryId'
       responses:
         '204':
           description: "OK"
@@ -426,11 +503,17 @@ paths:
             schema:
               properties:
                 name:
-                  type: "string"
+                  type: string
                   example: "host-severity-name"
                 alias:
-                  type: "string"
+                  type: string
                   example: "host-severity-alias"
+                level:
+                  type: integer
+                  example: 2
+                icon_id:
+                  type: integer
+                  example: 1
       responses:
         '201':
           description: "OK"
@@ -584,6 +667,150 @@ paths:
                     $ref: '#/components/schemas/Meta'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Service group
+      summary: "Add a service group"
+      description: |
+        Add a new service group configuration.
+
+        Mandatory body properties are:
+
+        * name
+        * alias
+
+        `Since Centreon web 23.04`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Service.Group.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Service.Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/groups/{servicegroup_id}:
+    delete:
+      tags:
+        - Service group
+      summary: "Delete a host group"
+      description: |
+        `internal`
+
+        `Since Centreon web 23.04`
+
+        Delete service group.
+      parameters:
+        - $ref: '#/components/parameters/ServiceGroupId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/severities:
+    get:
+      tags:
+        - Service severity
+      summary: "List all service severities"
+      description: |
+        List of all service severity configurations
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * level
+        * is_activated
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Service.Severity'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Service severity
+      summary: "Create a service severity"
+      description: |
+        Create a service severity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "service-severity-name"
+                alias:
+                  type: string
+                  example: "service-severity-alias"
+                level:
+                  type: integer
+                  example: 2
+                icon_id:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/services/severities/{service_severity_id}:
+    delete:
+      tags:
+        - Service severity
+      summary: "Delete a service severity"
+      description: |
+        Delete a service severity configuration
+      parameters:
+        - $ref: '#/components/parameters/ServiceSeverityId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/icons:
@@ -4798,6 +5025,15 @@ components:
         type: integer
         format: int64
         example: 5
+    ServiceGroupId:
+      in: path
+      name: servicegroup_id
+      description: "ID of the service group"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
     ServiceId:
       in: path
       name: service_id
@@ -4921,6 +5157,24 @@ components:
       in: path
       name: host_severity_id
       description: "ID of existing host severity configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    ServiceCategoryId:
+      in: path
+      name: service_category_id
+      description: "ID of existing service category configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    ServiceSeverityId:
+      in: path
+      name: service_severity_id
+      description: "ID of existing service severity configuration"
       required: true
       schema:
         type: integer
@@ -5736,10 +5990,29 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
+    Configuration.Service.Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Service category ID"
+          example: 1
+        name:
+          type: string
+          description: "Service category name"
+          example: "service-category"
+        alias:
+          type: string
+          description: "Service category alias"
+          example: "service-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enable/disable)
+          example: true
     Configuration.Host.Category.Add:
       type: object
       properties:
@@ -5755,10 +6028,25 @@ components:
           type: boolean
           description: is active or not (enable/disable)
           example: true
-        comments:
+        comment:
           type: string
           nullable: true
-          description: "some comments"
+          description: "some comment"
+    Configuration.Service.Category.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Service category name"
+          example: "service-category"
+        alias:
+          type: string
+          description: "Service category alias"
+          example: "service-category"
+        is_activated:
+          type: boolean
+          description: is active or not (enabled/disabled)
+          example: true
     Configuration.Host.Severity:
       type: object
       properties:
@@ -5782,9 +6070,9 @@ components:
           type: integer
           description: "Define the image ID associated with this severity"
           example: 1
-        comments:
+        comment:
           type: string
-          description: "Host severity comments"
+          description: "Host severity comment"
           nullable: true
         is_activated:
           type: boolean
@@ -6073,6 +6361,32 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the service group is activated or not"
+    Configuration.Service.Severity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Service severity ID"
+          example: 1
+        name:
+          type: string
+          description: "Service severity name"
+          example: "service-severity"
+        alias:
+          type: string
+          description: "Service severity alias"
+          example: "service-severity"
+        level:
+          type: integer
+          description: "Service severity priority"
+          example: 2
+        icon_id:
+          type: integer
+          description: "Define the image ID associated with this severity"
+          example: 1
+        is_activated:
+          type: boolean
+          description: "Indicates whether this service severity is enabled or not"
     Configuration.ContactTemplate:
       type: object
       required:
@@ -8043,4 +8357,4 @@ components:
           example: "centreon"
         role_id:
           type: string
-          description: "Vault role id"
+          description: "Vault role ID"

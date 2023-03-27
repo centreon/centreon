@@ -1,71 +1,13 @@
 import { ReactNode } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Chip, ChipProps, alpha } from '@mui/material';
-import { grey, lightGreen, red } from '@mui/material/colors';
-
-import { ThemeMode } from '@centreon/ui-context';
+import { Chip, ChipProps } from '@mui/material';
 
 import useStyleTable from '../Listing/useStyleTable';
-import type { TableStyleAtom } from '../Listing/models';
-
-enum SeverityCode {
-  High = 1,
-  Medium = 2,
-  Low = 3,
-  Pending = 4,
-  Ok = 5,
-  None = 6
-}
-
-interface StatusColorProps {
-  className?: string;
-  severityCode: SeverityCode;
-  theme: Theme;
-}
-
-export interface Colors {
-  backgroundColor: string;
-  color: string;
-}
-
-const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
-  const { palette } = theme;
-
-  const colorMapping = {
-    [SeverityCode.High]: {
-      backgroundColor:
-        red[equals(ThemeMode.dark, theme.palette.mode) ? 'A700' : 400],
-      color: palette.error.contrastText
-    },
-    [SeverityCode.Medium]: {
-      backgroundColor: palette.warning.main,
-      color: palette.warning.contrastText
-    },
-    [SeverityCode.Low]: {
-      backgroundColor:
-        grey[equals(ThemeMode.dark, theme.palette.mode) ? 700 : 300],
-      color: palette.text.primary
-    },
-    [SeverityCode.Pending]: {
-      backgroundColor: palette.pending.main,
-      color: palette.text.primary
-    },
-    [SeverityCode.Ok]: {
-      backgroundColor:
-        lightGreen[equals(ThemeMode.dark, theme.palette.mode) ? 800 : 600],
-      color: palette.text.primary
-    },
-    [SeverityCode.None]: {
-      backgroundColor: alpha(palette.primary.main, 0.1),
-      color: palette.text.primary
-    }
-  };
-
-  return colorMapping[severityCode];
-};
+import { TableStyleAtom } from '../Listing/models';
+import { getStatusColors, SeverityCode } from '../utils/statuses';
 
 export type Props = {
   clickable?: boolean;

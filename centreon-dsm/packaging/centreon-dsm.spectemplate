@@ -15,7 +15,7 @@ Summary:        Centreon-dsm add-on for Centreon
 %define nextmajor 23.05.0
 
 Group:          System Environment/Base
-License:        GPLv2
+License:        Apache-2.0
 URL:            https://github.com/centreon/centreon-dsm
 Source0:        %{name}-%{version}.tar.gz
 Source1:        centreon-macroreplacement.txt
@@ -33,6 +33,7 @@ events.
 %package server
 Summary:        Centreon-dsm server
 Group:          Networking/Other
+License:        Apache-2.0
 Requires(post): /sbin/chkconfig
 Requires:	centreon-web >= %{thismajor}
 Requires:       centreon-web < %{nextmajor}
@@ -43,6 +44,7 @@ Centreon-dsm server package
 %package client
 Summary:	Centreon-dsm client
 Group:		Networking/Other
+License:	Apache-2.0
 
 %description client
 Centreon-dsm client package
@@ -79,8 +81,8 @@ rm -rf $RPM_BUILD_ROOT
 # Install daemon starting script
 %{__install} -d -m 0755 %buildroot%{_unitdir}
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
-%{__install} -m 0755 centreon-dsm/libinstall/redhat/dsmd.systemd %buildroot%{_unitdir}/dsmd.service
-%{__install} -m 0644 centreon-dsm/libinstall/redhat/dsmd.sysconfig %buildroot%{_sysconfdir}/sysconfig/dsmd
+%{__install} -m 0755 centreon-dsm/libinstall/systemd/dsmd.systemd %buildroot%{_unitdir}/dsmd.service
+%{__install} -m 0644 centreon-dsm/libinstall/systemd/dsmd.sysconfig %buildroot%{_sysconfdir}/sysconfig/dsmd
 
 %clean
 rm -rf $RPM_BUILD_ROOT

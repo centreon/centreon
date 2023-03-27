@@ -14,19 +14,28 @@ import { MdxThemeProvider } from './StoryBookThemeProvider'
 
 <Typography>Discover older versions of the Centreon UI's storybook</Typography>
 <Stack>
-  <Link href="https://storybook.centreon.com/22.04/" target="__blank" rel="noopener noreferrer">
+  <Link href="https://storybook.centreon.com/index.html" target="__blank" rel="noopener noreferrer">
+    <Typography>Latest</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/23.04/index.html" target="__blank" rel="noopener noreferrer">
+    <Typography>23.04</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/22.10/index.html" target="__blank" rel="noopener noreferrer">
+    <Typography>22.10</Typography>
+  </Link>
+  <Link href="https://storybook.centreon.com/22.04/index.html" target="__blank" rel="noopener noreferrer">
     <Typography>22.04</Typography>
   </Link>
-  <Link href="https://storybook.centreon.com/21.10/" target="__blank" rel="noopener noreferrer">
+  <Link href="https://storybook.centreon.com/21.10/index.html" target="__blank" rel="noopener noreferrer">
     <Typography>21.10</Typography>
   </Link>
-  <Link href="https://storybook.centreon.com/21.04/" target="__blank" rel="noopener noreferrer">
+  <Link href="https://storybook.centreon.com/21.04/index.html" target="__blank" rel="noopener noreferrer">
     <Typography>21.04</Typography>
   </Link>
-  <Link href="https://storybook.centreon.com/20.10/" target="__blank" rel="noopener noreferrer">
+  <Link href="https://storybook.centreon.com/20.10/index.html" target="__blank" rel="noopener noreferrer">
     <Typography>20.10</Typography>
   </Link>
-  <Link href="https://storybook.centreon.com/20.04/" target="__blank" rel="noopener noreferrer">
+  <Link href="https://storybook.centreon.com/20.04/index.html" target="__blank" rel="noopener noreferrer">
     <Typography>20.04</Typography>
   </Link>
 </Stack>
@@ -94,20 +103,20 @@ import { MdxThemeProvider } from './StoryBookThemeProvider'
     <br />
 
     <Typography>Run all the test (Jest + Storyshots)</Typography>
-    `npm run build:storybook && npm t`
+    `pnpm build:storybook && pnpm t`
     <br />
 
     <Typography>Run storyshots following one or more story title</Typography>
-    `npm run build:storybook && npm run test:storyshot -- "MyComponent"`
+    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent"`
     <Typography>Or</Typography>
-    `npm run build:storybook && npm run test:storyshot -- "MyComponent|MyOtherComponent"`
+    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent"`
     <br />
 
     <Typography>Update snapshots</Typography>
-    `npm run build:storybook && npm t -- -u`
+    `pnpm build:storybook && pnpm t -- -u`
     <Typography>Or</Typography>
-    `npm run build:storybook && npm run test:storyshot -- "MyComponent" -u`
+    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent" -u`
     <Typography>Or</Typography>
-    `npm run build:storybook && npm run test:storyshot -- "MyComponent|MyOtherComponent" -u`
+    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent" -u`
   </AccordionDetails>
 </Accordion>

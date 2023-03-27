@@ -30,12 +30,13 @@ use gorgone::modules::centreon::autodiscovery::services::discovery;
 use gorgone::class::tpapi::clapi;
 use gorgone::class::tpapi::centreonv2;
 use gorgone::class::sqlquery;
-use ZMQ::LibZMQ4;
-use ZMQ::Constants qw(:all);
+use gorgone::class::frame;
 use JSON::XS;
 use Time::HiRes;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
+use Try::Tiny;
+use EV;
 
 use constant JOB_SCHEDULED => 0;
 use constant JOB_FINISH => 1;
@@ -149,7 +150,7 @@ sub hdisco_add_cron {
         return (1, "missing 'cron_definition' parameter");
     }
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -158,7 +159,7 @@ sub hdisco_add_cron {
                 token => 'cron-' . $options{discovery_token}
             }
         ]
-    );
+    });
 
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - add cron for job '" . $options{job}->{job_id} . "'");
     my $definition = {
@@ -170,13 +171,13 @@ sub hdisco_add_cron {
             timeout => (defined($options{job}->{timeout}) && $options{job}->{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout}
         }
     };
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDCRON',
         token => 'cron-' . $options{discovery_token},
         data => {
             content => [ $definition ]
         }
-    );
+    });
 
     return 0;
 }
@@ -302,7 +303,7 @@ sub get_host_job {
 
     my ($status, $results) = $self->{tpapi_centreonv2}->get_scheduling_jobs(search => '{"id": ' . $options{job_id} . '}');
     if ($status != 0) {
-        return (1, "cannot get host discovery job '$options{data}->{content}->{job_id}' - " . $self->{tpapi_centreonv2}->error());
+        return (1, "cannot get host discovery job '$options{job_id}' - " . $self->{tpapi_centreonv2}->error());
     }
 
     my $job;
@@ -328,13 +329,13 @@ sub hdisco_delete_cron {
 
     $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - delete job '" . $job_id . "'");
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'DELETECRON',
         token => $options{token},
         data => {   
             variables => [ $options{discovery_token} ]
         }
-    );
+    });
 }
 
 sub action_addhostdiscoveryjob {
@@ -352,51 +353,53 @@ sub action_addhostdiscoveryjob {
         return ;
     }
 
+    my $data = $options{frame}->getData();
+
     my ($status, $message, $job);
-    ($status, $message, $job) = $self->get_host_job(job_id => $options{data}->{content}->{job_id});
+    ($status, $message, $job) = $self->get_host_job(job_id => $data->{content}->{job_id});
     if ($status != 0) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - cannot get host discovery job '$options{data}->{content}->{job_id}' - " . $self->{tpapi_centreonv2}->error());
+        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - cannot get host discovery job '$data->{content}->{job_id}' - " . $self->{tpapi_centreonv2}->error());
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => "cannot get job '$options{data}->{content}->{job_id}'"
+                message => "cannot get job '$data->{content}->{job_id}'"
             }
         );
         return 1;
     }
 
     if (!defined($job)) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - cannot get host discovery job '$options{data}->{content}->{job_id}' - " . $self->{tpapi_centreonv2}->error());
+        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - cannot get host discovery job '$data->{content}->{job_id}' - " . $self->{tpapi_centreonv2}->error());
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => "cannot get job '$options{data}->{content}->{job_id}'"
+                message => "cannot get job '$data->{content}->{job_id}'"
             }
         );
         return 1;
     }
 
-    $job->{timeout} = $options{data}->{content}->{timeout};
+    $job->{timeout} = $data->{content}->{timeout};
     ($status, $message) = $self->hdisco_addupdate_job(job => $job);
     if ($status) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - add job '$options{data}->{content}->{job_id}' - $message");
+        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - add job '$data->{content}->{job_id}' - $message");
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
             data => {
-                message => "add job '$options{data}->{content}->{job_id}' - $message"
+                message => "add job '$data->{content}->{job_id}' - $message"
             }
         );
         return 1;
     }
 
     # Launch a immediate job.
-    if ($self->{hdisco_jobs_ids}->{ $options{data}->{content}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE) {
+    if ($self->{hdisco_jobs_ids}->{ $data->{content}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE) {
         ($status, $message) = $self->launchhostdiscovery(
-            job_id => $options{data}->{content}->{job_id},
-            timeout => $options{data}->{content}->{timeout},
+            job_id => $data->{content}->{job_id},
+            timeout => $data->{content}->{timeout},
             source => 'immediate'
         );
         if ($status) {
@@ -415,7 +418,7 @@ sub action_addhostdiscoveryjob {
         code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         data => {
-            message => 'job ' . $options{data}->{content}->{job_id} . ' added'
+            message => 'job ' . $data->{content}->{job_id} . ' added'
         }
     );
     
@@ -461,7 +464,7 @@ sub launchhostdiscovery {
     $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_RUNNING;
     my $timeout = (defined($options{timeout}) && $options{timeout} =~ /(\d+)/) ? $1 : $self->{global_timeout};
 
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'ADDLISTENER',
         data => [
             {
@@ -473,9 +476,15 @@ sub launchhostdiscovery {
                 log_pace => $self->{check_interval}
             }
         ]
-    );
+    });
 
-    $self->send_internal_action(
+    # plugins attribute format:
+    #    "plugins": {
+    #            "centreon-plugin-Cloud-Aws-Ec2-Api": 20220727,
+    #            ...
+    #    }
+
+    $self->send_internal_action({
         action => 'COMMAND',
         target => $self->{hdisco_jobs_ids}->{$job_id}->{target},
         token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
@@ -487,12 +496,13 @@ sub launchhostdiscovery {
                     timeout => $timeout,
                     metadata => {
                         job_id => $job_id,
-                        source => 'autodiscovery-host-job-discovery'
+                        source => 'autodiscovery-host-job-discovery',
+                        pkg_install => $self->{hdisco_jobs_ids}->{$job_id}->{plugins}
                     }
                 }
             ]
         }
-    );
+    });
 
     return (0, "job '$job_id' launched");
 }
@@ -512,14 +522,16 @@ sub action_launchhostdiscovery {
         return ;
     }
 
+    my $data = $options{frame}->getData();
+
     my ($job_id, $timeout, $source);
-    if (defined($options{data}->{variables}->[0]) &&
-        defined($options{data}->{variables}->[1]) && $options{data}->{variables}->[1] eq 'schedule') {
-        $job_id = $options{data}->{variables}->[0];
+    if (defined($data->{variables}->[0]) &&
+        defined($data->{variables}->[1]) && $data->{variables}->[1] eq 'schedule') {
+        $job_id = $data->{variables}->[0];
         $source = 'immediate';
-    } elsif (defined($options{data}->{content}->{job_id})) {
-        $job_id = $options{data}->{content}->{job_id};
-        $timeout = $options{data}->{content}->{timeout};
+    } elsif (defined($data->{content}->{job_id})) {
+        $job_id = $data->{content}->{job_id};
+        $timeout = $data->{content}->{timeout};
         $source = 'cron';
     }
 
@@ -593,17 +605,19 @@ sub action_launchhostdiscovery {
 sub discovery_postcommand_result {
     my ($self, %options) = @_;
 
-    return 1 if (!defined($options{data}->{data}->{metadata}->{job_id}));
+    my $data = $options{frame}->getData();
 
-    my $job_id = $options{data}->{data}->{metadata}->{job_id};
+    return 1 if (!defined($data->{data}->{metadata}->{job_id}));
+
+    my $job_id = $data->{data}->{metadata}->{job_id};
     if (!defined($self->{hdisco_jobs_ids}->{$job_id})) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - found result for inexistant job '" . $job_id . "'");
         return 1;
     }
 
-    my $exit_code = $options{data}->{data}->{result}->{exit_code};
-    my $output = (defined($options{data}->{data}->{result}->{stderr}) && $options{data}->{data}->{result}->{stderr} ne '') ?
-        $options{data}->{data}->{result}->{stderr} : $options{data}->{data}->{result}->{stdout};
+    my $exit_code = $data->{data}->{result}->{exit_code};
+    my $output = (defined($data->{data}->{result}->{stderr}) && $data->{data}->{result}->{stderr} ne '') ?
+        $data->{data}->{result}->{stderr} : $data->{data}->{result}->{stdout};
 
     if ($exit_code != 0) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - execute discovery postcommand failed job '$job_id'");
@@ -623,12 +637,59 @@ sub discovery_postcommand_result {
     );
 }
 
+sub discovery_add_host_result {
+    my ($self, %options) = @_;
+
+    if ($options{builder}->{num_lines} == MAX_INSERT_BY_QUERY) {
+        my ($status) = $self->{class_object_centreon}->custom_execute(
+            request => $options{builder}->{query} . $options{builder}->{values},
+            bind_values => $options{builder}->{bind_values}
+        );
+        if ($status == -1) {
+            $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$options{job_id}' results");
+            $self->update_job_status(
+                job_id => $options{job_id},
+                status => JOB_FAILED,
+                message => 'Failed to insert job results'
+            );
+            return 1;
+        }
+        $options{builder}->{num_lines} = 0;
+        $options{builder}->{values} = '';
+        $options{builder}->{append} = '';
+        $options{builder}->{bind_values} = ();
+    }
+
+    # Generate uuid based on attributs
+    my $uuid_char = '';
+    foreach (@{$options{uuid_parameters}}) {
+        $uuid_char .= $options{host}->{$_} if (defined($options{host}->{$_}) && $options{host}->{$_} ne '');
+    }
+    my $ctx = Digest::MD5->new;
+    $ctx->add($uuid_char);
+    my $digest = $ctx->hexdigest;
+    my $uuid = substr($digest, 0, 8) . '-' . substr($digest, 8, 4) . '-' . substr($digest, 12, 4) . '-' .
+        substr($digest, 16, 4) . '-' . substr($digest, 20, 12);
+    my $encoded_host = JSON::XS->new->encode($options{host});
+
+    # Build bulk insert
+    $options{builder}->{values} .= $options{builder}->{append} . '(?, ?, ?)';
+    $options{builder}->{append} = ', ';
+    push @{$options{builder}->{bind_values}}, $options{job_id}, $encoded_host, $uuid;
+    $options{builder}->{num_lines}++;
+    $options{builder}->{total_lines}++;
+
+    return 0;
+}
+
 sub discovery_command_result {
     my ($self, %options) = @_;
 
-    return 1 if (!defined($options{data}->{data}->{metadata}->{job_id}));
+    my $data = $options{frame}->getData();
 
-    my $job_id = $options{data}->{data}->{metadata}->{job_id};
+    return 1 if (!defined($data->{data}->{metadata}->{job_id}));
+
+    my $job_id = $data->{data}->{metadata}->{job_id};
     if (!defined($self->{hdisco_jobs_ids}->{$job_id})) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - found result for inexistant job '" . $job_id . "'");
         return 1;
@@ -636,38 +697,22 @@ sub discovery_command_result {
 
     $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - found result for job '" . $job_id . "'");
     my $uuid_parameters = $self->{hdisco_jobs_ids}->{$job_id}->{uuid_parameters};
-    my $exit_code = $options{data}->{data}->{result}->{exit_code};
-    my $output = (defined($options{data}->{data}->{result}->{stderr}) && $options{data}->{data}->{result}->{stderr} ne '') ?
-        $options{data}->{data}->{result}->{stderr} : $options{data}->{data}->{result}->{stdout};
+    my $exit_code = $data->{data}->{result}->{exit_code};
 
     if ($exit_code != 0) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - execute discovery plugin failed job '$job_id'");
         $self->update_job_status(
             job_id => $job_id,
             status => JOB_FAILED,
-            message => $output
-        );
-        return 1;
-    }
-
-    my $result;
-    eval {
-        $result = JSON::XS->new->decode($output);
-    };
-
-    if ($@) {
-        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to decode discovery plugin response job '$job_id'");
-        $self->update_job_status(
-            job_id => $job_id,
-            status => JOB_FAILED,
-            message => 'Failed to decode discovery plugin response'
+            message => (defined($data->{data}->{result}->{stderr}) && $data->{data}->{result}->{stderr} ne '') ?
+                $data->{data}->{result}->{stderr} : $data->{data}->{result}->{stdout}
         );
         return 1;
     }
 
     # Delete previous results
-    my $query = "DELETE FROM mod_host_disco_host WHERE job_id = " . $self->{class_object_centreon}->quote(value => $job_id);
-    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my $query = "DELETE FROM mod_host_disco_host WHERE job_id = ?";
+    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => [$job_id]);
     if ($status == -1) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to delete previous job '$job_id' results");
         $self->update_job_status(
@@ -679,49 +724,45 @@ sub discovery_command_result {
     }
 
     # Add new results
-    my $number_of_lines = 0;
-    my $values = '';
-    my $append = '';
-    $query = "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES ";
-    foreach my $host (@{$result->{results}}) {
-        if ($number_of_lines == MAX_INSERT_BY_QUERY) {
-            ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values);
-            if ($status == -1) {
-                $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$job_id' results");
-                $self->update_job_status(
-                    job_id => $job_id,
-                    status => JOB_FAILED,
-                    message => 'Failed to insert job results'
-                );
-                return 1;
+    my $builder = {
+        query => "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES ",
+        num_lines => 0,
+        total_lines => 0,
+        values => '',
+        append => '',
+        bind_values => []
+    };
+    my $duration = 0;
+
+    try {
+        my $json = JSON::XS->new();
+        $json->incr_parse($data->{data}->{result}->{stdout});
+        while (my $obj = $json->incr_parse()) {
+            if (ref($obj) eq 'HASH') {
+                foreach my $host (@{$obj->{results}}) {
+                    my $rv = $self->discovery_add_host_result(host => $host, job_id => $job_id, uuid_parameters => $uuid_parameters, builder => $builder);
+                    return 1 if ($rv);
+                }
+                $duration = $obj->{duration};
+            } elsif (ref($obj) eq 'ARRAY') {
+                foreach my $host (@$obj) {
+                    my $rv = $self->discovery_add_host_result(host => $host, job_id => $job_id, uuid_parameters => $uuid_parameters, builder => $builder);
+                    return 1 if ($rv);
+                }
             }
-            $number_of_lines = 0;
-            $values = '';
-            $append = '';
         }
+    } catch {
+        $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to decode discovery plugin response job '$job_id'");
+        $self->update_job_status(
+            job_id => $job_id,
+            status => JOB_FAILED,
+            message => 'Failed to decode discovery plugin response'
+        );
+        return 1;
+    };
 
-        # Generate uuid based on attributs
-        my $uuid_char = '';
-        foreach (@$uuid_parameters) {
-            $uuid_char .= $host->{$_} if (defined($host->{$_}) && $host->{$_} ne '');
-        }
-        my $ctx = Digest::MD5->new;
-        $ctx->add($uuid_char);
-        my $digest = $ctx->hexdigest;
-        my $uuid = substr($digest, 0, 8) . '-' . substr($digest, 8, 4) . '-' . substr($digest, 12, 4) . '-' .
-            substr($digest, 16, 4) . '-' . substr($digest, 20, 12);
-        my $encoded_host = JSON::XS->new->encode($host);
-
-        # Build bulk insert
-        $values .= $append . "(" . $self->{class_object_centreon}->quote(value => $job_id) . ", " . 
-            $self->{class_object_centreon}->quote(value => $encoded_host) . ", " . 
-            $self->{class_object_centreon}->quote(value => $uuid) . ")";
-        $append = ', ';
-        $number_of_lines++;
-    }
-
-    if ($values ne '') {
-        ($status) = $self->{class_object_centreon}->custom_execute(request => $query . $values);
+    if ($builder->{values} ne '') {
+        ($status) = $self->{class_object_centreon}->custom_execute(request => $builder->{query} . $builder->{values}, bind_values => $builder->{bind_values});
         if ($status == -1) {
             $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$job_id' results");
             $self->update_job_status(
@@ -738,7 +779,7 @@ sub discovery_command_result {
         $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - execute post command job '$job_id'");
         my $post_command = $self->{hdisco_jobs_ids}->{$job_id}->{post_execution}->{commands}->[0];
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => $post_command->{action},
             token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
             data => {
@@ -753,7 +794,7 @@ sub discovery_command_result {
                     }
                 ]
             }
-        );
+        });
     }
     
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - finished discovery command job '$job_id'");
@@ -761,8 +802,8 @@ sub discovery_command_result {
         job_id => $job_id,
         status => JOB_FINISH,
         message => 'Finished',
-        duration => $result->{duration},
-        discovered_items => $result->{discovered_items}
+        duration => $duration,
+        discovered_items => $builder->{total_lines}
     );
 
     return 0;
@@ -785,7 +826,9 @@ sub action_deletehostdiscoveryjob {
         return ;
     }
 
-    my $discovery_token = $options{data}->{variables}->[0];
+    my $data = $options{frame}->getData();
+
+    my $discovery_token = $data->{variables}->[0];
     my $job_id = (defined($discovery_token) && defined($self->{hdisco_jobs_tokens}->{$discovery_token})) ? 
         $self->{hdisco_jobs_tokens}->{$discovery_token} : undef;
     if (!defined($discovery_token) || $discovery_token eq '') {
@@ -856,21 +899,24 @@ sub update_job_information {
     return 1 if (!defined($options{values}) || ref($options{values}) ne 'HASH' || !keys %{$options{values}});
     
     my $query = "UPDATE mod_host_disco_job SET ";
+    my @bind_values = ();
     my $append = '';
     foreach (keys %{$options{values}}) {
-        $query .= $append . $_ . " = " .  $self->{class_object_centreon}->quote(value => $options{values}->{$_});
+        $query .= $append . $_ . ' = ?';
         $append = ', ';
+        push @bind_values, $options{values}->{$_};
     }
 
     $query .= " WHERE ";
     $append = '';
     foreach (@{$options{where_clause}}) {
         my ($key, $value) = each %{$_};
-        $query .= $append . $key . " = " . $self->{class_object_centreon}->quote(value => $value);
+        $query .= $append . $key . " = ?";
         $append = 'AND ';
+        push @bind_values, $value;
     }
 
-    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
+    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => \@bind_values);
     if ($status == -1) {
         $self->{logger}->writeLogError('[autodiscovery] Failed to update job information');
         return -1;
@@ -884,24 +930,26 @@ sub action_hostdiscoveryjoblistener {
 
     return 0 if (!$self->is_hdisco_synced());
     return 0 if (!defined($options{token}));
-    return 0 if (!defined($self->{hdisco_jobs_tokens}->{$options{token}}));
+    return 0 if (!defined($self->{hdisco_jobs_tokens}->{ $options{token} }));
 
-    my $job_id = $self->{hdisco_jobs_tokens}->{$options{token}};
-    if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
-        $options{data}->{data}->{metadata}->{source} eq 'autodiscovery-host-job-discovery') {
+    my $data = $options{frame}->getData();
+
+    my $job_id = $self->{hdisco_jobs_tokens}->{ $options{token} };
+    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
+        $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-discovery') {
         $self->discovery_command_result(%options);
         return 1;
     }
-    #if ($options{data}->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
-    #    $options{data}->{data}->{metadata}->{source} eq 'autodiscovery-host-job-postcommand') {
+    #if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
+    #    $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-postcommand') {
     #    $self->discovery_postcommand_result(%options);
     #    return 1;
     #}
 
     # Can happen if we have a execution command timeout
-    my $message = defined($options{data}->{data}->{result}->{stdout}) ? $options{data}->{data}->{result}->{stdout} : $options{data}->{data}->{message};
-    $message = $options{data}->{message} if (!defined($message));
-    if ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
+    my $message = defined($data->{data}->{result}->{stdout}) ? $data->{data}->{result}->{stdout} : $data->{data}->{message};
+    $message = $data->{message} if (!defined($message));
+    if ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_FAILED;
         $self->update_job_information(
             values => {
@@ -930,11 +978,13 @@ sub action_hostdiscoverycronlistener {
 
     return 0 if (!defined($self->{hdisco_jobs_tokens}->{ $discovery_token }));
 
+    my $data = $options{frame}->getData();
+
     my $job_id = $self->{hdisco_jobs_tokens}->{ $discovery_token };
-    if ($options{data}->{code} == GORGONE_ACTION_FINISH_KO) {
+    if ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - job '" . $job_id . "' add cron error");
         $self->{hdisco_jobs_ids}->{$job_id}->{extra_infos}->{cron_added} = CRON_ADDED_KO;
-    } elsif ($options{data}->{code} == GORGONE_ACTION_FINISH_OK) {
+    } elsif ($data->{code} == GORGONE_ACTION_FINISH_OK) {
         $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - job '" . $job_id . "' add cron ok");
         $self->{hdisco_jobs_ids}->{$job_id}->{extra_infos}->{cron_added} = CRON_ADDED_OK;
     }
@@ -948,7 +998,7 @@ sub hdisco_add_joblistener {
     foreach (@{$options{jobs}}) {
         $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - register listener for '" . $_->{job_id} . "'");
 
-        $self->send_internal_action(
+        $self->send_internal_action({
             action => 'ADDLISTENER',
             data => [
                 {
@@ -959,7 +1009,7 @@ sub hdisco_add_joblistener {
                     log_pace => $self->{check_interval}
                 }
             ]
-        );
+        });
     }
 
     return 0;
@@ -1014,7 +1064,7 @@ sub action_launchservicediscovery {
     );
     my $status = $svc_discovery->launchdiscovery(
         token => $options{token},
-        data => $options{data}
+        frame => $options{frame}
     );
     if ($status == -1) {
         $self->send_log(
@@ -1058,21 +1108,32 @@ sub is_hdisco_synced {
 }
 
 sub event {
-    while (1) {
-        my $message = $connector->read_message();
-        last if (!defined($message));
+    my ($self, %options) = @_;
 
-        $connector->{logger}->writeLogDebug("[autodiscovery] Event: $message");
-        if ($message =~ /^\[(.*?)\]/) {
+    while ($self->{internal_socket}->has_pollin()) {
+        my $frame = gorgone::class::frame->new();
+        my (undef, $rv) = $self->read_message(frame => $frame);
+        next if ($rv);
+
+        my $raw = $frame->getFrame();
+        $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
+        if ($$raw =~ /^\[(.*?)\]/) {
             if ((my $method = $connector->can('action_' . lc($1)))) {
-                $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-                my ($action, $token) = ($1, $2);
-                my ($rv, $data) = $connector->json_decode(argument => $3, token => $token);
-                next if ($rv);
+                next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
 
-                $method->($connector, token => $token, data => $data);
+                $method->($self, token => $frame->getToken(), frame => $frame);
             }
         }
+    }
+}
+
+sub periodic_exec {
+    $connector->is_module_installed();
+    $connector->hdisco_sync();
+
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
+        exit(0);
     }
 }
 
@@ -1116,37 +1177,25 @@ sub run {
         db_centreon => $self->{db_centstorage}
     );
 
-    # Connect internal
-    $connector->{internal_socket} = gorgone::standard::library::connect_com(
+    $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-autodiscovery',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $connector->send_internal_action(
+    $self->send_internal_action({
         action => 'AUTODISCOVERYREADY',
         data => {}
-    );
-    $self->{poll} = [
-        {
-            socket  => $connector->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event,
-        }
-    ];
+    });
 
-    while (1) {
-        $self->is_module_installed();
-        $self->hdisco_sync();
+    $self->is_module_installed();
+    $self->hdisco_sync();
 
-        my $rev = zmq_poll($self->{poll}, 5000);
-        if (defined($rev) && $rev == 0 && $self->{stop} == 1) {
-            $self->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
-            zmq_close($connector->{internal_socket});
-            exit(0);
-        }
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;
