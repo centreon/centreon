@@ -2924,8 +2924,12 @@ msgid "Performance Management"
 msgstr "Leistungsverwaltung"
 
 #: centreon/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Plugin Pakete"
+msgid "Monitoring Connectors Manager"
+msgstr "Monitoring konnektoren manager"
+
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring connectors"
+msgstr "Monitoring konnektoren"
 
 #: centreon/www/install/menu_translation.php:122
 msgid "Poller Statistics"
