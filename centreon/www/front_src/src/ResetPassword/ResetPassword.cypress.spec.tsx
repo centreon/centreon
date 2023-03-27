@@ -2,7 +2,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'jotai';
 import { replace } from 'ramda';
 
-import { SnackbarProvider, Method } from '@centreon/ui';
+import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
@@ -41,7 +41,7 @@ const retrievedLogin = {
 
 const mountComponentAndStub = (
   initialValues: unknown = resetPasswordInitialValues
-): void => {
+): unknown => {
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -49,11 +49,13 @@ const mountComponentAndStub = (
     Component: (
       <BrowserRouter>
         <SnackbarProvider>
-          <Provider
-            initialValues={[[passwordResetInformationsAtom, initialValues]]}
-          >
-            <ResetPassword />
-          </Provider>
+          <TestQueryProvider>
+            <Provider
+              initialValues={[[passwordResetInformationsAtom, initialValues]]}
+            >
+              <ResetPassword />
+            </Provider>
+          </TestQueryProvider>
         </SnackbarProvider>
       </BrowserRouter>
     )

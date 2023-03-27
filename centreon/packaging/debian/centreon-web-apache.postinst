@@ -3,18 +3,19 @@
 if [ "$1" = "configure" ] ; then
 
   if [ -f "/etc/apache2/sites-available/centreon.conf" ]; then
+    a2dismod php8.0
     a2enconf centreon.conf
     a2enmod headers
     a2enmod proxy_fcgi setenvif proxy rewrite
     a2enmod alias proxy proxy_fcgi
     a2enconf php8.1-fpm
-    a2dismod php8.0
     # Remove default Debian Apache configuration (if exists)
     if [ -L /etc/apache2/sites-enabled/000-default.conf ]; then
       echo "Removing Apache default configuration file ..."
       rm /etc/apache2/sites-enabled/000-default.conf
     fi
     # Restart apache2
+    systemctl enable php8.1-fpm
     systemctl restart apache2 php8.1-fpm
   fi
 

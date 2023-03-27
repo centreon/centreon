@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 interface ApiErrorResponse {
@@ -6,6 +7,7 @@ interface ApiErrorResponse {
 }
 
 export interface ResponseError {
+  additionalInformation?;
   isError: boolean;
   message: string;
   statusCode: number;
@@ -50,6 +52,13 @@ export const customFetch = <T>({
 
   return fetch(endpoint, options)
     .then((response) => {
+      if (equals(response.status, 204)) {
+        return {
+          isError: false,
+          message: ''
+        };
+      }
+
       return response.json().then((data) => {
         if (!response.ok) {
           const defaultError = {
@@ -62,6 +71,7 @@ export const customFetch = <T>({
           });
 
           return {
+            additionalInformation: data,
             isError: true,
             message: data.message || defaultFailureMessage,
             statusCode: response.status

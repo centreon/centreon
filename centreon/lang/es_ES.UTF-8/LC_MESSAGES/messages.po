@@ -3059,6 +3059,10 @@ msgstr "Gestión de datos de rendimiento."
 msgid "Monitoring connectors"
 msgstr "Conectores de supervisión"
 
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisión"
+
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
 msgstr "Estadísticas de coleccionista"
@@ -15536,6 +15540,47 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
 
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
+#  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
 
 #: www/front_src/src/Header/Poller
 
@@ -15561,7 +15606,6 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 # msgid "Up status hosts"
 # msgstr ""
-
 
 #: www/front_src/src/Header/Resources/Services
 
