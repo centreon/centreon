@@ -15614,3 +15614,8 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 # msgid "OK status services"
 # msgstr ""
+
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
+# msgstr ""
