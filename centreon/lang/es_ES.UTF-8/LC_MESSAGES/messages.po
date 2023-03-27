@@ -3059,6 +3059,10 @@ msgstr "Gestión de datos de rendimiento."
 msgid "Monitoring connectors"
 msgstr "Conectores de supervisión"
 
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisión"
+
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
 msgstr "Estadísticas de coleccionista"
@@ -15534,6 +15538,12 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgstr ""
 
 #  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
 #  msgstr ""
 
 # msgid "Developed by"
