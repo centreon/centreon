@@ -11,10 +11,12 @@ Package: centreon
 Architecture: all
 Depends:
     centreon-central (>= ${centreon:version}~),
-    centreon-database (>= ${centreon:version}~)
+    centreon-database (>= ${centreon:version}~),
+    centreon-central (< ${centreon:versionThreshold}~),
+    centreon-database (< ${centreon:versionThreshold}~)
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon the most effective Open Source monitoring engine : Nagios.
- Centreon provides a new frontend and new functionnalities to Nagios.
+ Centreon provides a new frontend and new functionalities to Nagios.
  .
  It allows you to be more efficient in your network monitoring, but also allows
  you to make your supervision information readable by a largest range of users.
@@ -36,6 +38,15 @@ Depends:
     centreon-broker (>= ${centreon:version}~),
     centreon-engine-extcommands (>= ${centreon:version}~),
     centreon-connector (>= ${centreon:version}~),
+    centreon-poller-centreon-engine (< ${centreon:versionThreshold}~),
+    centreon-license-manager (< ${centreon:versionThreshold}~),
+    centreon-pp-manager (< ${centreon:versionThreshold}~),
+    centreon-auto-discovery-server (< ${centreon:versionThreshold}~),
+    centreon-web (< ${centreon:versionThreshold}~),
+    centreon-web-apache (< ${centreon:versionThreshold}~),
+    centreon-broker (< ${centreon:versionThreshold}~),
+    centreon-engine-extcommands (< ${centreon:versionThreshold}~),
+    centreon-connector (< ${centreon:versionThreshold}~),
     centreon-widget-engine-status,
     centreon-widget-global-health,
     centreon-widget-graph-monitoring,
@@ -66,6 +77,15 @@ Depends:
     centreon-broker-storage (>= ${centreon:version}~),
     centreon-connector (>= ${centreon:version}~),
     centreon-gorgone (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
+    centreon-poller-centreon-engine (< ${centreon:versionThreshold}~),
+    centreon-trap (< ${centreon:versionThreshold}~),
+    centreon-engine (< ${centreon:versionThreshold}~),
+    centreon-broker (< ${centreon:versionThreshold}~),
+    centreon-broker-cbmod (< ${centreon:versionThreshold}~),
+    centreon-broker-storage (< ${centreon:versionThreshold}~),
+    centreon-connector (< ${centreon:versionThreshold}~),
+    centreon-gorgone (< ${centreon:versionThreshold}~),
     libdbd-mysql-perl,
     libdbd-sqlite3-perl,
     centreon-plugin-applications-databases-mysql,
@@ -92,6 +112,8 @@ Architecture: all
 Depends:
     centreon-common (>= ${centreon:version}~),
     centreon-perl-libs (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
+    centreon-perl-libs (< ${centreon:versionThreshold}~),
     php8.1,
     php8.1-cli,
     locales,
@@ -105,6 +127,8 @@ Depends:
     lsb-release,
     centreon-web-common (>= ${centreon:version}~),
     centreon-gorgone (>= ${centreon:version}~),
+    centreon-web-common (< ${centreon:versionThreshold}~),
+    centreon-gorgone (< ${centreon:versionThreshold}~),
     php8.1-curl,
     php8.1-intl,
     php8.1-xml,
@@ -130,6 +154,7 @@ Package: centreon-perl-libs
 Depends:
     ${misc:Depends},
     centreon-common (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
     libconfig-inifiles-perl,
     libcrypt-des-perl,
     librrds-perl,
@@ -150,6 +175,7 @@ Package: centreon-database
 Architecture: all
 Depends:
     centreon-common (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
     mariadb-server,
     ${misc:Depends}
 Description: Install a database server optimized for use with Centreon.
@@ -160,15 +186,17 @@ Depends:
     apache2,
     php8.1-fpm,
     centreon-web (>= ${centreon:version}~),
+    centreon-web (< ${centreon:versionThreshold}~),
     ${misc:Depends}
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon an effective Open Source monitoring engine : Centreon Engine.
- Centreon provides a new frontend and new functionnalities to Centreon Engine.
+ Centreon provides a new frontend and new functionalities to Centreon Engine.
 
 Package: centreon-trap
 Architecture: all
 Depends:
     centreon-common (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
     snmptrapd,
     snmpd,
     ${misc:Depends}
@@ -181,6 +209,10 @@ Depends:
     centreon-engine (>= ${centreon:version}~),
     centreon-gorgone (>= ${centreon:version}~),
     centreon-trap (>= ${centreon:version}~),
+    centreon-broker (< ${centreon:versionThreshold}~),
+    centreon-engine (< ${centreon:versionThreshold}~),
+    centreon-gorgone (< ${centreon:versionThreshold}~),
+    centreon-trap (< ${centreon:versionThreshold}~),
     centreon-plugin-applications-databases-mysql,
     centreon-plugin-applications-monitoring-centreon-central,
     centreon-plugin-applications-monitoring-centreon-database,
@@ -206,5 +238,8 @@ Depends:
     centreon-common (>= ${centreon:version}~),
     centreon-engine (>= ${centreon:version}~),
     centreon-gorgone (>= ${centreon:version}~),
+    centreon-common (< ${centreon:versionThreshold}~),
+    centreon-engine (< ${centreon:versionThreshold}~),
+    centreon-gorgone (< ${centreon:versionThreshold}~),
     ${misc:Depends}
 Description: Sudoers configuration for centreon plugins

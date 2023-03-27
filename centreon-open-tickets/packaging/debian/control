@@ -15,4 +15,5 @@ Description: The module allows to open tickets on ITSM providers.
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-web (>= ${centreon:version}~)
+  centreon-web (>= ${centreon:version}~),
+  centreon-web (< ${centreon:versionThreshold}~)
