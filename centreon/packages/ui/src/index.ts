@@ -152,3 +152,5 @@ export { default as WallpaperPage } from './WallpaperPage';
 export { RichTextEditor } from './RichTextEditor';
 export { default as ActionsList } from './ActionsList';
 export { getStatusColors, SeverityCode } from './utils/statuses';
+
+export type { ResponseError, CatchErrorProps } from './api/customFetch';

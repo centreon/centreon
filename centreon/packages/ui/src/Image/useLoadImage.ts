@@ -1,7 +1,7 @@
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, prop } from 'ramda';
 
-import { imagesAtom } from './atoms';
+import { getAsyncImagesAtom, imagesAtom } from './atoms';
 
 interface Resource {
   read: () => string;
@@ -49,7 +49,8 @@ const createImage = (imageSrc: string): Resource => {
 };
 
 export const useLoadImage = ({ imageSrc, alt }): Resource => {
-  const [images, setImages] = useAtom(imagesAtom);
+  const images = useAtomValue(getAsyncImagesAtom);
+  const setImages = useSetAtom(imagesAtom);
 
   const image = prop(alt, images);
 
