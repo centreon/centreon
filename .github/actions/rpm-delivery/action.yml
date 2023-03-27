@@ -1,5 +1,5 @@
-name: "rpm-package"
-description: "Package RPM Centreon"
+name: "rpm-delivery"
+description: "Deliver rpm packages"
 inputs:
   module_name:
     description: "The package module name"
@@ -58,6 +58,52 @@ runs:
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
+
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+    - name: Publish RPMs
+      run: |
+        FILES="*.rpm"
+
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
+        mkdir noarch x86_64
+
+        for FILE in $FILES; do
+          echo "[DEBUG] - File: $FILE"
+
+          ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
+
+          echo "[DEBUG] - Arch: $ARCH"
+
+          cp "$FILE" "$ARCH"
+        done
+
+        for ARCH in "noarch" "x86_64"; do
+          if [ "$(ls -A $ARCH)" ]; then
+            if [ "${{ inputs.stability }}" == "stable" ]; then
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
+            else
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+            fi
+          fi
+        done
+      shell: bash
 
 
     - name: Setup awscli
@@ -67,14 +113,13 @@ runs:
         sudo ./aws/install
       shell: bash
 
-    - name: Publish RPMS to Nexus
+    - name: Publish RPMS to yum.centreon.com
       run: |
         PROJECT_LOCATIONS=""
         INVALIDATION_PATHS=""
         METADATAS=""
 
-        FILES="*.rpm";
-        echo "[DEBUG] - Rpm FILES: $FILES"
+        FILES="*.rpm"
 
         eval `ssh-agent`
         ssh-add - <<< "${{ inputs.yum_repo_key }}"
@@ -113,12 +158,10 @@ runs:
           # Delivery with proper repository structure according to stability
           if [ "${{ inputs.stability }}" == stable ]; then
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$FILE" -T "./$FILE"
           else
             FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
             TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
             PROJECT_LOCATIONS="$PROJECT_LOCATIONS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
-            curl --fail -v -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/$FILE" -T "./$FILE"
           fi
 
           echo "[DEBUG] - Folder: $FOLDER"
