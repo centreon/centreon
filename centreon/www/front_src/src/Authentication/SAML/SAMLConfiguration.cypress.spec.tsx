@@ -363,7 +363,7 @@ describe('SAMLConfiguration', () => {
     cy.matchImageSnapshot();
   });
 
-  it('remove the sortable handler when "apply only first role" is disabled', () => {
+  it('removes the sortable handler when "apply only first role" is disabled', () => {
     cy.waitForRequest('@getSAMLConfiguration');
 
     cy.contains(labelRolesMapping).click();

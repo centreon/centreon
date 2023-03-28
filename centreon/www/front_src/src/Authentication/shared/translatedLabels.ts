@@ -7,8 +7,8 @@ export const labelGroupsAttributePath = 'Groups attribute path';
 export const labelGroupValue = 'Group value';
 export const labelContactGroup = 'Contact group';
 export const labelDeleteRelation = 'Delete the relation';
-export const labelDefinedTheRelationBetweenGroupsAndContactGroups =
-  'Defined the relation between groups and contact groups';
+export const labelDefineTheRelationBetweenGroupsAndContactGroups =
+  'Define the relation between groups and contact groups';
 export const labelRolesMapping = 'Roles mapping';
 export const labelApplyOnlyFirtsRole = 'Apply only first role';
 export const labelRolesAttributePath = 'Roles attribute path';

@@ -20,4 +20,4 @@ export const labelLogoutFrom = 'Logout from';
 export const labelLogoutUrl = 'Logout URL';
 export const labelCentreonUIOnly = 'Centreon UI only';
 export const labelBothIdentityProviderAndCentreonUI =
-  'Both identity Provider and Centreon UI';
+  'Both identity provider and Centreon UI';

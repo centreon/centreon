@@ -35,7 +35,7 @@ import {
   labelContactGroup,
   labelContactTemplate,
   labelDefineAuthorizedConditionsValues,
-  labelDefinedTheRelationBetweenGroupsAndContactGroups,
+  labelDefineTheRelationBetweenGroupsAndContactGroups,
   labelDeleteRelation,
   labelEnableAutoImport,
   labelEnableAutomaticManagement,
@@ -197,7 +197,7 @@ const groupsMapping: Array<InputProps> = [
       deleteLabel: labelDeleteRelation
     },
     group: labelGroupsMapping,
-    label: labelDefinedTheRelationBetweenGroupsAndContactGroups,
+    label: labelDefineTheRelationBetweenGroupsAndContactGroups,
     type: InputType.FieldsTable
   }
 ];
