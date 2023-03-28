@@ -61,19 +61,14 @@ Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
     cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
 
-    cy.getIframeBody().find('form #pollercmd_controls').click();
-
-    cy.getIframeBody()
-      .find('form #pollercmd_0')
-      .select(2)
-      .should('have.value', 39);
+    cy.executeSqlRequestInContainer(`INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`);
 
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
       .contains('Save')
       .click({ force: true });
-  });
+  })
 });
 
 When('I visit the export configuration page', () => {
@@ -215,8 +210,7 @@ When('I click on the export configuration action and confirm', () => {
 
 Then('a success message is displayed', () => {
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.get('.SnackbarContent-root > .MuiPaper-root')
-      .contains('Configuration exported and reloaded')
+    cy.contains('Configuration exported and reloaded')
       .should('have.length', 1);
   });
 });

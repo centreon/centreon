@@ -2958,6 +2958,10 @@ msgstr "Activités métiers"
 msgid "Business Views"
 msgstr "Vues métiers"
 
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestionnaire de connecteurs de supervision"
+
 #: centreon-web/www/install/menu_translation.php:51
 msgid "By Host"
 msgstr "Par hôte"
@@ -17431,6 +17435,11 @@ msgstr "Site web de Centreon"
 msgid "Icon #%d does not exist"
 msgstr "L'icône #%d n'existe pas"
 
+msgid "Centreon wallpaper"
+msgstr "Arrière-plan Centreon"
+
+msgid "Powered by Centreon"
+msgstr "Propulsé par Centreon"
 #: www/front_src/src/Header/Poller
 
 msgid "Database issue"
@@ -17472,3 +17481,8 @@ msgstr "Services au statut OK"
 
 msgid "Redirect URL"
 msgstr "URL de redirection"
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+
+msgid "B.Activities"
+msgstr "A.Métier"

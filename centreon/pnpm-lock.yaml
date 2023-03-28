@@ -265,6 +265,7 @@ importers:
 
   packages/js-config:
     specifiers:
+      '@badeball/cypress-cucumber-preprocessor': ^14.0.0
       eslint: ^8.17.0
       eslint-config-airbnb: 19.0.4
       eslint-config-prettier: ^8.5.0
@@ -282,6 +283,7 @@ importers:
       eslint-plugin-sort-keys-fix: ^1.1.2
       eslint-plugin-typescript-sort-keys: ^2.1.0
     devDependencies:
+      '@badeball/cypress-cucumber-preprocessor': 14.0.0
       eslint: 8.35.0
       eslint-config-airbnb: 19.0.4_oy6wj56dgwy2h2u3ilgcukh654
       eslint-config-prettier: 8.7.0_eslint@8.35.0
@@ -2752,6 +2754,43 @@ packages:
       glob: 7.2.3
       minimatch: 3.1.2
       node-hook: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@badeball/cypress-cucumber-preprocessor/14.0.0:
+    resolution: {integrity: sha512-6biPTAhfnyAB/n3lv+jz1jJyC8/oqAF0v7FavttDYPpQiGnzO/C0vK0qdApwmXPzCIyeqTNlAyIflb9aSKrIiA==}
+    engines: {node: '>=14.14.0'}
+    hasBin: true
+    peerDependencies:
+      '@cypress/browserify-preprocessor': ^3.0.1
+      cypress: ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    peerDependenciesMeta:
+      '@cypress/browserify-preprocessor':
+        optional: true
+    dependencies:
+      '@badeball/cypress-configuration': 4.2.0
+      '@cucumber/cucumber-expressions': 16.1.2
+      '@cucumber/gherkin': 24.1.0
+      '@cucumber/html-formatter': 19.2.0_@cucumber+messages@19.1.4
+      '@cucumber/message-streams': 4.0.1_@cucumber+messages@19.1.4
+      '@cucumber/messages': 19.1.4
+      '@cucumber/tag-expressions': 4.1.0
+      base64-js: 1.5.1
+      chalk: 4.1.2
+      cli-table: 0.3.11
+      common-ancestor-path: 1.0.1
+      cosmiconfig: 7.1.0
+      debug: 4.3.4
+      error-stack-parser: 2.1.4
+      esbuild: 0.14.54
+      glob: 7.2.3
+      is-path-inside: 3.0.3
+      module-alias: 2.2.2
+      node-hook: 1.0.0
+      resolve-pkg: 2.0.0
+      source-map: 0.7.4
+      uuid: 8.3.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11627,7 +11666,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.35.0
-      eslint-plugin-import: 2.27.5_uyiasnnzcqrxqkfvjklwnmwcha
+      eslint-plugin-import: 2.27.5_eslint@8.35.0
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.0
@@ -11688,7 +11727,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_uyiasnnzcqrxqkfvjklwnmwcha
+      eslint-plugin-import: 2.27.5_eslint@8.35.0
     dev: true
 
   /eslint-import-resolver-node/0.3.7:

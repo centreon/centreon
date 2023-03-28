@@ -594,15 +594,15 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         $this->setClientId($json['client_id']);
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setClientSecret($json['client_secret']);
-        $this->setBaseUrl($json['base_url']);
-        $this->setAuthorizationEndpoint($json['authorization_endpoint']);
-        $this->setTokenEndpoint($json['token_endpoint']);
-        $this->setIntrospectionTokenEndpoint($json['introspection_token_endpoint']);
-        $this->setUserInformationEndpoint($json['userinfo_endpoint']);
+        $this->setBaseUrl($this->sanitizeEndpointValue($json['base_url']));
+        $this->setAuthorizationEndpoint($this->sanitizeEndpointValue($json['authorization_endpoint']));
+        $this->setTokenEndpoint($this->sanitizeEndpointValue($json['token_endpoint']));
+        $this->setIntrospectionTokenEndpoint($this->sanitizeEndpointValue($json['introspection_token_endpoint']));
+        $this->setUserInformationEndpoint($this->sanitizeEndpointValue($json['userinfo_endpoint']));
         $this->setContactTemplate($json['contact_template']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
-        $this->setEndSessionEndpoint($json['endsession_endpoint']);
+        $this->setEndSessionEndpoint($this->sanitizeEndpointValue($json['endsession_endpoint']));
         $this->setConnectionScopes($json['connection_scopes']);
         $this->setLoginClaim($json['login_claim']);
         $this->setAuthenticationType($json['authentication_type']);
@@ -691,5 +691,24 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
                 $missingMandatoryParameters
             );
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value
+     *
+     * @param ?string $value
+     * @return ?string
+     */
+    private function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }
