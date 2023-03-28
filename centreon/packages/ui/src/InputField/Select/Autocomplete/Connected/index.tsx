@@ -264,6 +264,14 @@ const ConnectedAutocompleteField = (
     }, [optionsOpen]);
 
     useEffect(() => {
+      setSearchParameter(
+        !isEmpty(searchConditions)
+          ? { conditions: searchConditions }
+          : undefined
+      );
+    }, [JSON.stringify(searchConditions)]);
+
+    useEffect(() => {
       if (!optionsOpen) {
         return;
       }
