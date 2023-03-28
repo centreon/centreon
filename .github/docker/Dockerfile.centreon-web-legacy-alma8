@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3-labs
+
 FROM docker.centreon.com/proxy/almalinux:8 AS web_fresh
 
 ARG centreon_version=22.10.0-14
