@@ -15,27 +15,17 @@ on:
     paths:
       - ".github/docker/Dockerfile.centreon-web-legacy-alma8"
 
-jobs:
-  generate-input-versions:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Generate matrix with all available rpms
-        id: set-matrix
-        run: |
-          echo "::set-output name=matrix::$(ls -l | grep '^d' | awk -F ' ' '{print $9}' | jq -R -s -c 'split("/\n") | map(select(length > 0))')"
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+env:
+  project: "centreon-web"
+  os: "alma8"
 
+jobs:
   create-and-push-docker:
     runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-        version: ${{ fromJson(needs.generate-input-versions.outputs.matrix) }}
-        include:
-          - project: centreon-web
-          - os: alma9
+        version: [22.10.0-14, 22.10.1-4, 22.10.2-12, 22.10.3-1, 22.10.4-1, 22.10.5-1, 22.10.6-1]
 
     steps:
       - name: Checkout sources
@@ -49,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --build-arg centreon-version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }}-legacy-${{ matrix.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-legacy-${{matrix.os}}:${{ matrix.version }}
+        run: docker build --build-arg centreon-version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-legacy-${{matrix.os}}:${{ matrix.version }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
