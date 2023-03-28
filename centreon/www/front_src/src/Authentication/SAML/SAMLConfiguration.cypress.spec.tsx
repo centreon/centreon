@@ -2,7 +2,7 @@ import { replace } from 'ramda';
 
 import { TestQueryProvider } from '@centreon/ui';
 
-import { Method } from '../../../../../cypress/support/commands';
+import { Method } from '@centreon/ui';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
