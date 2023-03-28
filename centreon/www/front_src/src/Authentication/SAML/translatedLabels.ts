@@ -15,7 +15,8 @@ export const labelUserIdAttribute =
 export const labelEmailAttribute = 'Email attribute';
 export const labelFullNameAttribute = 'Full name attribute';
 export const labelDefineRelationBetweenRolesAndAclAccessGroups =
-  'Define relation between roles and ACL access groups';
+  'Define relations between roles and ACL access groups';
+
 export const labelLogoutFrom = 'Logout from';
 export const labelLogoutUrl = 'Logout URL';
 export const labelCentreonUIOnly = 'Centreon UI only';
