@@ -39,8 +39,12 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
+                 MIN_USER_INTERFACE_VIEW_MODE_LENGTH = 1,
+                 MAX_USER_INTERFACE_VIEW_MODE_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 USER_INTERFACE_VIEW_MODE_EXTENDED = 'extended',
+                 USER_INTERFACE_VIEW_MODE_COMPACT = 'compact';
 
     /**
      * @var bool
@@ -61,6 +65,8 @@ class NewUser
      * @var ContactTemplate|null
      */
     protected ?ContactTemplate $contactTemplate = null;
+
+    protected string $userInterfaceViewMode = self::USER_INTERFACE_VIEW_MODE_COMPACT;
 
     /**
      * @param string $alias
@@ -215,6 +221,46 @@ class NewUser
     public function setActivate(bool $isActivate): self
     {
         $this->isActivate = $isActivate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserInterfaceViewMode(): string
+    {
+        return $this->userInterfaceViewMode;
+    }
+
+    /**
+     * @param string $userInterfaceViewMode
+     * @return self
+     * @throws \Assert\AssertionFailedException
+     * @throws \InvalidArgumentException
+     */
+    public function setUserInterfaceViewMode(string $userInterfaceViewMode): self
+    {
+        Assertion::minLength(
+            $userInterfaceViewMode,
+            self::MIN_USER_INTERFACE_VIEW_MODE_LENGTH,
+            'User::userInterfaceViewMode'
+        );
+
+        Assertion::maxLength(
+            $userInterfaceViewMode,
+            self::MAX_USER_INTERFACE_VIEW_MODE_LENGTH,
+            'User::userInterfaceViewMode'
+        );
+        
+        if (
+            $userInterfaceViewMode !== self::USER_INTERFACE_VIEW_MODE_EXTENDED
+            && $userInterfaceViewMode !== self::USER_INTERFACE_VIEW_MODE_COMPACT
+        ) {
+            throw new \InvalidArgumentException('User interface view mode provided not handled');
+        }
+
+        $this->userInterfaceViewMode = $userInterfaceViewMode;
 
         return $this;
     }

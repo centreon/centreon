@@ -64,12 +64,15 @@ final class PatchUserController extends AbstractController
      */
     private function createRequest(Request $request, int $userId): PatchUserRequest
     {
-        /**
-         * @var array{theme: string} $requestData
-         */
+        /** @var array{theme?: string, user_interface_view_mode?: string} $requestData */
         $requestData = json_decode((string) $request->getContent(), true);
         $updateUserRequest = new PatchUserRequest();
-        $updateUserRequest->theme = $requestData['theme'];
+        if ($requestData['theme'] ?? false) {
+            $updateUserRequest->theme = $requestData['theme'];
+        }
+        if ($requestData['user_interface_view_mode'] ?? false) {
+            $updateUserRequest->userInterfaceViewMode = $requestData['user_interface_view_mode'] ?? null;
+        }
         $updateUserRequest->userId = $userId;
         return $updateUserRequest;
     }

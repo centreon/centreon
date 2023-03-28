@@ -34,7 +34,9 @@ class User extends NewUser
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 USER_INTERFACE_VIEW_MODE_EXTENDED = 'extended',
+                 USER_INTERFACE_VIEW_MODE_COMPACT = 'compact';
 
     /**
      * @param int $id
@@ -52,9 +54,11 @@ class User extends NewUser
         protected string $email,
         protected bool $isAdmin,
         protected string $theme,
+        protected string $userInterfaceViewMode,
     ) {
         parent::__construct($alias, $name, $email);
         $this->setTheme($theme);
+        $this->setUserInterfaceViewMode($userInterfaceViewMode);
     }
 
     /**

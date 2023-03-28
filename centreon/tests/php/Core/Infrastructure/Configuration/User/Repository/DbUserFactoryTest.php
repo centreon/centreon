@@ -42,6 +42,7 @@ class DbUserFactoryTest extends TestCase
             'contact_email' => 'root@localhost',
             'contact_admin' => '1',
             'contact_theme' => 'light',
+            'user_interface_view_mode' => 'compact'
         ];
     }
 
