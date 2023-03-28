@@ -17,7 +17,7 @@ import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
 import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
-import { ListingModel, SelectEntry } from '../../../..';
+import { ListingModel, SelectEntry, useDeepCompare } from '../../../..';
 import Option from '../../Option';
 import {
   ConditionsSearchParameter,
@@ -269,7 +269,7 @@ const ConnectedAutocompleteField = (
           ? { conditions: searchConditions }
           : undefined
       );
-    }, [JSON.stringify(searchConditions)]);
+    }, useDeepCompare([searchConditions]));
 
     useEffect(() => {
       if (!optionsOpen) {
