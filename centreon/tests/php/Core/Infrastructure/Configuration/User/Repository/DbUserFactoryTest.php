@@ -59,5 +59,6 @@ class DbUserFactoryTest extends TestCase
         $this->assertEquals('root@localhost', $user->getEmail());
         $this->assertEquals(true, $user->isAdmin());
         $this->assertEquals('light', $user->getTheme());
+        $this->assertEquals('compact', $user->getUserInterfaceViewMode());
     }
 }

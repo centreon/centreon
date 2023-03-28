@@ -61,10 +61,17 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     {
         $this->info('Fetching users from database');
 
-        $request =
-            "SELECT SQL_CALC_FOUND_ROWS
-              contact_id, contact_alias, contact_name, contact_email, contact_admin, contact_theme
-            FROM `:db`.contact";
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                user_interface_view_mode
+            FROM `:db`.contact
+            SQL;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
