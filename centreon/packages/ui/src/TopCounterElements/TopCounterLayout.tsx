@@ -72,11 +72,11 @@ const useStyles = makeStyles()((theme) => ({
     boxShadow: theme.shadows[3],
     boxSizing: 'border-box',
     left: 0,
+    minWidth: theme.spacing(20),
     position: 'absolute',
     textAlign: 'left',
     top: `calc(100% + ${theme.spacing(1.25)})`,
     visibility: 'hidden',
-    width: theme.spacing(20),
     zIndex: theme.zIndex.mobileStepper
   },
   subMenuOpen: {

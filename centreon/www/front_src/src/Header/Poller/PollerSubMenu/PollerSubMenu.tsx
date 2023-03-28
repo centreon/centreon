@@ -10,6 +10,7 @@ const useStyles = makeStyles()((theme) => ({
     textDecoration: 'none'
   },
   list: {
+    minWidth: theme.spacing(27),
     padding: 0
   },
   listItem: {
