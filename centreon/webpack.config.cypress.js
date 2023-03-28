@@ -33,6 +33,7 @@ module.exports = merge(
   {
     devServer: {
       ...devServer,
+      port: 9092,
       static: [
         {
           directory: `${__dirname}/www/front_src/public`,
