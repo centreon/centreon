@@ -52,13 +52,6 @@ runs:
           exit 1
         fi
 
-        if [ "${{ inputs.repository_name }}" == "standard"]; then
-          ROOT_REPO_PATHS="rpm-standard rpm-standard-internal"
-        else
-          echo "Invalid repository name: ${{ inputs.repository_name }}"
-          exit 1
-        fi
-
         mkdir noarch x86_64
 
         for FILE in $FILES; do
@@ -71,7 +64,7 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        for ROOT_REPO_PATHS in $ROOT_REPO_PATHS; do
+        for ROOT_REPO_PATHS in "rpm-standard" "rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
