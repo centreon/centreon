@@ -17435,6 +17435,11 @@ msgstr "Site web de Centreon"
 msgid "Icon #%d does not exist"
 msgstr "L'icône #%d n'existe pas"
 
+msgid "Centreon wallpaper"
+msgstr "Arrière-plan Centreon"
+
+msgid "Powered by Centreon"
+msgstr "Propulsé par Centreon"
 #: www/front_src/src/Header/Poller
 
 msgid "Database issue"
@@ -17473,3 +17478,10 @@ msgstr "Services au statut Inconnu"
 
 msgid "OK status services"
 msgstr "Services au statut OK"
+
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+
+msgid "B.Activities"
+msgstr "A.Métier"
+

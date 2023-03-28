@@ -15994,6 +15994,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
 
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
+#  msgstr ""
+
 # msgid "Developed by"
 # msgstr ""
 
@@ -16067,4 +16073,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "OK status services"
+# msgstr ""
+
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
 # msgstr ""

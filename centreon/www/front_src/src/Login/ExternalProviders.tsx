@@ -38,6 +38,7 @@ const ExternalProviders = ({
       </Divider>
       {providersConfiguration?.map(({ name, authenticationUri }) => (
         <Button
+          aria-label={`${t(labelLoginWith)} ${name}`}
           color="primary"
           href={authenticationUri}
           key={name}
