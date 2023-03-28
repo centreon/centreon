@@ -654,10 +654,6 @@ msgstr "O tema CSS padrão que será aplicado à interface da Web do Centreon."
 msgid "Default sort in monitoring consoles."
 msgstr "Classificação padrão para páginas de monitoramento de host e serviço."
 
-#: centreon-web/www/include/Administration/parameters/general/help.php:254
-msgid "In compact mode, line height and font weight are reduced so as to take up less space and display more information."
-msgstr "No modo compacto, a altura da linha e a tipografia são reduzidas de modo a ocupar menos espaço e mostrar mais informação"
-
 #: centreon-web/www/include/Administration/parameters/general/help.php:55
 msgid "Default order in monitoring consoles."
 msgstr "Ordem de classificação padrão para páginas de monitoramento de serviço e host."
