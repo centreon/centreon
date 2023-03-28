@@ -24,10 +24,12 @@ namespace Tests\Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\{
+    ACLConditions,
+    AuthenticationConditions,
+    CustomConfiguration,
+    GroupsMapping
+};
 
 it(
     'should sanitize URL/endpoint values when they contain additional slashes and/or spaces in the beginning and end',
