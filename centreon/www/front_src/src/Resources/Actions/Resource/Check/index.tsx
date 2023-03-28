@@ -20,8 +20,8 @@ import { checkEndpoint } from '../../api/endpoint';
 import useAclQuery from '../aclQuery';
 import ResourceActionButton from '../ResourceActionButton';
 
+import Check from './Check';
 import { adjustCheckedResources } from './helpers';
-import ListCheckOptions from './ListCheckOptions';
 
 interface DisplaySelectedOption {
   checked: boolean;
@@ -98,59 +98,49 @@ const CheckActionButton = ({
 
   if (!disableCheck && displaySelectedOption?.checked) {
     return (
-      <>
-        <ResourceActionButton
-          disabled={disableCheck}
-          icon={<IconCheck />}
-          label={t(labelCheck)}
-          permitted={isCheckPermitted}
-          secondaryIcon={<IconArrow />}
-          testId={testId}
-          onClick={displayPopover}
-        />
-        <ListCheckOptions
-          isDefaultChecked
-          anchorEl={anchorEl}
-          disabled={{ disableCheck, disableForcedCheck }}
-          open={Boolean(anchorEl)}
-          onClickCheck={(): void =>
-            handleCheckResource({ checked: true, forcedChecked: false })
-          }
-          onClickForcedCheck={(): void =>
+      <Check
+        isDefaultChecked
+        anchorEl={anchorEl}
+        disabledButton={disableCheck}
+        disabledList={{ disableCheck, disableForcedCheck }}
+        icon={<IconCheck />}
+        isActionPermitted={isCheckPermitted}
+        labelButton={labelCheck}
+        secondaryIcon={<IconArrow />}
+        testId={testId}
+        onClick={displayPopover}
+        onClickList={{
+          onClickCheck: (): void =>
+            handleCheckResource({ checked: true, forcedChecked: false }),
+          onClickForcedCheck: (): void =>
             handleCheckResource({ checked: false, forcedChecked: true })
-          }
-          onClose={closePopover}
-        />
-      </>
+        }}
+        onClose={closePopover}
+      />
     );
   }
 
   if (!disableForcedCheck && displaySelectedOption?.forcedChecked) {
     return (
-      <>
-        <ResourceActionButton
-          disabled={disableForcedCheck}
-          icon={<IconForcedCheck />}
-          label={t(labelForcedCheck)}
-          permitted={isForcedCheckPermitted}
-          secondaryIcon={<IconArrow />}
-          testId={testId}
-          onClick={displayPopover}
-        />
-        <ListCheckOptions
-          anchorEl={anchorEl}
-          disabled={{ disableCheck, disableForcedCheck }}
-          isDefaultChecked={false}
-          open={Boolean(anchorEl)}
-          onClickCheck={(): void =>
-            handleCheckResource({ checked: true, forcedChecked: false })
-          }
-          onClickForcedCheck={(): void =>
+      <Check
+        anchorEl={anchorEl}
+        disabledButton={disableForcedCheck}
+        disabledList={{ disableCheck, disableForcedCheck }}
+        icon={<IconForcedCheck />}
+        isActionPermitted={isCheckPermitted}
+        isDefaultChecked={false}
+        labelButton={labelForcedCheck}
+        secondaryIcon={<IconArrow />}
+        testId={testId}
+        onClick={displayPopover}
+        onClickList={{
+          onClickCheck: (): void =>
+            handleCheckResource({ checked: true, forcedChecked: false }),
+          onClickForcedCheck: (): void =>
             handleCheckResource({ checked: false, forcedChecked: true })
-          }
-          onClose={closePopover}
-        />
-      </>
+        }}
+        onClose={closePopover}
+      />
     );
   }
 

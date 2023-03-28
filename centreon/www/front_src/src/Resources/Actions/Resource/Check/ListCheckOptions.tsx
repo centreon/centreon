@@ -39,6 +39,9 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row-reverse',
     margin: 0,
     paddingRight: theme.spacing(0.5)
+  },
+  popover: {
+    zIndex: 900
   }
 }));
 
@@ -59,26 +62,21 @@ enum HorizontalEnum {
   right = 'right'
 }
 
-interface AnchorOrigin {
-  horizontal: HorizontalEnum;
-  vertical: VerticalEnum;
-}
-
-interface TransformOrigin {
+interface PositionOrigin {
   horizontal: HorizontalEnum;
   vertical: VerticalEnum;
 }
 
 interface Props {
   anchorEl?: HTMLElement | null;
-  anchorOrigin?: AnchorOrigin;
+  anchorOrigin?: PositionOrigin;
   disabled: Disabled;
   isDefaultChecked: boolean;
   onClickCheck: () => void;
   onClickForcedCheck: () => void;
   onClose: () => void;
   open: boolean;
-  transformOrigin?: TransformOrigin;
+  transformOrigin?: PositionOrigin;
 }
 
 const defaultAnchorOrigin = {
@@ -123,6 +121,7 @@ const ListCheckOptions = ({
     <Popover
       anchorEl={anchorEl}
       anchorOrigin={anchorOrigin}
+      className={classes.popover}
       open={open}
       transformOrigin={transformOrigin}
       onClose={onClose}
