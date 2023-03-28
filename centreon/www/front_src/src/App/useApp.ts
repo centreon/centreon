@@ -98,12 +98,9 @@ const useApp = (): UseAppState => {
       }),
       getAcl({
         endpoint: aclEndpoint
-      }),
-      getCustomPlatformRequest({
-        endpoint: loginPageCustomisationEndpoint
       })
     ])
-      .then(([retrievedParameters, retrievedAcl, customLoginPlatform]) => {
+      .then(([retrievedParameters, retrievedAcl]) => {
         setDowntime({
           duration: parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
@@ -131,13 +128,17 @@ const useApp = (): UseAppState => {
           ...currentUser,
           resourceStatusViewMode: retrievedParameters.resource_status_view_mode
         }));
-        setPlaformName(customLoginPlatform.platform_name);
       })
       .catch((error) => {
         if (pathEq(['response', 'status'], 401)(error)) {
           logout();
         }
       });
+    getCustomPlatformRequest({
+      endpoint: loginPageCustomisationEndpoint
+    })
+      .then(({ platform_name }) => setPlaformName(platform_name))
+      .catch(() => undefined);
   }, []);
 
   const hasMinArgument = (): boolean => equals(searchParams.get('min'), '1');
