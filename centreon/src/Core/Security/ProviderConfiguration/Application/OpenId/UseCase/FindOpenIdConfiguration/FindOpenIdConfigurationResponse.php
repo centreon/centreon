@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
-use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
@@ -152,6 +150,8 @@ class FindOpenIdConfigurationResponse
      * }
      */
     public array $groupsMapping = [];
+
+    public ?string $redirectUrl = null;
 
     /**
      * @param ContactTemplate $contactTemplate
