@@ -54,9 +54,6 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex'
   },
-  platformName: {
-    marginRight: theme.spacing(4)
-  },
   rigthContainer: {
     alignItems: 'center',
     display: 'flex',

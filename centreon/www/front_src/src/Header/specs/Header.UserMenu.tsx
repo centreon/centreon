@@ -20,9 +20,9 @@ export default (): void =>
       cy.matchImageSnapshot();
     });
 
-    it('expect the clock to not be visible for a width less than 648px', () => {
+    it('does not display the clock for a width less than 768px', () => {
       initialize();
-      cy.viewport(640, 500);
+      cy.viewport(768, 500);
       cy.get('[data-cy=clock]').as('clock').should('not.be.visible');
       cy.matchImageSnapshot();
     });
