@@ -64,13 +64,15 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        for ARCH in "noarch" "x86_64"; do
-          if [ "$(ls -A $ARCH)" ]; then
-            if [ "${{ inputs.stability }}" == "stable" ]; then
-              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
-            else
-              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+        for ROOT_REPO_PATHS in "rpm-standard" "rpm-standard-internal"; do
+          for ARCH in "noarch" "x86_64"; do
+            if [ "$(ls -A $ARCH)" ]; then
+              if [ "${{ inputs.stability }}" == "stable" ]; then
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
+              else
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+              fi
             fi
-          fi
+          done
         done
       shell: bash
