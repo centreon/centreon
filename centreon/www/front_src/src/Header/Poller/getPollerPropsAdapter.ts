@@ -14,7 +14,8 @@ import {
   labelLatencyDetected,
   labelNoLatencyDetected,
   labelAllPollers,
-  labelConfigurePollers
+  labelConfigurePollers,
+  labelPollers
 } from './translatedLabels';
 import type { PollerStatusIconProps } from './PollerStatusIcon';
 import type { PollerSubMenuProps } from './PollerSubMenu/PollerSubMenu';
@@ -56,6 +57,7 @@ interface GetPollerPropsAdapterProps {
 }
 
 export interface GetPollerPropsAdapterResult {
+  buttonLabel: string;
   iconSeverities: PollerStatusIconProps['iconSeverities'];
   subMenu: Omit<PollerSubMenuProps, 'closeSubMenu'>;
 }
@@ -101,6 +103,7 @@ export const getPollerPropsAdapter = ({
   };
 
   const result = {
+    buttonLabel: t(labelPollers),
     iconSeverities: topIconProps,
     subMenu: {
       allPollerLabel: t(labelAllPollers),
@@ -109,7 +112,7 @@ export const getPollerPropsAdapter = ({
       },
       issues: formatedIssues,
       pollerConfig: {
-        isAllowed: allowedPages?.includes(pollerConfigurationPageNumber),
+        isAllowed: !!allowedPages?.includes(pollerConfigurationPageNumber),
         label: t(labelConfigurePollers),
         redirect: (): void =>
           navigate(`/main.php?p=${pollerConfigurationPageNumber}`),

@@ -17478,3 +17478,10 @@ msgstr "Services au statut Inconnu"
 
 msgid "OK status services"
 msgstr "Services au statut OK"
+
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+
+msgid "B.Activities"
+msgstr "A.Métier"
+

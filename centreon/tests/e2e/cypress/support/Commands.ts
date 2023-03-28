@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import 'cypress-wait-until';
+import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
-import { apiActionV1, executeActionViaClapi, ActionClapi } from '../commons';
+import { apiActionV1 } from '../commons';
 
 const apiLogout = '/centreon/api/latest/authentication/logout';
-const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
 Cypress.Commands.add(
   'getByLabel',
@@ -26,10 +26,12 @@ Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
-  return executeActionViaClapi({
-    action: 'DEL',
-    object: 'HOST',
-    values: 'test_host'
+  return cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'HOST',
+      values: 'test_host'
+    }
   });
 });
 
@@ -54,53 +56,6 @@ Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add(
-  'loginByTypeOfUser',
-  ({ jsonName, preserveToken }): Cypress.Chainable => {
-    if (preserveToken) {
-      return cy
-        .fixture(`users/${jsonName}.json`)
-        .then((user) => {
-          return cy.request({
-            body: {
-              login: user.login,
-              password: user.password
-            },
-            method: 'POST',
-            url: apiLoginV2
-          });
-        })
-        .then(() => {
-          Cypress.Cookies.defaults({
-            preserve: 'PHPSESSID'
-          });
-        })
-        .then(() => {
-          cy.visit(`${Cypress.config().baseUrl}`);
-        });
-    }
-
-    cy.visit(`${Cypress.config().baseUrl}`)
-      .fixture(`users/${jsonName}.json`)
-      .then((credential) => {
-        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
-        cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          credential.password
-        );
-      })
-      .getByLabel({ label: 'Connect', tag: 'button' })
-      .click();
-
-    return cy
-      .get('.SnackbarContent-root > .MuiPaper-root')
-      .then(($snackbar) => {
-        if ($snackbar.text().includes('Login succeeded')) {
-          cy.wait('@getNavigationList');
-        }
-      });
-  }
-);
-
-Cypress.Commands.add(
   'loginKeycloack',
   (jsonName: string): Cypress.Chainable => {
     return cy
@@ -113,49 +68,6 @@ Cypress.Commands.add(
       .click();
   }
 );
-
-Cypress.Commands.add(
-  'hoverRootMenuItem',
-  (rootItemNumber: number): Cypress.Chainable => {
-    return cy
-      .get('li')
-      .eq(rootItemNumber)
-      .within(($li) => {
-        if ($li) {
-          return $li;
-        }
-
-        return cy
-          .reload()
-          .wait('@getNavigationList')
-          .hoverRootMenuItem(rootItemNumber);
-      })
-      .trigger('mouseover');
-  }
-);
-
-Cypress.Commands.add(
-  'executeCommandsViaClapi',
-  (fixtureFile: string): Cypress.Chainable => {
-    return cy.fixture(fixtureFile).then((listRequestConfig) => {
-      cy.wrap(
-        Promise.all(
-          listRequestConfig.map((request: ActionClapi) =>
-            executeActionViaClapi(request)
-          )
-        )
-      );
-    });
-  }
-);
-
-Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
-  return cy
-    .get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap);
-});
 
 Cypress.Commands.add(
   'requestOnDatabase',
@@ -191,21 +103,6 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'navigateTo',
-  ({ rootItemNumber, subMenu, page }): void => {
-    if (subMenu) {
-      cy.hoverRootMenuItem(rootItemNumber)
-        .contains(subMenu)
-        .trigger('mouseover', { force: true });
-      cy.contains(page).click({ force: true });
-
-      return;
-    }
-    cy.hoverRootMenuItem(rootItemNumber).contains(page).click({ force: true });
-  }
-);
-
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Profile' }).click();
 
@@ -214,15 +111,19 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
 
 Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLMENU',
-      values: 'acl_menu_test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLMENU',
+        values: 'acl_menu_test'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLGROUP',
-      values: 'ACL Group test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLGROUP',
+        values: 'ACL Group test'
+      }
     });
   });
 });
@@ -239,6 +140,14 @@ Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
   );
 });
 
+Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
+  return cy.exec(
+    `docker exec ${Cypress.env(
+      'dockerName'
+    )} /bin/sh -c "mysql centreon -e \\"${request}\\""`
+  );
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -249,17 +158,6 @@ interface GetByTestIdProps {
   testId: string;
 }
 
-interface NavigateToProps {
-  page: string;
-  rootItemNumber: number;
-  subMenu?: string;
-}
-
-interface LoginByTypeOfUserProps {
-  jsonName?: string;
-  preserveToken?: boolean;
-}
-
 interface requestOnDatabaseProps {
   database: string;
   query: string;
@@ -268,23 +166,12 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
-      executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
+      executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
-      getIframeBody: () => Cypress.Chainable;
-      hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginByTypeOfUser: ({
-        jsonName = 'admin',
-        preserveToken = false
-      }: LoginByTypeOfUserProps) => Cypress.Chainable;
       loginKeycloack: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
-      navigateTo: ({
-        page,
-        rootItemNumber,
-        subMenu
-      }: NavigateToProps) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;

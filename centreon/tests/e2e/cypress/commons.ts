@@ -20,21 +20,6 @@ const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
-const executeActionViaClapi = (
-  bodyContent: ActionClapi,
-  method?: string
-): Cypress.Chainable => {
-  return cy.request({
-    body: bodyContent,
-    headers: {
-      'Content-Type': 'application/json',
-      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-    },
-    method: method || 'POST',
-    url: `${apiActionV1}?action=action&object=centreon_clapi`
-  });
-};
-
 let servicesFoundStepCount = 0;
 
 const checkThatFixtureServicesExistInDatabase = (): void => {
@@ -109,9 +94,11 @@ const checkThatConfigurationIsExported = ({
 };
 
 const applyConfigurationViaClapi = (): Cypress.Chainable => {
-  return executeActionViaClapi({
-    action: 'APPLYCFG',
-    values: '1'
+  return cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'APPLYCFG',
+      values: '1'
+    }
   });
 };
 
@@ -164,7 +151,9 @@ const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {
-  return cy.fixture(file).then(executeActionViaClapi);
+  return cy
+    .fixture(file)
+    .then((fixture) => cy.executeActionViaClapi({ bodyContent: fixture }));
 };
 
 const logout = (): Cypress.Chainable => cy.visit(apiLogout);
@@ -173,7 +162,6 @@ export {
   ActionClapi,
   checkThatConfigurationIsExported,
   checkThatFixtureServicesExistInDatabase,
-  executeActionViaClapi,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
