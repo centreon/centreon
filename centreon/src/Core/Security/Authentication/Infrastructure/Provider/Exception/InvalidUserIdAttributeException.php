@@ -27,6 +27,6 @@ class InvalidUserIdAttributeException extends \DomainException
 {
     public static function create(): self
     {
-        return new self("Invalid user id attribute provided", 400);
+        return new self("Invalid user ID attribute provided", 400);
     }
 }

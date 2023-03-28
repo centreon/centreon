@@ -30,6 +30,6 @@ class MissingLogoutUrlException extends \DomainException
      */
     public static function create(): self
     {
-        return new self("Logout Url parameter is missing", 400);
+        return new self("Logout URL parameter is missing", 400);
     }
 }
