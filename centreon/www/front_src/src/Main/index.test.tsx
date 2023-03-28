@@ -76,6 +76,14 @@ const retrievedWeb = {
   }
 };
 
+const retrievedLoginConfiguration = {
+  custom_text: 'Custom text',
+  icon_source: 'icon_source',
+  image_source: 'image_source',
+  platform_name: 'Platform name',
+  text_position: null
+};
+
 const retrievedProvidersConfiguration = [
   {
     authentication_uri:
@@ -145,6 +153,9 @@ const mockDefaultGetRequests = (): void => {
       data: retrievedActionsAcl
     })
     .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
+    })
+    .mockResolvedValueOnce({
       data: null
     });
 };
@@ -181,6 +192,9 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: retrievedActionsAcl
     })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
+    })
     .mockResolvedValue({
       data: null
     });
@@ -205,6 +219,9 @@ const mockNotConnectedGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedProvidersConfiguration
+    })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
     });
 };
 
@@ -265,6 +282,9 @@ const mockUpgradeAndUserConnectedGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedActionsAcl
+    })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
     })
     .mockResolvedValueOnce({
       data: null
