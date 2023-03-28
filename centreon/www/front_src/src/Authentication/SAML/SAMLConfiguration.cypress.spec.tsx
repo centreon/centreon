@@ -1,8 +1,7 @@
 import { replace } from 'ramda';
 
-import { TestQueryProvider } from '@centreon/ui';
+import { TestQueryProvider, Method } from '@centreon/ui';
 
-import { Method } from '@centreon/ui';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
