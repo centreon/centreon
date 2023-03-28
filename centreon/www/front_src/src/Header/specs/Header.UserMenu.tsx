@@ -50,7 +50,11 @@ export default (): void =>
       cy.get('header').should('have.css', 'background-color', 'rgb(0, 0, 0)');
       cy.matchImageSnapshot('User Menu -- using the dark mode');
       cy.get('@switchMode').click();
-      cy.get('header').should('have.css', 'background-color', 'rgb(37, 88, 145)');
+      cy.get('header').should(
+        'have.css',
+        'background-color',
+        'rgb(37, 88, 145)'
+      );
       cy.matchImageSnapshot('User Menu -- using the light mode');
     });
   });
