@@ -1,5 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import { executeActionViaClapi, insertFixture } from '../../commons';
+import { insertFixture } from '../../commons';
 
 let dateBeforeLogin: Date;
 const waitToExport = 10000;
@@ -41,30 +41,40 @@ const getPoller = (pollerName: string): Cypress.Chainable => {
 
 const removeFixtures = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user1'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user1'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'HOST',
-      values: 'test_host'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLGROUP',
-      values: 'ACL Group test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLGROUP',
+        values: 'ACL Group test'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLMENU',
-      values: 'acl_menu_test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLMENU',
+        values: 'acl_menu_test'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLACTION',
-      values: 'acl_action_test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLACTION',
+        values: 'acl_action_test'
+      }
     });
   });
 };

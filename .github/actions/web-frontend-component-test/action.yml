@@ -47,7 +47,3 @@ runs:
         name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/screenshots
         retention-days: 1
-
-    - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/mochawesome.json ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.json
-      shell: bash
