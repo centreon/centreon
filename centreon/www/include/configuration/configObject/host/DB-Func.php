@@ -39,6 +39,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 const SNMP_COMMUNITY_MACRO_NAME = '_HOSTSNMPCOMMUNITY';
 const VAULT_PATH_REGEX = '/^secret::\d+::/';
+const VAULT_DEFAULT_SCHEME = 'https';
 
 if (!isset($centreon)) {
     exit();
@@ -3027,6 +3028,7 @@ function authenticateToVault(
 ): string {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+        $url = sprintf("%s://%s",  VAULT_DEFAULT_SCHEME, $url);
         $body = [
             "role_id" => $vaultConfiguration->getRoleId(),
             "secret_id" => $vaultConfiguration->getSecretId(),
@@ -3068,6 +3070,7 @@ function writeSecretsInVault(
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getRootPath()
             . '/monitoring/hosts/' . $hostId;
+        $url = sprintf("%s://%s",  VAULT_DEFAULT_SCHEME, $url);
         $logger->info(
             "Writing Host Secrets at : " . $url,
             ["host_id" => $hostId, "secrets" => implode(", ", array_keys($passwordTypeData))]
@@ -3157,6 +3160,7 @@ function getHostSecretsFromVault(
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
+    $url = sprintf("%s://%s",  VAULT_DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
     $hostSecrets = [];
     try {
@@ -3195,6 +3199,7 @@ function deleteHostFromVault(
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
         . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
+    $url = sprintf("%s://%s",  VAULT_DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Deleting Host: %d", $hostId));
     try {
         $httpClient->call($url, 'DELETE', null, ['X-Vault-Token: ' . $clientToken]);

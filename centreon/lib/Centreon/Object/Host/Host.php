@@ -51,6 +51,8 @@ class Centreon_Object_Host extends Centreon_Object
     protected $uniqueLabelField = "host_name";
     private static ?ReadVaultConfigurationRepositoryInterface $repository = null;
 
+    private const VAULT_DEFAULT_SCHEME = 'https';
+
     /**
      * Update host table
      *
@@ -123,6 +125,7 @@ class Centreon_Object_Host extends Centreon_Object
     ): string {
         try {
             $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = sprintf("%s://%s", self::VAULT_DEFAULT_SCHEME, $url);
             $body = [
                 "role_id" => $vaultConfiguration->getRoleId(),
                 "secret_id" => $vaultConfiguration->getSecretId(),
@@ -161,7 +164,8 @@ class Centreon_Object_Host extends Centreon_Object
     ): array {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
             . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $hostId;
-            $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
+        $url = sprintf("%s://%s", self::VAULT_DEFAULT_SCHEME, $url);
+        $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
         try {
             $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
         } catch (\RestNotFoundException $ex) {
@@ -202,10 +206,11 @@ class Centreon_Object_Host extends Centreon_Object
             $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
                 . '/v1/' . $vaultConfiguration->getRootPath()
                 . '/monitoring/hosts/' . $hostId;
-                $logger->info(
-                    "Writing Host Secrets at : " . $url,
-                    ["host_id" => $hostId, "secrets" => implode(", ", array_keys($passwordTypeData))]
-                );
+            $url = sprintf("%s://%s", self::VAULT_DEFAULT_SCHEME, $url);
+            $logger->info(
+                "Writing Host Secrets at : " . $url,
+                ["host_id" => $hostId, "secrets" => implode(", ", array_keys($passwordTypeData))]
+            );
             $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
         } catch(\Exception $ex) {
             $logger->error(
