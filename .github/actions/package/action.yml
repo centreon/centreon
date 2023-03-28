@@ -127,8 +127,6 @@ runs:
 
         fi
 
-        ls -lath .
-
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
         debuild-pbuilder --no-lintian
 
