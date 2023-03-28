@@ -18,8 +18,7 @@ import {
 import type { Actions } from '@centreon/ui';
 
 import {
-  logoutEndpoint,
-  loginPageCustomisationEndpoint
+  logoutEndpoint
 } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
@@ -29,6 +28,7 @@ import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
+import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 
 const keepAliveEndpoint =
   './api/internal.php?object=centreon_keepalive&action=keepAlive';
