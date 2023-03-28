@@ -4,12 +4,11 @@ import { replace } from 'ramda';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider, TestQueryProvider, Method } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
-import { Method } from '../../../../cypress/support/commands';
 import { externalTranslationEndpoint } from '../App/endpoint';
 import { userEndpoint } from '../api/endpoint';
 
