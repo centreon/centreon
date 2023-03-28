@@ -32,11 +32,11 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 
 EOF
 
-COPY --chmod=+x ./centreon-web-alma8/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY ./centreon-web-alma8/entrypoint/container.d /usr/share/centreon/container.d
-COPY ./init/* /etc/init.d/
-COPY --chmod=+x ./centreon-web-alma8/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./centreon-web-alma8/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=+x .github/docker/centreon-web-alma8/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY .github/docker/centreon-web-alma8/entrypoint/container.d /usr/share/centreon/container.d
+COPY .github/docker/init/* /etc/init.d/
+COPY --chmod=+x .github/docker/centreon-web-alma8/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache .github/docker/centreon-web-alma8/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
