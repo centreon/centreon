@@ -79,7 +79,7 @@ class ConfigurationBuilder
             ->setActive($request->isActive)
             ->setTrustedClientAddresses($request->trustedClientAddresses)
             ->setBlacklistClientAddresses($request->blacklistClientAddresses)
-            ->setEndSessionEndpoint($request->endSessionEndpoint)
+            ->setEndSessionEndpoint(self::sanitizeEndpointValue($request->endSessionEndpoint))
             ->setConnectionScopes($request->connectionScopes)
             ->setLoginClaim($request->loginClaim)
             ->setAuthenticationType($request->authenticationType)
@@ -87,11 +87,11 @@ class ConfigurationBuilder
             ->setAuthorizationRules($authorizationRules)
             ->setAutoImportEnabled($request->isAutoImportEnabled)
             ->setClientSecret($request->clientSecret)
-            ->setBaseUrl($request->baseUrl)
-            ->setAuthorizationEndpoint($request->authorizationEndpoint)
-            ->setTokenEndpoint($request->tokenEndpoint)
-            ->setIntrospectionTokenEndpoint($request->introspectionTokenEndpoint)
-            ->setUserInformationEndpoint($request->userInformationEndpoint)
+            ->setBaseUrl(self::sanitizeEndpointValue($request->baseUrl))
+            ->setAuthorizationEndpoint(self::sanitizeEndpointValue($request->authorizationEndpoint))
+            ->setTokenEndpoint(self::sanitizeEndpointValue($request->tokenEndpoint))
+            ->setIntrospectionTokenEndpoint(self::sanitizeEndpointValue($request->introspectionTokenEndpoint))
+            ->setUserInformationEndpoint(self::sanitizeEndpointValue($request->userInformationEndpoint))
             ->setContactTemplate($contactTemplate)
             ->setEmailBindAttribute($request->emailBindAttribute)
             ->setUserNameBindAttribute($request->userNameBindAttribute)
@@ -127,5 +127,24 @@ class ConfigurationBuilder
                 $missingMandatoryParameters
             );
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value
+     *
+     * @param ?string $value
+     * @return ?string
+     */
+    private static function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }
