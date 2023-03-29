@@ -196,6 +196,9 @@ class Contact implements UserInterface, ContactInterface
      */
     private $theme;
 
+    /** @var string|null */
+    private $userInterfaceDensity;
+
     /**
      * @param int $timezoneId
      * @return self
@@ -723,5 +726,25 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    /**
+     * @param string|null $userInterfaceDensity
+     *
+     * @return $this
+     */
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
+    {
+        $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string
+    {
+        return $this->userInterfaceDensity;
     }
 }

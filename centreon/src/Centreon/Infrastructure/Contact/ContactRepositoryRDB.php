@@ -391,6 +391,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
+     * Get the default timezone.
+     *
+     * @return string The timezone name
+     */
+    private function getDefaultTimezone(): string
+    {
+        $query = <<<'SQL'
+            SELECT timezone.timezone_name
+            FROM `:db`.timezone
+            JOIN `:db`.options ON timezone.timezone_id = options.value
+            WHERE options.key = 'gmt'
+            SQL;
+
+        $query = $this->translateDbName($query);
+
+        $statement = $this->db->prepare($query);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $result['timezone_name'] ?? date_default_timezone_get();
+    }
+
+    /**
      * Create a contact based on the data.
      *
      * @param mixed[] $contact Array of values representing the contact information
@@ -400,7 +424,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $contactTimezoneName = !empty($contact['timezone_name'])
             ? $contact['timezone_name']
-            : date_default_timezone_get();
+            : $this->getDefaultTimezone();
 
         $contactLocale = !empty($contact['contact_lang'])
             ? $this->parseLocaleFromContactLang($contact['contact_lang'])
@@ -437,7 +461,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setLocale($contactLocale)
             ->setDefaultPage($page)
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
-            ->setTheme($contact['contact_theme']);
+            ->setTheme($contact['contact_theme'])
+            ->setUserInterfaceDensity($contact['user_interface_density']);
 
         if ($contact->isAdmin()) {
             $contact

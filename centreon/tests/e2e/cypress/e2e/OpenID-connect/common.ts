@@ -1,5 +1,4 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import { executeActionViaClapi } from '../../commons';
 
 const waitOnOpenIdProviderToStart = 250;
 const oidcConfigValues = {
@@ -25,17 +24,19 @@ const initializeOIDCUserAndGetLoginPage = (): void => {
 
       return cy
         .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
-        .then((contact) => executeActionViaClapi(contact))
+        .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
     }
   );
 };
 
 const removeContact = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'oidc'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'oidc'
+      }
     });
   });
 };

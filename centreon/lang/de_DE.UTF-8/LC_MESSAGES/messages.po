@@ -2924,8 +2924,12 @@ msgid "Performance Management"
 msgstr "Leistungsverwaltung"
 
 #: centreon/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Plugin Pakete"
+msgid "Monitoring Connectors Manager"
+msgstr "Monitoring konnektoren manager"
+
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring connectors"
+msgstr "Monitoring konnektoren"
 
 #: centreon/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -15236,6 +15240,12 @@ msgstr ""
 #~ msgid "Please update your PHP to 7.2 or upper."
 #~ msgstr "Bitte aktualisieren Sie ihre PHP-Version auf 7.2 oder höher."
 
+#~ msgid "Centreon wallpaper"
+#~ msgstr ""
+
+#~ msgid "Powered by Centreon"
+#~ msgstr ""
+
 # msgid "Developed by"
 # msgstr ""
 
@@ -15310,4 +15320,8 @@ msgstr ""
 # msgstr ""
 
 # msgid "OK status services"
+# msgstr ""
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
 # msgstr ""

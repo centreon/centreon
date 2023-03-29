@@ -314,15 +314,18 @@ sub validate_plugins_deb {
 sub validate_plugins {
     my ($self, %options) = @_;
 
-    my ($rv, $message, $content) = gorgone::standard::misc::slurp(file => $options{file});
-    return (1, $message) if (!$rv);
+    my ($rv, $message, $content);
+    my $plugins = $options{plugins};
+    if (!defined($plugins)) {
+        ($rv, $message, $content) = gorgone::standard::misc::slurp(file => $options{file});
+        return (1, $message) if (!$rv);
 
-    my $plugins;
-    try {
-        $plugins = JSON::XS->new->decode($content);
-    } catch {
-        return (1, 'cannot decode json');
-    };
+        try {
+            $plugins = JSON::XS->new->decode($content);
+        } catch {
+            return (1, 'cannot decode json');
+        };
+    }
 
     # nothing to validate. so it's ok, show must go on!! :)
     if (ref($plugins) ne 'HASH' || scalar(keys %$plugins) <= 0) {
@@ -412,7 +415,6 @@ sub action_command {
     );
 
     my $errors = 0;
-
     foreach my $command (@{$options{data}->{content}}) {
         $self->send_log(
             socket => $options{socket_log},
@@ -425,7 +427,31 @@ sub action_command {
                 metadata => $command->{metadata}
             }
         );
-        
+
+        # check install pkg
+        if (defined($command->{metadata}) && defined($command->{metadata}->{pkg_install})) {
+            my ($rv, $message) = $self->validate_plugins(plugins => $command->{metadata}->{pkg_install});
+            if ($rv && $self->{paranoid_plugins} == 1) {
+                $self->{logger}->writeLogError("[action] $message");
+                $self->send_log(
+                    socket => $options{socket_log},
+                    code => GORGONE_ACTION_FINISH_KO,
+                    token => $options{token},
+                    logging => $options{data}->{logging},
+                    data => {
+                        message => "command execution issue",
+                        command => $command->{command},
+                        metadata => $command->{metadata},
+                        result => {
+                            exit_code => $rv,
+                            stdout => $message
+                        }
+                    }
+                );
+                next;
+            }
+        }
+
         my $start = time();
         my ($error, $stdout, $return_code) = gorgone::standard::misc::backtick(
             command => $command->{command},
@@ -495,7 +521,7 @@ sub action_command {
             );
         }
     }
-    
+
     if ($errors) {
         $self->send_log(
             socket => $options{socket_log},

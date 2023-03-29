@@ -95,7 +95,8 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    cy.logout().reload();
+    cy.get('[aria-label="Profile"]').click();
+    cy.contains('Logout').click();
   }
 );
 
@@ -141,7 +142,6 @@ Then(
       cy.visit(`${Cypress.config().baseUrl}`);
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .wait('@getNavigationList')
         .url()
         .should('include', '/monitoring/resources')
         .logout()
