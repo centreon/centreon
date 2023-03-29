@@ -184,16 +184,6 @@ class CentreonStatistics
     {
         $data = [];
 
-        // Get contact groups relations defined
-        $query = "SELECT COUNT(*) AS cg_relation FROM security_provider_contact_group_relation";
-        $result = $this->dbConfig->query($query);
-        $cgRelations = $result->fetchColumn();
-
-         // Get ACL groups relations defined
-        $query = " SELECT COUNT(*) AS acl_relation FROM security_provider_access_group_relation";
-        $result = $this->dbConfig->query($query);
-        $aclRelations = $result->fetchColumn();
-
         // Get authentication configuration
         $query = "SELECT * FROM provider_configuration WHERE is_active = '1'";
         $result = $this->dbConfig->query($query);
@@ -229,12 +219,12 @@ class CentreonStatistics
                         ],
                         'groups_mapping' => [
                             'is_enabled' => (bool)$groupsMapping['is_enabled'],
-                            'relations' => $cgRelations
+                            'relations' => $this->getContactGroupRelationsByProviderType('openid')
                         ],
                         'roles_mapping' => [
                             'is_enabled' => (bool)$rolesMapping['is_enabled'],
                             'apply_only_first_role' => (bool)$rolesMapping['apply_only_first_role'],
-                            'relations' => $aclRelations
+                            'relations' => $this->getAclRelationsByProviderType('openid'),
                         ],
                         'introspection_token_endpoint' => (bool)$customConfiguration['introspection_token_endpoint'],
                         'userinfo_endpoint' => (bool)$customConfiguration['userinfo_endpoint'],
@@ -243,6 +233,31 @@ class CentreonStatistics
                         'authentication_type' => $customConfiguration['authentication_type'],
                         'verify_peer' => (bool)$customConfiguration['verify_peer'],
                         'auto_import' => (bool)$customConfiguration['auto_import']
+                    ];
+                    break;
+                case 'saml':
+                    $authenticationConditions = $customConfiguration['authentication_conditions'];
+                    $groupsMapping = $customConfiguration['groups_mapping'];
+                    $rolesMapping = $customConfiguration['roles_mapping'];
+                    $data['saml'] = [
+                        'is_forced' => (bool)$row['is_forced'],
+                        'authenticationConditions' => [
+                            'is_enabled' => (bool)$authenticationConditions['is_enabled'],
+                            'authorized_values' => count($authenticationConditions['authorized_values'] ?? [])
+                        ],
+                        'groups_mapping' => [
+                            'is_enabled' => (bool)$groupsMapping['is_enabled'],
+                            'relations' => $this->getContactGroupRelationsByProviderType('saml'),
+                        ],
+                        'roles_mapping' => [
+                            'is_enabled' => (bool)$rolesMapping['is_enabled'],
+                            'apply_only_first_role' => (bool)$rolesMapping['apply_only_first_role'],
+                            'relations' => $this->getAclRelationsByProviderType('saml'),
+                        ],
+                        'auto_import' => (bool)$customConfiguration['auto_import'],
+                        'logout_from' => (bool)$customConfiguration['logout_from'] === true ?
+                            'Only Centreon' :
+                            'Centreon + Idp'
                     ];
                     break;
             }
@@ -286,5 +301,37 @@ class CentreonStatistics
         }
 
         return $data;
+    }
+
+    /**
+     * @param string $providerType
+     * @return int
+     */
+    private function getAclRelationsByProviderType(string $providerType): int
+    {
+        $query = "SELECT  COUNT(*) AS acl_relation 
+        FROM security_provider_access_group_relation gr
+        INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
+        WHERE pc.type = '$providerType'";
+
+        $result = $this->dbConfig->query($query);
+
+        return (int) $result->fetchColumn();
+    }
+
+    /**
+     * @param string $providerType
+     * @return int
+     */
+    private function getContactGroupRelationsByProviderType(string $providerType): int
+    {
+        $query = "SELECT  COUNT(*) AS cg_relation 
+        FROM security_provider_contact_group_relation cg
+        INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
+        WHERE pc.type = '$providerType'";
+
+        $result = $this->dbConfig->query($query);
+
+        return (int) $result->fetchColumn();
     }
 }

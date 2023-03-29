@@ -5,6 +5,7 @@ export { default as refreshIntervalAtom } from './refreshIntervalAtom';
 export { default as cloudServicesAtom } from './cloudServicesAtom';
 export { default as acknowledgementAtom } from './acknowledgementAtom';
 export { default as resourceStorageOptimizationModeAtom } from './resourceStorageOptimizationMode';
+export { default as platformNameAtom } from './platformNameAtom';
 export { ThemeMode, ListingVariant } from './types';
 
 export type {

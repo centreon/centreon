@@ -1,8 +1,4 @@
-import {
-  applyConfigurationViaClapi,
-  executeActionViaClapi,
-  insertFixture,
-} from '../../commons';
+import { applyConfigurationViaClapi, insertFixture } from '../../commons';
 
 const initializeContactData = (): Cypress.Chainable => {
   const files = ['resources/clapi/contact1/01-add.json'];
@@ -19,10 +15,12 @@ const insertContactFixture = (): Cypress.Chainable => {
 
 const removeContact = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user1',
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user1'
+      }
     });
   });
 };

@@ -76,7 +76,7 @@ const setComponentBeforeEach = (): void => {
   cy.interceptAPIRequest<PasswordSecurityPolicyToAPI>({
     alias: 'getDefaultPasswordSecurityPolicyFromAPI',
     method: Method.GET,
-    path: replace('./', '**', defaultPasswordSecurityPolicyURL),
+    path: defaultPasswordSecurityPolicyURL,
     response: defaultPasswordSecurityPolicyAPI
   });
 

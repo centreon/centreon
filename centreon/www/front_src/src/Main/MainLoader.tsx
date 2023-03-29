@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { Image, LoadingSkeleton } from '@centreon/ui';
+import { Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
 import logoCentreon from '../assets/logo-centreon-colors.svg';
 import { labelCentreonLogo } from '../Login/translatedLabels';
@@ -22,6 +22,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   logo: {
+    height: theme.spacing(8),
     width: '30%'
   }
 }));
@@ -39,6 +40,7 @@ export const MainLoader = (): JSX.Element => {
         className={classes.logo}
         fallback={<LoadingSkeleton className={classes.logo} />}
         imagePath={logoCentreon}
+        variant={ImageVariant.Contain}
       />
       <Typography>{t(labelCentreonIsLoading)}</Typography>
     </div>
@@ -55,6 +57,7 @@ export const MainLoaderWithoutTranslation = (): JSX.Element => {
         className={classes.logo}
         fallback={<LoadingSkeleton className={classes.logo} />}
         imagePath={logoCentreon}
+        variant={ImageVariant.Contain}
       />
       <Typography>{labelCentreonIsLoading}</Typography>
     </div>

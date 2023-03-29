@@ -83,7 +83,8 @@ const Main = (): JSX.Element => {
 
     if (
       not(areUserParametersLoaded) &&
-      !equals(pathname, reactRoutes.authenticationDenied)
+      !equals(pathname, reactRoutes.authenticationDenied) &&
+      !equals(pathname, reactRoutes.logout)
     ) {
       navigate(reactRoutes.login);
     }

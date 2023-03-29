@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,17 +99,36 @@ class Endpoint
      */
     private function guardUrl(): void
     {
-        if (
-            $this->type === self::CUSTOM &&
-            (
+        if ($this->type === self::CUSTOM) {
+            $this->url = $this->sanitizeEndpointValue($this->url);
+            if (
                 $this->url === null ||
                 (
                     !str_starts_with($this->url, '/') &&
                     filter_var($this->url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) === false
                 )
-            )
-        ) {
-            throw InvalidEndpointException::invalidUrl();
+            ) {
+                throw InvalidEndpointException::invalidUrl();
+            }
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value
+     *
+     * @param ?string $value
+     * @return ?string
+     */
+    private function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }

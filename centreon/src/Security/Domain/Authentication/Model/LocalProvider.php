@@ -141,7 +141,7 @@ class LocalProvider implements LocalProviderInterface
                 throw new Exception('user not found');
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();
@@ -161,8 +161,9 @@ class LocalProvider implements LocalProviderInterface
         }
 
         $this->contactId = (int) $auth->userInfos['contact_id'];
+        $auth->userInfos['auth_type'] = Provider::LOCAL;
         $this->setLegacySession(new \Centreon($auth->userInfos));
-        $this->info('[LOCAL PROVIDER] authentication succeed');
+        $this->info('[LOCAL PROVIDER] authentication succeeded');
     }
 
     /**
