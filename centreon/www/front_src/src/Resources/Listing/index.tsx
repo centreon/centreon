@@ -36,7 +36,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { userEndpoint } from '../api/endpoint';
+import { userEndpoint } from '../../App/endpoint';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadResources from './useLoadResources';
