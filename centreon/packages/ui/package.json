@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "22.10.19",
+  "version": "22.10.20",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
