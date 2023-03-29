@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use CentreonAuth;
+use CentreonUserLog;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -72,6 +73,11 @@ class LocalProvider implements LocalProviderInterface
     private $legacySession;
 
     /**
+     * @var CentreonUserLog
+     */
+    private CentreonUserLog $centreonLog;
+
+    /**
      * LocalProvider constructor.
      *
      * @param int $sessionExpirationDelay
@@ -91,6 +97,8 @@ class LocalProvider implements LocalProviderInterface
         private WriteUserRepositoryInterface $writeUserRepository,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository
     ) {
+        $pearDB = $this->dependencyInjector['configuration_db'];
+        $this->centreonLog = new CentreonUserLog(-1, $pearDB);
     }
 
     /**
@@ -278,6 +286,10 @@ class LocalProvider implements LocalProviderInterface
         $this->writeUserRepository->updateBlockingInformation($user);
 
         if ($isUserBlocked) {
+            $this->centreonLog->insertLog(
+                CentreonUserLog::TYPE_LOGIN,
+                "[local] User is blocked: maximum number of authentication attempts was reached"
+            );
             $this->info(
                 '[LOCAL PROVIDER] authentication failed because user is blocked',
                 [
