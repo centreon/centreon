@@ -104,20 +104,3 @@ centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
 
 EOF
-
-FROM web_standard AS web_widgets
-
-COPY --chmod=+x ./.github/docker/scripts/install-centreon-widget.php /tmp/install-centreon-widget.php
-
-RUN <<EOF
-
-dnf install -y 'centreon-widget-*'
-dnf clean all --enablerepo=*
-
-service mysql start
-for w in graph-monitoring host-monitoring hostgroup-monitoring httploader live-top10-cpu-usage live-top10-memory-usage service-monitoring servicegroup-monitoring tactical-overview ; do
-  php /tmp/install-centreon-widget.php -b /usr/share/centreon/bootstrap.php -w $w
-done
-service mysql stop
-
-EOF
