@@ -1,4 +1,4 @@
-import { Suspense, memo } from 'react';
+import { memo } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 import { equals, isNil } from 'ramda';
@@ -36,11 +36,14 @@ const ImageContent = ({
   height,
   width,
   imagePath,
-  variant = ImageVariant.Cover
-}: Omit<Props, 'fallback'>): JSX.Element => {
+  variant = ImageVariant.Cover,
+  fallback
+}: Props): JSX.Element => {
   const { classes, cx } = useStyles({ height, variant, width });
-  const image = useLoadImage({ alt, imageSrc: imagePath });
-  image.read();
+  const isImageLoaded = useLoadImage({ alt, imageSrc: imagePath });
+  if (!isImageLoaded) {
+    return fallback;
+  }
 
   return (
     <img
@@ -51,16 +54,12 @@ const ImageContent = ({
   );
 };
 
-const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element | null => {
-  if (isNil(props.imagePath)) {
+const SuspendedImage = ({ imagePath, ...props }: Props): JSX.Element | null => {
+  if (isNil(imagePath)) {
     return null;
   }
 
-  return (
-    <Suspense fallback={fallback}>
-      <ImageContent {...props} />
-    </Suspense>
-  );
+  return <ImageContent {...props} imagePath={imagePath} />;
 };
 
 export default memo(SuspendedImage, equals);

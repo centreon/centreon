@@ -24,24 +24,21 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Contact\Domain\Model\ContactGroup;
+use Core\Contact\Domain\Model\ContactTemplate;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration\{FindOpenIdConfiguration,
+    FindOpenIdConfigurationResponse};
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration\{
-    FindOpenIdConfiguration,
-    FindOpenIdConfigurationResponse
-};
-use Core\Contact\Domain\Model\ContactTemplate;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 
 beforeEach(function () {

@@ -172,6 +172,66 @@ export default (): void =>
           );
         });
       });
+
+      describe('stability', () => {
+        it('validates stability when there are issues', () => {
+          initialize({
+            pollersListIssues: {
+              issues: {
+                stability: {
+                  critical: {
+                    poller: [{ id: 1, name: 'poller1', since: '' }],
+                    total: 1
+                  },
+                  total: 1
+                }
+              }
+            }
+          });
+          getElements();
+
+          cy.get('@databaseIndicator').should(
+            'contain.text',
+            labelDatabaseUpdateAndActive
+          );
+
+          cy.get('@latencyIndicator').should(
+            'contain.text',
+            labelNoLatencyDetected
+          );
+        });
+
+        it('validates stability with no issues', () => {
+          initialize({
+            pollersListIssues: {
+              issues: {
+                stability: {
+                  critical: {
+                    poller: [],
+                    total: 0
+                  },
+                  total: 0,
+                  warning: {
+                    poller: [],
+                    total: 0
+                  }
+                }
+              }
+            }
+          });
+          getElements();
+
+          cy.get('@databaseIndicator').should(
+            'contain.text',
+            labelDatabaseUpdateAndActive
+          );
+
+          cy.get('@latencyIndicator').should(
+            'contain.text',
+            labelNoLatencyDetected
+          );
+        });
+      });
     });
 
     describe('sub menu', () => {

@@ -38,28 +38,9 @@ Cypress.Commands.add('waitFiltersAndListingRequests', () => {
   cy.waitForRequest('@dataToListingTable');
 });
 
-Cypress.Commands.add(
-  'moveSortableElement',
-  ({ ariaLabel, direction }): void => {
-    const key = `{${direction}arrow}`;
-
-    cy.findByLabelText(ariaLabel).type(' ', {
-      force: true,
-      scrollBehavior: false
-    });
-    cy.findAllByLabelText(ariaLabel).eq(-1).type(key, {
-      scrollBehavior: false
-    });
-    cy.findAllByLabelText(ariaLabel).eq(-1).type(' ', {
-      scrollBehavior: false
-    });
-  }
-);
-
 declare global {
   namespace Cypress {
     interface Chainable {
-      moveSortableElement: ({ ariaLabel, direction }) => void;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
     }
   }

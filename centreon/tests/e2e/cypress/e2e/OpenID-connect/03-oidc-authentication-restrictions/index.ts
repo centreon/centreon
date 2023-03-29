@@ -101,9 +101,7 @@ Then(
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
-        .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .should('include', '/monitoring/resources');
     });
   }
 );
