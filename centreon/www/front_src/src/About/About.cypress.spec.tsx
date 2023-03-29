@@ -50,7 +50,7 @@ const mountComponent = (): void => {
 };
 
 describe('About page', () => {
-  before(() => {
+  beforeEach(() => {
     cy.clock(new Date(2021, 1, 1).getTime());
   });
 
