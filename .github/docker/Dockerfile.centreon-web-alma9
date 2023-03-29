@@ -76,6 +76,7 @@ rm -rf /usr/share/centreon/www/install
 rm -f /usr/share/centreon/.env.local.php
 echo "APP_DEBUG=true" >> /usr/share/centreon/.env
 echo "DEBUG_LEVEL=300" >> /usr/share/centreon/.env
+su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear --no-warmup"
 
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
