@@ -64,7 +64,7 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        for ROOT_REPO_PATHS in "rpm-standard" "rpm-standard-internal"; do
+        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
