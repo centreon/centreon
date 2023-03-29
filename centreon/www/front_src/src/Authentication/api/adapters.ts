@@ -165,7 +165,8 @@ export const adaptOpenidConfigurationToAPI = ({
   fullnameBindAttribute,
   authenticationConditions,
   rolesMapping,
-  groupsMapping
+  groupsMapping,
+  redirectUrl
 }: OpenidConfiguration): OpenidConfigurationToAPI => ({
   authentication_conditions: adaptAuthentificationConditions(
     authenticationConditions
@@ -186,6 +187,7 @@ export const adaptOpenidConfigurationToAPI = ({
   is_active: isActive,
   is_forced: isForced,
   login_claim: loginClaim || null,
+  redirect_url: redirectUrl || null,
   roles_mapping: adaptRolesMapping(rolesMapping),
   token_endpoint: tokenEndpoint || null,
   userinfo_endpoint: userinfoEndpoint || null,
