@@ -38,7 +38,11 @@ Then(
     cy.getByLabel({ label: 'Mixed', tag: 'input' })
       .should('be.checked')
       .and('have.value', 'false');
-    cy.logout().reload();
+
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
