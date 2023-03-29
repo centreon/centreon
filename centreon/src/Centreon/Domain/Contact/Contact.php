@@ -197,7 +197,7 @@ class Contact implements UserInterface, ContactInterface
     private $theme;
 
     /** @var string|null */
-    private $userInterfaceViewMode;
+    private $userInterfaceDensity;
 
     /**
      * @param int $timezoneId
@@ -729,13 +729,13 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-     * @param string|null $userInterfaceViewMode
+     * @param string|null $userInterfaceDensity
      *
      * @return $this
      */
-    public function setUserInterfaceViewMode(?string $userInterfaceViewMode): self
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
     {
-        $this->userInterfaceViewMode = $userInterfaceViewMode;
+        $this->userInterfaceDensity = $userInterfaceDensity;
 
         return $this;
     }
@@ -743,8 +743,8 @@ class Contact implements UserInterface, ContactInterface
     /**
      * @return string|null
      */
-    public function getUserInterfaceViewMode(): ?string
+    public function getUserInterfaceDensity(): ?string
     {
-        return $this->userInterfaceViewMode;
+        return $this->userInterfaceDensity;
     }
 }

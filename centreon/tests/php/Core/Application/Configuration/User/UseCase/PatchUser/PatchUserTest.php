@@ -42,7 +42,7 @@ beforeEach(function () {
     $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
     $this->request = new PatchUserRequest();
     $this->request->theme = 'light';
-    $this->request->userInterfaceViewMode = 'extended';
+    $this->request->userInterfaceDensity = 'extended';
     $this->request->userId = 1;
     $this->presenter = new PatchUserPresenter(new JsonFormatter());
 });

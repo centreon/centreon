@@ -1496,9 +1496,9 @@ paths:
                     type: string
                     description: Selected theme of the current user
                     example: light
-                  user_interface_view_mode:
+                  user_interface_density:
                     type: string
-                    description: Selected user interface view mode for the current user
+                    description: Selected user interface density for the current user
                     example: extended
                     default: compact
                   default_page:
@@ -1520,7 +1520,7 @@ paths:
         The available parameters to be updated are :
 
         * theme
-        * user_interface_view_mode
+        * user_interface_density
       requestBody:
         required: true
         content:
@@ -1533,7 +1533,7 @@ paths:
                   description: Theme
                   enum: [ light, dark ]
                   example: light
-                user_interface_view_mode:
+                user_interface_density:
                   type: string
                   description: User interface view mode
                   enum: [ compact, extended ]

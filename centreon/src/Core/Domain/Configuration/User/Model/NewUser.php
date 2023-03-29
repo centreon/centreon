@@ -39,12 +39,12 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
-                 MIN_USER_INTERFACE_VIEW_MODE_LENGTH = 1,
-                 MAX_USER_INTERFACE_VIEW_MODE_LENGTH = 100,
+                 MIN_USER_INTERFACE_DENSITY_LENGTH = 1,
+                 MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
                  THEME_LIGHT = 'light',
                  THEME_DARK = 'dark',
-                 USER_INTERFACE_VIEW_MODE_EXTENDED = 'extended',
-                 USER_INTERFACE_VIEW_MODE_COMPACT = 'compact';
+                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
+                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
     /**
      * @var bool
@@ -66,7 +66,7 @@ class NewUser
      */
     protected ?ContactTemplate $contactTemplate = null;
 
-    protected string $userInterfaceViewMode = self::USER_INTERFACE_VIEW_MODE_COMPACT;
+    protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
 
     /**
      * @param string $alias
@@ -228,39 +228,40 @@ class NewUser
     /**
      * @return string
      */
-    public function getUserInterfaceViewMode(): string
+    public function getUserInterfaceDensity(): string
     {
-        return $this->userInterfaceViewMode;
+        return $this->userInterfaceDensity;
     }
 
     /**
-     * @param string $userInterfaceViewMode
+     * @param string $userInterfaceDensity
+     *
      * @return self
      * @throws \Assert\AssertionFailedException
      * @throws \InvalidArgumentException
      */
-    public function setUserInterfaceViewMode(string $userInterfaceViewMode): self
+    public function setUserInterfaceDensity(string $userInterfaceDensity): self
     {
         Assertion::minLength(
-            $userInterfaceViewMode,
-            self::MIN_USER_INTERFACE_VIEW_MODE_LENGTH,
+            $userInterfaceDensity,
+            self::MIN_USER_INTERFACE_DENSITY_LENGTH,
             'User::userInterfaceViewMode'
         );
 
         Assertion::maxLength(
-            $userInterfaceViewMode,
-            self::MAX_USER_INTERFACE_VIEW_MODE_LENGTH,
+            $userInterfaceDensity,
+            self::MAX_USER_INTERFACE_DENSITY_LENGTH,
             'User::userInterfaceViewMode'
         );
         
         if (
-            $userInterfaceViewMode !== self::USER_INTERFACE_VIEW_MODE_EXTENDED
-            && $userInterfaceViewMode !== self::USER_INTERFACE_VIEW_MODE_COMPACT
+            $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
+            && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT
         ) {
             throw new \InvalidArgumentException('User interface view mode provided not handled');
         }
 
-        $this->userInterfaceViewMode = $userInterfaceViewMode;
+        $this->userInterfaceDensity = $userInterfaceDensity;
 
         return $this;
     }

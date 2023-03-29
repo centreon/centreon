@@ -7,7 +7,7 @@
         "theme": {
             "type": "string"
         },
-        "user_interface_view_mode": {
+        "user_interface_density": {
             "type": "string"
         }
     }

@@ -693,7 +693,7 @@ CREATE TABLE `contact` (
   `contact_comment` text,
   `contact_js_effects` enum('0','1') DEFAULT '0',
   `contact_theme` enum('light','dark') DEFAULT 'light',
-  `user_interface_view_mode` enum('compact','extended') DEFAULT 'compact',
+  `user_interface_density` enum('compact','extended') DEFAULT 'compact',
   `contact_location` int(11) DEFAULT '0',
   `contact_oreon` enum('0','1') DEFAULT NULL,
   `reach_api` int(11) DEFAULT '0',

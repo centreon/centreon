@@ -94,12 +94,12 @@ final class PatchUser
                 $this->debug('New theme', ['theme' => $request->theme]);
             }
 
-            if ($request->userInterfaceViewMode !== null) {
+            if ($request->userInterfaceDensity !== null) {
                 try {
-                    $user->setUserInterfaceViewMode($request->userInterfaceViewMode);
-                    $this->debug('New user interface view mode', ['mode' => $request->userInterfaceViewMode]);
+                    $user->setUserInterfaceDensity($request->userInterfaceDensity);
+                    $this->debug('New user interface view mode', ['mode' => $request->userInterfaceDensity]);
                 } catch (\InvalidArgumentException $ex) {
-                    $this->userInterfaceViewModeUnhandled($request->userInterfaceViewMode, $presenter);
+                    $this->userInterfaceViewModeUnhandled($request->userInterfaceDensity, $presenter);
                     return;
                 }
             }

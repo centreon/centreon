@@ -27,5 +27,5 @@ class PatchUserRequest
 {
     public int $userId;
     public ?string $theme = null;
-    public ?string $userInterfaceViewMode = null;
+    public ?string $userInterfaceDensity = null;
 }

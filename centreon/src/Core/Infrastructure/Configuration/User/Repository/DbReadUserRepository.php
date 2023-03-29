@@ -69,7 +69,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 contact_email,
                 contact_admin,
                 contact_theme,
-                user_interface_view_mode
+                user_interface_density
             FROM `:db`.contact
             SQL;
 

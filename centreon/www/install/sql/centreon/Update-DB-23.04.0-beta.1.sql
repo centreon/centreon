@@ -24,4 +24,4 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
     REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE `contact` ADD COLUMN `user_interface_view_mode` enum('compact','extended') DEFAULT 'compact' AFTER `contact_theme`;
+ALTER TABLE `contact` ADD COLUMN `user_interface_density` enum('compact','extended') DEFAULT 'compact' AFTER `contact_theme`;

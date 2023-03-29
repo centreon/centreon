@@ -208,7 +208,7 @@ class UserTest extends TestCase
             AssertionException::maxLength(
                 $userInterfaceViewMode,
                 strlen($userInterfaceViewMode),
-                User::MAX_USER_INTERFACE_VIEW_MODE_LENGTH,
+                User::MAX_USER_INTERFACE_DENSITY_LENGTH,
                 'User::userInterfaceViewMode'
             )->getMessage()
         );
@@ -236,7 +236,7 @@ class UserTest extends TestCase
             AssertionException::minLength(
                 $userInterfaceViewMode,
                 strlen($userInterfaceViewMode),
-                User::MIN_USER_INTERFACE_VIEW_MODE_LENGTH,
+                User::MIN_USER_INTERFACE_DENSITY_LENGTH,
                 'User::userInterfaceViewMode'
             )->getMessage()
         );
@@ -302,6 +302,6 @@ class UserTest extends TestCase
         $this->assertEquals($email, $user->getEmail());
         $this->assertEquals($isAdmin, $user->isAdmin());
         $this->assertEquals($theme, $user->getTheme());
-        $this->assertEquals($userInterfaceViewMode, $user->getUserInterfaceViewMode());
+        $this->assertEquals($userInterfaceViewMode, $user->getUserInterfaceDensity());
     }
 }
