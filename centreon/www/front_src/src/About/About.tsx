@@ -51,7 +51,9 @@ const About = (): JSX.Element => {
   return (
     <Container maxWidth="md">
       <Paper className={classes.aboutContainer}>
-        <SectionTitle title={`${labelCentreon} dbsbdsgdgsdgssidgsis`} />
+        <SectionTitle
+          title={`${labelCentreon} ${platformVersion?.web.version}`}
+        />
         <Community />
         <SectionTitle title={labelProjectLeaders} />
         <ProjectLeaders />

@@ -88,6 +88,8 @@ describe('About page', () => {
       cy.findByText(contributor).should('be.visible');
     });
 
+    cy.contains('Copyright © 2005 - 2021').should('exist');
+
     cy.matchImageSnapshot();
   });
 });
