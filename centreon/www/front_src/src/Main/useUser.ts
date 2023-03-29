@@ -45,7 +45,7 @@ const useUser = (): (() => null | Promise<void>) => {
           timezone,
           use_deprecated_pages: useDeprecatedPages,
           default_page: defaultPage,
-          resourceStatusViewMode
+          user_interface_density
         } = retrievedUser as User;
 
         setUser({
@@ -54,10 +54,10 @@ const useUser = (): (() => null | Promise<void>) => {
           isExportButtonEnabled,
           locale: locale || 'en',
           name,
-          resourceStatusViewMode,
           themeMode,
           timezone,
-          use_deprecated_pages: useDeprecatedPages
+          use_deprecated_pages: useDeprecatedPages,
+          user_interface_density
         });
         setAreUserParametersLoaded(true);
       })

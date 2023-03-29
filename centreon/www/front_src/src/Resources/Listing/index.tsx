@@ -192,14 +192,14 @@ const ResourceListing = (): JSX.Element => {
   ];
 
   const changeViewModeTableResources = (): void => {
-    const { resourceStatusViewMode } = user;
-    const mode = equals(resourceStatusViewMode, ListingVariant.compact)
+    const { user_interface_density } = user;
+    const mode = equals(user_interface_density, ListingVariant.compact)
       ? ListingVariant.extended
       : ListingVariant.compact;
     mutateAsync({
       ui_view_mode: mode
     }).then(() => {
-      setUser({ ...user, resourceStatusViewMode: mode });
+      setUser({ ...user, user_interface_density: mode });
     });
   };
 
@@ -242,10 +242,10 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={user.resourceStatusViewMode}
+      viewMode={user.user_interface_density}
       viewerModeConfiguration={{
         onClick: changeViewModeTableResources,
-        title: user.resourceStatusViewMode
+        title: user.user_interface_density
       }}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
