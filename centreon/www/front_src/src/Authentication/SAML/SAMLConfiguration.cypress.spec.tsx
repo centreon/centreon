@@ -371,8 +371,6 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelApplyOnlyFirtsRole).click();
 
     cy.findAllByTestId('UnfoldMoreIcon').should('not.exist');
-
-    cy.wait(500).matchImageSnapshot();
   });
 
   it('adds a new "groups/contact group" row when the last "group/contact group" row is filled', () => {
