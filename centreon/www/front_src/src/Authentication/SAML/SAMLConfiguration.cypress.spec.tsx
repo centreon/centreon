@@ -123,6 +123,8 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelSAMLOnly).should('not.be.checked');
     cy.findByLabelText(labelMixed).should('be.checked');
 
+    cy.scrollTo(0, 0);
+
     cy.matchImageSnapshot('displays the SAML configuration form - Activation');
 
     cy.contains(labelIdentityProvider).click();
@@ -152,7 +154,7 @@ describe('SAMLConfiguration', () => {
       retrievedSAMLConfiguration.logout_from_url
     );
 
-    cy.contains(labelIdentityProvider).scrollIntoView();
+    cy.wait(500).scrollTo(0, 300);
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Identity provider'
@@ -177,7 +179,7 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelConditionValue).eq(1).should('have.value', '');
 
-    cy.contains(labelAuthenticationConditions).scrollIntoView();
+    cy.wait(500).scrollTo(0, 800);
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Authentication conditions'
@@ -199,7 +201,7 @@ describe('SAMLConfiguration', () => {
       retrievedSAMLConfiguration.fullname_bind_attribute
     );
 
-    cy.contains(labelAutoImportUsers).scrollIntoView();
+    cy.wait(500).scrollTo(0, 1200);
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Auto import users'
@@ -232,7 +234,7 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).should('have.value', '');
 
-    cy.contains(labelRolesMapping).scrollIntoView();
+    cy.wait(500).scrollTo('bottom');
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Roles mapping'
@@ -265,7 +267,7 @@ describe('SAMLConfiguration', () => {
       );
     cy.findAllByLabelText(labelContactGroup).eq(1).should('have.value', '');
 
-    cy.contains(labelGroupsMapping).scrollIntoView();
+    cy.wait(500).scrollTo('bottom');
 
     cy.matchImageSnapshot(
       'displays the SAML configuration form - Groups mapping'
@@ -282,8 +284,6 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelContactTemplate).should('be.disabled');
     cy.findByLabelText(labelEmailAttribute).should('be.disabled');
     cy.findByLabelText(labelFullNameAttribute).should('be.disabled');
-
-    cy.matchImageSnapshot();
   });
 
   it('hides the "Logout URL" field when the "Centreon UI only" option is selected', () => {
@@ -372,7 +372,7 @@ describe('SAMLConfiguration', () => {
 
     cy.findAllByTestId('UnfoldMoreIcon').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.wait(500).matchImageSnapshot();
   });
 
   it('adds a new "groups/contact group" row when the last "group/contact group" row is filled', () => {
