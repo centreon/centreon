@@ -71,7 +71,6 @@ import {
   labelUseBasicAuthenticatonForTokenEndpointAuthentication,
   labelUserInformationEndpoint
 } from './translatedLabels';
-import { retrievedOpenidConfiguration } from './defaults';
 
 import OpenidConfigurationForm from '.';
 
