@@ -24,8 +24,6 @@ namespace Core\Security\Infrastructure\Api\LoginSession;
 
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Dropbox\Exception;
-use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Application\UseCase\LoginSession\LoginSession;
