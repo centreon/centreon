@@ -39,7 +39,6 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
-                 MIN_USER_INTERFACE_DENSITY_LENGTH = 1,
                  MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
                  THEME_LIGHT = 'light',
                  THEME_DARK = 'dark',
@@ -242,9 +241,8 @@ class NewUser
      */
     public function setUserInterfaceDensity(string $userInterfaceDensity): self
     {
-        Assertion::minLength(
+        Assertion::notEmptyString(
             $userInterfaceDensity,
-            self::MIN_USER_INTERFACE_DENSITY_LENGTH,
             'User::userInterfaceViewMode'
         );
 

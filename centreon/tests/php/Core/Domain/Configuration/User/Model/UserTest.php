@@ -233,10 +233,7 @@ class UserTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            AssertionException::minLength(
-                $userInterfaceViewMode,
-                strlen($userInterfaceViewMode),
-                User::MIN_USER_INTERFACE_DENSITY_LENGTH,
+            AssertionException::notEmptyString(
                 'User::userInterfaceViewMode'
             )->getMessage()
         );
