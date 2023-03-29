@@ -32,7 +32,7 @@ class CustomViewsContext extends CentreonContext
      */
     public function iAmLoggedInCentreonWithWidgets()
     {
-        $this->launchCentreonWebContainer('docker_compose_web', ['web-widgets', 'webdriver']);
+        $this->launchCentreonWebContainer('docker_compose_web', ['web', 'webdriver']);
         $this->iAmLoggedIn();
         //create user
         $page = new ContactConfigurationPage($this);
