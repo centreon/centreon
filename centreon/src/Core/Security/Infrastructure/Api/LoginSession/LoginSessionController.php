@@ -22,6 +22,10 @@ declare(strict_types=1);
 
 namespace Core\Security\Infrastructure\Api\LoginSession;
 
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Dropbox\Exception;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Application\UseCase\LoginSession\LoginSession;
@@ -45,7 +49,16 @@ class LoginSessionController extends AbstractController
         LoginSessionPresenterInterface $presenter,
         SessionInterface $session,
     ): object {
-        $this->validateDataSent($request, __DIR__ . '/LoginSessionSchema.json');
+
+        try {
+            $this->validateDataSent($request, __DIR__ . '/LoginSessionSchema.json');
+        } catch (\InvalidArgumentException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
+            return $presenter->show();
+        } catch (\Throwable $ex) {
+            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            return $presenter->show();
+        }
 
         $loginSessionRequest = $this->createLoginSessionRequest($request);
 
