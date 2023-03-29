@@ -27,10 +27,12 @@ import {
   labelDown,
   labelPending,
   labelUnreachable,
-  labelUp
+  labelUp,
+  labelHosts
 } from './translatedLabels';
 
 export interface HostPropsAdapterOutput {
+  buttonLabel: string;
   counters: CounterProps['counters'];
   hasPending: boolean;
   items: SubMenuProps['items'];
@@ -168,6 +170,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
   };
 
   return {
+    buttonLabel: t(labelHosts),
     counters: ['down', 'unreachable', 'up'].map((statusName) => {
       const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
         config[statusName];

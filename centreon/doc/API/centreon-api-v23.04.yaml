@@ -4521,6 +4521,41 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /administration/authentication/providers/saml:
+    get:
+      tags:
+        - Administration
+      summary: Get SAML provider configuration
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadAuthenticationSAMLProvider'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Administration
+      summary: Update SAML provider configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteAuthenticationSAMLProvider'
+      responses:
+        '204':
+          description: "Configuration updated"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /administration/authentication/providers/web-sso:
     get:
       tags:
@@ -5766,6 +5801,229 @@ components:
                         type: integer
                         description: "Access group id"
                         example: 1
+
+    AuthenticationSAMLProvider:
+      type: object
+      required:
+        - is_active
+        - is_forced
+        - remote_login_url
+        - entity_id_url
+        - certificate
+        - user_id_attribute
+        - contact_template
+        - email_bind_attribute
+        - fullname_bind_attribute
+        - logout_from
+      properties:
+        is_active:
+          type: boolean
+          description: "Indicates whether the provider is active or not"
+          example: true
+        is_forced:
+          type: boolean
+          description: "Indicates whether the provider is forced or not"
+          example: false
+        remote_login_url:
+          type: string
+          description: "Indicates the remote login URL"
+          example: "https://idp/saml"
+        entity_id_url:
+          type: string
+          description: "Indicates the issuer URL"
+          example: "https://idp/saml"
+        certificate:
+          type: string
+          description: "IDP certificate"
+        user_id_attribute:
+          type: string
+          description: ""
+        logout_from:
+          type: boolean
+          description: "Logout"
+        logout_from_url:
+          type: string
+          description: "Indicates the logout URL"
+          example: "https://idp/saml"
+          nullable: true
+        auto_import:
+          type: boolean
+          description: "Auto import user from external provider"
+          example: true
+        contact_template:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+              description: "Contact template ID"
+              example: 1
+            name:
+              type: string
+              description: "Contact template name"
+              example: "Default"
+        email_bind_attribute:
+          type: string
+          description: "Email bind attribute"
+          example: "email"
+          nullable: true
+        fullname_bind_attribute:
+          type: string
+          description: "Fullname bind attribute"
+          example: "name"
+          nullable: true
+        authentication_conditions:
+          type: object
+          required:
+            - is_enabled
+            - attribute_path
+            - authorized_values
+          properties:
+            is_enabled:
+              type: boolean
+            attribute_path:
+              type: string
+              example: info.items.prop1
+            authorized_values:
+              type: array
+              items:
+                type: string
+        groups_mapping:
+          type: object
+          required:
+            - is_enabled
+            - attribute_path
+            - relations
+          properties:
+            is_enabled:
+              type: boolean
+            attribute_path:
+              type: string
+              nullable: false
+              example: info.items.groups
+            relations:
+              type: array
+              items:
+                type: object
+                properties:
+                  group_value:
+                    type: string
+                    description: "Attribute group value"
+                    example: "group1"
+        roles_mapping:
+          type: object
+          required:
+            - is_enabled
+            - apply_only_first_role
+            - attribute_path
+            - relations
+          properties:
+            is_enabled:
+              type: boolean
+            apply_only_first_role:
+              type: boolean
+            attribute_path:
+              type: string
+              example: info.items.role
+            relations:
+              type: array
+              items:
+                type: object
+                properties:
+                  claim_value:
+                    type: string
+                    description: "Authorization claim value"
+                    example: "scope"
+                  priority:
+                    type: number
+                    description: "priority of the role"
+                    example: 1
+
+    ReadAuthenticationSAMLProvider:
+      allOf:
+        -   $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        -   properties:
+              groups_mapping:
+                type: object
+                properties:
+                  relations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        group_value:
+                          type: string
+                          description: "Attribute group value"
+                          example: "group1"
+                        contact_group:
+                          type: object
+                          description: "Contact group"
+                          properties:
+                            id:
+                              type: integer
+                              description: "Contact group ID"
+                              example: 1
+                            name:
+                              type: string
+                              description: "Contact group name"
+                              example: "cg1"
+              roles_mapping:
+                type: object
+                properties:
+                  relations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        claim_value:
+                          type: string
+                          description: "Authorization claim value"
+                          example: "scope"
+                        access_group:
+                          type: object
+                          description: "Access group"
+                          properties:
+                            id:
+                              type: integer
+                              description: "Access group ID"
+                              example: 1
+                            name:
+                              type: string
+                              description: "Access group name"
+                              example: "Default"
+    WriteAuthenticationSAMLProvider:
+      allOf:
+        -   $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        -   properties:
+              groups_mapping:
+                type: object
+                properties:
+                  relations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        group_value:
+                          type: string
+                          description: "Attribute group value"
+                          example: "group1"
+                        contact_group_id:
+                          type: integer
+                          description: "Contact group id"
+                          example: 1
+              roles_mapping:
+                type: object
+                properties:
+                  relations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        access_group_id:
+                          type: integer
+                          description: "Access group id"
+                          example: 1
+
     AuthenticationWebSSOProvider:
       type: object
       required:

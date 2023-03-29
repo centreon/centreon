@@ -25,8 +25,8 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\Repository;
 
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 
 interface ReadOpenIdConfigurationRepositoryInterface
 {

@@ -23,11 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomConfigurationInterface
@@ -145,7 +148,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(array $json)
     {
@@ -570,7 +573,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function create(array $json): void
     {
@@ -581,15 +584,15 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         $this->setClientId($json['client_id']);
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setClientSecret($json['client_secret']);
-        $this->setBaseUrl($json['base_url']);
-        $this->setAuthorizationEndpoint($json['authorization_endpoint']);
-        $this->setTokenEndpoint($json['token_endpoint']);
-        $this->setIntrospectionTokenEndpoint($json['introspection_token_endpoint']);
-        $this->setUserInformationEndpoint($json['userinfo_endpoint']);
+        $this->setBaseUrl($this->sanitizeEndpointValue($json['base_url']));
+        $this->setAuthorizationEndpoint($this->sanitizeEndpointValue($json['authorization_endpoint']));
+        $this->setTokenEndpoint($this->sanitizeEndpointValue($json['token_endpoint']));
+        $this->setIntrospectionTokenEndpoint($this->sanitizeEndpointValue($json['introspection_token_endpoint']));
+        $this->setUserInformationEndpoint($this->sanitizeEndpointValue($json['userinfo_endpoint']));
         $this->setContactTemplate($json['contact_template']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
-        $this->setEndSessionEndpoint($json['endsession_endpoint']);
+        $this->setEndSessionEndpoint($this->sanitizeEndpointValue($json['endsession_endpoint']));
         $this->setConnectionScopes($json['connection_scopes']);
         $this->setLoginClaim($json['login_claim']);
         $this->setAuthenticationType($json['authentication_type']);
@@ -613,7 +616,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     /**
      * @param array<string,mixed> $json
      * @return void
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryFields(array $json): void
     {
@@ -633,11 +636,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         }
 
         if (!empty($emptyParameters)) {
-            throw OpenIdConfigurationException::missingMandatoryParameters($emptyParameters);
+            throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
         if (empty($json['introspection_token_endpoint']) && empty($json['userinfo_endpoint'])) {
-            throw OpenIdConfigurationException::missingInformationEndpoint();
+            throw ConfigurationException::missingInformationEndpoint();
         }
 
         if ($json['auto_import'] === true) {
@@ -655,7 +658,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
      * @param ContactTemplate|null $contactTemplate
      * @param string|null $emailBindAttribute
      * @param string|null $userNameBindAttribute
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
@@ -673,9 +676,28 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
         if (!empty($missingMandatoryParameters)) {
-            throw OpenIdConfigurationException::missingAutoImportMandatoryParameters(
+            throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value
+     *
+     * @param ?string $value
+     * @return ?string
+     */
+    private function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }

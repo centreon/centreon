@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 import { head, last } from 'ramda';
+import fetchMock from 'jest-fetch-mock';
 
 import { TestQueryProvider } from '@centreon/ui';
 import {
@@ -27,62 +27,54 @@ import {
   labelSave
 } from '../Local/translatedLabels';
 import { labelActivation } from '../translatedLabels';
-
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
+  labelRolesAttributePath,
+  labelMixed,
+  labelGroupsAttributePath,
+  labelGroupValue,
+  labelEnableAutoImport,
+  labelEnableAutomaticManagement,
+  labelDeleteRelation,
+  labelEnableConditionsOnIdentityProvider,
+  labelConditionsAttributePath,
+  labelConditionValue,
+  labelContactGroup,
+  labelContactTemplate
+} from '../shared/translatedLabels';
+
+import {
   labelAuthorizationEndpoint,
   labelBaseUrl,
   labelBlacklistClientAddresses,
   labelClientID,
   labelClientSecret,
-  labelConditionsAttributePath,
-  labelConditionValue,
-  labelContactGroup,
-  labelContactTemplate,
   labelDefineOpenIDConnectConfiguration,
   labelDefineYourEndpoint,
-  labelDeleteRelation,
   labelDisableVerifyPeer,
   labelEmailAttributePath,
-  labelEnableAutoImport,
-  labelEnableAutoManagement,
-  labelEnableConditionsOnIdentityProvider,
   labelEnableOpenIDConnectAuthentication,
   labelEndSessionEndpoint,
   labelFullnameAttributePath,
-  labelGroupsAttributePath,
-  labelGroupValue,
   labelIntrospectionEndpoint,
   labelIntrospectionTokenEndpoint,
   labelInvalidIPAddress,
   labelInvalidURL,
   labelLoginAttributePath,
-  labelMixed,
   labelOpenIDConnectOnly,
   labelOther,
-  labelRolesAttributePath,
   labelScopes,
   labelTokenEndpoint,
   labelTrustedClientAddresses,
   labelUseBasicAuthenticatonForTokenEndpointAuthentication,
   labelUserInformationEndpoint
 } from './translatedLabels';
+import { retrievedOpenidConfiguration } from './defaults';
 
 import OpenidConfigurationForm from '.';
 
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
 jest.mock('../logos/providerPadlock.svg');
-
-const cancelTokenRequestParam = { cancelToken: {} };
-
-const cancelTokenPutParams = {
-  ...cancelTokenRequestParam,
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  }
-};
 
 const renderOpenidConfigurationForm = (): RenderResult =>
   render(
@@ -90,57 +82,6 @@ const renderOpenidConfigurationForm = (): RenderResult =>
       <OpenidConfigurationForm />
     </TestQueryProvider>
   );
-
-const retrievedOpenidConfiguration = {
-  authentication_conditions: {
-    attribute_path: 'auth attribute path',
-    authorized_values: ['authorized'],
-    blacklist_client_addresses: ['127.0.0.1'],
-    endpoint: {
-      custom_endpoint: null,
-      type: 'introspection_endpoint'
-    },
-    is_enabled: false,
-    trusted_client_addresses: ['127.0.0.1']
-  },
-  authentication_type: 'client_secret_post',
-  authorization_endpoint: '/authorize',
-  auto_import: false,
-  base_url: 'https://localhost:8080',
-  client_id: 'client_id',
-  client_secret: 'client_secret',
-  connection_scopes: ['openid'],
-  contact_template: null,
-  email_bind_attribute: 'email',
-  endsession_endpoint: '/logout',
-  fullname_bind_attribute: 'lastname',
-  groups_mapping: {
-    attribute_path: 'group attribute path',
-    endpoint: {
-      custom_endpoint: '/group/endpoint',
-      type: 'custom_endpoint'
-    },
-    is_enabled: true,
-    relations: []
-  },
-  introspection_token_endpoint: '/introspect',
-  is_active: true,
-  is_forced: false,
-  login_claim: 'sub',
-  roles_mapping: {
-    apply_only_first_role: true,
-    attribute_path: 'role attribute path',
-    endpoint: {
-      custom_endpoint: '/role/endpoint',
-      type: 'custom_endpoint'
-    },
-    is_enabled: false,
-    relations: []
-  },
-  token_endpoint: '/token',
-  userinfo_endpoint: '/userinfo',
-  verify_peer: false
-};
 
 const getRetrievedEntities = (label: string): unknown => ({
   meta: {
@@ -166,8 +107,7 @@ const retrievedContactGroups = getRetrievedEntities('Contact Group');
 
 const mockGetBasicRequests = (): void => {
   resetMocks();
-  mockedAxios.get.mockReset();
-  mockedAxios.get.mockResolvedValue({
+  mockResponseOnce({
     data: retrievedOpenidConfiguration
   });
 };
@@ -175,11 +115,6 @@ const mockGetBasicRequests = (): void => {
 describe('Openid configuration form', () => {
   beforeEach(() => {
     mockGetBasicRequests();
-
-    mockedAxios.put.mockReset();
-    mockedAxios.put.mockResolvedValue({
-      data: {}
-    });
   });
 
   it('displays the form', async () => {
@@ -190,9 +125,8 @@ describe('Openid configuration form', () => {
     ).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -262,7 +196,7 @@ describe('Openid configuration form', () => {
       'authorized'
     );
     expect(
-      head(screen.getAllByLabelText(labelEnableAutoManagement))
+      head(screen.getAllByLabelText(labelEnableAutomaticManagement))
     ).not.toBeChecked();
     expect(screen.getByLabelText(labelApplyOnlyFirtsRole)).toBeChecked();
     expect(screen.getByLabelText(labelRolesAttributePath)).toHaveValue(
@@ -273,7 +207,7 @@ describe('Openid configuration form', () => {
       '/role/endpoint'
     );
     expect(
-      last(screen.getAllByLabelText(labelEnableAutoManagement))
+      last(screen.getAllByLabelText(labelEnableAutomaticManagement))
     ).toBeChecked();
     expect(screen.getByLabelText(labelGroupsAttributePath)).toHaveValue(
       'group attribute path'
@@ -288,9 +222,8 @@ describe('Openid configuration form', () => {
     renderOpenidConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -344,9 +277,8 @@ describe('Openid configuration form', () => {
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -380,24 +312,25 @@ describe('Openid configuration form', () => {
     userEvent.click(screen.getByText(labelSave));
 
     await waitFor(() => {
-      expect(mockedAxios.put).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        {
+      expect(getFetchCall(3)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
+      );
+
+      expect(fetchMock.mock.calls[3][1]?.body).toEqual(
+        JSON.stringify({
           ...retrievedOpenidConfiguration,
           base_url: 'http://localhost:8081/login',
           groups_mapping: {
             ...retrievedOpenidConfiguration.groups_mapping,
             relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
           }
-        },
-        cancelTokenPutParams
+        })
       );
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(4)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
   });
@@ -406,9 +339,8 @@ describe('Openid configuration form', () => {
     renderOpenidConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -447,9 +379,8 @@ describe('Openid configuration form', () => {
     renderOpenidConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -505,9 +436,8 @@ describe('Openid configuration form', () => {
       });
 
       await waitFor(() => {
-        expect(mockedAxios.get).toHaveBeenCalledWith(
-          authenticationProvidersEndpoint(Provider.Openid),
-          cancelTokenRequestParam
+        expect(getFetchCall(0)).toEqual(
+          authenticationProvidersEndpoint(Provider.Openid)
         );
       });
 
@@ -520,7 +450,7 @@ describe('Openid configuration form', () => {
       userEvent.click(screen.getByLabelText(label));
 
       await waitFor(() => {
-        expect(getFetchCall(0)).toEqual(
+        expect(getFetchCall(1)).toEqual(
           `${endpoint}?page=1&sort_by=${encodeURIComponent(
             '{"name":"ASC"}'
           )}&search=${encodeURIComponent('{"$and":[]}')}`
@@ -543,9 +473,8 @@ describe('Openid configuration form', () => {
     renderOpenidConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -580,9 +509,8 @@ describe('Openid configuration form', () => {
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.Openid),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.Openid)
       );
     });
 
@@ -593,7 +521,7 @@ describe('Openid configuration form', () => {
     userEvent.click(screen.getByLabelText(labelContactGroup));
 
     await waitFor(() => {
-      expect(getFetchCall(0)).toEqual(
+      expect(getFetchCall(1)).toEqual(
         `${contactGroupsEndpoint}?page=1&sort_by=${encodeURIComponent(
           '{"name":"ASC"}'
         )}&search=${encodeURIComponent('{"$and":[]}')}`

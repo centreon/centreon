@@ -25,3 +25,11 @@ export interface CeipData {
   excludeAllText?: boolean;
   visitor?: Record<string, unknown>;
 }
+
+export interface CustomLoginPlatform {
+  custom_text: string | null;
+  icon_source: string | null;
+  image_source: string | null;
+  platform_name: string | null;
+  text_position: string | null;
+}

@@ -22,7 +22,8 @@ const useValidationSchema = (): Yup.SchemaOf<OpenidConfiguration> => {
 
   const rolesRelationSchema = Yup.object({
     accessGroup: namedEntitySchema.nullable().required(t(labelRequired)),
-    claimValue: Yup.string().required(t(labelRequired))
+    claimValue: Yup.string().required(t(labelRequired)),
+    priority: Yup.number().required(t(labelRequired))
   });
 
   const groupsRelationSchema = Yup.object({

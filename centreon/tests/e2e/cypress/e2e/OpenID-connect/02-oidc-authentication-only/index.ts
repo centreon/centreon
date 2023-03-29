@@ -88,11 +88,8 @@ Then(
         .should('be.visible')
         .and('include.text', 'Invalid username or password.')
         .loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .wait('@getNavigationList')
         .url()
-        .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .should('include', '/monitoring/resources');
     });
   }
 );
