@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 17
 
       - uses: ./.github/actions/frontend-lint
         with:

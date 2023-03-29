@@ -37,7 +37,6 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   labelKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
-const t = 't';
 
 const ConnectedAutocompleteField = (
   AutocompleteField: (props) => JSX.Element,
