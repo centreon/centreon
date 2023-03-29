@@ -17,7 +17,6 @@ import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
 
 interface UsePollerDataResult {
   data: GetPollerPropsAdapterResult | null;
-  error: unknown;
   isAllowed: boolean;
   isLoading: boolean;
 }
@@ -39,6 +38,7 @@ export const usePollerData = (): UsePollerDataResult => {
     decoder: pollerIssuesDecoder,
     getEndpoint: () => pollerListIssuesEndPoint,
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
+    httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
       refetchInterval: refetchInterval * 1000
     }
