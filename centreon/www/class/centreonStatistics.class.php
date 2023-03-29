@@ -232,7 +232,8 @@ class CentreonStatistics
                         'connection_scopes' => count($customConfiguration['connection_scopes'] ?? []),
                         'authentication_type' => $customConfiguration['authentication_type'],
                         'verify_peer' => (bool)$customConfiguration['verify_peer'],
-                        'auto_import' => (bool)$customConfiguration['auto_import']
+                        'auto_import' => (bool)$customConfiguration['auto_import'],
+                        'redirect_url' => $customConfiguration['redirect_url'] !== null
                     ];
                     break;
                 case 'saml':

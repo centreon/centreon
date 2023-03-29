@@ -64,10 +64,9 @@ const useStyles = makeStyles()((theme) => ({
   },
   timelineDot: {
     alignItems: 'center',
+    boxSizing: 'content-box',
     display: 'grid',
-    height: theme.spacing(3),
-    justifyItems: 'center',
-    width: theme.spacing(3)
+    justifyItems: 'center'
   }
 }));
 
