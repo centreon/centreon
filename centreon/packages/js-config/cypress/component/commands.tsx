@@ -29,7 +29,6 @@ Cypress.Commands.add('mount', ({ Component, options }) => {
         sx={{
           backgroundColor: 'background.paper',
           height: '100%',
-          overflow: 'hidden',
           width: '100%'
         }}
       >
