@@ -26,13 +26,13 @@ namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\OpenId\Builde
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
 beforeEach(function () {
     $this->customConfiguration = [
@@ -79,7 +79,7 @@ it('should throw an exception when a mandatory parameter is empty and configurat
         false
     );
     $configuration->setCustomConfiguration(new CustomConfiguration($this->customConfiguration));
-})->throws(OpenIdConfigurationException::class, "Missing mandatory parameters: base_url");
+})->throws(ConfigurationException::class, "Missing mandatory parameters: base_url");
 
 it(
     'should throw an exception when both userinformation and introspection '
@@ -98,8 +98,8 @@ it(
         $configuration->setCustomConfiguration(new CustomConfiguration($this->customConfiguration));
     }
 )->throws(
-    OpenIdConfigurationException::class,
-    OpenIdConfigurationException::missingInformationEndpoint()->getMessage()
+    ConfigurationException::class,
+    ConfigurationException::missingInformationEndpoint()->getMessage()
 );
 
 it(
@@ -119,8 +119,8 @@ it(
         $configuration->setCustomConfiguration(new CustomConfiguration($this->customConfiguration));
     }
 )->throws(
-    OpenIdConfigurationException::class,
-    OpenIdConfigurationException::missingAutoImportMandatoryParameters(
+    ConfigurationException::class,
+    ConfigurationException::missingAutoImportMandatoryParameters(
         ['contact_template', 'email_bind_attribute', 'fullname_bind_attribute']
     )->getMessage()
 );

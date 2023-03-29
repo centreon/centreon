@@ -156,12 +156,7 @@ const insertFixture = (file: string): Cypress.Chainable => {
     .then((fixture) => cy.executeActionViaClapi({ bodyContent: fixture }));
 };
 
-const logout = (): Cypress.Chainable =>
-  cy.request({
-    body: {},
-    method: 'POST',
-    url: apiLogout
-  });
+const logout = (): Cypress.Chainable => cy.visit(apiLogout);
 
 export {
   ActionClapi,

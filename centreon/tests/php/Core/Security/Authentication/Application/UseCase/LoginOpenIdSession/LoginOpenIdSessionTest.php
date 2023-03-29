@@ -45,19 +45,19 @@ use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\Authentication\Infrastructure\Api\Login\OpenId\LoginPresenter;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Repository\WriteSessionRepository;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
@@ -214,7 +214,7 @@ it(
             ->method('authenticateOrFail');
 
         $this->provider
-            ->expects($this->never())
+            ->expects($this->once())
             ->method('isAutoImportEnabled');
 
         $this->provider
@@ -260,12 +260,12 @@ it(
 
         $this->provider
             ->expects($this->once())
-            ->method('findUserOrFail');
-
-        $this->provider
-            ->expects($this->once())
             ->method('isAutoImportEnabled')
             ->willReturn(true);
+
+        $this->provider
+            ->expects($this->never())
+            ->method('findUserOrFail');
 
         $this->provider
             ->expects($this->once())

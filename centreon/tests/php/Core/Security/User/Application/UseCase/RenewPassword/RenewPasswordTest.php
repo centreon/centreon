@@ -167,7 +167,7 @@ class RenewPasswordTest extends TestCase
 
         $this->readConfigurationRepository
             ->expects($this->once())
-            ->method('getConfigurationByName')
+            ->method('getConfigurationByType')
             ->willReturn($configuration);
 
         $this->presenter

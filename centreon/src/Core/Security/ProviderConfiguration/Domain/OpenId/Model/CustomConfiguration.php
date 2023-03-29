@@ -23,11 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomConfigurationInterface
@@ -147,7 +150,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(array $json)
     {
@@ -583,7 +586,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function create(array $json): void
     {
@@ -627,7 +630,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     /**
      * @param array<string,mixed> $json
      * @return void
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryFields(array $json): void
     {
@@ -647,11 +650,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         }
 
         if (!empty($emptyParameters)) {
-            throw OpenIdConfigurationException::missingMandatoryParameters($emptyParameters);
+            throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
         if (empty($json['introspection_token_endpoint']) && empty($json['userinfo_endpoint'])) {
-            throw OpenIdConfigurationException::missingInformationEndpoint();
+            throw ConfigurationException::missingInformationEndpoint();
         }
 
         if ($json['auto_import'] === true) {
@@ -669,7 +672,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
      * @param ContactTemplate|null $contactTemplate
      * @param string|null $emailBindAttribute
      * @param string|null $userNameBindAttribute
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
@@ -687,7 +690,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
         if (!empty($missingMandatoryParameters)) {
-            throw OpenIdConfigurationException::missingAutoImportMandatoryParameters(
+            throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );
         }
