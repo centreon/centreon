@@ -1,45 +1,44 @@
-import { equals, includes, not, isNil, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme, alpha } from '@mui/material';
+import { alpha, useTheme } from '@mui/material';
 
-import { ListingVariant, userAtom } from '@centreon/ui-context';
 import {
   MemoizedListing as Listing,
-  SeverityCode,
-  useSnackbar,
   Method,
-  useMutationQuery
+  SeverityCode,
+  useMutationQuery,
+  useSnackbar
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { graphTabId } from '../Details/tabs';
-import { rowColorConditions } from '../colors';
+import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
-import { Resource, SortOrder } from '../models';
-import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
-import {
-  openDetailsTabIdAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom,
-  panelWidthStorageAtom
-} from '../Details/detailsAtoms';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToCheckAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../Actions/actionsAtoms';
+import { rowColorConditions } from '../colors';
+import {
+  openDetailsTabIdAtom,
+  panelWidthStorageAtom,
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
+} from '../Details/detailsAtoms';
+import { graphTabId } from '../Details/tabs';
 import {
   getCriteriaValueDerivedAtom,
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { userEndpoint } from '../../App/endpoint';
+import { Resource, SortOrder } from '../models';
+import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
-import useLoadResources from './useLoadResources';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -48,13 +47,15 @@ import {
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
+import useLoadResources from './useLoadResources';
+import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
 
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-
+  const { isPending, updateUser, viewerMode } = useViewerMode();
   const { showWarningMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
@@ -70,7 +71,7 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
     selectedResourcesDetailsAtom
   );
-  const [user, setUser] = useAtom(userAtom);
+  const user = useAtomValue(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
@@ -192,15 +193,10 @@ const ResourceListing = (): JSX.Element => {
   ];
 
   const changeViewModeTableResources = (): void => {
-    const { user_interface_density } = user;
-    const mode = equals(user_interface_density, ListingVariant.compact)
-      ? ListingVariant.extended
-      : ListingVariant.compact;
+    updateUser();
     mutateAsync({
-      ui_view_mode: mode
-    }).then(() => {
-      setUser({ ...user, user_interface_density: mode });
-    });
+      user_interface_density: viewerMode
+    }).then();
   };
 
   return (
@@ -244,6 +240,7 @@ const ResourceListing = (): JSX.Element => {
       totalRows={listing?.meta.total}
       viewMode={user.user_interface_density}
       viewerModeConfiguration={{
+        disabled: isPending,
         onClick: changeViewModeTableResources,
         title: user.user_interface_density
       }}

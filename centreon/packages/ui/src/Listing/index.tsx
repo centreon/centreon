@@ -159,6 +159,7 @@ interface CustomStyle {
 }
 interface ViewerModeConfiguration {
   customStyle?: CustomStyle;
+  disabled?: boolean;
   labelViewerMode?: string;
   onClick: () => void;
   testId?: string;

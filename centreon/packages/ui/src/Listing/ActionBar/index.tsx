@@ -145,6 +145,7 @@ const MemoListingActionBar = ({
                     ?.customStyleViewerModeContainer
                 }
                 data-testid={viewerModeConfiguration?.testId}
+                disabled={viewerModeConfiguration?.disabled}
                 size="large"
                 title={viewerModeConfiguration?.title}
                 onClick={viewerModeConfiguration?.onClick}
