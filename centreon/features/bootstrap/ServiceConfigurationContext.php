@@ -325,7 +325,6 @@ class ServiceConfigurationContext extends CentreonContext
     {
         $this->currentPage = new ServiceConfigurationListingPage($this);
         $this->currentPage = $this->currentPage->inspect($this->updatedProperties['description']);
-
         $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
@@ -352,7 +351,6 @@ class ServiceConfigurationContext extends CentreonContext
     {
         $this->currentPage = new ServiceConfigurationListingPage($this);
         $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['description']);
-
         $this->comparePageProperties($this->currentPage, $this->duplicatedProperties);
     }
 

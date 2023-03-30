@@ -497,13 +497,35 @@ class ACLActionsAccessContext extends CentreonContext
      */
     public function allLinkedAccessGroupDisplayTheNewActionsAccessInAuthorizedInformationTab()
     {
-        $this->currentPage = new ACLGroupConfigurationListingPage($this);
-        $this->currentPage = $this->currentPage->inspect($this->adminAclGroup['group_name']);
-        $this->comparePageProperties($this->currentPage, $this->initialProperties);
-
-        $this->currentPage = new ACLGroupConfigurationListingPage($this);
-        $this->currentPage = $this->currentPage->inspect($this->nonAdminAclGroup['group_name']);
-        $this->comparePageProperties($this->currentPage, $this->initialProperties);
+        $this->tableau = array();
+        try {
+            $this->spin(
+                function ($context) {
+                    $this->currentPage = new ACLGroupConfigurationListingPage($this);
+                    $this->currentPage = $this->currentPage->inspect($this->adminAclGroup['group_name']);
+                    $object = $this->currentPage->getProperties();
+                    if (count($object['actions']) == 1 &&
+                        $object['actions'][0] != $this->initialProperties['acl_name']
+                    ) {
+                        $this->tableau[] = $this->adminAclGroup['group_name'];
+                    }
+                    $this->currentPage = new ACLGroupConfigurationListingPage($this);
+                    $this->currentPage = $this->currentPage->inspect($this->nonAdminAclGroup['group_name']);
+                    $object = $this->currentPage->getProperties();
+                    if (count($object['actions']) == 1 &&
+                        $object['actions'][0] != $this->initialProperties['acl_name']
+                    ) {
+                        $this->tableau[] = $this->nonAdminAclGroup['group_name'];
+                    }
+                    return count($this->tableau) == 0;
+                },
+                "Some properties are not being updated : ",
+                5
+            );
+        } catch (\Exception $e) {
+            $this->tableau = array_unique($this->tableau);
+            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
+        }
     }
 
     /**
