@@ -40,7 +40,7 @@ const Text = ({ title, description }: Props): JSX.Element => {
 
   return (
     <>
-      <Typography className={classes.title}>{t(formatLabel(title))}</Typography>
+      <Typography className={classes.title}>{t(title)}</Typography>
       <Typography className={classes.description}>
         {formatDescription(t(description))}
       </Typography>

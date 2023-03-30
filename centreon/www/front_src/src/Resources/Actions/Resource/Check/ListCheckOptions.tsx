@@ -1,12 +1,15 @@
+import { RefObject, useEffect, useRef, useState } from 'react';
+
 import { makeStyles } from 'tss-react/mui';
+import { isNil, equals } from 'ramda';
 
 import IconCheck from '@mui/icons-material/CheckOutlined';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Popover from '@mui/material/Popover';
 import Divider from '@mui/material/Divider';
+import Popper from '@mui/material/Popper';
 
 import {
   labelCheck,
@@ -50,44 +53,15 @@ interface Disabled {
   disableForcedCheck: boolean;
 }
 
-enum VerticalEnum {
-  bottom = 'bottom',
-  center = 'center',
-  top = 'top'
-}
-
-enum HorizontalEnum {
-  center = 'center',
-  left = 'left',
-  right = 'right'
-}
-
-interface PositionOrigin {
-  horizontal: HorizontalEnum;
-  vertical: VerticalEnum;
-}
-
 interface Props {
   anchorEl?: HTMLElement | null;
-  anchorOrigin?: PositionOrigin;
+  buttonGroupReference?: MutableRefObject<HTMLDivElement>;
   disabled: Disabled;
   isDefaultChecked: boolean;
-  onClickCheck: () => void;
-  onClickForcedCheck: () => void;
-  onClose: () => void;
+  onClickCheck?: () => void;
+  onClickForcedCheck?: () => void;
   open: boolean;
-  transformOrigin?: PositionOrigin;
 }
-
-const defaultAnchorOrigin = {
-  horizontal: HorizontalEnum.left,
-  vertical: VerticalEnum.bottom
-};
-
-const defaultTransformOrigin = {
-  horizontal: HorizontalEnum.left,
-  vertical: VerticalEnum.top
-};
 
 interface PropsIcon {
   display: boolean;
@@ -105,26 +79,53 @@ const Icon = ({ display }: PropsIcon): JSX.Element => {
 
 const ListCheckOptions = ({
   open,
-  onClose,
-  anchorOrigin = defaultAnchorOrigin,
-  transformOrigin = defaultTransformOrigin,
   anchorEl,
   isDefaultChecked,
   onClickForcedCheck,
   onClickCheck,
-  disabled
+  disabled,
+  buttonGroupReference
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { disableForcedCheck, disableCheck } = disabled;
+  const listReference = useRef<HTMLDivElement>();
+  const [skiddingPopper, setSkiddingPopper] = useState(0);
+  const widthArrow = 28;
+
+  const handlePositionPopper = (): void => {
+    const skidding =
+      buttonGroupReference?.current?.getBoundingClientRect()?.width ??
+      widthArrow - widthArrow;
+
+    setSkiddingPopper(skidding - widthArrow);
+  };
+
+  useEffect(() => {
+    handlePositionPopper();
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    handlePositionPopper();
+  }, [open]);
 
   return (
-    <Popover
+    <Popper
       anchorEl={anchorEl}
-      anchorOrigin={anchorOrigin}
       className={classes.popover}
+      modifiers={[
+        {
+          name: 'offset',
+          options: {
+            offset: [-skiddingPopper, 4]
+          }
+        }
+      ]}
       open={open}
-      transformOrigin={transformOrigin}
-      onClose={onClose}
+      placement="bottom-start"
+      ref={listReference as RefObject<HTMLDivElement>}
     >
       <List disablePadding className={classes.container}>
         <ListItemButton
@@ -161,7 +162,7 @@ const ListCheckOptions = ({
           />
         </ListItemButton>
       </List>
-    </Popover>
+    </Popper>
   );
 };
 
