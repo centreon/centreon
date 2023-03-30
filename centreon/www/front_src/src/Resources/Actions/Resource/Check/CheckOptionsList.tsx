@@ -49,7 +49,7 @@ const useStyles = makeStyles()((theme) => ({
     paddingRight: theme.spacing(0.5)
   },
   popover: {
-    zIndex: 900
+    zIndex: theme.zIndex.fab
   }
 }));
 
