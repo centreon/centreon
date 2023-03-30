@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -79,6 +80,8 @@ const Check = ({
     setAnchorEl(event.currentTarget);
   };
 
+  const idArrowIcon = 'arrowIcon';
+
   const closePopover = (): void => {
     setAnchorEl(null);
   };
@@ -88,6 +91,18 @@ const Check = ({
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
+  const handleClick = (event): void => {
+    if (!equals(event.target?.id, idArrowIcon)) {
+      return;
+    }
+    if (!anchorEl) {
+      displayPopover(event);
+
+      return;
+    }
+    closePopover();
+  };
+
   return (
     <>
       <ButtonGroup
@@ -96,7 +111,7 @@ const Check = ({
           [classes.disabled]: disabledButton && !displayCondensed,
           [classes.condensed]: displayCondensed
         })}
-        onClick={anchorEl ? closePopover : displayPopover}
+        onClick={handleClick}
       >
         <ResourceActionButton
           disabled={disabledButton}
@@ -110,12 +125,13 @@ const Check = ({
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}
           disabled={disabledButton}
+          id={idArrowIcon}
           onClick={(): void => undefined}
         >
           {displayCondensed ? (
-            <ArrowDropDownIcon fontSize="small" />
+            <ArrowDropDownIcon fontSize="small" id={idArrowIcon} />
           ) : (
-            <IconArrow />
+            <IconArrow id={idArrowIcon} />
           )}
         </IconButton>
       </ButtonGroup>
