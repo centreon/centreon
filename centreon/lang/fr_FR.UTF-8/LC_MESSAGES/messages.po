@@ -17405,6 +17405,18 @@ msgstr "Ce nom de sévérité de services existe déjà"
 msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
 
+msgid "Forced check"
+msgstr "Vérification forcée"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Vérifier les ressources sélectionnées uniquement pendant la période de vérification configurée"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
+
+msgid "Forced check command sent"
+msgstr "Commande de vérification forcée envoyée"
+
 msgid "Developed by"
 msgstr "Développé par"
 
