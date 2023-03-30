@@ -77,7 +77,7 @@ const Icon = ({ display }: PropsIcon): JSX.Element => {
   );
 };
 
-const ListCheckOptions = ({
+const CheckOptionsList = ({
   open,
   anchorEl,
   isDefaultChecked,
@@ -166,4 +166,4 @@ const ListCheckOptions = ({
   );
 };
 
-export default ListCheckOptions;
+export default CheckOptionsList;

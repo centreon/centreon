@@ -13,7 +13,7 @@ import { IconButton } from '@centreon/ui';
 import ResourceActionButton from '../ResourceActionButton';
 import useMediaQueryListing from '../useMediaQueryListing';
 
-import ListCheckOptions from './ListCheckOptions';
+import CheckOptionsList from './CheckOptionsList';
 
 const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
@@ -116,7 +116,7 @@ const Check = ({
           )}
         </IconButton>
       </ButtonGroup>
-      <ListCheckOptions
+      <CheckOptionsList
         anchorEl={anchorEl}
         buttonGroupReference={buttonGroupReference}
         disabled={disabledList}
