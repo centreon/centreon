@@ -44,10 +44,10 @@ const useStyles = makeStyles()((theme) => ({
       }
     },
     flex: 'initial',
-    marginRight: theme.spacing(6),
+    marginRight: theme.spacing(10),
 
     [theme.breakpoints.down(960)]: {
-      marginRight: theme.spacing(3.5)
+      marginRight: theme.spacing(8)
     }
   },
   leftContainer: {
@@ -73,11 +73,11 @@ const Header = (): JSX.Element => {
         </div>
 
         <div className={classes.item}>
-          <ServiceStatusCounter />
+          <HostStatusCounter />
         </div>
 
         <div className={classes.item}>
-          <HostStatusCounter />
+          <ServiceStatusCounter />
         </div>
 
         <div className={classes.item}>
