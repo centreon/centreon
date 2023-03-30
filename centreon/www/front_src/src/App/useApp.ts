@@ -67,7 +67,6 @@ const useApp = (): UseAppState => {
       request: getData
     });
 
-  const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
