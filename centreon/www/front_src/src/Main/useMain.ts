@@ -61,20 +61,14 @@ const useMain = (): void => {
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
-      if (
-        !retrievedPlatformInstallationStatus?.isInstalled &&
-        !retrievedPlatformInstallationStatus?.hasUpgradeAvailable
-      ) {
+      if (!retrievedPlatformInstallationStatus?.isInstalled) {
         return;
       }
-
       getPlatformVersions();
+      loadUser();
     });
   }, []);
 
-  useEffect((): void => {
-    loadUser();
-  }, []);
 
   useEffect((): void => {
     if (not(areUserParametersLoaded)) {
