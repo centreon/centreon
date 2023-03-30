@@ -29,6 +29,7 @@
   "homepage": "https://github.com/centreon/centreon#readme",
   "devDependencies": {
     "@mdx-js/react": "^2.1.4",
+    "@storybook/addon-docs": "^6.5.16",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",
     "@storybook/addon-storyshots-puppeteer": "^6.5.11",
