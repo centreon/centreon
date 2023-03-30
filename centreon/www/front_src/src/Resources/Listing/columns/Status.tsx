@@ -6,7 +6,12 @@ import { useUpdateAtom } from 'jotai/utils';
 import IconAcknowledge from '@mui/icons-material/Person';
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 
-import { SeverityCode, StatusChip, IconButton } from '@centreon/ui';
+import {
+  SeverityCode,
+  StatusChip,
+  IconButton,
+  useStyleTable
+} from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
 import useAclQuery from '../../Actions/Resource/aclQuery';
@@ -22,7 +27,14 @@ import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/chec
 
 import { ColumnProps } from '.';
 
-const useStyles = makeStyles()((theme) => ({
+interface StylesProps {
+  data: {
+    height: number;
+    width: number;
+  };
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { data }) => ({
   actions: {
     alignItems: 'center',
     display: 'flex',
@@ -33,6 +45,13 @@ const useStyles = makeStyles()((theme) => ({
   statusColumn: {
     alignItems: 'center',
     display: 'flex',
+    width: '100%'
+  },
+  statusColumnChip: {
+    fontWeight: 'bold',
+    height: data.height,
+    marginLeft: 1,
+    minWidth: theme.spacing((data.width - 1) / 8),
     width: '100%'
   }
 }));
@@ -45,7 +64,8 @@ const StatusColumnOnHover = ({
   actions,
   row
 }: StatusColumnProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { dataStyle } = useStyleTable({});
+  const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
 
   const setForcedCheckInlineEndpoint = useUpdateAtom(
@@ -139,7 +159,10 @@ const StatusColumn = ({
   t
 }: ColumnProps): ((props: ComponentColumnProps) => JSX.Element) => {
   const Status = ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const { classes } = useStyles();
+    const { dataStyle } = useStyleTable({});
+    const { classes } = useStyles({
+      data: dataStyle.statusColumnChip
+    });
 
     const statusName = row.status.name;
 
@@ -149,7 +172,7 @@ const StatusColumn = ({
           <StatusColumnOnHover actions={actions} row={row} />
         ) : (
           <StatusChip
-            statusColumn
+            className={classes.statusColumnChip}
             label={t(statusName)}
             severityCode={row.status.severity_code}
           />

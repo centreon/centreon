@@ -6,51 +6,33 @@ import type { InputProps } from '@centreon/ui';
 
 import {
   labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,
-  labelAuthenticationMode,
   labelAuthorizationEndpoint,
   labelBaseUrl,
   labelBlacklistClientAddresses,
   labelClientID,
   labelClientSecret,
-  labelContactTemplate,
   labelDisableVerifyPeer,
   labelEmailAttributePath,
-  labelEnableAutoImport,
   labelEnableOpenIDConnectAuthentication,
   labelEndSessionEndpoint,
   labelFullnameAttributePath,
   labelIntrospectionTokenEndpoint,
   labelLoginAttributePath,
-  labelMixed,
   labelOpenIDConnectOnly,
   labelScopes,
   labelTokenEndpoint,
   labelTrustedClientAddresses,
   labelUseBasicAuthenticatonForTokenEndpointAuthentication,
   labelUserInformationEndpoint,
-  labelDeleteRelation,
-  labelEnableConditionsOnIdentityProvider,
-  labelConditionsAttributePath,
   labelWhichEndpointTheConditionsAttributePathComeFrom,
   labelOther,
   labelUserIformation,
   labelIntrospectionEndpoint,
-  labelDefineAuthorizedConditionsValues,
-  labelConditionValue,
-  labelRolesMapping,
   labelWhichEndpointTheRolesAttributePathComeFrom,
-  labelEnableAutoManagement,
-  labelApplyOnlyFirtsRole,
-  labelRolesAttributePath,
   labelDefineRelationBetweenRolesAndAcl,
-  labelRoleValue,
-  labelAclAccessGroup,
   labelDefineYourEndpoint,
   labelWhichEndpointTheGroupsAttributePathComeFrom,
-  labelContactGroup,
-  labelGroupValue,
-  labelDefinedTheRelationBetweenGroupsAndContactGroups,
-  labelGroupsAttributePath
+  labelRedirectUrl
 } from '../translatedLabels';
 import { AuthenticationType, EndpointType } from '../models';
 import {
@@ -65,6 +47,27 @@ import {
   contactGroupsEndpoint,
   contactTemplatesEndpoint
 } from '../../api/endpoints';
+import {
+  labelAclAccessGroup,
+  labelApplyOnlyFirtsRole,
+  labelAuthenticationMode,
+  labelConditionValue,
+  labelConditionsAttributePath,
+  labelContactGroup,
+  labelContactTemplate,
+  labelDefineAuthorizedConditionsValues,
+  labelDefineTheRelationBetweenGroupsAndContactGroups,
+  labelDeleteRelation,
+  labelEnableAutoImport,
+  labelEnableAutomaticManagement,
+  labelEnableConditionsOnIdentityProvider,
+  labelGroupValue,
+  labelGroupsAttributePath,
+  labelMixed,
+  labelRoleValue,
+  labelRolesAttributePath,
+  labelRolesMapping
+} from '../../shared/translatedLabels';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));
@@ -177,7 +180,7 @@ const rolesMapping: Array<InputProps> = [
     dataTestId: 'oidc_rolesMapping.isEnabled',
     fieldName: 'rolesMapping.isEnabled',
     group: labelRolesMapping,
-    label: labelEnableAutoManagement,
+    label: labelEnableAutomaticManagement,
     type: InputType.Switch
   },
   {
@@ -265,7 +268,7 @@ const groupsMapping: Array<InputProps> = [
     dataTestId: 'oidc_groupsMapping.isEnabled',
     fieldName: 'groupsMapping.isEnabled',
     group: labelGroupsMapping,
-    label: labelEnableAutoManagement,
+    label: labelEnableAutomaticManagement,
     type: InputType.Switch
   },
   {
@@ -334,7 +337,7 @@ const groupsMapping: Array<InputProps> = [
       deleteLabel: labelDeleteRelation
     },
     group: labelGroupsMapping,
-    label: labelDefinedTheRelationBetweenGroupsAndContactGroups,
+    label: labelDefineTheRelationBetweenGroupsAndContactGroups,
     type: InputType.FieldsTable
   }
 ];
@@ -429,6 +432,13 @@ export const inputs: Array<InputProps> = [
     fieldName: 'endSessionEndpoint',
     group: labelIdentityProvider,
     label: labelEndSessionEndpoint,
+    type: InputType.Text
+  },
+  {
+    dataTestId: 'oidc_redirectUrl',
+    fieldName: 'redirectUrl',
+    group: labelIdentityProvider,
+    label: labelRedirectUrl,
     type: InputType.Text
   },
   {

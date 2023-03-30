@@ -14,11 +14,12 @@ abstract class AbstractVaultRepository
     use LoggerTrait;
 
     protected ?VaultConfiguration $vaultConfiguration;
+    private const DEFAULT_SCHEME = 'https';
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
         protected HttpClientInterface $httpClient
-    ){
+    ) {
         $this->vaultConfiguration = $configurationRepository->findDefaultVaultConfiguration();
     }
 
@@ -31,7 +32,9 @@ abstract class AbstractVaultRepository
     public function getAuthenticationToken(): string
     {
         try {
-            $url = "http://" . $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = $this->vaultConfiguration->getAddress() . ':' .
+                $this->vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $url = sprintf("%s://%s", self::DEFAULT_SCHEME, $url);
             $body = [
                 "role_id" => $this->vaultConfiguration->getRoleId(),
                 "secret_id" => $this->vaultConfiguration->getSecretId(),

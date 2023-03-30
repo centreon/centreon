@@ -1,12 +1,15 @@
 import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
+import { Method } from './useMutationQuery';
+
 interface ApiErrorResponse {
   code: number;
   message: string;
 }
 
 export interface ResponseError {
+  additionalInformation?;
   isError: boolean;
   message: string;
   statusCode: number;
@@ -58,30 +61,58 @@ export const customFetch = <T>({
         };
       }
 
-      return response.json().then((data) => {
-        if (!response.ok) {
-          const defaultError = {
-            code: -1,
-            message: data.message || defaultFailureMessage
-          };
-          catchError({
-            data: data || defaultError,
-            statusCode: response.status
-          });
+      return response
+        .json()
+        .then((data) => {
+          if (!response.ok) {
+            const defaultError = {
+              code: -1,
+              message: data.message || defaultFailureMessage
+            };
+            catchError({
+              data: data || defaultError,
+              statusCode: response.status
+            });
 
-          return {
-            isError: true,
-            message: data.message || defaultFailureMessage,
-            statusCode: response.status
-          };
-        }
+            return {
+              additionalInformation: data,
+              isError: true,
+              message: data.message || defaultFailureMessage,
+              statusCode: response.status
+            };
+          }
 
-        if (decoder) {
-          return decoder.decodeToPromise(data);
-        }
+          if (decoder) {
+            return decoder.decodeToPromise(data).catch((error: string) => {
+              catchError({
+                data: {
+                  code: -1,
+                  message: error || defaultFailureMessage
+                },
+                statusCode: response.status
+              });
 
-        return data;
-      });
+              return {
+                isError: true,
+                message: error || defaultFailureMessage,
+                statusCode: response.status
+              };
+            });
+          }
+
+          return data;
+        })
+        .catch(() => {
+          if (equals(method, Method.GET)) {
+            return {
+              isError: true,
+              message: defaultFailureMessage,
+              statusCode: 0
+            };
+          }
+
+          return null;
+        });
     })
     .catch((error: Error) => {
       const defaultError = {

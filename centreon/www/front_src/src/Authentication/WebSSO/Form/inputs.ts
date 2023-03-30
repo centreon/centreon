@@ -3,20 +3,22 @@ import type { InputProps } from '@centreon/ui';
 
 import {
   labelBlacklistClientAddresses,
-  labelMixed,
   labelWebSSOOnly,
   labelTrustedClientAddresses,
   labelLoginHeaderAttributeName,
   labelPatternMatchLogin,
   labelPatternReplaceLogin,
-  labelEnableWebSSOAuthentication,
-  labelAuthenticationMode
+  labelEnableWebSSOAuthentication
 } from '../translatedLabels';
 import {
   labelActivation,
   labelClientAddresses,
   labelIdentityProvider
 } from '../../translatedLabels';
+import {
+  labelAuthenticationMode,
+  labelMixed
+} from '../../shared/translatedLabels';
 
 export const inputs: Array<InputProps> = [
   {
