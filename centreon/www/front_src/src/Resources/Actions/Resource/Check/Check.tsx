@@ -83,7 +83,7 @@ const Check = ({
   const { applyBreakPoint } = useMediaQueryListing();
 
   const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1100))) || applyBreakPoint;
+    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   return (
     <>
