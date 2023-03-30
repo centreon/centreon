@@ -866,7 +866,7 @@ sub launchdiscovery {
         class_object_centreon => $self->{class_object_centreon},
         filter_rules => $data->{content}->{filter_rules},
         force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0,
-		vault_count => $vault_count
+        vault_count => $vault_count
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -887,7 +887,7 @@ sub launchdiscovery {
             with_macro => 1,
             host_lookup => $data->{content}->{filter_hosts},
             poller_lookup => $data->{content}->{filter_pollers},
-		    vault_count => $vault_count
+            vault_count => $vault_count
         );
         if ($status < 0) {
             $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
