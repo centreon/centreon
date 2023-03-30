@@ -30,12 +30,12 @@ const useMain = (): void => {
   const { getBrowserLocale, getInternalTranslation, i18next } =
     useInitializeTranslation();
 
-  const setPlatformInstallationStatus = useSetAtom(
-    platformInstallationStatusAtom
-  );
-  const user = useAtomValue(userAtom);
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
     areUserParametersLoadedAtom
+  );
+  const user = useAtomValue(userAtom);
+  const setPlatformInstallationStatus = useSetAtom(
+    platformInstallationStatusAtom
   );
 
   const loadUser = useUser();
