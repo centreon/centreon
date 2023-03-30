@@ -309,15 +309,6 @@ jobs:
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-          target: web_widgets
-          context: .
-          pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-widgets-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
   api-integration-test:
     needs: [dockerize, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
@@ -406,9 +397,9 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
+        legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:
@@ -435,9 +426,9 @@ jobs:
       [
         get-version,
         api-integration-test,
-        legacy-e2e-test,
         e2e-test,
         performances-test,
+        legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     strategy:

@@ -24,7 +24,8 @@
     "fullname_bind_attribute",
     "authentication_conditions",
     "groups_mapping",
-    "roles_mapping"
+    "roles_mapping",
+    "redirect_url"
   ],
   "properties": {
     "is_active": {
@@ -260,6 +261,9 @@
           }
         }
       }
+    },
+    "redirect_url": {
+      "type": ["string", "null"]
     }
   }
 }

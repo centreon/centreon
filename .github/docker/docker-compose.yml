@@ -12,12 +12,6 @@ services:
     profiles: ["web-fresh"]
     links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
-  web-widgets:
-    image: "@WEB_WIDGETS_IMAGE@"
-    ports: ["80", "3306"]
-    profiles: ["web-widgets"]
-    links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
-
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]

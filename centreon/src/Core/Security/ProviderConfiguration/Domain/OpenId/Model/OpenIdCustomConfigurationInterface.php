@@ -25,6 +25,8 @@ namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 
 interface OpenIdCustomConfigurationInterface
 {

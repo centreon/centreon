@@ -15322,6 +15322,51 @@ msgstr ""
 # msgid "OK status services"
 # msgstr ""
 
+# msgid "Redirect URL"
+# msgstr ""
+
+# msgid "SAML configuration"
+# msgstr ""
+
+# msgid "Define SAML configuration"
+# msgstr ""
+
+# msgid "Failed to save SAML configuration"
+# msgstr ""
+
+# msgid "SAML configuration saved"
+# msgstr ""
+
+# msgid "Enable SAMLv2 authentication"
+# msgstr ""
+
+# msgid "SAML only"
+# msgstr ""
+
+# msgid "Remote login URL"
+# msgstr ""
+
+# msgid "Issuer (Entity ID) URL"
+# msgstr ""
+
+# msgid "Copy/paste x.509 certificate"
+# msgstr ""
+
+# msgid "User ID (login) attribute for Centreon user"
+# msgstr ""
+
+# msgid "Logout from"
+# msgstr ""
+
+# msgid "Centreon UI only"
+# msgstr ""
+
+# msgid "Both identity Provider and Centreon UI"
+# msgstr ""
+
+# msgid "Define relation between roles and ACL access groups"
+# msgstr ""
+
 #: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
 # msgid "B.Activities"
 # msgstr ""

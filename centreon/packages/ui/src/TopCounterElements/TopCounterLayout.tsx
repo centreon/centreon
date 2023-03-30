@@ -12,7 +12,7 @@ const useStyles = makeStyles()((theme) => ({
     '& > svg': {
       height: '0.9em',
       margin: `-${theme.spacing(0.5)}`,
-      [theme.breakpoints.down(768)]: {
+      [theme.breakpoints.down(1025)]: {
         margin: `-${theme.spacing(0.5)}`
       }
     },
@@ -23,13 +23,13 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
     display: 'flex',
 
-    [theme.breakpoints.up(768)]: {
+    [theme.breakpoints.up(1025)]: {
       alignItems: 'center',
       flexFlow: 'row no-wrap',
       marginTop: theme.spacing(0.5)
     },
 
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       alignItems: 'center',
       flexFlow: 'column wrap',
       order: 1
@@ -41,13 +41,13 @@ const useStyles = makeStyles()((theme) => ({
     position: 'relative'
   },
   header: {
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       display: 'flex',
       flexFlow: 'row no-wrap'
     }
   },
   iconWrapper: {
-    [theme.breakpoints.up(768)]: {
+    [theme.breakpoints.up(1025)]: {
       position: 'absolute',
       top: '0'
     }
@@ -57,12 +57,12 @@ const useStyles = makeStyles()((theme) => ({
     [theme.breakpoints.down(600)]: {
       display: 'none'
     },
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       flex: 'initial',
       marginLeft: theme.spacing(0.5),
       order: 2
     },
-    [theme.breakpoints.up(768)]: {
+    [theme.breakpoints.up(1025)]: {
       height: theme.spacing(2.5),
       marginLeft: theme.spacing(3.75)
     }
@@ -90,7 +90,7 @@ const useStyles = makeStyles()((theme) => ({
     fontWeight: theme.typography.fontWeightBold,
     lineHeight: '1',
     whiteSpace: 'nowrap',
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       display: 'none'
     }
   }

@@ -17,7 +17,6 @@ import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
 
 interface UsePollerDataResult {
   data: GetPollerPropsAdapterResult | null;
-  error: unknown;
   isAllowed: boolean;
   isLoading: boolean;
 }
