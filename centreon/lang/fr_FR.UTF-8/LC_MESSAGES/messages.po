@@ -15442,7 +15442,7 @@ msgid "Type of resource"
 msgstr "Type de ressource"
 
 msgid "Unhandled alerts"
-msgstr "Alertes non traités"
+msgstr "Alertes non traitées"
 
 msgid "Unhandled"
 msgstr "Non traité"
