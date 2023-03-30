@@ -24,10 +24,6 @@ const Text = ({ title, description }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const formatLabel = (label: string): string => {
-    return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
-  };
-
   const formatDescription = (data: string): string => {
     const words = data.split(' ');
 

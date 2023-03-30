@@ -1,14 +1,19 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  RefObject,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { isNil, equals } from 'ramda';
 
 import IconCheck from '@mui/icons-material/CheckOutlined';
+import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
 import Popper from '@mui/material/Popper';
 
 import {
