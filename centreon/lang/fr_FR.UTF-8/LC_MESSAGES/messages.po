@@ -15370,7 +15370,7 @@ msgid "Resource name"
 msgstr "Nom de la ressource"
 
 msgid "All alerts"
-msgstr "Problèmes de ressources"
+msgstr "Toutes les alertes"
 
 msgid "Rows per page"
 msgstr "Lignes par page"
@@ -15442,7 +15442,7 @@ msgid "Type of resource"
 msgstr "Type de ressource"
 
 msgid "Unhandled alerts"
-msgstr "Problèmes non traités"
+msgstr "Alertes non traitées"
 
 msgid "Unhandled"
 msgstr "Non traité"
@@ -17405,6 +17405,18 @@ msgstr "Ce nom de sévérité de services existe déjà"
 msgid "The service severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité de services avec l'identifiant '%d' n'existe pas"
 
+msgid "Forced check"
+msgstr "Vérification forcée"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Vérifier les ressources sélectionnées uniquement pendant la période de vérification configurée"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
+
+msgid "Forced check command sent"
+msgstr "Commande de vérification forcée envoyée"
+
 msgid "Developed by"
 msgstr "Développé par"
 
@@ -17479,9 +17491,52 @@ msgstr "Services au statut Inconnu"
 msgid "OK status services"
 msgstr "Services au statut OK"
 
+msgid "Redirect URL"
+msgstr "URL de redirection"
+
+msgid "SAML configuration"
+msgstr "Configuration SAML"
+
+msgid "Define SAML configuration"
+msgstr "Définir la configuration SAML"
+
+msgid "Failed to save SAML configuration"
+msgstr "Échec de la sauvegarde de la configuration SAML"
+
+msgid "SAML configuration saved"
+msgstr "Configuration SAML sauvegardée"
+
+msgid "Enable SAMLv2 authentication"
+msgstr "Activer l'authentification SAMLv2"
+
+msgid "SAML only"
+msgstr "SAML uniquement"
+
+msgid "Remote login URL"
+msgstr "URL de connexion distante"
+
+msgid "Issuer (Entity ID) URL"
+msgstr "URL de l'émetteur (Entity ID)"
+
+msgid "Copy/paste x.509 certificate"
+msgstr "Copier/coller le certificat x.509"
+
+msgid "User ID (login) attribute for Centreon user"
+msgstr "Attribut de l'identifiant utilisateur (login) pour l'utilisateur Centreon"
+
+msgid "Logout from"
+msgstr "Se déconnecter de"
+
+msgid "Centreon UI only"
+msgstr "Interface Centreon uniquement"
+
+msgid "Both identity Provider and Centreon UI"
+msgstr "Fournisseur d'identité et interface Centreon"
+
+msgid "Define relation between roles and ACL access groups"
+msgstr "Définir la relation entre les rôles et les groupes d'accès ACL"
 
 #: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
 
 msgid "B.Activities"
 msgstr "A.Métier"
-

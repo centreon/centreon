@@ -165,11 +165,11 @@ Given(
       .get('#autologin-input')
       .invoke('text')
       .as('link')
-      .should('not.be.undefined')
-      .logout()
-      .reload()
-      .url()
-      .should('include', '/centreon/login');
+      .should('not.be.undefined');
+
+    cy.contains('Logout').click();
+
+    cy.url().should('include', '/centreon/login');
   }
 );
 

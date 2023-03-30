@@ -73,6 +73,31 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
     }
 };
 
+$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
+{
+    $customConfigurationJson = $pearDB->query(
+        <<<'SQL'
+        SELECT custom_configuration
+            FROM provider_configuration
+        WHERE
+            name = 'openid'
+        SQL
+    )->fetchColumn();
+
+    $customConfiguration = json_decode($customConfigurationJson, true);
+    if (! array_key_exists('redirect_url', $customConfiguration)) {
+        $customConfiguration['redirect_url'] = null;
+        $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
+
+        $pearDB->query(
+            <<<SQL
+            UPDATE provider_configuration
+                SET custom_configuration = $updatedCustomConfigurationEncoded
+            SQL
+        );
+    }
+};
+
 try {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
         $errorMessage = "Impossible to update cfg_centreonbroker table";
@@ -107,6 +132,7 @@ try {
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     $decodeIllegalCharactersNagios($pearDB);
+    $updateOpenIdCustomConfiguration($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
@@ -124,3 +150,46 @@ try {
 
     throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
+
+$insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
+    $customConfiguration = [
+        "remote_login_url" => null,
+        "entity_id_url" => '',
+        "certificate" => '',
+        "user_id_attribute" => '',
+        "logout_from" => true,
+        "logout_from_url" => null,
+        "auto_import" => false,
+        "contact_template_id" => null,
+        "email_bind_attribute" => '',
+        "fullname_bind_attribute" => '',
+        "authentication_conditions" => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'authorized_values' => []
+        ],
+        "roles_mapping" => [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+        ],
+        "groups_mapping" => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+        ]
+    ];
+
+    $isActive = false;
+    $isForced = false;
+    $insertStatement = $pearDB->prepare(
+        "INSERT INTO provider_configuration (`type`,`name`,`custom_configuration`,`is_active`,`is_forced`)
+        VALUES ('saml','SAML', :customConfiguration, :isActive, :isForced)"
+    );
+
+    $insertStatement->bindValue(':isActive', $isActive);
+    $insertStatement->bindValue(':isForced', $isForced);
+    $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration));
+    $insertStatement->execute();
+};
+
+$insertSAMLProviderConfiguration($pearDB);

@@ -21,12 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
  * This class is designed to represent the Authentication Conditions to be able to connect with OpenID Provider
@@ -60,14 +59,14 @@ class AuthenticationConditions
     /**
      * @param boolean $isEnabled
      * @param string $attributePath
-     * @param Endpoint $endpoint
+     * @param Endpoint|null $endpoint
      * @param string[] $authorizedValues
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     public function __construct(
         private bool $isEnabled,
         private string $attributePath,
-        private Endpoint $endpoint,
+        private ?Endpoint $endpoint,
         private array $authorizedValues
     ) {
         $this->validateMandatoryParametersForEnabledCondition(
@@ -94,9 +93,9 @@ class AuthenticationConditions
     }
 
     /**
-     * @return Endpoint
+     * @return Endpoint|null
      */
-    public function getEndpoint(): Endpoint
+    public function getEndpoint(): ?Endpoint
     {
         return $this->endpoint;
     }
@@ -197,7 +196,7 @@ class AuthenticationConditions
      * @param boolean $isEnabled
      * @param string $attributePath
      * @param string[] $authorizedValues
-     * @throws OpenIdConfigurationException
+     * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledCondition(
         bool $isEnabled,
@@ -213,7 +212,7 @@ class AuthenticationConditions
                 $mandatoryParameters[] = "authorized_values";
             }
             if (! empty($mandatoryParameters)) {
-                throw OpenIdConfigurationException::missingMandatoryParameters($mandatoryParameters);
+                throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }
     }

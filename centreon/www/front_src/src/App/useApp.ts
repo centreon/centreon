@@ -4,13 +4,16 @@ import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
-  refreshIntervalAtom
+  platformNameAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 import type { Actions } from '@centreon/ui';
 
@@ -18,9 +21,10 @@ import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
+import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
-import { DefaultParameters } from './models';
+import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
 
@@ -57,11 +61,20 @@ const useApp = (): UseAppState => {
     request: postData
   });
 
+  const { sendRequest: getCustomPlatformRequest } =
+    useRequest<CustomLoginPlatform>({
+      httpCodesBypassErrorSnackbar: [404],
+      request: getData
+    });
+
+  const setUser = useUpdateAtom(userAtom);
   const setDowntime = useUpdateAtom(downtimeAtom);
   const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
   const setAcl = useUpdateAtom(aclAtom);
   const setAcknowledgement = useUpdateAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
+
+  const setPlaformName = useSetAtom(platformNameAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -117,6 +130,11 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+    getCustomPlatformRequest({
+      endpoint: loginPageCustomisationEndpoint
+    })
+      .then(({ platform_name }) => setPlaformName(platform_name))
+      .catch(() => undefined);
   }, []);
 
   const hasMinArgument = (): boolean => equals(searchParams.get('min'), '1');

@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-undef */
 // import '@testing-library/jest-dom/extend-expect';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -46,6 +48,25 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: jest.fn()
   })),
   writable: true
+});
+
+Object.defineProperty(Image.prototype, 'onload', {
+  get() {
+    return this._onload;
+  },
+  set(onload) {
+    onloadRef = onload;
+    this._onload = onload;
+  }
+});
+Object.defineProperty(Image.prototype, 'onerror', {
+  get() {
+    return this._onerror;
+  },
+  set(onerror) {
+    onerrorRef = onerror;
+    this._onerror = onerror;
+  }
 });
 
 i18n.use(initReactI18next).init({

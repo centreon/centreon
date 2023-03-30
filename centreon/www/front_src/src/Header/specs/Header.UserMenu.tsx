@@ -20,9 +20,9 @@ export default (): void =>
       cy.matchImageSnapshot();
     });
 
-    it('expect the clock to not be visible for a width less than 648px', () => {
+    it('does not display the clock for a width less than 769px', () => {
       initialize();
-      cy.viewport(640, 500);
+      cy.viewport(768, 500);
       cy.get('[data-cy=clock]').as('clock').should('not.be.visible');
       cy.matchImageSnapshot();
     });
@@ -47,8 +47,14 @@ export default (): void =>
       cy.get('[data-cy=userIcon]').click();
       cy.get('[data-cy=themeSwitch]').as('switchMode').should('be.visible');
       cy.get('@switchMode').click();
+      cy.get('header').should('have.css', 'background-color', 'rgb(0, 0, 0)');
       cy.matchImageSnapshot('User Menu -- using the dark mode');
       cy.get('@switchMode').click();
+      cy.get('header').should(
+        'have.css',
+        'background-color',
+        'rgb(37, 88, 145)'
+      );
       cy.matchImageSnapshot('User Menu -- using the light mode');
     });
   });

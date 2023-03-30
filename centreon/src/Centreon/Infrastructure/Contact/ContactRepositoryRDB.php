@@ -486,12 +486,18 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         switch ($ruleName) {
             case 'host_schedule_check':
-            case 'host_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_HOST_CHECK);
                 break;
+            case 'host_schedule_forced_check':
+                $contact->addRole(Contact::ROLE_HOST_CHECK);
+                $contact->addRole(Contact::ROLE_HOST_FORCED_CHECK);
+                break;
             case 'service_schedule_check':
+                $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                break;
             case 'service_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                $contact->addRole(Contact::ROLE_SERVICE_FORCED_CHECK);
                 break;
             case 'host_acknowledgement':
                 $contact->addRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT);

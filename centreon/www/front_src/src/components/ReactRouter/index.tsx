@@ -14,6 +14,7 @@ import useNavigation from '../../Navigation/useNavigation';
 import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
+import routeMap from '../../reactRoutes/routeMap';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
@@ -77,23 +78,31 @@ const ReactRouterContent = ({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
-          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => (
-            <Route
-              element={
-                isNil(allowedPages) || allowedPages.includes(path) ? (
-                  <PageContainer>
-                    <BreadcrumbTrail path={path} />
-                    <Comp />
-                  </PageContainer>
-                ) : (
-                  <NotAllowedPage />
-                )
-              }
-              key={path}
-              path={path}
-              {...rest}
-            />
-          ))}
+          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
+            const isLogoutPage = path === routeMap.logout;
+            const isAllowedPage =
+              isLogoutPage ||
+              isNil(allowedPages) ||
+              allowedPages.includes(path);
+
+            return (
+              <Route
+                element={
+                  isAllowedPage ? (
+                    <PageContainer>
+                      <BreadcrumbTrail path={path} />
+                      <Comp />
+                    </PageContainer>
+                  ) : (
+                    <NotAllowedPage />
+                  )
+                }
+                key={path}
+                path={path}
+                {...rest}
+              />
+            );
+          })}
           {getExternalPageRoutes({ allowedPages, federatedModules })}
           {externalPagesFetched && (
             <Route element={<NotFoundPage />} path="*" />

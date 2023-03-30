@@ -11,6 +11,7 @@ import FaceIcon from '@mui/icons-material/Face';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import CompactStatusChip from '../CompactStatusChip';
 import {
   labelEvent,
   labelComment,
@@ -31,9 +32,6 @@ import {
 } from '../../../translatedLabels';
 import DowntimeChip from '../../../Chip/Downtime';
 import AcknowledgeChip from '../../../Chip/Acknowledge';
-import CompactStatusChip, {
-  useCompactStatusChipStyles
-} from '../CompactStatusChip';
 import OutputInformation from '../OutputInformation';
 
 import { TimelineEvent, Type } from './models';
@@ -70,6 +68,11 @@ const getTypeIds = (): Array<string> => {
 };
 
 const useStyles = makeStyles()((theme) => ({
+  author: {
+    borderRadius: theme.spacing(1.75),
+    height: theme.spacing(2.75),
+    paddingLeft: 0
+  },
   chip: {
     display: 'flex'
   },
@@ -81,11 +84,13 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1)
   },
   eventTimeLineContainer: {
+    alignContent: 'center',
     alignItems: 'center',
+    columnGap: theme.spacing(2),
     display: 'flex',
     flexGrow: 0.5,
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     marginBottom: theme.spacing(1),
     padding: theme.spacing(0, 1),
     rowGap: theme.spacing(1)
@@ -96,13 +101,11 @@ const useStyles = makeStyles()((theme) => ({
     gridGap: theme.spacing(1)
   },
   infoHeader: {
-    alignItems: 'start',
+    alignItems: 'center',
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(2),
-    gridTemplateColumns: 'minmax(80px, auto) auto 1fr',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(2)
+    gridTemplateColumns: 'minmax(80px, auto) auto 1fr'
   },
   outputContainer: {
     alignItems: 'center',
@@ -133,13 +136,12 @@ const Date = ({ event }: Props): JSX.Element => {
 };
 
 const Author = ({ event }: Props): JSX.Element => {
-  const classes = useCompactStatusChipStyles();
-
+  const { classes } = useStyles();
   const contactName = event.contact?.name || '';
 
   return (
     <Chip
-      className={classes.root}
+      className={classes.author}
       icon={<FaceIcon />}
       label={contactName}
       size="small"
