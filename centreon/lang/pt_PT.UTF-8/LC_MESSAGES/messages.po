@@ -16075,6 +16075,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "OK status services"
 # msgstr ""
 
+# msgid "Redirect URL"
+# msgstr ""
+
 # msgid "SAML configuration"
 # msgstr ""
 

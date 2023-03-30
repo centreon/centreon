@@ -25,10 +25,10 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpe
 
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 
 class FindOpenIdConfigurationResponse
 {
@@ -150,6 +150,8 @@ class FindOpenIdConfigurationResponse
      * }
      */
     public array $groupsMapping = [];
+
+    public ?string $redirectUrl = null;
 
     /**
      * @param ContactTemplate $contactTemplate

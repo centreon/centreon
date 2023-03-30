@@ -17479,6 +17479,9 @@ msgstr "Services au statut Inconnu"
 msgid "OK status services"
 msgstr "Services au statut OK"
 
+msgid "Redirect URL"
+msgstr "URL de redirection"
+
 msgid "SAML configuration"
 msgstr "Configuration SAML"
 

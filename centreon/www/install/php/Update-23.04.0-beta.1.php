@@ -73,6 +73,31 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
     }
 };
 
+$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
+{
+    $customConfigurationJson = $pearDB->query(
+        <<<'SQL'
+        SELECT custom_configuration
+            FROM provider_configuration
+        WHERE
+            name = 'openid'
+        SQL
+    )->fetchColumn();
+
+    $customConfiguration = json_decode($customConfigurationJson, true);
+    if (! array_key_exists('redirect_url', $customConfiguration)) {
+        $customConfiguration['redirect_url'] = null;
+        $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
+
+        $pearDB->query(
+            <<<SQL
+            UPDATE provider_configuration
+                SET custom_configuration = $updatedCustomConfigurationEncoded
+            SQL
+        );
+    }
+};
+
 try {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
         $errorMessage = "Impossible to update cfg_centreonbroker table";
@@ -107,6 +132,7 @@ try {
 
     $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
     $decodeIllegalCharactersNagios($pearDB);
+    $updateOpenIdCustomConfiguration($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
