@@ -3,7 +3,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import { Provider } from 'jotai';
 import mockDate from 'mockdate';
-import { head, last, map, pick } from 'ramda';
+import { equals, head, last, map, pick } from 'ramda';
 
 import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
@@ -627,36 +627,44 @@ describe(Actions, () => {
   });
 
   it.each([
-    [labelForcedCheck, labelForcedCheckDescription, { is_forced: true }],
-    [labelCheck, labelCheckDescription, { is_forced: false }]
+    [labelForcedCheck, { is_forced: true }],
+    [labelCheck, { is_forced: false }]
   ])(
-    'sends a %p request when Resources are selected and the %p is clicked',
-    async (_, commendDescription, { is_forced }) => {
-      const { getByText, findByText } = renderActions();
+    'sends a %p request when Resources are selected and the action is selected',
+    async (label, { is_forced }) => {
+      const { getByText, findByText, getByLabelText, getAllByText } =
+        renderActions();
 
+      await waitFor(() => {
+        expect(getByText(labelForcedCheck)).toBeInTheDocument();
+      });
       const selectedResources = [host, service];
 
       mockedAxios.get.mockResolvedValueOnce({ data: {} });
       mockedAxios.all.mockResolvedValueOnce([]);
 
-      await waitFor(() => {
-        expect(getByText(labelCheck)).toBeInTheDocument();
-      });
-
       act(() => {
         context.setSelectedResources?.(selectedResources);
       });
 
-      await findByText(labelCheck);
-      fireEvent.click(getByText(labelCheck));
+      await findByText(labelForcedCheck);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      await waitFor(() => {
+        expect(getByText(labelCheck)).toBeInTheDocument();
+        expect(getAllByText(labelForcedCheck)[1]).toBeInTheDocument();
+      });
+      const selectedLabel = equals(label, labelForcedCheck)
+        ? getAllByText(label)[1]
+        : getByText(label);
 
-      expect(getByText(commendDescription)).toBeInTheDocument();
+      fireEvent.click(selectedLabel);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      fireEvent.click(getByLabelText(label).firstElementChild as HTMLElement);
 
       const payload = {
         check: { is_forced },
         resources: map(pick(['id', 'parent', 'type']), selectedResources)
       };
-      fireEvent.click(getByText(commendDescription));
 
       await waitFor(() => {
         expect(getFetchCall(0)).toEqual(`${checkEndpoint}`);
