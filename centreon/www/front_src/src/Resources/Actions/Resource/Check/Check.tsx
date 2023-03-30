@@ -1,5 +1,3 @@
-import { RefObject, useRef } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -33,7 +31,7 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.action.disabledBackground
   },
   iconArrow: {
-    color: 'white'
+    color: theme.palette.background.paper
   }
 }));
 
@@ -78,7 +76,6 @@ const Check = ({
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
-  const buttonGroupReference = useRef<HTMLDivElement>();
 
   const { applyBreakPoint } = useMediaQueryListing();
 
@@ -93,7 +90,7 @@ const Check = ({
           [classes.disabled]: disabledButton && !displayCondensed,
           [classes.condensed]: displayCondensed
         })}
-        ref={buttonGroupReference as RefObject<HTMLDivElement>}
+        onClick={onClickIconArrow}
       >
         <ResourceActionButton
           disabled={disabledButton}
@@ -107,7 +104,6 @@ const Check = ({
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}
           disabled={disabledButton}
-          onClick={onClickIconArrow}
         >
           {displayCondensed ? (
             <ArrowDropDownIcon fontSize="small" />
@@ -118,7 +114,6 @@ const Check = ({
       </ButtonGroup>
       <CheckOptionsList
         anchorEl={anchorEl}
-        buttonGroupReference={buttonGroupReference}
         disabled={disabledList}
         isDefaultChecked={isDefaultChecked}
         open={Boolean(anchorEl)}

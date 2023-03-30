@@ -1,11 +1,3 @@
-import {
-  MutableRefObject,
-  RefObject,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 
 import IconCheck from '@mui/icons-material/CheckOutlined';
@@ -15,6 +7,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Popper from '@mui/material/Popper';
+import ListItem from '@mui/material/ListItem';
 
 import {
   labelCheck,
@@ -60,7 +53,6 @@ interface Disabled {
 
 interface Props {
   anchorEl?: HTMLElement | null;
-  buttonGroupReference?: MutableRefObject<HTMLDivElement>;
   disabled: Disabled;
   isDefaultChecked: boolean;
   onClickCheck?: () => void;
@@ -88,84 +80,56 @@ const CheckOptionsList = ({
   isDefaultChecked,
   onClickForcedCheck,
   onClickCheck,
-  disabled,
-  buttonGroupReference
+  disabled
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { disableForcedCheck, disableCheck } = disabled;
-  const listReference = useRef<HTMLDivElement>();
-  const [skiddingPopper, setSkiddingPopper] = useState(0);
-  const widthArrow = 28;
-
-  const handlePositionPopper = (): void => {
-    const skidding =
-      buttonGroupReference?.current?.getBoundingClientRect()?.width ??
-      widthArrow - widthArrow;
-
-    setSkiddingPopper(skidding - widthArrow);
-  };
-
-  useEffect(() => {
-    handlePositionPopper();
-  }, []);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    handlePositionPopper();
-  }, [open]);
 
   return (
     <Popper
       anchorEl={anchorEl}
       className={classes.popover}
-      modifiers={[
-        {
-          name: 'offset',
-          options: {
-            offset: [-skiddingPopper, 4]
-          }
-        }
-      ]}
       open={open}
       placement="bottom-start"
-      ref={listReference as RefObject<HTMLDivElement>}
     >
       <List disablePadding className={classes.container}>
-        <ListItemButton
-          disableGutters
-          className={classes.button}
-          disabled={disableCheck}
-          onClick={onClickCheck}
-        >
-          <Icon display={isDefaultChecked} />
-          <ListItemText
-            className={classes.itemText}
-            primary={
-              <Text description={labelCheckDescription} title={labelCheck} />
-            }
-          />
-        </ListItemButton>
+        <ListItem disableGutters disablePadding>
+          <ListItemButton
+            disableGutters
+            className={classes.button}
+            disabled={disableCheck}
+            onClick={onClickCheck}
+          >
+            <Icon display={isDefaultChecked} />
+            <ListItemText
+              className={classes.itemText}
+              primary={
+                <Text description={labelCheckDescription} title={labelCheck} />
+              }
+            />
+          </ListItemButton>
+        </ListItem>
         <Divider variant="middle" />
-        <ListItemButton
-          disableGutters
-          className={classes.button}
-          disabled={disableForcedCheck}
-          onClick={onClickForcedCheck}
-        >
-          <Icon display={!isDefaultChecked} />
+        <ListItem disableGutters disablePadding>
+          <ListItemButton
+            disableGutters
+            className={classes.button}
+            disabled={disableForcedCheck}
+            onClick={onClickForcedCheck}
+          >
+            <Icon display={!isDefaultChecked} />
 
-          <ListItemText
-            className={classes.itemText}
-            primary={
-              <Text
-                description={labelForcedCheckDescription}
-                title={labelForcedCheck}
-              />
-            }
-          />
-        </ListItemButton>
+            <ListItemText
+              className={classes.itemText}
+              primary={
+                <Text
+                  description={labelForcedCheckDescription}
+                  title={labelForcedCheck}
+                />
+              }
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Popper>
   );
