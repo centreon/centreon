@@ -6,7 +6,6 @@ use Centreon\Test\Behat\Configuration\ServiceConfigurationListingPage;
 use Centreon\Test\Behat\Configuration\HostConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceCategoryConfigurationPage;
 use Centreon\Test\Behat\Configuration\ServiceGroupConfigurationPage;
-use Centreon\Test\Behat\Configuration\ContactConfigurationListingPage;
 
 class ServiceConfigurationContext extends CentreonContext
 {
@@ -324,32 +323,10 @@ class ServiceConfigurationContext extends CentreonContext
      */
     public function thePropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['description']);
+
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -373,32 +350,10 @@ class ServiceConfigurationContext extends CentreonContext
      */
     public function theNewServiceHasTheSameProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->duplicatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['description']);
+
+        $this->comparePageProperties($this->currentPage, $this->duplicatedProperties);
     }
 
     /**
