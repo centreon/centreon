@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai/utils';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Divider from '@mui/material/Divider';
 
-import { ListingVariant } from '@centreon/ui-context';
+import { userAtom, ListingVariant } from '@centreon/ui-context';
 
 import { ListingProps } from '../..';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
@@ -115,6 +116,8 @@ const MemoListingActionBar = ({
   });
   const { t } = useTranslation();
 
+  const { themeMode } = useAtomValue(userAtom);
+
   const changeRowPerPage = (event): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
@@ -208,6 +211,7 @@ const MemoListingActionBar = ({
       moveTablePagination,
       widthToMoveTablePagination,
       viewMode,
+      themeMode,
       limit,
       pick(
         ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
