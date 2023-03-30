@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -34,7 +34,9 @@ const useMain = (): void => {
     platformInstallationStatusAtom
   );
   const user = useAtomValue(userAtom);
-  const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
+  const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
+    areUserParametersLoadedAtom
+  );
 
   const loadUser = useUser();
   const location = useLocation();
@@ -62,13 +64,14 @@ const useMain = (): void => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
       if (!retrievedPlatformInstallationStatus?.isInstalled) {
+        setAreUserParametersLoaded(false);
+
         return;
       }
-      getPlatformVersions();
       loadUser();
+      getPlatformVersions();
     });
   }, []);
-
 
   useEffect((): void => {
     if (not(areUserParametersLoaded)) {

@@ -226,19 +226,12 @@ const mockNotConnectedGetRequests = (): void => {
 };
 
 const mockInstallGetRequests = (): void => {
-  mockedAxios.get
-    .mockResolvedValueOnce({
-      data: {
-        has_upgrade_available: false,
-        is_installed: false
-      }
-    })
-    .mockRejectedValueOnce({
-      response: { status: 403 }
-    })
-    .mockResolvedValueOnce({
-      data: retrievedWeb
-    });
+  mockedAxios.get.mockResolvedValueOnce({
+    data: {
+      has_upgrade_available: false,
+      is_installed: false
+    }
+  });
 };
 
 const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
@@ -356,13 +349,6 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
         cancelTokenRequestParam
       );
     });
