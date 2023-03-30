@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -47,7 +49,6 @@ interface Disabled {
 }
 
 interface Props {
-  anchorEl?: HTMLElement | null;
   disabledButton: boolean;
   disabledList?: Disabled;
   icon: JSX.Element;
@@ -55,7 +56,6 @@ interface Props {
   isDefaultChecked?: boolean;
   labelButton: string;
   onClickActionButton: () => void;
-  onClickIconArrow: (event) => void;
   onClickList?: ClickList;
   testId: string;
 }
@@ -68,14 +68,20 @@ const Check = ({
   testId,
   onClickList,
   onClickActionButton,
-  onClickIconArrow,
   icon,
-  anchorEl,
   isDefaultChecked = false
 }: Props): JSX.Element | null => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const displayPopover = (event: React.MouseEvent<HTMLElement>): void => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const closePopover = (): void => {
+    setAnchorEl(null);
+  };
 
   const { applyBreakPoint } = useMediaQueryListing();
 
@@ -90,7 +96,7 @@ const Check = ({
           [classes.disabled]: disabledButton && !displayCondensed,
           [classes.condensed]: displayCondensed
         })}
-        onClick={onClickIconArrow}
+        onClick={anchorEl ? closePopover : displayPopover}
       >
         <ResourceActionButton
           disabled={disabledButton}
@@ -104,6 +110,7 @@ const Check = ({
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}
           disabled={disabledButton}
+          onClick={(): void => undefined}
         >
           {displayCondensed ? (
             <ArrowDropDownIcon fontSize="small" />

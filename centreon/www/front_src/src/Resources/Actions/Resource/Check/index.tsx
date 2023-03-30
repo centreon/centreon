@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from 'react';
+import { SetStateAction } from 'react';
 
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
@@ -36,8 +36,6 @@ const CheckActionButton = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
   const [checkAction, setCheckAction] = useAtom(checkActionAtom);
   const { mutateAsync: checkResource } = useMutationQuery({
     getEndpoint: () => checkEndpoint,
@@ -55,14 +53,6 @@ const CheckActionButton = ({
 
   const isForcedCheckPermitted =
     canForcedCheck(selectedResources) || !hasSelectedResources;
-
-  const displayPopover = (event: React.MouseEvent<HTMLElement>): void => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const closePopover = (): void => {
-    setAnchorEl(null);
-  };
 
   const handleCheckResource = (): void => {
     if (isNil(checkAction)) {
@@ -97,7 +87,6 @@ const CheckActionButton = ({
     if (canForcedCheck(selectedResources)) {
       return (
         <Check
-          anchorEl={anchorEl}
           disabledButton={disableForcedCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
           icon={<IconForcedCheck />}
@@ -106,7 +95,6 @@ const CheckActionButton = ({
           labelButton={labelForcedCheck}
           testId={testId}
           onClickActionButton={handleCheckResource}
-          onClickIconArrow={anchorEl ? closePopover : displayPopover}
           onClickList={{
             onClickCheck: (): void =>
               setCheckAction({ checked: true, forcedChecked: false }),
@@ -121,7 +109,6 @@ const CheckActionButton = ({
       return (
         <Check
           isDefaultChecked
-          anchorEl={anchorEl}
           disabledButton={disableCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
           icon={<IconCheck />}
@@ -129,7 +116,6 @@ const CheckActionButton = ({
           labelButton={labelCheck}
           testId={testId}
           onClickActionButton={handleCheckResource}
-          onClickIconArrow={anchorEl ? closePopover : displayPopover}
           onClickList={{
             onClickCheck: (): void =>
               setCheckAction({ checked: true, forcedChecked: false }),
@@ -148,7 +134,6 @@ const CheckActionButton = ({
         labelButton={t(labelForcedCheck)}
         testId={testId}
         onClickActionButton={(): void => undefined}
-        onClickIconArrow={(): void => undefined}
       />
     );
   }
@@ -156,7 +141,6 @@ const CheckActionButton = ({
   if (canForcedCheck(selectedResources) && checkAction.forcedChecked) {
     return (
       <Check
-        anchorEl={anchorEl}
         disabledButton={disableForcedCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
         icon={<IconForcedCheck />}
@@ -165,7 +149,6 @@ const CheckActionButton = ({
         labelButton={labelForcedCheck}
         testId={testId}
         onClickActionButton={handleCheckResource}
-        onClickIconArrow={anchorEl ? closePopover : displayPopover}
         onClickList={{
           onClickCheck: (): void =>
             setCheckAction({ checked: true, forcedChecked: false }),
@@ -180,7 +163,6 @@ const CheckActionButton = ({
     return (
       <Check
         isDefaultChecked
-        anchorEl={anchorEl}
         disabledButton={disableCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
         icon={<IconCheck />}
@@ -188,7 +170,6 @@ const CheckActionButton = ({
         labelButton={labelCheck}
         testId={testId}
         onClickActionButton={handleCheckResource}
-        onClickIconArrow={anchorEl ? closePopover : displayPopover}
         onClickList={{
           onClickCheck: (): void =>
             setCheckAction({ checked: true, forcedChecked: false }),
@@ -211,7 +192,6 @@ const CheckActionButton = ({
       }
       testId={testId}
       onClickActionButton={(): void => undefined}
-      onClickIconArrow={(): void => undefined}
     />
   );
 };
