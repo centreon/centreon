@@ -1,27 +1,26 @@
 import { useEffect, useRef } from 'react';
 
+import { useSetAtom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
 
+import type { Actions } from '@centreon/ui';
 import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom,
-  userAtom
+  refreshIntervalAtom
 } from '@centreon/ui-context';
-import type { Actions } from '@centreon/ui';
 
 import { logoutEndpoint } from '../api/endpoint';
+import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
-import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
