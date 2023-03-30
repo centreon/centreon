@@ -4,7 +4,13 @@ import { last, omit } from 'ramda';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 
-import { render, RenderResult, fireEvent, waitFor, act } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  fireEvent,
+  waitFor,
+  act,
+} from '@centreon/ui/src/testRenderer';
 
 import useFilter from '../../testUtils/useFilter';
 import Context, { ResourceContext } from '../../testUtils/Context';

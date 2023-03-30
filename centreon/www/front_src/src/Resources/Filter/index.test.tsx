@@ -7,15 +7,17 @@ import { Provider } from 'jotai';
 import {
   setUrlQueryParameters,
   getUrlQueryParameters,
+  TestQueryProvider,
+} from '@centreon/ui';
+import {
   fireEvent,
   waitFor,
   render,
   RenderResult,
   act,
-  TestQueryProvider,
   resetMocks,
   mockResponseOnce,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import {

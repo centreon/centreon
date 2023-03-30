@@ -6,16 +6,18 @@ import { Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
+  setUrlQueryParameters,
+  getUrlQueryParameters,
+  getSearchQueryParameterValue,
+} from '@centreon/ui';
+import {
   render,
   waitFor,
   fireEvent,
   RenderResult,
   act,
-  setUrlQueryParameters,
-  getUrlQueryParameters,
   screen,
-  getSearchQueryParameterValue,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import {

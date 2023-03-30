@@ -1,7 +1,12 @@
 import { Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen,
+} from '@centreon/ui/src/testRenderer';
 
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
 import navigationAtom from '../../Navigation/navigationAtoms';

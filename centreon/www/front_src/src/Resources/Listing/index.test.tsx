@@ -21,6 +21,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 
+import { Column } from '@centreon/ui';
 import {
   render,
   RenderResult,
@@ -28,8 +29,7 @@ import {
   fireEvent,
   Matcher,
   act,
-  Column,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';

@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { head, last } from 'ramda';
 
+import { TestQueryProvider } from '@centreon/ui';
 import {
   getFetchCall,
   mockResponseOnce,
@@ -9,9 +10,8 @@ import {
   RenderResult,
   resetMocks,
   screen,
-  TestQueryProvider,
   waitFor,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 
 import { Provider } from '../models';
 import {

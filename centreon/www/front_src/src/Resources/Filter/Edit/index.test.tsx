@@ -3,7 +3,13 @@ import axios from 'axios';
 import { omit, head, prop } from 'ramda';
 import { Provider } from 'jotai';
 
-import { RenderResult, render, waitFor, fireEvent, act } from '@centreon/ui';
+import {
+  RenderResult,
+  render,
+  waitFor,
+  fireEvent,
+  act,
+} from '@centreon/ui/src/testRenderer';
 
 import Context, { ResourceContext } from '../../testUtils/Context';
 import useFilter from '../../testUtils/useFilter';
