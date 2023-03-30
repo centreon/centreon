@@ -39,7 +39,6 @@ import {
   labelAcknowledgeServices,
   labelAddComment,
   labelCheck,
-  labelCheckDescription,
   labelCritical,
   labelDisableAutorefresh,
   labelDisacknowledge,
@@ -52,7 +51,6 @@ import {
   labelEndTime,
   labelFixed,
   labelForcedCheck,
-  labelForcedCheckDescription,
   labelHostsDenied,
   labelInvalidFormat,
   labelMoreActions,
@@ -765,6 +763,7 @@ describe(Actions, () => {
           comment: false,
           disacknowledgement: false,
           downtime: false,
+          forced_check: false,
           submit_status: false
         },
         service: {
@@ -773,6 +772,7 @@ describe(Actions, () => {
           comment: false,
           disacknowledgement: false,
           downtime: false,
+          forced_check: false,
           submit_status: false
         }
       }
@@ -785,7 +785,7 @@ describe(Actions, () => {
     });
 
     await waitFor(() => {
-      expect(getByText(labelCheck)).toBeDisabled();
+      expect(getByText(labelForcedCheck)).toBeDisabled();
       expect(getByText(labelAcknowledge)).toBeDisabled();
       expect(getByText(labelSetDowntime)).toBeDisabled();
     });
