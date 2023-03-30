@@ -50,13 +50,6 @@ class UniqueEntityTest extends TestCase
     {
         $constraint = new UniqueEntity();
 
-        $this->assertObjectHasAttribute('validatorClass', $constraint);
-        $this->assertObjectHasAttribute('entityIdentificatorMethod', $constraint);
-        $this->assertObjectHasAttribute('entityIdentificatorColumn', $constraint);
-        $this->assertObjectHasAttribute('repository', $constraint);
-        $this->assertObjectHasAttribute('repositoryMethod', $constraint);
-        $this->assertObjectHasAttribute('fields', $constraint);
-
         $this->assertEquals('getId', $constraint->entityIdentificatorMethod);
         $this->assertEquals('id', $constraint->entityIdentificatorColumn);
         $this->assertNull($constraint->repository);
