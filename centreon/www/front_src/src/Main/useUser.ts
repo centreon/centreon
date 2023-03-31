@@ -44,7 +44,8 @@ const useUser = (): (() => null | Promise<void>) => {
           themeMode,
           timezone,
           use_deprecated_pages: useDeprecatedPages,
-          default_page: defaultPage
+          default_page: defaultPage,
+          user_interface_density
         } = retrievedUser as User;
 
         setUser({
@@ -55,7 +56,8 @@ const useUser = (): (() => null | Promise<void>) => {
           name,
           themeMode,
           timezone,
-          use_deprecated_pages: useDeprecatedPages
+          use_deprecated_pages: useDeprecatedPages,
+          user_interface_density
         });
         setAreUserParametersLoaded(true);
       })

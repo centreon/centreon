@@ -26,5 +26,6 @@ namespace Core\Application\Configuration\User\UseCase\PatchUser;
 class PatchUserRequest
 {
     public int $userId;
-    public string $theme;
+    public ?string $theme = null;
+    public ?string $userInterfaceDensity = null;
 }
