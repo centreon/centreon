@@ -21,10 +21,10 @@ const useViewerMode = (): ViewerMode => {
 
   const updateUser = (): void =>
     startTransition(() => {
-      setUser({
-        ...user,
+      setUser((currentUser) => ({
+        ...currentUser,
         user_interface_density: viewerMode
-      });
+      }));
     });
 
   return { isPending, updateUser, viewerMode };
