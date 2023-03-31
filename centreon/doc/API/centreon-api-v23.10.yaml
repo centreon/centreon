@@ -8,6 +8,7 @@ info:
     + Added host group endpoints (GET, PUT)
     +
     # Updated features
+    + Updated host template endpoint (GET)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -255,6 +256,18 @@ paths:
         * id
         * name
         * alias
+        * is_activated
+        * is_locked
+
+        Changes in 23.10 :
+
+        * `check_interval` was renamed `normal_check_interval`
+        * `active_checks_status` was renamed `is_active_check_enabled`
+        * `passive_checks_status` was renamed `is_passive_check_enabled`
+        * `notifications_status` was renamed `is_notification_enabled`
+        * `url_notes` was renamed `note_url`
+        * `note` was renamed `note`
+        * `icon` was renamed `icon_id` and is no longer an object but the image ID
       responses:
         "200":
           description: "OK"
@@ -6499,12 +6512,19 @@ components:
           type: boolean
           description: "Indicates whether this host severity is enabled or not"
     Configuration.Host.Template:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Host.Template.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Host template id"
+              example: 1
+            is_locked:
+              type: boolean
+              description: "Indicates whether the configuration is locked for editing or not"
+    Configuration.Host.Template.Add:
       type: object
       properties:
-        id:
-          type: integer
-          description: "Host template id"
-          example: 1
         name:
           type: string
           description: "Host template name"
@@ -6513,42 +6533,39 @@ components:
           type: string
           description: "Host template alias"
           example: "generic-active-host"
-        display_name:
+        snmp_community:
           type: string
           nullable: true
-          description: "Host template display name"
-          example: "generic-active-host"
-        address:
+          description: "Community of the SNMP agent"
+        snmp_version:
           type: string
           nullable: true
-          description: "Address or DNS of the host template"
-          example: "127.0.0.1"
-        comment:
-          type: string
-          nullable: true
-          description: "Host template comments"
-        is_activated:
-          type: boolean
-          description: "Indicates whether the host template is activated or not"
-        is_locked:
-          type: boolean
-          description: "Indicates whether the configuration is locked for editing or not"
-        active_checks_status:
-          type: integer
+          enum: [1, 2c, 3]
           description: |
-            Indicates whether the active checks is enabled or not
+            Version of the SNMP agent.
 
-            * `0` - STATUS_DISABLED
-            * `1` - STATUS_ENABLE
-            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
-        passive_checks_status:
+            The value can be `1`, `2c` or `3`
+          example: "2c"
+        timezone_id:
           type: integer
-          description: |
-            Indicates whether the passive checks is enabled or not
-
-            * `0` - STATUS_DISABLED
-            * `1` - STATUS_ENABLE
-            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+          description: "Timezone ID"
+          example: 1
+        severity_id:
+          type: integer
+          description: "Severity ID"
+          example: 1
+        check_command_id:
+          type: integer
+          description: "Check command ID"
+          example: 1
+        check_command_args:
+          type: string
+          description: "Check command arguments"
+          example: "!0!OK"
+        check_timeperiod_id:
+          type: integer
+          description: "Check command timeperiod ID"
+          example: 1
         max_check_attemps:
           type: integer
           nullable: true
@@ -6570,7 +6587,23 @@ components:
 
             Once the host has been retried max_check_attempts times without a change in its status,
             it will revert to being scheduled at its "normal" check interval rate.
-        notifications_status:
+        is_active_check_enabled:
+          type: integer
+          description: |
+            Indicates whether the active checks is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        is_passive_check_enabled:
+          type: integer
+          description: |
+            Indicates whether the passive checks is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        is_notification_enabled:
           type: integer
           description: |
             Specify whether notifications for this host are enabled or not
@@ -6578,29 +6611,6 @@ components:
             * `0` - STATUS_DISABLED
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
-        notification_interval:
-          type: integer
-          nullable: true
-          description: |
-            Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
-
-            With the default time unit of 60s, this number will mean multiples of 1 minute.
-
-            A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
-        first_notification_delay:
-          type: integer
-          nullable: true
-          description: |
-            Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
-
-            With the default time unit of 60s, this number will mean multiples of 1 minute.
-        recovery_notification_delay:
-          type: integer
-          nullable: true
-          description: |
-            Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
-
-            With the default time unit of 60s, this number will mean multiples of 1 minute.
         notification_options:
           type: integer
           description: |
@@ -6616,65 +6626,126 @@ components:
 
             example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
           example: 5
-        stalking_options:
+        notification_interval:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+            A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
+        notification_timeperiod_id:
+          type: integer
+          description: "Notification tiemperiod ID"
+          example: 1
+        add_inherited_contact_group:
+          type: boolean
+          description: |
+            Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+            When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
+        add_inherited_contact:
+          type: boolean
+          description: |
+            Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+            When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
+        first_notification_delay:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+        recovery_notification_delay:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+        acknowledgement_timeout:
+          type: integer
+          nullable: true
+          description: "Specify a duration of acknowledgement for this host."
+        is_freshness_checked:
           type: integer
           description: |
-            This directive determines the host states for which stalking is enabled.
+            Indicates whether freshness is checked or not
 
-            The value is the sum of all the values of the selected options.
-
-            * `1` - UP
-            * `2` - DOWN
-            * `4` - UNREACHABLE
-
-            example: A value equal to 3 corresponding to the selected options UP and DOWN
-          example: 3
-        snmp_community:
-          type: string
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        freshness_threshold:
+          type: integer
           nullable: true
-          description: "Community of the SNMP agent"
-        snmp_version:
-          type: string
-          nullable: true
-          enum: [1, 2c, 3]
+          description: "Specify the freshness threshold (in seconds) for this host."
+        is_flap_detection_enabled:
+          type: integer
           description: |
-            Version of the SNMP agent.
+            Indicates whether the flap detection is enabled or not
 
-            The value can be `1`, `2c` or `3`
-          example: "2c"
-        icon:
-          $ref: '#/components/schemas/Media.Image'
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        low_flap_threshold:
+          type: integer
           nullable: true
-          description: "Define the image that should be associated with this template"
-        alternative_icon:
+          description: "Specify the low state change threshold used in flap detection for this host"
+        high_flap_threshold:
+          type: integer
+          nullable: true
+          description: "Specify the high state change threshold used in flap detection for this host"
+        is_event_handler_enabled:
+          type: integer
+          description: |
+            Indicates whether the event handler is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        event_handler_command_id:
+          type: integer
+          description: "Event handler command ID"
+          example: 1
+        event_handler_command_args:
           type: string
-          nullable: true
-          maxLength: 200
-          description: "Define an optional string that is used in the alternative description of the icon image"
-        status_map_image:
-          $ref: '#/components/schemas/Media.Image'
-          nullable: true
-          description: "Define an image that should be associated with this host template in the statusmap CGI in monitoring engine."
-        url_notes:
+          description: "Event handler command arguments"
+          example: "!0!OK"
+        note_url:
           type: string
           nullable: true
           maxLength: 65535
           description: "Define an optional URL that can be used to provide more information about the host."
+        note:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Define an optional note."
         action_url:
           type: string
           nullable: true
           maxLength: 65535
           description: "Define an optional URL that can be used to provide more actions to be performed on the host."
-        notes:
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host template"
+          example: 1
+        alternative_icon:
           type: string
           nullable: true
-          maxLength: 65535
-          description: "Define an optional notes."
-        parents:
-          type: array
-          description: "Host template parent ids"
-          items:
-            type: integer
+          maxLength: 200
+          description: "Define an optional string that is used in the alternative description of the icon image"
+        comment:
+          type: string
+          nullable: true
+          description: "Host template comments"
+        is_activated:
+          type: boolean
+          description: "Indicates whether the host template is activated or not"
+
     Configuration.Host.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Host.Group.Add'
