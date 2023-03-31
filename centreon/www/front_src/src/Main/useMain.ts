@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -30,11 +30,13 @@ const useMain = (): void => {
   const { getBrowserLocale, getInternalTranslation, i18next } =
     useInitializeTranslation();
 
+  const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
+    areUserParametersLoadedAtom
+  );
+  const user = useAtomValue(userAtom);
   const setPlatformInstallationStatus = useSetAtom(
     platformInstallationStatusAtom
   );
-  const user = useAtomValue(userAtom);
-  const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
 
   const loadUser = useUser();
   const location = useLocation();
@@ -61,19 +63,14 @@ const useMain = (): void => {
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
-      if (
-        !retrievedPlatformInstallationStatus?.isInstalled &&
-        !retrievedPlatformInstallationStatus?.hasUpgradeAvailable
-      ) {
+      if (!retrievedPlatformInstallationStatus?.isInstalled) {
+        setAreUserParametersLoaded(false);
+
         return;
       }
-
+      loadUser();
       getPlatformVersions();
     });
-  }, []);
-
-  useEffect((): void => {
-    loadUser();
   }, []);
 
   useEffect((): void => {
