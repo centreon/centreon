@@ -12,7 +12,7 @@ import {
   symmetricDifference,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import { Menu, MenuItem, CircularProgress } from '@mui/material';
@@ -77,9 +77,9 @@ const SaveFilterMenu = (): JSX.Element => {
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
   const filters = useAtomValue(filtersDerivedAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const setEditPanelOpen = useUpdateAtom(editPanelOpenAtom);
-  const setSendingFilter = useUpdateAtom(sendingFilterAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const setEditPanelOpen = useSetAtom(editPanelOpenAtom);
+  const setSendingFilter = useSetAtom(sendingFilterAtom);
 
   const { showSuccessMessage } = useSnackbar();
 

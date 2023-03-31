@@ -30,7 +30,7 @@ import {
   remove,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -157,10 +157,10 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const setNewFilter = useUpdateAtom(setNewFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const open = Boolean(autocompleteAnchor);
 

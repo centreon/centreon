@@ -4,7 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { all, equals, any, reject, update, findIndex, omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -81,7 +81,7 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
 
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
-  const setAppliedFilter = useUpdateAtom(appliedFilterAtom);
+  const setAppliedFilter = useSetAtom(appliedFilterAtom);
 
   const { name, id } = filter;
 

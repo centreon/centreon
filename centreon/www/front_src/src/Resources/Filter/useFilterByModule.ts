@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAtomValue } from 'jotai/utils';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 

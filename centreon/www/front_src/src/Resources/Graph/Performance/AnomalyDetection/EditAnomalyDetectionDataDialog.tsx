@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { Button, Dialog, Paper, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -90,7 +90,7 @@ const EditAnomalyDetectionDataDialog = ({
     isModalEditAnomalyDetectionConfirmationOpened,
     setIsModalEditAnomalyDetectionConfirmationOpened,
   ] = useState(false);
-  const setCountedRedCircles = useUpdateAtom(countedRedCirclesAtom);
+  const setCountedRedCircles = useSetAtom(countedRedCirclesAtom);
 
   const handleClose = (): void => {
     if (!factorsData?.isResizing) {

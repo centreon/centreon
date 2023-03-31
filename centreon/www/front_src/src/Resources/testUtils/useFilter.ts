@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import {
@@ -45,12 +45,12 @@ const useFilter = (): FilterState => {
   );
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const defaultFilter = useAtomValue(storedFilterAtom);
-  const setSearch = useUpdateAtom(searchAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const setCriteria = useUpdateAtom(setCriteriaDerivedAtom);
-  const storeFilter = useUpdateAtom(storedFilterAtom);
-  const setEditPanelOpen = useUpdateAtom(editPanelOpenAtom);
+  const setSearch = useSetAtom(searchAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const setCriteria = useSetAtom(setCriteriaDerivedAtom);
+  const storeFilter = useSetAtom(storedFilterAtom);
+  const setEditPanelOpen = useSetAtom(editPanelOpenAtom);
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {

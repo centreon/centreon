@@ -3,7 +3,7 @@ import { RefObject } from 'react';
 import { equals, last, not, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { Dayjs } from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { Typography, Paper, Divider } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';

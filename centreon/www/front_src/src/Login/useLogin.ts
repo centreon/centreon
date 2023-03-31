@@ -15,7 +15,7 @@ import {
   pathEq,
   equals,
 } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { useRequest, useSnackbar, getData } from '@centreon/ui';
 
@@ -77,7 +77,7 @@ const useLogin = (): UseLoginState => {
   const loadUser = useUser();
 
   const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
-  const setPasswordResetInformations = useUpdateAtom(
+  const setPasswordResetInformations = useSetAtom(
     passwordResetInformationsAtom,
   );
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 
 import { Breadcrumbs as MuiBreadcrumbs } from '@mui/material';

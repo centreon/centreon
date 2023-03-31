@@ -3,7 +3,7 @@ import { RefObject, useEffect, useRef } from 'react';
 import { isNil, isEmpty, pipe, not, defaultTo, propEq, findIndex } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useTheme, alpha, Skeleton } from '@mui/material';
 
@@ -36,8 +36,8 @@ const Details = (): JSX.Element | null => {
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);
   const details = useAtomValue(detailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const selectResource = useSetAtom(selectResourceDerivedAtom);
 
   useEffect(() => {
     if (isNil(details)) {

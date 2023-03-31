@@ -10,7 +10,7 @@ import {
   pathOr,
   prop,
 } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -93,10 +93,10 @@ const useLoadResources = (): LoadResources => {
   const customFilters = useAtomValue(customFiltersAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
-  const setListing = useUpdateAtom(listingAtom);
-  const setSending = useUpdateAtom(sendingAtom);
-  const setSendingDetails = useUpdateAtom(sendingDetailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
+  const setListing = useSetAtom(listingAtom);
+  const setSending = useSetAtom(sendingAtom);
+  const setSendingDetails = useSetAtom(sendingDetailsAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
   const refreshIntervalRef = useRef<number>();
 
   const refreshIntervalMs = refreshInterval * 1000;

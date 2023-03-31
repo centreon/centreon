@@ -2,7 +2,7 @@ import { Shape } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { max, pick, prop } from 'ramda';
 import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import makeStyles from '@mui/styles/makeStyles';
 

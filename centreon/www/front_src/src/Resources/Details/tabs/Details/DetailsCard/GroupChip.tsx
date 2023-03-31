@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import makeStyles from '@mui/styles/makeStyles';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -55,7 +55,7 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  const setCriteriaAndNewFilter = useUpdateAtom(
+  const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom,
   );
 

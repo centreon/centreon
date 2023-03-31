@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { Responsive } from '@visx/visx';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   Paper,
@@ -76,10 +76,10 @@ const TimePeriodButtonGroup = ({
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeCustomTimePeriod = useUpdateAtom(
+  const changeCustomTimePeriod = useSetAtom(
     changeCustomTimePeriodDerivedAtom,
   );
-  const changeSelectedTimePeriod = useUpdateAtom(
+  const changeSelectedTimePeriod = useSetAtom(
     changeSelectedTimePeriodDerivedAtom,
   );
 

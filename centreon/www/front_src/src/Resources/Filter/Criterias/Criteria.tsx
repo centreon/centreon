@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   PopoverMultiAutocompleteField,
@@ -24,7 +24,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { newSelectableCriterias, newCriteriaValueName } = useFilterByModule();
 
-  const setCriteriaAndNewFilter = useUpdateAtom(
+  const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom,
   );
 

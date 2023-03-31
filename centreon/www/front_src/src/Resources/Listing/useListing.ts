@@ -1,6 +1,6 @@
 import { SetStateAction } from 'react';
 
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import { limitAtom, pageAtom } from './listingAtoms';
@@ -13,7 +13,7 @@ export interface ListingState {
 
 const useListing = (): ListingState => {
   const [page, setPage] = useAtom(pageAtom);
-  const setLimit = useUpdateAtom(limitAtom);
+  const setLimit = useSetAtom(limitAtom);
 
   return {
     page,

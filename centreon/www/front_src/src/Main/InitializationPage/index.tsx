@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 
 import { isNil, not } from 'ramda';
 import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 

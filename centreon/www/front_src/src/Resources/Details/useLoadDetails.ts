@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { isNil, ifElse, pathEq, always, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useAtom } from 'jotai';
 
 import { useRequest, getData } from '@centreon/ui';
@@ -52,10 +52,10 @@ const useLoadDetails = (): DetailsState => {
   const selectedResourceDetailsEndpoint = useAtomValue(
     selectedResourceDetailsEndpointDerivedAtom,
   );
-  const setDetails = useUpdateAtom(detailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const setSelectedTimePeriod = useUpdateAtom(selectedTimePeriodAtom);
-  const setResourceDetailsUpdated = useUpdateAtom(resourceDetailsUpdatedAtom);
+  const setDetails = useSetAtom(detailsAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const setSelectedTimePeriod = useSetAtom(selectedTimePeriodAtom);
+  const setResourceDetailsUpdated = useSetAtom(resourceDetailsUpdatedAtom);
 
   useTimePeriod({
     sending,

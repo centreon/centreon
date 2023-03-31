@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { isNil } from 'ramda';
 import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
 
@@ -36,10 +36,10 @@ const useDetails = (): void => {
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const sendingDetails = useAtomValue(sendingDetailsAtom);
-  const setDefaultSelectedTimePeriodId = useUpdateAtom(
+  const setDefaultSelectedTimePeriodId = useSetAtom(
     defaultSelectedTimePeriodIdAtom,
   );
-  const setDefaultSelectedCustomTimePeriod = useUpdateAtom(
+  const setDefaultSelectedCustomTimePeriod = useSetAtom(
     defaultSelectedCustomTimePeriodAtom,
   );
 

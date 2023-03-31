@@ -1,4 +1,4 @@
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { ListingModel, useRequest } from '@centreon/ui';
 
@@ -17,7 +17,7 @@ const ServicesTab = (): JSX.Element => {
 
   const details = useAtomValue(detailsAtom);
 
-  const setSelectedResourceDetails = useUpdateAtom(
+  const setSelectedResourceDetails = useSetAtom(
     selectedResourcesDetailsAtom,
   );
 
