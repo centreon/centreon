@@ -42,7 +42,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const getUntranslated = (values): Array<SelectEntry> => {
     return values.map(({ id }) => ({
       id,
-      name: newCriteriaValueName[id]
+      name: newCriteriaValueName[id],
     }));
   };
 

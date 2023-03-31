@@ -89,10 +89,10 @@ export const filterWithParsedSearchDerivedAtom = atom((get) => {
     criterias: [
       ...parse({
         criteriaName: criteriaValueNameById,
-        search: get(searchAtom)
+        search: get(searchAtom),
       }),
-      find(propEq('name', 'sort'), currentFilter.criterias) as Criteria
-    ]
+      find(propEq('name', 'sort'), currentFilter.criterias) as Criteria,
+    ],
   };
 });
 
