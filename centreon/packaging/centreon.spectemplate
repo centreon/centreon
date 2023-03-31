@@ -334,6 +334,10 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_bindir}
 %{__ln_s} %{_bindir}/generateSqlLite %buildroot%{_datadir}/centreon/bin/
 
+# Script for updating the charset manually
+%{__install} -m 0755 centreon/bin/convert_db_charset_to_utfmb4.php %buildroot%{_bindir}
+%{__ln_s} %{_bindir}/convert_db_charset_to_utfmb4.php %buildroot%{_datadir}/centreon/bin/
+
 # Script for synchronize database schema
 %{__install} -m 0755 centreon/bin/export-mysql-indexes %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/import-mysql-indexes %buildroot%{_datadir}/centreon/bin/
