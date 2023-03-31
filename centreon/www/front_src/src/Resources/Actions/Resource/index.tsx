@@ -1,51 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { useAtom } from 'jotai';
 import { all, head, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
-import IconAcknowledge from '@mui/icons-material/Person';
-import IconCheck from '@mui/icons-material/Sync';
 import IconMore from '@mui/icons-material/MoreHoriz';
+import IconAcknowledge from '@mui/icons-material/Person';
 
-import {
-  useCancelTokenSource,
-  useSnackbar,
-  SeverityCode,
-  PopoverMenu
-} from '@centreon/ui';
+import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
+import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import IconDowntime from '../../icons/Downtime';
+import { Resource } from '../../models';
 import {
   labelAcknowledge,
-  labelSetDowntime,
-  labelCheck,
-  labelSomethingWentWrong,
-  labelCheckCommandSent,
-  labelDisacknowledge,
-  labelSubmitStatus,
   labelAddComment,
-  labelMoreActions
+  labelDisacknowledge,
+  labelMoreActions,
+  labelSetDowntime,
+  labelSubmitStatus
 } from '../../translatedLabels';
-import { checkResources } from '../api';
-import { Resource } from '../../models';
-import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import {
   resourcesToAcknowledgeAtom,
-  resourcesToCheckAtom,
   resourcesToDisacknowledgeAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../actionsAtoms';
 
-import useAclQuery from './aclQuery';
-import DowntimeForm from './Downtime';
 import AcknowledgeForm from './Acknowledge';
-import DisacknowledgeForm from './Disacknowledge';
-import SubmitStatusForm from './SubmitStatus';
-import ResourceActionButton from './ResourceActionButton';
+import useAclQuery from './aclQuery';
 import ActionMenuItem from './ActionMenuItem';
+import CheckActionButton from './Check';
+import DisacknowledgeForm from './Disacknowledge';
+import DowntimeForm from './Downtime';
+import ResourceActionButton from './ResourceActionButton';
+import SubmitStatusForm from './SubmitStatus';
 
 const useStyles = makeStyles()((theme) => ({
   action: {
@@ -60,8 +50,7 @@ const useStyles = makeStyles()((theme) => ({
 const ResourceActions = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { cancel, token } = useCancelTokenSource();
-  const { showErrorMessage, showSuccessMessage } = useSnackbar();
+  const { cancel } = useCancelTokenSource();
 
   const [resourceToSubmitStatus, setResourceToSubmitStatus] =
     useState<Resource | null>();
@@ -76,7 +65,6 @@ const ResourceActions = (): JSX.Element => {
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
     resourcesToSetDowntimeAtom
   );
-  const [resourcesToCheck, setResourcesToCheck] = useAtom(resourcesToCheckAtom);
   const [resourcesToDisacknowledge, setResourcesToDisacknowledge] = useAtom(
     resourcesToDisacknowledgeAtom
   );
@@ -84,39 +72,19 @@ const ResourceActions = (): JSX.Element => {
   const {
     canAcknowledge,
     canDowntime,
-    canCheck,
     canDisacknowledge,
     canSubmitStatus,
     canComment
   } = useAclQuery();
 
-  const hasResourcesToCheck = resourcesToCheck.length > 0;
-
   const confirmAction = (): void => {
     setSelectedResources([]);
     setResourcesToAcknowledge([]);
     setResourcesToSetDowntime([]);
-    setResourcesToCheck([]);
     setResourceToSubmitStatus(null);
     setResourcesToDisacknowledge([]);
     setResourceToComment(null);
   };
-
-  useEffect(() => {
-    if (!hasResourcesToCheck) {
-      return;
-    }
-
-    checkResources({
-      cancelToken: token,
-      resources: resourcesToCheck
-    })
-      .then(() => {
-        confirmAction();
-        showSuccessMessage(t(labelCheckCommandSent));
-      })
-      .catch(() => showErrorMessage(t(labelSomethingWentWrong)));
-  }, [resourcesToCheck]);
 
   useEffect(() => (): void => cancel(), []);
 
@@ -126,10 +94,6 @@ const ResourceActions = (): JSX.Element => {
 
   const prepareToSetDowntime = (): void => {
     setResourcesToSetDowntime(selectedResources);
-  };
-
-  const prepareToCheck = (): void => {
-    setResourcesToCheck(selectedResources);
   };
 
   const cancelAcknowledge = (): void => {
@@ -176,7 +140,6 @@ const ResourceActions = (): JSX.Element => {
   const disableAcknowledge =
     !canAcknowledge(selectedResources) || areSelectedResourcesOk;
   const disableDowntime = !canDowntime(selectedResources);
-  const disableCheck = !canCheck(selectedResources);
   const disableDisacknowledge = !canDisacknowledge(selectedResources);
 
   const hasSelectedResources = selectedResources.length > 0;
@@ -194,7 +157,6 @@ const ResourceActions = (): JSX.Element => {
     canAcknowledge(selectedResources) || !hasSelectedResources;
   const isDowntimePermitted =
     canDowntime(selectedResources) || !hasSelectedResources;
-  const isCheckPermitted = canCheck(selectedResources) || !hasSelectedResources;
   const isDisacknowledgePermitted =
     canDisacknowledge(selectedResources) || !hasSelectedResources;
   const isSubmitStatusPermitted =
@@ -226,13 +188,10 @@ const ResourceActions = (): JSX.Element => {
           />
         </div>
         <div className={classes.action}>
-          <ResourceActionButton
-            disabled={disableCheck}
-            icon={<IconCheck />}
-            label={t(labelCheck)}
-            permitted={isCheckPermitted}
+          <CheckActionButton
+            selectedResources={selectedResources}
+            setSelectedResources={setSelectedResources}
             testId="Multiple Check"
-            onClick={prepareToCheck}
           />
         </div>
         {resourcesToAcknowledge.length > 0 && (

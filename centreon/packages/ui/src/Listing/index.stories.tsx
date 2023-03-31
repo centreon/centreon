@@ -134,6 +134,7 @@ const predefinedRowsSelection = [
 const Story = ({
   columns = defaultColumns,
   checkable = true,
+  viewerModeConfiguration,
   ...props
 }: Omit<ListingProps<Entity>, 'columns'> & {
   columns?: Array<Column>;
@@ -155,6 +156,7 @@ const Story = ({
         rows={listing}
         selectedRows={selected}
         totalRows={listing.length}
+        viewerModeConfiguration={viewerModeConfiguration}
         onSelectRows={setSelected}
         {...props}
       />
@@ -164,24 +166,20 @@ const Story = ({
 
 export const normal = (): JSX.Element => <Story />;
 
-export const WithViewModeExtended = (): JSX.Element => {
+export const WithSpecifiedViewMode = (): JSX.Element => {
   const [viewMode, setViewMode] = useState(ListingVariant.extended);
   const newViewMode = equals(viewMode, ListingVariant.compact)
     ? ListingVariant.extended
     : ListingVariant.compact;
 
   return (
-    <>
-      <Button
-        color="primary"
-        size="small"
-        variant="contained"
-        onClick={(): void => setViewMode(newViewMode)}
-      >
-        Change view mode
-      </Button>
-      <Story viewMode={viewMode} />
-    </>
+    <Story
+      viewMode={viewMode}
+      viewerModeConfiguration={{
+        onClick: () => setViewMode(newViewMode),
+        title: viewMode
+      }}
+    />
   );
 };
 

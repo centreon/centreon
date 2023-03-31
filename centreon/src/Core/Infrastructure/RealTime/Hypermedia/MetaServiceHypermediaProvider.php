@@ -36,6 +36,7 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
                  ENDPOINT_METRIC_LIST = 'centreon_application_find_meta_service_metrics',
                  ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_meta_service',
                  ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addMetaServiceDowntime',
+                 ENDPOINT_METASERVICE_CHECK = 'centreon_application_check_checkMetaService',
                  ENDPOINT_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addmetaserviceacknowledgement',
                  ENDPOINT_NOTIFICATION_POLICY = 'configuration.metaservice.notification-policy',
                  URI_CONFIGURATION = '/main.php?p=60204&o=c&meta_id={metaId}',
@@ -99,6 +100,28 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     }
 
     /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_METASERVICE_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_METASERVICE_CHECK, $parameters)
+            : null;
+    }
+
+    /**
      * @inheritDoc
      */
     public function createEndpoints(array $parameters): array
@@ -117,6 +140,8 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
                 ? $this->generateEndpoint(self::ENDPOINT_PERFORMANCE_GRAPH, $urlParams)
                 : null,
             'notification_policy' => $this->generateEndpoint(self::ENDPOINT_NOTIFICATION_POLICY, $urlParams),
+            'check' => $this->generateCheckEndpoint($urlParams),
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams)
         ];
     }
 

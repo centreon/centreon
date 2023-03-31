@@ -51,7 +51,8 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
                     contact_alias = :alias,
                     contact_email = :email,
                     contact_admin = :is_admin,
-                    contact_theme = :theme
+                    contact_theme = :theme,
+                    user_interface_density = :userInterfaceDensity
                 WHERE contact_id = :id'
             )
         );
@@ -60,6 +61,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':email', $user->getEmail(), \PDO::PARAM_STR);
         $statement->bindValue(':is_admin', $user->isAdmin() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':theme', $user->getTheme(), \PDO::PARAM_STR);
+        $statement->bindValue(':userInterfaceDensity', $user->getUserInterfaceDensity(), \PDO::PARAM_STR);
         $statement->bindValue(':id', $user->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }
@@ -73,9 +75,9 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
             $this->translateDbName(
                 'INSERT INTO `:db`.contact
                     (contact_name, contact_alias, contact_email, contact_template_id,
-                    contact_admin, contact_theme, contact_activate)
+                    contact_admin, contact_theme, user_interface_density, contact_activate)
                     VALUES (:contactName, :contactAlias, :contactEmail, :contactTemplateId,
-                    :isAdmin, :contactTheme, :isActivate)'
+                    :isAdmin, :contactTheme, :userInterfaceDensity, :isActivate)'
             )
         );
         $statement->bindValue(':contactName', $user->getName(), \PDO::PARAM_STR);
@@ -84,6 +86,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':contactTemplateId', $user->getContactTemplate()?->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':isAdmin', $user->isAdmin() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':contactTheme', $user->getTheme(), \PDO::PARAM_STR);
+        $statement->bindValue(':userInterfaceDensity', $user->getUserInterfaceDensity(), \PDO::PARAM_STR);
         $statement->bindValue(':isActivate', $user->isActivate() ? '1' : '0', \PDO::PARAM_STR);
         $statement->execute();
     }

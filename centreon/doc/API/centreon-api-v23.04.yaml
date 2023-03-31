@@ -1496,6 +1496,11 @@ paths:
                     type: string
                     description: Selected theme of the current user
                     example: light
+                  user_interface_density:
+                    type: string
+                    description: Selected user interface density for the current user
+                    example: extended
+                    default: compact
                   default_page:
                     type: string
                     nullable: true
@@ -1515,6 +1520,7 @@ paths:
         The available parameters to be updated are :
 
         * theme
+        * user_interface_density
       requestBody:
         required: true
         content:
@@ -1527,6 +1533,11 @@ paths:
                   description: Theme
                   enum: [ light, dark ]
                   example: light
+                user_interface_density:
+                  type: string
+                  description: User interface view mode
+                  enum: [ compact, extended ]
+                  example: extended
       responses:
         204:
           description: "User updated"
@@ -7335,6 +7346,13 @@ components:
     Check.Resources:
       type: object
       properties:
+        check:
+          type: object
+          properties:
+            is_forced:
+              type: boolean
+              description: "If set to true check on resources will be forced (ignore check period)"
+              example: true
         resources:
           type: array
           items:
@@ -7721,6 +7739,16 @@ components:
               nullable: true
               description: "current resource notification policy endpoint"
               example: "/centreon/api/latest/configurations/hosts/11/notification-policy"
+            check:
+              type: string
+              nullable: true
+              description: "Endpoint dedicated for checks (forced_check payload entry set to false)"
+              example: "/centreon/api/latest/monitoring/hosts/17/services/23/check"
+            forced_check:
+              type: string
+              nullable: true
+              description: "Endpoint dedicated for checks (forced_check payload entry set to true)"
+              example: "/centreon/api/latest/monitoring/hosts/17/services/23/check"
         externals:
           type: object
           properties:

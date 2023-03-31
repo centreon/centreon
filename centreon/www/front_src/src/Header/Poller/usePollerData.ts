@@ -38,6 +38,7 @@ export const usePollerData = (): UsePollerDataResult => {
     decoder: pollerIssuesDecoder,
     getEndpoint: () => pollerListIssuesEndPoint,
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
+    httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
       refetchInterval: refetchInterval * 1000
     }

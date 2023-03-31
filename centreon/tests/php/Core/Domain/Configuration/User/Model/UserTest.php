@@ -51,7 +51,8 @@ class UserTest extends TestCase
             'name',
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -78,7 +79,8 @@ class UserTest extends TestCase
             'name',
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -105,7 +107,8 @@ class UserTest extends TestCase
             $name,
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -132,7 +135,8 @@ class UserTest extends TestCase
             $name,
             'email',
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -159,7 +163,8 @@ class UserTest extends TestCase
             'name',
             $email,
             false,
-            'light'
+            'light',
+            'compact'
         );
     }
 
@@ -186,7 +191,82 @@ class UserTest extends TestCase
             'name',
             $email,
             false,
-            'light'
+            'light',
+            'compact'
+        );
+    }
+
+    /**
+     * Test user creation with too long userInterfaceViewMode
+     */
+    public function testUserInterfaceViewModeTooLong(): void
+    {
+        $userInterfaceViewMode = str_repeat('a', 256);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            AssertionException::maxLength(
+                $userInterfaceViewMode,
+                strlen($userInterfaceViewMode),
+                User::MAX_USER_INTERFACE_DENSITY_LENGTH,
+                'User::userInterfaceViewMode'
+            )->getMessage()
+        );
+
+        new User(
+            1,
+            'alias',
+            'name',
+            'hellotest@centreon.com',
+            false,
+            'light',
+            $userInterfaceViewMode
+        );
+    }
+
+    /**
+     * Test user creation with empty userInterfaceViewMode
+     */
+    public function testUserInterfaceViewModeEmpty(): void
+    {
+        $userInterfaceViewMode = '';
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            AssertionException::notEmptyString(
+                'User::userInterfaceViewMode'
+            )->getMessage()
+        );
+
+        new User(
+            1,
+            'alias',
+            'name',
+            'hellotest@centreon.com',
+            false,
+            'light',
+            $userInterfaceViewMode
+        );
+    }
+
+    /**
+     * Test user creation with userInterfaceViewMode not handled
+     */
+    public function testUserInterfaceViewModeNotHandled(): void
+    {
+        $userInterfaceViewMode = 'random-ui';
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('User interface view mode provided not handled');
+
+        new User(
+            1,
+            'alias',
+            'name',
+            'hellotest@centreon.com',
+            false,
+            'light',
+            $userInterfaceViewMode
         );
     }
 
@@ -200,6 +280,8 @@ class UserTest extends TestCase
         $name = 'name';
         $email = 'root@localhost';
         $isAdmin = true;
+        $theme = 'light';
+        $userInterfaceViewMode = 'compact';
 
         $user = new User(
             $id,
@@ -207,7 +289,8 @@ class UserTest extends TestCase
             $name,
             $email,
             $isAdmin,
-            'light'
+            'light',
+            'compact'
         );
 
         $this->assertEquals($id, $user->getId());
@@ -215,5 +298,7 @@ class UserTest extends TestCase
         $this->assertEquals($name, $user->getName());
         $this->assertEquals($email, $user->getEmail());
         $this->assertEquals($isAdmin, $user->isAdmin());
+        $this->assertEquals($theme, $user->getTheme());
+        $this->assertEquals($userInterfaceViewMode, $user->getUserInterfaceDensity());
     }
 }

@@ -461,7 +461,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setLocale($contactLocale)
             ->setDefaultPage($page)
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
-            ->setTheme($contact['contact_theme']);
+            ->setTheme($contact['contact_theme'])
+            ->setUserInterfaceDensity($contact['user_interface_density']);
 
         if ($contact->isAdmin()) {
             $contact
@@ -485,12 +486,18 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         switch ($ruleName) {
             case 'host_schedule_check':
-            case 'host_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_HOST_CHECK);
                 break;
+            case 'host_schedule_forced_check':
+                $contact->addRole(Contact::ROLE_HOST_CHECK);
+                $contact->addRole(Contact::ROLE_HOST_FORCED_CHECK);
+                break;
             case 'service_schedule_check':
+                $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                break;
             case 'service_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                $contact->addRole(Contact::ROLE_SERVICE_FORCED_CHECK);
                 break;
             case 'host_acknowledgement':
                 $contact->addRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT);
