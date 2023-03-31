@@ -25,9 +25,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:       centreon-web >= %{thismajor}
 Requires:       centreon-web < %{nextmajor}
 BuildArch:      noarch
+Current build:  %{COMMIT_HASH}
 
 %description
-Current build: %{COMMIT_HASH}
 UI to export/import centreon configuration.
 
 %prep
