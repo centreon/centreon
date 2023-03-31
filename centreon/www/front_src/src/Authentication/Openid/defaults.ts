@@ -34,6 +34,7 @@ export const retrievedOpenidConfiguration = {
   is_active: true,
   is_forced: false,
   login_claim: 'sub',
+  redirect_url: '',
   roles_mapping: {
     apply_only_first_role: true,
     attribute_path: 'role attribute path',
@@ -46,6 +47,5 @@ export const retrievedOpenidConfiguration = {
   },
   token_endpoint: '/token',
   userinfo_endpoint: '/userinfo',
-  verify_peer: false,
-  redirect_url: '',
+  verify_peer: false
 };
