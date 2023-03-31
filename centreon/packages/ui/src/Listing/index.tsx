@@ -160,6 +160,19 @@ const useStyles = makeStyles<StylesProps>()(
   })
 );
 
+interface CustomStyle {
+  customStyleViewerModeContainer?: string;
+  customStyleViewerModeIcon?: string;
+}
+interface ViewerModeConfiguration {
+  customStyle?: CustomStyle;
+  disabled?: boolean;
+  labelViewerMode?: string;
+  onClick: () => void;
+  testId?: string;
+  title?: string;
+}
+
 export interface Props<TRow> {
   actions?: JSX.Element;
   actionsBarMemoProps?: Array<unknown>;
@@ -193,6 +206,7 @@ export interface Props<TRow> {
   sortOrder?: SortOrder;
   totalRows?: number;
   viewMode?: ListingVariant;
+  viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
 }
 
@@ -235,7 +249,8 @@ const Listing = <TRow extends { id: RowId }>({
   moveTablePagination,
   viewMode = ListingVariant.compact,
   widthToMoveTablePagination,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  viewerModeConfiguration
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -527,6 +542,8 @@ const Listing = <TRow extends { id: RowId }>({
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            viewMode={viewMode}
+            viewerModeConfiguration={viewerModeConfiguration}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}

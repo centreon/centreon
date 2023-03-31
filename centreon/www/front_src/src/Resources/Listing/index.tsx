@@ -14,6 +14,7 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
 import {
   resourcesToAcknowledgeAtom,
@@ -37,9 +38,9 @@ import {
 } from '../Filter/filterAtoms';
 import { Resource, SortOrder } from '../models';
 import {
-  labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
-  labelStatus
+  labelStatus,
+  labelForcedCheckCommandSent
 } from '../translatedLabels';
 
 import { defaultSelectedColumnIds, getColumns } from './columns';
@@ -52,13 +53,14 @@ import {
   sendingAtom
 } from './listingAtoms';
 import useLoadResources from './useLoadResources';
+import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
 
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-
+  const { isPending, updateUser, viewerMode } = useViewerMode();
   const { showWarningMessage, showSuccessMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
@@ -74,13 +76,13 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
     selectedResourcesDetailsAtom
   );
+  const { user_interface_density, themeMode } = useAtomValue(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const { resourceStatusViewMode } = useAtomValue(userAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
@@ -91,6 +93,11 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const { mutateAsync } = useMutationQuery({
+    getEndpoint: () => userEndpoint,
+    method: Method.PATCH
+  });
   const { mutateAsync: checkResource } = useMutationQuery({
     getEndpoint: () => forcedCheckInlineEndpoint,
     method: Method.POST
@@ -202,6 +209,13 @@ const ResourceListing = (): JSX.Element => {
     }
   ];
 
+  const changeViewModeTableResources = (): void => {
+    updateUser();
+    mutateAsync({
+      user_interface_density: viewerMode
+    });
+  };
+
   return (
     <Listing
       checkable
@@ -228,7 +242,8 @@ const ResourceListing = (): JSX.Element => {
         selectedResourceUuid,
         sending,
         enabledAutoRefresh,
-        selectedResourceDetails
+        selectedResourceDetails,
+        themeMode
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
@@ -241,7 +256,12 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={resourceStatusViewMode}
+      viewMode={user_interface_density}
+      viewerModeConfiguration={{
+        disabled: isPending,
+        onClick: changeViewModeTableResources,
+        title: user_interface_density
+      }}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
