@@ -14477,7 +14477,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent ! Please refresh the page to update the data."
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
