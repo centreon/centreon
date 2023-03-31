@@ -170,7 +170,7 @@ class CentreonMedia
 
         try {
             $statement = $this->db->prepare(
-                "INSERT INTO `view_img_dir` (:dirName, :dirAlias)
+                "INSERT INTO `view_img_dir` (dir_name, dir_alias)
                 SELECT :dirName, :dirAlias FROM DUAL
                 WHERE NOT EXISTS (
                     SELECT dir_id FROM `view_img_dir`
@@ -179,6 +179,7 @@ class CentreonMedia
                     LIMIT 1
                 )"
             );
+
             $statement->bindValue(':dirName', $dirName, \PDO::PARAM_STR);
             $statement->bindValue(':dirAlias', $dirAlias, \PDO::PARAM_STR);
             $statement->execute();
