@@ -750,7 +750,8 @@ sub service_execute_commands {
                 my $command = gorgone::modules::centreon::autodiscovery::services::resources::substitute_service_discovery_command(
                     command_line => $self->{discovery}->{rules}->{$rule_id}->{command_line},
                     host => $host,
-                    poller => $self->{service_pollers}->{$poller_id}
+                    poller => $self->{service_pollers}->{$poller_id},
+                    vault_count => $options{vault_count}
                 );
 
                 $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} [" .
@@ -865,8 +866,7 @@ sub launchdiscovery {
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
         filter_rules => $data->{content}->{filter_rules},
-        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0,
-        vault_count => $vault_count
+        force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0
     );
     if ($status < 0) {
         $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -934,7 +934,7 @@ sub launchdiscovery {
         pollers_reload => {}
     };
 
-    $self->service_execute_commands();
+    $self->service_execute_commands(vault_count => $vault_count);
 
     return 0;
 }

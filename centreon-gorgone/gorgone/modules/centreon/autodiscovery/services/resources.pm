@@ -133,12 +133,10 @@ sub get_rules {
         $filter .= ') AND ';
     }
 
-    my $request = "SELECT rule_id, rule_alias, service_display_name, rule_disable, rule_update, ";
-    $request .= $options{vault_count} > 0 ? " CONCAT(command_line, ' --pass-manager=\"centreonvault\"') as command_line" : " command_line";
-    $request .= ", service_template_model_id, rule_scan_display_custom, rule_variable_custom";
-    $request .= " FROM mod_auto_disco_rule, command WHERE " . $filter . " mod_auto_disco_rule.command_command_id = command.command_id";
     my ($status, $rules) = $options{class_object_centreon}->custom_execute(
-        request => $request,
+        request =>
+            "SELECT rule_id, rule_alias, service_display_name, rule_disable, rule_update, command_line, service_template_model_id, rule_scan_display_custom, rule_variable_custom
+              FROM mod_auto_disco_rule, command WHERE " . $filter . " mod_auto_disco_rule.command_command_id = command.command_id",
         bind_values => \@bind_values,
         mode => 1,
         keys => 'rule_id'
@@ -499,6 +497,10 @@ sub substitute_service_discovery_command {
     
     $command =~ s/\$HOSTADDRESS\$/$options{host}->{host_address}/g;
     $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
+
+    if ($options{vault_count} > 0) {
+        $command .= ' --pass-manager="centreonvault"';
+    }
     
     return $command;
 }
