@@ -213,7 +213,7 @@ const ResourceListing = (): JSX.Element => {
     updateUser();
     mutateAsync({
       user_interface_density: viewerMode
-    }).then();
+    });
   };
 
   return (
