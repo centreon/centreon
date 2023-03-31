@@ -246,5 +246,5 @@ $help['tip_display_downtime_chart'] = dgettext(
 $help['tip_display_comment_chart'] = dgettext(
     'help',
     'If this option is enable, the comments will be displayed on status chart.<br>' .
-    '<b>Warning</b> : This option can slow down the display of chart.'
+    '<b>Warning</b> : This option can slow down the display of the chart.'
 );
