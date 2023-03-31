@@ -14940,7 +14940,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent ! Please refresh the page to update the data."
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
@@ -16007,7 +16007,7 @@ msgstr "Verifique os recursos selecionados apenas dentro do período de verifica
 msgid "Check selected resources even outside configured check period"
 msgstr "Verifique os recursos selecionados mesmo fora do período de verificação configurado"
 
-msgid "Forced check command sent ! Please refresh the page to update the data."
+msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr ""
 
 #  msgid "Icon #%d does not exist"

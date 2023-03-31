@@ -121,7 +121,7 @@ export const labelTimezone = 'Timezone';
 export const labelTo = 'To';
 export const labelAcknowledgeCommandSent = 'Acknowledge command sent';
 export const labelDowntimeCommandSent = 'Downtime command sent';
-export const labelCheckCommandSent = 'Check command sent ! Please refresh the page to update the data.';
+export const labelCheckCommandSent = 'Check command sent ! Please refresh the listing to update the data.';
 export const labelTypeOfResource = 'Type of resource';
 export const labelUnhandledAlerts = 'Unhandled alerts';
 export const labelUnhandled = 'Unhandled';
@@ -283,4 +283,4 @@ export const labelForcedCheck = 'Forced check';
 export const labelCheckDescription = `Check selected resources only within configured check period`;
 export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
-export const labelForcedCheckCommandSent = 'Forced check command sent ! Please refresh the page to update the data.';
+export const labelForcedCheckCommandSent = 'Forced check command sent ! Please refresh the listing to update the data.';
