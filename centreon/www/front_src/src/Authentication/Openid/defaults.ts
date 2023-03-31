@@ -46,5 +46,6 @@ export const retrievedOpenidConfiguration = {
   },
   token_endpoint: '/token',
   userinfo_endpoint: '/userinfo',
-  verify_peer: false
+  verify_peer: false,
+  redirect_url: '',
 };
