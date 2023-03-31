@@ -279,3 +279,8 @@ export const labelSlider = 'Slider';
 export const labelCloseEditModal = 'Close edit modal';
 export const labelModalEditAnomalyDetection = 'Edit modal';
 export const labelModalConfirmation = 'Modal confirmation';
+export const labelForcedCheck = 'Forced check';
+export const labelCheckDescription = `Check selected resources only within configured check period`;
+export const labelForcedCheckDescription =
+  'Check selected resources even outside configured check period';
+export const labelForcedCheckCommandSent = 'Forced check command sent';

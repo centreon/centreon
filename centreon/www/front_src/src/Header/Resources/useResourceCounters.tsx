@@ -63,6 +63,7 @@ const useResourceCounters: UseRessourceCounters = ({
     decoder,
     getEndpoint: () => endPoint,
     getQueryKey: () => [endPoint, queryName],
+    httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
       refetchInterval: refetchInterval * 1000
     }

@@ -48,6 +48,9 @@ export const resetMocks = (): void => {
   fetchMock.resetMocks();
 };
 
-export const getFetchCall = (index: number): string | Request | undefined => {
-  return fetchMock.mock.calls[index][0];
+export const getFetchCall = (
+  index,
+  secondIndex = 0
+): string | Request | undefined | RequestInit => {
+  return fetchMock.mock.calls[index][secondIndex];
 };

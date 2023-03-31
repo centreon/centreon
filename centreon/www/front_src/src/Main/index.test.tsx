@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Provider } from 'jotai';
 
+import { ListingVariant } from '@centreon/ui-context';
 import {
   render,
   RenderResult,
@@ -41,7 +42,8 @@ const retrievedUser = {
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
-  use_deprecated_pages: false
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 
 const retrievedParameters = {
@@ -55,12 +57,14 @@ const retrievedActionsAcl = {
   host: {
     acknowledgement: true,
     check: true,
-    downtime: true
+    downtime: true,
+    forced_check: true
   },
   service: {
     acknowledgement: true,
     check: true,
-    downtime: true
+    downtime: true,
+    forced_check: true
   }
 };
 

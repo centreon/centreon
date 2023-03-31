@@ -132,7 +132,7 @@ const configureUserAtomViewMode = (
 
   userData.result.current.timezone = 'Europe/Paris';
   userData.result.current.locale = 'en_US';
-  userData.result.current.resourceStatusViewMode = viewMode;
+  userData.result.current.user_interface_density = viewMode;
 };
 
 before(() => {

@@ -555,13 +555,6 @@ function updateGeneralConfigData()
     );
     updateOption(
         $pearDB,
-        "resource_status_view_mode",
-        ! empty($ret["resource_status_view_mode"]["resource_status_view_mode"])
-            ? $ret["resource_status_view_mode"]["resource_status_view_mode"]
-            : 'compact'
-    );
-    updateOption(
-        $pearDB,
         "session_expire",
         isset($ret["session_expire"]) && $ret["session_expire"] != null
             ? htmlentities($ret["session_expire"], ENT_QUOTES, "UTF-8") : null
