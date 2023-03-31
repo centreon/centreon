@@ -38,6 +38,9 @@ inputs:
   release:
     description: The release number
     required: true
+  commit_hash:
+    description: The commit hash
+    required: true
   cache_key:
     description: The package files cache key
     required: true
@@ -79,6 +82,7 @@ runs:
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
+        COMMIT_HASH=${{ inputs.commit_hash }}
 
         mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
@@ -91,7 +95,7 @@ runs:
           cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
         fi
 
-        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE" -D "COMMIT_HASH $COMMIT_HASH"
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
