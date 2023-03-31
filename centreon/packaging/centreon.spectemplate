@@ -354,6 +354,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -m 0755 centreon/bin/centreon_trap_send %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/centreon_health %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/centreonSyncPlugins %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/convert_db_charset_to_utfmb4.php %buildroot%{_datadir}/centreon/bin/convert_db_charset_to_utfmb4.php
 %{__install} -m 0755 centreon/bin/centreonSyncArchives %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/generateSqlLite %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/centreontrapd %buildroot%{_datadir}/centreon/bin/
@@ -550,6 +551,7 @@ fi
 %{_datadir}/centreon/bin/centreon_health
 %{_datadir}/centreon/bin/centreon_trap_send
 %{_datadir}/centreon/bin/centreonSyncPlugins
+%{_datadir}/centreon/bin/convert_db_charset_to_utfmb4.php
 %{_datadir}/centreon/bin/centreonSyncArchives
 %{_datadir}/centreon/bin/generateSqlLite
 %{_datadir}/centreon/bin/changeRrdDsName.pl
@@ -560,6 +562,7 @@ fi
 %{_bindir}/centFillTrapDB
 %{_bindir}/centreon_trap_send
 %{_bindir}/centreonSyncPlugins
+%{_bindir}/convert_db_charset_to_utfmb4.php
 %{_bindir}/centreonSyncArchives
 %{_bindir}/generateSqlLite
 
