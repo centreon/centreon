@@ -82,7 +82,7 @@ class CommandConfigurationContext extends CentreonContext
     public function theNewCommandHasTheSameProperties()
     {
         $this->currentPage = new CommandConfigurationListingPage($this, true, 3);
-        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['command_name']);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['command_name']);
         $newProperties = $this->initialProperties;
         $newProperties['command_name'] = $this->initialProperties['command_name'] . '_1';
         $this->comparePageProperties($this->currentPage, $newProperties);
