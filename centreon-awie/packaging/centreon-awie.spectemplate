@@ -27,7 +27,7 @@ Requires:       centreon-web < %{nextmajor}
 BuildArch:      noarch
 
 %description
-%{COMMIT_HASH}
+Current build: %{COMMIT_HASH}
 UI to export/import centreon configuration.
 
 %prep
