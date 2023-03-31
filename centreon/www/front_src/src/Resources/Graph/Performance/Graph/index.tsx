@@ -24,7 +24,7 @@ import {
 import { bisector } from 'd3-array';
 import { ScaleLinear } from 'd3-scale';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   Button,
@@ -272,12 +272,12 @@ const GraphContent = ({
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
   const { canComment } = useAclQuery();
   const mousePosition = useAtomValue(mousePositionAtom);
-  const changeMousePositionAndTimeValue = useUpdateAtom(
+  const changeMousePositionAndTimeValue = useSetAtom(
     changeMousePositionAndTimeValueDerivedAtom,
   );
-  const changeTimeValue = useUpdateAtom(changeTimeValueDerivedAtom);
-  const setAnnotationHovered = useUpdateAtom(annotationHoveredAtom);
-  const changeAnnotationHovered = useUpdateAtom(
+  const changeTimeValue = useSetAtom(changeTimeValueDerivedAtom);
+  const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
+  const changeAnnotationHovered = useSetAtom(
     changeAnnotationHoveredDerivedAtom,
   );
 

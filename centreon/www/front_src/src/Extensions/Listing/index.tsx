@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { find, propEq, pathEq, filter, isEmpty } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { Button, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';

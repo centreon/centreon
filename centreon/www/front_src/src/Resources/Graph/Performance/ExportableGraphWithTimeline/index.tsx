@@ -1,7 +1,7 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { path, isNil, or, not } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Paper, Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -84,7 +84,7 @@ const ExportablePerformanceGraphWithTimeline = ({
   const resourceDetailsUpdated = useAtomValue(resourceDetailsUpdatedAtom);
   const getIntervalDates = useAtomValue(getDatesDerivedAtom);
   const details = useAtomValue(detailsAtom);
-  const adjustTimePeriod = useUpdateAtom(adjustTimePeriodDerivedAtom);
+  const adjustTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
 
   const graphContainerRef = useRef<HTMLElement | null>(null);
 

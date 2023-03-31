@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import clsx from 'clsx';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps,

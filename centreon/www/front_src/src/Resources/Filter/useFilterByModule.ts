@@ -1,6 +1,8 @@
-import { useAtomValue } from 'jotai/utils';
+import { useEffect } from 'react';
 
-import { SelectEntry } from '@centreon/ui';
+import { useSetAtom, useAtomValue } from 'jotai';
+
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
 
@@ -12,6 +14,7 @@ import {
   selectableCriterias,
   selectableResourceTypes,
 } from './Criterias/models';
+import { criteriaValueNameByIdAtom } from './filterAtoms';
 
 interface FilterByModule {
   newCriteriaValueName: Record<string, string>;
@@ -20,6 +23,7 @@ interface FilterByModule {
 
 const useFilterByModule = (): FilterByModule => {
   const platformVersions = useAtomValue(platformVersionsAtom);
+  const setCriteriaValueNameById = useSetAtom(criteriaValueNameByIdAtom);
 
   const installedModules = platformVersions?.modules
     ? Object.keys(platformVersions?.modules)
@@ -84,6 +88,10 @@ const useFilterByModule = (): FilterByModule => {
       options: [...new Set(newSelectableResourceTypes)] as Array<SelectEntry>,
     },
   };
+
+  useEffect(() => {
+    setCriteriaValueNameById(newCriteriaValueNameById);
+  }, useDeepCompare(newCriteriaValueNameById));
 
   return {
     newCriteriaValueName: newCriteriaValueNameById,

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { Tooltip, Paper, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -41,7 +41,7 @@ const Annotation = ({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const setAnnotationHovered = useUpdateAtom(annotationHoveredAtom);
+  const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
 
   const content = `${truncate(event.content)} (${t(labelBy)} ${
     event.contact?.name

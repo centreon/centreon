@@ -9,7 +9,7 @@ import {
 
 import { equals } from 'ramda';
 import clsx from 'clsx';
-import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { useSetAtom, useAtomValue } from 'jotai';
 
 import Collapse from '@mui/material/Collapse';
 import List from '@mui/material/List';
@@ -132,7 +132,7 @@ const CollapsibleItems = ({
   const collapsRef = useRef<HTMLElement | null>(null);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);
-  const setHoveredNavigationItems = useUpdateAtom(
+  const setHoveredNavigationItems = useSetAtom(
     setHoveredNavigationItemsDerivedAtom,
   );
 

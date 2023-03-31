@@ -2,8 +2,7 @@ import { useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { map, find, equals, path } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useSetAtom, useAtom } from 'jotai';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
 
@@ -58,7 +57,7 @@ const EditFiltersPanel = (): JSX.Element => {
   });
 
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
-  const setEditPanelOpen = useUpdateAtom(editPanelOpenAtom);
+  const setEditPanelOpen = useSetAtom(editPanelOpenAtom);
 
   const closeEditPanel = (): void => {
     setEditPanelOpen(false);

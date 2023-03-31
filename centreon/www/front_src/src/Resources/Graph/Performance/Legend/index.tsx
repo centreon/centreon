@@ -14,7 +14,7 @@ import {
   isEmpty,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import {
   Typography,
