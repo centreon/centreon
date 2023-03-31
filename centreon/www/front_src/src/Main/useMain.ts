@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 

@@ -76,9 +76,7 @@ const TimePeriodButtonGroup = ({
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeCustomTimePeriod = useSetAtom(
-    changeCustomTimePeriodDerivedAtom,
-  );
+  const changeCustomTimePeriod = useSetAtom(changeCustomTimePeriodDerivedAtom);
   const changeSelectedTimePeriod = useSetAtom(
     changeSelectedTimePeriodDerivedAtom,
   );

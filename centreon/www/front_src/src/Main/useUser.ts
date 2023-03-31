@@ -1,5 +1,4 @@
-import { useAtom, atom } from 'jotai';
-import { useSetAtom } from 'jotai';
+import { useAtom, atom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
 import { useRequest, getData } from '@centreon/ui';

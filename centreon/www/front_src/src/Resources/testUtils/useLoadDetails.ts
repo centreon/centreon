@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 
 import { isNil, ifElse, pathEq, always, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { useRequest, getData } from '@centreon/ui';
 

@@ -30,8 +30,7 @@ import {
   remove,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import CloseIcon from '@mui/icons-material/Close';
 import {

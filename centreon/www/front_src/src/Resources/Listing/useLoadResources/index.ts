@@ -10,8 +10,7 @@ import {
   pathOr,
   prop,
 } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {

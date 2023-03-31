@@ -1,7 +1,6 @@
 import { equals, includes, not, isNil, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
 

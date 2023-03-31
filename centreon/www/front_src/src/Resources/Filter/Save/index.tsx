@@ -12,8 +12,7 @@ import {
   symmetricDifference,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { Menu, MenuItem, CircularProgress } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';

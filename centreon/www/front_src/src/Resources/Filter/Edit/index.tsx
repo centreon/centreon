@@ -2,8 +2,7 @@ import { useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { map, find, equals, path } from 'ramda';
-import { useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useSetAtom, useAtom } from 'jotai';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
 

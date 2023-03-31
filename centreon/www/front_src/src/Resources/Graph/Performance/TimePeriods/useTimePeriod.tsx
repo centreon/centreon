@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { equals, isNil, not, propOr } from 'ramda';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { useAtom } from 'jotai';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
   getTimePeriodById,

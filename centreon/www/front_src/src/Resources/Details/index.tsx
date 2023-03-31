@@ -2,8 +2,7 @@ import { RefObject, useEffect, useRef } from 'react';
 
 import { isNil, isEmpty, pipe, not, defaultTo, propEq, findIndex } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useTheme, alpha, Skeleton } from '@mui/material';
 

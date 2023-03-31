@@ -6,8 +6,7 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import { render, RenderResult } from '@testing-library/react';
-import { Provider } from 'jotai';
-import { useSetAtom } from 'jotai';
+import { Provider, useSetAtom } from 'jotai';
 
 import { userAtom, ThemeMode } from '@centreon/ui-context';
 

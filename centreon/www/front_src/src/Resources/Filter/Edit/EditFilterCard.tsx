@@ -4,8 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { all, equals, any, reject, update, findIndex, omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSetAtom } from 'jotai';
-import { useAtom } from 'jotai';
+import { useSetAtom, useAtom } from 'jotai';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import makeStyles from '@mui/styles/makeStyles';

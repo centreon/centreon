@@ -17,9 +17,7 @@ const ServicesTab = (): JSX.Element => {
 
   const details = useAtomValue(detailsAtom);
 
-  const setSelectedResourceDetails = useSetAtom(
-    selectedResourcesDetailsAtom,
-  );
+  const setSelectedResourceDetails = useSetAtom(selectedResourcesDetailsAtom);
 
   const limit = 30;
 

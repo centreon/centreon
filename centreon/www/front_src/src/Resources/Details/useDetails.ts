@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 
 import { isNil } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
 

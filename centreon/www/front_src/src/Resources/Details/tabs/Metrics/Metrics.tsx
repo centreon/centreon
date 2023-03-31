@@ -53,9 +53,7 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
   const classes = useStyles();
 
   const selectResource = useSetAtom(selectResourceDerivedAtom);
-  const setSelectedResourceDetails = useSetAtom(
-    selectedResourcesDetailsAtom,
-  );
+  const setSelectedResourceDetails = useSetAtom(selectedResourcesDetailsAtom);
 
   return (
     <>
