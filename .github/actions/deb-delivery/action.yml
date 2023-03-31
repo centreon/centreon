@@ -36,6 +36,12 @@ runs:
       run: |
         FILES="*.deb"
 
+        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
+          ROOT_REPO_PATH="installers"
+          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
+          exit 0
+        fi
+
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
