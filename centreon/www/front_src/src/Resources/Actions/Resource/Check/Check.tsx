@@ -92,8 +92,11 @@ const Check = ({
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const handleClick = (event): void => {
-    const {target} = event;
-    if (!equals(target?.id, arrowIconId) && !equals(target?.parentElement?.id,arrowIconId)) {
+    const { target } = event;
+    if (
+      !equals(target?.id, arrowIconId) &&
+      !equals(target?.parentElement?.id, arrowIconId)
+    ) {
       return;
     }
     if (!anchorEl) {
