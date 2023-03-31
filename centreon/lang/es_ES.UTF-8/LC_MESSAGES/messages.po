@@ -14477,7 +14477,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent"
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
@@ -15546,8 +15546,8 @@ msgstr "Verifique los recursos seleccionados solo dentro del período de verific
 msgid "Check selected resources even outside configured check period"
 msgstr "Verifique los recursos seleccionados incluso fuera del período configurado de verificación"
 
-msgid "Forced check command sent"
-msgstr "Comando de verificación forzada enviado"
+msgid "Forced check command sent ! Please refresh the listing to update the data."
+msgstr ""
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
