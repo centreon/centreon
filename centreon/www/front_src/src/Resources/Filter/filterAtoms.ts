@@ -23,7 +23,7 @@ import { getUrlQueryParameters } from '@centreon/ui';
 import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
 
-import { Criteria, CriteriaById, CriteriaValue } from './Criterias/models';
+import { Criteria, CriteriaValue } from './Criterias/models';
 import {
   allFilter,
   Filter,
@@ -85,12 +85,16 @@ export const filterWithParsedSearchDerivedAtom = atom((get) => {
   const criteriaValueNameById = get(criteriaValueNameByIdAtom);
 
   return {
-  ...currentFilter,
-  criterias: [
-    ...parse({ search: get(searchAtom), criteriaName: criteriaValueNameById }),
-    find(propEq('name', 'sort'), currentFilter.criterias) as Criteria
-  ]
-}});
+    ...currentFilter,
+    criterias: [
+      ...parse({
+        criteriaName: criteriaValueNameById,
+        search: get(searchAtom)
+      }),
+      find(propEq('name', 'sort'), currentFilter.criterias) as Criteria
+    ]
+  };
+});
 
 export const filterByInstalledModulesWithParsedSearchDerivedAtom = atom(
   (get) =>
