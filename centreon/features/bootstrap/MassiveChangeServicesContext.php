@@ -334,34 +334,12 @@ class MassiveChangeServicesContext extends CentreonContext
      */
     public function allSelectedServicesAreUpdatedWithTheSameValues()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedService1['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedService1 as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key . ' 1';
-                        }
-                    }
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedService2['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedService2 as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key . ' 2';
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedService1['description']);
+        $this->comparePageProperties($this->currentPage, $this->updatedService1);
+
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedService2['description']);
+        $this->comparePageProperties($this->currentPage, $this->updatedService2);
     }
 }

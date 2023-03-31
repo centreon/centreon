@@ -104,40 +104,9 @@ class TimePeriodConfigurationContext extends CentreonContext
      */
     public function allPropertiesOfMyTimePeriodAreSaved()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new TimeperiodConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->initialProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->initialProperties as $key => $value) {
-                        if ($key != 'exceptions' && $value != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                        if ($key == 'exceptions') {
-                            $stringValue = '';
-                            foreach ($value as $array) {
-                                $stringValue = $stringValue . implode(',', $array) . ' ';
-                            }
-                            $stringObject = '';
-                            foreach ($object[$key] as $array) {
-                                $stringObject = $stringObject . implode(',', $array) . ' ';
-                            }
-                            if ($stringValue != $stringObject) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new TimeperiodConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->initialProperties);
     }
 
     /**
