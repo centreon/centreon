@@ -23,7 +23,7 @@ import { getUrlQueryParameters } from '@centreon/ui';
 import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
 
-import { Criteria, CriteriaValue } from './Criterias/models';
+import { Criteria, CriteriaById, CriteriaValue } from './Criterias/models';
 import {
   allFilter,
   Filter,
@@ -78,13 +78,19 @@ export const editPanelOpenAtom = atom(false);
 export const searchAtom = atom('');
 export const sendingFilterAtom = atom(false);
 
-export const filterWithParsedSearchDerivedAtom = atom((get) => ({
-  ...get(currentFilterAtom),
+export const criteriaValueNameByIdAtom = atom<Record<string, string>>({});
+
+export const filterWithParsedSearchDerivedAtom = atom((get) => {
+  const currentFilter = get(currentFilterAtom);
+  const criteriaValueNameById = get(criteriaValueNameByIdAtom);
+
+  return {
+  ...currentFilter,
   criterias: [
-    ...parse({ search: get(searchAtom) }),
-    find(propEq('name', 'sort'), get(currentFilterAtom).criterias) as Criteria
+    ...parse({ search: get(searchAtom), criteriaName: criteriaValueNameById }),
+    find(propEq('name', 'sort'), currentFilter.criterias) as Criteria
   ]
-}));
+}});
 
 export const filterByInstalledModulesWithParsedSearchDerivedAtom = atom(
   (get) =>

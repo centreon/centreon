@@ -35,6 +35,7 @@ import type { SelectEntry } from '@centreon/ui';
 
 import {
   Criteria,
+  CriteriaById,
   CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
