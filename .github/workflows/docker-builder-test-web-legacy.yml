@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker buildx build --build-arg centreon_version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
+        run: DOCKER_BUILDKIT=1 docker buildx build --build-arg centreon_version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
 
       - name: push docker ${{ matrix.project }}
         run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
