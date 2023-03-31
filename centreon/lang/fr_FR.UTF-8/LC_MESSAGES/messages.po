@@ -15435,8 +15435,8 @@ msgstr "Commande d'acquittement envoyée"
 msgid "Downtime command sent"
 msgstr "Commande de configuration de plage de maintenance envoyée"
 
-msgid "Check command sent"
-msgstr "Commande de contrôle envoyée"
+msgid "Check command sent ! Please refresh the page to update the data."
+msgstr "Commande de contrôle envoyée ! Veuillez actualiser la page pour mettre à jour les données."
 
 msgid "Type of resource"
 msgstr "Type de ressource"
@@ -17414,8 +17414,8 @@ msgstr "Vérifier les ressources sélectionnées uniquement pendant la période 
 msgid "Check selected resources even outside configured check period"
 msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
 
-msgid "Forced check command sent"
-msgstr "Commande de vérification forcée envoyée"
+msgid "Forced check command sent ! Please refresh the page to update the data."
+msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser la page pour mettre à jour les données."
 
 msgid "Developed by"
 msgstr "Développé par"

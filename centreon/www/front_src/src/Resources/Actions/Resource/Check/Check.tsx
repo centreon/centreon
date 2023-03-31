@@ -80,7 +80,7 @@ const Check = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const idArrowIcon = 'arrowIcon';
+  const arrowIconId = 'arrowIcon';
 
   const closePopover = (): void => {
     setAnchorEl(null);
@@ -92,7 +92,8 @@ const Check = ({
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const handleClick = (event): void => {
-    if (!equals(event.target?.id, idArrowIcon)) {
+    const {target} = event;
+    if (!equals(target?.id, arrowIconId) && !equals(target?.parentElement?.id,arrowIconId)) {
       return;
     }
     if (!anchorEl) {
@@ -125,13 +126,13 @@ const Check = ({
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}
           disabled={disabledButton}
-          id={idArrowIcon}
+          id={arrowIconId}
           onClick={(): void => undefined}
         >
           {displayCondensed ? (
-            <ArrowDropDownIcon fontSize="small" id={idArrowIcon} />
+            <ArrowDropDownIcon fontSize="small" id={arrowIconId} />
           ) : (
-            <IconArrow id={idArrowIcon} />
+            <IconArrow id={arrowIconId} />
           )}
         </IconButton>
       </ButtonGroup>
