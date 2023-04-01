@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     fontSize: theme.typography.body2.fontSize,
     marginTop: theme.spacing(1),
+    width : "100%"
   },
   pollerText: {
     margin: theme.spacing(0),
