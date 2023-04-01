@@ -92,7 +92,7 @@ const useFilterByModule = (): FilterByModule => {
 
   useEffect(() => {
     setCriteriaValueNameById(newCriteriaValueNameById);
-  }, [useDeepCompare(newCriteriaValueNameById)]);
+  }, useDeepCompare(newCriteriaValueNameById));
 
   return {
     newCriteriaValueName: newCriteriaValueNameById,
