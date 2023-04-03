@@ -64,15 +64,13 @@ const useStyles = makeStyles<{ isRoot?: boolean }>()((theme, { isRoot }) => ({
         : theme.palette.primary.main
     },
     '&:hover': {
-      backgroundColor:
-        isDarkMode(theme) && isRoot
-          ? theme.palette.primary.main
-          : theme.palette.primary.light
+      backgroundColor: isDarkMode(theme)
+        ? theme.palette.primary.dark
+        : theme.palette.primary.light
     },
-    backgroundColor:
-      isDarkMode(theme) && isRoot
-        ? theme.palette.primary.main
-        : theme.palette.primary.light,
+    backgroundColor: isDarkMode(theme)
+      ? theme.palette.primary.dark
+      : theme.palette.primary.light,
     color:
       isDarkMode(theme) && isRoot
         ? theme.palette.common.white
