@@ -50,7 +50,7 @@ const mountComponent = (): void => {
 };
 
 describe('About page', () => {
-  before(() => {
+  beforeEach(() => {
     cy.clock(new Date(2021, 1, 1).getTime());
   });
 
@@ -87,6 +87,8 @@ describe('About page', () => {
     contributors.forEach((contributor) => {
       cy.findByText(contributor).should('be.visible');
     });
+
+    cy.contains('Copyright © 2005 - 2021').should('exist');
 
     cy.matchImageSnapshot();
   });
