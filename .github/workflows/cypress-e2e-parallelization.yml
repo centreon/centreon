@@ -64,7 +64,7 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-slim-alma9
           image_openid_version: ${{ needs.get-version.outputs.major_version }}
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon

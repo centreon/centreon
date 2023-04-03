@@ -319,6 +319,7 @@ jobs:
             docker pull ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:develop
             slim build --show-clogs --show-blogs \
               --include-shell \
+              --http-probe-off \
               --exec-file .github/docker/slim-configuration/exec.txt \
               --include-path-file .github/docker/slim-configuration/include-path.txt \
               --include-bin-file .github/docker/slim-configuration/include-bin.txt \
@@ -339,7 +340,7 @@ jobs:
     with:
       name: api
       module_name: centreon
-      image_name: centreon-web-slim
+      image_name: centreon-web
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
@@ -368,7 +369,7 @@ jobs:
     with:
       name: e2e
       module_name: centreon
-      image_name: centreon-web-slim
+      image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
