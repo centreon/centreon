@@ -18,6 +18,7 @@ import { platformInstallationStatusAtom } from './atoms/platformInstallationStat
 import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
+import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
 
 const useMain = (): void => {
   const { sendRequest: getPlatformInstallationStatus } =
@@ -44,6 +45,7 @@ const useMain = (): void => {
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
   useFederatedModules();
+  useFederatedWidgets();
 
   const displayAuthenticationError = (): void => {
     const authenticationError = searchParameter.get('authenticationError');
