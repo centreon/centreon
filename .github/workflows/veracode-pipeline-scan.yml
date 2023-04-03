@@ -1,0 +1,100 @@
+name: Launch Veracode pipeline scan
+
+on:
+#  pull_request:
+#    types:
+#      - synchronize
+#      - opened
+#      - reopened
+
+  push:
+    branches:
+      - "AT-94-pipeline-scan"
+      - "test-99.09.x"
+
+env:
+  ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
+  BRANCH_NAME: "baseline-develop"
+  REPORT_FILENAME: "result.json"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check PR base repo name
+        run: echo "${{ github.event.pull_request.base.repo.name }}"
+
+      - name: DEBUG - Check head ref
+        run: echo "${{ github.head_ref }}"
+
+      - name: DEBUG - Check ref name
+        run: echo "${{ github.ref_name }}"
+
+      - name: DEBUG - Check run id
+        run: echo "${{ github.run_id }}"
+
+      - name: DEBUG - Zip name
+        run: echo "${{ env.ZIP_NAME }}"
+
+      - name: Create zip file
+        run: zip -r ${{ env.ZIP_NAME }} *
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: Move zip file
+        run: mv ${{ env.ZIP_NAME }}.zip /tmp
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+          path: /tmp/${{ env.ZIP_NAME }}.zip
+
+  pipeline_scan:
+    needs: build
+    runs-on: ubuntu-latest
+    name: pipeline scan
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+
+#      - name: Check if the report exist
+#        run: |
+#          if [ ! -f ${{ env.REPORT_FILENAME }} ]
+#          then
+#          echo "Creating file"
+#            touch ${{ env.REPORT_FILENAME }}
+#          else
+#            echo "File exists"
+#          fi
+#          ls -la
+
+      - name: pipeline-scan action step
+        id: pipeline-scan
+        uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
+        with:
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          file: ${{ env.ZIP_NAME }}.zip
+#          request_policy: "test POV"
+          fail_build: false
+          store_baseline_file: true
+#          store_baseline_file_branch: "${{ env.BRANCH_NAME }}"
+          create_baseline_from: standard
+          baseline_file: "${{ env.REPORT_FILENAME }}"
+
+      - name: DEBUG - Check location
+        run: ls -la

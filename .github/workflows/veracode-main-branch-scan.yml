@@ -1,0 +1,174 @@
+name: Launch Veracode scan on develop
+
+on:
+  push:
+    #branches: [ develop, master ]
+    branches:
+      - "AT-94-pipeline-scan"
+      - "test-99.09.x"
+
+env:
+  ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
+  BRANCH_NAME: "baseline-develop"
+  REPORT_FILENAME: "result.json"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check PR base repo name
+        run: echo "${{ github.event.pull_request.base.repo.name }}"
+
+      - name: DEBUG - Check head ref
+        run: echo "${{ github.head_ref }}"
+
+      - name: DEBUG - Check ref name
+        run: echo "${{ github.ref_name }}"
+
+      - name: DEBUG - Check run id
+        run: echo "${{ github.run_id }}"
+
+      - name: DEBUG - Zip name
+        run: echo "${{ env.ZIP_NAME }}"
+
+      - name: Create zip file
+        run: zip -r ${{ env.ZIP_NAME }} *
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: Move zip file
+        run: mv ${{ env.ZIP_NAME }}.zip /tmp
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+          path: /tmp/${{ env.ZIP_NAME }}.zip
+
+  policy-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    name: pipeline scan
+    steps:
+      - uses: actions/checkout@v3
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+
+      - name: Veracode Upload and Scan Action Step
+        uses: veracode/veracode-uploadandscan-action@master
+        id: upload_and_scan
+        with:
+          appname: "centreon/centreon-web"
+          createprofile: true
+          #version: ${{ github.ref_name }}
+          version: "23.04.0"
+          filepath: ${{ env.ZIP_NAME }}.zip
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          scantimeout: 45
+          #deleteincompletescan: true
+        continue-on-error: True
+
+  pipeline-scan:
+    needs: policy-scan
+    runs-on: ubuntu-latest
+    container:
+      image: veracode/pipeline-scan:latest
+      options: --user root
+    steps:
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+          path: /tmp
+
+      - name: pipeline-scan
+        run: |
+          java -jar /opt/veracode/pipeline-scan.jar \
+            -vid "${{secrets.VERACODE_API_ID}}" \
+            -vkey "${{secrets.VERACODE_API_KEY}}" \
+            --fail_on_severity="Very High, High" \
+            --file /tmp/${{ env.ZIP_NAME }}.zip \
+            -jf result.json \
+            -fjf filtered_result.json
+        continue-on-error: true
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check location tmp
+        run: ls -la /tmp
+
+      - name: Compress reports
+        run: |
+          zip -P "${{ secrets.UNZIP_PWD }} result.zip result.json
+          zip -P "${{ secrets.UNZIP_PWD }} filtered_result.zip filtered_result.json
+        shell: bash
+
+      - name: save standard results
+        uses: actions/upload-artifact@v3
+        with:
+          name: result.zip
+          path: result.zip
+
+      - name: save filtered results
+        uses: actions/upload-artifact@v3
+        with:
+          name: filtered_result.zip
+          path: filtered_result.zip
+
+  commit-baseline-file:
+    needs: pipeline-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: get scan results
+        uses: actions/download-artifact@v3
+        with:
+          name: result.zip
+
+      - name: get filtered scan results
+        uses: actions/download-artifact@v3
+        with:
+          name: filtered_result.zip
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: commit baseline file to feature branche
+        run: |
+          git config --global user.name "${{ secrets.USERNAME }}"
+          git config --global user.email "${{ secrets.USERMAIL }}"
+          git add "result.json" "filtered_result.json"
+          git stash
+          git pull origin ${{ env.BRANCH_NAME }} || echo "Couldn't find remote branch"
+          git checkout stash -- .
+          git commit -m "Veracode develop's Baseline File push from pipeline"
+          git push origin HEAD:${{ env.BRANCH_NAME }} --force-with-lease
+
+#  veracode-sandbox-task:
+#    needs: build
+#    name: Promote a scan from sandbox
+#    runs-on: ubuntu-latest
+#    if: ${{ github.ref_name == 'develop' || github.ref_name == 'master' }}
+#
+#    steps:
+#      - name: Promote Scan on Approval
+#        env:
+#          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+#          VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
+#        uses: lerer/veracode-sandboxes-helper@v1.0.1
+#        with:
+#          activity: "promote-latest-scan"
+#          appname: "sc979/centreon"
+#          sandbox-name: "${{ github.event.pull_request.base.repo.name }}-${{ github.ref_name }}"
+#          delete-on-promote: true # Optional: also Deleting the Sandbox
