@@ -1,9 +1,8 @@
 import { useCallback, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
-import { useDeepCompare } from 'centreon-frontend/packages/centreon-ui/src/utils/useMemoComponent';
 
-import { getData, useRequest } from '@centreon/ui';
+import { getData, useRequest, useDeepCompare } from '@centreon/ui';
 
 import usePlatformVersions from '../Main/usePlatformVersions';
 

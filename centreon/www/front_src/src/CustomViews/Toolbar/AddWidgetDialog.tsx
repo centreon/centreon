@@ -15,7 +15,7 @@ import {
   labelAddWidget,
   labelCancel
 } from '../translatedLabels';
-import useFederatedWidgets from '../../federatedModules/useFedaratedWidgets';
+import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
 import { FederatedModule } from '../../federatedModules/models';
 import { addWidgetDerivedAtom } from '../atoms';
 
