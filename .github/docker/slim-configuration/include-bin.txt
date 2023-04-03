@@ -1,0 +1,2 @@
+/usr/libexec/vi
+/usr/lib64/libprocps.so.8
