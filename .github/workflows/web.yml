@@ -315,19 +315,21 @@ jobs:
           mv  dist_linux/docker-slim /usr/local/bin/
           mv  dist_linux/slim-sensor /usr/local/bin/
           mv  dist_linux/slim /usr/local/bin/
-          docker pull ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
-          slim build --show-clogs --show-blogs \
-            --include-shell \
-            --exec-file .github/docker/slim-configuration/exec.txt \
-            --include-path-file .github/docker/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-            --tag ${{ matrix.project }}-slim-${{ matrix.os }} \
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
-            #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-            #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ matrix.project }}-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          for IMAGE_SUFFIX in "" "-fresh"; do
+            docker pull ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:develop
+            slim build --show-clogs --show-blogs \
+              --include-shell \
+              --exec-file .github/docker/slim-configuration/exec.txt \
+              --include-path-file .github/docker/slim-configuration/include-path.txt \
+              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
+              --tag ${{ matrix.project }}-slim-${{ matrix.os }}$IMAGE_SUFFIX \
+              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:develop
+              #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
+              #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}$IMAGE_SUFFIX:${{ github.head_ref || github.ref_name }}
+            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          done
         shell: bash
 
   api-integration-test:
@@ -352,7 +354,7 @@ jobs:
     with:
       name: legacy-e2e
       module_name: centreon
-      image_name: centreon-web-slim
+      image_name: centreon-web
       features_path: features
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
