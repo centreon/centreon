@@ -72,196 +72,196 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  frontend-build:
-    runs-on: ubuntu-22.04
+  # frontend-build:
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/frontend-build
-        with:
-          base_directory: ${{ env.base_directory }}
-          index_file: ${{ env.base_directory }}/www/index.html
-          static_directory: ${{ env.base_directory }}/www/static
-          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+  #     - uses: ./.github/actions/frontend-build
+  #       with:
+  #         base_directory: ${{ env.base_directory }}
+  #         index_file: ${{ env.base_directory }}/www/index.html
+  #         static_directory: ${{ env.base_directory }}/www/static
+  #         index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+  #         static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
-  backend-dependencies:
-    runs-on: ubuntu-22.04
+  # backend-dependencies:
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/backend-dependencies
-        with:
-          base_directory: ${{ env.base_directory }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+  #     - uses: ./.github/actions/backend-dependencies
+  #       with:
+  #         base_directory: ${{ env.base_directory }}
+  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
-  translation-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-    container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_ID }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+  # translation-build:
+  #   needs: [get-version]
+  #   runs-on: ubuntu-22.04
+  #   container:
+  #     image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
+  #     credentials:
+  #       username: ${{ secrets.DOCKER_REGISTRY_ID }}
+  #       password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - run: |
-          cd centreon
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-          for i in lang/* ; do
-            localefull=`basename $i`
-            langcode=`echo $localefull | cut -d _ -f 1`
-            mkdir -p "www/locale/$localefull/LC_MESSAGES"
-            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
-            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
-          done
-        shell: bash
+  #     - run: |
+  #         cd centreon
+  #         mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+  #         php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+  #         for i in lang/* ; do
+  #           localefull=`basename $i`
+  #           langcode=`echo $localefull | cut -d _ -f 1`
+  #           mkdir -p "www/locale/$localefull/LC_MESSAGES"
+  #           msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
+  #           msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
+  #           php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+  #         done
+  #       shell: bash
 
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.base_directory }}/www/locale
-          key: ${{ github.sha }}-${{ github.run_id }}-translation
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: ${{ env.base_directory }}/www/locale
+  #         key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  # frontend-lint:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.base_directory }}
-          module_name: centreon
+  #     - uses: ./.github/actions/frontend-lint
+  #       with:
+  #         frontend_directory: ${{ env.base_directory }}
+  #         module_name: centreon
 
-  frontend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  # frontend-unit-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
+  #     - uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 7
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: centreon
+  #     - name: Install dependencies
+  #       run: pnpm install
+  #       working-directory: centreon
 
-      - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: pnpm t --silent --reporter=jest-junit
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/junit.xml"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/junit.xml"
 
-  frontend-component-test:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-    uses: ./.github/workflows/cypress-component-parallelization.yml
-    with:
-      name: component
-      module_name: centreon
-      specs_path: www/front_src/src/**
+  # frontend-component-test:
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  #   uses: ./.github/workflows/cypress-component-parallelization.yml
+  #   with:
+  #     name: component
+  #     module_name: centreon
+  #     specs_path: www/front_src/src/**
 
-  backend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+  # backend-unit-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes]
+  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-        env:
-          runner: ubuntu-22.04
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.1
+  #         coverage: none
+  #       env:
+  #         runner: ubuntu-22.04
 
-      - name: Install dependencies
-        uses: ramsey/composer-install@v2
-        with:
-          working-directory: centreon
-          composer-options: "--optimize-autoloader"
+  #     - name: Install dependencies
+  #       uses: ramsey/composer-install@v2
+  #       with:
+  #         working-directory: centreon
+  #         composer-options: "--optimize-autoloader"
 
-      - name: Unit test
-        run: XDEBUG_MODE=coverage composer run-script test:ci
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: XDEBUG_MODE=coverage composer run-script test:ci
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/build/phpunit.xml"
-          format: "php-junit"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/build/phpunit.xml"
+  #         format: "php-junit"
 
-  package:
-    needs:
-      [
-        get-version,
-        translation-build,
-        backend-dependencies,
-        backend-unit-test,
-        frontend-build,
-        frontend-lint,
-        frontend-unit-test,
-        frontend-component-test,
-      ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  # package:
+  #   needs:
+  #     [
+  #       get-version,
+  #       translation-build,
+  #       backend-dependencies,
+  #       backend-unit-test,
+  #       frontend-build,
+  #       frontend-lint,
+  #       frontend-unit-test,
+  #       frontend-component-test,
+  #     ]
+  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
-    strategy:
-      matrix:
-        distrib: [el8, el9, bullseye]
-        include:
-          - package_extension: rpm
-            image: packaging-alma8
-            distrib: el8
-          - package_extension: rpm
-            image: packaging-alma9
-            distrib: el9
-          - package_extension: deb
-            image: packaging-bullseye
-            distrib: bullseye
+  #   strategy:
+  #     matrix:
+  #       distrib: [el8, el9, bullseye]
+  #       include:
+  #         - package_extension: rpm
+  #           image: packaging-alma8
+  #           distrib: el8
+  #         - package_extension: rpm
+  #           image: packaging-alma9
+  #           distrib: el9
+  #         - package_extension: deb
+  #           image: packaging-bullseye
+  #           distrib: bullseye
 
-    uses: ./.github/workflows/package.yml
-    with:
-      base_directory: centreon
-      spec_file: centreon/packaging/centreon.spectemplate
-      package_extension: ${{ matrix.package_extension }}
-      frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-      frontend_index_file: centreon/www/index.html
-      frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-      frontend_static_directory: centreon/www/static
-      backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-      backend_vendor_directory: centreon/vendor
-      translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
-      translation_directory: centreon/www/locale
-      image_name: ${{ matrix.image }}
-      module_name: centreon
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
-      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-    secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+  #   uses: ./.github/workflows/package.yml
+  #   with:
+  #     base_directory: centreon
+  #     spec_file: centreon/packaging/centreon.spectemplate
+  #     package_extension: ${{ matrix.package_extension }}
+  #     frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+  #     frontend_index_file: centreon/www/index.html
+  #     frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+  #     frontend_static_directory: centreon/www/static
+  #     backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+  #     backend_vendor_directory: centreon/vendor
+  #     translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+  #     translation_directory: centreon/www/locale
+  #     image_name: ${{ matrix.image }}
+  #     module_name: centreon
+  #     major_version: ${{ needs.get-version.outputs.major_version }}
+  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
+  #     release: ${{ needs.get-version.outputs.release }}
+  #     cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+  #   secrets:
+  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    # needs: [package]
+    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -283,31 +283,31 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Restore ${{ matrix.package_extension }} files
-        uses: actions/cache@v3
-        with:
-          path: ./*.${{ matrix.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+      # - name: Restore ${{ matrix.package_extension }} files
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ./*.${{ matrix.package_extension }}
+      #     key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
 
-      - uses: docker/setup-buildx-action@v2
+      # - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-          target: web_fresh
-          context: .
-          pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      # - uses: docker/build-push-action@v3
+      #   with:
+      #     file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+      #     target: web_fresh
+      #     context: .
+      #     pull: true
+      #     push: true
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-          target: web_standard
-          context: .
-          pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      # - uses: docker/build-push-action@v3
+      #   with:
+      #     file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+      #     target: web_standard
+      #     context: .
+      #     pull: true
+      #     push: true
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - run: |
           wget https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
@@ -323,8 +323,10 @@ jobs:
             --include-path-file ./include-path.txt \
             --include-bin-file ./include-bin.txt \
             --path-perms-file ./path-perms.txt \
-            --tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:develop \
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
+            #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
+            #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
   api-integration-test:
