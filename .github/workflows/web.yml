@@ -326,6 +326,7 @@ jobs:
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
             #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
             #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
   api-integration-test:
