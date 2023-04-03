@@ -316,12 +316,11 @@ jobs:
           mv  dist_linux/slim-sensor /usr/local/bin/
           mv  dist_linux/slim /usr/local/bin/
           slim build --show-clogs --show-blogs \
-            --http-probe-start-wait=10 --http-probe-ports=80 \
-            --exec-file ./exec.txt \
             --include-shell \
-            --include-path-file ./include-path.txt \
-            --include-bin-file ./include-bin.txt \
-            --path-perms-file ./path-perms.txt \
+            --exec-file .github/docker/slim-configuration/exec.txt \
+            --include-path-file .github/docker/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/slim-configuration/path-perms.txt \
             --tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:develop \
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
             #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
