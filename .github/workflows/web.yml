@@ -315,6 +315,7 @@ jobs:
           mv  dist_linux/docker-slim /usr/local/bin/
           mv  dist_linux/slim-sensor /usr/local/bin/
           mv  dist_linux/slim /usr/local/bin/
+          docker pull ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:develop
           slim build --show-clogs --show-blogs \
             --include-shell \
             --exec-file .github/docker/slim-configuration/exec.txt \
