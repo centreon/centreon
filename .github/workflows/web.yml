@@ -391,7 +391,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
