@@ -1,3 +1,4 @@
+sleep 10
 curl http://localhost/centreon/api/latest/platform/versions
 pkill php-fpm
 pkill httpd
