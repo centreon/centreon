@@ -265,7 +265,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [alma9]
+        os: [bullseye]
         include:
           - project: centreon-web
           - os: bullseye
