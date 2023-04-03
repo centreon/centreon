@@ -323,10 +323,10 @@ jobs:
               --include-path-file .github/docker/slim-configuration/include-path.txt \
               --include-bin-file .github/docker/slim-configuration/include-bin.txt \
               --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-              --tag ${{ matrix.project }}-slim-${{ matrix.os }}$IMAGE_SUFFIX \
+              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
               ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:develop
               #--tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-              #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}$IMAGE_SUFFIX:${{ github.head_ref || github.ref_name }}
+              #${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
           done
