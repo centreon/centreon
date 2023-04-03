@@ -652,6 +652,19 @@ $INSTALL_DIR/cinstall $cinstall_opts \
     $CENTREON_BINDIR/centreonSyncPlugins >> $LOG_FILE 2>&1
 check_result $? "$(gettext "Install centreonSyncPlugins")"
 
+## Copy database charset conversion script
+log "INFO" "$(gettext "Prepare convert_db_charset_to_utfmb4")"
+cp $TMP_DIR/src/bin/convert_db_charset_to_utfmb4.php \
+    $TMP_DIR/final/bin/convert_db_charset_to_utfmb4.php >> "$LOG_FILE" 2>&1
+check_result $? "$(gettext "Prepare convert_db_charset_to_utfmb4")"
+
+log "INFO" "$(gettext "Install convert_db_charset_to_utfmb4")"
+$INSTALL_DIR/cinstall $cinstall_opts \
+    -m 755 \
+    $TMP_DIR/final/bin/convert_db_charset_to_utfmb4.php \
+    $CENTREON_BINDIR/convert_db_charset_to_utfmb4.php >> $LOG_FILE 2>&1
+check_result $? "$(gettext "Install convert_db_charset_to_utfmb4")"
+
 ## Install centreonSyncArchives
 log "INFO" "$(gettext "Prepare centreonSyncArchives")"
 cp $TMP_DIR/src/bin/centreonSyncArchives \

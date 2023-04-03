@@ -76,7 +76,8 @@ it(
                     (new Endpoint('custom_endpoint', '/my/custom/endpoint//')),
                     []
                 )
-            )
+            ),
+            'redirect_url' => null
         ];
 
         $customConfiguration = new CustomConfiguration($json);

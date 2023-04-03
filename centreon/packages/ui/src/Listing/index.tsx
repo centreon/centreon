@@ -99,7 +99,7 @@ const useStyles = makeStyles<StylesProps>()(
       display: 'flex'
     },
     checkbox: {
-      justifyContent: 'center'
+      justifyContent: 'start'
     },
     container: {
       background: 'none',
@@ -125,6 +125,9 @@ const useStyles = makeStyles<StylesProps>()(
       width: '100%'
     },
     table: {
+      '.listingHeader > div > div:first-of-type': {
+        paddingLeft: theme.spacing(1.5)
+      },
       '.listingHeader div div': {
         backgroundColor: theme.palette.background.listingHeader,
         boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
@@ -140,6 +143,10 @@ const useStyles = makeStyles<StylesProps>()(
       position: 'relative'
     },
     tableBody: {
+      '.MuiTableRow-root > div:first-of-type': {
+        paddingLeft: theme.spacing(1.5)
+      },
+
       display: 'contents',
       'div:first-of-type': {
         gridColumnStart: 1
@@ -152,6 +159,19 @@ const useStyles = makeStyles<StylesProps>()(
     }
   })
 );
+
+interface CustomStyle {
+  customStyleViewerModeContainer?: string;
+  customStyleViewerModeIcon?: string;
+}
+interface ViewerModeConfiguration {
+  customStyle?: CustomStyle;
+  disabled?: boolean;
+  labelViewerMode?: string;
+  onClick: () => void;
+  testId?: string;
+  title?: string;
+}
 
 export interface Props<TRow> {
   actions?: JSX.Element;
@@ -186,6 +206,7 @@ export interface Props<TRow> {
   sortOrder?: SortOrder;
   totalRows?: number;
   viewMode?: ListingVariant;
+  viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
 }
 
@@ -228,7 +249,8 @@ const Listing = <TRow extends { id: RowId }>({
   moveTablePagination,
   viewMode = ListingVariant.compact,
   widthToMoveTablePagination,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  viewerModeConfiguration
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -520,6 +542,8 @@ const Listing = <TRow extends { id: RowId }>({
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            viewMode={viewMode}
+            viewerModeConfiguration={viewerModeConfiguration}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}

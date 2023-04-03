@@ -59,17 +59,4 @@ class UserException extends \Exception
             $ex
         );
     }
-
-    /**
-     * @param \Throwable $ex
-     * @return self
-     */
-    public static function errorWhenUpdatingUserTheme(\Throwable $ex): self
-    {
-        return new self(
-            sprintf(_('Error when updating the user\'s theme'), $ex->getMessage()),
-            0,
-            $ex
-        );
-    }
 }

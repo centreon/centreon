@@ -36,6 +36,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
                  URI_HOST_CATEGORY_CONFIGURATION = '/main.php?p=60104&o=c&hc_id={hostCategoryId}',
                  ENDPOINT_HOST_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addhostacknowledgement',
                  ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_host',
+                 ENDPOINT_HOST_CHECK = 'centreon_application_check_checkHost',
                  ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addHostDowntime',
                  ENDPOINT_HOST_NOTIFICATION_POLICY = 'configuration.host.notification-policy',
                  ENDPOINT_HOST_TIMELINE = 'centreon_application_monitoring_gettimelinebyhost',
@@ -64,6 +65,28 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     }
 
     /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_HOST_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_HOST_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_HOST_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_HOST_CHECK, $parameters)
+            : null;
+    }
+
+    /**
      * @inheritDoc
      */
     public function createEndpoints(array $parameters): array
@@ -79,7 +102,9 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
             ),
             'details' => $this->generateEndpoint(self::ENDPOINT_DETAILS, $urlParams),
             'downtime' => $this->generateDowntimeEndpoint($urlParams),
-            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams)
+            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams),
+            'check' => $this->generateCheckEndpoint($urlParams),
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams)
         ];
     }
 

@@ -1,11 +1,17 @@
-import { pathEq } from 'ramda';
+import { path, pathEq, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useUpdateAtom } from 'jotai/utils';
 
 import IconAcknowledge from '@mui/icons-material/Person';
-import IconCheck from '@mui/icons-material/Sync';
+import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 
-import { SeverityCode, StatusChip, IconButton } from '@centreon/ui';
+import {
+  SeverityCode,
+  StatusChip,
+  IconButton,
+  useStyleTable
+} from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
 import useAclQuery from '../../Actions/Resource/aclQuery';
@@ -13,14 +19,22 @@ import IconDowntime from '../../icons/Downtime';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
-  labelCheck,
+  labelForcedCheck,
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 
 import { ColumnProps } from '.';
 
-const useStyles = makeStyles()((theme) => ({
+interface StylesProps {
+  data: {
+    height: number;
+    width: number;
+  };
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { data }) => ({
   actions: {
     alignItems: 'center',
     display: 'flex',
@@ -31,6 +45,13 @@ const useStyles = makeStyles()((theme) => ({
   statusColumn: {
     alignItems: 'center',
     display: 'flex',
+    width: '100%'
+  },
+  statusColumnChip: {
+    fontWeight: 'bold',
+    height: data.height,
+    marginLeft: 1,
+    minWidth: theme.spacing((data.width - 1) / 8),
     width: '100%'
   }
 }));
@@ -43,10 +64,15 @@ const StatusColumnOnHover = ({
   actions,
   row
 }: StatusColumnProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { dataStyle } = useStyleTable({});
+  const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
 
-  const { canAcknowledge, canDowntime, canCheck } = useAclQuery();
+  const setForcedCheckInlineEndpoint = useUpdateAtom(
+    forcedCheckInlineEndpointAtom
+  );
+
+  const { canAcknowledge, canDowntime } = useAclQuery();
 
   const isResourceOk = pathEq(
     ['status', 'severity_code'],
@@ -56,11 +82,14 @@ const StatusColumnOnHover = ({
 
   const isAcknowledePermitted = canAcknowledge([row]);
   const isDowntimePermitted = canDowntime([row]);
-  const isCheckPermitted = canCheck([row]);
+
+  const isForcedCheckPermitted = !isNil(
+    path(['links', 'endpoints', 'forced_check'], row)
+  );
 
   const disableAcknowledge = !isAcknowledePermitted || isResourceOk;
   const disableDowntime = !isDowntimePermitted;
-  const disableCheck = !isCheckPermitted;
+  const disableForcedCheck = !isForcedCheckPermitted;
 
   const getActionTitle = ({ labelAction, isActionPermitted }): string => {
     const translatedLabelAction = t(labelAction);
@@ -99,18 +128,27 @@ const StatusColumnOnHover = ({
       >
         <IconDowntime fontSize="small" />
       </IconButton>
+
       <IconButton
-        ariaLabel={`${t(labelCheck)} ${row.name}`}
-        data-testid={`${labelCheck} ${row.name}`}
-        disabled={disableCheck}
+        ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
+        data-testid={`${labelForcedCheck} ${row.name}`}
+        disabled={disableForcedCheck}
         size="large"
         title={getActionTitle({
-          isActionPermitted: isCheckPermitted,
-          labelAction: labelCheck
+          isActionPermitted: isForcedCheckPermitted,
+          labelAction: labelForcedCheck
         })}
-        onClick={(): void => actions.onCheck(row)}
+        onClick={(): void => {
+          const forcedCheckEndpoint = path(
+            ['links', 'endpoints', 'forced_check'],
+            row
+          );
+          setForcedCheckInlineEndpoint(forcedCheckEndpoint);
+
+          actions.onCheck(row);
+        }}
       >
-        <IconCheck fontSize="small" />
+        <IconForcedCheck fontSize="small" />
       </IconButton>
     </div>
   );
@@ -121,7 +159,10 @@ const StatusColumn = ({
   t
 }: ColumnProps): ((props: ComponentColumnProps) => JSX.Element) => {
   const Status = ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const { classes } = useStyles();
+    const { dataStyle } = useStyleTable({});
+    const { classes } = useStyles({
+      data: dataStyle.statusColumnChip
+    });
 
     const statusName = row.status.name;
 
@@ -131,7 +172,7 @@ const StatusColumn = ({
           <StatusColumnOnHover actions={actions} row={row} />
         ) : (
           <StatusChip
-            statusColumn
+            className={classes.statusColumnChip}
             label={t(statusName)}
             severityCode={row.status.severity_code}
           />
