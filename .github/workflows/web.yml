@@ -265,12 +265,12 @@ jobs:
 
     strategy:
       matrix:
-        os: [bullseye]
+        os: [alma9]
         include:
           - project: centreon-web
-          - os: bullseye
-            distrib: bullseye
-            package_extension: deb
+          - os: alma9
+            distrib: el9
+            package_extension: rpm
 
     steps:
       - name: Checkout sources
@@ -299,3 +299,151 @@ jobs:
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_standard
+          context: .
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+  api-integration-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  legacy-e2e-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  e2e-test:
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/e2e/cypress/e2e
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+  performances-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+      - name: Run Lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon/lighthouse"
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
+
+      - name: Publish report to S3
+        if: ${{ github.event_name == 'push' }}
+        uses: ./.github/actions/lighthouse-to-s3
+        with:
+          report_path: centreon/lighthouse/report/lighthouseci-index.html
+          report_target: s3://centreon-lighthouse-report/
+          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
+
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
+
+  deliver-rpm:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  deliver-deb:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      matrix:
+        distrib: [bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
