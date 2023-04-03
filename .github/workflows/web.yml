@@ -319,7 +319,6 @@ jobs:
             --http-probe-start-wait=10 --http-probe-ports=80 \
             --exec-file ./exec.txt \
             --include-shell \
-            --http-probe-cmd-file probeCmds.json \
             --include-path-file ./include-path.txt \
             --include-bin-file ./include-bin.txt \
             --path-perms-file ./path-perms.txt \
