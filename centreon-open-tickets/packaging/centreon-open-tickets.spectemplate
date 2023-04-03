@@ -29,6 +29,7 @@ Provides:       centreon-open-tickets-widget = %{version}-%{release}
 AutoReqProv: no
 
 %description
+%{COMMIT_HASH}
 The module allows to open tickets on ITSM providers.
 
 %prep

@@ -42,6 +42,8 @@ Requires(post): sudo
 BuildRequires:  systemd
 
 %description
+%{COMMIT_HASH}
+UI to export/import centreon configuration.
 Centreon is a network, system, applicative supervision and monitoring tool,
 it is based upon the most effective Open Source monitoring engine : Nagios.
 Centreon provides a new frontend and new functionnalities to Nagios.
@@ -66,6 +68,7 @@ Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
 
 %description common
+%{COMMIT_HASH}
 Add user and group for Centreon and this suite.
 
 %package web
@@ -132,6 +135,7 @@ Conflicts:  centreon-poller-display-central
 Conflicts:  centreon-pp-manager < %{thismajor}
 
 %description web
+%{COMMIT_HASH}
 This package contains WebUI files.
 
 %package database
@@ -145,6 +149,7 @@ Requires:   mariadb-server
 %endif
 
 %description database
+%{COMMIT_HASH}
 Install a database server optimized for use with Centreon.
 
 %package perl-libs
@@ -159,6 +164,7 @@ Provides:   perl-centreon-base
 AutoReqProv: no
 
 %description perl-libs
+%{COMMIT_HASH}
 This packages contains Centreon Perl libraries.
 
 %package trap
@@ -174,6 +180,7 @@ Obsoletes:  centreon-trap-poller
 Obsoletes:  centreon-trap-central
 
 %description trap
+%{COMMIT_HASH}
 This package contains Centreon Trap engine
 
 %package central
@@ -208,6 +215,7 @@ Obsoletes:  centreon-base-config-centreon-engine
 Provides:   /etc/centreon/conf.pm
 
 %description central
+%{COMMIT_HASH}
 The package contains base configuration for Centreon Engine and Centreon Broker.
 It provides one default monitoring engine running with Centreon Engine and
 two Centreon Broker instances to store real-time information in database and
@@ -251,6 +259,7 @@ Provides:   centreon-poller-centreon-engine
 Obsoletes:  centreon-poller-centreon-engine
 
 %description poller
+%{COMMIT_HASH}
 This package add rights and default directories for a poller
 managed by Centreon. This includes the default central poller.
 
