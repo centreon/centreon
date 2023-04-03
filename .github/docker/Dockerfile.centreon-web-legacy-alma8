@@ -41,6 +41,8 @@ COPY --chown=apache:apache ./.github/docker/centreon-web-alma8/configuration /us
 RUN <<EOF
 
 chmod +x /usr/share/centreon/container.d/*
+chmod +x /etc/init.d/*
+chmod +x /usr/share/centreon/container.sh
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 cd /usr/share/centreon/www/install/steps/process
