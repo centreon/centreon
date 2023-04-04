@@ -38,14 +38,13 @@ const retrievedUser = {
   name: 'Admin',
   timezone: 'Europe/Paris',
   use_deprecated_pages: false,
-  user_interface_density: ListingVariant.compact
 };
 
 const retrievedParameters = {
   monitoring_default_acknowledgement_persistent: true,
   monitoring_default_acknowledgement_sticky: true,
   monitoring_default_downtime_duration: 3600,
-  monitoring_default_refresh_interval: 15
+  monitoring_default_refresh_interval: 15,
 };
 
 const retrievedActionsAcl = {
@@ -53,34 +52,24 @@ const retrievedActionsAcl = {
     acknowledgement: true,
     check: true,
     downtime: true,
-    forced_check: true
   },
   service: {
     acknowledgement: true,
     check: true,
     downtime: true,
-    forced_check: true
-  }
+  },
 };
 
 const retrievedTranslations = {
   en: {
-    hello: 'Hello'
-  }
+    hello: 'Hello',
+  },
 };
 
 const retrievedWeb = {
   web: {
-    version: '21.10.1'
-  }
-};
-
-const retrievedLoginConfiguration = {
-  custom_text: 'Custom text',
-  icon_source: 'icon_source',
-  image_source: 'image_source',
-  platform_name: 'Platform name',
-  text_position: null
+    version: '21.10.1',
+  },
 };
 
 const retrievedProvidersConfiguration = [
@@ -89,8 +78,8 @@ const retrievedProvidersConfiguration = [
       '/centreon/authentication/providers/configurations/local',
     id: 1,
     is_active: true,
-    name: 'local'
-  }
+    name: 'local',
+  },
 ];
 
 jest.mock('../Header', () => {
@@ -100,7 +89,7 @@ jest.mock('../Header', () => {
 
   return {
     __esModule: true,
-    default: Header
+    default: Header,
   };
 });
 
@@ -111,7 +100,7 @@ jest.mock('../components/mainRouter', () => {
 
   return {
     __esModule: true,
-    default: MainRouter
+    default: MainRouter,
   };
 });
 
@@ -119,7 +108,7 @@ const renderMain = (): RenderResult =>
   render(
     <Provider>
       <Main />
-    </Provider>
+    </Provider>,
   );
 
 const mockDefaultGetRequests = (): void => {
@@ -216,12 +205,16 @@ const mockNotConnectedGetRequests = (): void => {
 };
 
 const mockInstallGetRequests = (): void => {
-  mockedAxios.get.mockResolvedValueOnce({
-    data: {
-      has_upgrade_available: false,
-      is_installed: false
-    }
-  });
+  mockedAxios.get
+    .mockResolvedValueOnce({
+      data: {
+        has_upgrade_available: false,
+        is_installed: false,
+      },
+    })
+    .mockRejectedValueOnce({
+      response: { status: 403 },
+    });
 };
 
 const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
@@ -321,6 +314,13 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         webVersionsEndpoint,
+        cancelTokenRequestParam,
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        userEndpoint,
         cancelTokenRequestParam,
       );
     });
