@@ -45,7 +45,6 @@ jobs:
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DBD::Sybase",
-            "DateTime::Format::Duration::ISO8601",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
@@ -57,7 +56,6 @@ jobs:
             "FFI::Platypus",
             "File::SearchPath",
             "Hash::Merge",
-            "Hash::Ordered",
             "HTTP::Daemon",
             "HTTP::Daemon::SSL",
             "HTTP::ProxyPAC",
@@ -70,15 +68,12 @@ jobs:
             "MongoDB",
             "MQSeries",
             "Net::Curl::Easy",
-            "Net::DHCP::Constants",
-            "Net::DHCP::Packet",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
             "Net::NTP",
             "Net::SMTPS",
             "Net::SMTP_auth",
             "Net::Subnet",
-            "Net::Telnet",
             "Net::TFTP",
             "Schedule::Cron",
             "Statistics::Descriptive",
@@ -91,7 +86,6 @@ jobs:
             "URL::Encode",
             "UUID",
             "UUID::URandom",
-            "WWW::Selenium",
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
@@ -116,9 +110,10 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "Convert::Binary::C"
+            build_deb: "false"
           - name: "DBD::Sybase"
-            rpm_dependencies: "perl-DBI.x86_64"
-            deb_dependencies: "libdbi-perl"
+            build_deb: "false"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
@@ -157,7 +152,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI.x86_64
         shell: bash
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
