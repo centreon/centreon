@@ -13,6 +13,9 @@ on:
       release:
         required: true
         type: string
+      commit_hash:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -47,6 +50,7 @@ jobs:
       major_version: ${{ inputs.major_version }}
       minor_version: ${{ inputs.minor_version }}
       release: ${{ inputs.release }}
+      commit_hash: ${{ inputs.commit_hash }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.registry_username }}

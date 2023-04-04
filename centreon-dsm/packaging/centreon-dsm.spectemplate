@@ -26,6 +26,7 @@ Requires:	    centreon-dsm-client = %{version}-%{release}
 Requires:       centreon-dsm-server = %{version}-%{release}
 
 %description
+%{COMMIT_HASH}
 This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
 into the configuration. This module give possibility to collect all alerts into a tray of
 events.
@@ -39,6 +40,7 @@ Requires:	centreon-web >= %{thismajor}
 Requires:       centreon-web < %{nextmajor}
 
 %description server
+%{COMMIT_HASH}
 Centreon-dsm server package
 
 %package client
@@ -47,6 +49,7 @@ Group:		Networking/Other
 License:	Apache-2.0
 
 %description client
+%{COMMIT_HASH}
 Centreon-dsm client package
 
 ######################################################

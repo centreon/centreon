@@ -15,8 +15,6 @@ import {
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 
-import { criteriaValueNameById } from './models';
-
 interface Props {
   name: string;
   value: Array<SelectEntry>;
@@ -24,7 +22,7 @@ interface Props {
 
 const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const { newSelectableCriterias } = useFilterByModule();
+  const { newSelectableCriterias, newCriteriaValueName } = useFilterByModule();
 
   const setCriteriaAndNewFilter = useUpdateAtom(
     setCriteriaAndNewFilterDerivedAtom
@@ -44,7 +42,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const getUntranslated = (values): Array<SelectEntry> => {
     return values.map(({ id }) => ({
       id,
-      name: criteriaValueNameById[id]
+      name: newCriteriaValueName[id]
     }));
   };
 

@@ -235,28 +235,29 @@ jobs:
   #           image: packaging-bullseye
   #           distrib: bullseye
 
-  #   uses: ./.github/workflows/package.yml
-  #   with:
-  #     base_directory: centreon
-  #     spec_file: centreon/packaging/centreon.spectemplate
-  #     package_extension: ${{ matrix.package_extension }}
-  #     frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-  #     frontend_index_file: centreon/www/index.html
-  #     frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-  #     frontend_static_directory: centreon/www/static
-  #     backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-  #     backend_vendor_directory: centreon/vendor
-  #     translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
-  #     translation_directory: centreon/www/locale
-  #     image_name: ${{ matrix.image }}
-  #     module_name: centreon
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     release: ${{ needs.get-version.outputs.release }}
-  #     cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    # uses: ./.github/workflows/package.yml
+    # with:
+    #   base_directory: centreon
+    #   spec_file: centreon/packaging/centreon.spectemplate
+    #   package_extension: ${{ matrix.package_extension }}
+    #   frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+    #   frontend_index_file: centreon/www/index.html
+    #   frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+    #   frontend_static_directory: centreon/www/static
+    #   backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+    #   backend_vendor_directory: centreon/vendor
+    #   translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+    #   translation_directory: centreon/www/locale
+    #   image_name: ${{ matrix.image }}
+    #   module_name: centreon
+    #   major_version: ${{ needs.get-version.outputs.major_version }}
+    #   minor_version: ${{ needs.get-version.outputs.minor_version }}
+    #   release: ${{ needs.get-version.outputs.release }}
+    #   commit_hash: ${{ github.sha }}
+    #   cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    # secrets:
+    #   registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+    #   registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   dockerize:
     runs-on: ubuntu-22.04

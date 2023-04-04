@@ -22,6 +22,7 @@ Requires:   centreon-web >= %{thismajor}
 Requires:   centreon-web < %{nextmajor}
 
 %description
+%{COMMIT_HASH}
 Add homepage with Centreon Widgets
 
 %prep

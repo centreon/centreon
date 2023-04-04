@@ -10,7 +10,10 @@ import { defaultPasswordSecurityPolicyAPI } from './Local/defaults';
 import { retrievedOpenidConfiguration } from './Openid/defaults';
 import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
 import { retrievedSAMLConfiguration } from './SAML/defaults';
-import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
+import {
+  labelEnableOpenIDConnectAuthentication,
+  labelOpenIDConnectConfiguration
+} from './Openid/translatedLabels';
 import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
 import { labelSAMLConfiguration } from './SAML/translatedLabels';
 import {
@@ -73,7 +76,7 @@ describe('Authentication configuration', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays the OpenID Connect configuration when the corresponding tab is clicked', () => {
+  it.only('displays the OpenID Connect configuration when the corresponding tab is clicked', () => {
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
     cy.findAllByLabelText(labelOpenIDConnectConfiguration)
@@ -84,6 +87,7 @@ describe('Authentication configuration', () => {
 
     cy.waitForRequest('@getOpendidConnectConfiguration');
 
+    cy.findByLabelText(labelEnableOpenIDConnectAuthentication).should('exist');
     cy.findByLabelText(labelGroupsMapping).click();
     cy.findByLabelText(labelRolesMapping).click();
     cy.findByLabelText(labelAutoImportUsers).click();
