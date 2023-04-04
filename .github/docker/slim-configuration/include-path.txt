@@ -3,6 +3,7 @@
 /sbin
 /usr/sbin
 /run/httpd
+/usr/share/zoneinfo
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
