@@ -79,7 +79,8 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - uses: actions/setup-node@v3
+      - if: ${{ contains(matrix.feature, 'RestApi') }}
+        uses: actions/setup-node@v3
         with:
           node-version: 18
 
@@ -108,7 +109,6 @@ jobs:
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
-            -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
             -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-centos7:${{ env.IMAGE_TAG }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
