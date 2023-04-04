@@ -106,7 +106,7 @@ jobs:
       - if: failure()
         name: Display logs
         run: |
-          cat ./acceptance-logs/*.txt
+          find ./acceptance-logs -type f -exec cat {} \;
         shell: bash
 
       - uses: actions/upload-artifact@v3

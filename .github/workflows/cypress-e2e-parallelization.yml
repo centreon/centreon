@@ -44,7 +44,7 @@ jobs:
     needs: [cypress-e2e-test-list, get-version]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
     name: ${{ matrix.feature }}
