@@ -72,7 +72,7 @@ jobs:
 
       - name: Setup docker compose
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.16.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
@@ -102,6 +102,12 @@ jobs:
       - name: Clean empty reports
         if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs -r rm
+
+      - if: failure()
+        name: Display logs
+        run: |
+          cat ./acceptance-logs/*.txt
+        shell: bash
 
       - uses: actions/upload-artifact@v3
         if: failure()
