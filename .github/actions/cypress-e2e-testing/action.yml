@@ -27,17 +27,30 @@ runs:
       with:
         version: 7
 
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v3
+      name: Setup pnpm cache
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles(join(inputs.module, '/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
     - name: Install dependencies
       run: pnpm install
       working-directory: ${{ inputs.module }}
       shell: bash
 
-    - uses: mad9000/actions-find-and-replace-string@2
+    - name: Format feature file path
       id: formatFeatureFilePath
-      with:
-          source: ${{ inputs.feature_file_path }}
-          find: '/'
-          replace: '-'
+      run:
+        echo "value=$(echo '${{ inputs.features_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
