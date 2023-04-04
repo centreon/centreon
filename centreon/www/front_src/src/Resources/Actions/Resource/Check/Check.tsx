@@ -1,23 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import IconArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { ClickAwayListener, useMediaQuery, useTheme } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import { IconButton } from '@centreon/ui';
 
 import ResourceActionButton from '../ResourceActionButton';
 import useMediaQueryListing from '../useMediaQueryListing';
 
-import IconArrow from './IconArrow';
 import CheckOptionsList from './CheckOptionsList';
+import IconArrow from './IconArrow';
 
 const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
@@ -86,14 +84,20 @@ const Check = ({
   const arrowIconId = 'arrowIcon';
   const isOpen = Boolean(anchorEl);
 
-  const closeList = (): void => {
-    setAnchorEl(null);
-  };
-
   const { applyBreakPoint } = useMediaQueryListing();
 
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
+
+  const iconProps = displayCondensed
+    ? {
+        icon: <ArrowDropDownIcon fontSize="small" id={arrowIconId} />
+      }
+    : { icon: <IconArrowDown id={arrowIconId} /> };
+
+  const closeList = (): void => {
+    setAnchorEl(null);
+  };
 
   const handleClick = (event): void => {
     const { target } = event;
@@ -158,19 +162,7 @@ const Check = ({
           id={arrowIconId}
           onClick={(): void => undefined}
         >
-          {displayCondensed ? (
-            <IconArrow
-              iconDown={<ArrowDropDownIcon fontSize="small" id={arrowIconId} />}
-              iconUp={<ArrowDropUpIcon fontSize="small" id={arrowIconId} />}
-              open={isOpen}
-            />
-          ) : (
-            <IconArrow
-              iconDown={<IconArrowDown id={arrowIconId} />}
-              iconUp={<IconArrowUp id={arrowIconId} />}
-              open={isOpen}
-            />
-          )}
+          <IconArrow {...iconProps} open={isOpen} />
         </IconButton>
         <CheckOptionsList
           anchorEl={anchorEl}

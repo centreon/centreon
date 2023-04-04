@@ -5,19 +5,25 @@ import { makeStyles } from 'tss-react/mui';
 const useStyles = makeStyles()({
   container: {
     display: 'flex'
+  },
+  reverseIcon: {
+    transform: 'rotate(180deg)'
   }
 });
 
 interface Props {
-  iconDown: ReactNode;
-  iconUp: ReactNode;
+  icon: ReactNode;
   open: boolean;
 }
 
-const IconArrow = ({ open, iconUp, iconDown }: Props): JSX.Element => {
-  const { classes } = useStyles();
+const IconArrow = ({ open, icon }: Props): JSX.Element => {
+  const { classes, cx } = useStyles();
 
-  return <div className={classes.container}>{open ? iconUp : iconDown}</div>;
+  return (
+    <div className={cx(classes.container, { [classes.reverseIcon]: open })}>
+      {icon}
+    </div>
+  );
 };
 
 export default IconArrow;
