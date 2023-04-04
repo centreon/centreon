@@ -30,6 +30,7 @@ runs:
     - name: Get pnpm store directory
       id: pnpm-cache
       shell: bash
+      working-directory: ${{ inputs.module }}
       run: |
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
