@@ -82,8 +82,8 @@ $help["password2"] = dgettext("help", "Enter the password again.");
 $help["language"] = dgettext("help", "Define the default language for the user for the centreon front-end here.");
 $help["default_page"] = dgettext(
     "help",
-    "Define the default page for the user when he logs in." .
-    "(Acls must be defined so that the pages can be shown)"
+    "Define the default page for this user (displayed when they log in). " .
+    "ACLs must be defined so the user can access the page"
 );
 $help["admin"] = dgettext(
     "help",
