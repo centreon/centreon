@@ -30,7 +30,7 @@ const useMain = (): void => {
     useInitializeTranslation();
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
-    areUserParametersLoadedAtom
+    areUserParametersLoadedAtom,
   );
   const user = useAtomValue(userAtom);
   const setPlatformInstallationStatus = useSetAtom(

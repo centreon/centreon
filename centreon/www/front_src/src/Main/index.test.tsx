@@ -212,8 +212,8 @@ const mockInstallGetRequests = (): void => {
   mockedAxios.get.mockResolvedValueOnce({
     data: {
       has_upgrade_available: false,
-      is_installed: false
-    }
+      is_installed: false,
+    },
   });
 };
 
