@@ -1,6 +1,6 @@
 FROM almalinux:9 AS web_fresh
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
 dnf module reset -y php
@@ -36,7 +36,7 @@ EOF
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
@@ -94,7 +94,7 @@ FROM web_fresh AS web_standard
 
 COPY ./.github/docker/sql /tmp/sql
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 service mysql start
 mysql centreon < /tmp/sql/standard.sql
