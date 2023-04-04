@@ -1,6 +1,9 @@
 import { useCallback, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
+import { last, pipe, split } from 'ramda';
+
+import { capitalize } from '@mui/material';
 
 import { getData, useRequest, useDeepCompare } from '@centreon/ui';
 
@@ -9,8 +12,17 @@ import usePlatformVersions from '../Main/usePlatformVersions';
 import { federatedWidgetsAtom } from './atoms';
 import { FederatedModule } from './models';
 
-export const getFederatedWidget = (moduleName: string): string =>
-  `./widgets/${moduleName}/static/moduleFederation.json`;
+export const formatWidgetName = pipe(
+  split('centreon-widget-'),
+  last,
+  capitalize
+);
+
+export const getFederatedWidget = (moduleName: string): string => {
+  return `./widgets/${formatWidgetName(
+    moduleName
+  )}/static/moduleFederation.json`;
+};
 
 interface UseFederatedModulesState {
   federatedWidgets: Array<FederatedModule> | null;

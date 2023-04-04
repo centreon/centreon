@@ -180,6 +180,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
         }
+        .react-grid-item.react-grid-placeholder {
+          background: ${theme.palette.primary.main} !important;
+        }
       `
     },
     MuiInputBase: {

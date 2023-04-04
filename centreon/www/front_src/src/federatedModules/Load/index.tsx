@@ -7,6 +7,7 @@ import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import NotFoundPage from '../../FallbackPages/NotFoundPage';
 import { StyleMenuSkeleton } from '../models';
+import { formatWidgetName } from '../useFederatedWidgets';
 
 import loadComponent from './loadComponent';
 
@@ -48,7 +49,9 @@ const useDynamicLoadRemoteEntry = ({
     const prefix = isFederatedWidget ? 'widgets' : 'modules';
 
     const element = document.createElement('script');
-    element.src = `./${prefix}/${moduleName}/static/${remoteEntry}`;
+    element.src = `./${prefix}/${formatWidgetName(
+      moduleName
+    )}/static/${remoteEntry}`;
     element.type = 'text/javascript';
     element.id = moduleName;
 
