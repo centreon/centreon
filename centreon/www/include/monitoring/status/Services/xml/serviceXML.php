@@ -127,6 +127,47 @@ $tabOrder["current_attempt"] = " ORDER BY s.check_attempt " . $order . ", h.name
 $tabOrder["output"] = " ORDER BY s.output " . $order . ", h.name, s.description";
 $tabOrder["default"] = $tabOrder['criticality_id'];
 
+/**
+ * Analyse whether services have graphs by performing a single query.
+ *
+ * @param array $hostServiceIds
+ */
+function analyseGraphs(array $hostServiceIds): void
+{
+    global $obj, $graphs;
+    $request = <<<SQL
+        SELECT DISTINCT index_data.host_id, index_data.service_id
+        FROM index_data
+        INNER JOIN metrics
+          ON metrics.index_id = index_data.id
+          AND index_data.hidden = '0'
+        WHERE
+        SQL;
+    $whereConditions = null;
+    $index = 0;
+    $valuesToBind = [];
+    foreach ($hostServiceIds as $hostServiceId => $status) {
+        list ($hostId, $serviceId) = explode('_', $hostServiceId);
+        if (! empty($whereConditions)) {
+            $whereConditions .= ' || ';
+        }
+        $whereConditions .= sprintf(' (host_id = :host_id_%d AND service_id = :service_id_%d)', $index, $index);
+        $valuesToBind[$index] = ['host_id' => $hostId, 'service_id' => $serviceId];
+        $index++;
+    }
+    $request .= $whereConditions;
+    $statement = $obj->DBC->prepare($request);
+    foreach ($valuesToBind as $index => $hostServiceId) {
+        $statement->bindValue(':host_id_' . $index, $hostServiceId['host_id'], PDO::PARAM_INT);
+        $statement->bindValue(':service_id_' . $index, $hostServiceId['service_id'], PDO::PARAM_INT);
+    }
+    $statement->execute();
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $hostServiceId = $result['host_id'] . '_' . $result['service_id'];
+        $graphs[$hostServiceId] = true;
+    }
+}
+
 $request = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.host_id, s.description,
     s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
@@ -139,8 +180,7 @@ $request = <<<SQL
     h.icon_image AS h_icon_images, h.display_name AS h_display_name, h.action_url AS h_action_url,
     h.notes_url AS h_notes_url, h.notes AS h_notes, h.address,
     h.passive_checks AS h_passive_checks, h.active_checks AS h_active_checks,
-    i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull,
-    m.index_id IS NOT NULL as hasGraph
+    i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull
     FROM hosts h
     INNER JOIN instances i
       ON h.instance_id = i.instance_id
@@ -200,12 +240,6 @@ if ($criticalityId) {
 
 $request .= <<<SQL
 
-    LEFT JOIN index_data idx
-        ON idx.host_id = h.host_id
-        AND idx.service_id = s.service_id
-        AND idx.hidden = '0'
-    LEFT JOIN metrics m
-        ON m.index_id = idx.id
     LEFT JOIN customvariables cv
         ON (
             s.service_id = cv.service_id
@@ -359,7 +393,20 @@ $ct = 0;
 $flag = 0;
 
 if (!$sqlError) {
-    while ($data = $dbResult->fetch()) {
+    $allResults = [];
+    // We get the host and service IDs to see if they have graphs or not
+    while ($result = $dbResult->fetch()) {
+        $hostId = (int) $result["host_id"];
+        $serviceId = (int) $result["service_id"];
+        $graphs[$hostId . '_' . $serviceId] = false;
+        $allResults[] = $result;
+    }
+
+    analyseGraphs($graphs);
+
+    foreach ($allResults as $data) {
+        $hostId = (int) $data["host_id"];
+        $serviceId = (int) $data["service_id"];
         $passive = 0;
         $active = 1;
         $last_check = " ";
@@ -655,7 +702,7 @@ if (!$sqlError) {
         $obj->XML->writeElement("last_hard_state_change", $hard_duration);
 
         // Get Service Graph index
-        $obj->XML->writeElement("hasGraph", $data['hasGraph'] ? '1': '0');
+        $obj->XML->writeElement("hasGraph", $graphs[$hostId . '_' . $serviceId] ? '1' : '0');
         $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
         $obj->XML->endElement();
     }
