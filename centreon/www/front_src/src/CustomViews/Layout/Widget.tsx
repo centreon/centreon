@@ -62,7 +62,11 @@ const Widget: FC<Props> = ({ title, path }) => {
     duplicateWidget(title);
   };
 
-  const options = getWidgetOptions(title);
+  const widgetOptions = getWidgetOptions(title);
+
+  const changeWidgetOptions = (newWidgetOptions): void => {
+    setWidgetOptions({ options: newWidgetOptions, title });
+  };
 
   return useMemoComponent({
     Component: (
@@ -85,16 +89,16 @@ const Widget: FC<Props> = ({ title, path }) => {
         <div className={classes.widgetContent}>
           <FederatedComponent
             isFederatedWidget
-            memoProps={[options, title]}
-            options={options}
+            memoProps={[widgetOptions, title]}
             path={path}
-            setWidgetOptions={setWidgetOptions}
+            setWidgetOptions={changeWidgetOptions}
             title={title}
+            widgetOptions={widgetOptions}
           />
         </div>
       </Card>
     ),
-    memoProps: [isEditing, title, options]
+    memoProps: [isEditing, title, widgetOptions]
   });
 };
 
