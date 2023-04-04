@@ -29,12 +29,10 @@ const useMain = (): void => {
     useInitializeTranslation();
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
-    areUserParametersLoadedAtom
+    areUserParametersLoadedAtom,
   );
   const user = useAtomValue(userAtom);
-  const setPlatformInstallationStatus = useSetAtom(
-    platformInstallationStatusAtom
-  );
+  const setWebVersions = useSetAtom(platformInstallationStatusAtom);
 
   const loadUser = useUser();
   const location = useLocation();
@@ -53,19 +51,18 @@ const useMain = (): void => {
 
   useEffect(() => {
     displayAuthenticationError();
+    getWebVersions({
+      endpoint: webVersionsEndpoint,
+    }).then((retrievedWebVersions) => {
+      setWebVersions(retrievedWebVersions);
 
-    getPlatformInstallationStatus({
-      endpoint: platformInstallationStatusEndpoint
-    }).then((retrievedPlatformInstallationStatus) => {
-      setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
-
-      if (!retrievedPlatformInstallationStatus?.isInstalled) {
+      if (!retrievedWebVersions.isInstalled) {
         setAreUserParametersLoaded(false);
 
         return;
       }
+
       loadUser();
-      getPlatformVersions();
     });
   }, []);
 
