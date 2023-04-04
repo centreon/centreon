@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useAtomValue } from 'jotai/utils';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -28,9 +28,11 @@ const useMain = (): void => {
   const { getBrowserLocale, getInternalTranslation, i18next } =
     useInitializeTranslation();
 
-  const [webVersions, setWebVersions] = useAtom(platformInstallationStatusAtom);
+  const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
+    areUserParametersLoadedAtom,
+  );
   const user = useAtomValue(userAtom);
-  const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
+  const setWebVersions = useSetAtom(platformInstallationStatusAtom);
 
   const loadUser = useUser();
   const location = useLocation();
@@ -53,16 +55,16 @@ const useMain = (): void => {
       endpoint: webVersionsEndpoint,
     }).then((retrievedWebVersions) => {
       setWebVersions(retrievedWebVersions);
+
+      if (!retrievedWebVersions.isInstalled) {
+        setAreUserParametersLoaded(false);
+
+        return;
+      }
+
+      loadUser();
     });
   }, []);
-
-  useEffect((): void => {
-    if (isNil(webVersions)) {
-      return;
-    }
-
-    loadUser();
-  }, [webVersions]);
 
   useEffect((): void => {
     if (not(areUserParametersLoaded)) {
