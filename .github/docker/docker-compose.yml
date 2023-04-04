@@ -12,13 +12,6 @@ services:
     profiles: ["web-fresh"]
     links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
-  webdriver:
-    image: "@SELENIUM_IMAGE@"
-    environment: ["SCREEN_WIDTH=1600", "SCREEN_HEIGHT=2000"]
-    ports: ["4444", "5900"]
-    profiles: ["webdriver"]
-    shm_size: "2g"
-
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]
