@@ -372,6 +372,7 @@ jobs:
       module_name: centreon
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}

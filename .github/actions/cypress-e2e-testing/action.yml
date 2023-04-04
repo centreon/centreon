@@ -38,7 +38,7 @@ runs:
       name: Setup pnpm cache
       with:
         path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles(join(inputs.module, '/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles(join(inputs.module, '/pnpm-lock.yaml')) }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
 
