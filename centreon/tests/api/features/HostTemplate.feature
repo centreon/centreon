@@ -78,3 +78,23 @@ Feature:
       }
     }
     """
+
+  Scenario: Host template deletion
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HTPL;ADD;htpl-name-1;htpl-alias-1;;;;
+      """
+
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    Then the response code should be "200"
+    And I store response values in:
+      | name           | path         |
+      | hostTemplateId | result[0].id |
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/templates/<hostTemplateId>'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements

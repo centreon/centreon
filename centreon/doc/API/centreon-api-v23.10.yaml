@@ -287,6 +287,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/templates//{host_template_id}:
+    delete:
+      tags:
+        - Host template
+      summary: "Delete a host template"
+      description: |
+        Delete a host template configuration
+      parameters:
+        - $ref: '#/components/parameters/HostTemplateId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/categories:
     get:
       tags:
@@ -5350,6 +5368,15 @@ components:
       in: path
       name: vault_configuration_id
       description: "ID of existing vault configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    HostTemplateId:
+      in: path
+      name: host_template_id
+      description: "ID of existing host template configuration"
       required: true
       schema:
         type: integer
