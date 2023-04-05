@@ -23,28 +23,12 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\HostTemplate\Domain\Model\HostTemplate;
-
-interface ReadHostTemplateRepositoryInterface
+interface WriteHostTemplateRepositoryInterface
 {
     /**
-     * Find all host templates.
-     *
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @throws \Throwable
-     *
-     * @return HostTemplate[]
-     */
-    public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
-
-    /**
-     * Determine if a host template exists by its ID.
+     * Delete host template by id.
      *
      * @param int $hostTemplateId
-     *
-     * @return bool
      */
-    public function exists(int $hostTemplateId): bool;
+    public function delete(int $hostTemplateId): void;
 }

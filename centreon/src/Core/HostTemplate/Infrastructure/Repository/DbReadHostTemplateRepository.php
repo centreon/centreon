@@ -193,6 +193,29 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $hostTemplateId): bool
+    {
+        $this->info('Check existence of host template with id #' . $hostTemplateId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_id = :hostTemplateId
+                  AND host_register = :hostTemplateType
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->bindValue(':hostTemplateType', HostType::TEMPLATE->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param array{
      *     host_id: int,
      *     host_name: string,

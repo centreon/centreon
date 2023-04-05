@@ -36,11 +36,29 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function deleteHostTemplate(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting a host template'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access host templates'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete host templates'));
     }
 }
 
