@@ -15322,6 +15322,9 @@ msgstr ""
 # msgid "OK status services"
 # msgstr ""
 
+# msgid "Redirect URL"
+# msgstr ""
+
 # msgid "SAML configuration"
 # msgstr ""
 

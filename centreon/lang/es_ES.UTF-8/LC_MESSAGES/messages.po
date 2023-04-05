@@ -15537,6 +15537,18 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
+msgid "Forced check"
+msgstr "control forzado"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Verifique los recursos seleccionados solo dentro del período de verificación configurado"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Verifique los recursos seleccionados incluso fuera del período configurado de verificación"
+
+msgid "Forced check command sent"
+msgstr "Comando de verificación forzada enviado"
+
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
 
@@ -15619,6 +15631,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 # msgstr ""
 
 # msgid "OK status services"
+# msgstr ""
+
+# msgid "Redirect URL"
 # msgstr ""
 
 # msgid "SAML configuration"

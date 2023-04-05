@@ -302,9 +302,9 @@ sub getMySQLConfFile() {
     if (defined($MYSQL_CONF)) {
         if ( -e $MYSQL_CONF) {
             return $MYSQL_CONF;
-        }
-    } elsif ( -e '/etc/my.cnf' ) {
-        return '/etc/my.cnf';
+        } elsif ( -e '/etc/my.cnf' ) {
+            return '/etc/my.cnf';
+        }    
     } else {
         print STDERR "Unable to get Mysql configuration\n";
     }
@@ -450,7 +450,7 @@ sub databasesBackup() {
 
     # Delete temporary directories
     chdir;
-    rmtree($TEMP_DB_DIR, { mode => 0755, error => \my $err_list });
+    rmtree($TEMP_DB_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;
@@ -568,9 +568,13 @@ sub centralBackup() {
         }
     }
     $MYSQL_CONF = getMySQLConfFile();
-    `cp -pr $MYSQL_CONF $TEMP_CENTRAL_ETC_DIR/mysql/`;
-    if ($? ne 0) {
-        print STDERR "Unable to copy MySQL configuration file\n";
+    if ( -e $MYSQL_CONF) {
+        `cp -pr $MYSQL_CONF $TEMP_CENTRAL_ETC_DIR/mysql/`;
+        if ($? ne 0) {
+            print STDERR "Unable to copy MySQL configuration file\n";
+        }
+    } else {
+        print "The MySQL configuration file doesn't exist on this server so we will not backup it\n";
     }
 
     # PHP.ini
@@ -705,7 +709,7 @@ sub centralBackup() {
 
     # Remove all temp directory
     chdir;
-    rmtree($TEMP_CENTRAL_DIR, { mode => 0755, error => \my $err_list });
+    rmtree($TEMP_CENTRAL_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;
@@ -892,7 +896,7 @@ sub monitoringengineBackup() {
 
     # Remove all temp directory
     chdir;
-    rmtree($TEMP_DIR, {mode => 0755, error => \my $err_list});
+    rmtree($TEMP_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;

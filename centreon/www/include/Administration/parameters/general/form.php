@@ -40,8 +40,6 @@ require_once __DIR__ . "/../../../../class/centreonGMT.class.php";
 const VERTICAL_NOTIFICATION = 1;
 const CLOSE_NOTIFICATION = 2;
 const CUMULATIVE_NOTIFICATION = 3;
-const RESOURCE_STATUS_VIEW_COMPACT_MODE = 'compact';
-const RESOURCE_STATUS_VIEW_EXTENDED_MODE = 'extended';
 
 if (!isset($centreon)) {
     exit();
@@ -90,27 +88,6 @@ $form->addElement('header', 'oreon', _("Centreon information"));
 $form->addElement('text', 'oreon_path', _("Directory"), $attrsText);
 
 $form->addElement('text', 'session_expire', _("Sessions Expiration Time"), $attrsText2);
-
-$resourceStatusViewMode = [];
-
-$resourceStatusViewMode[] = $form->createElement(
-    'radio',
-    'resource_status_view_mode',
-    null,
-    _('Compact'),
-    RESOURCE_STATUS_VIEW_COMPACT_MODE
-);
-
-$resourceStatusViewMode[] = $form->createElement(
-    'radio',
-    'resource_status_view_mode',
-    null,
-    _('Extended'),
-    RESOURCE_STATUS_VIEW_EXTENDED_MODE
-);
-
-$form->addGroup($resourceStatusViewMode, 'resource_status_view_mode', _('Resource Status view mode'), '&nbsp;');
-$form->setDefaults(['resource_status_view_mode' => RESOURCE_STATUS_VIEW_COMPACT_MODE]);
 
 $inheritanceMode = array();
 $inheritanceMode[] = $form->createElement(

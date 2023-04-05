@@ -31,7 +31,8 @@ import {
   labelWhichEndpointTheRolesAttributePathComeFrom,
   labelDefineRelationBetweenRolesAndAcl,
   labelDefineYourEndpoint,
-  labelWhichEndpointTheGroupsAttributePathComeFrom
+  labelWhichEndpointTheGroupsAttributePathComeFrom,
+  labelRedirectUrl
 } from '../translatedLabels';
 import { AuthenticationType, EndpointType } from '../models';
 import {
@@ -431,6 +432,13 @@ export const inputs: Array<InputProps> = [
     fieldName: 'endSessionEndpoint',
     group: labelIdentityProvider,
     label: labelEndSessionEndpoint,
+    type: InputType.Text
+  },
+  {
+    dataTestId: 'oidc_redirectUrl',
+    fieldName: 'redirectUrl',
+    group: labelIdentityProvider,
+    label: labelRedirectUrl,
     type: InputType.Text
   },
   {

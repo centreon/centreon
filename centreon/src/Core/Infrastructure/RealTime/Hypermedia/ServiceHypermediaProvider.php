@@ -36,6 +36,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
                  ENDPOINT_SERVICE_PERFORMANCE_GRAPH = 'monitoring.metric.getServicePerformanceMetrics',
                  ENDPOINT_SERVICE_STATUS_GRAPH = 'monitoring.metric.getServiceStatusMetrics',
                  ENDPOINT_SERVICE_TIMELINE = 'centreon_application_monitoring_gettimelinebyhostandservice',
+                 ENDPOINT_SERVICE_CHECK = 'centreon_application_check_checkService',
                  TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host_and_service',
                  URI_CONFIGURATION = '/main.php?p=60201&o=c&service_id={serviceId}',
                  URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}',
@@ -130,8 +131,32 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
                 $urlParams
             ),
             'downtime' => $this->generateDowntimeEndpoint($urlParams),
-            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams)
+            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams),
+            'check' => $this->generateCheckEndpoint($urlParams),
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams)
         ];
+    }
+
+    /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
+            : null;
     }
 
     /**

@@ -13,7 +13,7 @@ interface Props {
   disabled: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: () => void;
+  onClick: (event) => void;
   permitted?: boolean;
   testId: string;
 }

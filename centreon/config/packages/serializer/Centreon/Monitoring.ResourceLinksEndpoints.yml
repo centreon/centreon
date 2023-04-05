@@ -28,3 +28,11 @@ Centreon\Domain\Monitoring\ResourceLinksEndpoints:
             type: string
             groups:
                 - 'resource_status_main'
+        check:
+            type: string
+            groups:
+                - 'resource_status_main'
+        forcedCheck:
+            type: string
+            groups:
+                - 'resource_status_main'

@@ -15998,6 +15998,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
+msgid "Forced check"
+msgstr "Verificação forçada"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Verifique os recursos selecionados apenas dentro do período de verificação configurado"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Verifique os recursos selecionados mesmo fora do período de verificação configurado"
+
+msgid "Forced check command sent"
+msgstr "Comando de verificação forçada enviado"
+
 #  msgid "Icon #%d does not exist"
 #  msgstr ""
 
@@ -16083,6 +16095,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "OK status services"
+# msgstr ""
+
+# msgid "Redirect URL"
 # msgstr ""
 
 # msgid "SAML configuration"

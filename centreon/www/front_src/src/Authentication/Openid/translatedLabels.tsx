@@ -63,3 +63,7 @@ export const labelDefineRelationBetweenRolesAndAcl =
 export const labelDefineYourEndpoint = 'Define your endpoint';
 export const labelWhichEndpointTheGroupsAttributePathComeFrom =
   'Which endpoint does the groups attribute path come from?';
+export const labelDefinedTheRelationBetweenGroupsAndContactGroups =
+  'Define the relation between groups and contact groups';
+export const labelGroupValue = 'Group value';
+export const labelRedirectUrl = 'Redirect URL';
