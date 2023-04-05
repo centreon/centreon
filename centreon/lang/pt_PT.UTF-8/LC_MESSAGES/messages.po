@@ -15914,3 +15914,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""

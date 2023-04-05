@@ -17223,3 +17223,6 @@ msgstr "Le fournisseur de coffre-fort n'existe pas"
 
 msgid "Event queues maximum total size"
 msgstr "Taille maximale de l’ensemble des queues d'évènements"
+
+msgid "Redirect URL"
+msgstr "URL de redirection"

@@ -144,6 +144,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     private GroupsMapping $groupsMapping;
 
     /**
+     * @var string|null
+     */
+    private ?string $redirectUrl;
+
+    /**
      * @param array<string,mixed> $json
      * @throws OpenIdConfigurationException
      */
@@ -569,6 +574,24 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     }
 
     /**
+     * @return string|null
+     */
+    public function getRedirectUrl(): ?string
+    {
+        return $this->redirectUrl;
+    }
+
+    /**
+     * @param string|null $redirectUrl
+     * @return self
+     */
+    public function setRedirectUrl(?string $redirectUrl): self
+    {
+        $this->redirectUrl = $redirectUrl;
+        return $this;
+    }
+
+    /**
      * @param array<string,mixed> $json
      * @throws OpenIdConfigurationException
      */
@@ -597,6 +620,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         $this->setAuthenticationConditions($json['authentication_conditions']);
         $this->setACLConditions($json['roles_mapping']);
         $this->setGroupsMapping($json['groups_mapping']);
+        $this->setRedirectUrl($json['redirect_url']);
     }
 
     /**

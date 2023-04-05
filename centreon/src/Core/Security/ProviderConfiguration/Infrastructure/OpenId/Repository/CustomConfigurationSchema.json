@@ -20,7 +20,8 @@
     "contact_template_id",
     "email_bind_attribute",
     "fullname_bind_attribute",
-    "authentication_conditions"
+    "authentication_conditions",
+    "redirect_url"
   ],
   "properties": {
     "is_active": {
@@ -248,6 +249,9 @@
           }
         }
       }
+    },
+    "redirect_url": {
+      "type": ["string", "null"]
     }
   }
 }

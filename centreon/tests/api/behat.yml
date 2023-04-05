@@ -102,3 +102,7 @@ default:
       paths: [ "%paths.base%/features/VaultConfiguration.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext
+    openid_configuration:
+      paths: [ "%paths.base%/features/OpenIdProviderConfiguration.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
