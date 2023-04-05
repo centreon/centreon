@@ -6,6 +6,9 @@ import {
 } from '../../Poller-configuration/common';
 import {
   checkIfSystemUserRoot,
+  checkPlatformVersion,
+  givingPermissionsToCacheFolder,
+  injectingModulesLicense,
   setUserAdminDefaultCredentials,
   updatePlatformPackages
 } from '../common';
@@ -46,6 +49,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
   }).as('generateAndReloadPollers');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/internal.php?object=centreon_module&action=install&id=centreon-autodiscovery-server&type=module'
+  }).as('getAutoDiscoInstallation');
 });
 
 Given('an admin user with valid non-default credentials', () => {
@@ -56,11 +63,40 @@ Given('a system user root', () => {
   checkIfSystemUserRoot();
 });
 
-Given('a running platform in version_A', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
-});
+Given(
+  'a running platform in {string} with all extensions installed',
+  (version_A: string) => {
+    checkPlatformVersion(version_A);
 
-When('administrator updates packages', () => {
+    givingPermissionsToCacheFolder();
+
+    injectingModulesLicense();
+
+    cy.visit(`${Cypress.config().baseUrl}`);
+
+    cy.loginByTypeOfUser({ jsonName: 'admin' }).wait('@getNavigationList');
+
+    cy.navigateTo({
+      page: 'Extensions',
+      rootItemNumber: 4,
+      subMenu: 'Manager'
+    });
+
+    cy.get('button[class="MuiButtonBase-root"')
+      .eq(6)
+      .click()
+      .wait('@getAutoDiscoInstallation');
+  }
+);
+
+Given(
+  'this platform has existing configuration for all the installed extensions',
+  () => {
+    // TODO
+  }
+);
+
+When('administrator updates packages to {string}', () => {
   updatePlatformPackages();
 });
 

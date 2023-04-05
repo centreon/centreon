@@ -32,6 +32,14 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const givingPermissionsToCacheFolder = (): void => {
+  cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} chmod 777 -R /var/cache/centreon/symfony/`
+  );
+};
+
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .exec(
@@ -46,17 +54,41 @@ const updatePlatformPackages = (): Cypress.Chainable => {
         )} bash /tmp/platform-update-commands.sh`
       );
 
-      cy.exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} chmod 777 -R /var/cache/centreon/symfony/`
-      );
+      givingPermissionsToCacheFolder();
     });
+};
+
+const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} rpm -qa |grep centreon-web |cut -d '-' -f3`
+    )
+    .then(({ stdout }): Cypress.Chainable<null> | null => {
+      const isRoot = platformVersion === stdout;
+      if (isRoot) {
+        return null;
+      }
+
+      throw new Error(`The platform version isn't the correct one.`);
+    });
+};
+
+const injectingModulesLicense = (): Cypress.Chainable => {
+  return cy.exec(
+    `docker cp cypress/scripts/license/epp.license ${Cypress.env(
+      'dockerName'
+    )}:/etc/centreon/license.d/epp.license`
+  );
 };
 
 export {
   setUserAdminDefaultCredentials,
   setDatabaseUserRootDefaultCredentials,
   checkIfSystemUserRoot,
-  updatePlatformPackages
+  updatePlatformPackages,
+  checkPlatformVersion,
+  givingPermissionsToCacheFolder,
+  injectingModulesLicense
 };
