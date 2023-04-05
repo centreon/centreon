@@ -35,7 +35,7 @@ runs:
     - name: Format feature file path
       id: formatFeatureFilePath
       run:
-        echo "value=$(echo '${{ inputs.features_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
+        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: "Start Centreon container"
