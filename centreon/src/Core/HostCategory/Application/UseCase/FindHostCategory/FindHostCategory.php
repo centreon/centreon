@@ -74,7 +74,7 @@ final class FindHostCategory
                 || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
             ) {
                 $this->debug(
-                    'User is not admin, use ACLs to retrieve host categories',
+                    'User is not admin, use ACLs to retrieve a host category',
                     ['user_id' => $this->user->getId()]
                 );
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
@@ -91,7 +91,7 @@ final class FindHostCategory
 
                 $this->retrieveObjectAndSetResponse($presenter, $hostCategoryId);
             } else {
-                $this->error('User doesn\'t have sufficient rights to see host categories', [
+                $this->error('User doesn\'t have sufficient rights to see a host category', [
                     'user_id' => $this->user->getId(),
                     'host_category_id' => $hostCategoryId,
                 ]);
