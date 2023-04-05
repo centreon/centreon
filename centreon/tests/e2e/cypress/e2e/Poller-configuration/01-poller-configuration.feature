@@ -6,7 +6,7 @@ Feature: Generate poller configuration
 Background:
    Given I am granted the rights to access the poller page and export the configuration
    And I am logged in
-   And I the platform is configured with some resources
+   And the platform is configured with some resources
    And some pollers are created
    And some post-generation commands are configured for each poller
 

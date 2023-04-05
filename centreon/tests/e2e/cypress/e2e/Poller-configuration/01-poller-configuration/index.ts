@@ -45,7 +45,7 @@ Given('I am logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true });
 });
 
-Given('I the platform is configured with some resources', () => {
+Given('the platform is configured with some resources', () => {
   insertHost();
 });
 
