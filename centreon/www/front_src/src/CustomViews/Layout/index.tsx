@@ -17,7 +17,6 @@ import {
 } from '../atoms';
 
 import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 
 import EditionGrid from './EditionGrid';
 import Widget from './Widget';

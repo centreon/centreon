@@ -10,7 +10,8 @@ import {
   StyledEngineProvider,
   createTheme,
   InputBaseProps,
-  ButtonProps
+  ButtonProps,
+  alpha
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
@@ -180,8 +181,50 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
         }
+        .react-grid-item {
+          transition: ${theme.transitions.create('box-shadow', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.short
+          })};
+          border-radius: ${theme.shape.borderRadius}px;
+        }
         .react-grid-item.react-grid-placeholder {
-          background: ${theme.palette.primary.main} !important;
+          display: none;
+        }
+        .react-grid-item.resizing {
+          box-shadow: ${theme.shadows[3]};
+        }
+        .react-grid-item.react-draggable-dragging {
+          box-shadow: ${theme.shadows[3]};
+        }
+        .react-resizable-handle {
+          background-image: none !important;
+          background-color: ${alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity)};
+          border-radius: ${theme.shape.borderRadius}px;
+          opacity: 0;
+          transform: rotate(0deg) !important;
+        }
+        .react-resizable-handle::after {
+          content: none !important;
+        }
+        .react-resizable-handle:hover {
+          opacity: 1;
+        }
+        .react-resizable-handle-e {
+          height: calc(100% - ${theme.spacing(3)}) !important;
+          margin-top: 0px !important;
+          width: ${theme.spacing(1)} !important;
+          top: 0 !important;
+        }
+        .react-resizable-handle-s {
+          width: calc(100% - ${theme.spacing(3)}) !important;
+          margin-left: 0px !important;
+          height: ${theme.spacing(1)} !important;
+          left: 0 !important;
+        }
+        .react-resizable-handle-se {
+          width: ${theme.spacing(2)} !important;
+          height: ${theme.spacing(2)} !important;
         }
       `
     },
