@@ -16,9 +16,8 @@ Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
     return cy
-      .get('li')
+      .get('div[data-testid="sidebar"] li')
       .eq(rootItemNumber)
-      .should('be.visible')
       .trigger('mouseover');
   }
 );
