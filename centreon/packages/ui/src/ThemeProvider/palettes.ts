@@ -103,7 +103,7 @@ export const lightPalette: PaletteOptions = {
 export const darkPalette: PaletteOptions = {
   action: {
     acknowledged: '#67532C',
-    acknowledgedBackground: '#F5F1E9',
+    acknowledgedBackground: '#67532C',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
@@ -113,7 +113,7 @@ export const darkPalette: PaletteOptions = {
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
     inDowntime: '#4B2352',
-    inDowntimeBackground: '#F0E9F8',
+    inDowntimeBackground: '#4B2352',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5,
   },
@@ -152,7 +152,7 @@ export const darkPalette: PaletteOptions = {
   text: {
     disabled: '#666666',
     primary: '#FFFFFF',
-    secondary: '#B5B5B5',
+    secondary: '#CCCCCC',
   },
   warning: {
     contrastText: '#fff',
