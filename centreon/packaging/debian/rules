@@ -22,6 +22,8 @@ override_dh_auto_build:
 		packaging/src/instCentWeb.conf \
 		packaging/src/instCentPlugins.conf \
 		packaging/src/install.conf.php
+	sed -i "s#/etc/sysconfig#/etc/default#g" \
+	    tmpl/install/systemd/centreontrapd.systemd
 	find . -type f -not -path "./vendor/*" | \
 		grep -v packaging/src/centreon-macroreplacement.txt | \
 		xargs -d '\n' sed -i -f packaging/src/centreon-macroreplacement.txt
