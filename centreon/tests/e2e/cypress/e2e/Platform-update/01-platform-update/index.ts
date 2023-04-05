@@ -7,7 +7,6 @@ import {
 import {
   checkIfSystemUserRoot,
   checkPlatformVersion,
-  givingPermissionsToCacheFolder,
   injectingModulesLicense,
   setUserAdminDefaultCredentials,
   updatePlatformPackages
@@ -67,8 +66,6 @@ Given(
   'a running platform in {string} with all extensions installed',
   (version_A: string) => {
     checkPlatformVersion(version_A);
-
-    givingPermissionsToCacheFolder();
 
     injectingModulesLicense();
 

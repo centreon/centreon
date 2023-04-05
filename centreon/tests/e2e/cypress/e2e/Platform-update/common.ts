@@ -32,14 +32,6 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
-const givingPermissionsToCacheFolder = (): void => {
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} chmod 777 -R /var/cache/centreon/symfony/`
-  );
-};
-
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .exec(
@@ -53,8 +45,6 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           'dockerName'
         )} bash /tmp/platform-update-commands.sh`
       );
-
-      givingPermissionsToCacheFolder();
     });
 };
 
@@ -89,6 +79,5 @@ export {
   checkIfSystemUserRoot,
   updatePlatformPackages,
   checkPlatformVersion,
-  givingPermissionsToCacheFolder,
   injectingModulesLicense
 };
