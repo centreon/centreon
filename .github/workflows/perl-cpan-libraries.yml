@@ -137,6 +137,9 @@ jobs:
           - name: "ZMQ::FFI"
             build_deb: "false"
             rpm_dependencies: "zeromq"
+          - name: "ZMQ::LibZMQ4"
+            use_dh_make_perl: "false"
+            version: "0.01"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
