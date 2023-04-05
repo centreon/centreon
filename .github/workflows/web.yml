@@ -387,7 +387,7 @@ jobs:
   e2e-test:
     needs: [get-version]
 #    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+#    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
