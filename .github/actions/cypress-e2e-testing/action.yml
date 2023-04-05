@@ -27,11 +27,6 @@ runs:
       with:
         version: 7
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-        cache: 'pnpm'
-
     - name: Install dependencies
       run: pnpm install
       working-directory: ${{ inputs.module }}
