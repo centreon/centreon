@@ -1,6 +1,6 @@
 Feature: Generate poller configuration
     As a Centreon user
-    I want to generate the poller configuration 
+    I want to generate the poller configuration
     So that the changes made in the configuration are deployed on my platform
 
 Background:
@@ -22,7 +22,7 @@ Background:
         When I click on the export button
         Then the configuration is generated on selected pollers
         And the selected pollers are '<poller_action>'
-        
+
       Examples:
         | method    | poller_action |
         | Reload    | reloaded      |
