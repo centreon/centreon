@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import IconArrow from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { useMediaQuery, useTheme } from '@mui/material';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
+import { ClickAwayListener, useMediaQuery, useTheme } from '@mui/material';
+import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
@@ -15,6 +15,7 @@ import ResourceActionButton from '../ResourceActionButton';
 import useMediaQueryListing from '../useMediaQueryListing';
 
 import CheckOptionsList from './CheckOptionsList';
+import IconArrow from './IconArrow';
 
 const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
@@ -26,7 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     '& .MuiButton-root': {
       backgroundColor: 'transparent',
-      minWidth: theme.spacing(16)
+      boxShadow: theme.spacing(0, 0)
     },
     backgroundColor: theme.palette.primary.main
   },
@@ -76,20 +77,27 @@ const Check = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const displayPopover = (event: React.MouseEvent<HTMLElement>): void => {
+  const displayList = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
   const arrowIconId = 'arrowIcon';
-
-  const closePopover = (): void => {
-    setAnchorEl(null);
-  };
+  const isOpen = Boolean(anchorEl);
 
   const { applyBreakPoint } = useMediaQueryListing();
 
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
+
+  const iconProps = displayCondensed
+    ? {
+        icon: <ArrowDropDownIcon fontSize="small" id={arrowIconId} />
+      }
+    : { icon: <IconArrowDown id={arrowIconId} /> };
+
+  const closeList = (): void => {
+    setAnchorEl(null);
+  };
 
   const handleClick = (event): void => {
     const { target } = event;
@@ -100,15 +108,37 @@ const Check = ({
       return;
     }
     if (!anchorEl) {
-      displayPopover(event);
+      displayList(event);
 
       return;
     }
-    closePopover();
+    closeList();
   };
 
+  const handleClickAway = (): void => {
+    if (!anchorEl) {
+      return;
+    }
+    closeList();
+  };
+
+  const handleClickActionButton = (): void => {
+    onClickActionButton();
+    if (!isOpen) {
+      return;
+    }
+    closeList();
+  };
+
+  useEffect(() => {
+    if (!disabledButton) {
+      return;
+    }
+    setAnchorEl(null);
+  }, [disabledButton]);
+
   return (
-    <>
+    <ClickAwayListener onClickAway={handleClickAway}>
       <ButtonGroup
         className={cx(classes.buttonGroup, {
           [classes.container]: !displayCondensed,
@@ -123,7 +153,7 @@ const Check = ({
           label={t(labelButton)}
           permitted={isActionPermitted}
           testId={testId}
-          onClick={onClickActionButton}
+          onClick={handleClickActionButton}
         />
         <IconButton
           ariaLabel="arrow"
@@ -132,22 +162,18 @@ const Check = ({
           id={arrowIconId}
           onClick={(): void => undefined}
         >
-          {displayCondensed ? (
-            <ArrowDropDownIcon fontSize="small" id={arrowIconId} />
-          ) : (
-            <IconArrow id={arrowIconId} />
-          )}
+          <IconArrow {...iconProps} open={isOpen} />
         </IconButton>
+        <CheckOptionsList
+          anchorEl={anchorEl}
+          disabled={disabledList}
+          isDefaultChecked={isDefaultChecked}
+          open={isOpen}
+          onClickCheck={onClickList?.onClickCheck}
+          onClickForcedCheck={onClickList?.onClickForcedCheck}
+        />
       </ButtonGroup>
-      <CheckOptionsList
-        anchorEl={anchorEl}
-        disabled={disabledList}
-        isDefaultChecked={isDefaultChecked}
-        open={Boolean(anchorEl)}
-        onClickCheck={onClickList?.onClickCheck}
-        onClickForcedCheck={onClickList?.onClickForcedCheck}
-      />
-    </>
+    </ClickAwayListener>
   );
 };
 
