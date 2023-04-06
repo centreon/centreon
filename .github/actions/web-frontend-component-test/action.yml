@@ -43,7 +43,7 @@ runs:
           ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
-      run: pnpm install--frozen-lockfile
+      run: pnpm install --frozen-lockfile
       shell: bash
       working-directory: centreon
 
