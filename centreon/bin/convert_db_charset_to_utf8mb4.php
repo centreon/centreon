@@ -52,15 +52,15 @@ function convertCharset(string $dbName, CentreonDB $db, string ...$excluded_tabl
             $errorMessage = "Couldn't change charset for table: " . $tableName . "\n";
             // Create a query to alter the table and change the character set to utf8mb4
             $query = "ALTER TABLE `{$tableName}` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
-            $db->query($query);
+            $db->exec($query);
 
             // Specific fields we must restore at their default values (utf8mb4_bin).
             if ('metrics' === $tableName) {
                 $query = "ALTER TABLE `{$tableName}` MODIFY `metric_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL";
-                $db->query($query);
+                $db->exec($query);
             } elseif ('provider_configuration' === $tableName) {
                 $query = "ALTER TABLE `{$tableName}` MODIFY `custom_configuration` JSON NOT NULL";
-                $db->query($query);
+                $db->exec($query);
             }
         }
 
