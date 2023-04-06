@@ -134,6 +134,9 @@ $tabOrder["default"] = $tabOrder['criticality_id'];
  */
 function analyseGraphs(array $hostServiceIds): void
 {
+    if (empty($hostServiceIds)) {
+        return;
+    }
     global $obj, $graphs;
     $request = <<<SQL
         SELECT DISTINCT index_data.host_id, index_data.service_id
@@ -146,7 +149,7 @@ function analyseGraphs(array $hostServiceIds): void
     $whereConditions = null;
     $index = 0;
     $valuesToBind = [];
-    foreach ($hostServiceIds as $hostServiceId => $status) {
+    foreach ($hostServiceIds as $hostServiceId) {
         list ($hostId, $serviceId) = explode('_', $hostServiceId);
         if (! empty($whereConditions)) {
             $whereConditions .= ' OR ';
@@ -394,15 +397,17 @@ $flag = 0;
 
 if (!$sqlError) {
     $allResults = [];
+    $hostServiceIdsToAnalyse = [];
     // We get the host and service IDs to see if they have graphs or not
     while ($result = $dbResult->fetch()) {
         $hostId = (int) $result["host_id"];
         $serviceId = (int) $result["service_id"];
         $graphs[$hostId . '_' . $serviceId] = false;
+        $hostServiceIdsToAnalyse[] = $hostId . '_' . $serviceId;
         $allResults[] = $result;
     }
 
-    analyseGraphs($graphs);
+    analyseGraphs($hostServiceIdsToAnalyse);
 
     foreach ($allResults as $data) {
         $hostId = (int) $data["host_id"];
