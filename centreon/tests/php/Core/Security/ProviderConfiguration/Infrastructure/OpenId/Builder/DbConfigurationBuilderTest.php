@@ -63,7 +63,8 @@ beforeEach(function () {
             new Endpoint(Endpoint::INTROSPECTION, ''),
             []
         ),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), [])
+        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
+        "redirect_url" => null
     ];
 });
 

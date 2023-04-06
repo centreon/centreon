@@ -61,6 +61,7 @@ import {
   labelMixed,
   labelOpenIDConnectOnly,
   labelOther,
+  labelRedirectUrl,
   labelRolesAttributePath,
   labelScopes,
   labelTokenEndpoint,
@@ -127,6 +128,7 @@ const retrievedOpenidConfiguration = {
   is_active: true,
   is_forced: false,
   login_claim: 'sub',
+  redirect_url: '',
   roles_mapping: {
     apply_only_first_role: true,
     attribute_path: 'role attribute path',
@@ -282,6 +284,7 @@ describe('Openid configuration form', () => {
     expect(last(screen.getAllByLabelText(labelDefineYourEndpoint))).toHaveValue(
       '/group/endpoint',
     );
+    expect(screen.getByLabelText(labelRedirectUrl)).toHaveValue('');
   });
 
   it('displays an error message when fields are not correctly formatted', async () => {
@@ -389,6 +392,7 @@ describe('Openid configuration form', () => {
             ...retrievedOpenidConfiguration.groups_mapping,
             relations: [{ contact_group_id: 2, group_value: 'groupValue' }],
           },
+          redirect_url: null,
         },
         cancelTokenPutParams,
       );
