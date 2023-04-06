@@ -107,6 +107,7 @@ export interface OpenidConfiguration {
   isActive: boolean;
   isForced: boolean;
   loginClaim?: string | null;
+  redirectUrl?: string | null;
   rolesMapping: RolesMapping;
   tokenEndpoint: string | null;
   userinfoEndpoint?: string | null;
@@ -131,6 +132,7 @@ export interface OpenidConfigurationToAPI {
   is_active: boolean;
   is_forced: boolean;
   login_claim?: string | null;
+  redirect_url?: string | null;
   roles_mapping: RolesMappingToApi;
   token_endpoint: string | null;
   userinfo_endpoint?: string | null;

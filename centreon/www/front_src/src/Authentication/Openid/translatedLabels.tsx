@@ -83,3 +83,4 @@ export const labelWhichEndpointTheGroupsAttributePathComeFrom =
 export const labelDefinedTheRelationBetweenGroupsAndContactGroups =
   'Define the relation between groups and contact groups';
 export const labelGroupValue = 'Group value';
+export const labelRedirectUrl = 'Redirect URL';
