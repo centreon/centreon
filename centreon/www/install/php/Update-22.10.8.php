@@ -52,7 +52,7 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
 };
 
 try {
-    $errorMessage = 'Unable to update OpenId custom configuration';
+    $errorMessage = 'Unable to update provider_configuration table to add redirect_url';
     $updateOpenIdCustomConfiguration($pearDB);
 
     $pearDB->commit();
