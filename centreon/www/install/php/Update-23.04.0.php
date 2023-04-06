@@ -89,12 +89,14 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
         $customConfiguration['redirect_url'] = null;
         $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
 
-        $pearDB->query(
+        $statement = $pearDB->prepare(
             <<<SQL
             UPDATE provider_configuration
-                SET custom_configuration = '$updatedCustomConfigurationEncoded'
+                SET custom_configuration = :encodedConfiguration
             SQL
         );
+        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
+        $statement->execute();
     }
 };
 
