@@ -79,6 +79,7 @@ export type Props = {
   autoSizeDefaultWidth?: number;
   className?: string;
   dataTestId: string;
+  debounced?: boolean;
   displayErrorInTooltip?: boolean;
   error?: string;
   externalValueForAutoSize?: string;
@@ -102,6 +103,7 @@ const TextField = forwardRef(
       displayErrorInTooltip = false,
       className,
       autoSize = false,
+      debounced = false,
       autoSizeDefaultWidth = 0,
       externalValueForAutoSize,
       autoSizeCustomPadding,
@@ -123,7 +125,17 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
-    const valueProps = defaultValue ? { defaultValue } : { value: innerValue };
+    const getValueProps = (): object => {
+      if (debounced) {
+        return {};
+      }
+
+      if (defaultValue) {
+        return { defaultValue };
+      }
+
+      return { value: innerValue };
+    };
 
     return (
       <>
@@ -142,7 +154,7 @@ const TextField = forwardRef(
             ref={ref}
             size={size || 'small'}
             onChange={changeInputValue}
-            {...valueProps}
+            {...getValueProps()}
             {...rest}
             InputProps={{
               className: cx(
