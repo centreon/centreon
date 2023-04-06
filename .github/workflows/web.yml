@@ -298,6 +298,7 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_fresh
           context: .
+          load: true
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
@@ -307,6 +308,7 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_standard
           context: .
+          load: true
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
@@ -314,7 +316,9 @@ jobs:
       - run: |
           wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
           tar -xf dist_linux.tar.gz
-          mv  dist_linux/slim /usr/local/bin/
+          mv dist_linux/docker-slim /usr/local/bin/
+          mv dist_linux/slim-sensor /usr/local/bin/
+          mv dist_linux/slim /usr/local/bin/
           for IMAGE_SUFFIX in "" "-fresh"; do
             docker pull ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             slim build --show-clogs --show-blogs \
