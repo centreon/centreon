@@ -436,7 +436,7 @@ export const inputs: Array<InputProps> = [
     fieldName: 'redirectUrl',
     group: labelIdentityProvider,
     label: labelRedirectUrl,
-    type: InputType.Text
+    type: InputType.Text,
   },
   {
     additionalLabel: labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,
