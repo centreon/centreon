@@ -128,7 +128,7 @@ $tabOrder["output"] = " ORDER BY s.output " . $order . ", h.name, s.description"
 $tabOrder["default"] = $tabOrder['criticality_id'];
 
 /**
- * Analyse whether services have graphs by performing a single query.
+ * Analyse if services have graphs by performing a single query.
  *
  * @param array $hostServiceIds
  */
