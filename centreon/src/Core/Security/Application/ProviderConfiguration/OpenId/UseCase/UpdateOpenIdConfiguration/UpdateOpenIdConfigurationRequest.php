@@ -133,6 +133,11 @@ class UpdateOpenIdConfigurationRequest
     /**
      * @var string|null
      */
+    public ?string $redirectUrl = null;
+
+    /**
+     * @var string|null
+     */
     public ?string $claimName = null;
 
     /**

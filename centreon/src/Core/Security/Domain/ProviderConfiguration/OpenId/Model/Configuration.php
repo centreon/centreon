@@ -150,6 +150,11 @@ class Configuration implements ProviderConfigurationInterface
     private ?string $userNameBindAttribute = null;
 
     /**
+     * @var string|null
+     */
+    private ?string $redirectUrl = null;
+
+    /**
      * @var ContactGroup|null
      */
     private ?ContactGroup $contactGroup = null;
@@ -328,6 +333,14 @@ class Configuration implements ProviderConfigurationInterface
     public function getUserNameBindAttribute(): ?string
     {
         return $this->userNameBindAttribute;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRedirectUrl(): ?string
+    {
+        return $this->redirectUrl;
     }
 
     /**
@@ -620,6 +633,17 @@ class Configuration implements ProviderConfigurationInterface
     public function setUserNameBindAttribute(?string $userNameBindAttribute): self
     {
         $this->userNameBindAttribute = $userNameBindAttribute;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $redirectUrl
+     * @return self
+     */
+    public function setRedirectUrl(?string $redirectUrl): self
+    {
+        $this->redirectUrl = $redirectUrl;
 
         return $this;
     }
