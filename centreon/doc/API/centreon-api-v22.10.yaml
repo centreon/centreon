@@ -4661,9 +4661,6 @@ components:
         - email_bind_attribute
         - fullname_bind_attribute
         - redirect_url
-        - contact_group
-        - authorization_claim
-        - authorization_relations
       properties:
         is_active:
           type: boolean
