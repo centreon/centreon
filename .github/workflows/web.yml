@@ -144,7 +144,7 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -168,7 +168,7 @@ jobs:
 
   frontend-component-test:
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    #if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
