@@ -60,6 +60,8 @@ const MASSIVE_ACTIVATE_CONTACT = 'ms';
 const DEACTIVATE_CONTACT = 'u';
 // Massive deactivate on selected contacts
 const MASSIVE_DEACTIVATE_CONTACT = 'mu';
+// Massive Unblock on selected contacts
+const MASSIVE_UNBLOCK_CONTACT = 'mun';
 // Duplicate n contacts and notify it
 const DUPLICATE_CONTACTS = 'm';
 // Delete n contacts and notify it
@@ -68,6 +70,8 @@ const DELETE_CONTACTS = 'd';
 const DISPLAY_NOTIFICATION = 'dn';
 // Synchronize selected contacts with the LDAP
 const SYNC_LDAP_CONTACTS = 'sync';
+// Unblock contact
+const UNBLOCK_CONTACT = 'un';
 
 isset($_GET["contact_id"]) ? $cG = $_GET["contact_id"] : $cG = null;
 isset($_POST["contact_id"]) ? $cP = $_POST["contact_id"] : $cP = null;
@@ -213,6 +217,16 @@ switch ($o) {
         }
         require_once($path . "listContact.php");
         break;
+    case MASSIVE_UNBLOCK_CONTACT:
+        purgeOutdatedCSRFTokens();
+        if (isCSRFTokenValid()) {
+            purgeCSRFToken();
+            unblockContactInDB($select ?? []);
+        } else {
+            unvalidFormMessage();
+        }
+        require_once($path . "listContact.php");
+        break;
     case DUPLICATE_CONTACTS:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -259,6 +273,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
+        require_once($path . "listContact.php");
+        break;
+    case UNBLOCK_CONTACT:
+        unblockContactInDB($contactId);
         require_once($path . "listContact.php");
         break;
     default:

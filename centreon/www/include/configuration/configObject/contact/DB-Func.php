@@ -198,6 +198,32 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
 }
 
 /**
+ * Unblock contacts in the database
+ *
+ * @param int|array|null $contact Contact ID, array of contact IDs or null to unblock all contacts
+ */
+function unblockContactInDB($contact = null)
+{
+    global $pearDB, $centreon;
+
+    if (is_null($contact)) {
+        return;
+    }
+
+    if (!is_array($contact)) {
+        $contact = [$contact => "1"];
+    }
+
+    foreach ($contact as $key => $value) {
+        $pearDB->query("UPDATE contact SET blocking_time = null WHERE contact_id = '" . (int)$key . "'");
+        $query = "SELECT contact_name FROM `contact` WHERE `contact_id` = '" . (int)$key . "' LIMIT 1";
+        $dbResult2 = $pearDB->query($query);
+        $row = $dbResult2->fetch();
+
+        $centreon->CentreonLogAction->insertLog("contact", $key, $row['contact_name'], "unblock");
+    }
+}
+/**
  * Delete Contacts
  * @param array $contacts
  */

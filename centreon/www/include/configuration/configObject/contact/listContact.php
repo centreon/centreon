@@ -134,7 +134,8 @@ $aclOptions = array(
         'contact_admin',
         'contact_register',
         'contact_auth_type',
-        'contact_ldap_required_sync'
+        'contact_ldap_required_sync',
+        'blocking_time'
     ),
     'keys' => array('contact_id'),
     'order' => array('contact_name'),
@@ -177,6 +178,7 @@ $tpl->assign("headerMenu_options", _("Options"));
 // header title displayed only to admins
 if ($centreon->user->admin) {
     $tpl->assign("headerMenu_refreshLdap", _("Refresh"));
+    $tpl->assign("headerMenu_unblock", _("Unblock"));
     $tpl->assign("headerMenu_refreshLdapTitleTooltip", _("To manually request a LDAP synchronization of a contact"));
 }
 
@@ -235,6 +237,9 @@ $refreshLdapBadge = array(0 => "");
 $elemArr = array();
 $centreonToken = createCSRFToken();
 
+// Get the count of blocked contacts
+$blockedContactsCount =  count(array_filter(array_column($contacts, 'blocking_time')));
+
 foreach ($contacts as $contact) {
     if ($centreon->user->get_id() == $contact['contact_id']) {
         $selectedElements = $form->addElement(
@@ -270,6 +275,12 @@ foreach ($contacts as $contact) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
         "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $contact['contact_id'] . "]' />";
+    $blocked_user_icon = "<a id='gui-unblock-contact' href='main.php?p=" . $p . "&contact_id=" .
+        $contact['contact_id'] . "&o=un&limit=" . $limit . "&num=" . $num . "&search=" . $searchContact .
+        "&centreon_token=" . $centreonToken .
+        "' onclick='return confirmUnblock(this) ;' >
+        <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0' alt='" .  _("Disabled") . "' >
+       </a>";
 
     $contact_type = 0;
     if ($contact["contact_register"]) {
@@ -353,11 +364,13 @@ foreach ($contacts as $contact) {
         "RowMenu_badge" => $contact["contact_activate"] ? "service_ok" : "service_critical",
         "RowMenu_refreshLdap" => $isLinkedToLdap ? $refreshLdapBadge[$isLinkedToLdap] : "",
         "RowMenu_refreshLdapHelp" => $isLinkedToLdap ? $refreshLdapHelp[$isLinkedToLdap] : "",
-        "RowMenu_options" => $moptions
+        "RowMenu_options" => $moptions,
+        "RowMenu_unblock" => $contact["blocking_time"] ? $blocked_user_icon : "-"
     );
     $style != "two" ? $style = "two" : $style = "one";
 }
 $tpl->assign("isAdmin", $centreon->user->admin);
+$tpl->assign("blockedContactsCount", $blockedContactsCount);
 $tpl->assign("elemArr", $elemArr);
 
 // Different messages we put in the template
@@ -385,6 +398,16 @@ if ($row['count_ldap'] > 0) {
 // Toolbar select
 ?>
 <script type="text/javascript">
+
+        function confirmUnblock(element) {
+        if (confirm("<?php echo _("Are you sure you want to unblock this contact?"); ?>")) {
+            var url = element.getAttribute("href");
+            window.location = url;
+            return true;
+    }
+        return false;
+    }
+
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
     }
@@ -431,6 +454,10 @@ foreach (array('o1', 'o2') as $option) {
             _("The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?") .
                 "')) {" .
                 "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+            "else if (this.form.elements['" . $option . "'].selectedIndex == 7 && confirm('" .
+            _("The chosen contact(s) will be unblocked. Do you confirm the request ?") .
+            "')) {" .
+            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
             "this.form.elements['" . $option . "'].selectedIndex = 0"
     );
 
@@ -445,6 +472,10 @@ foreach (array('o1', 'o2') as $option) {
     // adding a specific option available only for admin users
     if ($centreon->user->admin) {
         $formOptions["sync"] = _("Synchronize LDAP");
+    }
+    // adding a specific option available only for admin users and if at least one user is blocked
+    if ($centreon->user->admin && $blockedContactsCount) {
+        $formOptions["mun"] = _("Unblock");
     }
 
     $form->addElement(
