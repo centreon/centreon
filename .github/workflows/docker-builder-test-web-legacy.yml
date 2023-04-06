@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        version: [22.10.0-14, 22.10.1-4, 22.10.2-12, 22.10.3-1, 22.10.4-1, 22.10.5-1, 22.10.6-1]
+        version: [22.10.0-14, 22.10.1-4, 22.10.2-12, 22.10.3-1, 22.10.4-1, 22.10.5-1, 22.10.6-1, 22.10.7-1]
 
     steps:
       - name: Checkout sources
@@ -37,9 +37,21 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+  
+      - name: Trim version
+        run: |
+          BASE_VERSION=${{ matrix.project }} | cut -d '-' -f1
+          echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
+        shell: bash
 
       - name: build docker ${{ matrix.project }}
-        run: docker buildx build --build-arg centreon_version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
+        run: docker buildx build --build-arg centreon_version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ env.BASE_VERSION }}
 
-      - name: push docker ${{ matrix.project }}
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ matrix.version }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }}
+          target: web_standard
+          context: .
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ env.BASE_VERSION }}
