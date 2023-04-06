@@ -45,7 +45,7 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
         $pearDB->query(
             <<<SQL
             UPDATE provider_configuration
-                SET custom_configuration = $updatedCustomConfigurationEncoded
+                SET custom_configuration = '$updatedCustomConfigurationEncoded'
             SQL
         );
     }
