@@ -62,7 +62,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         global $centreon;
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT(`metric_name`)
-            COLLATE utf8_bin as "metric_name" FROM `metrics` as m ';
+            COLLATE utf8mb4_bin as "metric_name" FROM `metrics` as m ';
 
         $queryValues = [];
 
@@ -97,7 +97,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             $queryValues[':name'] = ['%' . (string)$this->arguments['q'] . '%', \PDO::PARAM_STR];
         }
 
-        $query .= ' ORDER BY `metric_name` COLLATE utf8_general_ci ';
+        $query .= ' ORDER BY `metric_name` COLLATE utf8mb4_unicode_ci ';
 
         if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
             if (

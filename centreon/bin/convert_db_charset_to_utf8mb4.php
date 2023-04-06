@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
@@ -20,53 +19,53 @@
  *
  */
 
-
-require_once(__DIR__ . '/../bootstrap.php');
+require_once __DIR__ . '/../bootstrap.php';
 require_once _CENTREON_ETC_ . '/centreon.conf.php';
-$pearDB = new CentreonDB("centreon");
-$pearDBO = new CentreonDB("centstorage");
 
-convertCharset(db, $pearDB, "security_token");
+$pearDB = new CentreonDB(CentreonDB::LABEL_DB_CONFIGURATION);
+$pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
 
+convertCharset(db, $pearDB, 'security_token');
 convertCharset(dbcstg, $pearDBO);
 
-function convertCharset($dbName, $db, $excluded_table = "")
+function convertCharset(string $dbName, CentreonDB $db, string ...$excluded_tables): void
 {
-
     try {
-
-        $errorMessage = "";
+        $errorMessage = '';
 
         // Get the list of tables in the database
-        $query = "SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = :database";
+        $query = 'SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = :database';
         $stmt = $db->prepare($query);
-        $stmt->execute([":database" => $dbName]);
+        $stmt->execute([':database' => $dbName]);
         $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 
         // Loop through the tables and convert them to utf8mb4
         foreach ($tables as $table) {
-            $tableName = $table["table_name"];
-            $tableType = $table["table_type"];
+            $tableName = $table['table_name'];
+            $tableType = $table['table_type'];
 
             // Skip the table if it is a view or an explicitly excluded table
-            if ($tableName === $excluded_table || $tableType !== "BASE TABLE") {
+            if ($tableType !== 'BASE TABLE' || in_array($tableName, $excluded_tables, true)) {
                 continue;
             }
 
             $errorMessage = "Couldn't change charset for table: " . $tableName . "\n";
             // Create a query to alter the table and change the character set to utf8mb4
-            $query = 'ALTER TABLE `' . $tableName . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
-            $stmt = $db->prepare($query);
-            $stmt->execute();
+            $query = "ALTER TABLE `{$tableName}` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+            $db->query($query);
 
+            // Specific fields we must restore at their default values (utf8mb4_bin).
+            if ('metrics' === $tableName) {
+                $query = "ALTER TABLE `{$tableName}` MODIFY `metric_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL";
+                $db->query($query);
+            } elseif ('provider_configuration' === $tableName) {
+                $query = "ALTER TABLE `{$tableName}` MODIFY `custom_configuration` JSON NOT NULL";
+                $db->query($query);
+            }
         }
 
-        echo "All tables of " . $dbName . " had their charset converted.\n";
+        echo "All tables of {$dbName} had their charset converted.\n";
     } catch (\PDOException $e) {
-
-        throw new \Exception($errorMessage, (int)$e->getCode(), $e);
+        throw new \Exception($errorMessage, (int) $e->getCode(), $e);
     }
 }
-
-

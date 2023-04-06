@@ -84,7 +84,7 @@ class CentreonMetric extends CentreonWebService
         }
 
         $query = 'SELECT DISTINCT(`metric_name`)
-            COLLATE utf8_bin as "metric_name", index_id FROM `metrics` as m, index_data i
+            COLLATE utf8mb4_bin as "metric_name", index_id FROM `metrics` as m, index_data i
             WHERE metric_name LIKE :name ';
 
         /**
@@ -96,7 +96,7 @@ class CentreonMetric extends CentreonWebService
                 $acl->getServicesString('ID', $this->pearDBMonitoring) . ') ';
         }
 
-        $query .= ' ORDER BY `metric_name` COLLATE utf8_general_ci ';
+        $query .= ' ORDER BY `metric_name` COLLATE utf8mb4_unicode_ci ';
         $stmt = $this->pearDBMonitoring->prepare($query);
         $stmt->bindParam(':name', $queryValues['name'], \PDO::PARAM_STR);
         $dbResult = $stmt->execute();
@@ -146,7 +146,7 @@ class CentreonMetric extends CentreonWebService
             $query .= 'AND s.service_id IN (' . $acl->getServicesString('ID', $this->pearDBMonitoring) . ') ';
         }
 
-        $query .= ' ORDER BY fullname COLLATE utf8_general_ci ';
+        $query .= ' ORDER BY fullname COLLATE utf8mb4_unicode_ci ';
 
         if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
             if (

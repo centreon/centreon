@@ -68,7 +68,7 @@ class CentreonMetrics
             . "FROM metrics m, index_data i "
             . "WHERE m.metric_id IN (" . $listValues . ") "
             . "AND i.id = m.index_id "
-            . "ORDER BY fullname COLLATE utf8_general_ci";
+            . "ORDER BY fullname COLLATE utf8mb4_unicode_ci";
 
         $stmt = $this->dbo->prepare($queryService);
         if (!empty($queryValues)) {
