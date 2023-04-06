@@ -92,64 +92,11 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
         $pearDB->query(
             <<<SQL
             UPDATE provider_configuration
-                SET custom_configuration = $updatedCustomConfigurationEncoded
+                SET custom_configuration = '$updatedCustomConfigurationEncoded'
             SQL
         );
     }
 };
-
-try {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-        $errorMessage = "Impossible to update cfg_centreonbroker table";
-        $pearDB->query(
-            "ALTER TABLE `cfg_centreonbroker`
-            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-            AFTER `event_queue_max_size`"
-        );
-    }
-
-    $errorMessage = "Impossible to delete color picker topology_js entries";
-    $pearDB->query(
-        "DELETE FROM `topology_JS`
-        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
-    );
-
-
-    // Transactional queries
-    $pearDB->beginTransaction();
-
-    // check if entry ldap_connection_timeout exist
-    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
-    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
-    // insert entry ldap_connection_timeout  with default value
-    if (! $ldapResult) {
-        $errorMessage = "Unable to add default ldap connection timeout";
-        $pearDB->query(
-            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
-                        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
-        );
-    }
-
-    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
-    $decodeIllegalCharactersNagios($pearDB);
-    $updateOpenIdCustomConfiguration($pearDB);
-
-    $pearDB->commit();
-} catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
-
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
-    );
-
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
 
 $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
     $customConfiguration = [
@@ -192,4 +139,60 @@ $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
     $insertStatement->execute();
 };
 
-$insertSAMLProviderConfiguration($pearDB);
+try {
+    if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
+        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $pearDB->query(
+            "ALTER TABLE `cfg_centreonbroker`
+            ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
+            AFTER `event_queue_max_size`"
+        );
+    }
+
+    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $pearDB->query(
+        "DELETE FROM `topology_JS`
+        WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
+    );
+
+
+    // Transactional queries
+    $pearDB->beginTransaction();
+
+    // check if entry ldap_connection_timeout exist
+    $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
+    $ldapResult = $query->fetchAll(PDO::FETCH_ASSOC);
+    // insert entry ldap_connection_timeout  with default value
+    if (! $ldapResult) {
+        $errorMessage = "Unable to add default ldap connection timeout";
+        $pearDB->query(
+            "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
+                        (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
+        );
+    }
+
+    $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
+    $decodeIllegalCharactersNagios($pearDB);
+
+    $errorMessage = 'Unable to update provider_configuration table to add redirect_url';
+    $updateOpenIdCustomConfiguration($pearDB);
+
+    $errorMessage = 'Unable to add SAML provider_configuration';
+    $insertSAMLProviderConfiguration($pearDB);
+
+    $pearDB->commit();
+} catch (\Exception $e) {
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+}
