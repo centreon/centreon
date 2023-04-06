@@ -11,23 +11,49 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
 
-    - uses: mad9000/actions-find-and-replace-string@2
-      id: formatSpecFilePath
+    - name: Format feature file path
+      id: formatFeatureFilePath
+      run:
+        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      working-directory: centreon
+
+    - uses: actions/cache@v3
+      name: Setup pnpm cache
       with:
-          source: ${{ inputs.spec_file_path }}
-          find: '.cypress.spec.tsx'
-          replace: ''
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('centreon/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install--frozen-lockfile
+      shell: bash
+      working-directory: centreon
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
-        install-command: pnpm install --frozen-lockfile
+        install: false
+        #install-command: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
         publish-summary: false
@@ -47,7 +73,7 @@ runs:
         name: cypress-screenshots-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/screenshots
         retention-days: 1
-    
+
     - name: Archive snapshots
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
