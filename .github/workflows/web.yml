@@ -312,8 +312,8 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - run: |
-          wget https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
-          tar -xvf dist_linux.tar.gz
+          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
+          tar -xf dist_linux.tar.gz
           mv  dist_linux/slim /usr/local/bin/
           for IMAGE_SUFFIX in "" "-fresh"; do
             slim build --show-clogs --show-blogs \
@@ -324,6 +324,8 @@ jobs:
               --include-bin-file .github/docker/slim-configuration/include-bin.txt \
               --path-perms-file .github/docker/slim-configuration/path-perms.txt \
               --pull \
+              --registry-account "${{ secrets.DOCKER_REGISTRY_ID }}" \
+              --registry-secret "${{ secrets.DOCKER_REGISTRY_PASSWD }}" \
               --tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
               ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
