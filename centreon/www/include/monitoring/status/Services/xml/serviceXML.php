@@ -149,7 +149,7 @@ function analyseGraphs(array $hostServiceIds): void
     foreach ($hostServiceIds as $hostServiceId => $status) {
         list ($hostId, $serviceId) = explode('_', $hostServiceId);
         if (! empty($whereConditions)) {
-            $whereConditions .= ' || ';
+            $whereConditions .= ' OR ';
         }
         $whereConditions .= sprintf(' (host_id = :host_id_%d AND service_id = :service_id_%d)', $index, $index);
         $valuesToBind[$index] = ['host_id' => $hostId, 'service_id' => $serviceId];
