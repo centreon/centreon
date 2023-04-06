@@ -344,7 +344,7 @@ jobs:
               --include-path-file .github/docker/slim-configuration/include-path.txt \
               --include-bin-file .github/docker/slim-configuration/include-bin.txt \
               --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-              --tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
+              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
               ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
             docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
