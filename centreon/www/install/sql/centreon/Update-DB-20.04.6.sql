@@ -8,4 +8,4 @@ CREATE TABLE `user_filter` (
     `order` int(11) NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `filter_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

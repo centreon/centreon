@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `remote_servers` (
 `is_connected` TINYINT(1) NOT NULL DEFAULT 0,
 `created_at` TIMESTAMP NOT NULL,
 `connected_at` TIMESTAMP NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Add column to topology table to mark which pages are with React
 ALTER TABLE `topology` ADD COLUMN `is_react` ENUM('0', '1') NOT NULL DEFAULT '0' AFTER `readonly`;
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
   `created_at` TIMESTAMP NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Add column to nagios_server table for remote-poller relation
 SET SESSION innodb_strict_mode=OFF;

@@ -10,7 +10,7 @@ CREATE TABLE `provider_configuration` (
   `is_forced` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `provider_configuration` (type, name, is_active, is_forced)
 VALUES ('local', 'local', true, true);
@@ -24,7 +24,7 @@ CREATE TABLE `security_token` (
   INDEX `token_index` (`token`),
   INDEX `expiration_index` (`expiration_date`),
   UNIQUE KEY `unique_token` (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `security_authentication_tokens` (
   `token` varchar(255) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `security_authentication_tokens` (
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
   REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `session` MODIFY `last_reload` BIGINT UNSIGNED;
 

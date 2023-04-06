@@ -43,7 +43,7 @@ $query = 'CREATE TABLE `centreon_acl_new` ( ' .
     '`service_id` int(11) DEFAULT NULL, ' .
     'UNIQUE KEY (`group_id`,`host_id`,`service_id`), ' .
     'KEY `index1` (`host_id`,`service_id`,`group_id`) ' .
-    ') ENGINE=InnoDB DEFAULT CHARSET=utf8 ';
+    ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ';
 $pearDBO->query($query);
 
 /**

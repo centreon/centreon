@@ -19,4 +19,4 @@ CREATE TABLE IF NOT EXISTS `cfg_nagios_logger` (
     CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
         FOREIGN KEY (`cfg_nagios_id`)
         REFERENCES `cfg_nagios` (`nagios_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

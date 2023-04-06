@@ -47,7 +47,7 @@ try {
         CONSTRAINT `password_expiration_excluded_users_provider_user_id_fk`
           FOREIGN KEY (`user_id`)
           REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
 
     $errorMessage = "Unable to create table 'contact_password'";

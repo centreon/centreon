@@ -48,7 +48,7 @@ try {
         CONSTRAINT `security_provider_provider_configuration_id`
             FOREIGN KEY (`provider_configuration_id`)
             REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
