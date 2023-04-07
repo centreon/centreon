@@ -1,9 +1,7 @@
-import { executeActionViaClapi } from '../../commons';
-
 const nonDefaultPassword = 'Password123!';
 
 const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
-  return executeActionViaClapi({
+  return cy.executeActionViaClapi({
     action: 'setParam',
     object: 'CONTACT',
     values: `admin;password;${nonDefaultPassword}`
