@@ -38,7 +38,7 @@ class HostConfigurationContext extends CentreonContext
         'alias' => 'hostCategoryAlias1',
         'severity' => 1,
         'severity_level' => 2,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory2 = array(
@@ -109,7 +109,7 @@ class HostConfigurationContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
         'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -173,7 +173,7 @@ class HostConfigurationContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
         'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -242,7 +242,7 @@ class HostConfigurationContext extends CentreonContext
         'action_url' => 'hostMassiveChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostMassiveChangeIconChanged',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '2,3',
         '3d_coords' => '42,24,66',
@@ -301,27 +301,9 @@ class HostConfigurationContext extends CentreonContext
      */
     public function itsPropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new HostConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new HostConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -342,27 +324,9 @@ class HostConfigurationContext extends CentreonContext
      */
     public function aNewHostIsCreatedWithIdenticalProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new HostConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->duplicatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new HostConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->duplicatedProperties);
     }
 
     /**

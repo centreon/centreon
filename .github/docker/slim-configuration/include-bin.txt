@@ -1,0 +1,3 @@
+/usr/libexec/vi
+/usr/lib64/libprocps.so.8
+/usr/lib64/faketime/libfaketime.so.1

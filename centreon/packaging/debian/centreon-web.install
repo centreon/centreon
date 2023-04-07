@@ -8,7 +8,6 @@ bin/centreon                                    usr/share/centreon/bin
 bin/centreon-partitioning.php                   usr/share/centreon/bin
 bin/centreonSyncArchives                        usr/share/centreon/bin
 bin/centreonSyncPlugins                         usr/share/centreon/bin
-bin/convert_db_charset_to_utfmb4.php            usr/share/centreon/bin
 bin/centreon_health                             usr/share/centreon/bin
 bin/centreon_trap_send                          usr/share/centreon/bin
 bin/changeRrdDsName.pl                          usr/share/centreon/bin

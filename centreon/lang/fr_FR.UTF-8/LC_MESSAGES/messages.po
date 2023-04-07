@@ -17530,7 +17530,7 @@ msgstr "Se déconnecter de"
 msgid "Centreon UI only"
 msgstr "Interface Centreon uniquement"
 
-msgid "Both identity Provider and Centreon UI"
+msgid "Both identity provider and Centreon UI"
 msgstr "Fournisseur d'identité et interface Centreon"
 
 msgid "Define relation between roles and ACL access groups"
@@ -17540,3 +17540,15 @@ msgstr "Définir la relation entre les rôles et les groupes d'accès ACL"
 
 msgid "B.Activities"
 msgstr "A.Métier"
+
+msgid "Logout URL"
+msgstr "URL de déconnexion"
+
+msgid "Full name attribute"
+msgstr "Attribut de nom complet"
+
+msgid "Roles mapping"
+msgstr "Association des rôles"
+
+msgid "Groups mapping"
+msgstr "Association des groupes"

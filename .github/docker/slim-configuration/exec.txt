@@ -1,0 +1,8 @@
+sleep 10
+curl http://localhost/centreon/api/latest/platform/versions
+pkill php-fpm
+pkill httpd
+service centengine stop
+service cbd stop
+service mysql stop
+sleep 10
