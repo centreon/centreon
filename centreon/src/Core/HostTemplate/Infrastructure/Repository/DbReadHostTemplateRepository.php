@@ -109,7 +109,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
 
         // Filter on host templates
         $concatenator->appendWhere('h.host_register = :hostTemplateType');
-        $concatenator->storeBindValue(':hostTemplateType', HostType::TEMPLATE->value);
+        $concatenator->storeBindValue(':hostTemplateType', HostType::Template->value);
         // Filter on host severity
         $concatenator->appendWhere(
             <<<'SQL'

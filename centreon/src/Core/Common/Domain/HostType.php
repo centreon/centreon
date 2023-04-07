@@ -25,7 +25,7 @@ namespace Core\Common\Domain;
 
 enum HostType: string
 {
-    case TEMPLATE = '0';
-    case HOST = '1';
-    case VIRTUAL = '2';
+    case Template = '0';
+    case Host = '1';
+    case Virtual = '2';
 }
