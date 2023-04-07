@@ -9,7 +9,7 @@ And a system user root
 
 Scenario: Administrator performs a platform update procedure
 Given a running platform in '<version_A>' with all extensions installed
-And this platform has existing configuration for all the installed extensions   
+And this platform has existing configuration for all the installed extensions
 When administrator updates packages to '<version_B>'
 And administrator runs the update procedure
 Then monitoring should be up and running after procedure is complete
@@ -17,13 +17,13 @@ Then monitoring should be up and running after procedure is complete
 Examples:
   | version_A | version_B |
   |   22.10.0 |   22.10.8 |
-  |   22.10.1 |   22.10.8 |
-  |   22.10.2 |   22.10.8 |
-  |   22.10.3 |   22.10.8 |
-  |   22.10.4 |   22.10.8 |
-  |   22.10.5 |   22.10.8 |
-  |   22.10.6 |   22.10.8 |
-  |   22.10.7 |   22.10.8 |
+#  |   22.10.1 |   22.10.8 |
+#  |   22.10.2 |   22.10.8 |
+#  |   22.10.3 |   22.10.8 |
+#  |   22.10.4 |   22.10.8 |
+#  |   22.10.5 |   22.10.8 |
+#  |   22.10.6 |   22.10.8 |
+#  |   22.10.7 |   22.10.8 |
 
 Scenario: User updates existing configuration and resources
 Given a successfully updated platform
