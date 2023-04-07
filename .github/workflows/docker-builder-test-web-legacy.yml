@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        version: [22.10.0-14, 22.10.1-4, 22.10.2-12, 22.10.3-1, 22.10.4-1, 22.10.5-1, 22.10.6-1, 22.10.7-1]
+        version: [22.10.0-14, 22.10.1-4, 22.10.2-12, 22.10.3-1, 22.10.4-1, 22.10.6-1, 22.10.7-1]
 
     steps:
       - name: Checkout sources
@@ -37,11 +37,11 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  
-      - name: Trim version
-        run: |
-          BASE_VERSION=$(echo "${{ matrix.version }}" | cut -d '-' -f1)
-          echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
+
+      - name: Parse major version
+        id: parseMajorVersion
+        run:
+          echo "MAJOR_VERSION=$(echo "${{ matrix.version }}" | cut -d '-' -f1)" >> $GITHUB_OUTPUT
         shell: bash
 
       - uses: docker/setup-buildx-action@v2
@@ -54,4 +54,4 @@ jobs:
           build-args: centreon_version=${{ matrix.version }}
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ env.BASE_VERSION }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ steps.parseMajorVersion.outputs.MAJOR_VERSION }}
