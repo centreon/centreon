@@ -2,7 +2,7 @@ FROM docker.centreon.com/proxy/almalinux:8 AS web_fresh
 
 ARG centreon_version=22.10.0-14
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 dnf install -y dnf-plugins-core
 dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
@@ -13,6 +13,19 @@ dnf module -y reset php
 dnf module -y install php:remi-8.1
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
+dnf install -y mariadb-server mariadb
+echo "[server]
+skip-grant-tables
+log_output=FILE
+general_log_file=/var/lib/mysql/queries.log
+general_log=0
+slow_query_log_file=/var/lib/mysql/slow_queries.log
+slow_query_log=1
+innodb_file_per_table
+innodb_flush_method=O_DIRECT
+innodb_log_file_size=4M
+innodb_fast_shutdown=0
+" > /etc/my.cnf.d/container.cnf
 
 dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/noarch
 dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/x86_64
