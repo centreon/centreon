@@ -37,6 +37,9 @@ module.exports = (jscTransformConfiguration) =>
           template: './www/front_src/public/index.html'
         }),
         new HtmlWebpackHarddiskPlugin()
-      ]
+      ],
+      resolve: {
+        modules: [path.resolve(__dirname, '.'), 'node_modules']
+      }
     }
   );

@@ -20,10 +20,13 @@ import 'react-grid-layout/css/styles.css';
 
 import EditionGrid from './EditionGrid';
 import Widget from './Widget';
+import useDashboardStyles from './useDashboardStyles';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 
 const Layout: FC = () => {
+  const { classes } = useDashboardStyles();
+
   const [layout, setLayout] = useAtom(layoutByBreakpointDerivedAtom);
   const columns = useAtomValue(columnsAtom);
   const breakpoint = useAtomValue(breakpointAtom);
@@ -70,11 +73,12 @@ const Layout: FC = () => {
     <ResponsiveHeight>
       <Responsive.ParentSize>
         {({ width, height }): JSX.Element => (
-          <>
+          <div className={classes.container}>
             {isEditing && <EditionGrid height={height} width={width} />}
             <ReactGridLayout
               cols={columns}
               containerPadding={[4, 0]}
+              draggableHandle=".widget-handle"
               layout={layout}
               resizeHandles={['s', 'e', 'se']}
               rowHeight={30}
@@ -89,7 +93,7 @@ const Layout: FC = () => {
                 );
               })}
             </ReactGridLayout>
-          </>
+          </div>
         )}
       </Responsive.ParentSize>
     </ResponsiveHeight>

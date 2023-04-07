@@ -2,3 +2,4 @@ packages:
   - 'packages/*'
   - 'lighthouse'
   - 'tests/e2e'
+  - 'www/widgets'
