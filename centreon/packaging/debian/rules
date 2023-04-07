@@ -17,6 +17,8 @@ override_dh_auto_build:
 	sed -i 's#"apache"#"www-data"#g' packaging/src/install.conf.php
 	sed -i "s#apache#www-data#g; s#@PHPFPM_LOGFILE@#/var/log/php8.1-fpm-centreon-error.log#g; s#/var/lib/php/session#/var/lib/php/sessions#g" \
 		packaging/src/php-fpm.conf
+	sed -i 's#apache#www-data#g' \
+		packaging/src/centreon-macroreplacement.txt
 	sed -i "s#@LIB_ARCH@#lib#g" \
 		packaging/src/centreon-macroreplacement.txt \
 		packaging/src/instCentWeb.conf \
