@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -125,7 +125,7 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
-    const getValueProps = (): object => {
+    const getValueProps = useCallback((): object => {
       if (debounced) {
         return {};
       }
@@ -135,7 +135,7 @@ const TextField = forwardRef(
       }
 
       return { value: innerValue };
-    };
+    }, [innerValue, debounced, defaultValue]);
 
     return (
       <>
