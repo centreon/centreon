@@ -1,7 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { alpha } from '@mui/system';
-
 const useDashboardStyles = makeStyles()((theme) => ({
   container: {
     '& .react-grid-item': {
