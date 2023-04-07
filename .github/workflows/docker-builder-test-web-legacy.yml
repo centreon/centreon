@@ -51,6 +51,7 @@ jobs:
           file: .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }}
           target: web_fresh
           context: .
+          build-args: centreon_version=${{ matrix.version }}
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ env.BASE_VERSION }}
