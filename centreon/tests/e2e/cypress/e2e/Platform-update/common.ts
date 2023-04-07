@@ -1,5 +1,3 @@
-const nonDefaultPassword = 'Password123!';
-
 const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
     bodyContent: {
@@ -9,15 +7,6 @@ const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
       //values: `admin;password;${nonDefaultPassword}`
     }
   });
-};
-
-const setDatabaseUserRootDefaultCredentials = (): Cypress.Chainable => {
-  const query = `ALTER USER 'root'@'localhost' IDENTIFIED BY '${nonDefaultPassword}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
-
-  return cy.exec(command);
 };
 
 const checkIfSystemUserRoot = (): Cypress.Chainable => {
@@ -76,7 +65,6 @@ const injectingModulesLicense = (): Cypress.Chainable => {
 
 export {
   setUserAdminDefaultCredentials,
-  setDatabaseUserRootDefaultCredentials,
   checkIfSystemUserRoot,
   updatePlatformPackages,
   checkPlatformVersion,
