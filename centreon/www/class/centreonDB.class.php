@@ -158,7 +158,7 @@ class CentreonDB extends \PDO
                     CentreonDBStatement::class,
                     [$this->log],
                 ],
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
+                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ];
