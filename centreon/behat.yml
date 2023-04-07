@@ -27,17 +27,9 @@ default:
       paths: [ "%paths.base%/features/SelectAllSelect2.feature" ]
       contexts: [ SelectAllSelect2Context ]
 
-    empty_default_configuration:
-      paths: [ "%paths.base%/features/EmptyDefaultConfiguration.feature" ]
-      contexts: [ EmptyDefaultConfigurationContext ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
-
-    centreon_engine_restart:
-      paths: [ "%paths.base%/features/RestartCentreonEngine.feature" ]
-      contexts: [ RestartCentreonEngineContext ]
 
     acknowledgement:
       paths: [ "%paths.base%/features/Acknowledgement.feature" ]
@@ -316,10 +308,6 @@ default:
     uri:
       paths: [ "%paths.base%/features/URI.feature" ]
       contexts: [ URIContext ]
-
-    topologyapi:
-      paths: [ "%paths.base%/features/TopologyAPI.feature" ]
-      contexts: [ TopologyAPIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

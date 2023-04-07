@@ -3579,7 +3579,7 @@
 											"  while(curDate-date < millis);",
 											"}",
 											"",
-											"wait(5000);"
+											"wait(10000);"
 										],
 										"type": "text/javascript"
 									}
@@ -6561,7 +6561,7 @@
 									"  while(curDate-date < millis);",
 									"}",
 									"",
-									"wait(8000);"
+									"wait(15000);"
 								]
 							}
 						},
