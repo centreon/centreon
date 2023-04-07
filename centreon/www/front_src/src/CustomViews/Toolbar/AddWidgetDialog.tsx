@@ -95,6 +95,7 @@ const AddWidgetDialog: FC = () => {
         onConfirm={confirm}
       >
         <SelectField
+          ariaLabel={labelAddAWidget}
           className={classes.selectField}
           options={widgetsAvailable}
           selectedOptionId={

@@ -1,0 +1,20 @@
+{
+  "name": "centreon-widgets",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node build.js production",
+    "build:dev": "node build.js development",
+    "watch": "node build.js watch",
+    "build:analyze": "node build.js analyze"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.78.0"
+  }
+}

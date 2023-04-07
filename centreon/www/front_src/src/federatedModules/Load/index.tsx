@@ -46,6 +46,15 @@ const useDynamicLoadRemoteEntry = ({
       return undefined;
     }
 
+    if (window.Cypress) {
+      setRemoteEntriesLoaded((currentRemoteEntries) => [
+        ...currentRemoteEntries,
+        moduleName
+      ]);
+
+      return undefined;
+    }
+
     const prefix = isFederatedWidget ? 'widgets' : 'modules';
 
     const element = document.createElement('script');
@@ -88,6 +97,8 @@ interface LoadComponentProps {
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
+type LazyComponent = Promise<{ default: React.ComponentType }>;
+
 const LoadComponent = ({
   moduleFederationName,
   component,
@@ -96,7 +107,13 @@ const LoadComponent = ({
   ...props
 }: LoadComponentProps): JSX.Element => {
   const Component = useMemo(
-    () => lazy(loadComponent({ component, moduleFederationName })),
+    () =>
+      lazy(
+        window.Cypress
+          ? (): LazyComponent =>
+              import(`www/widgets/src/${moduleFederationName}`)
+          : loadComponent({ component, moduleFederationName })
+      ),
     [moduleFederationName]
   );
 
