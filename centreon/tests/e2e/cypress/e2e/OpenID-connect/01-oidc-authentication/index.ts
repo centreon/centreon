@@ -92,13 +92,10 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-OIDC-authentication'
-    });
-
-    cy.wait('@postLocalAuthentification')
+    })
+      .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
-
-    cy.logout();
   }
 );
 

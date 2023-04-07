@@ -15,7 +15,10 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
-    return cy.get('li').eq(rootItemNumber).trigger('mouseover');
+    return cy
+      .get('div[data-testid="sidebar"] li')
+      .eq(rootItemNumber)
+      .trigger('mouseover');
   }
 );
 
