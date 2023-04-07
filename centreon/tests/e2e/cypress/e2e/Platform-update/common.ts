@@ -5,7 +5,8 @@ const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
     bodyContent: {
       action: 'SETPARAM',
       object: 'CONTACT',
-      values: `admin;password;${nonDefaultPassword}`
+      values: `admin;password;Password123\\!`
+      //values: `admin;password;${nonDefaultPassword}`
     }
   });
 };
