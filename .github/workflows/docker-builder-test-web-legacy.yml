@@ -44,8 +44,7 @@ jobs:
           echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
         shell: bash
 
-      - name: build docker ${{ env.BASE_VERSION }}
-        run: docker buildx build --build-arg centreon_version=${{ matrix.version }}  --no-cache . -f .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-legacy-${{env.os}}:${{ env.BASE_VERSION }}
+      - uses: docker/setup-buildx-action@v2
 
       - uses: docker/build-push-action@v3
         with:
