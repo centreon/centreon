@@ -50,11 +50,17 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
      */
     public function present(mixed $response): array
     {
-        $redirectUri = $this->router->generate(
-            'centreon_security_authentication_openid_login',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $redirectUri = $response->redirectUrl !== null
+            ? $response->redirectUrl . $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_PATH
+            )
+            : $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
 
         return [
             'id' => $response->id,
