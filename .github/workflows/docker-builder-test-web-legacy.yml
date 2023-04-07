@@ -49,7 +49,7 @@ jobs:
       - uses: docker/build-push-action@v3
         with:
           file: .github/docker/Dockerfile.${{ env.project }}-legacy-${{ env.os }}
-          target: web_standard
+          target: web_fresh
           context: .
           pull: true
           push: true

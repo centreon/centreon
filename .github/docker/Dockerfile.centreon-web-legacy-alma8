@@ -36,6 +36,7 @@ RUN <<EOF
 
 chmod +x /usr/share/centreon/container.d/*
 chmod +x /etc/init.d/*
+chmod +x /usr/share/centreon/container.sh
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
