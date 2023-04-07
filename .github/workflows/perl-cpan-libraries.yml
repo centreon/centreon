@@ -44,7 +44,6 @@ jobs:
             "Convert::EBCDIC",
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
-            "DBD::Sybase",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
@@ -66,7 +65,6 @@ jobs:
             "Libssh::Session",
             "LV",
             "MongoDB",
-            "MQSeries",
             "Net::Curl::Easy",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
@@ -111,8 +109,6 @@ jobs:
             package_extension: deb
             image: packaging-bullseye
           - name: "Convert::Binary::C"
-            build_deb: "false"
-          - name: "DBD::Sybase"
             build_deb: "false"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
