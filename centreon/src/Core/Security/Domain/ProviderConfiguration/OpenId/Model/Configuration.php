@@ -149,9 +149,7 @@ class Configuration implements ProviderConfigurationInterface
      */
     private ?string $userNameBindAttribute = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $redirectUrl = null;
 
     /**
