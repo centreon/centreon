@@ -18,6 +18,7 @@ xunit-reports
 checkstyle.xml
 centreon/Crashpad
 centreon/**/.X*
+centreon/www/widgets/**/static
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache

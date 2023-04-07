@@ -46,7 +46,7 @@ getWidgets().forEach((widgetName) => {
   const { config, mode, watch } = getWebpackBuildConfiguration();
   console.log(`Bundling ${widgetName} in ${mode}...`);
   exec(
-    `node ./node_modules/webpack/bin/webpack.js --mode ${mode} --config ../../buildWidgets/${config} --env widgetName=${widgetName} ${
+    `node ./node_modules/webpack/bin/webpack.js --mode ${mode} --config ${config} --env widgetName=${widgetName} ${
       watch ? '--watch' : ''
     }`,
     (error, stdout) => {
