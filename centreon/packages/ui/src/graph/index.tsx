@@ -19,7 +19,7 @@ dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 const rootElement = document.getElementById('root');
-rootElement?.style.height = '100%';
+rootElement.style.height = '100%';
 
 const WrapperGraph = ({ graphData }: Graph): JSX.Element => {
   return (
