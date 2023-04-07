@@ -43,7 +43,7 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
-      )} rpm -qa |grep centreon-web |cut -d '-' -f3`
+      )} rpm -qa | grep centreon-web | cut -d '-' -f3`
     )
     .then(({ stdout }): Cypress.Chainable<null> | null => {
       const isRoot = platformVersion === stdout;
@@ -51,7 +51,7 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
         return null;
       }
 
-      throw new Error(`The platform version isn't the correct one.`);
+      throw new Error(`The platform version isn't the correct one (expected: ${platformVersion}, actual: ${stdout}).`);
     });
 };
 
