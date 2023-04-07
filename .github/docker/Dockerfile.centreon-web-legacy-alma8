@@ -1,21 +1,21 @@
-FROM docker.centreon.com/proxy/almalinux:8 AS web_fresh
+FROM almalinux:8 AS web_fresh
 
 ARG centreon_version=22.10.0-14
 
 RUN bash -e <<EOF
 
-dnf install -y dnf-plugins-core
-dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
-dnf config-manager --set-enabled 'powertools'
-
 dnf module -y reset php
 dnf module -y install php:remi-8.1
+
+dnf install -y dnf-plugins-core
+
+dnf config-manager --set-enabled 'powertools'
+dnf install -y epel-release
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
 echo "[server]
-skip-grant-tables
 log_output=FILE
 general_log_file=/var/lib/mysql/queries.log
 general_log=0
@@ -27,15 +27,17 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/noarch
-dnf config-manager --add-repo https://yum.centreon.com/standard/22.10/el8/stable/x86_64
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/22.10/el8/stable/noarch
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/22.10/el8/stable/x86_64
 
-dnf install --nogpgcheck -y https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-web-${centreon_version}.el8.noarch.rpm
+dnf install -y https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-web-${centreon_version}.el8.noarch.rpm
 
 echo "date.timezone = Europe/Paris" > /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
+
+dnf clean all --enablerepo=*
 
 EOF
 
@@ -49,7 +51,6 @@ RUN <<EOF
 
 chmod +x /usr/share/centreon/container.d/*
 chmod +x /etc/init.d/*
-chmod +x /usr/share/centreon/container.sh
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
