@@ -30,11 +30,11 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
 {
     $customConfigurationJson = $pearDB->query(
         <<<'SQL'
-        SELECT custom_configuration
-            FROM provider_configuration
-        WHERE
-            name = 'openid'
-        SQL
+            SELECT custom_configuration
+                FROM provider_configuration
+            WHERE
+                name = 'openid'
+            SQL
     )->fetchColumn();
 
     $customConfiguration = json_decode($customConfigurationJson, true);
