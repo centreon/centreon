@@ -2,10 +2,11 @@ const nonDefaultPassword = 'Password123!';
 
 const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
-    action: 'SETPARAM',
-    object: 'CONTACT',
-    values: `admin;password;Password123\\!`
-    //values: `admin;password;${nonDefaultPassword}`
+    bodyContent: {
+      action: 'SETPARAM',
+      object: 'CONTACT',
+      values: `admin;password;${nonDefaultPassword}`
+    }
   });
 };
 
