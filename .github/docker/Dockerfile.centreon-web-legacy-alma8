@@ -29,6 +29,7 @@ innodb_fast_shutdown=0
 
 dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/22.10/el8/stable/noarch
 dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/22.10/el8/stable/x86_64
+rpm --import https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 
 dnf install -y https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-web-${centreon_version}.el8.noarch.rpm
 
