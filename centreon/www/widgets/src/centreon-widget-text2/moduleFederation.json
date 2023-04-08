@@ -2,11 +2,11 @@
   "federatedComponentsConfiguration": {
     "path": "/widgets/text2",
     "federatedComponents": [
-      "./Text2"
+      "./text2"
     ],
     "widgetMinHeight": 8,
     "widgetMinWidth": 2
   },
-  "moduleFederationName": "widgetText2",
+  "moduleFederationName": "widgettext2",
   "moduleName": "centreon-widget-text2"
 }

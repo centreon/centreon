@@ -1,6 +1,6 @@
 import { Provider } from 'jotai';
-import widgetTextConfiguration from 'centreon-widgets/Text/moduleFederation.json';
-import widgetText2Configuration from 'centreon-widgets/Text2/moduleFederation.json';
+import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+import widgetText2Configuration from 'centreon-widgets/centreon-widget-text2/moduleFederation.json';
 
 import { federatedWidgetsAtom } from '../federatedModules/atoms';
 
@@ -11,11 +11,11 @@ describe('Dashboard', () => {
     const federatedWidgets = [
       {
         ...widgetTextConfiguration,
-        moduleFederationName: 'Text/src'
+        moduleFederationName: 'centreon-widget-text/src'
       },
       {
         ...widgetText2Configuration,
-        moduleFederationName: 'Text2/src'
+        moduleFederationName: 'centreon-widget-text2/src'
       }
     ];
 

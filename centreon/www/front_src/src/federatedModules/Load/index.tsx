@@ -58,9 +58,7 @@ const useDynamicLoadRemoteEntry = ({
     const prefix = isFederatedWidget ? 'widgets' : 'modules';
 
     const element = document.createElement('script');
-    element.src = `./${prefix}/${formatWidgetName(
-      moduleName
-    )}/static/${remoteEntry}`;
+    element.src = `./${prefix}/${moduleName}/static/${remoteEntry}`;
     element.type = 'text/javascript';
     element.id = moduleName;
 

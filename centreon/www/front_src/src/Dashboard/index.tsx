@@ -16,7 +16,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const CustomViews: FC = () => {
+const Dashboard: FC = () => {
   const { classes } = useStyles();
 
   return (
@@ -27,4 +27,4 @@ const CustomViews: FC = () => {
   );
 };
 
-export default CustomViews;
+export default Dashboard;

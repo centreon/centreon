@@ -36,8 +36,8 @@ const reactRoutes = [
     path: routeMap.about
   },
   {
-    comp: lazy(() => import('../CustomViews')),
-    path: routeMap.customViews
+    comp: lazy(() => import('../Dashboard')),
+    path: routeMap.dashboard
   }
 ];
 

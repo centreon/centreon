@@ -2,7 +2,7 @@ const routeMap = {
   about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
-  customViews: '/home/custom-views',
+  dashboard: '/home/custom-views',
   extensionsManagerPage: '/administration/extensions/manager',
   install: '/install/install.php',
   login: '/login',

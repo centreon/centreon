@@ -78,7 +78,6 @@ const Layout: FC = () => {
             <ReactGridLayout
               cols={columns}
               containerPadding={[4, 0]}
-              draggableHandle=".widget-handle"
               layout={layout}
               resizeHandles={['s', 'e', 'se']}
               rowHeight={30}
