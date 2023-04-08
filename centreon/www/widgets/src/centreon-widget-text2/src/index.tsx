@@ -1,7 +1,15 @@
 import { Typography, TextField, Box } from '@mui/material';
 
-const Text = ({ widgetOptions, setWidgetOptions }): JSX.Element => {
-  const changeInput = (event) => {
+interface Options {
+  input: string;
+}
+interface Props {
+  setWidgetOptions: (options: Options) => void;
+  widgetOptions?: Options;
+}
+
+const Text = ({ widgetOptions, setWidgetOptions }: Props): JSX.Element => {
+  const changeInput = (event): void => {
     setWidgetOptions({ input: event.target.value });
   };
 

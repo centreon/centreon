@@ -6,7 +6,9 @@
     "build": "node build.js production",
     "build:dev": "node build.js development",
     "watch": "node build.js watch",
-    "build:analyze": "node build.js analyze"
+    "build:analyze": "node build.js analyze",
+    "eslint": "eslint ./src --ext .ts,.tsx",
+    "eslint:fix": "pnpm eslint --fix"
   },
   "keywords": [],
   "author": "",

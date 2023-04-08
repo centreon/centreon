@@ -1,5 +1,5 @@
 {
-  "extends": "./packages/js-config/tsconfig/index",
+  "extends": "../../packages/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": "./",
     "typeRoots": [
@@ -9,7 +9,6 @@
     "module": "esnext"
   },
   "include": [
-    "./www/front_src/src",
-    "./cypress"
+    "./src"
   ]
 }
