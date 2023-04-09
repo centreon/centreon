@@ -13,6 +13,7 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   insertResourceFixtures().then(submitResultsViaClapi);
 });
 

@@ -1,13 +1,6 @@
-const setUserAdminDefaultCredentials = (): Cypress.Chainable => {
-  return cy.executeActionViaClapi({
-    bodyContent: {
-      action: 'SETPARAM',
-      object: 'CONTACT',
-      values: `admin;password;Password123\\!`
-      //values: `admin;password;${nonDefaultPassword}`
-    }
-  });
-};
+import { insertFixture } from "../../commons";
+
+const dateBeforeLogin = new Date();
 
 const checkIfSystemUserRoot = (): Cypress.Chainable => {
   return cy
@@ -23,19 +16,11 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
 };
 
 const updatePlatformPackages = (): Cypress.Chainable => {
-  return cy
-    .exec(
-      `docker cp cypress/scripts/platform-update-commands.sh ${Cypress.env(
-        'dockerName'
-      )}:/tmp/platform-update-commands.sh`
-    )
-    .then(() => {
-      cy.exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} bash /tmp/platform-update-commands.sh`
-      );
-    });
+  return cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} sh -c "dnf clean all --enablerepo=* && dnf --nogpgcheck -y update centreon\\*"`
+  );
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
@@ -43,7 +28,7 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
-      )} rpm -qa | grep centreon-web | cut -d '-' -f3`
+      )} sh -c "rpm -qa |grep centreon-web |cut -d '-' -f3"`
     )
     .then(({ stdout }): Cypress.Chainable<null> | null => {
       const isRoot = platformVersion === stdout;
@@ -55,18 +40,14 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
     });
 };
 
-const injectingModulesLicense = (): Cypress.Chainable => {
-  return cy.exec(
-    `docker cp cypress/scripts/license/epp.license ${Cypress.env(
-      'dockerName'
-    )}:/etc/centreon/license.d/epp.license`
-  );
+const insertHost = (): Cypress.Chainable => {
+  return insertFixture('resources/clapi/host2/01-add.json');
 };
 
 export {
-  setUserAdminDefaultCredentials,
   checkIfSystemUserRoot,
   updatePlatformPackages,
   checkPlatformVersion,
-  injectingModulesLicense
+  dateBeforeLogin,
+  insertHost
 };

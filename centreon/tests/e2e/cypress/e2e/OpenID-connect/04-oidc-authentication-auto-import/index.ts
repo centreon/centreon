@@ -3,6 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { configureOpenIDConnect, getUserContactId } from '../common';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   cy.startOpenIdProviderContainer();
 });
 

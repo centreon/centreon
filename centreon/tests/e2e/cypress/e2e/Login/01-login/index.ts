@@ -4,6 +4,7 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture, removeContact } from '../common';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   insertContactFixture();
   cy.intercept(
     '/centreon/api/internal.php?object=centreon_topcounter&action=user'

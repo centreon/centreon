@@ -175,6 +175,36 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
+  return cy
+    .exec(`npx wait-on ${Cypress.config().baseUrl}`)
+    .then(() => cy.setUserTokenApiV1());
+});
+
+interface StartContainerProps {
+  name: string;
+  os: string;
+  version: string;
+}
+
+Cypress.Commands.add(
+  'startContainer',
+  ({ name, os, version }: StartContainerProps): Cypress.Chainable => {
+    return cy.exec(
+      `docker run -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web-${os}:${version}`
+    );
+  }
+);
+
+Cypress.Commands.add(
+  'stopContainer',
+  (containerName: string): Cypress.Chainable => {
+    return cy.exec(
+      `docker stop ${containerName} && docker rm ${containerName}`
+    );
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -195,6 +225,9 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
+      startContainer: () => Cypress.Chainable;
+      stopContainer: (containerName: string) => Cypress.Chainable;
+      waitForContainerAndSetToken: () => Cypress.Chainable;
     }
   }
 }

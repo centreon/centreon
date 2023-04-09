@@ -6,12 +6,17 @@ import {
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
+  dateBeforeLogin,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
   removeFixtures,
   waitPollerListToLoad
 } from '../common';
+
+before(() => {
+  cy.waitForContainerAndSetToken();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -165,7 +170,7 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
-  checkIfConfigurationIsExported();
+  checkIfConfigurationIsExported(dateBeforeLogin);
 });
 
 Then('the selected pollers are {string}', (poller_action: string) => {
@@ -220,7 +225,7 @@ Then('a success message is displayed', () => {
 });
 
 Then('the configuration is generated on all pollers', () => {
-  checkIfConfigurationIsExported();
+  checkIfConfigurationIsExported(dateBeforeLogin);
 
   cy.logout()
 

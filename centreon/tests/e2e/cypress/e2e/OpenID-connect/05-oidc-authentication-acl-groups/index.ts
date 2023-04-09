@@ -8,6 +8,7 @@ import {
 } from '../common';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   cy.startOpenIdProviderContainer().then(() => {
     initializeOIDCUserAndGetLoginPage();
   });

@@ -1,16 +1,16 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { checkIfConfigurationIsExported } from '../../Poller-configuration/common';
 import {
-  checkIfConfigurationIsExported,
-  insertHost
-} from '../../Poller-configuration/common';
-import {
-  checkIfSystemUserRoot,
   checkPlatformVersion,
-  injectingModulesLicense,
-  setUserAdminDefaultCredentials,
+  dateBeforeLogin,
+  insertHost,
   updatePlatformPackages
 } from '../common';
+
+before(() => {
+   cy.stopContainer(Cypress.env('dockerName'));
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -54,44 +54,19 @@ beforeEach(() => {
   }).as('getAutoDiscoInstallation');
 });
 
-Given('an admin user with valid non-default credentials', () => {
-  setUserAdminDefaultCredentials();
+Given('a running platform in {string}', (version_A: string) => {
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'legacy-alma8',
+    version: version_A
+  });
+
+  cy.waitForContainerAndSetToken();
+
+  checkPlatformVersion(version_A);
+
+  cy.visit(`${Cypress.config().baseUrl}`);
 });
-
-Given('a system user root', () => {
-  checkIfSystemUserRoot();
-});
-
-Given(
-  'a running platform in {string} with all extensions installed',
-  (version_A: string) => {
-    checkPlatformVersion(version_A);
-
-    injectingModulesLicense();
-
-    cy.visit(`${Cypress.config().baseUrl}`);
-
-    cy.loginByTypeOfUser({ jsonName: 'admin' }).wait('@getNavigationList');
-
-    cy.navigateTo({
-      page: 'Extensions',
-      rootItemNumber: 4,
-      subMenu: 'Manager'
-    });
-
-    cy.get('button[class="MuiButtonBase-root"')
-      .eq(6)
-      .click()
-      .wait('@getAutoDiscoInstallation');
-  }
-);
-
-Given(
-  'this platform has existing configuration for all the installed extensions',
-  () => {
-    // TODO
-  }
-);
 
 When('administrator updates packages to {string}', () => {
   updatePlatformPackages();
@@ -113,6 +88,7 @@ When('administrator runs the update procedure', () => {
   });
 
   cy.wait('@generatingCache').then(() => {
+    cy.get('span:visible:contains(OK)').should('have.length', 8);
     cy.get('.btc.bt_info').eq(0).click();
   });
 
@@ -121,23 +97,28 @@ When('administrator runs the update procedure', () => {
   });
 });
 
-Then('monitoring should be up and running after procedure is complete', () => {
-  cy.loginByTypeOfUser({
-    jsonName: 'admin-with-nondefault-credentials'
-  });
+Then(
+  'monitoring should be up and running after update procedure is complete to {string}',
+  (version_B: string) => {
+    checkPlatformVersion(version_B);
 
-  cy.url().should('include', '/monitoring/resources');
+    cy.loginByTypeOfUser({
+      jsonName: 'admin'
+    });
 
-  cy.wait('@monitoringEndpoint').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/monitoring/resources');
 
-  cy.setUserTokenApiV1('admin-with-nondefault-credentials.json');
-});
+    cy.wait('@monitoringEndpoint').its('response.statusCode').should('eq', 200);
+
+    cy.setUserTokenApiV1('admin');
+  }
+);
 
 Given('a successfully updated platform', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.waitForContainerAndSetToken();
 
   cy.loginByTypeOfUser({
-    jsonName: 'admin-with-nondefault-credentials'
+    jsonName: 'admin'
   });
 });
 
@@ -151,10 +132,15 @@ When('administrator exports Poller configuration', () => {
   cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
 
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.get('.SnackbarContent-root > .MuiPaper-root')
-      .contains('Configuration exported and reloaded')
+    cy.contains('Configuration exported and reloaded')
       .should('have.length', 1);
   });
+});
 
-  checkIfConfigurationIsExported();
+Then('Poller configuration should be fully generated', () => {
+  checkIfConfigurationIsExported(dateBeforeLogin);
+})
+
+after(() => {
+  cy.stopContainer(Cypress.env('dockerName'));
 });

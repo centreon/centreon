@@ -11,6 +11,7 @@ import {
 import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   insertResourceFixtures()
     .then(submitResultsViaClapi)
     .then(loginAsAdminViaApiV2)

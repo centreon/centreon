@@ -1,5 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+before(() => {
+  cy.waitForContainerAndSetToken();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
