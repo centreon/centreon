@@ -158,17 +158,23 @@ const Row = memo<RowProps>(
       return false;
     }
 
-    const previousRowColors = previousRowColorConditions?.map(({ condition }) =>
-      condition(previousRow)
+    const previousRowConditions = previousRowColorConditions?.map(
+      ({ condition }) => condition(previousRow)
     );
-    const nextRowColors = nextRowColorConditions?.map(({ condition }) =>
+    const nextRowConditions = nextRowColorConditions?.map(({ condition }) =>
       condition(nextRow)
     );
+
+    const previousRowColors = previousRowColorConditions?.map(
+      ({ color }) => color
+    );
+    const nextRowColors = nextRowColorConditions?.map(({ color }) => color);
 
     if (not(nextIsInViewport) && lt(nextLimit, 60)) {
       return (
         equals(prevProps.isSelected, nextProps.isSelected) &&
         equals(prevProps.row, nextProps.row) &&
+        equals(previousRowConditions, nextRowConditions) &&
         equals(previousRowColors, nextRowColors) &&
         equals(prevProps.className, nextProps.className)
       );
@@ -178,6 +184,7 @@ const Row = memo<RowProps>(
       equals(prevProps.isSelected, nextProps.isSelected) &&
       equals(prevProps.row, nextProps.row) &&
       equals(prevProps.className, nextProps.className) &&
+      equals(previousRowConditions, nextRowConditions) &&
       equals(previousRowColors, nextRowColors) &&
       equals(prevProps.columnIds, nextProps.columnIds) &&
       equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
