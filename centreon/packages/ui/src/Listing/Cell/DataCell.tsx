@@ -223,12 +223,20 @@ const MemoizedDataCell = memo<Props>(
     );
     const nextIsTruncated = nextProps.column.isTruncated;
 
-    const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
-      condition(prevProps.row)
+    const previousRowConditions = prevProps.rowColorConditions?.map(
+      ({ condition }) => condition(prevProps.row)
     );
-    const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
-      condition(nextProps.row)
+    const nextRowConditions = nextProps.rowColorConditions?.map(
+      ({ condition }) => condition(nextProps.row)
     );
+
+    const previousRowColors = prevProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+    const nextRowColors = nextProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+
     const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
       nextProps.row
     );
@@ -265,7 +273,8 @@ const MemoizedDataCell = memo<Props>(
         previousFormattedString ?? previousRowProps,
         nextFormattedString ?? nextRowProps
       ) &&
-      equals(prevRowColors, nextRowColors) &&
+      equals(previousRowConditions, nextRowConditions) &&
+      equals(previousRowColors, nextRowColors) &&
       equals(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)
