@@ -26,7 +26,15 @@ const WrapperGraph = ({ graphData }: Graph): JSX.Element => {
     <div style={{ height: '100%', width: '100%' }}>
       <Responsive.ParentSize>
         {({ height, width }): JSX.Element => (
-          <Graph graphData={graphData} height={height} width={width} />
+          <Graph
+            graphData={graphData}
+            height={height}
+            // shapeLines={{
+            //   areaRegularLinesData: { stroke: 'red' },
+            //   displayAreaRegularLines: true
+            // }}
+            width={width}
+          />
         )}
       </Responsive.ParentSize>
     </div>

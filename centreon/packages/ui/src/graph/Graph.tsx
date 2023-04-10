@@ -1,26 +1,55 @@
 import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
+import { difference, isNil } from 'ramda';
 
 import {
   getLeftScale,
   getLineData,
+  getNotInvertedStackedLines,
   getRightScale,
+  getSortedStackedLines,
+  getStackedYScale,
   getTimeSeries,
+  getTimeSeriesForLines,
   getXScale
 } from '../timeSeries';
+import { Line } from '../timeSeries/models';
 
-import Grids from './grids';
 import Axes from './axes';
 import { margin } from './common';
+import Grids from './grids';
+import Lines from './lines';
+
+interface RegularLineData {
+  [x: string]: unknown;
+  lines?: Array<Line>;
+}
+interface ShapeLines {
+  areaRegularLinesData?: RegularLineData;
+  areaStackData?: any;
+  displayAreaRegularLines?: boolean;
+  displayAreaStack?: boolean;
+}
+
+const defaultShapeLines = {
+  displayAreaRegularLines: true,
+  displayAreaStack: true
+};
 
 interface Props {
   graphData: any;
-  height: any;
-  width: any;
+  height: number;
+  shapeLines?: ShapeLines;
+  width: number;
 }
 
-const Graph = ({ graphData, height, width }: Props): JSX.Element => {
+const Graph = ({
+  graphData,
+  height,
+  width,
+  shapeLines = defaultShapeLines
+}: Props): JSX.Element => {
   const containerRef = useRef<SVGSVGElement | null>(null);
   const timeSeries = getTimeSeries(graphData);
   const lines = getLineData(graphData);
@@ -56,6 +85,21 @@ const Graph = ({ graphData, height, width }: Props): JSX.Element => {
     [timeSeries, lines, graphHeight]
   );
 
+  const { displayAreaRegularLines, displayAreaStack } = shapeLines;
+
+  const regularStackedLines = getNotInvertedStackedLines(lines);
+
+  const regularStackedTimeSeries = getTimeSeriesForLines({
+    lines: regularStackedLines,
+    timeSeries
+  });
+
+  const stackedYScale = getStackedYScale({ leftScale, rightScale });
+
+  const stackedLines = getSortedStackedLines(lines);
+
+  const regularLines = difference(lines, stackedLines);
+
   return (
     <svg height={height} ref={containerRef} width="100%">
       <Group.Group left={margin.left} top={margin.top}>
@@ -75,6 +119,27 @@ const Graph = ({ graphData, height, width }: Props): JSX.Element => {
           leftScale={leftScale}
           rightScale={rightScale}
           width={graphWidth}
+          xScale={xScale}
+        />
+        <Lines
+          data={{ lines, timeSeries }}
+          height={graphHeight}
+          leftScale={leftScale}
+          rightScale={rightScale}
+          shape={{
+            areaRegularLines: {
+              displayAreaRegularLines,
+              lines: regularLines,
+              ...shapeLines?.areaRegularLinesData
+            },
+            areaStack: {
+              // displayAreaStack,
+              lines: regularStackedLines,
+              timeSeries: regularStackedTimeSeries,
+              timeTick: null,
+              yScale: stackedYScale
+            }
+          }}
           xScale={xScale}
         />
       </Group.Group>

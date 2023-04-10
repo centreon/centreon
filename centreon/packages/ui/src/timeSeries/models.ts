@@ -133,3 +133,8 @@ export interface FormatMetricValueProps {
   unit: string;
   value: number | null;
 }
+
+export interface YScales {
+  leftScale: ScaleLinear<number, number>;
+  rightScale: ScaleLinear<number, number>;
+}

@@ -34,7 +34,8 @@ import {
   Line,
   AxeScale,
   Xscale,
-  FormatMetricValueProps
+  FormatMetricValueProps,
+  YScales
 } from './models';
 
 interface TimeTickWithMetrics {
@@ -438,6 +439,29 @@ const formatMetricValue = ({
   return formattedMetricValue;
 };
 
+const getStackedYScale = ({
+  leftScale,
+  rightScale
+}: YScales): ScaleLinear<number, number> => {
+  const minDomain = min(
+    getMin(leftScale.domain()),
+    getMin(rightScale.domain())
+  );
+  const maxDomain = max(
+    getMax(leftScale.domain()),
+    getMax(rightScale.domain())
+  );
+
+  const minRange = min(getMin(leftScale.range()), getMin(rightScale.range()));
+  const maxRange = max(getMax(leftScale.range()), getMax(rightScale.range()));
+
+  return Scale.scaleLinear<number>({
+    domain: [minDomain, maxDomain],
+    nice: true,
+    range: [maxRange, minRange]
+  });
+};
+
 export {
   getTimeSeries,
   getLineData,
@@ -462,5 +486,6 @@ export {
   getLeftScale,
   getXScale,
   getRightScale,
-  formatMetricValue
+  formatMetricValue,
+  getStackedYScale
 };
