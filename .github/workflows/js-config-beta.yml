@@ -6,8 +6,6 @@ on:
     paths:
       - 'centreon/packages/js-config/**'
       - '.github/workflows/js-config-beta.yml'
-    branches:
-      - 'develop'
 
 env:
   directory: "centreon/packages/js-config"
