@@ -303,7 +303,7 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		CENTREON_REPO+="centreon-$_repo*"
+		CENTREON_REPO+="centreon-23.04-$_repo*"
 		if ! [ "$_repo" == "${array_repos[@]:(-1)}" ]; then
 			CENTREON_REPO+=","
 		fi
@@ -314,8 +314,23 @@ function set_centreon_repos() {
 }
 #========= end of function set_centreon_repos()
 
+#========= begin of function set_mariadb_repos()
+#
+function set_mariadb_repos() {
+	log "INFO" "Install MariaDB repository"
+	curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
+	if [ $? -ne 0 ]; then
+		error_and_exit "Could not install the repository"
+	else
+		log "INFO" "Successfully installed MariaDB repository"
+	fi
+	rm -f -y /etc/yum.repos.d/mariadb.repo.* > /dev/null 2>&1
+
+}
+#========= end of function set_mariadb_repos()
+
 #========= begin of function set_required_prerequisite()
-# check if the target OS is compatible with Red Hat and the version is 7 or 8
+# check if the target OS is compatible with Red Hat and the version is 8 or 9
 # then set the required environment variables accordingly
 #
 function set_required_prerequisite() {
@@ -324,40 +339,10 @@ function set_required_prerequisite() {
 	get_os_information
 
     case "$detected_os_version" in
-    7*)
-        log "INFO" "Setting specific part for v7 ($detected_os_version)"
-
-        case "$detected_os_release" in
-        centos-release* | centos-linux-release*)
-            BASE_PACKAGES=(centos-release-scl)
-            ;;
-
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(oraclelinux-release-el7)
-            ;;
-        esac
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el7/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el7.centos.noarch.rpm"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
-        log "INFO" "Install Centreon from ${RELEASE_RPM_URL}"
-        OS_SPEC_SERVICES="php-fpm httpd24-httpd"
-        PKG_MGR="yum"
-
-        install_remi_repo
-        $PKG_MGR -y -q install yum-utils
-        yum-config-manager --enable remi-php81
-
-        set_centreon_repos
-
-        log "INFO" "Installing required base packages"
-        if ! $PKG_MGR -y -q install ${BASE_PACKAGES[@]}; then
-            error_and_exit "Failed to install required base packages  ${BASE_PACKAGES[@]}"
-        fi
-        ;;
-
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el8/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el8.noarch.rpm"
+        RELEASE_RPM_URL="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -386,7 +371,6 @@ function set_required_prerequisite() {
         esac
 
         install_remi_repo
-        $PKG_MGR config-manager --set-enabled 'powertools'
 
         log "INFO" "Installing PHP 8.1 and enable it"
         $PKG_MGR module install php:remi-8.1 -y -q
@@ -401,8 +385,50 @@ function set_required_prerequisite() {
         set_centreon_repos
         ;;
 
+    9*)
+        log "INFO" "Setting specific part for v9 ($detected_os_version)"
+
+        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-9.rpm"
+        OS_SPEC_SERVICES="php-fpm httpd"
+        PKG_MGR="dnf"
+
+        case "$detected_os_release" in
+        redhat-release*)
+            BASE_PACKAGES=(dnf-plugins-core epel-release)
+            subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+            ;;
+
+        centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+            BASE_PACKAGES=(dnf-plugins-core epel-release)
+            $PKG_MGR config-manager --set-enabled crb
+            ;;
+
+        oraclelinux-release* | enterprise-release*)
+            BASE_PACKAGES=(dnf-plugins-core)
+            $PKG_MGR config-manager --set-enabled ol8_codeready_builder
+            dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+	    ;;
+        esac
+
+		install_remi_repo
+
+        log "INFO" "Installing PHP 8.1 and enable it"
+        $PKG_MGR module install php:remi-8.1 -y -q
+        $PKG_MGR module enable php:remi-8.1 -y -q
+
+        log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
+        $PKG_MGR -y -q install ${BASE_PACKAGES[@]}
+
+        log "INFO" "Updating package gnutls"
+        $PKG_MGR -y -q update gnutls
+
+        set_centreon_repos
+		set_mariadb_repos
+        ;;
+
     *)
-        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v7 and v8). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
         ;;
     esac
 }
@@ -527,16 +553,10 @@ function secure_mariadb_setup() {
 function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
-	$PKG_MGR -q clean all
 
-	rpm -q centreon-release-$CENTREON_MAJOR_VERSION >/dev/null 2>&1
+	$PKG_MGR config-manager --add-repo $RELEASE_RPM_URL
 	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Centreon repository"
-		fi
-	else
-		log "INFO" "Centreon repository seems to be already installed"
+		error_and_exit "Could not install Centreon repository"
 	fi
 }
 #========= end of function install_centreon_repo()
