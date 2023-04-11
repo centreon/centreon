@@ -52,12 +52,12 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
     {
         $redirectUri = $response->redirectUrl !== null
             ? $response->redirectUrl . $this->router->generate(
-                'centreon_security_authentication_login_openid',
+                'centreon_security_authentication_openid_login',
                 [],
                 UrlGeneratorInterface::ABSOLUTE_PATH
             )
             : $this->router->generate(
-                'centreon_security_authentication_login_openid',
+                'centreon_security_authentication_openid_login',
                 [],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
