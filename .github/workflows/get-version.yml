@@ -29,8 +29,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: centreon-web-22.10.3
 
       - uses: shivammathur/setup-php@v2
         if: ${{ endsWith(inputs.version_file, '.php') }}
