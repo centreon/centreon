@@ -74,8 +74,10 @@ runs:
         fail-on-cache-miss: true
 
     - run: |
-        set -x
+        #set -x
 
+        ls ..
+        echo "ok"
         ls
         echo "ok"
         ls centreon
