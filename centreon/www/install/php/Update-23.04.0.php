@@ -93,6 +93,8 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
             <<<SQL
             UPDATE provider_configuration
                 SET custom_configuration = :encodedConfiguration
+            WHERE
+                name = 'openid'
             SQL
         );
         $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
@@ -102,7 +104,7 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
 
 $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
     $customConfiguration = [
-        "remote_login_url" => null,
+        "remote_login_url" => '',
         "entity_id_url" => '',
         "certificate" => '',
         "user_id_attribute" => '',
@@ -135,8 +137,8 @@ $insertSAMLProviderConfiguration = function (CentreonDB $pearDB): void {
         VALUES ('saml','SAML', :customConfiguration, :isActive, :isForced)"
     );
 
-    $insertStatement->bindValue(':isActive', $isActive);
-    $insertStatement->bindValue(':isForced', $isForced);
+    $insertStatement->bindValue(':isActive', $isActive, \PDO::PARAM_INT);
+    $insertStatement->bindValue(':isForced', $isForced, \PDO::PARAM_INT);
     $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration));
     $insertStatement->execute();
 };
