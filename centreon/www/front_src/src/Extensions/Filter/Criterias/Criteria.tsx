@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { PopoverMultiAutocompleteField, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
@@ -19,7 +19,7 @@ interface Props {
 const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const setFilterCriteria = useUpdateAtom(setFilterCriteriaDerivedAtom);
+  const setFilterCriteria = useSetAtom(setFilterCriteriaDerivedAtom);
 
   const getTranslated = (values: Array<SelectEntry>): Array<SelectEntry> => {
     return values.map((entry) => ({

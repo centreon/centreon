@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -34,6 +33,8 @@ const useMain = (): void => {
     areUserParametersLoadedAtom
   );
   const user = useAtomValue(userAtom);
+  console.log('user', user);
+
   const setPlatformInstallationStatus = useSetAtom(
     platformInstallationStatusAtom
   );

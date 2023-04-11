@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { equals, isNil, not, propOr } from 'ramda';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
   getTimePeriodById,
@@ -42,7 +41,7 @@ const useTimePeriod = ({ sending = false }: Props): void => {
   const defaultSelectedCustomTimePeriod = useAtomValue(
     defaultSelectedCustomTimePeriodAtom
   );
-  const setResourceDetailsUpdated = useUpdateAtom(resourceDetailsUpdatedAtom);
+  const setResourceDetailsUpdated = useSetAtom(resourceDetailsUpdatedAtom);
 
   useEffect(() => {
     if (isNil(selectedTimePeriod) || isNil(details) || not(sending)) {

@@ -7,7 +7,7 @@ import {
   ReactNode
 } from 'react';
 
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil, not, or, path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -96,7 +96,7 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
   const resourceDetailsUpdated = useAtomValue(resourceDetailsUpdatedAtom);
   const getIntervalDates = useAtomValue(getDatesDerivedAtom);
   const details = useAtomValue(detailsAtom);
-  const adjustTimePeriod = useUpdateAtom(adjustTimePeriodDerivedAtom);
+  const adjustTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
 
   const graphContainerRef = useRef<HTMLElement | null>(null);
 

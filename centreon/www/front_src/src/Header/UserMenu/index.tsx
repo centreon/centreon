@@ -187,6 +187,8 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })
       .then((retrievedUserData) => {
+        console.log(retrievedUserData);
+
         setData(retrievedUserData);
         refreshData();
       })

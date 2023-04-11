@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import humanizeDuration from 'humanize-duration';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 

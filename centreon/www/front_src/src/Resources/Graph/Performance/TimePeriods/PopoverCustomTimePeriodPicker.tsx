@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { and, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';

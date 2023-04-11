@@ -16,7 +16,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
 import { and, equals, isNil, not } from 'ramda';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useAtom } from 'jotai';
 
 import reactRoutes from '../reactRoutes/routeMap';

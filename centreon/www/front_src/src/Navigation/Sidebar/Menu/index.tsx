@@ -2,8 +2,7 @@ import { MouseEvent, useEffect, useRef, useState } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import List from '@mui/material/List';
@@ -69,7 +68,7 @@ const NavigationMenu = ({
   );
   const user = useAtomValue(userAtom);
 
-  const setHoveredNavigationItemsDerived = useUpdateAtom(
+  const setHoveredNavigationItemsDerived = useSetAtom(
     setHoveredNavigationItemsDerivedAtom
   );
 

@@ -2,15 +2,15 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    jest: true,
+    jest: true
   },
   extends: ['airbnb', '../base.eslintrc.js'],
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     },
     ecmaVersion: 2018,
-    sourceType: 'module',
+    sourceType: 'module'
   },
 
   plugins: ['react', 'hooks', 'react-hooks'],
@@ -28,11 +28,11 @@ module.exports = {
           'useUserContext',
           'useAtom',
           'useAtomValue',
-          'useUpdateAtom',
+          'useSetAtom',
           'useCallback',
-          'useEffect',
-        ],
-      },
+          'useEffect'
+        ]
+      }
     ],
     'import/extensions': [
       'error',
@@ -41,8 +41,8 @@ module.exports = {
         js: 'never',
         jsx: 'never',
         ts: 'never',
-        tsx: 'never',
-      },
+        tsx: 'never'
+      }
     ],
     'import/no-extraneous-dependencies': 'off',
     'import/order': [
@@ -53,21 +53,21 @@ module.exports = {
           {
             group: 'builtin',
             pattern: 'react',
-            position: 'before',
+            position: 'before'
           },
           {
             group: 'external',
             pattern: '@mui/**',
-            position: 'after',
+            position: 'after'
           },
           {
             group: 'parent',
             pattern: '@centreon/**',
-            position: 'before',
-          },
+            position: 'before'
+          }
         ],
-        pathGroupsExcludedImportTypes: ['builtin'],
-      },
+        pathGroupsExcludedImportTypes: ['builtin']
+      }
     ],
     'no-use-before-define': 'off',
     'prefer-arrow-functions/prefer-arrow-functions': ['error'],
@@ -75,8 +75,8 @@ module.exports = {
       'error',
       {
         namedComponents: 'arrow-function',
-        unnamedComponents: 'arrow-function',
-      },
+        unnamedComponents: 'arrow-function'
+      }
     ],
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx'] }],
     'react/jsx-key': 'error',
@@ -86,14 +86,14 @@ module.exports = {
       'error',
       {
         callbacksLast: true,
-        shorthandFirst: true,
-      },
+        shorthandFirst: true
+      }
     ],
     'react/jsx-uses-react': 'off',
     'react/jsx-wrap-multilines': ['error', { prop: false }],
     'react/react-in-jsx-scope': 'off',
     'react/state-in-constructor': 'off',
     'react-hooks/exhaustive-deps': 'off',
-    'react-hooks/rules-of-hooks': 'error',
-  },
+    'react-hooks/rules-of-hooks': 'error'
+  }
 };

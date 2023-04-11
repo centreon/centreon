@@ -1,5 +1,4 @@
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isEmpty, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -84,11 +83,11 @@ const ResourceListing = (): JSX.Element => {
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
-  const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
-  const setLimit = useUpdateAtom(limitAtom);
-  const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
-  const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
-  const setCriteriaAndNewFilter = useUpdateAtom(
+  const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
+  const setLimit = useSetAtom(limitAtom);
+  const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
+  const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
+  const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
 

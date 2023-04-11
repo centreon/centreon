@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';

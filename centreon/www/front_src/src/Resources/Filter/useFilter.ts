@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   useRequest,
@@ -49,11 +49,11 @@ const useFilter = (): void => {
     filterWithParsedSearchDerivedAtom
   );
   const getDefaultFilter = useAtomValue(getDefaultFilterDerivedAtom);
-  const setCustomFilters = useUpdateAtom(customFiltersAtom);
-  const setSearch = useUpdateAtom(searchAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const storeFilter = useUpdateAtom(storedFilterAtom);
-  const setSendingFilter = useUpdateAtom(sendingFilterAtom);
+  const setCustomFilters = useSetAtom(customFiltersAtom);
+  const setSearch = useSetAtom(searchAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const storeFilter = useSetAtom(storedFilterAtom);
+  const setSendingFilter = useSetAtom(sendingFilterAtom);
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {

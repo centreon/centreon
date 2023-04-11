@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 import { equals } from 'ramda';
-import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import Collapse from '@mui/material/Collapse';
@@ -139,7 +139,7 @@ const CollapsibleItems = ({
   const collapsRef = useRef<HTMLElement | null>(null);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);
-  const setHoveredNavigationItems = useUpdateAtom(
+  const setHoveredNavigationItems = useSetAtom(
     setHoveredNavigationItemsDerivedAtom
   );
 

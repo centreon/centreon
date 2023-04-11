@@ -2,8 +2,11 @@ import { ReactElement, useEffect } from 'react';
 
 import { BrowserRouter as Router } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
+import { createStore } from 'jotai';
 
 import { Module, QueryProvider } from '@centreon/ui';
+
+const store = createStore();
 
 interface Props {
   children: ReactElement;
@@ -32,7 +35,7 @@ const Provider = ({ children }: Props): JSX.Element | null => {
 
   return (
     <Router basename={basename}>
-      <Module maxSnackbars={2} seedName="centreon">
+      <Module maxSnackbars={2} seedName="centreon" store={store}>
         <QueryProvider>{children}</QueryProvider>
       </Module>
     </Router>
