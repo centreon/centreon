@@ -48,7 +48,7 @@ on:
 jobs:
   deliver-sources:
     name: Deliver sources of ${{ inputs.module_name }} ${{ inputs.major_version }}.${{ inputs.minor_version }}
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
