@@ -45,7 +45,7 @@ runs:
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: legacy/${{ inputs.frontend_index_file }}
+        path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
         fail-on-cache-miss: true
 
@@ -53,7 +53,7 @@ runs:
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: legacy/${{ inputs.frontend_static_directory }}
+        path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
         fail-on-cache-miss: true
 
@@ -61,7 +61,7 @@ runs:
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: legacy/${{ inputs.backend_vendor_directory }}
+        path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
         fail-on-cache-miss: true
 
@@ -69,12 +69,19 @@ runs:
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: legacy/${{ inputs.translation_directory }}
+        path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
         fail-on-cache-miss: true
 
     - run: |
         set -x
+
+        mv legacy/${{ inputs.frontend_index_file }} ${{ inputs.frontend_index_file }}
+        mv legacy/${{ inputs.frontend_static_directory }} ${{ inputs.frontend_static_directory }}
+        mv legacy/${{ inputs.backend_vendor_directory }} ${{ inputs.backend_vendor_directory }}
+        mv legacy/${{ inputs.translation_directory }} ${{ inputs.translation_directory }}
+
+        ls
 
         MAJOR_VERSION="${{ inputs.major_version }}"
         VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
