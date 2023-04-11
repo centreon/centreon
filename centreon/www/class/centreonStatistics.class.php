@@ -220,6 +220,7 @@ class CentreonStatistics
                         'authentication_type' => $customConfiguration['authentication_type'],
                         'verify_peer' => (bool)$customConfiguration['verify_peer'],
                         'auto_import' => (bool)$customConfiguration['auto_import'],
+                        'redirect_url' => $customConfiguration['redirect_url'] !== null,
                         'roles_mapping' => [
                             'relations' => $aclRelations
                         ]
