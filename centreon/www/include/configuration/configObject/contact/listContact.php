@@ -275,12 +275,11 @@ foreach ($contacts as $contact) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
         "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $contact['contact_id'] . "]' />";
-    $blocked_user_icon = "<a href='#' onclick='return confirmUnblock(event) ;'  >   
-        <img href='main.php?p=" . $p . "&contact_id=" .
-        $contact['contact_id'] . "&o=un&limit=" . $limit . "&num=" . $num . "&search=" . $searchContact .
-        "&centreon_token=" . $centreonToken .
-        "' src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0' alt='" .  _("Blocked") . "' >
-       </a>";
+
+    $blocked_user_icon = "
+  <a href='main.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "' onclick='return  confirm(\"Are you sure you want to unblock this contact ?\");event.preventDefault();  '>
+    <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
+  </a>";
 
     $contact_type = 0;
     if ($contact["contact_register"]) {
@@ -396,40 +395,10 @@ if ($row['count_ldap'] > 0) {
 }
 
 
-$unblockContactMessagePrompt = "Are you sure you want to unblock this contact ?" ;
 ?>
 
 <script type="text/javascript">
 
-    function confirmUnblock(event) {
-        event.preventDefault(); // Prevents the link from being followed immediately
-        // Display a confirmation dialog and check if user confirms
-        if (confirm('<?php echo $unblockContactMessagePrompt; ?>')) {
-            // Get the href attribute of the link and split it into the base URL and parameters
-            var href = event.target.getAttribute("href");
-            var baseUrl = href.split("?")[0];
-            var params = href.split("?")[1].split("&");
-            // Create a new form element
-            var form = document.createElement("form");
-            form.setAttribute("method", "post");
-            form.setAttribute("action", baseUrl);
-            // Add the parameters as hidden input fields to the form
-            for (var i = 0; i < params.length; i++) {
-                var parts = params[i].split("=");
-                var input = document.createElement("input");
-                input.setAttribute("type", "hidden");
-                input.setAttribute("name", parts[0]);
-                input.setAttribute("value", parts[1]);
-                form.appendChild(input);
-            }
-            // Append the form to the body and submit it
-            document.body.appendChild(form);
-
-       form.submit();
-        }
-
-        return false; // Prevents the link from being followed
-    }
 
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
