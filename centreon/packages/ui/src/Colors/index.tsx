@@ -12,14 +12,14 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between'
   },
   itemContainer: {
-    borderRadius: '5px',
+    borderRadius: 1,
     margin: theme.spacing(2),
     padding: theme.spacing(1),
     textAlign: 'center'
   },
   itemContainerText: {
     border: '0.3px solid',
-    borderRadius: '5px',
+    borderRadius: 1,
     margin: theme.spacing(2),
     padding: theme.spacing(1),
     textAlign: 'center'

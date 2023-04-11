@@ -8,7 +8,7 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between'
   },
   itemContainer: {
-    borderRadius: '5px',
+    borderRadius: 1,
     margin: theme.spacing(3),
     padding: theme.spacing(1),
     textAlign: 'center'
