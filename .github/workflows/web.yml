@@ -469,6 +469,7 @@ jobs:
       - name: Deliver sources
         uses: ./.github/actions/release-sources
         with:
+          bucket_directory: centreon
           module_directory: centreon
           module_name: centreon-web
           frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index

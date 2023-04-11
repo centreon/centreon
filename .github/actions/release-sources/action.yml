@@ -1,11 +1,14 @@
 name: "release-sources"
 description: "Release sources on download.centreon.com"
 inputs:
+  bucket_directory:
+    description: The bucket directory
+    required: true
   module_directory:
     description: The module directory
     required: true
   module_name:
-    description: The project name
+    description: The module name
     required: true
   frontend_index_cache_key:
     description: The index.html cache key
@@ -98,8 +101,8 @@ runs:
         SRC_HASH=$(md5sum $SRC_FILE | cut -d ' ' -f 1)
         SRC_SIZE=$(stat -c '%s' $SRC_FILE)
 
-        aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/centreon/$SRC_FILE"
-        #curl "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
+        aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/${{ inputs.bucket_directory }}/$SRC_FILE"
+        curl "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
       shell: bash
 
     - name: Upload package artifacts
