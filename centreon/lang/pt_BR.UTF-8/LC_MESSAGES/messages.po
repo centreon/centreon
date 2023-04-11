@@ -16180,3 +16180,7 @@ msgstr ""
 
 #  msgid "Error while retrieving a host category"
 #  msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""

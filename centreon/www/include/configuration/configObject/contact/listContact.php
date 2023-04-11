@@ -396,12 +396,9 @@ if ($row['count_ldap'] > 0) {
     $tpl->assign('ldap', '1');
 }
 
-
 ?>
-
 <script type="text/javascript">
-
-
+    
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
     }

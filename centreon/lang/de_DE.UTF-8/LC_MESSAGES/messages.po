@@ -15393,3 +15393,7 @@ msgstr ""
 
 #  msgid "Error while updating a host group"
 #  msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""

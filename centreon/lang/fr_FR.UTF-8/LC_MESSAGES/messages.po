@@ -11288,9 +11288,13 @@ msgstr "Afficher les notifications du contact"
 msgid "Are you sure you want to unblock this contact ?"
 msgstr "Êtes-vous sûr de vouloir débloquer ce contact ?"
 
-#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
 msgid "The chosen contact(s) will be unblocked. Do you confirm the request ?"
 msgstr "Les contacts choisis seront débloqués. Confirmez-vous l'action ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+msgid "Unblock"
+msgstr "Débloquer"
 
 #: centreon-web/www/include/configuration/configObject/escalation/ViewEscalation.php:103
 msgid "Escalations View"
