@@ -47,7 +47,7 @@ on:
 
 jobs:
   deliver-sources:
-    name: Deliver sources of ${{ inputs.module_name }} ${{ inputs.major_version }}-${{ inputs.minor_version }}
+    name: Deliver sources of ${{ inputs.module_name }} ${{ inputs.major_version }}.${{ inputs.minor_version }}
     runs-on: [self-hosted, common]
 
     steps:
@@ -106,5 +106,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sources-${{ inputs.module_name }}
-          path: ./${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.tag.gz
+          path: ./${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.tar.gz
           retention-days: 1
