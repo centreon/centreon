@@ -40,8 +40,13 @@ const StatusChip = ({
     severityCode
   });
 
-  const lowerLabel = (name: string): string =>
-    name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  const lowerLabel = (name: string): string => {
+    if (equals(name, 'OK')) {
+      return name;
+    }
+
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
 
   return (
     <Chip
