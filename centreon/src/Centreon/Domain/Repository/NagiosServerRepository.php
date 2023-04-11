@@ -81,7 +81,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
      */
     public function checkListOfIds(array $ids): bool
     {
-        return $this->checkListOfIdsTrait($ids);
+        return $this->checkListOfIdsTrait($ids, NagiosServer::TABLE, NagiosServer::ENTITY_IDENTIFICATOR_COLUMN);
     }
 
     /**
