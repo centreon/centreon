@@ -39,12 +39,13 @@ runs:
     - uses: actions/checkout@v3
       with:
         ref: centreon-web-22.10.3
+        path: legacy
 
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.frontend_index_file }}
+        path: legacy/${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
         fail-on-cache-miss: true
 
@@ -52,7 +53,7 @@ runs:
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.frontend_static_directory }}
+        path: legacy/${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
         fail-on-cache-miss: true
 
@@ -60,7 +61,7 @@ runs:
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.backend_vendor_directory }}
+        path: legacy/${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
         fail-on-cache-miss: true
 
@@ -68,7 +69,7 @@ runs:
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.translation_directory }}
+        path: legacy/${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
         fail-on-cache-miss: true
 
@@ -88,6 +89,7 @@ runs:
         #aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/centreon/$SRC_FILE"
         #curl "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
       shell: bash
+      working-directory: legacy
 
     - name: Upload package artifacts
       uses: actions/upload-artifact@v3
