@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 import { includes, toPairs } from 'ramda';
 
 import { Stack, Box, useTheme, Typography, Divider, Grid } from '@mui/material';
+import { ThemeMode } from '@centreon/ui-context';
 
 const useStyles = makeStyles()((theme) => ({
   divider: {
@@ -134,9 +135,10 @@ const TextColorContainer = ({
 };
 
 interface ColorStoryProps {
+  themeMode?: ThemeMode;
   isGrouped?: boolean;
   isText?: boolean;
-  paletteKey: string;
+  paletteKey?: string;
   title?: string;
 }
 
