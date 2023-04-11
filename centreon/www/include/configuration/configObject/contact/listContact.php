@@ -277,9 +277,11 @@ foreach ($contacts as $contact) {
         $contact['contact_id'] . "]' />";
 
     $blocked_user_icon = "
-  <a href='main.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "' onclick='return  confirm(\"Are you sure you want to unblock this contact ?\");event.preventDefault();  '>
-    <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
-  </a>";
+    <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' onclick=\"if(confirm('" . _('Are you sure you want to unblock this contact?') . "')) {
+        window.location.href = this.href;
+    }\" >
+        <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
+    </a>";
 
     $contact_type = 0;
     if ($contact["contact_register"]) {

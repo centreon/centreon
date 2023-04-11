@@ -276,7 +276,12 @@ switch ($o) {
         require_once($path . "listContact.php");
         break;
     case UNBLOCK_CONTACT:
-        unblockContactInDB($contactId);
+        if (isCSRFTokenValid()) {
+            purgeCSRFToken();
+            unblockContactInDB($contactId);
+        } else {
+            unvalidFormMessage();
+        }
         require_once($path . "listContact.php");
         break;
     default:
