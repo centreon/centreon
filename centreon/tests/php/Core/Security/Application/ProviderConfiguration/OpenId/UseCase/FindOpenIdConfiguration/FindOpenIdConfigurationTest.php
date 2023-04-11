@@ -60,7 +60,8 @@ it('should present a provider configuration', function () {
             ->setAuthenticationType('client_secret_post')
             ->setContactTemplate(new ContactTemplate(1, 'contact_template'))
             ->setAutoImportEnabled(false)
-            ->setContactGroup(new ContactGroup(1, 'contact_group'));
+            ->setContactGroup(new ContactGroup(1, 'contact_group'))
+            ->setRedirectUrl(null);
 
         $useCase = new FindOpenIdConfiguration($this->repository);
         $presenter = new FindOpenIdConfigurationPresenterStub($this->presenterFormatter);
@@ -97,6 +98,7 @@ it('should present a provider configuration', function () {
         expect($presenter->response->emailBindAttribute)->toBeNull();
         expect($presenter->response->userNameBindAttribute)->toBeNull();
         expect($presenter->response->contactGroup)->toBe(['id' => 1, 'name' => 'contact_group']);
+        expect($presenter->response->redirectUrl)->toBeNull();
 });
 
 it('should present a NotFoundReponse when no configuration is found', function () {
