@@ -101,11 +101,11 @@ export const openidConfigurationDecoder =
       emailBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
       endSessionEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       fullnameBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
-      redirectUrl: JsonDecoder.nullable(JsonDecoder.string),
       introspectionTokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       isActive: JsonDecoder.boolean,
       isForced: JsonDecoder.boolean,
       loginClaim: JsonDecoder.nullable(JsonDecoder.string),
+      redirectUrl: JsonDecoder.nullable(JsonDecoder.string),
       tokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       trustedClientAddresses: JsonDecoder.array(
         JsonDecoder.string,

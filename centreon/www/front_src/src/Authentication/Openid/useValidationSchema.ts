@@ -68,11 +68,11 @@ const useValidationSchema = (): Yup.SchemaOf<OpenidConfiguration> => {
           : schema.nullable();
       },
     ),
-    redirectUrl: Yup.string().nullable(),
     introspectionTokenEndpoint: Yup.string().nullable(),
     isActive: Yup.boolean().required(t(labelRequired)),
     isForced: Yup.boolean().required(t(labelRequired)),
     loginClaim: Yup.string().nullable(),
+    redirectUrl: Yup.string().nullable(),
     tokenEndpoint: Yup.string().nullable().required(t(labelRequired)),
     trustedClientAddresses: Yup.array().of(
       Yup.string()
