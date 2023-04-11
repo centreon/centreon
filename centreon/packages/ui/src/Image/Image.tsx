@@ -1,7 +1,7 @@
-import { FC, Suspense } from 'react';
+import { memo } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { useLoadImage } from './useLoadImage';
 
@@ -30,17 +30,20 @@ const useStyles = makeStyles<Pick<Props, 'width' | 'height' | 'variant'>>()(
   })
 );
 
-const ImageContent: FC<Omit<Props, 'fallback'>> = ({
+const ImageContent = ({
   alt,
   className,
   height,
   width,
   imagePath,
-  variant = ImageVariant.Cover
-}) => {
+  variant = ImageVariant.Cover,
+  fallback
+}: Props): JSX.Element => {
   const { classes, cx } = useStyles({ height, variant, width });
-  const image = useLoadImage({ alt, imageSrc: imagePath });
-  image.read();
+  const isImageLoaded = useLoadImage({ alt, imageSrc: imagePath });
+  if (!isImageLoaded) {
+    return fallback;
+  }
 
   return (
     <img
@@ -51,16 +54,12 @@ const ImageContent: FC<Omit<Props, 'fallback'>> = ({
   );
 };
 
-const SuspendedImage = ({ fallback, ...props }: Props): JSX.Element | null => {
-  if (isNil(props.imagePath)) {
+const SuspendedImage = ({ imagePath, ...props }: Props): JSX.Element | null => {
+  if (isNil(imagePath)) {
     return null;
   }
 
-  return (
-    <Suspense fallback={fallback}>
-      <ImageContent {...props} />
-    </Suspense>
-  );
+  return <ImageContent {...props} imagePath={imagePath} />;
 };
 
-export default SuspendedImage;
+export default memo(SuspendedImage, equals);

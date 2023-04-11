@@ -63,7 +63,12 @@ const useStyles = makeStyles()((theme) => ({
     margin: 0
   },
   timelineDot: {
+    '> div, svg': {
+      height: theme.spacing(2.75),
+      width: theme.spacing(2.75)
+    },
     alignItems: 'center',
+    boxSizing: 'content-box',
     display: 'grid',
     height: theme.spacing(3),
     justifyItems: 'center',

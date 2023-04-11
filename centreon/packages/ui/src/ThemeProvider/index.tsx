@@ -32,7 +32,16 @@ declare module '@mui/material/TextField' {
   }
 }
 
-const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
+const getInputBaseRootStyle = ({
+  size,
+  multiline
+}: InputBaseProps): CSSInterpolation => {
+  if (multiline) {
+    return {
+      padding: '0px'
+    };
+  }
+
   if (equals(size, 'compact')) {
     return {
       padding: '8px 8px',

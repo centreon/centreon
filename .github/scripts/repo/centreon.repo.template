@@ -1,46 +1,94 @@
-[centreon-stable]
+[centreon-@MAJOR_VERSION@-stable]
 name=Centreon open source software repository.
-baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/stable/
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/stable/$basearch/
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
-[centreon-connectors-stable]
-name=Centreon connectors repository.
-baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/stable/
+[centreon-@MAJOR_VERSION@-stable-noarch]
+name=Centreon open source software repository.
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/stable/noarch/
 enabled=1
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
-[centreon-testing]
+[centreon-plugins-@MAJOR_VERSION@-stable]
+name=Centreon plugins repository.
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/stable/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-plugins-@MAJOR_VERSION@-stable-noarch]
+name=Centreon plugins repository.
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/stable/noarch/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-@MAJOR_VERSION@-testing]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/testing/
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/testing/$basearch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
-[centreon-connectors-testing]
-name=Centreon connectors repository. (UNSUPPORTED)
-baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/testing/
-enabled=0
-gpgcheck=1
-gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
-module_hotfixes=1
-
-[centreon-unstable]
+[centreon-@MAJOR_VERSION@-testing-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://centreon.jfrog.io/artifactory/rpm/standard/@MAJOR_VERSION@/@DISTRIB@/unstable/
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/testing/noarch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
 module_hotfixes=1
 
-[centreon-connectors-unstable]
-name=Centreon connectors repository. (UNSUPPORTED)
-baseurl=https://centreon.jfrog.io/artifactory/rpm-connectors/@DISTRIB@/unstable/
+[centreon-plugins-@MAJOR_VERSION@-testing]
+name=Centreon plugins repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/testing/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-plugins-@MAJOR_VERSION@-testing-noarch]
+name=Centreon plugins repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/testing/noarch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-@MAJOR_VERSION@-unstable]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/unstable/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-@MAJOR_VERSION@-unstable-noarch]
+name=Centreon open source software repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-standard/@MAJOR_VERSION@/@DISTRIB@/unstable/noarch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-plugins-@MAJOR_VERSION@-unstable]
+name=Centreon plugins repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/unstable/$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
+module_hotfixes=1
+
+[centreon-plugins-@MAJOR_VERSION@-unstable-noarch]
+name=Centreon plugins repository. (UNSUPPORTED)
+baseurl=https://packages.centreon.com/rpm-plugins/@DISTRIB@/unstable/noarch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES

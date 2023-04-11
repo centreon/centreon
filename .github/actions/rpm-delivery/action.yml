@@ -1,47 +1,17 @@
-name: "rpm-package"
+name: "rpm-delivery"
 description: "Package RPM Centreon"
 inputs:
   module_name:
     description: "The package module name"
     required: true
-  repository_name:
-    description: "The repository name (standard, business, ...)"
-    required: true
   distrib:
     description: "The distribution used for packaging"
-    required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
     required: true
   version:
     description: "Centreon packaged version"
     required: true
-  minor_version:
-    description: "Centreon packaged version"
-    required: true
-  release:
-    description: The release number
-    required: true
   cache_key:
     description: "The cached package key"
-    required: true
-  yum_repo_url:
-    description: "The legacy yum repo url"
-    required: true
-  update_repo_path:
-    description: "The update repo script path"
-    required: true
-  cloudfront_id:
-    description: "The cloudfront ID for repo url"
-    required: true
-  yum_repo_address:
-    description: "The legacy yum repo address"
-    required: true
-  yum_repo_key:
-    description: "The repo key"
     required: true
   stability:
     description: "The package stability (stable, testing, unstable)"
@@ -58,113 +28,57 @@ runs:
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
 
     - uses: jfrog/setup-jfrog-cli@v3
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
-    - name: Setup awscli
-      run: |
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        sudo unzip -q awscliv2.zip
-        sudo ./aws/install
-      shell: bash
-
     - name: Publish RPMs
       run: |
-        PROJECT_LOCATIONS=""
-        INVALIDATION_PATHS=""
-        METADATAS=""
-
         FILES="*.rpm"
-        echo "[DEBUG] - Rpm FILES: $FILES"
 
-        eval `ssh-agent`
-        ssh-add - <<< "${{ inputs.yum_repo_key }}"
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
-        for FILE in $FILES
-        do
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
+        mkdir noarch x86_64
+
+        for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
-
-          VERSION=${{ inputs.version }}
-
-          if [ -z "${{ inputs.distrib }}" ]; then
-            DISTRIB=$(echo $FILE | grep -oP 'el[0-9]' || echo '')
-          else
-            DISTRIB="${{ inputs.distrib }}"
-          fi
-
-          if [ -z "${DISTRIB}" ]; then
-            echo "package distribution not set"
-            exit 1
-          fi
 
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
-          echo "[DEBUG] - Version: $VERSION"
-          echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          MAJOR=$VERSION
-          MINOR=${{ inputs.minor_version }}
-          RELEASE=${{ inputs.release }}
-          DISTRIB=$DISTRIB
-          REPOTYPE=${{ inputs.stability }}
-          ARCH=$ARCH
-          PROJECT=${{ inputs.module_name }}
-          PROJECT_PATH="standard"
-
-          # Delivery with proper repository structure according to stability
-          if [ "${{ inputs.stability }}" == stable ]; then
-            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/RPMS"
-            jf rt upload "$FILE" "rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/"
-          else
-            FOLDER="centreon-$PROJECT-$MAJOR.$MINOR-$RELEASE"
-            TARGET="/srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT/$FOLDER"
-            PROJECT_LOCATIONS="$PROJECT_LOCATIONS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/$PROJECT"
-            jf rt upload "$FILE" "rpm/$PROJECT_PATH/$MAJOR/$DISTRIB/${{ inputs.stability }}/$ARCH/$PROJECT/$FOLDER/"
-          fi
-
-          echo "[DEBUG] - Folder: $FOLDER"
-          echo "[DEBUG] - Project : $PROJECT"
-          echo "[DEBUG] - Target : $TARGET"
-
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET" 2>&-
-          scp -o StrictHostKeyChecking=no "$FILE" "${{ inputs.yum_repo_address }}:$TARGET" 2>&-
-
-          METADATAS="$METADATAS /srv/centreon-yum/yum.centreon.com/$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH"
-          INVALIDATION_PATHS="$INVALIDATION_PATHS /$PROJECT_PATH/$MAJOR/$DISTRIB/$REPOTYPE/$ARCH/*"
+          mv "$FILE" "$ARCH"
         done
 
-        # Cleanup is done on unstable repository only
-        if [ "${{ inputs.stability }}" == unstable ]; then
-          PROJECT_LOCATIONS=`echo "$PROJECT_LOCATIONS" | xargs -n1 | sort -u | xargs`
-          for PROJECT_LOCATION in `echo $PROJECT_LOCATIONS`; do
-            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "ls -drc $PROJECT_LOCATION/* 2>&- | head -n -1 | xargs rm -rf"
-          done
+        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
+          ROOT_REPO_PATH="installers"
+          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
+          exit 0
         fi
 
-        # Update repository metadata
-        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
-        for METADATA in `echo $METADATAS`; do
-          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
-        done
-
-        # Invalidate cloudfront cache
-        ID="${{ inputs.cloudfront_id }}"
-        # Remove duplicated invalidation paths
-        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
-        ITERATIONS=1
-
-        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
-          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
-            if [ ${ITERATIONS} -eq 10 ]; then
-              return 0
+        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+          for ARCH in "noarch" "x86_64"; do
+            if [ "$(ls -A $ARCH)" ]; then
+              if [ "${{ inputs.stability }}" == "stable" ]; then
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
+              else
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+              fi
             fi
-            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
-            sleep 30s
-            ITERATIONS=$((ITERATIONS+1))
           done
         done
       shell: bash

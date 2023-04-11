@@ -30,6 +30,7 @@ runs:
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
+        publish-summary: false
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
@@ -43,10 +44,14 @@ runs:
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        name: cypress-screenshots-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/screenshots
         retention-days: 1
-
-    - name: Rename cypress report
-      run: mv ${{ inputs.module }}/cypress/results/mochawesome.json ${{ inputs.module }}/cypress/results/${{ steps.formatSpecFilePath.outputs.value }}.json
-      shell: bash
+    
+    - name: Archive snapshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-snapshots-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/visual-testing-snapshots
+        retention-days: 1

@@ -47,9 +47,6 @@ const useStyles = makeStyles()((theme) => ({
   headerCell: {
     padding: theme.spacing(0, 0, 0, 1)
   },
-  item: {
-    paddingLeft: theme.spacing(1.5)
-  },
   rowNotHovered: {
     color: theme.palette.text.secondary
   },
@@ -105,7 +102,6 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.item}
           isRowHighlighted={isRowHighlighted}
           style={{
             gridColumn
@@ -137,7 +133,6 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.item}
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {
@@ -228,12 +223,20 @@ const MemoizedDataCell = memo<Props>(
     );
     const nextIsTruncated = nextProps.column.isTruncated;
 
-    const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
-      condition(prevProps.row)
+    const previousRowConditions = prevProps.rowColorConditions?.map(
+      ({ condition }) => condition(prevProps.row)
     );
-    const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
-      condition(nextProps.row)
+    const nextRowConditions = nextProps.rowColorConditions?.map(
+      ({ condition }) => condition(nextProps.row)
     );
+
+    const previousRowColors = prevProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+    const nextRowColors = nextProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+
     const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
       nextProps.row
     );
@@ -270,7 +273,8 @@ const MemoizedDataCell = memo<Props>(
         previousFormattedString ?? previousRowProps,
         nextFormattedString ?? nextRowProps
       ) &&
-      equals(prevRowColors, nextRowColors) &&
+      equals(previousRowConditions, nextRowConditions) &&
+      equals(previousRowColors, nextRowColors) &&
       equals(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)

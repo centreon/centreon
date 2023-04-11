@@ -94,7 +94,7 @@ describe(useLoadResources, () => {
       (): void =>
         context.setCriteria?.({
           name: 'states',
-          value: [{ id: 'unhandled', name: 'Unhandled problems' }]
+          value: [{ id: 'unhandled', name: 'Unhandled alerts' }]
         }),
       3
     ],

@@ -2924,8 +2924,12 @@ msgid "Performance Management"
 msgstr "Leistungsverwaltung"
 
 #: centreon/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Plugin Pakete"
+msgid "Monitoring Connectors Manager"
+msgstr "Monitoring konnektoren manager"
+
+#: centreon/www/install/menu_translation.php:121
+msgid "Monitoring connectors"
+msgstr "Monitoring konnektoren"
 
 #: centreon/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -15235,3 +15239,149 @@ msgstr ""
 
 #~ msgid "Please update your PHP to 7.2 or upper."
 #~ msgstr "Bitte aktualisieren Sie ihre PHP-Version auf 7.2 oder höher."
+
+#~ msgid "Centreon wallpaper"
+#~ msgstr ""
+
+#~ msgid "Powered by Centreon"
+#~ msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""
+
+# msgid "SAML configuration"
+# msgstr ""
+
+# msgid "Define SAML configuration"
+# msgstr ""
+
+# msgid "Failed to save SAML configuration"
+# msgstr ""
+
+# msgid "SAML configuration saved"
+# msgstr ""
+
+# msgid "Enable SAMLv2 authentication"
+# msgstr ""
+
+# msgid "SAML only"
+# msgstr ""
+
+# msgid "Remote login URL"
+# msgstr ""
+
+# msgid "Issuer (Entity ID) URL"
+# msgstr ""
+
+# msgid "Copy/paste x.509 certificate"
+# msgstr ""
+
+# msgid "User ID (login) attribute for Centreon user"
+# msgstr ""
+
+# msgid "Logout from"
+# msgstr ""
+
+# msgid "Centreon UI only"
+# msgstr ""
+
+# msgid "Both identity provider and Centreon UI"
+# msgstr ""
+
+# msgid "Define relation between roles and ACL access groups"
+# msgstr ""
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Full name attribute"
+# msgstr ""
+
+# msgid "Roles mapping"
+# msgstr ""
+
+# msgid "Groups mapping"
+# msgstr ""

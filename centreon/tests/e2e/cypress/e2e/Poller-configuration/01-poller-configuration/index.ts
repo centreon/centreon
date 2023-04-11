@@ -45,7 +45,7 @@ Given('I am logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true });
 });
 
-Given('I the platform is configured with some resources', () => {
+Given('the platform is configured with some resources', () => {
   insertHost();
 });
 
@@ -61,19 +61,14 @@ Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
     cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
 
-    cy.getIframeBody().find('form #pollercmd_controls').click();
-
-    cy.getIframeBody()
-      .find('form #pollercmd_0')
-      .select(2)
-      .should('have.value', 39);
+    cy.executeSqlRequestInContainer(`INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`);
 
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
       .contains('Save')
       .click({ force: true });
-  });
+  })
 });
 
 When('I visit the export configuration page', () => {
@@ -176,7 +171,9 @@ Then('the configuration is generated on selected pollers', () => {
 Then('the selected pollers are {string}', (poller_action: string) => {
   checkIfMethodIsAppliedToPollers(poller_action);
 
-  cy.logout().reload();
+  cy.logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
   removeFixtures();
 });
@@ -197,7 +194,9 @@ Then(
       .should('be.visible')
       .and('contain', 'Compulsory Poller');
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     removeFixtures();
   }
@@ -215,8 +214,7 @@ When('I click on the export configuration action and confirm', () => {
 
 Then('a success message is displayed', () => {
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.get('.SnackbarContent-root > .MuiPaper-root')
-      .contains('Configuration exported and reloaded')
+    cy.contains('Configuration exported and reloaded')
       .should('have.length', 1);
   });
 });
@@ -224,7 +222,9 @@ Then('a success message is displayed', () => {
 Then('the configuration is generated on all pollers', () => {
   checkIfConfigurationIsExported();
 
-  cy.logout().reload();
+  cy.logout()
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
   removeFixtures();
 });

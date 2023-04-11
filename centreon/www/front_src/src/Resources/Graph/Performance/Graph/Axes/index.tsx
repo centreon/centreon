@@ -43,7 +43,7 @@ const Axes = ({
   return (
     <>
       <Axis.AxisBottom
-        numTicks={xTickCount > 10 ? 10 : xTickCount}
+        numTicks={xTickCount}
         scale={xScale}
         tickFormat={formatXAxisTick}
         tickLabelProps={(): Record<string, unknown> => ({

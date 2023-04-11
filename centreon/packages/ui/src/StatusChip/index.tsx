@@ -5,54 +5,38 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Chip, ChipProps } from '@mui/material';
 
-import useStyleTable from '../Listing/useStyleTable';
-import { TableStyleAtom } from '../Listing/models';
 import { getStatusColors, SeverityCode } from '../utils/statuses';
 
 export type Props = {
   clickable?: boolean;
   label?: string | ReactNode;
   severityCode: SeverityCode;
-  statusColumn?: boolean;
 } & ChipProps;
 
 interface StylesProps {
-  data: TableStyleAtom['statusColumnChip'];
   severityCode: SeverityCode;
 }
 
-const useStyles = makeStyles<StylesProps>()(
-  (theme, { severityCode, data }) => ({
-    chip: {
-      '&:hover': { ...getStatusColors({ severityCode, theme }) },
-      ...getStatusColors({ severityCode, theme }),
-      '& .MuiChip-label': {
-        alignItems: 'center',
-        display: 'flex',
-        height: '100%',
-        padding: 0
-      }
-    },
-    statusColumnContainer: {
-      fontWeight: 'bold',
-      height: data.height,
-      marginLeft: 1,
-      minWidth: theme.spacing((data.width - 1) / 8)
+const useStyles = makeStyles<StylesProps>()((theme, { severityCode }) => ({
+  chip: {
+    '&:hover': { ...getStatusColors({ severityCode, theme }) },
+    ...getStatusColors({ severityCode, theme }),
+    '& .MuiChip-label': {
+      alignItems: 'center',
+      display: 'flex',
+      height: '100%'
     }
-  })
-);
+  }
+}));
 
 const StatusChip = ({
   severityCode,
   label,
   clickable = false,
-  statusColumn = false,
   className,
   ...rest
 }: Props): JSX.Element => {
-  const { dataStyle } = useStyleTable({});
   const { classes, cx } = useStyles({
-    data: dataStyle.statusColumnChip,
     severityCode
   });
 
@@ -61,9 +45,7 @@ const StatusChip = ({
 
   return (
     <Chip
-      className={cx(classes.chip, className, {
-        [classes.statusColumnContainer]: statusColumn
-      })}
+      className={cx(classes.chip, className)}
       clickable={clickable}
       label={
         equals(typeof label, 'string') ? lowerLabel(label as string) : label

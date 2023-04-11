@@ -1,10 +1,10 @@
---- CREATE TABLES FOR VAULT CONFIGURATION ---
+-- CREATE TABLES FOR VAULT CONFIGURATION --
 CREATE TABLE IF NOT EXISTS `vault` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `vault` (`name`) VALUES ('hashicorp');
 
@@ -19,10 +19,9 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
   `secret_id` VARCHAR(255) NOT NULL,
   `salt` CHAR(128) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_vault_configuration` (`url`, `port`, `root_path`),
   CONSTRAINT `vault_configuration_vault_id`
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_view_mode', 'compact');
+ALTER TABLE `contact` ADD COLUMN `user_interface_density` enum('compact','extended') DEFAULT 'compact' AFTER `contact_theme`;

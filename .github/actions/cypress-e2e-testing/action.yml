@@ -32,19 +32,18 @@ runs:
       working-directory: ${{ inputs.module }}
       shell: bash
 
-    - uses: mad9000/actions-find-and-replace-string@2
+    - name: Format feature file path
       id: formatFeatureFilePath
-      with:
-          source: ${{ inputs.feature_file_path }}
-          find: '/'
-          replace: '-'
+      run:
+        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@f626f218526295bf4255defd3aa6eb98f9eeffd6
+      uses: cypress-io/github-action@v5
       with:
         browser: chrome
         install: false
@@ -91,8 +90,3 @@ runs:
         name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
         path: broker.log
         retention-days: 1
-
-    - name: Rename cypress report
-      if: always()
-      run: mv ${{ inputs.module }}/tests/e2e/cypress/results/reports/mochawesome.json ${{ inputs.module }}/tests/e2e/cypress/results/reports/${{ steps.formatFeatureFilePath.outputs.value }}.json
-      shell: bash

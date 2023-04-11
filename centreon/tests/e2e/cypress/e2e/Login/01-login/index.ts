@@ -1,6 +1,6 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { logout, loginAsAdminViaApiV2 } from '../../../commons';
+import { loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture, removeContact } from '../common';
 
 before(() => {
@@ -19,7 +19,9 @@ When('I enter my credentials on the login page', () => {
 Then('I am redirected to the default page', () => {
   cy.url().should('include', '/monitoring/resources');
   cy.wait('@userTopCounterEndpoint');
-  logout().then(() => cy.reload());
+  cy.logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
 Given('I am logged in', () => {
@@ -29,7 +31,7 @@ Given('I am logged in', () => {
 });
 
 When('I click on the logout action', () => {
-  cy.contains('Rows per page');
+  cy.contains('Resources Status');
   cy.getByLabel({ label: 'Profile' }).click();
   cy.contains('Logout').click();
 });

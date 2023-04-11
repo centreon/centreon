@@ -1,42 +1,49 @@
-import { equals, includes, not, isNil, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme, alpha } from '@mui/material';
+import { alpha, useTheme } from '@mui/material';
 
-import { userAtom } from '@centreon/ui-context';
 import {
   MemoizedListing as Listing,
+  Method,
   SeverityCode,
+  useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { graphTabId } from '../Details/tabs';
-import { rowColorConditions } from '../colors';
+import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
-import { Resource, SortOrder } from '../models';
-import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
-import {
-  openDetailsTabIdAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom,
-  panelWidthStorageAtom
-} from '../Details/detailsAtoms';
 import {
   resourcesToAcknowledgeAtom,
-  resourcesToCheckAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../Actions/actionsAtoms';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
+import { rowColorConditions } from '../colors';
+import {
+  openDetailsTabIdAtom,
+  panelWidthStorageAtom,
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
+} from '../Details/detailsAtoms';
+import { graphTabId } from '../Details/tabs';
 import {
   getCriteriaValueDerivedAtom,
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
+import { Resource, SortOrder } from '../models';
+import {
+  labelSelectAtLeastOneColumn,
+  labelStatus,
+  labelForcedCheckCommandSent
+} from '../translatedLabels';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
-import useLoadResources from './useLoadResources';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -45,14 +52,16 @@ import {
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
+import useLoadResources from './useLoadResources';
+import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
 
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-
-  const { showWarningMessage } = useSnackbar();
+  const { isPending, updateUser, viewerMode } = useViewerMode();
+  const { showWarningMessage, showSuccessMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
@@ -67,24 +76,32 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
     selectedResourcesDetailsAtom
   );
+  const { user_interface_density, themeMode } = useAtomValue(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const { resourceStatusViewMode } = useAtomValue(userAtom);
-
+  const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
   const setLimit = useUpdateAtom(limitAtom);
   const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
-  const setResourcesToCheck = useUpdateAtom(resourcesToCheckAtom);
   const setCriteriaAndNewFilter = useUpdateAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const { mutateAsync } = useMutationQuery({
+    getEndpoint: () => userEndpoint,
+    method: Method.PATCH
+  });
+  const { mutateAsync: checkResource } = useMutationQuery({
+    getEndpoint: () => forcedCheckInlineEndpoint,
+    method: Method.POST
+  });
 
   const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
@@ -128,13 +145,22 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
+  const onForcedCheck = (resource: Resource): void => {
+    checkResource({
+      check: { is_forced: true },
+      resources: adjustCheckedResources({ resources: [resource] })
+    }).then(() => {
+      showSuccessMessage(t(labelForcedCheckCommandSent));
+    });
+  };
+
   const columns = getColumns({
     actions: {
       onAcknowledge: (resource): void => {
         setResourcesToAcknowledge([resource]);
       },
       onCheck: (resource): void => {
-        setResourcesToCheck([resource]);
+        onForcedCheck(resource);
       },
       onDisplayGraph: (resource): void => {
         setOpenDetailsTabId(graphTabId);
@@ -183,6 +209,13 @@ const ResourceListing = (): JSX.Element => {
     }
   ];
 
+  const changeViewModeTableResources = (): void => {
+    updateUser();
+    mutateAsync({
+      user_interface_density: viewerMode
+    });
+  };
+
   return (
     <Listing
       checkable
@@ -209,7 +242,8 @@ const ResourceListing = (): JSX.Element => {
         selectedResourceUuid,
         sending,
         enabledAutoRefresh,
-        selectedResourceDetails
+        selectedResourceDetails,
+        themeMode
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
@@ -222,7 +256,12 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={resourceStatusViewMode}
+      viewMode={user_interface_density}
+      viewerModeConfiguration={{
+        disabled: isPending,
+        onClick: changeViewModeTableResources,
+        title: user_interface_density
+      }}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}

@@ -58,7 +58,8 @@ class FindOpenIdConfigurationPresenter extends AbstractPresenter implements Find
             'fullname_bind_attribute' => $data->userNameBindAttribute,
             'roles_mapping' => $data->aclConditions,
             'authentication_conditions' => $data->authenticationConditions,
-            'groups_mapping' => $data->groupsMapping
+            'groups_mapping' => $data->groupsMapping,
+            'redirect_url' => $data->redirectUrl
         ];
 
         parent::present($presenterResponse);

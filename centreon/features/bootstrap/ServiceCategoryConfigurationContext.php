@@ -30,7 +30,7 @@ class ServiceCategoryConfigurationContext extends CentreonContext
         'template' => 'Ping-WAN',
         'severity' => 1,
         'level' => '3',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'status' => 0
     );
 
@@ -60,32 +60,9 @@ class ServiceCategoryConfigurationContext extends CentreonContext
      */
     public function thePropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceCategoryConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceCategoryConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -106,32 +83,9 @@ class ServiceCategoryConfigurationContext extends CentreonContext
      */
     public function theNewServiceCategoryHasTheSameProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceCategoryConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->duplicatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceCategoryConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->duplicatedProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->duplicatedProperties);
     }
 
     /**

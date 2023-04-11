@@ -76,7 +76,7 @@ export const labelPending = 'Pending';
 export const labelMonitoringServer = 'Monitoring server';
 export const labelRequired = 'Required';
 export const labelResourceName = 'Resource name';
-export const labelResourceProblems = 'Resource problems';
+export const labelAllAlerts = 'All alerts';
 export const labelResource = 'Resource';
 export const labelRowsPerPage = 'Rows per page';
 export const labelOf = 'of';
@@ -121,9 +121,10 @@ export const labelTimezone = 'Timezone';
 export const labelTo = 'To';
 export const labelAcknowledgeCommandSent = 'Acknowledge command sent';
 export const labelDowntimeCommandSent = 'Downtime command sent';
-export const labelCheckCommandSent = 'Check command sent';
+export const labelCheckCommandSent =
+  'Check command sent ! Please refresh the listing to update the data.';
 export const labelTypeOfResource = 'Type of resource';
-export const labelUnhandledProblems = 'Unhandled problems';
+export const labelUnhandledAlerts = 'Unhandled alerts';
 export const labelUnhandled = 'Unhandled';
 export const labelUnreachable = 'Unreachable';
 export const labelUnknown = 'Unknown';
@@ -279,3 +280,9 @@ export const labelSlider = 'Slider';
 export const labelCloseEditModal = 'Close edit modal';
 export const labelModalEditAnomalyDetection = 'Edit modal';
 export const labelModalConfirmation = 'Modal confirmation';
+export const labelForcedCheck = 'Forced check';
+export const labelCheckDescription = `Check selected resources only within configured check period`;
+export const labelForcedCheckDescription =
+  'Check selected resources even outside configured check period';
+export const labelForcedCheckCommandSent =
+  'Forced check command sent ! Please refresh the listing to update the data.';
