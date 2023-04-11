@@ -134,337 +134,331 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  # frontend-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  frontend-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.base_directory }}
-  #         module_name: centreon
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
-  # frontend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  frontend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - uses: pnpm/action-setup@v2
-  #       with:
-  #         version: 7
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
 
-  #     - name: Install dependencies
-  #       run: pnpm install
-  #       working-directory: centreon
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: centreon
 
-  #     - name: Unit test
-  #       run: pnpm t --silent --reporter=jest-junit
-  #       working-directory: centreon
+      - name: Unit test
+        run: pnpm t --silent --reporter=jest-junit
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/junit.xml"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/junit.xml"
 
-  # frontend-component-test:
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-  #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  #   with:
-  #     name: component
-  #     module_name: centreon
-  #     specs_path: www/front_src/src/**
+  frontend-component-test:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/front_src/src/**
 
-  # backend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@v2
-  #       with:
-  #         php-version: 8.1
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-22.04
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
 
-  #     - name: Install dependencies
-  #       uses: ramsey/composer-install@v2
-  #       with:
-  #         working-directory: centreon
-  #         composer-options: "--optimize-autoloader"
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
 
-  #     - name: Unit test
-  #       run: XDEBUG_MODE=coverage composer run-script test:ci
-  #       working-directory: centreon
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/build/phpunit.xml"
-  #         format: "php-junit"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
-  # package:
-  #   needs:
-  #     [
-  #       get-version,
-  #       translation-build,
-  #       backend-dependencies,
-  #       backend-unit-test,
-  #       frontend-build,
-  #       frontend-lint,
-  #       frontend-unit-test,
-  #       frontend-component-test,
-  #     ]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  package:
+    needs:
+      [
+        get-version,
+        translation-build,
+        backend-dependencies,
+        backend-unit-test,
+        frontend-build,
+        frontend-lint,
+        frontend-unit-test,
+        frontend-component-test,
+      ]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
-  #   strategy:
-  #     matrix:
-  #       distrib: [el8, el9, bullseye]
-  #       include:
-  #         - package_extension: rpm
-  #           image: packaging-alma8
-  #           distrib: el8
-  #         - package_extension: rpm
-  #           image: packaging-alma9
-  #           distrib: el9
-  #         - package_extension: deb
-  #           image: packaging-bullseye
-  #           distrib: bullseye
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+        include:
+          - package_extension: rpm
+            image: packaging-alma8
+            distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
+          - package_extension: deb
+            image: packaging-bullseye
+            distrib: bullseye
 
-  #   uses: ./.github/workflows/package.yml
-  #   with:
-  #     base_directory: centreon
-  #     spec_file: centreon/packaging/centreon.spectemplate
-  #     package_extension: ${{ matrix.package_extension }}
-  #     frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-  #     frontend_index_file: centreon/www/index.html
-  #     frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-  #     frontend_static_directory: centreon/www/static
-  #     backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-  #     backend_vendor_directory: centreon/vendor
-  #     translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
-  #     translation_directory: centreon/www/locale
-  #     image_name: ${{ matrix.image }}
-  #     module_name: centreon
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     release: ${{ needs.get-version.outputs.release }}
-  #     commit_hash: ${{ github.sha }}
-  #     cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    uses: ./.github/workflows/package.yml
+    with:
+      base_directory: centreon
+      spec_file: centreon/packaging/centreon.spectemplate
+      package_extension: ${{ matrix.package_extension }}
+      frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+      frontend_index_file: centreon/www/index.html
+      frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+      frontend_static_directory: centreon/www/static
+      backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+      backend_vendor_directory: centreon/vendor
+      translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+      translation_directory: centreon/www/locale
+      image_name: ${{ matrix.image }}
+      module_name: centreon
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      commit_hash: ${{ github.sha }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  # dockerize:
-  #   runs-on: ubuntu-22.04
-  #   needs: [package]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  dockerize:
+    runs-on: ubuntu-22.04
+    needs: [package]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
-  #   strategy:
-  #     matrix:
-  #       os: [alma9]
-  #       include:
-  #         - project: centreon-web
-  #         - os: alma9
-  #           distrib: el9
-  #           package_extension: rpm
+    strategy:
+      matrix:
+        os: [alma9]
+        include:
+          - project: centreon-web
+          - os: alma9
+            distrib: el9
+            package_extension: rpm
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: Login to registry
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-  #         username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  #     - name: Restore ${{ matrix.package_extension }} files
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ./*.${{ matrix.package_extension }}
-  #         key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-  #         fail-on-cache-miss: true
+      - name: Restore ${{ matrix.package_extension }} files
+        uses: actions/cache@v3
+        with:
+          path: ./*.${{ matrix.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          fail-on-cache-miss: true
 
-  #     - uses: docker/setup-buildx-action@v2
+      - uses: docker/setup-buildx-action@v2
 
-  #     - uses: docker/build-push-action@v3
-  #       with:
-  #         file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-  #         target: web_fresh
-  #         context: .
-  #         pull: true
-  #         load: true
-  #         tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_fresh
+          context: .
+          pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-  #     - uses: docker/build-push-action@v3
-  #       with:
-  #         file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-  #         target: web_fresh
-  #         context: .
-  #         pull: false
-  #         push: true
-  #         tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_fresh
+          context: .
+          pull: false
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-  #     - uses: docker/build-push-action@v3
-  #       with:
-  #         file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-  #         target: web_standard
-  #         context: .
-  #         pull: true
-  #         load: true
-  #         tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_standard
+          context: .
+          pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-  #     - uses: docker/build-push-action@v3
-  #       with:
-  #         file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-  #         target: web_standard
-  #         context: .
-  #         pull: false
-  #         push: true
-  #         tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_standard
+          context: .
+          pull: false
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-  #     - name: Setup docker slim
-  #       run: |
-  #         wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
-  #         tar -xf dist_linux.tar.gz
-  #         mv dist_linux/docker-slim /usr/local/bin/
-  #         mv dist_linux/slim-sensor /usr/local/bin/
-  #         mv dist_linux/slim /usr/local/bin/
-  #       shell: bash
+      - name: Setup docker slim
+        run: |
+          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
+          tar -xf dist_linux.tar.gz
+          mv dist_linux/docker-slim /usr/local/bin/
+          mv dist_linux/slim-sensor /usr/local/bin/
+          mv dist_linux/slim /usr/local/bin/
+        shell: bash
 
-  #     - name: Build and push slim images
-  #       run: |
-  #         for IMAGE_SUFFIX in "" "-fresh"; do
-  #           slim build --show-clogs --show-blogs \
-  #             --include-shell \
-  #             --http-probe-off \
-  #             --exec-file .github/docker/slim-configuration/exec.txt \
-  #             --include-path-file .github/docker/slim-configuration/include-path.txt \
-  #             --include-bin-file .github/docker/slim-configuration/include-bin.txt \
-  #             --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-  #             --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
-  #             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #           docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #           docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #         done
-  #       shell: bash
+      - name: Build and push slim images
+        run: |
+          for IMAGE_SUFFIX in "" "-fresh"; do
+            slim build --show-clogs --show-blogs \
+              --include-shell \
+              --http-probe-off \
+              --exec-file .github/docker/slim-configuration/exec.txt \
+              --include-path-file .github/docker/slim-configuration/include-path.txt \
+              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
+              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
+              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          done
+        shell: bash
 
-  # api-integration-test:
-  #   needs: [dockerize, changes]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: api
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     features_path: tests/api/features
-  #     config_file: tests/api/behat.yml
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  api-integration-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # legacy-e2e-test:
-  #   needs: [dockerize, changes]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: legacy-e2e
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     features_path: features
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  legacy-e2e-test:
+    needs: [dockerize, changes]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # e2e-test:
-  #   needs: [get-version, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-  #   uses: ./.github/workflows/cypress-e2e-parallelization.yml
-  #   with:
-  #     name: e2e
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     features_path: tests/e2e/cypress/e2e
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+  e2e-test:
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/e2e/cypress/e2e
+      major_version: ${{ needs.get-version.outputs.major_version }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  # performances-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [get-version, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  performances-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Login to registry
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-  #         username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-  #     - name: Run Lighthouse
-  #       uses: ./.github/actions/lighthouse-performance-testing
-  #       with:
-  #         path: "centreon/lighthouse"
-  #         image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
-  #         image_version: ${{ github.head_ref || github.ref_name }}
-  #         image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
-  #         module: centreon
+      - name: Run Lighthouse
+        uses: ./.github/actions/lighthouse-performance-testing
+        with:
+          path: "centreon/lighthouse"
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
+          image_version: ${{ github.head_ref || github.ref_name }}
+          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          module: centreon
 
-  #     - name: Publish report to S3
-  #       if: ${{ github.event_name == 'push' }}
-  #       uses: ./.github/actions/lighthouse-to-s3
-  #       with:
-  #         report_path: centreon/lighthouse/report/lighthouseci-index.html
-  #         report_target: s3://centreon-lighthouse-report/
-  #         access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
-  #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
+      - name: Publish report to S3
+        if: ${{ github.event_name == 'push' }}
+        uses: ./.github/actions/lighthouse-to-s3
+        with:
+          report_path: centreon/lighthouse/report/lighthouseci-index.html
+          report_target: s3://centreon-lighthouse-report/
+          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
-  #     - name: Publish report
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: lighthouse-report
-  #         path: centreon/lighthouse/report/lighthouseci-index.html
-  #         retention-days: 1
+      - name: Publish report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: centreon/lighthouse/report/lighthouseci-index.html
+          retention-days: 1
 
   deliver-sources:
     runs-on: [self-hosted, common]
     needs:
       [
         get-version,
-        translation-build,
-        backend-dependencies,
-        frontend-build,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
       ]
-    # needs:
-    #   [
-    #     get-version,
-    #     api-integration-test,
-    #     e2e-test,
-    #     performances-test,
-    #     legacy-e2e-test,
-    #   ]
-    # if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -484,59 +478,59 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  # deliver-rpm:
-  #   runs-on: [self-hosted, common]
-  #   needs:
-  #     [
-  #       get-version,
-  #       api-integration-test,
-  #       e2e-test,
-  #       performances-test,
-  #       legacy-e2e-test,
-  #     ]
-  #   if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-  #   strategy:
-  #     matrix:
-  #       distrib: [el8, el9]
+  deliver-rpm:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      matrix:
+        distrib: [el8, el9]
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: Delivery
-  #       uses: ./.github/actions/rpm-delivery
-  #       with:
-  #         module_name: web
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
-  # deliver-deb:
-  #   runs-on: [self-hosted, common]
-  #   needs:
-  #     [
-  #       get-version,
-  #       api-integration-test,
-  #       e2e-test,
-  #       performances-test,
-  #       legacy-e2e-test,
-  #     ]
-  #   if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-  #   strategy:
-  #     matrix:
-  #       distrib: [bullseye]
+  deliver-deb:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      matrix:
+        distrib: [bullseye]
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: Delivery
-  #       uses: ./.github/actions/deb-delivery
-  #       with:
-  #         distrib: ${{ matrix.distrib }}
-  #         version: ${{ needs.get-version.outputs.major_version }}
-  #         artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-  #         stability: ${{ needs.get-version.outputs.stability }}
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}

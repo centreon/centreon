@@ -62,6 +62,25 @@ jobs:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon-open-tickets
+          module_directory: centreon-open-tickets
+          module_name: centreon-open-tickets
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
   delivery-rpm:
     needs: [get-version, package]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}

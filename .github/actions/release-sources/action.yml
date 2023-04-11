@@ -39,11 +39,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
-      with:
-        ref: centreon-web-22.10.3
-        path: legacy
-
     - name: Setup awscli
       run: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -84,18 +79,11 @@ runs:
         fail-on-cache-miss: true
 
     - run: |
-        set -x
-
-        mv ${{ inputs.frontend_index_file }} legacy/${{ inputs.frontend_index_file }}
-        mv ${{ inputs.frontend_static_directory }} legacy/${{ inputs.frontend_static_directory }}
-        mv ${{ inputs.backend_vendor_directory }} legacy/${{ inputs.backend_vendor_directory }}
-        mv ${{ inputs.translation_directory }} legacy/${{ inputs.translation_directory }}
-
         MAJOR_VERSION="${{ inputs.major_version }}"
         VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         SRC_FILE="${{ inputs.module_name }}-$VERSION.tar.gz"
 
-        mv "legacy/${{ inputs.module_directory }}" "${{ inputs.module_name }}-$VERSION"
+        mv "${{ inputs.module_directory }}" "${{ inputs.module_name }}-$VERSION"
         tar czf $SRC_FILE "${{ inputs.module_name }}-$VERSION"
 
         SRC_HASH=$(md5sum $SRC_FILE | cut -d ' ' -f 1)
@@ -104,10 +92,3 @@ runs:
         aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/${{ inputs.bucket_directory }}/$SRC_FILE"
         curl "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
       shell: bash
-
-    - name: Upload package artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}
-        path: ./${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.tar.gz
-        retention-days: 1
