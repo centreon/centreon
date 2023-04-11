@@ -28,16 +28,19 @@ use Core\Domain\RealTime\Model\PerformanceMetric;
 class FindPerformanceMetricResponse
 {
     /**
-     * @var iterable<mixed>
+     * @var PerformanceMetric[]
      */
     public iterable $performanceMetrics = [];
+    public string $filename;
 
     /**
-     * @param iterable<PerformanceMetric> $performanceMetrics
+     * @param iterable $performanceMetrics
+     * @param string $filename
      */
-    public function __construct(iterable $performanceMetrics)
+    public function __construct(iterable $performanceMetrics, string $filename)
     {
         $this->performanceMetrics = $this->performanceMetricToArray($performanceMetrics);
+        $this->filename = $filename;
     }
 
     /**
