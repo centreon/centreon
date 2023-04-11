@@ -76,6 +76,13 @@ runs:
     - run: |
         set -x
 
+        ls
+        echo "ok"
+        ls centreon
+        echo "ok"
+        ls legacy
+
+
         mv ${{ inputs.frontend_index_file }} legacy/${{ inputs.frontend_index_file }}
         mv ${{ inputs.frontend_static_directory }} legacy/${{ inputs.frontend_static_directory }}
         mv ${{ inputs.backend_vendor_directory }} legacy/${{ inputs.backend_vendor_directory }}
