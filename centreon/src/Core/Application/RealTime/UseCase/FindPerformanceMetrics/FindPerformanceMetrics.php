@@ -100,7 +100,7 @@ class FindPerformanceMetrics
     {
         $indexData = $this->indexDataRepository->findHostNameAndServiceDescriptionByIndex($index);
 
-        if (!$indexData instanceof IndexData) {
+        if (! ($indexData instanceof IndexData)) {
             return (string) $index;
         }
 

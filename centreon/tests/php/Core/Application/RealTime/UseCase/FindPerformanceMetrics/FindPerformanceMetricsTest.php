@@ -64,10 +64,6 @@ it(
         $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
         $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
         $presenter = $this->createMock(FindPerformanceMetricPresenterInterface::class);
-        $presenter
-            ->expects($this->once())
-            ->method('setDownloadFileName')
-            ->with($this->equalTo($expectedFileName));
 
         $performanceMetricRequest = new FindPerformanceMetricRequest(
             $this->hostId,
@@ -117,7 +113,6 @@ it(
             ->method('present')
             ->with($this->equalTo($expectedResponse));
 
-
         $performanceMetricRequest = new FindPerformanceMetricRequest(
             $this->hostId,
             $this->serviceId,
@@ -126,7 +121,6 @@ it(
         );
 
         $sut = new FindPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
-
         $sut($performanceMetricRequest, $presenter);
     }
 )->with([
@@ -138,7 +132,8 @@ it(
                     new DateTimeImmutable(),
                     [new MetricValue('rta', 0.001)]
                 )
-            ]
+            ],
+            '15'
         )
     ],
     [
@@ -152,7 +147,8 @@ it(
                         new MetricValue('pl', 0.002),
                     ]
                 ),
-            ]
+            ],
+            '15'
         )
     ]
 ]);
