@@ -49,7 +49,7 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
             WHERE name = 'openid'
             SQL
         );
-        $statement->bindValue('encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
+        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
         $statement->execute();
     }
 };
