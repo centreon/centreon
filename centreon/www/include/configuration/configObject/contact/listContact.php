@@ -277,7 +277,7 @@ foreach ($contacts as $contact) {
         $contact['contact_id'] . "]' />";
 
     $blocked_user_icon = "
-    <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' onclick=\"if(confirm('" . _('Are you sure you want to unblock this contact?') . "')) {
+    <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' onclick=\"if(confirm('" . _('Do you really want to unblock this user?') . "')) {
         window.location.href = this.href;
     }\" >
         <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
@@ -398,7 +398,7 @@ if ($row['count_ldap'] > 0) {
 
 ?>
 <script type="text/javascript">
-    
+
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
     }
