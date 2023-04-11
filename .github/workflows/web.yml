@@ -464,6 +464,8 @@ jobs:
     # if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Deliver sources
         uses: ./.github/actions/release-sources
         with:
