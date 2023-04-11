@@ -76,18 +76,18 @@ runs:
     - run: |
         set -x
 
-        mv legacy/${{ inputs.frontend_index_file }} ${{ inputs.frontend_index_file }}
-        mv legacy/${{ inputs.frontend_static_directory }} ${{ inputs.frontend_static_directory }}
-        mv legacy/${{ inputs.backend_vendor_directory }} ${{ inputs.backend_vendor_directory }}
-        mv legacy/${{ inputs.translation_directory }} ${{ inputs.translation_directory }}
+        mv ${{ inputs.frontend_index_file }} legacy/${{ inputs.frontend_index_file }}
+        mv ${{ inputs.frontend_static_directory }} legacy/${{ inputs.frontend_static_directory }}
+        mv ${{ inputs.backend_vendor_directory }} legacy/${{ inputs.backend_vendor_directory }}
+        mv ${{ inputs.translation_directory }} legacy/${{ inputs.translation_directory }}
 
-        ls
+        ls legacy
 
         MAJOR_VERSION="${{ inputs.major_version }}"
         VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         SRC_FILE="${{ inputs.module_name }}-$VERSION.tar.gz"
 
-        mv "${{ inputs.module_directory }}" "${{ inputs.module_name }}-$VERSION"
+        mv "legacy/${{ inputs.module_directory }}" "${{ inputs.module_name }}-$VERSION"
         tar czf $SRC_FILE "${{ inputs.module_name }}-$VERSION"
 
         SRC_HASH=$(md5sum $SRC_FILE | cut -d ' ' -f 1)
