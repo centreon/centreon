@@ -31,6 +31,7 @@ import {
   labelDefineRelationAuthorizationValueAndAccessGroup,
   labelDeleteRelation,
   labelAuthorizationKey,
+  labelRedirectUrl,
 } from '../translatedLabels';
 import { AuthenticationType } from '../models';
 import { InputProps, InputType } from '../../FormInputs/models';
@@ -145,6 +146,12 @@ export const inputs: Array<InputProps> = [
     fieldName: 'endSessionEndpoint',
     label: labelEndSessionEndpoint,
     type: InputType.Text,
+  },
+  {
+    category: labelIdentityProvider,
+    fieldName: 'redirectUrl',
+    label: labelRedirectUrl,
+    type: InputType.Text
   },
   {
     additionalLabel: labelAtLeastOneOfTheTwoFollowingFieldsMustBeFilled,

@@ -37,6 +37,7 @@ import {
   labelEnableOpenIDConnectAuthentication,
   labelEndSessionEndpoint,
   labelFullnameAttribute,
+  labelRedirectUrl,
   labelIntrospectionTokenEndpoint,
   labelInvalidIPAddress,
   labelInvalidURL,
@@ -98,6 +99,7 @@ const retrievedOpenidConfiguration = {
   email_bind_attribute: 'email',
   endsession_endpoint: '/logout',
   fullname_bind_attribute: 'lastname',
+  redirect_url: '',
   introspection_token_endpoint: '/introspect',
   is_active: true,
   is_forced: false,
@@ -244,6 +246,7 @@ describe('Openid configuration form', () => {
     expect(screen.getByLabelText(labelFullnameAttribute)).toHaveValue(
       'lastname',
     );
+    expect(screen.getByLabelText(labelRedirectUrl)).toHaveValue('');
     expect(screen.getByText('Contact group')).toBeInTheDocument();
     expect(screen.getByLabelText(labelAuthorizationKey)).toHaveValue('groups');
     expect(screen.getAllByLabelText(labelAuthorizationValue)).toHaveLength(2);
@@ -343,6 +346,7 @@ describe('Openid configuration form', () => {
           ],
           base_url: 'http://localhost:8081/login',
           contact_group_id: 1,
+          redirect_url: null,
         },
         cancelTokenPutParams,
       );
