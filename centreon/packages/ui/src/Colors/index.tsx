@@ -37,7 +37,7 @@ const ContainerDescription = ({
   const { classes } = useStyles();
   const { palette } = useTheme();
 
-  const listKeyToRemove = [
+  const keysToRemove = [
     'contrastText',
     'activatedOpacity',
     'focusOpacity',
@@ -52,7 +52,7 @@ const ContainerDescription = ({
       <Grid container columnSpacing={{ md: 3, sm: 2, xs: 1 }} rowSpacing={5}>
         {toPairs(palette[keyTheme]).map(
           ([key, value]) =>
-            !includes(key, listKeyToRemove) && (
+            !includes(key, keysToRemove) && (
               <Grid item key={key} xs={6}>
                 <div className={classes.headerContainer}>
                   <Typography variant="h6">{key}</Typography>
@@ -62,7 +62,7 @@ const ContainerDescription = ({
                 <Box
                   sx={{
                     backgroundColor: value,
-                    borderRadius: '5px',
+                    borderRadius: 1,
                     height: 50,
                     width: '100%'
                   }}
@@ -77,7 +77,7 @@ const ContainerDescription = ({
 
 const GroupedColorStatus = (): JSX.Element => {
   const { classes } = useStyles();
-  const listStatusPalette = ['info', 'success', 'error', 'warning'];
+  const listStatusPalette = ['info', 'success', 'error', 'warning', 'pending'];
 
   return (
     <>
@@ -118,7 +118,7 @@ const TextColorContainer = ({
 
             <Typography
               sx={{
-                borderRadius: '5px',
+                borderRadius: 1,
                 color: value,
                 width: '100%'
               }}

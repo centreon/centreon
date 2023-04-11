@@ -18,7 +18,7 @@ const useStyles = makeStyles()((theme) => ({
 const TypographyStory = (): JSX.Element => {
   const { classes } = useStyles();
 
-  const listOfVariantProps = [
+  const variants = [
     'h1',
     'h2',
     'h3',
@@ -37,7 +37,7 @@ const TypographyStory = (): JSX.Element => {
   return (
     <Box sx={{ width: '100%' }}>
       <Box className={classes.itemContainer}>
-        {listOfVariantProps.map((typographyVariant) => (
+        {variants.map((typographyVariant) => (
           <div className={classes.headerContainer} key={typographyVariant}>
             <Typography
               gutterBottom

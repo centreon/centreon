@@ -41,6 +41,6 @@ To run End to End tests:
 You can also test one or more Components using the following syntax:
 
 ```bash
-pnpm test:storyshot -- "Title" # Run Storyshot tests about Title component
-pnpm test:storyshot -- "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
+pnpm test:storyshot -- --story "Title" # Run Storyshot tests about Title component
+pnpm test:storyshot -- --story "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
 ```
