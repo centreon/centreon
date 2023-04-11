@@ -16167,6 +16167,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #msgid "Do you really want to unblock this user?"
 #msgstr ""
 
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The chosen contact(s) will be unblocked. Do you confirm the request ?"
+#msgstr ""
+
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""

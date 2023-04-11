@@ -276,6 +276,7 @@ switch ($o) {
         require_once($path . "listContact.php");
         break;
     case UNBLOCK_CONTACT:
+        purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             unblockContactInDB($contactId);
