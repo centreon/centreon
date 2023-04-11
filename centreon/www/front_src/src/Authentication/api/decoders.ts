@@ -101,7 +101,7 @@ export const openidConfigurationDecoder =
       emailBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
       endSessionEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       fullnameBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
-      reirectUrl: JsonDecoder.nullable(JsonDecoder.string),
+      redirectUrl: JsonDecoder.nullable(JsonDecoder.string),
       introspectionTokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       isActive: JsonDecoder.boolean,
       isForced: JsonDecoder.boolean,
