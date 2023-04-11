@@ -44,8 +44,6 @@ runs:
 
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v5
-      env:
-        DEBUG: '@cypress/github-action'
       with:
         browser: chrome
         install: false
