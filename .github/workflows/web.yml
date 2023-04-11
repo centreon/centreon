@@ -445,7 +445,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     needs:
       [
         get-version,
