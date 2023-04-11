@@ -64,6 +64,11 @@ class OpenIdProviderResponse implements ProviderResponseInterface
     public ?array $connectionScopes;
 
     /**
+     * @var string|null
+     */
+    public ?string $redirectUrl;
+
+    /**
      * @inheritDoc
      */
     public function getType(): string
@@ -88,6 +93,7 @@ class OpenIdProviderResponse implements ProviderResponseInterface
         $response->clientId = $customConfiguration->getClientId();
         $response->id = $configuration->getId();
         $response->connectionScopes = $customConfiguration->getConnectionScopes();
+        $response->redirectUrl = $customConfiguration->getRedirectUrl();
 
         return $response;
     }
