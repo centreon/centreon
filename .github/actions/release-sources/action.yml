@@ -74,14 +74,12 @@ runs:
         fail-on-cache-miss: true
 
     - run: |
-        #set -x
+        set -x
 
         mv ${{ inputs.frontend_index_file }} legacy/${{ inputs.frontend_index_file }}
         mv ${{ inputs.frontend_static_directory }} legacy/${{ inputs.frontend_static_directory }}
         mv ${{ inputs.backend_vendor_directory }} legacy/${{ inputs.backend_vendor_directory }}
         mv ${{ inputs.translation_directory }} legacy/${{ inputs.translation_directory }}
-
-        ls legacy
 
         MAJOR_VERSION="${{ inputs.major_version }}"
         VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
@@ -93,7 +91,7 @@ runs:
         SRC_HASH=$(md5sum $SRC_FILE | cut -d ' ' -f 1)
         SRC_SIZE=$(stat -c '%s' $SRC_FILE)
 
-        #aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/centreon/$SRC_FILE"
+        aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/centreon/$SRC_FILE"
         #curl "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
       shell: bash
 
