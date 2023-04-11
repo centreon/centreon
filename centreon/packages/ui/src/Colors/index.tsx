@@ -1,6 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
+import { includes, toPairs } from 'ramda';
 
-import { Stack, Box, useTheme, Typography, Divider } from '@mui/material';
+import { Stack, Box, useTheme, Typography, Divider, Grid } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   divider: {
@@ -48,11 +49,11 @@ const ContainerDescription = ({
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4">{containerTitle}</Typography>
-      <Stack>
-        {Object.entries(palette[keyTheme]).map(
+      <Grid container columnSpacing={{ md: 3, sm: 2, xs: 1 }} rowSpacing={5}>
+        {toPairs(palette[keyTheme]).map(
           ([key, value]) =>
-            !listKeyToRemove.includes(key) && (
-              <div className={classes.itemContainer} key={key}>
+            !includes(key, listKeyToRemove) && (
+              <Grid item key={key} xs={6}>
                 <div className={classes.headerContainer}>
                   <Typography variant="h6">{key}</Typography>
                   <Typography variant="button">{value}</Typography>
@@ -66,15 +67,16 @@ const ContainerDescription = ({
                     width: '100%'
                   }}
                 />
-              </div>
+              </Grid>
             )
         )}
-      </Stack>
+      </Grid>
     </Box>
   );
 };
 
 const GroupedColorStatus = (): JSX.Element => {
+  const { classes } = useStyles();
   const listStatusPalette = ['info', 'success', 'error', 'warning'];
 
   return (
@@ -86,7 +88,7 @@ const GroupedColorStatus = (): JSX.Element => {
             key={status}
             keyTheme={status}
           />
-          <Divider variant="middle" />
+          <Divider className={classes.divider} variant="middle" />
         </>
       ))}
     </>
@@ -107,7 +109,7 @@ const TextColorContainer = ({
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4">{containerTitle}</Typography>
       <Stack>
-        {Object.entries(palette.text).map(([key, value]) => (
+        {toPairs(palette.text).map(([key, value]) => (
           <div className={classes.itemContainerText} key={key}>
             <div className={classes.headerContainer}>
               <Typography variant="h6">{key}</Typography>
