@@ -77,6 +77,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: centreon-web-22.10.3
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -91,6 +93,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: centreon-web-22.10.3
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -108,6 +112,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: centreon-web-22.10.3
 
       - run: |
           cd centreon
