@@ -36,7 +36,7 @@ jobs:
           module_name: centreon-widget-${{ inputs.widget_name }}
           major_version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+          token_download_centreon_com: ${{ secrets.token_download_centreon_com }}
 
   delivery-rpm:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
