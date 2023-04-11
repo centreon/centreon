@@ -101,6 +101,6 @@ runs:
     - name: Upload package artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: sources-${{ inputs.module_name }}
+        name: ${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}
         path: ./${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.tar.gz
         retention-days: 1
