@@ -116,7 +116,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -128,5 +128,6 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: dsm
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
