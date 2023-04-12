@@ -276,7 +276,7 @@ foreach ($contacts as $contact) {
         "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $contact['contact_id'] . "]' />";
 
-    $blocked_user_icon = "
+    $blockedUserIcon = "
     <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' onclick=\"if(confirm('" . _('Do you really want to unblock this user?') . "')) {
         window.location.href = this.href;
     }\" >
@@ -366,7 +366,7 @@ foreach ($contacts as $contact) {
         "RowMenu_refreshLdap" => $isLinkedToLdap ? $refreshLdapBadge[$isLinkedToLdap] : "",
         "RowMenu_refreshLdapHelp" => $isLinkedToLdap ? $refreshLdapHelp[$isLinkedToLdap] : "",
         "RowMenu_options" => $moptions,
-        "RowMenu_unblock" => $contact["blocking_time"] ? $blocked_user_icon : "-"
+        "RowMenu_unblock" => $contact["blocking_time"] !== null ? $blockedUserIcon : "-"
     );
     $style != "two" ? $style = "two" : $style = "one";
 }
@@ -446,7 +446,7 @@ foreach (array('o1', 'o2') as $option) {
                 "')) {" .
                 "   setO(this.form.elements['" . $option . "'].value); submit();} " .
             "else if (this.form.elements['" . $option . "'].selectedIndex == 7 && confirm('" .
-            _("The chosen contact(s) will be unblocked. Do you confirm the request ?") .
+            _("The user(s) will be unblocked. Do you confirm the request ?") .
             "')) {" .
             "   setO(this.form.elements['" . $option . "'].value); submit();} " .
             "this.form.elements['" . $option . "'].selectedIndex = 0"

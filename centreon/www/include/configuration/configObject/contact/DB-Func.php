@@ -214,13 +214,23 @@ function unblockContactInDB($contact = null)
         $contact = [$contact => "1"];
     }
 
-    foreach ($contact as $key => $value) {
-        $pearDB->query("UPDATE contact SET blocking_time = null WHERE contact_id = '" . (int)$key . "'");
-        $query = "SELECT contact_name FROM `contact` WHERE `contact_id` = '" . (int)$key . "' LIMIT 1";
-        $dbResult2 = $pearDB->query($query);
-        $row = $dbResult2->fetch();
 
-        $centreon->CentreonLogAction->insertLog("contact", $key, $row['contact_name'], "unblock");
+    $contactIds = array_map('intval', array_keys($contact));
+    $idPlaceholders = implode(',', array_fill(0, count($contactIds), '?'));
+
+
+    //updating the given users
+    $updateQuery = "UPDATE contact SET blocking_time = null WHERE contact_id IN ($idPlaceholders)";
+    $statement = $pearDB->prepare($updateQuery);
+    $statement->execute($contactIds);
+
+    // retrieve the users and add log
+    $selectQuery = "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ($idPlaceholders)";
+    $statement = $pearDB->prepare($selectQuery);
+    $statement->execute($contactIds);
+
+    while ($row = $statement->fetch()) {
+        $centreon->CentreonLogAction->insertLog("contact", $row['contact_id'], $row['contact_name'], "unblock");
     }
 }
 /**

@@ -11289,8 +11289,8 @@ msgid "Do you really want to unblock this user?"
 msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
-msgid "The chosen contact(s) will be unblocked. Do you confirm the request ?"
-msgstr "Les contacts choisis seront débloqués. Confirmez-vous l'action ?"
+msgid "The user(s) will be unblocked. Do you confirm the request ?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 msgid "Unblock"
