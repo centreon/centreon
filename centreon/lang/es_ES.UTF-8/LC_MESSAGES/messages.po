@@ -15388,3 +15388,5 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "You are not allowed to edit time periods"
 #  msgstr ""
 
+# msgid "Redirect URL"
+# msgstr ""
