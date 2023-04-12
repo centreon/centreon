@@ -44,14 +44,11 @@ runs:
         TARGET_PATH="rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/noarch/RPMS/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
-
-        jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/*.rpm | jq -r '.[].path'
-
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
-        while read -r PATH; do
+        for PATH in "$SRC_PATHS"; do
           echo "[DEBUG] - Promoting $PATH to stable."
           jf rt ping
-        done < "$SRC_PATHS"
+        done
 
       shell: bash
 
