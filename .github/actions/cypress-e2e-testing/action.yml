@@ -46,7 +46,6 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
-        wait-on: http://localhost:4000
 
     #- if: ${{ failure() }}
     - run: |
