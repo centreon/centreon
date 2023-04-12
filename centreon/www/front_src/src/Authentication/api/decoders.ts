@@ -135,6 +135,7 @@ export const openidConfigurationDecoder =
       isActive: 'is_active',
       isForced: 'is_forced',
       loginClaim: 'login_claim',
+      redirectUrl: 'redirect_url',
       tokenEndpoint: 'token_endpoint',
       trustedClientAddresses: 'trusted_client_addresses',
       userinfoEndpoint: 'userinfo_endpoint',

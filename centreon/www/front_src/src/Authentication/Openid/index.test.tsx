@@ -130,6 +130,7 @@ const retrievedOpenidConfigurationWithEmptyAuthorization = {
   is_active: true,
   is_forced: false,
   login_claim: 'sub',
+  redirect_url: '',
   token_endpoint: '/token',
   trusted_client_addresses: ['127.0.0.1'],
   userinfo_endpoint: '/userinfo',
