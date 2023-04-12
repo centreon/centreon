@@ -28,6 +28,10 @@ const useStyles = makeStyles()((theme) => ({
   createdTag: {
     backgroundColor: lighten(theme.palette.primary.main, 0.7)
   },
+  deleteIcon: {
+    height: theme.spacing(1.5),
+    width: theme.spacing(1.5)
+  },
   tag: {
     marginInline: theme.spacing(0.5)
   }

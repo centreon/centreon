@@ -5,7 +5,6 @@ import { DraggableSyntheticListeners } from '@dnd-kit/core';
 import clsx from 'clsx';
 
 import { Chip, Typography, useTheme } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 
 import { DraggableSelectEntry, SortableListProps } from './SortableList';
 
@@ -72,7 +71,9 @@ const SortableListContent = ({
         <Chip
           clickable
           className={clsx(classes.tag, createOption && classes.createdTag)}
-          deleteIcon={<CloseIcon />}
+          classes={{
+            deleteIcon: classes.deleteIcon
+          }}
           label={
             <Typography
               ref={labelItemRef}
