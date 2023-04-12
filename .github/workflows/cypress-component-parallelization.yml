@@ -43,7 +43,7 @@ jobs:
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
-          module: centreon
+          module: ${{ inputs.module_name }}
           spec_file_path: ${{matrix.spec}}
 
       - name: Upload components tests Results
