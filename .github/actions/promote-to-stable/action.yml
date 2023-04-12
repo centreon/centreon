@@ -31,6 +31,7 @@ runs:
     - name: Promote RPM packages to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
+        set -x
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
