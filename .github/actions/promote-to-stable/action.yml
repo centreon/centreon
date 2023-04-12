@@ -45,8 +45,8 @@ runs:
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
-        for PATH in "$SRC_PATHS"; do
-          echo "[DEBUG] - Promoting $PATH to stable."
+        for i in 1 2 3; do
+          echo "[DEBUG] - Promoting $i to stable."
           jf rt ping
         done
 
