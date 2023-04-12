@@ -1,19 +1,20 @@
-import { path, pathEq, isNil, equals } from 'ramda';
+import { useUpdateAtom } from 'jotai/utils';
+import { equals, isNil, path, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import { useUpdateAtom } from 'jotai/utils';
 
-import IconAcknowledge from '@mui/icons-material/Person';
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
+import IconAcknowledge from '@mui/icons-material/Person';
 
+import type { ComponentColumnProps } from '@centreon/ui';
 import {
+  IconButton,
   SeverityCode,
   StatusChip,
-  IconButton,
   useStyleTable
 } from '@centreon/ui';
-import type { ComponentColumnProps } from '@centreon/ui';
 
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
 import IconDowntime from '../../icons/Downtime';
 import {
@@ -23,7 +24,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
-import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 
 import { ColumnProps } from '.';
 
@@ -166,9 +166,11 @@ const StatusColumn = ({
 
     const statusName = row.status.name;
 
-    const label = equals(SeverityCode[5], statusName)
-      ? statusName
-      : t(statusName);
+    const label = equals(SeverityCode[5], statusName) ? (
+      <>{t(statusName)}</>
+    ) : (
+      t(statusName)
+    );
 
     return (
       <div className={classes.statusColumn}>
