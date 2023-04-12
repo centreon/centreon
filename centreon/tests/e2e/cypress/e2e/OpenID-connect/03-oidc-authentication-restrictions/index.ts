@@ -7,6 +7,11 @@ import {
 } from '../common';
 
 before(() => {
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9',
+    version: 'develop'
+  });
   cy.waitForContainerAndSetToken();
   cy.startOpenIdProviderContainer().then(() => {
     initializeOIDCUserAndGetLoginPage();

@@ -1,6 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9',
+    version: 'develop'
+  });
   cy.waitForContainerAndSetToken();
 });
 
