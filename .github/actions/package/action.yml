@@ -55,6 +55,7 @@ runs:
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
@@ -62,6 +63,7 @@ runs:
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
@@ -69,6 +71,7 @@ runs:
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
@@ -76,6 +79,7 @@ runs:
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
+        fail-on-cache-miss: true
 
     - if: ${{ inputs.package_extension == 'rpm' }}
       run: |

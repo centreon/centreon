@@ -7,14 +7,37 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
       stability:
         required: true
         type: string
     secrets:
       artifactory_token:
         required: true
+      token_download_centreon_com:
+        required: true
 
 jobs:
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    if: ${{ contains(fromJson('["stable"]'), inputs.stability) }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon-widgets/centreon-widget-${{ inputs.widget_name }}
+          module_directory: widgets/centreon-widget-${{ inputs.widget_name }}
+          module_name: centreon-widget-${{ inputs.widget_name }}
+          major_version: ${{ inputs.major_version }}
+          minor_version: ${{ inputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.token_download_centreon_com }}
+
   delivery-rpm:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
