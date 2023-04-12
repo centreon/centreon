@@ -37,7 +37,7 @@ PlaygroundStatusChip.args = {
 };
 
 export const withOkSeverityCode = (): JSX.Element => (
-  <StatusChip label="Up" severityCode={SeverityCode.Ok} />
+  <StatusChip label="Up" severityCode={SeverityCode.OK} />
 );
 
 export const withMediumSeverityCode = (): JSX.Element => (

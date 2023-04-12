@@ -150,7 +150,7 @@ const getDetailCardLines = ({
       line: <DetailsLine line={toDateTime(details.last_time_with_no_issue)} />,
       shouldBeDisplayed:
         !isNil(details.last_time_with_no_issue) &&
-        !equals(details.status.severity_code, SeverityCode.Ok),
+        !equals(details.status.severity_code, SeverityCode.OK),
       title: labelLastCheckWithOkStatus
     },
     {

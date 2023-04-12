@@ -133,7 +133,7 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const areSelectedResourcesOk = all(
-    pathEq(['status', 'severity_code'], SeverityCode.Ok),
+    pathEq(['status', 'severity_code'], SeverityCode.OK),
     selectedResources
   );
 

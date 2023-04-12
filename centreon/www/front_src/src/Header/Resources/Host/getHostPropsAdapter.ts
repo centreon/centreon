@@ -162,7 +162,7 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
         criterias: upHostsCriterias,
         link: upHostsLink
       }),
-      severityCode: SeverityCode.Ok,
+      severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: upHostsLink,
       topCounterAriaLabel: t(labelUpStatusHosts)

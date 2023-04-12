@@ -1,4 +1,4 @@
-import { path, pathEq, isNil } from 'ramda';
+import { path, pathEq, isNil, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { useUpdateAtom } from 'jotai/utils';
@@ -76,7 +76,7 @@ const StatusColumnOnHover = ({
 
   const isResourceOk = pathEq(
     ['status', 'severity_code'],
-    SeverityCode.Ok,
+    SeverityCode.OK,
     row
   );
 
@@ -166,6 +166,10 @@ const StatusColumn = ({
 
     const statusName = row.status.name;
 
+    const label = equals(SeverityCode[5], statusName)
+      ? statusName
+      : t(statusName);
+
     return (
       <div className={classes.statusColumn}>
         {isHovered ? (
@@ -173,7 +177,7 @@ const StatusColumn = ({
         ) : (
           <StatusChip
             className={classes.statusColumnChip}
-            label={t(statusName)}
+            label={label}
             severityCode={row.status.severity_code}
           />
         )}
