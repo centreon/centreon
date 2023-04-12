@@ -342,7 +342,7 @@ function set_required_prerequisite() {
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -406,7 +406,7 @@ function set_required_prerequisite() {
 
         oraclelinux-release* | enterprise-release*)
             BASE_PACKAGES=(dnf-plugins-core)
-            $PKG_MGR config-manager --set-enabled ol8_codeready_builder
+            $PKG_MGR config-manager --set-enabled ol9_codeready_builder
             dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 	    ;;
         esac
@@ -675,7 +675,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step3.php" 'install_dir_engine=%2Fusr%2Fshare%2Fcentreon-engine&centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
@@ -813,7 +813,6 @@ pause "" $default_timeout_in_sec
 # Analyze system and set the variables
 ##
 set_required_prerequisite
-
 ##
 # Check if systemd is present
 ##
