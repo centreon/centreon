@@ -58,7 +58,7 @@ runs:
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
-        SRC_PATH=$(jf rt s --include-dirs --fail-no-op apt-standard-${{ inputs.version }}-testing/pool/)
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op apt-standard-${{ inputs.version }}-testing/pool/centreon-${{ inputs.module }}-${{ inputs.major_version }}.${{ inputs.minor_version }}-1.${{ inputs.distrib }}.deb | jq -r '.[].path'))
         echo "[DEBUG] - Source path: $SRC_PATH"
 
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
