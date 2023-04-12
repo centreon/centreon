@@ -20,7 +20,7 @@ const useStyles = makeStyles()((theme) => ({
     textAlign: 'center'
   },
   itemContainerText: {
-    border: '0.3px solid',
+    border: 'none',
     borderRadius: 1,
     margin: theme.spacing(2),
     padding: theme.spacing(1),
