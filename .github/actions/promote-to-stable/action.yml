@@ -40,7 +40,7 @@ runs:
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
-        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}.${{ inputs.minor_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.major_version }}.${{ inputs.minor_version }}-1.${{ inputs.distrib }}.noarch.rpm | jq -r '.[].path')
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.major_version }}.${{ inputs.minor_version }}-1.${{ inputs.distrib }}.noarch.rpm | jq -r '.[].path')
         echo "[DEBUG] - Source path: $SRC_PATH"
 
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
