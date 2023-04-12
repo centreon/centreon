@@ -652,6 +652,7 @@ systemctl try-restart php-fpm || :
 
 # rebuild symfony cache on upgrade
 if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
+  rm -rf /var/cache/centreon/symfony
   su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear --no-warmup"
 fi
 
