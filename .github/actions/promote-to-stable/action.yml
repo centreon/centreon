@@ -48,10 +48,10 @@ runs:
         jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/*.rpm | jq -r '.[].path'
 
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
-        while read PATH; do
+        while read -r PATH; do
           echo "[DEBUG] - Promoting $PATH to stable."
           jf rt ping
-        done <<< "$SRC_PATHS"
+        done < "$SRC_PATHS"
 
       shell: bash
 
