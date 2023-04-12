@@ -48,7 +48,7 @@ runs:
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
         for ARTIFACT in $(echo "$SRC_PATHS"); do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          ls -lath
+          jf rt cp $ARTIFACT $TARGET_PATH --flat=true
         done
 
       shell: bash
