@@ -31,7 +31,8 @@ runs:
     - name: Promote RPM package to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Promote RPM packages to repository: ${{ inputs.stability }}"
@@ -39,7 +40,7 @@ runs:
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
-        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.major_version }}.${{ inputs.minor_version }}-1.${{ inputs.distrib }}.noarch.rpm | jq -r '.[].path')
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}.${{ inputs.minor_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.major_version }}.${{ inputs.minor_version }}-1.${{ inputs.distrib }}.noarch.rpm | jq -r '.[].path')
         echo "[DEBUG] - Source path: $SRC_PATH"
 
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
@@ -50,7 +51,8 @@ runs:
     - name: Promote DEB package to stable
       if: ${{ startsWith(inputs.distrib, 'bullseye') }}
       run: |
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Promote DEB packages to repository: ${{ inputs.stability }}"
