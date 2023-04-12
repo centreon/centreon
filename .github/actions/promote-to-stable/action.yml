@@ -50,7 +50,7 @@ runs:
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
         while read -r PATH; do
           echo "[DEBUG] - Promoting $PATH to stable."
-          jf rt cp $PATH $TARGET_PATH --flat=true
+          jf rt ping
         done <<< "$SRC_PATHS"
 
       shell: bash
