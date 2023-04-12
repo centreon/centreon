@@ -28,10 +28,10 @@ runs:
     - name: Promote package
       run: |
         echo "[DEBUG] - Promote to repository: ${{ inputs.stability }}"
-        TARGET_PATH="rpm/standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/noarch/RPMS/"
+        TARGET_PATH="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/noarch/RPMS/"
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
-        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm/standard/${{ inputs.version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.version }}-1 | jq -r '.[].path')
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.version }}-1 | jq -r '.[].path')
 
         echo "[DEBUG] - Promoting testing artifacts to stable."
         jf rt cp --flat=true $SRC_PATH/* $TARGET_PATH/
