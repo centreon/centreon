@@ -80,7 +80,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)]"
+	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
