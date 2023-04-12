@@ -4,6 +4,9 @@ inputs:
   module:
     description: "Module on which the test will be run"
     required: true
+  prepath:
+    description: "Path preceding the spec_file_path"
+    required: true
   spec_file_path:
     description: "Path of spec file."
     required: true
@@ -29,7 +32,7 @@ runs:
         component: true
         install-command: pnpm install
         working-directory: ${{ inputs.module }}
-        spec: www/front_src/src/**/${{ inputs.spec_file_path }}
+        spec: ${{ inputs.prepath }}${{ inputs.spec_file_path }}
         publish-summary: false
 
     - name: Archive videos
