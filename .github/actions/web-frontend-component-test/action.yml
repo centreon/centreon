@@ -11,7 +11,7 @@ inputs:
     description: "Path of spec file."
     required: true
 env:
-  directory: ${{ module }}
+  directory: ${{ inputs.module }}
 
 runs:
   using: "composite"
