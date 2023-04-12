@@ -6,7 +6,7 @@ import { createStore } from 'jotai';
 
 import { Module, QueryProvider } from '@centreon/ui';
 
-const store = createStore();
+export const store = createStore();
 
 interface Props {
   children: ReactElement;
