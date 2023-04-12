@@ -9,9 +9,10 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { Responsive } from '@visx/visx';
 
 import Graph from './Graph';
+import { Data, GraphData } from './models';
 
 interface Graph {
-  graphData: any;
+  graphData: GraphData | Data;
 }
 
 dayjs.extend(localizedFormat);
@@ -26,15 +27,7 @@ const WrapperGraph = ({ graphData }: Graph): JSX.Element => {
     <div style={{ height: '100%', width: '100%' }}>
       <Responsive.ParentSize>
         {({ height, width }): JSX.Element => (
-          <Graph
-            graphData={graphData}
-            height={height}
-            // shapeLines={{
-            //   areaRegularLinesData: { stroke: 'red' },
-            //   displayAreaRegularLines: true
-            // }}
-            width={width}
-          />
+          <Graph graphData={graphData} height={height} width={width} />
         )}
       </Responsive.ParentSize>
     </div>

@@ -13,11 +13,9 @@ interface Props {
   filled: boolean;
   graphHeight: number;
   highlight?: boolean;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
   lineColor: string;
   lines: Array<Line>;
   metric: string;
-  shapeCircleAnomalyDetection?: ReactNode;
   timeSeries: Array<TimeValue>;
   transparency: number;
   unit: string;
@@ -38,14 +36,9 @@ const RegularLine = ({
   areaColor,
   transparency,
   graphHeight,
-  shapeCircleAnomalyDetection,
   ...rest
 }: Props): JSX.Element => {
-  const strokeWidth =
-    equals(metric, 'connection_lower_thresholds') ||
-    equals(metric, 'connection_upper_thresholds')
-      ? 0.1
-      : 0.8;
+  const strokeWidth = 0.8;
 
   const isLegendClicked = lines?.length <= 1;
   const isHighlighted = highlight || isLegendClicked ? 2 : strokeWidth;
@@ -78,33 +71,34 @@ const RegularLine = ({
 
   return (
     <>
-      {shapeCircleAnomalyDetection}
       <Shape.LinePath<TimeValue> {...props} />;
     </>
   );
 };
 
-export default memo(RegularLine, (prevProps, nextProps) => {
-  const {
-    timeSeries: prevTimeSeries,
-    graphHeight: prevGraphHeight,
-    highlight: prevHighlight,
-    xScale: prevXScale
-  } = prevProps;
-  const {
-    timeSeries: nextTimeSeries,
-    graphHeight: nextGraphHeight,
-    highlight: nextHighlight,
-    xScale: nextXScale
-  } = nextProps;
+export default RegularLine;
 
-  const prevXScaleRange = prevXScale.range();
-  const nextXScaleRange = nextXScale.range();
+// export default memo(RegularLine, (prevProps, nextProps) => {
+//   const {
+//     timeSeries: prevTimeSeries,
+//     graphHeight: prevGraphHeight,
+//     highlight: prevHighlight,
+//     xScale: prevXScale
+//   } = prevProps;
+//   const {
+//     timeSeries: nextTimeSeries,
+//     graphHeight: nextGraphHeight,
+//     highlight: nextHighlight,
+//     xScale: nextXScale
+//   } = nextProps;
 
-  return (
-    equals(prevTimeSeries, nextTimeSeries) &&
-    equals(prevGraphHeight, nextGraphHeight) &&
-    equals(prevHighlight, nextHighlight) &&
-    equals(prevXScaleRange, nextXScaleRange)
-  );
-});
+//   const prevXScaleRange = prevXScale.range();
+//   const nextXScaleRange = nextXScale.range();
+
+//   return (
+//     equals(prevTimeSeries, nextTimeSeries) &&
+//     equals(prevGraphHeight, nextGraphHeight) &&
+//     equals(prevHighlight, nextHighlight) &&
+//     equals(prevXScaleRange, nextXScaleRange)
+//   );
+// });

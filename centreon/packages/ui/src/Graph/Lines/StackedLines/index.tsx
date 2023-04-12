@@ -25,7 +25,8 @@ const StackLines = ({
   yScale,
   xScale,
   timeTick,
-  displayTimeValues
+  displayTimeValues,
+  ...rest
 }: Props): JSX.Element => (
   <Shape.AreaStack
     curve={Curve.curveLinear}
@@ -66,6 +67,7 @@ const StackLines = ({
               opacity={highlight === false ? 0.3 : 1}
               stroke={lineColor}
               strokeWidth={highlight ? 2 : 1}
+              {...rest}
             />
           </g>
         );

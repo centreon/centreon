@@ -24,12 +24,6 @@ export interface Metric {
   unit: string;
 }
 
-export interface GraphData {
-  global;
-  metrics: Array<Metric>;
-  times: Array<string>;
-}
-
 export interface TimeValue {
   [field: string]: string | number;
   timeTick: string;

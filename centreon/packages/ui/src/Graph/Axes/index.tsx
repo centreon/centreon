@@ -1,38 +1,38 @@
 import { Axis } from '@visx/visx';
+import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
 import { formatMetricValue, getUnits } from '../../timeSeries';
+import { Line, TimeValue } from '../../timeSeries/models';
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 import { commonTickLabelProps } from '../common';
 
 import UnitLabel from './UnitLabel';
 
-interface AxisYRight {
+interface Axis {
   [x: string]: unknown;
-  displayAxisYRight?: boolean;
-  displayUnitAxisYRight?: boolean;
+  displayUnits?: boolean;
 }
 
-interface AxisYLeft {
-  [x: string]: unknown;
-  displayUnitAxisYLeft?: boolean;
+interface AxisYRight extends Axis {
+  displayAxisYRight?: boolean;
 }
 interface Data {
   axisX?: Record<string, unknown>;
-  axisYLeft?: AxisYLeft;
+  axisYLeft?: Axis;
   axisYRight?: AxisYRight;
-  graphData: any;
-  lines: any;
-  timeSeries: any;
+  baseAxis: number;
+  lines: Array<Line>;
+  timeSeries: Array<TimeValue>;
 }
 
 interface Axes {
   data: Data;
   height: number;
-  leftScale: any;
-  rightScale: any;
+  leftScale: ScaleLinear<number, number>;
+  rightScale: ScaleLinear<number, number>;
   width: number;
-  xScale: any;
+  xScale: ScaleLinear<number, number>;
 }
 
 const Axes = ({
@@ -44,14 +44,12 @@ const Axes = ({
   xScale
 }: Axes): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
-  const { lines, graphData } = data;
+  const { lines } = data;
 
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
   const hasMoreThanTwoUnits = !isNil(thirdUnit);
   const hasTwoUnits = !isNil(secondUnit) && !hasMoreThanTwoUnits;
-
-  const { base } = graphData.global;
 
   const xAxisTickFormat = 'LT';
   const xTickCount = Math.ceil(width / 82);
@@ -59,9 +57,8 @@ const Axes = ({
 
   const displayAxisRight = data?.axisYRight?.displayAxisYRight ?? hasTwoUnits;
   const displayUnitAxisLeft =
-    data?.axisYLeft?.displayUnitAxisYLeft ?? !hasMoreThanTwoUnits;
-  const displayUnitAxisRight =
-    data?.axisYLeft?.displayUnitAxisYLeft ?? hasTwoUnits;
+    data?.axisYLeft?.displayUnits ?? !hasMoreThanTwoUnits;
+  const displayUnitAxisRight = data?.axisYLeft?.displayUnits ?? hasTwoUnits;
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: xAxisTickFormat });
@@ -73,7 +70,7 @@ const Axes = ({
         return '';
       }
 
-      return formatMetricValue({ base, unit, value }) as string;
+      return formatMetricValue({ base: data.baseAxis, unit, value }) as string;
     };
 
   const formatAxisYLeftTick = formatTick({

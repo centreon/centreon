@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
-import { difference, isNil } from 'ramda';
+import { difference } from 'ramda';
 
 import {
   getLeftScale,
@@ -9,36 +9,21 @@ import {
   getNotInvertedStackedLines,
   getRightScale,
   getSortedStackedLines,
-  getStackedYScale,
   getTimeSeries,
   getTimeSeriesForLines,
   getXScale
 } from '../timeSeries';
-import { Line } from '../timeSeries/models';
 
-import Axes from './axes';
+import Axes from './Axes';
 import { margin } from './common';
-import Grids from './grids';
-import Lines from './lines';
-
-interface RegularLineData {
-  [x: string]: unknown;
-  lines?: Array<Line>;
-}
-interface ShapeLines {
-  areaRegularLinesData?: RegularLineData;
-  areaStackData?: any;
-  displayAreaRegularLines?: boolean;
-  displayAreaStack?: boolean;
-}
-
-const defaultShapeLines = {
-  displayAreaRegularLines: true,
-  displayAreaStack: true
-};
+import Grids from './Grids';
+import Lines from './Lines';
+import { Axis, Data, GraphData, GridsModel, ShapeLines } from './models';
 
 interface Props {
-  graphData: any;
+  axis?: Axis;
+  graphData: GraphData | Data;
+  grids?: GridsModel;
   height: number;
   shapeLines?: ShapeLines;
   width: number;
@@ -48,44 +33,37 @@ const Graph = ({
   graphData,
   height,
   width,
-  shapeLines = defaultShapeLines
+  shapeLines,
+  axis,
+  grids
 }: Props): JSX.Element => {
   const containerRef = useRef<SVGSVGElement | null>(null);
-  const timeSeries = getTimeSeries(graphData);
-  const lines = getLineData(graphData);
+
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const xScale = useMemo(
-    () =>
-      getXScale({
-        dataTime: timeSeries,
-        valueWidth: graphWidth
-      }),
-    [graphWidth, timeSeries]
-  );
+  const timeSeries =
+    'timeSeries' in graphData ? graphData.timeSeries : getTimeSeries(graphData);
+  const lines = 'lines' in graphData ? graphData.lines : getLineData(graphData);
+  const baseAxis =
+    'baseAxis' in graphData ? graphData.baseAxis : graphData.global?.base;
 
-  const leftScale = useMemo(
-    () =>
-      getLeftScale({
-        dataLines: lines,
-        dataTimeSeries: timeSeries,
-        valueGraphHeight: graphHeight
-      }),
-    [timeSeries, lines, graphHeight]
-  );
+  const xScale = getXScale({
+    dataTime: timeSeries,
+    valueWidth: graphWidth
+  });
 
-  const rightScale = useMemo(
-    () =>
-      getRightScale({
-        dataLines: lines,
-        dataTimeSeries: timeSeries,
-        valueGraphHeight: graphHeight
-      }),
-    [timeSeries, lines, graphHeight]
-  );
+  const leftScale = getLeftScale({
+    dataLines: lines,
+    dataTimeSeries: timeSeries,
+    valueGraphHeight: graphHeight
+  });
 
-  const { displayAreaRegularLines, displayAreaStack } = shapeLines;
+  const rightScale = getRightScale({
+    dataLines: lines,
+    dataTimeSeries: timeSeries,
+    valueGraphHeight: graphHeight
+  });
 
   const regularStackedLines = getNotInvertedStackedLines(lines);
 
@@ -93,8 +71,6 @@ const Graph = ({
     lines: regularStackedLines,
     timeSeries
   });
-
-  const stackedYScale = getStackedYScale({ leftScale, rightScale });
 
   const stackedLines = getSortedStackedLines(lines);
 
@@ -108,12 +84,14 @@ const Graph = ({
           leftScale={leftScale}
           width={graphWidth}
           xScale={xScale}
+          {...grids}
         />
         <Axes
           data={{
-            graphData,
+            baseAxis,
             lines,
-            timeSeries
+            timeSeries,
+            ...axis
           }}
           height={graphHeight}
           leftScale={leftScale}
@@ -122,25 +100,25 @@ const Graph = ({
           xScale={xScale}
         />
         <Lines
-          data={{ lines, timeSeries }}
           height={graphHeight}
-          leftScale={leftScale}
-          rightScale={rightScale}
           shape={{
             areaRegularLines: {
-              displayAreaRegularLines,
+              leftScale,
               lines: regularLines,
+              rightScale,
+              timeSeries,
+              xScale,
               ...shapeLines?.areaRegularLinesData
             },
-            areaStack: {
-              // displayAreaStack,
+            areaStackedLines: {
+              leftScale,
               lines: regularStackedLines,
+              rightScale,
               timeSeries: regularStackedTimeSeries,
-              timeTick: null,
-              yScale: stackedYScale
+              xScale,
+              ...shapeLines?.areaStackedLinesData
             }
           }}
-          xScale={xScale}
         />
       </Group.Group>
     </svg>
