@@ -353,6 +353,40 @@ jobs:
       #     name: lighthouse-report
       #     path: centreon/lighthouse/report/lighthouseci-index.html
 
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon
+          module_directory: centreon
+          module_name: centreon-web
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: centreon/www/index.html
+          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_directory: centreon/www/static
+          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_directory: centreon/vendor
+          translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+          translation_directory: centreon/www/locale
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, api-integration-test, legacy-e2e-test, e2e-test, performances-test]
