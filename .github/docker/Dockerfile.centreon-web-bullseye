@@ -6,18 +6,19 @@ RUN <<EOF
 
 apt update
 
-apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
+apt install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
 
-echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+. /etc/os-release
+echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 apt update
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
 
-#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-stable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
-echo "deb https://centreon.jfrog.io/artifactory/apt-plugins-unstable/ $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
+#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-stable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+#echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-testing/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://centreon.jfrog.io/artifactory/apt-23.04-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+echo "deb https://centreon.jfrog.io/artifactory/apt-plugins-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://centreon.jfrog.io/artifactory/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
 

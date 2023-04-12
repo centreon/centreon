@@ -19,13 +19,14 @@ env:
   version: "23.04"
 
 jobs:
-  create-and-push-docker:
-    runs-on: ubuntu-22.04
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
 
-    strategy:
-      matrix:
-        include:
-          - project: cypress
+  create-and-push-docker:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout sources
@@ -38,8 +39,13 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/setup-buildx-action@v2
 
-      - name: push docker ${{ matrix.project }}
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.cypress
+          context: .
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/cypress:tmp
+          #tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/cypress:${{ needs.get-version.outputs.major_version }}

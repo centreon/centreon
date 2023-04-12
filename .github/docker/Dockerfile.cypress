@@ -1,13 +1,35 @@
-FROM cypress/included:9.7.0
+FROM cypress/base:18.15.0
+#FROM cypress/included:9.7.0
 
-RUN apt-get update -y && apt-get install -y \
-  ca-certificates \
-  curl \
-  gnupg \
-  lsb-release
+RUN <<EOF
 
-RUN mkdir -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-RUN echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-RUN apt-get update -y && apt-get install -y docker-ce-cli
+apt update
+
+apt install -y ca-certificates curl gnupg wget unzip
+
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+. /etc/os-release
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $VERSION_CODENAME stable" \
+  | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt update
+
+apt install -y docker-ce-cli
+
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt install -y ./google-chrome-stable_current_amd64.deb
+rm -f ./google-chrome-stable_current_amd64.deb
+
+CHROME_VERSION=$(google-chrome --version | cut -f 3 -d ' ' | cut -d '.' -f 1)
+VERSION=$(curl --location --fail --retry 10 http://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION})
+wget -c -nc --retry-connrefused --tries=0 https://chromedriver.storage.googleapis.com/${VERSION}/chromedriver_${ARCH}.zip
+unzip -o -q chromedriver_linux64.zip
+mv chromedriver /usr/local/bin/chromedriver
+rm -f chromedriver_linux64.zip
+
+apt clean
+
+EOF
