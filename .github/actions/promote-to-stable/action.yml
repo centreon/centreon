@@ -28,9 +28,13 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
-    - name: Promote package
+    - name: Promote RPM package to stable
+      if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
-        echo "[DEBUG] - Promote to repository: ${{ inputs.stability }}"
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
+        echo "[DEBUG] - Promote RPM packages to repository: ${{ inputs.stability }}"
         TARGET_PATH="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/noarch/RPMS/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
@@ -41,5 +45,23 @@ runs:
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
         jf rt cp --flat=true $SRC_PATH/* $TARGET_PATH/
 
+      shell: bash
+
+    - name: Promote DEB package to stable
+      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
+      run: |
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
+        echo "[DEBUG] - Promote DEB packages to repository: ${{ inputs.stability }}"
+        TARGET_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/"
+        echo "[DEBUG] - Target path: $TARGET_PATH"
+
+        echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
+        SRC_PATH=$(jf rt s --include-dirs --fail-no-op apt-standard-${{ inputs.version }}-testing/pool/)
+        echo "[DEBUG] - Source path: $SRC_PATH"
+
+        echo "[DEBUG] - Promoting RPM testing artifacts to stable."
+        jf rt cp --flat=true $SRC_PATH/* $TARGET_PATH/
 
       shell: bash
