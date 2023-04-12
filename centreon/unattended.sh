@@ -326,7 +326,7 @@ function set_required_prerequisite() {
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -367,6 +367,7 @@ function set_required_prerequisite() {
         $PKG_MGR -y -q update gnutls
 
         set_centreon_repos
+		set_mariadb_repos
         ;;
 
     9*)
