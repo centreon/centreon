@@ -72,6 +72,7 @@ const useValidationSchema = (): Yup.SchemaOf<OpenidConfiguration> => {
     isActive: Yup.boolean().required(t(labelRequired)),
     isForced: Yup.boolean().required(t(labelRequired)),
     loginClaim: Yup.string().nullable(),
+    redirectUrl: Yup.string().nullable(),
     tokenEndpoint: Yup.string().nullable().required(t(labelRequired)),
     trustedClientAddresses: Yup.array().of(
       Yup.string()

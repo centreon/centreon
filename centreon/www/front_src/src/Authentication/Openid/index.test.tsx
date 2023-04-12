@@ -37,6 +37,7 @@ import {
   labelEnableOpenIDConnectAuthentication,
   labelEndSessionEndpoint,
   labelFullnameAttribute,
+  labelRedirectUrl,
   labelIntrospectionTokenEndpoint,
   labelInvalidIPAddress,
   labelInvalidURL,
@@ -102,6 +103,7 @@ const retrievedOpenidConfiguration = {
   is_active: true,
   is_forced: false,
   login_claim: 'sub',
+  redirect_url: '',
   token_endpoint: '/token',
   trusted_client_addresses: ['127.0.0.1'],
   userinfo_endpoint: '/userinfo',
@@ -128,6 +130,7 @@ const retrievedOpenidConfigurationWithEmptyAuthorization = {
   is_active: true,
   is_forced: false,
   login_claim: 'sub',
+  redirect_url: '',
   token_endpoint: '/token',
   trusted_client_addresses: ['127.0.0.1'],
   userinfo_endpoint: '/userinfo',
@@ -244,6 +247,7 @@ describe('Openid configuration form', () => {
     expect(screen.getByLabelText(labelFullnameAttribute)).toHaveValue(
       'lastname',
     );
+    expect(screen.getByLabelText(labelRedirectUrl)).toHaveValue('');
     expect(screen.getByText('Contact group')).toBeInTheDocument();
     expect(screen.getByLabelText(labelAuthorizationKey)).toHaveValue('groups');
     expect(screen.getAllByLabelText(labelAuthorizationValue)).toHaveLength(2);
@@ -343,6 +347,7 @@ describe('Openid configuration form', () => {
           ],
           base_url: 'http://localhost:8081/login',
           contact_group_id: 1,
+          redirect_url: null,
         },
         cancelTokenPutParams,
       );
