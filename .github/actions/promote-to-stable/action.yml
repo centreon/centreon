@@ -47,7 +47,7 @@ runs:
         echo "[DEBUG] - Promoting RPM testing artifacts to stable."
         while read -r PATH; do
           echo "[DEBUG] - Promoting $PATH to stable."
-          jf rt cp --flat=true $PATH $TARGET_PATH/
+          jf rt cp --flat=true $PATH $TARGET_PATH
         done <<< "$SRC_PATHS"
 
       shell: bash
