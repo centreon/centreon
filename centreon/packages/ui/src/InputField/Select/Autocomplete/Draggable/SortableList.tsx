@@ -29,7 +29,6 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: lighten(theme.palette.primary.main, 0.7)
   },
   tag: {
-    height: theme.spacing(1.75),
     marginInline: theme.spacing(0.5)
   }
 }));

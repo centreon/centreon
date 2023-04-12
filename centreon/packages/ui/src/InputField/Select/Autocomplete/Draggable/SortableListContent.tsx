@@ -84,7 +84,7 @@ const SortableListContent = ({
               {name}
             </Typography>
           }
-          size="small"
+          size="medium"
           style={{
             backgroundColor: isDragging ? theme.palette.grey[300] : undefined
           }}
