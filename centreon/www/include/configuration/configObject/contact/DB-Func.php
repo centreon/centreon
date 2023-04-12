@@ -215,21 +215,28 @@ function unblockContactInDB($contact = null)
     }
 
 
-    $contactIds = array_map('intval', array_keys($contact));
-    $idPlaceholders = implode(',', array_fill(0, count($contactIds), '?'));
-
-
-    //updating the given users
+    $bindContactIds = [];
+    foreach (array_keys($contact) as $contactId) {
+        $bindContactIds[':contact_' . $contactId] = $contactId;
+    }
+//  implode ids for  IN() clause
+    $idPlaceholders = implode(', ', array_keys($bindContactIds));
+// retrieve the users and add log
     $updateQuery = "UPDATE contact SET blocking_time = null WHERE contact_id IN ($idPlaceholders)";
     $statement = $pearDB->prepare($updateQuery);
-    $statement->execute($contactIds);
-
-    // retrieve the users and add log
+    foreach ($bindContactIds as $token => $value) {
+        $statement->bindValue($token, $value, \PDO::PARAM_INT);
+    }
+    $statement->execute();
+// retrieve the users and add log
     $selectQuery = "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ($idPlaceholders)";
-    $statement = $pearDB->prepare($selectQuery);
-    $statement->execute($contactIds);
+    $selectStatement = $pearDB->prepare($selectQuery);
+    foreach ($bindContactIds as $token => $value) {
+        $selectStatement->bindValue($token, $value, \PDO::PARAM_INT);
+    }
+    $selectStatement->execute();
 
-    while ($row = $statement->fetch()) {
+    while ($row = $selectStatement->fetch()) {
         $centreon->CentreonLogAction->insertLog("contact", $row['contact_id'], $row['contact_name'], "unblock");
     }
 }
