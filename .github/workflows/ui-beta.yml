@@ -31,7 +31,7 @@ jobs:
     with:
       name: component
       module_name: centreon/packages/ui
-      specs_path: src/**
+      specs_path: packages/ui/src/**
 
   unit-test:
     runs-on: ubuntu-22.04
