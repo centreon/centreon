@@ -10,8 +10,11 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  version:
-    description: "Centreon packaged version"
+  major_version:
+    description: "Centreon packaged major version"
+    required: true
+  minor_version:
+    description: "Centreon package minor version"
     required: true
   stability:
     description: "The package stability (stable, testing, unstable)"
@@ -33,7 +36,7 @@ runs:
 
         echo "[DEBUG] - Get path to dir with testing artifacts to promote to stable."
         SRC_PATH=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/centreon-${{ inputs.module }}-${{ inputs.version }}-1.${{ inputs.distrib }}.noarch.rpm | jq -r '.[].path')
-        echo "[DEBUG] - Target path: $SRC_PATH"
+        echo "[DEBUG] - Source path: $SRC_PATH"
 
         echo "[DEBUG] - Promoting testing artifacts to stable."
         jf rt cp --flat=true $SRC_PATH/* $TARGET_PATH/
