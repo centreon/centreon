@@ -24,6 +24,12 @@ runs:
           source: ${{ inputs.spec_file_path }}
           find: '.cypress.spec.tsx'
           replace: ''
+    - name: LS
+      run: |
+        ls
+        echo ${{ inputs.spec_file_path }}
+        echo ${{ inputs.prepath }}
+        echo ${{ inputs.module }}
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
