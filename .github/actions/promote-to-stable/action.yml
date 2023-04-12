@@ -60,8 +60,8 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATH+=$(jf rt s --include-dirs --fail-no-op apt-standard-${{ inputs.major_version }}-testing/pool/*${{ inputs.module }}*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
-        echo "[DEBUG] - Source path: $SRC_PATH"
+        SRC_PATHS+=$(jf rt s --include-dirs --fail-no-op apt-standard-${{ inputs.major_version }}-testing/pool/*${{ inputs.module }}*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
+        echo "[DEBUG] - Source path: $SRC_PATHS"
 
         echo "[DEBUG] - Build target path."
         TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/"
