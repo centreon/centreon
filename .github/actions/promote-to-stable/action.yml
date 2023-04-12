@@ -37,7 +37,7 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Get path of testing RPM packages to promote to stable."
-        SRC_PATHS=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/*.rpm | jq -r '.[].path')
+        SRC_PATHS+=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/noarch/${{ inputs.module }}/*.rpm | jq -r '.[].path')
         echo "[DEBUG] - Source path: $SRC_PATHS"
 
         echo "[DEBUG] - Build target path."
