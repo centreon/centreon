@@ -9,13 +9,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'legacy-alma8',
-    version: version_A
-  });
-
-  cy.waitForContainerAndSetToken();
+  cy.stopContainer(Cypress.env('dockerName'));
 });
 
 beforeEach(() => {
@@ -61,6 +55,14 @@ beforeEach(() => {
 });
 
 Given('a running platform in {string}', (version_A: string) => {
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'legacy-alma8',
+    version: version_A
+  });
+
+  cy.waitForContainerAndSetToken();
+
   checkPlatformVersion(version_A);
 
   cy.visit(`${Cypress.config().baseUrl}`);
@@ -136,4 +138,8 @@ When('administrator exports Poller configuration', () => {
 
 Then('Poller configuration should be fully generated', () => {
   checkIfConfigurationIsExported(dateBeforeLogin);
+});
+
+after(() => {
+  // cy.stopContainer(Cypress.env('dockerName'));
 });
