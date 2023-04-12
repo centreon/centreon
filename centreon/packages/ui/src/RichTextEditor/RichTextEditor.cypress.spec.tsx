@@ -5,6 +5,9 @@ interface CheckElementStyleOnRichTextEditorProps {
   element: HTMLElement;
 }
 
+const mockInititalStateToEditor =
+  '{"root": {"children": [{"children": [{"detail": 0,"format": 0,"mode": "normal","style": "","text": "test Cypress","type": "text","version": 1}],"direction": "ltr","format": "","indent": 0,"type": "paragraph","version": 1}],"direction": "ltr","format": "","indent": 0,"type": "root","version": 1}}';
+
 const checkElementStyleOnRichTextEditor = ({
   element,
   check
@@ -143,11 +146,58 @@ describe('Rich Text Editor', () => {
 
   describe('Uneditable Rich Text Editor', () => {
     beforeEach(() => {
-      cy.mount({ Component: <RichTextEditor editable={false} /> });
+      cy.mount({
+        Component: (
+          <RichTextEditor
+            editable={false}
+            initialEditorState={mockInititalStateToEditor}
+          />
+        )
+      });
     });
 
-    it.only('displays editor when editable props is false', () => {
-      cy.get('[data-testid="RichTextEditor"]');
+    it('displays editor when editable props is false and an initialState exist', () => {
+      cy.get('[data-testid="RichTextEditor"]')
+        .invoke('attr', 'contenteditable')
+        .should('eq', 'false');
+      cy.findByLabelText('Undo').should('not.be.exist');
+      cy.findByLabelText('Redo').should('not.be.exist');
+      cy.findByLabelText('bold').should('not.be.exist');
+      cy.findByLabelText('italic').should('not.be.exist');
+      cy.findByLabelText('underline').should('not.be.exist');
+      cy.findByLabelText('strikethrough').should('not.be.exist');
+      cy.findByLabelText('link').should('not.be.exist');
+    });
+  });
+
+  describe('Custom style editable rich text editor ', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: (
+          <RichTextEditor
+            editable
+            minInputHeight={200}
+            namespace="CypressComponentTest"
+            placeholder="Type Cypress test..."
+          />
+        )
+      });
+    });
+    it('displays editor with custom namespace', () => {
+      cy.get('#CypressComponentTest > p').should('be.exist');
+      cy.get('[data-testid="CypressComponentTest"]').should('be.exist');
+    });
+
+    it('displays editor with custom placeholder', () => {
+      cy.get('#CypressComponentTest > p').contains('Type Cypress test...');
+    });
+
+    it('displays editor with custom minimum input height', () => {
+      cy.get('[data-testid="CypressComponentTest"]').should(
+        'have.css',
+        'min-height',
+        '200px'
+      );
     });
   });
 });
