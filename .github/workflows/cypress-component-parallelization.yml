@@ -43,7 +43,7 @@ jobs:
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
-          module: centreon
+          module: ""
           prepath: ${{ inputs.specs_path }}
           spec_file_path: ${{matrix.spec}}
 
