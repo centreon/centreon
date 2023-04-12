@@ -27,14 +27,11 @@ jobs:
           module_name: centreon-ui
 
   cypress-component-testing:
-    runs-on: ubuntu-22.04
-
-    steps:
-      uses: ./.github/workflows/cypress-component-parallelization.yml
-      with:
-        name: component
-        module_name: centreon/packages/ui
-        specs_path: src/**
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon/ui
+      specs_path: src/**
 
   unit-test:
     runs-on: ubuntu-22.04
