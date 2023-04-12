@@ -182,7 +182,7 @@ function parse_subcommand_options() {
 
         s)
 		    wizard_autoplay="true"
-			log "INFO" "The installation wizard wizard will be executed by the script"
+			log "INFO" "The installation wizard will be executed by the script"
 			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
