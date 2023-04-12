@@ -47,7 +47,7 @@ runs:
         while read -r PATH
         do
           echo "[DEBUG] - Promoting $PATH to stable."
-
+          jf rt cp --flat=true $PATH $TARGET_PATH/
         done <<< "$SRC_PATHS"
 
       shell: bash
