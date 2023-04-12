@@ -23,34 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Symfony\Component\HttpFoundation\Response;
 
-class DownloadPresenter extends AbstractPresenter implements DownloadInterface
+class DownloadPresenter implements PresenterFormatterInterface
 {
     private const CSV_FILE_EXTENSION = 'csv';
     private const JSON_FILE_EXTENSION = 'json';
 
     private string $downloadFileName = '';
 
-    /**
-     * @inheritDoc
-     */
-    public function present(mixed $data): void
+    public function __construct(readonly private PresenterFormatterInterface $formatter)
     {
-        $originalHeaders = $this->getResponseHeaders();
-        $originalHeaders['Content-Type'] = 'application/force-download';
-        $originalHeaders['Content-Disposition'] = 'attachment; filename="' . $this->generateDownloadFileName() . '"';
-        $this->setResponseHeaders($originalHeaders);
-        parent::present($data);
-    }
-
-    /**
-     * @param string $fileName
-     * @return void
-     */
-    public function setDownloadFileName(string $fileName): void
-    {
-        $this->downloadFileName = $fileName;
     }
 
     /**
@@ -60,7 +43,7 @@ class DownloadPresenter extends AbstractPresenter implements DownloadInterface
      */
     private function generateDownloadFileExtension(): string
     {
-        return match (get_class($this->presenterFormatter)) {
+        return match (get_class($this->formatter)) {
             CsvFormatter::class => self::CSV_FILE_EXTENSION,
             JsonFormatter::class => self::JSON_FILE_EXTENSION,
             default => '',
@@ -70,15 +53,24 @@ class DownloadPresenter extends AbstractPresenter implements DownloadInterface
     /**
      * Generates download file name (name + extension depending on used presenter)
      *
+     * @param string $filename
+     *
      * @return string
      */
-    private function generateDownloadFileName(): string
+    private function generateDownloadFileName(string $filename): string
     {
         $fileExtension = $this->generateDownloadFileExtension();
-        if ($fileExtension === '') {
-            return $this->downloadFileName;
-        }
+        return $fileExtension === '' ? $filename : $filename . '.' . $fileExtension;
+    }
 
-        return $this->downloadFileName . '.' . $fileExtension;
+    /**
+     * @inheritDoc
+     */
+    public function format(mixed $data, array $headers): Response
+    {
+        $filename = $this->generateDownloadFileName($data->filename ?? 'export');
+        $headers['Content-Type'] = 'application/force-download';
+        $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
+        return $this->formatter->format($data->performanceMetrics, $headers);
     }
 }
