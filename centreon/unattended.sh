@@ -367,7 +367,7 @@ function set_required_prerequisite() {
         $PKG_MGR -y -q update gnutls
 
         set_centreon_repos
-		set_mariadb_repos
+        set_mariadb_repos
         ;;
 
     9*)
@@ -396,7 +396,7 @@ function set_required_prerequisite() {
 	    ;;
         esac
 
-		install_remi_repo
+        install_remi_repo
 
         log "INFO" "Installing PHP 8.1 and enable it"
         $PKG_MGR module install php:remi-8.1 -y -q
@@ -409,7 +409,7 @@ function set_required_prerequisite() {
         $PKG_MGR -y -q update gnutls
 
         set_centreon_repos
-		set_mariadb_repos
+        set_mariadb_repos
         ;;
 
     *)
