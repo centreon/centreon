@@ -35,6 +35,7 @@ runs:
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
+      working-directory: ${{ inputs.module }}
       with:
         browser: chrome
         component: true
