@@ -62,7 +62,7 @@ detected_os_version=
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
-RELEASE_RPM_URL=
+RELEASE_REPO_FILE=
 OS_SPEC_SERVICES=
 PKG_MGR=
 has_systemd=
@@ -326,7 +326,7 @@ function set_required_prerequisite() {
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -373,7 +373,7 @@ function set_required_prerequisite() {
     9*)
         log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
-        RELEASE_RPM_URL="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-9.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -539,7 +539,7 @@ function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
 
-	$PKG_MGR config-manager --add-repo $RELEASE_RPM_URL
+	$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install Centreon repository"
 	fi
