@@ -69,11 +69,7 @@ const RegularLine = ({
     );
   }
 
-  return (
-    <>
-      <Shape.LinePath<TimeValue> {...props} />;
-    </>
-  );
+  return <Shape.LinePath<TimeValue> {...props} />;
 };
 
 export default RegularLine;
