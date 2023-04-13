@@ -78,6 +78,9 @@ When('administrator runs the update procedure', () => {
   });
 
   cy.wait('@getStep2').then(() => {
+    cy.get('span[style]').each(($span) => {
+      cy.wrap($span).should('have.text', 'Loaded');
+    });
     cy.get('.btc.bt_info').eq(0).click();
   });
 
@@ -86,7 +89,9 @@ When('administrator runs the update procedure', () => {
   });
 
   cy.wait('@generatingCache').then(() => {
-    cy.get('span:visible:contains(OK)').should('have.length', 8);
+    cy.get('span[style]').each(($span) => {
+      cy.wrap($span).should('have.text', 'OK');
+    });
     cy.get('.btc.bt_info').eq(0).click();
   });
 
@@ -98,6 +103,8 @@ When('administrator runs the update procedure', () => {
 Then(
   'monitoring should be up and running after update procedure is complete to {string}',
   (version_B: string) => {
+    cy.setUserTokenApiV1('admin');
+
     checkPlatformVersion(version_B);
 
     cy.loginByTypeOfUser({
