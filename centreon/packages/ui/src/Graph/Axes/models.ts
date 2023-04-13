@@ -7,11 +7,11 @@ export interface LabelProps {
 
 export interface Axis {
   [x: string]: unknown;
-  displayUnits?: boolean;
+  displayUnit?: boolean;
 }
 
 export interface AxisYRight extends Axis {
-  displayAxisYRight?: boolean;
+  display?: boolean;
 }
 export interface Data {
   axisX?: Record<string, unknown>;

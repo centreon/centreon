@@ -1,15 +1,12 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import { isNil } from 'ramda';
 
-import { useTheme } from '@mui/material';
-
-import { formatMetricValue, getUnits } from '../../timeSeries';
+import { getUnits } from '../../timeSeries';
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
-import { commonTickLabelProps } from '../common';
 
 import UnitLabel from './UnitLabel';
-import { Data, LabelProps } from './models';
+import { Data } from './models';
+import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
@@ -28,50 +25,18 @@ const Axes = ({
   leftScale,
   xScale
 }: Props): JSX.Element => {
-  const theme = useTheme();
-
   const { format } = useLocaleDateTimeFormat();
   const { lines } = data;
 
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
+  const { axisLeft, axisRight } = useAxisY({ data, graphHeight: height });
 
-  const hasMoreThanTwoUnits = !isNil(thirdUnit);
-  const hasTwoUnits = !isNil(secondUnit) && !hasMoreThanTwoUnits;
+  const [firstUnit, secondUnit] = getUnits(lines);
 
   const xAxisTickFormat = 'LT';
   const xTickCount = Math.ceil(width / 82);
-  const ticksCount = Math.ceil(height / 30);
-
-  const displayAxisRight = data?.axisYRight?.displayAxisYRight ?? hasTwoUnits;
-  const displayUnitAxisLeft =
-    data?.axisYLeft?.displayUnits ?? !hasMoreThanTwoUnits;
-  const displayUnitAxisRight = data?.axisYLeft?.displayUnits ?? hasTwoUnits;
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: xAxisTickFormat });
-
-  const formatTick =
-    ({ unit }) =>
-    (value): string => {
-      if (isNil(value)) {
-        return '';
-      }
-
-      return formatMetricValue({ base: data.baseAxis, unit, value }) as string;
-    };
-
-  const formatAxisYLeftTick = formatTick({
-    unit: hasMoreThanTwoUnits ? '' : firstUnit
-  });
-
-  const labelProps = ({
-    textAnchor,
-    ...rest
-  }: LabelProps): Record<string, unknown> => ({
-    ...commonTickLabelProps,
-    textAnchor,
-    ...rest
-  });
 
   return (
     <>
@@ -79,51 +44,35 @@ const Axes = ({
         numTicks={xTickCount}
         scale={xScale}
         tickFormat={formatAxisTick}
-        tickLabelProps={(): Record<string, unknown> =>
-          labelProps({ textAnchor: 'middle' })
-        }
         top={height}
         {...data?.axisX}
       />
 
-      {displayUnitAxisLeft && <UnitLabel unit={firstUnit} x={-4} />}
+      {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}
 
       <Axis.AxisLeft
-        numTicks={ticksCount}
-        orientation="right"
+        numTicks={axisLeft.numTicks}
+        orientation="left"
         scale={leftScale}
-        tickFormat={formatAxisYLeftTick}
-        tickLabelProps={(): Record<string, unknown> =>
-          labelProps({
-            dx: theme.spacing(-1),
-            dy: theme.spacing(0.5),
-            textAnchor: 'end',
-            x: 0
-          })
-        }
+        tickFormat={axisLeft.tickFormat}
+        tickLabelProps={axisLeft.tickLabelProps}
         tickLength={2}
         {...data?.axisYLeft}
       />
 
-      {displayAxisRight && (
+      {axisRight.display && (
         <Axis.AxisRight
           left={width}
-          numTicks={ticksCount}
+          numTicks={axisRight.numTicks}
           orientation="right"
           scale={rightScale}
-          tickFormat={formatTick({ unit: secondUnit })}
-          tickLabelProps={(): Record<string, unknown> =>
-            labelProps({
-              dx: theme.spacing(0.5),
-              dy: theme.spacing(0.5),
-              x: theme.spacing(1)
-            })
-          }
+          tickFormat={axisRight.tickFormat}
+          tickLabelProps={axisRight.tickLabelProps}
           tickLength={2}
           {...data?.axisYRight}
         />
       )}
-      {displayUnitAxisRight && <UnitLabel unit={secondUnit} x={width} />}
+      {axisRight.displayUnit && <UnitLabel unit={secondUnit} x={width} />}
     </>
   );
 };

@@ -6,18 +6,18 @@ import { difference } from 'ramda';
 import {
   getLeftScale,
   getLineData,
-  getNotInvertedStackedLines,
   getRightScale,
   getSortedStackedLines,
   getTimeSeries,
-  getTimeSeriesForLines,
   getXScale
 } from '../timeSeries';
+import { Line } from '../timeSeries/models';
 
 import Axes from './Axes';
-import { margin } from './common';
 import Grids from './Grids';
 import Lines from './Lines';
+import useStackedLines from './Lines/StackedLines/useStackedLines';
+import { margin } from './common';
 import { Axis, Data, GraphData, GridsModel, ShapeLines } from './models';
 
 interface Props {
@@ -48,33 +48,69 @@ const Graph = ({
   const baseAxis =
     'baseAxis' in graphData ? graphData.baseAxis : graphData.global?.base;
 
-  const xScale = getXScale({
-    dataTime: timeSeries,
-    valueWidth: graphWidth
-  });
-
-  const leftScale = getLeftScale({
-    dataLines: lines,
-    dataTimeSeries: timeSeries,
-    valueGraphHeight: graphHeight
-  });
-
-  const rightScale = getRightScale({
-    dataLines: lines,
-    dataTimeSeries: timeSeries,
-    valueGraphHeight: graphHeight
-  });
-
-  const regularStackedLines = getNotInvertedStackedLines(lines);
-
-  const regularStackedTimeSeries = getTimeSeriesForLines({
-    lines: regularStackedLines,
+  const { regularStackedLines, invertedStackedLines } = useStackedLines({
+    lines,
     timeSeries
   });
 
-  const stackedLines = getSortedStackedLines(lines);
+  const xScale = useMemo(
+    () =>
+      getXScale({
+        dataTime: timeSeries,
+        valueWidth: graphWidth
+      }),
+    [timeSeries, graphWidth]
+  );
 
-  const regularLines = difference(lines, stackedLines);
+  const leftScale = useMemo(
+    () =>
+      getLeftScale({
+        dataLines: lines,
+        dataTimeSeries: timeSeries,
+        valueGraphHeight: graphHeight
+      }),
+    [lines, timeSeries, graphHeight]
+  );
+
+  const rightScale = useMemo(
+    () =>
+      getRightScale({
+        dataLines: lines,
+        dataTimeSeries: timeSeries,
+        valueGraphHeight: graphHeight
+      }),
+    [timeSeries, lines, graphHeight]
+  );
+
+  const regularLines = (): Array<Line> => {
+    const stackedLines = getSortedStackedLines(lines);
+
+    return difference(lines, stackedLines);
+  };
+
+  const commonLinesProps = {
+    display: true,
+    leftScale,
+    rightScale,
+    xScale
+  };
+
+  const areaRegularLines = {
+    lines: regularLines(),
+    timeSeries,
+    ...commonLinesProps,
+    ...shapeLines?.areaRegularLinesData
+  };
+
+  const regularStackedLinesData = {
+    lines: regularStackedLines.lines,
+    timeSeries: regularStackedLines.timeSeries
+  };
+
+  const invertedStackedLinesData = {
+    lines: invertedStackedLines.lines,
+    timeSeries: invertedStackedLines.timeSeries
+  };
 
   return (
     <svg height={height} ref={containerRef} width="100%">
@@ -102,20 +138,11 @@ const Graph = ({
         <Lines
           height={graphHeight}
           shape={{
-            areaRegularLines: {
-              leftScale,
-              lines: regularLines,
-              rightScale,
-              timeSeries,
-              xScale,
-              ...shapeLines?.areaRegularLinesData
-            },
+            areaRegularLines,
             areaStackedLines: {
-              leftScale,
-              lines: regularStackedLines,
-              rightScale,
-              timeSeries: regularStackedTimeSeries,
-              xScale,
+              ...commonLinesProps,
+              invertedStackedLinesData,
+              regularStackedLinesData,
               ...shapeLines?.areaStackedLinesData
             }
           }}

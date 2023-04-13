@@ -1,6 +1,7 @@
-import { ScaleLinear } from 'd3-scale';
-
 import { Line, Metric, TimeValue } from '../timeSeries/models';
+
+import { Axis as AxisYLeft, AxisYRight } from './Axes/models';
+import { AreaRegularLines, AreaStackedLinesData } from './Lines/models';
 
 export interface GraphData {
   global;
@@ -14,25 +15,15 @@ export interface Data {
   timeSeries: Array<TimeValue>;
 }
 
-export interface shapeGraphData {
-  [x: string]: unknown;
-  leftScale?: ScaleLinear<number, number>;
-  lines: Array<Line>;
-  rightScale?: ScaleLinear<number, number>;
-  timeSeries: Array<TimeValue>;
-  xScale?: ScaleLinear<number, number>;
-  yScale?: ScaleLinear<number, number>;
-}
-
 export interface ShapeLines {
-  areaRegularLinesData?: shapeGraphData;
-  areaStackedLinesData?: shapeGraphData;
+  areaRegularLinesData?: AreaRegularLines;
+  areaStackedLinesData?: AreaStackedLinesData;
 }
 
 export interface Axis {
-  axisX: Record<string, unknown>;
-  axisYLeft: Record<string, unknown>;
-  axisYRight: Record<string, unknown>;
+  axisX?: Record<string, unknown>;
+  axisYLeft?: AxisYLeft;
+  axisYRight?: AxisYRight;
 }
 
 export interface GridsModel {

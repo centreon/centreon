@@ -1,16 +1,11 @@
 import { isEmpty, isNil } from 'ramda';
 
 import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
-import { Line, TimeValue } from '../../timeSeries/models';
-import { shapeGraphData } from '../models';
+import { Line } from '../../timeSeries/models';
 
 import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';
-
-interface Shape {
-  areaRegularLines?: shapeGraphData;
-  areaStackedLines?: shapeGraphData;
-}
+import { Shape } from './models';
 
 interface Props {
   height: number;
@@ -18,44 +13,69 @@ interface Props {
 }
 
 const Lines = ({ height, shape }: Props): JSX.Element => {
+  const { areaRegularLines, areaStackedLines } = shape;
+  const { regularStackedLinesData, invertedStackedLinesData } =
+    areaStackedLines;
+
+  const { lines: regularLines, timeSeries: regularLinesTimeSeries } =
+    areaRegularLines;
+
+  const {
+    lines: regularStackedLines,
+    timeSeries: regularStackedLinesTimeSeries
+  } = regularStackedLinesData;
+
+  const {
+    lines: invertedStackedLines,
+    timeSeries: invertedStackedLinesTimeSeries
+  } = invertedStackedLinesData;
+
+  const displayArea = (data: unknown): boolean =>
+    !isEmpty(data) && !isNil(data);
+
   const displayAreaStackedLines =
-    !isEmpty(shape?.areaStackedLines) && !isNil(shape?.areaStackedLines);
+    areaStackedLines.display && displayArea(regularStackedLines);
+
+  const displayAreaInvertedStackedLines =
+    areaStackedLines.display && displayArea(invertedStackedLines);
 
   const displayRegularLines =
-    !isEmpty(shape?.areaRegularLines) && !isNil(shape?.areaRegularLines);
-
-  const lineStackedLines = shape?.areaStackedLines?.lines;
-  const timeSeriesStackedLines = shape?.areaStackedLines?.timeSeries;
-  const leftScaleStackedLines = shape?.areaStackedLines?.leftScale;
-  const rightScaleStackedLines = shape?.areaStackedLines?.rightScale;
-  const xScaleStackedLines = shape?.areaRegularLines?.xScale;
+    areaRegularLines.display && displayArea(regularLines);
 
   const stackedYScale = getStackedYScale({
-    leftScale: leftScaleStackedLines,
-    rightScale: rightScaleStackedLines
+    leftScale: areaStackedLines?.leftScale,
+    rightScale: areaStackedLines?.rightScale
   });
 
-  const linesRegularLines = shape?.areaRegularLines?.lines;
-  const timeSeriesRegularLines = shape?.areaRegularLines?.timeSeries;
-  const leftScaleRegularLines = shape?.areaRegularLines?.leftScale;
-  const rightScaleRegularLines = shape?.areaRegularLines?.rightScale;
-  const xScaleRegularLines = shape?.areaRegularLines?.xScale;
+  const leftScaleRegularLines = areaRegularLines?.leftScale;
+  const rightScaleRegularLines = areaRegularLines?.rightScale;
+  const xScaleRegularLines = areaRegularLines?.xScale;
+
+  const commonStackedLinesProps = {
+    timeTick: areaStackedLines?.timeTick as Date,
+    xScale: areaStackedLines?.xScale,
+    yScale: stackedYScale
+  };
 
   return (
     <g>
       {displayAreaStackedLines && (
         <StackedLines
-          lines={lineStackedLines as Array<Line>}
-          timeSeries={timeSeriesStackedLines as Array<TimeValue>}
-          timeTick={shape?.areaStackedLines?.timeTick as Date}
-          xScale={xScaleStackedLines}
-          yScale={stackedYScale}
-          {...shape?.areaStackedLines}
+          lines={regularStackedLines}
+          timeSeries={regularStackedLinesTimeSeries}
+          {...commonStackedLinesProps}
+        />
+      )}
+      {displayAreaInvertedStackedLines && (
+        <StackedLines
+          lines={invertedStackedLines}
+          timeSeries={invertedStackedLinesTimeSeries}
+          {...commonStackedLinesProps}
         />
       )}
 
       {displayRegularLines
-        ? linesRegularLines?.map(
+        ? regularLines.map(
             ({
               metric,
               areaColor,
@@ -67,7 +87,7 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
               invert
             }) => {
               const [, secondUnit, thirdUnit] = getUnits(
-                linesRegularLines as Array<Line>
+                regularLines as Array<Line>
               );
               const yScale = getYScale({
                 hasMoreThanTwoUnits: !isNil(thirdUnit),
@@ -98,12 +118,11 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
                     highlight={highlight}
                     lineColor={lineColor}
                     metric={metric}
-                    timeSeries={timeSeriesRegularLines as Array<TimeValue>}
+                    timeSeries={regularLinesTimeSeries}
                     transparency={transparency}
                     unit={unit}
                     xScale={xScaleRegularLines}
                     yScale={yScale}
-                    {...shape?.areaRegularLines}
                   />
                 </g>
               );

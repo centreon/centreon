@@ -1,4 +1,4 @@
-import { memo, ReactNode } from 'react';
+import { memo } from 'react';
 
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -72,29 +72,27 @@ const RegularLine = ({
   return <Shape.LinePath<TimeValue> {...props} />;
 };
 
-export default RegularLine;
+export default memo(RegularLine, (prevProps, nextProps) => {
+  const {
+    timeSeries: prevTimeSeries,
+    graphHeight: prevGraphHeight,
+    highlight: prevHighlight,
+    xScale: prevXScale
+  } = prevProps;
+  const {
+    timeSeries: nextTimeSeries,
+    graphHeight: nextGraphHeight,
+    highlight: nextHighlight,
+    xScale: nextXScale
+  } = nextProps;
 
-// export default memo(RegularLine, (prevProps, nextProps) => {
-//   const {
-//     timeSeries: prevTimeSeries,
-//     graphHeight: prevGraphHeight,
-//     highlight: prevHighlight,
-//     xScale: prevXScale
-//   } = prevProps;
-//   const {
-//     timeSeries: nextTimeSeries,
-//     graphHeight: nextGraphHeight,
-//     highlight: nextHighlight,
-//     xScale: nextXScale
-//   } = nextProps;
+  const prevXScaleRange = prevXScale.range();
+  const nextXScaleRange = nextXScale.range();
 
-//   const prevXScaleRange = prevXScale.range();
-//   const nextXScaleRange = nextXScale.range();
-
-//   return (
-//     equals(prevTimeSeries, nextTimeSeries) &&
-//     equals(prevGraphHeight, nextGraphHeight) &&
-//     equals(prevHighlight, nextHighlight) &&
-//     equals(prevXScaleRange, nextXScaleRange)
-//   );
-// });
+  return (
+    equals(prevTimeSeries, nextTimeSeries) &&
+    equals(prevGraphHeight, nextGraphHeight) &&
+    equals(prevHighlight, nextHighlight) &&
+    equals(prevXScaleRange, nextXScaleRange)
+  );
+});
