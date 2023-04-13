@@ -226,7 +226,7 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') || contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
       matrix:
