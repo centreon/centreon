@@ -5,10 +5,8 @@ import { difference } from 'ramda';
 
 import {
   getLeftScale,
-  getLineData,
   getRightScale,
   getSortedStackedLines,
-  getTimeSeries,
   getXScale
 } from '../timeSeries';
 import { Line } from '../timeSeries/models';
@@ -18,6 +16,7 @@ import Grids from './Grids';
 import Lines from './Lines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { margin } from './common';
+import { adjustGraphData } from './helpers';
 import { Axis, Data, GraphData, GridsModel, ShapeLines } from './models';
 
 interface Props {
@@ -43,8 +42,11 @@ const Graph = ({
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
   const timeSeries =
-    'timeSeries' in graphData ? graphData.timeSeries : getTimeSeries(graphData);
-  const lines = 'lines' in graphData ? graphData.lines : getLineData(graphData);
+    'timeSeries' in graphData
+      ? graphData.timeSeries
+      : adjustGraphData(graphData).timeSeries;
+  const lines =
+    'lines' in graphData ? graphData.lines : adjustGraphData(graphData).lines;
   const baseAxis =
     'baseAxis' in graphData ? graphData.baseAxis : graphData.global?.base;
 
