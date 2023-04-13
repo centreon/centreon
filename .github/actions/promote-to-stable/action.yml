@@ -77,7 +77,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/"
+        TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
