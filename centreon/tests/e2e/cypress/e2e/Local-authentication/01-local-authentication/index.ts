@@ -11,6 +11,7 @@ import {
 } from '../common';
 
 before(() => {
+  cy.waitForContainerAndSetToken();
   initializeConfigACLAndGetLoginPage();
 });
 
