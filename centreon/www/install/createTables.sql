@@ -10,17 +10,17 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions` (
   `acl_action_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_action_name` varchar(255) DEFAULT NULL,
   `acl_action_description` varchar(255) DEFAULT NULL,
   `acl_action_activate` enum('0','1','2') DEFAULT NULL,
   PRIMARY KEY (`acl_action_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions_rules` (
   `aar_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_action_rule_id` int(11) DEFAULT NULL,
@@ -28,19 +28,19 @@ CREATE TABLE `acl_actions_rules` (
   PRIMARY KEY (`aar_id`),
   KEY `acl_action_rule_id` (`acl_action_rule_id`),
   CONSTRAINT `acl_actions_rules_ibfk_1` FOREIGN KEY (`acl_action_rule_id`) REFERENCES `acl_actions` (`acl_action_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_actions_relations` (
   `acl_action_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
   KEY `acl_action_id` (`acl_action_id`),
   KEY `acl_group_id` (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contactgroups_relations` (
   `cg_cg_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -48,10 +48,10 @@ CREATE TABLE `acl_group_contactgroups_relations` (
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_1` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contacts_relations` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -59,10 +59,10 @@ CREATE TABLE `acl_group_contacts_relations` (
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contacts_relations_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contacts_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_topology_relations` (
   `acl_group_id` int(11) DEFAULT NULL,
   `acl_topology_id` int(11) DEFAULT NULL,
@@ -70,10 +70,10 @@ CREATE TABLE `acl_group_topology_relations` (
   KEY `acl_topology_id` (`acl_topology_id`),
   CONSTRAINT `acl_group_topology_relations_ibfk_1` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_topology_relations_ibfk_2` FOREIGN KEY (`acl_topology_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_groups` (
   `acl_group_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_group_name` varchar(255) DEFAULT NULL,
@@ -81,10 +81,10 @@ CREATE TABLE `acl_groups` (
   `acl_group_changed` int(11) NOT NULL DEFAULT 1,
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
   PRIMARY KEY (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_res_group_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -92,10 +92,10 @@ CREATE TABLE `acl_res_group_relations` (
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_res_group_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources` (
   `acl_res_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_res_name` varchar(255) DEFAULT NULL,
@@ -109,10 +109,10 @@ CREATE TABLE `acl_resources` (
   `changed` int(11) DEFAULT NULL,
   `locked` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`acl_res_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hc_relations` (
   `hc_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -120,10 +120,10 @@ CREATE TABLE `acl_resources_hc_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hg_relations` (
   `hg_hg_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -132,10 +132,10 @@ CREATE TABLE `acl_resources_hg_relations` (
   KEY `hg_hg_id_2` (`hg_hg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_hg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hg_relations_ibfk_1` FOREIGN KEY (`hg_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_host_relations` (
   `host_host_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -143,10 +143,10 @@ CREATE TABLE `acl_resources_host_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_host_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_host_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hostex_relations` (
   `host_host_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -154,10 +154,10 @@ CREATE TABLE `acl_resources_hostex_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hostex_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hostex_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_meta_relations` (
   `meta_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -165,10 +165,10 @@ CREATE TABLE `acl_resources_meta_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_meta_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_meta_relations_ibfk_1` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_poller_relations` (
   `poller_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -176,10 +176,10 @@ CREATE TABLE `acl_resources_poller_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_poller_relations_ibfk_1` FOREIGN KEY (`poller_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_poller_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sc_relations` (
   `sc_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -187,10 +187,10 @@ CREATE TABLE `acl_resources_sc_relations` (
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_sc_relations_ibfk_1` FOREIGN KEY (`sc_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_service_relations` (
   `service_service_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
@@ -198,10 +198,10 @@ CREATE TABLE `acl_resources_service_relations` (
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_resources_service_relations_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_service_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sg_relations` (
   `sg_id` int(11) DEFAULT NULL,
   `acl_res_id` int(11) DEFAULT NULL,
@@ -210,10 +210,10 @@ CREATE TABLE `acl_resources_sg_relations` (
   KEY `sg_id_2` (`sg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_sg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sg_relations_ibfk_1` FOREIGN KEY (`sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology` (
   `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT,
   `acl_topo_name` varchar(255) DEFAULT NULL,
@@ -222,10 +222,10 @@ CREATE TABLE `acl_topology` (
   `acl_topo_activate` enum('0','1') DEFAULT NULL,
   PRIMARY KEY (`acl_topo_id`),
   KEY `acl_topo_id` (`acl_topo_id`,`acl_topo_activate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology_relations` (
   `topology_topology_id` int(11) DEFAULT NULL,
   `acl_topo_id` int(11) DEFAULT NULL,
@@ -234,10 +234,10 @@ CREATE TABLE `acl_topology_relations` (
   KEY `acl_topo_id` (`acl_topo_id`),
   CONSTRAINT `acl_topology_relations_ibfk_2` FOREIGN KEY (`topology_topology_id`) REFERENCES `topology` (`topology_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_topology_relations_ibfk_3` FOREIGN KEY (`acl_topo_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auth_ressource` (
   `ar_id` int(11) NOT NULL AUTO_INCREMENT,
   `ar_name` varchar(255) NOT NULL DEFAULT 'Default',
@@ -246,10 +246,10 @@ CREATE TABLE `auth_ressource` (
   `ar_enable` enum('0','1') DEFAULT '0',
   `ar_sync_base_date` int(11) DEFAULT 0,
   PRIMARY KEY (`ar_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auth_ressource_host` (
   `ldap_host_id` int(11) NOT NULL AUTO_INCREMENT,
   `auth_ressource_id` int(11) NOT NULL,
@@ -261,28 +261,28 @@ CREATE TABLE `auth_ressource_host` (
   PRIMARY KEY (`ldap_host_id`),
   KEY `fk_auth_ressource_id` (`auth_ressource_id`),
   CONSTRAINT `fk_auth_ressource_id` FOREIGN KEY (`auth_ressource_id`) REFERENCES `auth_ressource` (`ar_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auth_ressource_info` (
   `ar_id` int(11) NOT NULL,
   `ari_name` varchar(100) NOT NULL,
   `ari_value` varchar(1024) NOT NULL,
   PRIMARY KEY (`ar_id`,`ari_name`),
   CONSTRAINT `auth_ressource_info_ibfk_1` FOREIGN KEY (`ar_id`) REFERENCES `auth_ressource` (`ar_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_fieldset` (
   `cb_fieldset_id` INT NOT NULL,
   `fieldset_name` VARCHAR(255) NOT NULL,
   PRIMARY KEY(`cb_fieldset_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_fieldgroup` (
   `cb_fieldgroup_id` INT NOT NULL AUTO_INCREMENT,
   `groupname` VARCHAR(100) NOT NULL,
@@ -291,10 +291,10 @@ CREATE TABLE `cb_fieldgroup` (
   `group_parent_id` INT DEFAULT NULL,
   PRIMARY KEY(`cb_fieldgroup_id`),
   FOREIGN KEY(`group_parent_id`) REFERENCES `cb_fieldgroup` (`cb_fieldgroup_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_field` (
   `cb_field_id` int(11) NOT NULL AUTO_INCREMENT,
   `fieldname` varchar(100) NOT NULL,
@@ -307,7 +307,7 @@ CREATE TABLE `cb_field` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_list` (
   `cb_list_id` int(11) NOT NULL,
   `cb_field_id` int(11) NOT NULL,
@@ -319,7 +319,7 @@ CREATE TABLE `cb_list` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_list_values` (
   `cb_list_id` int(11) NOT NULL,
   `value_name` varchar(255) NOT NULL,
@@ -330,7 +330,7 @@ CREATE TABLE `cb_list_values` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_module` (
   `cb_module_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -344,7 +344,7 @@ CREATE TABLE `cb_module` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_module_relation` (
   `cb_module_id` int(11) NOT NULL,
   `module_depend_id` int(11) NOT NULL,
@@ -357,7 +357,7 @@ CREATE TABLE `cb_module_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_tag` (
   `cb_tag_id` int(11) NOT NULL AUTO_INCREMENT,
   `tagname` varchar(50) NOT NULL,
@@ -366,7 +366,7 @@ CREATE TABLE `cb_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_tag_type_relation` (
   `cb_tag_id` int(11) NOT NULL,
   `cb_type_id` int(11) NOT NULL,
@@ -379,7 +379,7 @@ CREATE TABLE `cb_tag_type_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_type` (
   `cb_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `type_name` varchar(50) NOT NULL,
@@ -391,7 +391,7 @@ CREATE TABLE `cb_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_type_field_relation` (
   `cb_type_id` int(11) NOT NULL,
   `cb_field_id` int(11) NOT NULL,
@@ -408,7 +408,7 @@ CREATE TABLE `cb_type_field_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -416,7 +416,7 @@ CREATE TABLE `cb_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cb_log_level` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -424,7 +424,7 @@ CREATE TABLE `cb_log_level` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_centreonbroker_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_centreonbroker` int(11) NOT NULL,
@@ -434,7 +434,7 @@ CREATE TABLE `cfg_centreonbroker_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_centreonbroker` (
   `config_id` int(11) NOT NULL AUTO_INCREMENT,
   `config_name` varchar(100) NOT NULL,
@@ -455,10 +455,10 @@ CREATE TABLE `cfg_centreonbroker` (
   `pool_size` int(11) DEFAULT NULL,
   `bbdo_version` varchar(50) DEFAULT '3.0.0',
   PRIMARY KEY (`config_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_centreonbroker_info` (
   `config_id` int(11) NOT NULL,
   `config_key` varchar(50) NOT NULL,
@@ -472,10 +472,10 @@ CREATE TABLE `cfg_centreonbroker_info` (
   KEY `cfg_centreonbroker_info_idx01` (`config_id`),
   KEY `cfg_centreonbroker_info_idx02` (`config_id`,`config_group`),
   CONSTRAINT `cfg_centreonbroker_info_ibfk_01` FOREIGN KEY (`config_id`) REFERENCES `cfg_centreonbroker` (`config_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_nagios` (
   `nagios_id` int(11) NOT NULL AUTO_INCREMENT,
   `nagios_name` varchar(255) DEFAULT NULL,
@@ -574,10 +574,10 @@ CREATE TABLE `cfg_nagios` (
   CONSTRAINT `cfg_nagios_ibfk_19` FOREIGN KEY (`global_service_event_handler`) REFERENCES `command` (`command_id`) ON DELETE SET NULL,
   CONSTRAINT `cfg_nagios_ibfk_26` FOREIGN KEY (`nagios_server_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `cfg_nagios_ibfk_27` FOREIGN KEY (`use_timezone`) REFERENCES `timezone` (`timezone_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_nagios_broker_module` (
   `bk_mod_id` int(11) NOT NULL AUTO_INCREMENT,
   `cfg_nagios_id` int(11) DEFAULT NULL,
@@ -585,10 +585,10 @@ CREATE TABLE `cfg_nagios_broker_module` (
   PRIMARY KEY (`bk_mod_id`),
   KEY `fk_nagios_cfg` (`cfg_nagios_id`),
   CONSTRAINT `fk_nagios_cfg` FOREIGN KEY (`cfg_nagios_id`) REFERENCES `cfg_nagios` (`nagios_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_resource` (
   `resource_id` int(11) NOT NULL AUTO_INCREMENT,
   `resource_name` varchar(255) DEFAULT NULL,
@@ -596,10 +596,10 @@ CREATE TABLE `cfg_resource` (
   `resource_comment` varchar(255) DEFAULT NULL,
   `resource_activate` enum('0','1') DEFAULT NULL,
   PRIMARY KEY (`resource_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cfg_resource_instance_relations` (
   `resource_id` int(11) NOT NULL,
   `instance_id` int(11) NOT NULL,
@@ -607,10 +607,10 @@ CREATE TABLE `cfg_resource_instance_relations` (
   KEY `fk_crir_ins_id` (`instance_id`),
   CONSTRAINT `fk_crir_res_id` FOREIGN KEY (`resource_id`) REFERENCES `cfg_resource` (`resource_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_crir_ins_id` FOREIGN KEY (`instance_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `command` (
   `command_id` int(11) NOT NULL AUTO_INCREMENT,
   `connector_id` int(10) unsigned DEFAULT NULL,
@@ -627,37 +627,37 @@ CREATE TABLE `command` (
   PRIMARY KEY (`command_id`),
   KEY `connector_id` (`connector_id`),
   CONSTRAINT `command_ibfk_1` FOREIGN KEY (`connector_id`) REFERENCES `connector` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `command_arg_description` (
   `cmd_id` int(11) NOT NULL,
   `macro_name` varchar(255) NOT NULL,
   `macro_description` varchar(255) NOT NULL,
   KEY `command_arg_description_ibfk_1` (`cmd_id`),
   CONSTRAINT `command_arg_description_ibfk_1` FOREIGN KEY (`cmd_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `command_categories` (
   `cmd_category_id` int(11) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) NOT NULL,
   `category_alias` varchar(255) NOT NULL,
   `category_order` int(11) NOT NULL,
   PRIMARY KEY (`cmd_category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `command_categories_relation` (
   `category_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `connector` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -669,10 +669,10 @@ CREATE TABLE `connector` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `enabled` (`enabled`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_tp_id` int(11) DEFAULT NULL,
@@ -727,10 +727,10 @@ CREATE TABLE `contact` (
   CONSTRAINT `contact_ibfk_2` FOREIGN KEY (`timeperiod_tp_id2`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `contact_ibfk_3` FOREIGN KEY (`contact_template_id`) REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
   CONSTRAINT `fk_ar_id` FOREIGN KEY (`ar_id`) REFERENCES `auth_ressource` (`ar_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_host_relation` (
   `host_host_id` int(11) DEFAULT NULL,
   `contact_id` int(11) DEFAULT NULL,
@@ -738,10 +738,10 @@ CREATE TABLE `contact_host_relation` (
   KEY `contact_id` (`contact_id`),
   CONSTRAINT `contact_host_relation_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_hostcommands_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL,
@@ -749,10 +749,10 @@ CREATE TABLE `contact_hostcommands_relation` (
   KEY `command_index` (`command_command_id`),
   CONSTRAINT `contact_hostcommands_relation_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_hostcommands_relation_ibfk_2` FOREIGN KEY (`command_command_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_param` (
   `id` int(4) NOT NULL AUTO_INCREMENT,
   `cp_key` varchar(255) NOT NULL,
@@ -761,10 +761,10 @@ CREATE TABLE `contact_param` (
   PRIMARY KEY (`id`),
   KEY `contact_id` (`cp_contact_id`),
   CONSTRAINT `contact_param_ibfk_1` FOREIGN KEY (`cp_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_service_relation` (
   `service_service_id` int(11) DEFAULT NULL,
   `contact_id` int(11) DEFAULT NULL,
@@ -772,10 +772,10 @@ CREATE TABLE `contact_service_relation` (
   KEY `contact_id` (`contact_id`),
   CONSTRAINT `contact_service_relation_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_service_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_servicecommands_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `command_command_id` int(11) DEFAULT NULL,
@@ -783,10 +783,10 @@ CREATE TABLE `contact_servicecommands_relation` (
   KEY `command_index` (`command_command_id`),
   CONSTRAINT `contact_servicecommands_relation_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_servicecommands_relation_ibfk_2` FOREIGN KEY (`command_command_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup` (
   `cg_id` int(11) NOT NULL AUTO_INCREMENT,
   `cg_name` varchar(200) DEFAULT NULL,
@@ -799,10 +799,10 @@ CREATE TABLE `contactgroup` (
   PRIMARY KEY (`cg_id`),
   KEY `name_index` (`cg_name`),
   KEY `alias_index` (`cg_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_contact_relation` (
   `contact_contact_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -810,10 +810,10 @@ CREATE TABLE `contactgroup_contact_relation` (
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   CONSTRAINT `contactgroup_contact_relation_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_contact_relation_ibfk_2` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_host_relation` (
   `host_host_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -821,10 +821,10 @@ CREATE TABLE `contactgroup_host_relation` (
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   CONSTRAINT `contactgroup_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_host_relation_ibfk_2` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_hostgroup_relation` (
   `contactgroup_cg_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -832,10 +832,10 @@ CREATE TABLE `contactgroup_hostgroup_relation` (
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   CONSTRAINT `contactgroup_hostgroup_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_hostgroup_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_service_relation` (
   `contactgroup_cg_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -843,10 +843,10 @@ CREATE TABLE `contactgroup_service_relation` (
   KEY `service_index` (`service_service_id`),
   CONSTRAINT `contactgroup_service_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_service_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_servicegroup_relation` (
   `servicegroup_sg_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -854,10 +854,10 @@ CREATE TABLE `contactgroup_servicegroup_relation` (
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   CONSTRAINT `contactgroup_servicegroup_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_servicegroup_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cron_operation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
@@ -871,19 +871,19 @@ CREATE TABLE `cron_operation` (
   `last_execution_time` int(11) NOT NULL DEFAULT '0',
   `activate` enum('0','1') DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `css_color_menu` (
   `id_css_color_menu` int(11) NOT NULL AUTO_INCREMENT,
   `menu_nb` int(11) DEFAULT NULL,
   `css_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_css_color_menu`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `custom_view_default` (
   `user_id` int(11) NOT NULL,
   `custom_view_id` int(11) NOT NULL,
@@ -891,10 +891,10 @@ CREATE TABLE `custom_view_default` (
   KEY `fk_custom_view_default_cv_id` (`custom_view_id`),
   CONSTRAINT `fk_custom_view_default_user_id` FOREIGN KEY (`user_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_custom_view_default_cv_id` FOREIGN KEY (`custom_view_id`) REFERENCES `custom_views` (`custom_view_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `custom_view_user_relation` (
   `custom_view_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -910,20 +910,20 @@ CREATE TABLE `custom_view_user_relation` (
   CONSTRAINT `fk_custom_views_user_id` FOREIGN KEY (`user_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_custom_views_usergroup_id` FOREIGN KEY (`usergroup_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_custom_view_user_id` FOREIGN KEY (`custom_view_id`) REFERENCES `custom_views` (`custom_view_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `custom_views` (
   `custom_view_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `layout` varchar(255) NOT NULL,
   `public` tinyint(6) null default 0,
   PRIMARY KEY (`custom_view_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency` (
   `dep_id` int(11) NOT NULL AUTO_INCREMENT,
   `dep_name` varchar(255) DEFAULT NULL,
@@ -933,10 +933,10 @@ CREATE TABLE `dependency` (
   `notification_failure_criteria` varchar(255) DEFAULT NULL,
   `dep_comment` text,
   PRIMARY KEY (`dep_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -945,10 +945,10 @@ CREATE TABLE `dependency_hostChild_relation` (
   UNIQUE (`dependency_dep_id`, `host_host_id`),
   CONSTRAINT `dependency_hostChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostChild_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -957,10 +957,10 @@ CREATE TABLE `dependency_hostParent_relation` (
   UNIQUE (`dependency_dep_id`, `host_host_id`),
   CONSTRAINT `dependency_hostParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostParent_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostgroupChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -969,10 +969,10 @@ CREATE TABLE `dependency_hostgroupChild_relation` (
   UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`),
   CONSTRAINT `dependency_hostgroupChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostgroupChild_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostgroupParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -981,10 +981,10 @@ CREATE TABLE `dependency_hostgroupParent_relation` (
   UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`),
   CONSTRAINT `dependency_hostgroupParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostgroupParent_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_metaserviceChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -993,10 +993,10 @@ CREATE TABLE `dependency_metaserviceChild_relation` (
   UNIQUE (`dependency_dep_id`, `meta_service_meta_id`),
   CONSTRAINT `dependency_metaserviceChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_metaserviceChild_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_metaserviceParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -1005,10 +1005,10 @@ CREATE TABLE `dependency_metaserviceParent_relation` (
   UNIQUE (`dependency_dep_id`, `meta_service_meta_id`),
   CONSTRAINT `dependency_metaserviceParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_metaserviceParent_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_serviceChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1020,10 +1020,10 @@ CREATE TABLE `dependency_serviceChild_relation` (
   CONSTRAINT `dependency_serviceChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceChild_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceChild_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_serviceParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1035,10 +1035,10 @@ CREATE TABLE `dependency_serviceParent_relation` (
   CONSTRAINT `dependency_serviceParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceParent_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceParent_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_servicegroupChild_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1047,10 +1047,10 @@ CREATE TABLE `dependency_servicegroupChild_relation` (
   UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`),
   CONSTRAINT `dependency_servicegroupChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_servicegroupChild_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_servicegroupParent_relation` (
   `dependency_dep_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1059,10 +1059,10 @@ CREATE TABLE `dependency_servicegroupParent_relation` (
   UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`),
   CONSTRAINT `dependency_servicegroupParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_servicegroupParent_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime` (
   `dt_id` int(11) NOT NULL AUTO_INCREMENT,
   `dt_name` varchar(100) NOT NULL,
@@ -1071,10 +1071,10 @@ CREATE TABLE `downtime` (
   PRIMARY KEY (`dt_id`),
   UNIQUE KEY `downtime_idx02` (`dt_name`),
   KEY `downtime_idx01` (`dt_id`,`dt_activate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_host_relation` (
   `dt_id` int(11) NOT NULL,
   `host_host_id` int(11) NOT NULL,
@@ -1082,10 +1082,10 @@ CREATE TABLE `downtime_host_relation` (
   KEY `downtime_host_relation_ibfk_1` (`host_host_id`),
   CONSTRAINT `downtime_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_host_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_hostgroup_relation` (
   `dt_id` int(11) NOT NULL,
   `hg_hg_id` int(11) NOT NULL,
@@ -1093,10 +1093,10 @@ CREATE TABLE `downtime_hostgroup_relation` (
   KEY `downtime_hostgroup_relation_ibfk_1` (`hg_hg_id`),
   CONSTRAINT `downtime_hostgroup_relation_ibfk_1` FOREIGN KEY (`hg_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_hostgroup_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_period` (
   `dt_id` int(11) NOT NULL,
   `dtp_start_time` time NOT NULL,
@@ -1110,10 +1110,10 @@ CREATE TABLE `downtime_period` (
   `dtp_activate` enum('0','1') DEFAULT '1',
   KEY `downtime_period_idx01` (`dt_id`,`dtp_activate`),
   CONSTRAINT `downtime_period_ibfk_1` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_service_relation` (
   `dt_id` int(11) NOT NULL,
   `host_host_id` int(11) NOT NULL,
@@ -1124,10 +1124,10 @@ CREATE TABLE `downtime_service_relation` (
   CONSTRAINT `downtime_service_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_service_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_service_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_servicegroup_relation` (
   `dt_id` int(11) NOT NULL,
   `sg_sg_id` int(11) NOT NULL,
@@ -1135,10 +1135,10 @@ CREATE TABLE `downtime_servicegroup_relation` (
   KEY `downtime_servicegroup_relation_ibfk_1` (`sg_sg_id`),
   CONSTRAINT `downtime_servicegroup_relation_ibfk_1` FOREIGN KEY (`sg_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_servicegroup_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation` (
   `esc_id` int(11) NOT NULL AUTO_INCREMENT,
   `esc_name` varchar(255) DEFAULT NULL,
@@ -1155,10 +1155,10 @@ CREATE TABLE `escalation` (
   PRIMARY KEY (`esc_id`),
   KEY `period_index` (`escalation_period`),
   CONSTRAINT `escalation_ibfk_1` FOREIGN KEY (`escalation_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_contactgroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `contactgroup_cg_id` int(11) DEFAULT NULL,
@@ -1166,10 +1166,10 @@ CREATE TABLE `escalation_contactgroup_relation` (
   KEY `cg_index` (`contactgroup_cg_id`),
   CONSTRAINT `escalation_contactgroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_contactgroup_relation_ibfk_2` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_host_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1177,10 +1177,10 @@ CREATE TABLE `escalation_host_relation` (
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `escalation_host_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_host_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_hostgroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1188,10 +1188,10 @@ CREATE TABLE `escalation_hostgroup_relation` (
   KEY `hg_index` (`hostgroup_hg_id`),
   CONSTRAINT `escalation_hostgroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_hostgroup_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_meta_service_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `meta_service_meta_id` int(11) DEFAULT NULL,
@@ -1199,10 +1199,10 @@ CREATE TABLE `escalation_meta_service_relation` (
   KEY `meta_service_index` (`meta_service_meta_id`),
   CONSTRAINT `escalation_meta_service_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_meta_service_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_service_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1213,10 +1213,10 @@ CREATE TABLE `escalation_service_relation` (
   CONSTRAINT `escalation_service_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_service_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_service_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_servicegroup_relation` (
   `escalation_esc_id` int(11) DEFAULT NULL,
   `servicegroup_sg_id` int(11) DEFAULT NULL,
@@ -1224,10 +1224,10 @@ CREATE TABLE `escalation_servicegroup_relation` (
   KEY `sg_index` (`servicegroup_sg_id`),
   CONSTRAINT `escalation_servicegroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_servicegroup_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `extended_host_information` (
   `ehi_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1248,10 +1248,10 @@ CREATE TABLE `extended_host_information` (
   CONSTRAINT `extended_host_information_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `extended_host_information_ibfk_2` FOREIGN KEY (`ehi_icon_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL,
   CONSTRAINT `extended_host_information_ibfk_4` FOREIGN KEY (`ehi_statusmap_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `extended_service_information` (
   `esi_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1268,10 +1268,10 @@ CREATE TABLE `extended_service_information` (
   CONSTRAINT `extended_service_information_ibfk_1` FOREIGN KEY (`graph_id`) REFERENCES `giv_graphs_template` (`graph_id`) ON DELETE SET NULL,
   CONSTRAINT `extended_service_information_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `extended_service_information_ibfk_3` FOREIGN KEY (`esi_icon_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `giv_components_template` (
   `compo_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_id` int(11) DEFAULT NULL,
@@ -1301,10 +1301,10 @@ CREATE TABLE `giv_components_template` (
   `default_tpl1` enum('0','1') DEFAULT NULL,
   `comment` text,
   PRIMARY KEY (`compo_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `giv_graphs_template` (
   `graph_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
@@ -1321,10 +1321,10 @@ CREATE TABLE `giv_graphs_template` (
   `scaled` enum('0','1') DEFAULT '1',
   `comment` text,
   PRIMARY KEY (`graph_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host` (
   `host_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_template_model_htm_id` int(11) DEFAULT NULL,
@@ -1387,10 +1387,10 @@ CREATE TABLE `host` (
   CONSTRAINT `host_ibfk_2` FOREIGN KEY (`command_command_id2`) REFERENCES `command` (`command_id`) ON DELETE SET NULL,
   CONSTRAINT `host_ibfk_3` FOREIGN KEY (`timeperiod_tp_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `host_ibfk_4` FOREIGN KEY (`timeperiod_tp_id2`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_hostparent_relation` (
   `host_parent_hp_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1398,10 +1398,10 @@ CREATE TABLE `host_hostparent_relation` (
   KEY `host2_index` (`host_host_id`),
   CONSTRAINT `host_hostparent_relation_ibfk_1` FOREIGN KEY (`host_parent_hp_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_hostparent_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_service_relation` (
   `hsr_id` int(11) NOT NULL AUTO_INCREMENT,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1418,10 +1418,10 @@ CREATE TABLE `host_service_relation` (
   CONSTRAINT `host_service_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_service_relation_ibfk_3` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE,
   CONSTRAINT `host_service_relation_ibfk_4` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_template_relation` (
   `host_host_id` int(11) NOT NULL DEFAULT '0',
   `host_tpl_id` int(11) NOT NULL DEFAULT '0',
@@ -1430,10 +1430,10 @@ CREATE TABLE `host_template_relation` (
   KEY `host_tpl_id` (`host_tpl_id`),
   CONSTRAINT `host_template_relation_ibfk_2` FOREIGN KEY (`host_tpl_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_template_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostcategories` (
   `hc_id` int(11) NOT NULL AUTO_INCREMENT,
   `hc_name` varchar(200) DEFAULT NULL,
@@ -1445,10 +1445,10 @@ CREATE TABLE `hostcategories` (
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
   KEY `alias_index` (`hc_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostcategories_relation` (
   `hostcategories_hc_id` int(11) DEFAULT NULL,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1456,10 +1456,10 @@ CREATE TABLE `hostcategories_relation` (
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `hostcategories_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `hostcategories_relation_ibfk_1` FOREIGN KEY (`hostcategories_hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup` (
   `hg_id` int(11) NOT NULL AUTO_INCREMENT,
   `hg_name` varchar(200) DEFAULT NULL,
@@ -1476,10 +1476,10 @@ CREATE TABLE `hostgroup` (
   PRIMARY KEY (`hg_id`),
   KEY `name_index` (`hg_name`),
   KEY `alias_index` (`hg_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup_hg_relation` (
   `hg_parent_id` int(11) DEFAULT NULL,
   `hg_child_id` int(11) DEFAULT NULL,
@@ -1487,10 +1487,10 @@ CREATE TABLE `hostgroup_hg_relation` (
   KEY `hg_child_id` (`hg_child_id`),
   CONSTRAINT `hostgroup_hg_relation_ibfk_2` FOREIGN KEY (`hg_child_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `hostgroup_hg_relation_ibfk_1` FOREIGN KEY (`hg_parent_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup_relation` (
   `hgr_id` int(11) NOT NULL AUTO_INCREMENT,
   `hostgroup_hg_id` int(11) DEFAULT NULL,
@@ -1500,17 +1500,17 @@ CREATE TABLE `hostgroup_relation` (
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `hostgroup_relation_ibfk_1` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `hostgroup_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `informations` (
   `key` varchar(25) DEFAULT NULL,
   `value` varchar(1024) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_contactgroup_relation` (
   `meta_id` int(11) DEFAULT NULL,
   `cg_cg_id` int(11) DEFAULT NULL,
@@ -1518,10 +1518,10 @@ CREATE TABLE `meta_contactgroup_relation` (
   KEY `cg_index` (`cg_cg_id`),
   CONSTRAINT `meta_contactgroup_relation_ibfk_1` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE,
   CONSTRAINT `meta_contactgroup_relation_ibfk_2` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_service` (
   `meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `meta_name` varchar(254) DEFAULT NULL,
@@ -1553,10 +1553,10 @@ CREATE TABLE `meta_service` (
   CONSTRAINT `meta_service_ibfk_1` FOREIGN KEY (`check_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `meta_service_ibfk_2` FOREIGN KEY (`notification_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `meta_service_ibfk_3` FOREIGN KEY (`graph_id`) REFERENCES `giv_graphs_template` (`graph_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_service_relation` (
   `msr_id` int(11) NOT NULL AUTO_INCREMENT,
   `meta_id` int(11) DEFAULT NULL,
@@ -1570,10 +1570,10 @@ CREATE TABLE `meta_service_relation` (
   KEY `host_index` (`host_id`),
   CONSTRAINT `meta_service_relation_ibfk_1` FOREIGN KEY (`host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `meta_service_relation_ibfk_2` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `modules_informations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -1585,18 +1585,18 @@ CREATE TABLE `modules_informations` (
   `svc_tools` enum('0','1') DEFAULT NULL,
   `host_tools` enum('0','1') DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `nagios_macro` (
   `macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `macro_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`macro_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `nagios_server` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
@@ -1630,10 +1630,10 @@ CREATE TABLE `nagios_server` (
   `updated` enum('1','0') NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ns_host_relation` (
   `nagios_server_id` int(11) NOT NULL DEFAULT '0',
   `host_host_id` int(11) NOT NULL DEFAULT '0',
@@ -1642,10 +1642,10 @@ CREATE TABLE `ns_host_relation` (
   KEY `nagios_server_id` (`nagios_server_id`),
   CONSTRAINT `ns_host_relation_ibfk_2` FOREIGN KEY (`nagios_server_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `ns_host_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Relation Table For centreon Servers and hosts ';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation Table For centreon Servers and hosts ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ods_view_details` (
   `dv_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
@@ -1656,10 +1656,10 @@ CREATE TABLE `ods_view_details` (
   PRIMARY KEY (`dv_id`),
   KEY `index_id` (`index_id`),
   KEY `contact_index` (`contact_id`, `index_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `on_demand_macro_host` (
   `host_macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_macro_name` varchar(255) NOT NULL,
@@ -1671,10 +1671,10 @@ CREATE TABLE `on_demand_macro_host` (
   PRIMARY KEY (`host_macro_id`),
   KEY `host_host_id` (`host_host_id`),
   CONSTRAINT `on_demand_macro_host_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `on_demand_macro_service` (
   `svc_macro_id` int(11) NOT NULL AUTO_INCREMENT,
   `svc_macro_name` varchar(255) NOT NULL,
@@ -1686,17 +1686,17 @@ CREATE TABLE `on_demand_macro_service` (
   PRIMARY KEY (`svc_macro_id`),
   KEY `svc_svc_id` (`svc_svc_id`),
   CONSTRAINT `on_demand_macro_service_ibfk_1` FOREIGN KEY (`svc_svc_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `options` (
   `key` varchar(255) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `poller_command_relations` (
   `poller_id` int(11) NOT NULL,
   `command_id` int(11) NOT NULL,
@@ -1705,10 +1705,10 @@ CREATE TABLE `poller_command_relations` (
   KEY `command_id` (`command_id`),
   CONSTRAINT `poller_command_relations_fk_1` FOREIGN KEY (`poller_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `poller_command_relations_fk_2` FOREIGN KEY (`command_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service` (
   `service_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_template_model_stm_id` int(11) DEFAULT NULL,
@@ -1766,10 +1766,10 @@ CREATE TABLE `service` (
   CONSTRAINT `service_ibfk_2` FOREIGN KEY (`command_command_id2`) REFERENCES `command` (`command_id`) ON DELETE SET NULL,
   CONSTRAINT `service_ibfk_3` FOREIGN KEY (`timeperiod_tp_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `service_ibfk_4` FOREIGN KEY (`timeperiod_tp_id2`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_categories` (
   `sc_id` int(11) NOT NULL AUTO_INCREMENT,
   `sc_name` varchar(255) DEFAULT NULL,
@@ -1778,10 +1778,10 @@ CREATE TABLE `service_categories` (
   `icon_id` INT(11) DEFAULT NULL,
   `sc_activate` enum('0','1') DEFAULT NULL,
   PRIMARY KEY (`sc_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Services Catygories For best Reporting';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Services Catygories For best Reporting';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_categories_relation` (
   `scr_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_service_id` int(11) DEFAULT NULL,
@@ -1791,10 +1791,10 @@ CREATE TABLE `service_categories_relation` (
   KEY `sc_id` (`sc_id`),
   CONSTRAINT `service_categories_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `service_categories_relation_ibfk_2` FOREIGN KEY (`sc_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `servicegroup` (
   `sg_id` int(11) NOT NULL AUTO_INCREMENT,
   `sg_name` varchar(200) DEFAULT NULL,
@@ -1805,10 +1805,10 @@ CREATE TABLE `servicegroup` (
   PRIMARY KEY (`sg_id`),
   KEY `name_index` (`sg_name`),
   KEY `alias_index` (`sg_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `servicegroup_relation` (
   `sgr_id` int(11) NOT NULL AUTO_INCREMENT,
   `host_host_id` int(11) DEFAULT NULL,
@@ -1824,10 +1824,10 @@ CREATE TABLE `servicegroup_relation` (
   CONSTRAINT `servicegroup_relation_ibfk_7` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `servicegroup_relation_ibfk_8` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `servicegroup_relation_ibfk_9` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `session` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `session_id` varchar(256) DEFAULT NULL,
@@ -1849,10 +1849,10 @@ CREATE TABLE `session` (
   KEY `session_id` (`session_id`(255)),
   KEY `user_id` (`user_id`),
   CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timeperiod` (
   `tp_id` int(11) NOT NULL AUTO_INCREMENT,
   `tp_name` varchar(200) DEFAULT NULL,
@@ -1865,10 +1865,10 @@ CREATE TABLE `timeperiod` (
   `tp_friday` varchar(2048) DEFAULT NULL,
   `tp_saturday` varchar(2048) DEFAULT NULL,
   PRIMARY KEY (`tp_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timeperiod_exceptions` (
   `exception_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1877,10 +1877,10 @@ CREATE TABLE `timeperiod_exceptions` (
   PRIMARY KEY (`exception_id`),
   KEY `timeperiod_exceptions_relation_ibfk_1` (`timeperiod_id`),
   CONSTRAINT `timeperiod_exceptions_relation_ibfk_1` FOREIGN KEY (`timeperiod_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timeperiod_exclude_relations` (
   `exclude_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1888,10 +1888,10 @@ CREATE TABLE `timeperiod_exclude_relations` (
   FOREIGN KEY (`timeperiod_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE CASCADE,
   FOREIGN KEY (`timeperiod_exclude_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE CASCADE,
   PRIMARY KEY (`exclude_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timeperiod_include_relations` (
   `include_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_id` int(11) NOT NULL,
@@ -1899,10 +1899,10 @@ CREATE TABLE `timeperiod_include_relations` (
   FOREIGN KEY (`timeperiod_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE CASCADE,
   FOREIGN KEY (`timeperiod_include_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE CASCADE,
   PRIMARY KEY (`include_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `topology` (
   `topology_id` int(11) NOT NULL AUTO_INCREMENT,
   `topology_name` varchar(255) DEFAULT NULL,
@@ -1926,10 +1926,10 @@ CREATE TABLE `topology` (
   KEY `topology_parent` (`topology_parent`),
   KEY `topology_order` (`topology_order`),
   KEY `topology_group` (`topology_group`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `topology_JS` (
   `id_t_js` int(11) NOT NULL AUTO_INCREMENT,
   `id_page` int(11) DEFAULT NULL,
@@ -1940,10 +1940,10 @@ CREATE TABLE `topology_JS` (
   KEY `id_page` (`id_page`),
   KEY `id_page_2` (`id_page`,`o`),
   CONSTRAINT `topology_JS_ibfk_1` FOREIGN KEY (`id_page`) REFERENCES `topology` (`topology_page`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps` (
   `traps_id` int(11) NOT NULL AUTO_INCREMENT,
   `traps_name` varchar(255) DEFAULT NULL,
@@ -1977,10 +1977,10 @@ CREATE TABLE `traps` (
   KEY `traps_ibfk_2` (`severity_id`),
   CONSTRAINT `traps_ibfk_1` FOREIGN KEY (`manufacturer_id`) REFERENCES `traps_vendor` (`id`) ON DELETE CASCADE,
   CONSTRAINT `traps_ibfk_2` FOREIGN KEY (`severity_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_matching_properties` (
   `tmo_id` int(11) NOT NULL AUTO_INCREMENT,
   `trap_id` int(11) DEFAULT NULL,
@@ -1993,20 +1993,20 @@ CREATE TABLE `traps_matching_properties` (
   KEY `trap_id` (`trap_id`),
   CONSTRAINT `traps_matching_properties_ibfk_1` FOREIGN KEY (`trap_id`) REFERENCES `traps` (`traps_id`) ON DELETE CASCADE,
   CONSTRAINT `traps_matching_properties_ibfk_2` FOREIGN KEY (`severity_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_preexec` (
   `trap_id` int(11) DEFAULT NULL,
   `tpe_order` int(11) DEFAULT NULL,
   `tpe_string` varchar(512) DEFAULT NULL,
   KEY `trap_id` (`trap_id`),
   CONSTRAINT `traps_preexec_ibfk_1` FOREIGN KEY (`trap_id`) REFERENCES `traps` (`traps_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_service_relation` (
   `traps_id` int(11) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
@@ -2014,18 +2014,18 @@ CREATE TABLE `traps_service_relation` (
   KEY `traps_index` (`traps_id`),
   CONSTRAINT `traps_service_relation_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `traps_service_relation_ibfk_3` FOREIGN KEY (`traps_id`) REFERENCES `traps` (`traps_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_group` (
   `traps_group_id` int(11) NOT NULL AUTO_INCREMENT,
   `traps_group_name` varchar(255) NOT NULL,
   PRIMARY KEY (`traps_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_group_relation` (
   `traps_group_id` int(11) NOT NULL,
   `traps_id` int(11) NOT NULL,
@@ -2033,40 +2033,40 @@ CREATE TABLE `traps_group_relation` (
   KEY `traps_id` (`traps_id`),
   CONSTRAINT `traps_group_relation_ibfk_1` FOREIGN KEY (`traps_id`) REFERENCES `traps` (`traps_id`) ON DELETE CASCADE,
   CONSTRAINT `traps_group_relation_ibfk_2` FOREIGN KEY (`traps_group_id`) REFERENCES `traps_group` (`traps_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_vendor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
   `alias` varchar(254) DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `view_img` (
   `img_id` int(11) NOT NULL AUTO_INCREMENT,
   `img_name` varchar(255) DEFAULT NULL,
   `img_path` varchar(255) DEFAULT NULL,
   `img_comment` text,
   PRIMARY KEY (`img_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `view_img_dir` (
   `dir_id` int(11) NOT NULL AUTO_INCREMENT,
   `dir_name` varchar(255) DEFAULT NULL,
   `dir_alias` varchar(255) DEFAULT NULL,
   `dir_comment` text,
   PRIMARY KEY (`dir_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `view_img_dir_relation` (
   `vidr_id` int(11) NOT NULL AUTO_INCREMENT,
   `dir_dir_parent_id` int(11) DEFAULT NULL,
@@ -2074,10 +2074,10 @@ CREATE TABLE `view_img_dir_relation` (
   PRIMARY KEY (`vidr_id`),
   KEY `directory_parent_index` (`dir_dir_parent_id`),
   KEY `image_index` (`img_img_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `virtual_metrics` (
   `vmetric_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
@@ -2092,10 +2092,10 @@ CREATE TABLE `virtual_metrics` (
   `vmetric_activate` enum('0','1') DEFAULT NULL,
   `ck_state` enum('0','1','2') DEFAULT NULL,
   PRIMARY KEY (`vmetric_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_models` (
   `widget_model_id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -2111,10 +2111,10 @@ CREATE TABLE `widget_models` (
   `thumbnail` varchar(255) DEFAULT NULL,
   `autoRefresh` int(11) DEFAULT NULL,
   PRIMARY KEY (`widget_model_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_parameters` (
   `parameter_id` int(11) NOT NULL AUTO_INCREMENT,
   `parameter_name` varchar(255) NOT NULL,
@@ -2130,29 +2130,29 @@ CREATE TABLE `widget_parameters` (
   KEY `fk_widget_field_type_id` (`field_type_id`),
   CONSTRAINT `fk_widget_param_widget_id` FOREIGN KEY (`widget_model_id`) REFERENCES `widget_models` (`widget_model_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_widget_field_type_id` FOREIGN KEY (`field_type_id`) REFERENCES `widget_parameters_field_type` (`field_type_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_parameters_field_type` (
   `field_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `ft_typename` varchar(50) NOT NULL,
   `is_connector` tinyint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`field_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_parameters_multiple_options` (
   `parameter_id` int(11) NOT NULL,
   `option_name` varchar(255) NOT NULL,
   `option_value` varchar(255) NOT NULL,
   KEY `fk_option_parameter_id` (`parameter_id`),
   CONSTRAINT `fk_option_parameter_id` FOREIGN KEY (`parameter_id`) REFERENCES `widget_parameters` (`parameter_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_parameters_range` (
   `parameter_id` int(11) NOT NULL,
   `min_range` int(11) NOT NULL,
@@ -2160,10 +2160,10 @@ CREATE TABLE `widget_parameters_range` (
   `step` int(11) NOT NULL,
   KEY `fk_option_range_id` (`parameter_id`),
   CONSTRAINT `fk_option_range_id` FOREIGN KEY (`parameter_id`) REFERENCES `widget_parameters` (`parameter_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_preferences` (
   `widget_view_id` int(11) NOT NULL,
   `parameter_id` int(11) NOT NULL,
@@ -2173,10 +2173,10 @@ CREATE TABLE `widget_preferences` (
   KEY `fk_widget_parameter_id` (`parameter_id`),
   CONSTRAINT `fk_widget_parameter_id` FOREIGN KEY (`parameter_id`) REFERENCES `widget_parameters` (`parameter_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_widget_view_id` FOREIGN KEY (`widget_view_id`) REFERENCES `widget_views` (`widget_view_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widget_views` (
   `widget_view_id` int(11) NOT NULL AUTO_INCREMENT,
   `custom_view_id` int(11) NOT NULL,
@@ -2187,10 +2187,10 @@ CREATE TABLE `widget_views` (
   KEY `fk_widget_id` (`widget_id`),
   CONSTRAINT `fk_custom_view_id` FOREIGN KEY (`custom_view_id`) REFERENCES `custom_views` (`custom_view_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_widget_id` FOREIGN KEY (`widget_id`) REFERENCES `widgets` (`widget_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widgets` (
   `widget_id` int(11) NOT NULL AUTO_INCREMENT,
   `widget_model_id` int(11) NOT NULL,
@@ -2198,7 +2198,7 @@ CREATE TABLE `widgets` (
   PRIMARY KEY (`widget_id`),
   KEY `fk_wdg_model_id` (`widget_model_id`),
   CONSTRAINT `fk_wdg_model_id` FOREIGN KEY (`widget_model_id`) REFERENCES `widget_models` (`widget_model_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -2210,7 +2210,7 @@ CREATE TABLE `meta_contact` (
   PRIMARY KEY (`meta_id`, `contact_id`),
   FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE,
   FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `on_demand_macro_command` (
@@ -2222,7 +2222,7 @@ CREATE TABLE `on_demand_macro_command` (
   PRIMARY KEY (`command_macro_id`),
   KEY `command_command_id` (`command_command_id`),
   CONSTRAINT `on_demand_macro_command_ibfk_1` FOREIGN KEY (`command_command_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `timezone` (
   `timezone_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -2232,7 +2232,7 @@ CREATE TABLE `timezone` (
   `timezone_description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`timezone_id`),
   UNIQUE KEY `name` (`timezone_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `locale` (
   `locale_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2240,7 +2240,7 @@ CREATE TABLE IF NOT EXISTS `locale` (
   `locale_short_name` varchar(3) NOT NULL,
   `locale_long_name` varchar(255) NOT NULL,
   `locale_img` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create downtime cache table for recurrent downtimes
 CREATE TABLE IF NOT EXISTS `downtime_cache` (
@@ -2256,7 +2256,7 @@ CREATE TABLE IF NOT EXISTS `downtime_cache` (
   CONSTRAINT `downtime_cache_ibfk_1` FOREIGN KEY (`downtime_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_cache_ibfk_2` FOREIGN KEY (`host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_cache_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Manage new feature proposal
 CREATE TABLE IF NOT EXISTS contact_feature (
@@ -2266,7 +2266,7 @@ CREATE TABLE IF NOT EXISTS contact_feature (
   feature_enabled TINYINT DEFAULT 0,
   PRIMARY KEY (contact_id, feature, feature_version),
   FOREIGN KEY (contact_id) REFERENCES contact (contact_id) ON DELETE CASCADE
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- Create remote servers table for keeping track of remote instances
 CREATE TABLE IF NOT EXISTS `remote_servers` (
@@ -2283,14 +2283,14 @@ CREATE TABLE IF NOT EXISTS `remote_servers` (
   `no_proxy` enum('0','1') NOT NULL DEFAULT '0',
   `server_id` int(11) NOT NULL,
   CONSTRAINT `remote_server_nagios_server_ibfk_1` FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create rs_poller_relation for the additional relationship between poller and remote servers
 CREATE TABLE IF NOT EXISTS `rs_poller_relation` (
   `remote_server_id` int(11) NOT NULL,
   `poller_server_id` int(11) NOT NULL,
   KEY `remote_server_id` (`remote_server_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Relation Table For centreon pollers and remote servers';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation Table For centreon pollers and remote servers';
 
 -- Create tasks table
 CREATE TABLE IF NOT EXISTS `task` (
@@ -2300,7 +2300,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
   `created_at` TIMESTAMP NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user_filter table
 CREATE TABLE `user_filter` (
@@ -2312,7 +2312,7 @@ CREATE TABLE `user_filter` (
     `order` int(11) NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `filter_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create platform_topology table
 CREATE TABLE `platform_topology` (
@@ -2327,7 +2327,7 @@ CREATE TABLE `platform_topology` (
     PRIMARY KEY (`id`),
     CONSTRAINT `platform_topology_ibfk_1` FOREIGN KEY (`server_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `platform_topology_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `platform_topology` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 COMMENT='Registration and parent relation Table used to set the platform topology';
 
 -- Create authentication tables
@@ -2341,7 +2341,7 @@ CREATE TABLE `provider_configuration` (
   `is_forced` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `password_expiration_excluded_users` (
   `provider_configuration_id` int(11) NOT NULL,
@@ -2351,7 +2351,7 @@ CREATE TABLE `password_expiration_excluded_users` (
   REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `password_expiration_excluded_users_provider_user_id_fk` FOREIGN KEY (`user_id`)
   REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `security_token` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2382,7 +2382,7 @@ CREATE TABLE `security_authentication_tokens` (
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
   REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contact_password` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -2394,7 +2394,7 @@ CREATE TABLE `contact_password` (
   INDEX `creation_date_index` (`creation_date`),
   CONSTRAINT `contact_password_contact_id_fk` FOREIGN KEY (`contact_id`)
   REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cfg_nagios_logger` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -2417,7 +2417,7 @@ CREATE TABLE `cfg_nagios_logger` (
   CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
     FOREIGN KEY (`cfg_nagios_id`)
     REFERENCES `cfg_nagios` (`nagios_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `security_provider_access_group_relation` (
   `claim_value` VARCHAR(255) NOT NULL,
@@ -2431,7 +2431,7 @@ CREATE TABLE `security_provider_access_group_relation` (
   CONSTRAINT `security_provider_provider_configuration_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `security_provider_contact_group_relation` (
   `claim_value` VARCHAR(255) NOT NULL,
@@ -2444,14 +2444,14 @@ CREATE TABLE `security_provider_contact_group_relation` (
   CONSTRAINT `security_provider_configuration_provider_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `vault` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `vault` (`name`) VALUES ('hashicorp');
 
@@ -2469,7 +2469,7 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
   CONSTRAINT `vault_configuration_vault_id`
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

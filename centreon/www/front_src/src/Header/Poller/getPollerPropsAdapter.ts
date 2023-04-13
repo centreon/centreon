@@ -43,7 +43,7 @@ const getIssueSeverityCode = ({
     return SeverityCode.High;
   }
 
-  return SeverityCode.Ok;
+  return SeverityCode.OK;
 };
 
 export const pollerConfigurationPageNumber = '60901';
@@ -88,14 +88,14 @@ export const getPollerPropsAdapter = ({
   const topIconProps = {
     database: {
       label:
-        databaseSeverity === SeverityCode.Ok
+        databaseSeverity === SeverityCode.OK
           ? t(labelDatabaseUpdateAndActive)
           : t(labelDatabaseNotActive),
       severity: databaseSeverity
     },
     latency: {
       label:
-        latencySeverity === SeverityCode.Ok
+        latencySeverity === SeverityCode.OK
           ? t(labelNoLatencyDetected)
           : t(labelLatencyDetected),
       severity: latencySeverity

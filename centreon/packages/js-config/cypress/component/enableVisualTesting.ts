@@ -1,4 +1,4 @@
-import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
+import { addMatchImageSnapshotCommand } from '@simonsmith/cypress-image-snapshot/command';
 
 const enableVisualTesting = (cypressFolder = 'cypress'): void => {
   if (Cypress.config('isInteractive')) {
@@ -11,7 +11,7 @@ const enableVisualTesting = (cypressFolder = 'cypress'): void => {
 
   addMatchImageSnapshotCommand({
     capture: 'viewport',
-    customDiffConfig: { threshold: 0.1 },
+    customDiffConfig: { threshold: 0.01 },
     customSnapshotsDir: `${cypressFolder}/visual-testing-snapshots`,
     failureThreshold: 0.06,
     failureThresholdType: 'percent'
