@@ -267,8 +267,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    needs: [package, get-version]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
       matrix:
@@ -356,7 +356,7 @@ jobs:
 
   e2e-test:
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
@@ -370,7 +370,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     steps:
       - uses: actions/checkout@v3
