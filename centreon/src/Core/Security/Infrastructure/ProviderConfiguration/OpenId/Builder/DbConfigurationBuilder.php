@@ -91,7 +91,8 @@ class DbConfigurationBuilder
             ->setVerifyPeer($customConfiguration['verify_peer'])
             ->setContactGroup($customConfiguration['contact_group'])
             ->setClaimName($customConfiguration['claim_name'])
-            ->setAuthorizationRules($customConfiguration['authorization_rules']);
+            ->setAuthorizationRules($customConfiguration['authorization_rules'])
+            ->setRedirectUrl($customConfiguration['redirect_url']);
     }
 
     /**
