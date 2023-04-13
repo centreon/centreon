@@ -95,6 +95,7 @@ class ConfigurationBuilder
             ->setContactTemplate($contactTemplate)
             ->setEmailBindAttribute($request->emailBindAttribute)
             ->setUserNameBindAttribute($request->userNameBindAttribute)
+            ->setRedirectUrl($request->redirectUrl)
             ->setContactGroup($contactGroup)
             ->setClaimName($request->claimName);
     }

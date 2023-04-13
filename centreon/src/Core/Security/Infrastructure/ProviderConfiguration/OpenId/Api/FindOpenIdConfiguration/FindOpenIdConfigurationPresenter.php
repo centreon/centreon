@@ -58,6 +58,7 @@ class FindOpenIdConfigurationPresenter extends AbstractPresenter implements Find
             'contact_template' => $response->contactTemplate,
             'email_bind_attribute' => $response->emailBindAttribute,
             'fullname_bind_attribute' => $response->userNameBindAttribute,
+            'redirect_url' => $response->redirectUrl,
             'contact_group' => $response->contactGroup,
             'claim_name' => $response->claimName,
             'authorization_rules' => $response->authorizationRules

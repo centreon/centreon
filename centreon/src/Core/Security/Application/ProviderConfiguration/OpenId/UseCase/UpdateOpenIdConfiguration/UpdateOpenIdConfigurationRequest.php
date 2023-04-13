@@ -130,6 +130,9 @@ class UpdateOpenIdConfigurationRequest
      */
     public ?string $userNameBindAttribute = null;
 
+    /** @var string|null */
+    public ?string $redirectUrl = null;
+
     /**
      * @var string|null
      */

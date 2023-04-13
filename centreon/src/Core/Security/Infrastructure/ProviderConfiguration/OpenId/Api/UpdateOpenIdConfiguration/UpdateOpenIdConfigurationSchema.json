@@ -24,6 +24,7 @@
         "contact_template",
         "email_bind_attribute",
         "fullname_bind_attribute",
+        "redirect_url",
         "contact_group_id",
         "claim_name",
         "authorization_rules"
@@ -104,6 +105,9 @@
         "type": ["string", "null"]
       },
       "fullname_bind_attribute": {
+        "type": ["string", "null"]
+      },
+      "redirect_url": {
         "type": ["string", "null"]
       },
       "contact_group_id": {

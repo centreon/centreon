@@ -12,6 +12,7 @@ rm -f remi-release-7.rpm
 yum-config-manager --enable remi-php80
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version=7 --mariadb-server-version="mariadb-10.5"
+yum-config-manager --disable mariadb-maxscale
 yum install -y MariaDB-server MariaDB-client
 rpm -e --nodeps galera-4
 rm -f /var/lib/mysql/ib_logfile0

@@ -125,6 +125,7 @@ it('should execute the usecase properly', function () {
             'contact_template' => null,
             'email_bind_attribute' => null,
             'fullname_bind_attribute' => null,
+            'redirect_url' => null,
             'contact_group_id' => 1,
             'claim_name' => "groups",
             'authorization_rules' => []

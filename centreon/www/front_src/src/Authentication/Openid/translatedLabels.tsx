@@ -55,3 +55,4 @@ export const labelIfWeConsiderTheFollowingExample =
   'If we consider the following example in the JSON received from the authorization endpoint, a relation is defined between the value';
 export const labelTechnical = 'technical';
 export const labelAndAnAccessGroup = 'and an access group:';
+export const labelRedirectUrl = 'Redirect URL';

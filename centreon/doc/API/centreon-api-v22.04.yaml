@@ -4443,6 +4443,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - redirect_url
         - contact_group
         - authorization_claim
         - authorization_relations
@@ -4558,6 +4559,11 @@ components:
           type: string
           description: "Fullname bind attribute"
           example: "name"
+          nullable: true
+        redirect_url:
+          type: string
+          description: "Custom redirect URL"
+          example: "https://my_custom_domain.com"
           nullable: true
         claim_name:
           type: string
