@@ -26,12 +26,22 @@ namespace Core\Common\Domain;
 /**
  * This trait is to be used for enums.
  * It provides methods to transform data between enum to bitmask format.
- * Example: 0b11 <=> 5 <=> [self::Down,self::Unreachable].
+ * Example: 0b11 <=> 3 <=> [self::Down,self::Unreachable].
  */
 trait BitmaskEnumTrait
 {
+    /**
+     * Returns the int representation (2^n) of the bit of each enum.
+     *
+     * @return int
+     */
     abstract public function toBit(): int;
 
+    /**
+     * Returns the maximum possible bitmask as an int representation (2^0 + ... + 2^n).
+     *
+     * @return int
+     */
     abstract public static function getMaxBitmask(): int;
 
     /**

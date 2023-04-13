@@ -25,6 +25,9 @@ namespace Tests\Core\Common\Domain;
 
 use Core\Common\Domain\LegacyEventEnumTrait;
 
+/**
+ * This stub exists to test the trait {@see LegacyEventEnumTrait}.
+ */
 enum EventEnumStub: string
 {
     use LegacyEventEnumTrait;

@@ -56,7 +56,7 @@ trait LegacyEventEnumTrait
      */
     public static function toLegacyString(array $events): string
     {
-        $eventValues = array_map(fn($event) => $event->value, $events);
+        $eventValues = array_map(fn(self $event): string|int => $event->value, $events);
 
         return implode(',', array_unique($eventValues));
     }
