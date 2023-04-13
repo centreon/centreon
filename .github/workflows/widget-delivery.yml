@@ -73,6 +73,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: widget-${{ inputs.widget_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
           artifactory_token: ${{ secrets.artifactory_token }}
