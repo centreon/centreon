@@ -13,11 +13,6 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9',
-    version: 'develop'
-  });
   cy.waitForContainerAndSetToken();
   insertResourceFixtures().then(submitResultsViaClapi);
 });

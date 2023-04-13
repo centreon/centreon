@@ -23,29 +23,28 @@ on:
         required: true
 
 jobs:
-  # cypress-e2e-test-list:
-  #   runs-on: ubuntu-22.04
-  #   outputs:
-  #     features: ${{ steps.list-features.outputs.features }}
+  cypress-e2e-test-list:
+    runs-on: ubuntu-22.04
+    outputs:
+      features: ${{ steps.list-features.outputs.features }}
 
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-  #     - name: List features
-  #       id: list-features
-  #       run: |
-  #         cd ${{ inputs.module_name }}
-  #         echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+      - name: List features
+        id: list-features
+        run: |
+          cd ${{ inputs.module_name }}
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    # needs: [cypress-e2e-test-list]
+    needs: [cypress-e2e-test-list]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        feature: ['Platform-update/01-platform-update.feature']
-        # feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
+        feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
     name: ${{ matrix.feature }}
 
     steps:
@@ -63,7 +62,7 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-alma9
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-slim-alma9
           image_openid_version: ${{ inputs.major_version }}
           image_version: ${{ github.head_ref || github.ref_name }}
           module: centreon

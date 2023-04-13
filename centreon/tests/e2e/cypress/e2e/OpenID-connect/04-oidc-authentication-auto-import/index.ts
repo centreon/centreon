@@ -3,11 +3,6 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { configureOpenIDConnect, getUserContactId } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9',
-    version: 'develop'
-  });
   cy.waitForContainerAndSetToken();
   cy.startOpenIdProviderContainer();
 });
