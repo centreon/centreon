@@ -65,8 +65,7 @@ jobs:
           key: unsigned-${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   sign-rpm:
-    needs: [package-rpm, get-version]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [package-rpm]
     runs-on: ubuntu-22.04
     strategy:
       matrix:

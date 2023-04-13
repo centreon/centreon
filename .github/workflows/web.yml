@@ -73,7 +73,9 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   frontend-build:
+    needs: [get-version]
     runs-on: ubuntu-22.04
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     steps:
       - uses: actions/checkout@v3
@@ -87,7 +89,9 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:
+    needs: [get-version]
     runs-on: ubuntu-22.04
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     steps:
       - uses: actions/checkout@v3
@@ -99,6 +103,8 @@ jobs:
 
   translation-build:
     needs: [get-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
@@ -131,7 +137,7 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -144,7 +150,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -168,7 +174,7 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
@@ -178,7 +184,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -461,4 +467,26 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
