@@ -86,4 +86,6 @@ runs:
           jf rt cp $ARTIFACT $TARGET_PATH --flat=true
         done
 
+        SRC_PATHS=""
+
       shell: bash
