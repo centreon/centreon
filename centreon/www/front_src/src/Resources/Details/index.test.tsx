@@ -2,7 +2,7 @@ import { equals, reject, path } from 'ramda';
 import axios from 'axios';
 import mockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -18,7 +18,7 @@ import {
   act,
   screen
 } from '@centreon/ui/src/testRenderer';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import { ListingVariant, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import {
   labelMore,
@@ -583,19 +583,25 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const mockUser = {
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
   isExportButtonEnabled: true,
-  locale: 'en',
-  timezone: 'Europe/Paris'
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 const mockRefreshInterval = 60;
 
+const store = createStore();
+store.set(userAtom, retrievedUser);
+store.set(refreshIntervalAtom, mockRefreshInterval);
+
 const DetailsWithJotai = (): JSX.Element => (
   <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval]
-    ]}
+    store={store}
   >
     <DetailsTest />
   </Provider>

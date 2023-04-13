@@ -1,4 +1,4 @@
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 import { replace } from 'ramda';
 import i18next from 'i18next';
@@ -41,7 +41,8 @@ const labelError = 'This is an error from the server';
 const retrievedWeb = {
   web: {
     version: '21.10.1'
-  }
+  },
+  modules: {}
 };
 
 const retrievedTranslations = {
@@ -86,19 +87,21 @@ const retrievedUser = {
 
 const mockNow = new Date('2020-01-01');
 
+const store = createStore();
+
+store.set(areUserParametersLoadedAtom, false);
+store.set(platformInstallationStatusAtom, {
+  hasUpgradeAvailable: false,
+  isInstalled: false
+});
+store.set(platformVersionsAtom, retrievedWeb);
+
 const TestComponent = (): JSX.Element => (
   <BrowserRouter>
     <SnackbarProvider>
       <TestQueryProvider>
         <Provider
-          initialValues={[
-            [areUserParametersLoadedAtom, false],
-            [
-              platformInstallationStatusAtom,
-              { availableVersion: null, installedVersion: '21.10.1' }
-            ],
-            [platformVersionsAtom, retrievedWeb]
-          ]}
+          store={store}
         >
           <LoginPage />
         </Provider>

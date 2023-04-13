@@ -1,4 +1,4 @@
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -31,19 +31,22 @@ jest.mock('../../Resources', () => {
   };
 });
 
-const renderReactRouter = (navigation = retrievedNavigation): RenderResult =>
-  render(
+
+const renderReactRouter = (navigation = retrievedNavigation): RenderResult => {
+  const store = createStore();
+  store.set(navigationAtom, retrievedNavigation);
+  store.set(federatedModulesAtom, [retrievedFederatedModule]);
+  
+  return render(
     <BrowserRouter>
       <Provider
-        initialValues={[
-          [navigationAtom, navigation],
-          [federatedModulesAtom, [retrievedFederatedModule]]
-        ]}
+        store={store}
       >
         <ReactRouter />
       </Provider>
     </BrowserRouter>
   );
+      }
 
 describe('React Router', () => {
   afterEach(() => {

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
-import { Provider, useAtom, useAtomValue } from 'jotai';
+import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
@@ -21,9 +21,12 @@ modes.forEach((mode) => {
         const userData = renderHook(() => useAtomValue(userAtom));
         userData.result.current.themeMode = mode;
 
+        const store = createStore();
+        store.set(userAtom, { themeMode: mode, alias: 'admin', locale: 'en', timezone: 'Europe/Paris', isExportButtonEnabled: true, defaultPage: '/monitoring/resources', useDeprecatedPages: false, name: 'admin' })
+
         return cy.mount({
           Component: (
-            <Provider initialValues={[[userAtom, userData]]}>
+            <Provider store={store}>
               <Router>
                 <SideBar navigationData={data.result} />
               </Router>

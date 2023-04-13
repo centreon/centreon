@@ -33,7 +33,6 @@ const useMain = (): void => {
     areUserParametersLoadedAtom
   );
   const user = useAtomValue(userAtom);
-  console.log('user', user);
 
   const setPlatformInstallationStatus = useSetAtom(
     platformInstallationStatusAtom

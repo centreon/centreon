@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { render, act, waitFor, RenderResult } from '@testing-library/react';
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import { ListingVariant, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import useFilter from '../../testUtils/useFilter';
 import useListing from '../useListing';
@@ -13,9 +13,15 @@ import useLoadResources from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const mockUser = {
-  locale: 'en',
-  timezone: 'Europe/Paris'
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 const mockRefreshInterval = 60;
 
@@ -45,12 +51,13 @@ const TestComponent = (): JSX.Element => {
   );
 };
 
+const store = createStore();
+store.set(userAtom, retrievedUser);
+store.set(refreshIntervalAtom, mockRefreshInterval);
+
 const TestComponentWithJotai = (): JSX.Element => (
   <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval]
-    ]}
+    store={store}
   >
     <TestComponent />
   </Provider>
