@@ -119,6 +119,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: gorgone
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
