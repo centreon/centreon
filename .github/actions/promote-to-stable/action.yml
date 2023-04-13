@@ -38,8 +38,12 @@ runs:
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
-          SRC_PATHS+=$(jf rt s --include-dirs --fail-no-op rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
+          SRC_PATHS+=$(jf rt s --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
           echo "[DEBUG] - Source path: $SRC_PATHS"
+
+          if [[ -z "SRC_PATHS" ]]; then
+            continue
+          fi
 
           echo "[DEBUG] - Build $ARCH target path."
           TARGET_PATH="rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/"
