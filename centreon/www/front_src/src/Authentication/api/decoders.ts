@@ -166,7 +166,6 @@ export const openidConfigurationDecoder =
       authenticationType: JsonDecoder.nullable(JsonDecoder.string),
       authorizationEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       autoImport: JsonDecoder.boolean,
-
       baseUrl: JsonDecoder.nullable(JsonDecoder.string),
       clientId: JsonDecoder.nullable(JsonDecoder.string),
       clientSecret: JsonDecoder.nullable(JsonDecoder.string),
@@ -183,12 +182,10 @@ export const openidConfigurationDecoder =
       groupsMapping: groupsMappingDecoder,
       introspectionTokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       isActive: JsonDecoder.boolean,
-
       isForced: JsonDecoder.boolean,
       loginClaim: JsonDecoder.nullable(JsonDecoder.string),
-
+      redirectUrl: JsonDecoder.nullable(JsonDecoder.string),
       rolesMapping,
-
       tokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       userinfoEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       verifyPeer: JsonDecoder.boolean,
@@ -212,6 +209,7 @@ export const openidConfigurationDecoder =
       isActive: 'is_active',
       isForced: 'is_forced',
       loginClaim: 'login_claim',
+      redirectUrl: 'redirect_url',
       rolesMapping: 'roles_mapping',
       tokenEndpoint: 'token_endpoint',
       userinfoEndpoint: 'userinfo_endpoint',
