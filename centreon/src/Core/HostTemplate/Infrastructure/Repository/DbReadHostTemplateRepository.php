@@ -262,15 +262,9 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['host_max_check_attemps'],
             $result['host_check_interval'],
             $result['host_retry_check_interval'],
-            null !== $result['host_active_checks_enabled']
-                ? YesNoDefault::from($result['host_active_checks_enabled'])
-                : YesNoDefault::Default,
-            null !== $result['host_passive_checks_enabled']
-                ? YesNoDefault::from($result['host_passive_checks_enabled'])
-                : YesNoDefault::Default,
-            null !== $result['host_notifications_enabled']
-                ? YesNoDefault::from($result['host_notifications_enabled'])
-                : YesNoDefault::Default,
+            YesNoDefault::from($result['host_active_checks_enabled'] ?? YesNoDefault::Default->value),
+            YesNoDefault::from($result['host_passive_checks_enabled'] ?? YesNoDefault::Default->value),
+            YesNoDefault::from($result['host_notifications_enabled'] ?? YesNoDefault::Default->value),
             match ($result['host_notification_options']) {
                 null, '' => [],
                 default => HostEvent::fromLegacyString($result['host_notification_options']),
@@ -282,18 +276,12 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['host_first_notification_delay'],
             $result['host_recovery_notification_delay'],
             $result['host_acknowledgement_timeout'],
-            null !== $result['host_check_freshness']
-                ? YesNoDefault::from($result['host_check_freshness'])
-                : YesNoDefault::Default,
+            YesNoDefault::from($result['host_check_freshness'] ?? YesNoDefault::Default->value),
             $result['host_freshness_threshold'],
-            null !== $result['host_flap_detection_enabled']
-                ? YesNoDefault::from($result['host_flap_detection_enabled'])
-                : YesNoDefault::Default,
+            YesNoDefault::from($result['host_flap_detection_enabled'] ?? YesNoDefault::Default->value),
             $result['host_low_flap_threshold'],
             $result['host_high_flap_threshold'],
-            null !== $result['host_event_handler_enabled']
-                ? YesNoDefault::from($result['host_event_handler_enabled'])
-                : YesNoDefault::Default,
+            YesNoDefault::from($result['host_event_handler_enabled'] ?? YesNoDefault::Default->value),
             $result['command_command_id2'],
             (string) $result['command_command_id_arg2'],
             (string) $result['ehi_notes_url'],

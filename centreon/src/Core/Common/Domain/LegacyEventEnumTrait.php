@@ -39,9 +39,13 @@ trait LegacyEventEnumTrait
      */
     public static function fromLegacyString(string $legacyStr): array
     {
-        $events = [];
-        $legacyValues = explode(',', trim($legacyStr));
+        $legacyStr = trim($legacyStr);
+        if ('' === $legacyStr) {
+            return [];
+        }
+        $legacyValues = explode(',', $legacyStr);
         $legacyValues = array_unique(array_map(trim(...), $legacyValues));
+        $events = [];
         foreach ($legacyValues as $value) {
             $events[] = self::from($value);
         }
