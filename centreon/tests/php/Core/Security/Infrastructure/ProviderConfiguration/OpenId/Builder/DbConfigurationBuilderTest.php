@@ -53,6 +53,7 @@ beforeEach(function () {
         'contact_group' => new ContactGroup(1, 'contact_group'),
         'claim_name' => 'groups',
         'authorization_rules' => [],
+        'redirect_url' => 'https://my-custom-url',
     ];
 });
 
