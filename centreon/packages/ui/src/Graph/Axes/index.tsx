@@ -2,31 +2,16 @@ import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
+import { useTheme } from '@mui/material';
+
 import { formatMetricValue, getUnits } from '../../timeSeries';
-import { Line, TimeValue } from '../../timeSeries/models';
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 import { commonTickLabelProps } from '../common';
 
 import UnitLabel from './UnitLabel';
+import { Data, LabelProps } from './models';
 
-interface Axis {
-  [x: string]: unknown;
-  displayUnits?: boolean;
-}
-
-interface AxisYRight extends Axis {
-  displayAxisYRight?: boolean;
-}
-interface Data {
-  axisX?: Record<string, unknown>;
-  axisYLeft?: Axis;
-  axisYRight?: AxisYRight;
-  baseAxis: number;
-  lines: Array<Line>;
-  timeSeries: Array<TimeValue>;
-}
-
-interface Axes {
+interface Props {
   data: Data;
   height: number;
   leftScale: ScaleLinear<number, number>;
@@ -42,7 +27,9 @@ const Axes = ({
   rightScale,
   leftScale,
   xScale
-}: Axes): JSX.Element => {
+}: Props): JSX.Element => {
+  const theme = useTheme();
+
   const { format } = useLocaleDateTimeFormat();
   const { lines } = data;
 
@@ -77,33 +64,43 @@ const Axes = ({
     unit: hasMoreThanTwoUnits ? '' : firstUnit
   });
 
+  const labelProps = ({
+    textAnchor,
+    ...rest
+  }: LabelProps): Record<string, unknown> => ({
+    ...commonTickLabelProps,
+    textAnchor,
+    ...rest
+  });
+
   return (
     <>
       <Axis.AxisBottom
         numTicks={xTickCount}
         scale={xScale}
         tickFormat={formatAxisTick}
-        tickLabelProps={(): Record<string, unknown> => ({
-          ...commonTickLabelProps,
-          textAnchor: 'middle'
-        })}
+        tickLabelProps={(): Record<string, unknown> =>
+          labelProps({ textAnchor: 'middle' })
+        }
         top={height}
         {...data?.axisX}
       />
 
-      {displayUnitAxisLeft && <UnitLabel unit={firstUnit} x={0} />}
+      {displayUnitAxisLeft && <UnitLabel unit={firstUnit} x={-4} />}
 
       <Axis.AxisLeft
         numTicks={ticksCount}
         orientation="right"
         scale={leftScale}
         tickFormat={formatAxisYLeftTick}
-        tickLabelProps={(): Record<string, unknown> => ({
-          ...commonTickLabelProps,
-          dx: -2,
-          dy: 4,
-          textAnchor: 'end'
-        })}
+        tickLabelProps={(): Record<string, unknown> =>
+          labelProps({
+            dx: theme.spacing(-1),
+            dy: theme.spacing(0.5),
+            textAnchor: 'end',
+            x: 0
+          })
+        }
         tickLength={2}
         {...data?.axisYLeft}
       />
@@ -115,12 +112,13 @@ const Axes = ({
           orientation="right"
           scale={rightScale}
           tickFormat={formatTick({ unit: secondUnit })}
-          tickLabelProps={(): Record<string, unknown> => ({
-            ...commonTickLabelProps,
-            dx: 4,
-            dy: 4,
-            textAnchor: 'start'
-          })}
+          tickLabelProps={(): Record<string, unknown> =>
+            labelProps({
+              dx: theme.spacing(0.5),
+              dy: theme.spacing(0.5),
+              x: theme.spacing(1)
+            })
+          }
           tickLength={2}
           {...data?.axisYRight}
         />

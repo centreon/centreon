@@ -3,14 +3,15 @@ import { commonTickLabelProps } from '../common';
 interface UnitLabelProps {
   unit: string;
   x: number;
+  y?: number;
 }
 
-const UnitLabel = ({ x, unit }: UnitLabelProps): JSX.Element => (
+const UnitLabel = ({ x, y = 16, unit }: UnitLabelProps): JSX.Element => (
   <text
     fontFamily={commonTickLabelProps.fontFamily}
     fontSize={commonTickLabelProps.fontSize}
     x={x}
-    y={-8}
+    y={-y}
   >
     {unit}
   </text>
