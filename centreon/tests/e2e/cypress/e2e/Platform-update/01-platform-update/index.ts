@@ -8,10 +8,6 @@ import {
   updatePlatformPackages
 } from '../common';
 
-before(() => {
-  cy.stopContainer(Cypress.env('dockerName'));
-});
-
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -55,6 +51,8 @@ beforeEach(() => {
 });
 
 Given('a running platform in {string}', (version_A: string) => {
+  cy.stopContainer(Cypress.env('dockerName'));
+
   cy.startContainer({
     name: Cypress.env('dockerName'),
     os: 'legacy-alma8',
@@ -138,8 +136,4 @@ When('administrator exports Poller configuration', () => {
 
 Then('Poller configuration should be fully generated', () => {
   checkIfConfigurationIsExported(dateBeforeLogin);
-});
-
-after(() => {
-  // cy.stopContainer(Cypress.env('dockerName'));
 });
