@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
+/**
+ * This enum is to be used to handle properties with only three accepted value : Yes, No and Default.
+ */
 enum YesNoDefault:string
 {
     case No = '0';
@@ -30,11 +33,11 @@ enum YesNoDefault:string
     case Default = '2';
 
 	/**
-	 * @param bool|string|int|null $value
+	 * @param null|bool|int|string $value
 	 *
 	 * @return self
 	 */
-	public static function fromMixed(mixed $value): self
+	public static function fromScalar(null|bool|int|string $value): self
     {
         return match ($value) {
             true, '1', 1 => self::Yes,

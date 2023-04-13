@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
+/**
+ * This enum is to be used to handle the notification type events for hosts and host templates.
+ */
 enum HostEvent: string
 {
     use LegacyEventEnumTrait, BitmaskEnumTrait;

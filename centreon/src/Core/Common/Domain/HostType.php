@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
+/**
+ * This enum is to be used to handle the different types of host.
+ */
 enum HostType: string
 {
     case Template = '0';
