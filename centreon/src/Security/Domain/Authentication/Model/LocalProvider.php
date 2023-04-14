@@ -34,6 +34,7 @@ use Core\Security\Domain\Authentication\PasswordExpiredException;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 use Core\Security\Application\User\Repository\ReadUserRepositoryInterface;
 use Core\Security\Domain\ProviderConfiguration\Local\Model\SecurityPolicy;
+use Core\Security\Domain\ProviderConfiguration\LoginLoggerInterface;
 use Core\Security\Application\User\Repository\WriteUserRepositoryInterface;
 use Core\Security\Domain\ProviderConfiguration\Local\ConfigurationException;
 use Core\Security\Application\ProviderConfiguration\Local\Repository\ReadConfigurationRepositoryInterface;
@@ -73,6 +74,7 @@ class LocalProvider implements LocalProviderInterface
      * @param ReadConfigurationRepositoryInterface $readProviderConfigurationRepository
      * @param ReadUserRepositoryInterface $readUserRepository
      * @param WriteUserRepositoryInterface $writeUserRepository
+     * @param LoginLoggerInterface $loginLogger
      */
     public function __construct(
         private int $sessionExpirationDelay,
@@ -82,6 +84,7 @@ class LocalProvider implements LocalProviderInterface
         private ReadConfigurationRepositoryInterface $readProviderConfigurationRepository,
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
+        private LoginLoggerInterface $loginLogger
     ) {
     }
 
@@ -276,6 +279,11 @@ class LocalProvider implements LocalProviderInterface
         $this->writeUserRepository->updateBlockingInformation($user);
 
         if ($isUserBlocked) {
+            $this->loginLogger->info(
+                $this->configuration->getType(),
+                "User is blocked: maximum number of authentication attempts was reached",
+                ['contact_alias' => $user->getAlias()]
+            );
             $this->info(
                 '[LOCAL PROVIDER] authentication failed because user is blocked',
                 [
