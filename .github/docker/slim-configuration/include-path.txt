@@ -4,6 +4,7 @@
 /usr/sbin
 /run/httpd
 /usr/share/zoneinfo
+/etc/httpd
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
