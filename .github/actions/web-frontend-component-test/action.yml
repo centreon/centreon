@@ -22,19 +22,23 @@ runs:
         cache: pnpm
         cache-dependency-path: ${{ inputs.module }}
 
-    - uses: mad9000/actions-find-and-replace-string@2
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.module }}
+      shell: bash
+
+    - name: Format feature file path
       id: formatSpecFilePath
-      with:
-          source: ${{ inputs.spec_file_path }}
-          find: '.cypress.spec.tsx'
-          replace: ''
+      run:
+        echo "value=$(echo '${{ inputs.spec_file_path }}' | sed -e 's#.cypress.spec.tsx##g')" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
-        install-command: pnpm install --frozen-lockfile
+        install: false
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
         publish-summary: false
