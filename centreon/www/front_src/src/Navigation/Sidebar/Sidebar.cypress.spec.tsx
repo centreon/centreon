@@ -22,7 +22,16 @@ modes.forEach((mode) => {
         userData.result.current.themeMode = mode;
 
         const store = createStore();
-        store.set(userAtom, { themeMode: mode, alias: 'admin', locale: 'en', timezone: 'Europe/Paris', isExportButtonEnabled: true, defaultPage: '/monitoring/resources', useDeprecatedPages: false, name: 'admin' })
+        store.set(userAtom, {
+          alias: 'admin',
+          defaultPage: '/monitoring/resources',
+          isExportButtonEnabled: true,
+          locale: 'en',
+          name: 'admin',
+          themeMode: mode,
+          timezone: 'Europe/Paris',
+          useDeprecatedPages: false
+        });
 
         return cy.mount({
           Component: (

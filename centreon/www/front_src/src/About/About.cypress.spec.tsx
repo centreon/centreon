@@ -40,7 +40,7 @@ const platformVersion: PlatformVersions = {
 
 const store = createStore();
 
-store.set(platformVersionsAtom, platformVersion)
+store.set(platformVersionsAtom, platformVersion);
 
 const mountComponent = (): void => {
   cy.viewport('ipad-mini', 'portrait');

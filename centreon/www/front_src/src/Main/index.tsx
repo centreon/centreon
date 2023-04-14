@@ -15,7 +15,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
 import { and, equals, isNil, not } from 'ramda';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { useAtomValue, useAtom } from 'jotai';
 
 import reactRoutes from '../reactRoutes/routeMap';
@@ -59,7 +59,6 @@ const Main = (): JSX.Element => {
   };
 
   useEffect(() => {
-    console.log(platformInstallationStatus, areUserParametersLoaded);
     if (isNil(platformInstallationStatus) || isNil(areUserParametersLoaded)) {
       return;
     }

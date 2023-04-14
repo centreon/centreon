@@ -8,7 +8,10 @@ import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
 import { userEndpoint } from '../api/endpoint';
 
-import { PasswordResetInformations, passwordResetInformationsAtom } from './passwordResetInformationsAtom';
+import {
+  PasswordResetInformations,
+  passwordResetInformationsAtom
+} from './passwordResetInformationsAtom';
 import {
   labelCurrentPassword,
   labelNewPassword,
@@ -41,9 +44,9 @@ const retrievedLogin = {
 
 const mountComponentAndStub = (
   initialValues: PasswordResetInformations | null = resetPasswordInitialValues
-  ): unknown => {
+): unknown => {
   const store = createStore();
-  store.set(passwordResetInformationsAtom, initialValues)
+  store.set(passwordResetInformationsAtom, initialValues);
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -52,9 +55,7 @@ const mountComponentAndStub = (
       <BrowserRouter>
         <SnackbarProvider>
           <TestQueryProvider>
-            <Provider
-              store={store}
-            >
+            <Provider store={store}>
               <ResetPassword />
             </Provider>
           </TestQueryProvider>

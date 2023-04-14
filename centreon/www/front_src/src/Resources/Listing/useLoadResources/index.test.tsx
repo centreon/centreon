@@ -172,8 +172,6 @@ describe(useLoadResources, () => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(numberOfCalls as number);
       });
 
-      console.log(mockedAxios.get.mock.calls);
-
       act(() => {
         context.setPage?.(2);
       });

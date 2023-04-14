@@ -568,7 +568,7 @@ let context: ResourceContext;
 const DetailsTest = (): JSX.Element => {
   const listingState = useListing();
   const detailState = useLoadDetails();
-  const filterState = useFilter();
+  useFilter();
 
   useDetails();
 

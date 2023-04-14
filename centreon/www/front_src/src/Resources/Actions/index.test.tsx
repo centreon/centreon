@@ -207,9 +207,7 @@ const renderActions = (aclAtions = mockAcl): RenderResult => {
   store.set(acknowledgementAtom, mockAcknowledgement);
 
   return render(
-    <Provider
-      store={store}
-    >
+    <Provider store={store}>
       <ActionsWithContext />
     </Provider>
   );

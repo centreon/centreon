@@ -39,10 +39,10 @@ const labelInvalidCredentials = 'Invalid credentials';
 const labelError = 'This is an error from the server';
 
 const retrievedWeb = {
+  modules: {},
   web: {
     version: '21.10.1'
-  },
-  modules: {}
+  }
 };
 
 const retrievedTranslations = {
@@ -100,9 +100,7 @@ const TestComponent = (): JSX.Element => (
   <BrowserRouter>
     <SnackbarProvider>
       <TestQueryProvider>
-        <Provider
-          store={store}
-        >
+        <Provider store={store}>
           <LoginPage />
         </Provider>
       </TestQueryProvider>
