@@ -64,6 +64,10 @@ const useFilter = (): FilterState => {
   }, [currentFilter.criterias]);
 
   useEffect(() => {
+    loadCustomFilters();
+  }, []);
+
+  useEffect(() => {
     if (getUrlQueryParameters().fromTopCounter) {
       return;
     }

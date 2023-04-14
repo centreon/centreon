@@ -636,7 +636,9 @@ describe(Details, () => {
 
   // To migrate to Cypress
   it.only('displays resource details information', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockedAxios.get
+      .mockResolvedValueOnce(retrievedFilters)
+      .mockResolvedValueOnce({ data: retrievedDetails });
 
     setUrlQueryParameters([
       {
