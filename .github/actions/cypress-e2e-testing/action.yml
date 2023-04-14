@@ -92,6 +92,7 @@ runs:
       shell: bash
 
     - name: Archive Broker logs
+      if: ${{ failure() }}
       uses: actions/upload-artifact@v3
       with:
         name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
