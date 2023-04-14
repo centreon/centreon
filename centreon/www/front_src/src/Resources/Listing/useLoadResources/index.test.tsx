@@ -90,77 +90,77 @@ describe(useLoadResources, () => {
     [
       'sort',
       (): void => context.setCriteria?.({ name: 'sort', value: ['a', 'asc'] }),
-      1
+      2
     ],
-    ['limit', (): void => context.setLimit?.(20), 2]
-    // [
-    //   'search',
-    //   (): void => context.setCriteria?.({ name: 'search', value: 'toto' }),
-    //   3
-    // ],
-    // [
-    //   'states',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'states',
-    //       value: [{ id: 'unhandled', name: 'Unhandled alerts' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'statuses',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'statuses',
-    //       value: [{ id: 'OK', name: 'Ok' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'resourceTypes',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'resource_types',
-    //       value: [{ id: 'host', name: 'Host' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'hostGroups',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'host_groups',
-    //       value: [{ id: 0, name: 'Linux-servers' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'serviceGroups',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'service_groups',
-    //       value: [{ id: 1, name: 'Web-services' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'hostCategories',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'host_categories',
-    //       value: [{ id: 0, name: 'Linux' }]
-    //     }),
-    //   3
-    // ],
-    // [
-    //   'serviceCategories',
-    //   (): void =>
-    //     context.setCriteria?.({
-    //       name: 'service_categories',
-    //       value: [{ id: 1, name: 'Web-services' }]
-    //     }),
-    //   3
-    // ]
+    ['limit', (): void => context.setLimit?.(20), 3],
+    [
+      'search',
+      (): void => context.setCriteria?.({ name: 'search', value: 'toto' }),
+      3
+    ],
+    [
+      'states',
+      (): void =>
+        context.setCriteria?.({
+          name: 'states',
+          value: [{ id: 'unhandled', name: 'Unhandled alerts' }]
+        }),
+      3
+    ],
+    [
+      'statuses',
+      (): void =>
+        context.setCriteria?.({
+          name: 'statuses',
+          value: [{ id: 'OK', name: 'Ok' }]
+        }),
+      3
+    ],
+    [
+      'resourceTypes',
+      (): void =>
+        context.setCriteria?.({
+          name: 'resource_types',
+          value: [{ id: 'host', name: 'Host' }]
+        }),
+      3
+    ],
+    [
+      'hostGroups',
+      (): void =>
+        context.setCriteria?.({
+          name: 'host_groups',
+          value: [{ id: 0, name: 'Linux-servers' }]
+        }),
+      3
+    ],
+    [
+      'serviceGroups',
+      (): void =>
+        context.setCriteria?.({
+          name: 'service_groups',
+          value: [{ id: 1, name: 'Web-services' }]
+        }),
+      3
+    ],
+    [
+      'hostCategories',
+      (): void =>
+        context.setCriteria?.({
+          name: 'host_categories',
+          value: [{ id: 0, name: 'Linux' }]
+        }),
+      3
+    ],
+    [
+      'serviceCategories',
+      (): void =>
+        context.setCriteria?.({
+          name: 'service_categories',
+          value: [{ id: 1, name: 'Web-services' }]
+        }),
+      3
+    ]
   ];
 
   it.each(testCases)(
