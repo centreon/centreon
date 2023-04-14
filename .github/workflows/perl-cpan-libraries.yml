@@ -40,6 +40,7 @@ jobs:
             "Clone",
             "Clone::Choose",
             "common::sense",
+            "Convert::Binary::C",
             "Convert::EBCDIC",
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
@@ -63,6 +64,7 @@ jobs:
             "JSON::WebToken",
             "Libssh::Session",
             "LV",
+            "MongoDB",
             "Net::Curl::Easy",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
@@ -86,6 +88,7 @@ jobs:
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
             "ZMQ::FFI",
+            "ZMQ::LibZMQ4"
           ]
         include:
           - build_rpm: "true"
@@ -105,6 +108,12 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "Convert::Binary::C"
+            build_deb: "false"
+          - name: "Device::Modbus::RTU::Client"
+            version: "0.022"
+          - name: "Device::Modbus::TCP::Client"
+            version: "0.026"
           - name: "EV"
             build_deb: "false"
           - name: "FFI::CheckLib"
@@ -114,20 +123,19 @@ jobs:
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
           - name: "JSON::Path"
             version: "1.0.3"
-          - name: "ZMQ::FFI"
-            build_deb: "false"
-            rpm_dependencies: "zeromq"
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
-          - name: "Device::Modbus::RTU::Client"
-            version: "0.022"
-          - name: "Device::Modbus::TCP::Client"
-            version: "0.026"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
             use_dh_make_perl: "false"
+          - name: "ZMQ::FFI"
+            build_deb: "false"
+            rpm_dependencies: "zeromq"
+          - name: "ZMQ::LibZMQ4"
+            use_dh_make_perl: "false"
+            version: "0.01"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -143,7 +151,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI.x86_64
         shell: bash
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
@@ -320,6 +328,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: perl-cpan-libraries
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}

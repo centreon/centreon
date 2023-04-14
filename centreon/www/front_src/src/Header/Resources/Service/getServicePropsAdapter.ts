@@ -159,7 +159,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         criterias: okServicesCriterias,
         link: okServicesLink
       }),
-      severityCode: SeverityCode.Ok,
+      severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: okServicesLink,
       topCounterAriaLabel: t(labelOkStatusServices)
