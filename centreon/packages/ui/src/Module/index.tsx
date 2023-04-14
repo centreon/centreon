@@ -4,7 +4,7 @@ import { Provider as JotaiProvider, createStore } from 'jotai';
 
 import { createGenerateClassName, StylesProvider } from '@mui/styles';
 
-import { ThemeProvider } from '..';
+import { ThemeProvider, QueryProvider } from '..';
 import SnackbarProvider from '../Snackbar/SnackbarProvider';
 
 export interface ModuleProps {
@@ -25,15 +25,17 @@ const Module = ({
   });
 
   return (
-    <JotaiProvider store={store}>
-      <StylesProvider generateClassName={generateClassName}>
-        <ThemeProvider>
-          <SnackbarProvider maxSnackbars={maxSnackbars}>
-            {children}
-          </SnackbarProvider>
-        </ThemeProvider>
-      </StylesProvider>
-    </JotaiProvider>
+    <QueryProvider>
+      <JotaiProvider store={store}>
+        <StylesProvider generateClassName={generateClassName}>
+          <ThemeProvider>
+            <SnackbarProvider maxSnackbars={maxSnackbars}>
+              {children}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </StylesProvider>
+      </JotaiProvider>
+    </QueryProvider>
   );
 };
 
