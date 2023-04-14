@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
+use Core\HostTemplate\Domain\Model\NewHostTemplate;
+
 interface WriteHostTemplateRepositoryInterface
 {
     /**
@@ -31,4 +33,13 @@ interface WriteHostTemplateRepositoryInterface
      * @param int $hostTemplateId
      */
     public function delete(int $hostTemplateId): void;
+
+    /**
+     * Add host template.
+     *
+     * @param NewHostTemplate $hostTemplate
+     *
+     * @return int
+     */
+    public function add(NewHostTemplate $hostTemplate): int;
 }

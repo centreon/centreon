@@ -110,13 +110,13 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
 
         // Filter on host templates
         $concatenator->appendWhere('h.host_register = :hostTemplateType');
-        $concatenator->storeBindValue(':hostTemplateType', HostType::Template->value);
+        $concatenator->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
         // Filter on host severity
         $concatenator->appendWhere(
             <<<'SQL'
                 (
                     hcr.hostcategories_hc_id IS NULL
-                    OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM hostcategories WHERE level IS NOT NULL)
+                    OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
                 )
                 SQL
         );
@@ -195,6 +195,122 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function findById(int $hostTemplateId): ?HostTemplate
+    {
+        $this->info('Get a host template with id #' . $hostTemplateId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    h.host_id,
+                    h.host_name,
+                    h.host_alias,
+                    h.host_snmp_version,
+                    h.host_snmp_community,
+                    h.host_location,
+                    h.command_command_id,
+                    h.command_command_id_arg1,
+                    h.timeperiod_tp_id,
+                    h.host_max_check_attempts,
+                    h.host_check_interval,
+                    h.host_retry_check_interval,
+                    h.host_active_checks_enabled,
+                    h.host_passive_checks_enabled,
+                    h.host_notifications_enabled,
+                    h.host_notification_options,
+                    h.host_notification_interval,
+                    h.timeperiod_tp_id2,
+                    h.cg_additive_inheritance,
+                    h.contact_additive_inheritance,
+                    h.host_first_notification_delay,
+                    h.host_recovery_notification_delay,
+                    h.host_acknowledgement_timeout,
+                    h.host_check_freshness,
+                    h.host_freshness_threshold,
+                    h.host_flap_detection_enabled,
+                    h.host_low_flap_threshold,
+                    h.host_high_flap_threshold,
+                    h.host_event_handler_enabled,
+                    h.command_command_id2,
+                    h.command_command_id_arg2,
+                    h.host_comment,
+                    h.host_activate,
+                    h.host_locked,
+                    ehi.ehi_notes_url,
+                    ehi.ehi_notes,
+                    ehi.ehi_action_url,
+                    ehi.ehi_icon_image,
+                    ehi.ehi_icon_image_alt,
+                    hcr.hostcategories_hc_id as severity_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.extended_host_information ehi ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr ON h.host_id = hcr.host_host_id
+                WHERE h.host_id = :hostTemplateId
+                    AND h.host_register = :hostTemplateType
+                    AND (
+                        hcr.hostcategories_hc_id IS NULL
+                        OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
+                    )
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->bindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /** @var array{
+         *     host_id: int,
+         *     host_name: string,
+         *     host_alias: string,
+         *     host_snmp_version: string|null,
+         *     host_snmp_community: string|null,
+         *     host_location: int|null,
+         *     command_command_id: int|null,
+         *     command_command_id_arg1: string|null,
+         *     timeperiod_tp_id: int|null,
+         *     host_max_check_attemps: int|null,
+         *     host_check_interval: int|null,
+         *     host_retry_check_interval: int|null,
+         *     host_active_checks_enabled: string|null,
+         *     host_passive_checks_enabled: string|null,
+         *     host_notifications_enabled: string|null,
+         *     host_notification_options: string|null,
+         *     host_notification_interval: int|null,
+         *     timeperiod_tp_id2: int|null,
+         *     cg_additive_inheritance: int|null,
+         *     contact_additive_inheritance: int|null,
+         *     host_first_notification_delay: int|null,
+         *     host_recovery_notification_delay: int|null,
+         *     host_acknowledgement_timeout: int|null,
+         *     host_check_freshness: string|null,
+         *     host_freshness_threshold: int|null,
+         *     host_flap_detection_enabled: string|null,
+         *     host_low_flap_threshold: int|null,
+         *     host_high_flap_threshold: int|null,
+         *     host_event_handler_enabled: string|null,
+         *     command_command_id2: int|null,
+         *     command_command_id_arg2: string|null,
+         *     host_comment: string|null,
+         *     host_activate: string|null,
+         *     host_locked: int|null,
+         *     ehi_notes_url: string|null,
+         *     ehi_notes: string|null,
+         *     ehi_action_url: string|null,
+         *     ehi_icon_image: int|null,
+         *     ehi_icon_image_alt: string|null,
+         *     severity_id: int|null
+         * } $result */
+        return $this->createHostTemplateFromArray($result);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $hostTemplateId): bool
     {
         $this->info('Check existence of host template with id #' . $hostTemplateId);
@@ -209,7 +325,28 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
-        $statement->bindValue(':hostTemplateType', HostType::TEMPLATE->value, \PDO::PARAM_STR);
+        $statement->bindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(string $hostTemplateName): bool
+    {
+        $this->info('Check existence of host template with name #' . $hostTemplateName);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_name = :hostTemplateName
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateName', $hostTemplateName, \PDO::PARAM_STR);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

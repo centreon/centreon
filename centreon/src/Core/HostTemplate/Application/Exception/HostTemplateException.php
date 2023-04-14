@@ -25,6 +25,10 @@ namespace Core\HostTemplate\Application\Exception;
 
 class HostTemplateException extends \Exception
 {
+    // TODO AddHostTemplate errors
+
+    public const CODE_CONFLICT = 1;
+
     /**
      * @param \Throwable $ex
      *
@@ -46,6 +50,16 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function addHostTemplate(\Throwable $ex): self
+    {
+        return new self(_('Error while adding a host template'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function accessNotAllowed(): self
@@ -59,6 +73,45 @@ class HostTemplateException extends \Exception
     public static function deleteNotAllowed(): self
     {
         return new self(_('You are not allowed to delete host templates'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function addNotAllowed(): self
+    {
+        return new self(_('You are not allowed to add host templates'));
+    }
+
+    /**
+     * @param string $propertieName
+     * @param int $value
+     * @param int $propertieValue
+     *
+     * @return self
+     */
+    public static function idDoesNotExist(string $propertieName, int $propertieValue): self
+    {
+        return new self(sprintf(_("The %s with value '%d' does not exist"), $propertieName, $propertieValue), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @param string $formatedName
+     * @param string $originalName
+     *
+     * @return self
+     */
+    public static function nameAlreadyExists(string $formatedName, string $originalName = 'undefined'): self
+    {
+        return new self(sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingObject(): self
+    {
+        return new self(_('Error while retrieving a host template'));
     }
 }
 

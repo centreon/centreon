@@ -25,13 +25,18 @@ namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Domain\HostEvent;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
+use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
 class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, RepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -46,7 +51,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
      */
     public function delete(int $hostTemplateId): void
     {
-        $this->debug('Delete host template', ['hostTemplateId' => $hostTemplateId]);
+        $this->debug('Delete host template', ['host_template_id' => $hostTemplateId]);
 
         $request = $this->translateDbName(
             <<<'SQL'
@@ -59,8 +64,402 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         $statement = $this->db->prepare($request);
 
         $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
-        $statement->bindValue(':hostTemplateType', HostType::TEMPLATE->value, \PDO::PARAM_STR);
+        $statement->bindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
 
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function add(NewHostTemplate $hostTemplate): int
+    {
+        $this->debug('Add host template ', ['host_template' => $hostTemplate]);
+
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $hostTemplateId = $this->addTemplateBasicInformations($hostTemplate);
+            $this->addExtendedInformations($hostTemplateId, $hostTemplate);
+            $this->addSeverity($hostTemplateId, $hostTemplate);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+
+            return $hostTemplateId;
+        } catch (\Throwable $ex) {
+             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    private function addTemplateBasicInformations(NewHostTemplate $hostTemplate): int
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.host
+                (
+                    host_name,
+                    host_alias,
+                    host_snmp_version,
+                    host_snmp_community,
+                    host_location,
+                    command_command_id,
+                    command_command_id_arg1,
+                    timeperiod_tp_id,
+                    host_max_check_attempts,
+                    host_check_interval,
+                    host_retry_check_interval,
+                    host_active_checks_enabled,
+                    host_passive_checks_enabled,
+                    host_notifications_enabled,
+                    host_notification_options,
+                    host_notification_interval,
+                    timeperiod_tp_id2,
+                    cg_additive_inheritance,
+                    contact_additive_inheritance,
+                    host_first_notification_delay,
+                    host_recovery_notification_delay,
+                    host_acknowledgement_timeout,
+                    host_check_freshness,
+                    host_freshness_threshold,
+                    host_flap_detection_enabled,
+                    host_low_flap_threshold,
+                    host_high_flap_threshold,
+                    host_event_handler_enabled,
+                    command_command_id2,
+                    command_command_id_arg2,
+                    host_comment,
+                    host_activate,
+                    host_locked,
+                    host_register
+                ) VALUES
+                (
+                    :name,
+                    :alias,
+                    :snmpVersion,
+                    :snmpCommunity,
+                    :timezoneId,
+                    :checkCommandId,
+                    :checkCommandArgs,
+                    :checkTimeperiodId,
+                    :maxCheckAttempts,
+                    :normalCheckInterval,
+                    :retryCheckInterval,
+                    :isActiveCheckEnabled,
+                    :isPassiveCheckEnabled,
+                    :isNotificationEnabled,
+                    :notificationOptions,
+                    :notificationInterval,
+                    :notificationTimeperiodId,
+                    :addInheritedContactGroup,
+                    :addInheritedContact,
+                    :firstNotificationDelay,
+                    :recoveryNotificationDelay,
+                    :acknowledgementTimeout,
+                    :isFreshnessChecked,
+                    :freshnessThreshold,
+                    :isFlapDetectionEnabled,
+                    :lowFlapThreshold,
+                    :highFlapThreshold,
+                    :isEventHandlerEnabled,
+                    :eventHandlerCommandId,
+                    :eventHandlerCommandArgs,
+                    :comment,
+                    :isActivated,
+                    :isLocked,
+                    :hostType
+                )
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $this->bindHostTemplateValues($statement, $hostTemplate);
+
+        $statement->execute();
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    private function addExtendedInformations(int $hostTemplateId, NewHostTemplate $hostTemplate): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.extended_host_information
+                (
+                    host_host_id,
+                    ehi_notes_url,
+                    ehi_notes,
+                    ehi_action_url,
+                    ehi_icon_image,
+                    ehi_icon_image_alt
+                ) VALUES
+                (
+                    :hostTemplateId,
+                    :noteUrl,
+                    :note,
+                    :actionUrl,
+                    :iconId,
+                    :iconAlternative
+                )
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':noteUrl',
+            $hostTemplate->getNoteUrl() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getNoteUrl()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':note',
+            $hostTemplate->getNote() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getNote()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':actionUrl',
+            $hostTemplate->getActionUrl() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getActionUrl()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(':iconId', $hostTemplate->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':iconAlternative',
+            $hostTemplate->getIconAlternative() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getIconAlternative()), \PDO::PARAM_STR
+        );
+
+        $statement->execute();
+    }
+
+    private function addSeverity(int $hostTemplateId, NewHostTemplate $hostTemplate): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.hostcategories_relation
+                (
+                    host_host_id,
+                    hostcategories_hc_id
+                ) VALUES
+                (
+                    :hostTemplateId,
+                    :severityId
+                )
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->bindValue(':severityId', $hostTemplate->getSeverityId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    private function bindHostTemplateValues(\PDOStatement $statement, NewHostTemplate $hostTemplate): void
+    {
+        $statement->bindValue(
+            ':name',
+            $this->legacyHtmlEncode($hostTemplate->getName()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':alias',
+            $this->legacyHtmlEncode($hostTemplate->getAlias()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':snmpVersion',
+            $hostTemplate->getSnmpVersion() === null ? null : $hostTemplate->getSnmpVersion()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':snmpCommunity',
+            $hostTemplate->getSnmpCommunity() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getSnmpCommunity()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':timezoneId',
+            $hostTemplate->getTimezoneId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':checkCommandId',
+            $hostTemplate->getCheckCommandId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':checkCommandArgs',
+            $hostTemplate->getCheckCommandArgs() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getCheckCommandArgs()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':checkTimeperiodId',
+            $hostTemplate->getCheckTimeperiodId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':maxCheckAttempts',
+            $hostTemplate->getMaxCheckAttempts(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':normalCheckInterval',
+            $hostTemplate->getNormalCheckInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':retryCheckInterval',
+            $hostTemplate->getRetryCheckInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':isActiveCheckEnabled',
+            $hostTemplate->isActiveCheckEnabled() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isActiveCheckEnabled()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':isPassiveCheckEnabled',
+            $hostTemplate->isPassiveCheckEnabled() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isPassiveCheckEnabled()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':isNotificationEnabled',
+            $hostTemplate->isNotificationEnabled() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isNotificationEnabled()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':notificationOptions',
+            $hostTemplate->getNotificationOptions() === null
+                ? null
+                : HostEvent::toLegacyString($hostTemplate->getNotificationOptions()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':notificationInterval',
+            $hostTemplate->getNotificationInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':notificationTimeperiodId',
+            $hostTemplate->getNotificationTimeperiodId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':addInheritedContactGroup',
+            $hostTemplate->addInheritedContactGroup() ? 1 : 0,
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':addInheritedContact',
+            $hostTemplate->addInheritedContact() ? 1 : 0,
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':firstNotificationDelay',
+            $hostTemplate->getFirstNotificationDelay(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':recoveryNotificationDelay',
+            $hostTemplate->getRecoveryNotificationDelay(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':acknowledgementTimeout',
+            $hostTemplate->getAcknowledgementTimeout(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':isFreshnessChecked',
+            $hostTemplate->isFreshnessChecked() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isFreshnessChecked()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':freshnessThreshold',
+            $hostTemplate->getFreshnessThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':isFlapDetectionEnabled',
+            $hostTemplate->isFlapDetectionEnabled() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isFlapDetectionEnabled()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':lowFlapThreshold',
+            $hostTemplate->getLowFlapThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':highFlapThreshold',
+            $hostTemplate->getHighFlapThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':isEventHandlerEnabled',
+            $hostTemplate->isEventHandlerEnabled() === null
+                ? YesNoDefault::Default
+                : $hostTemplate->isEventHandlerEnabled()->value,
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':eventHandlerCommandId',
+            $hostTemplate->getEventHandlerCommandId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':eventHandlerCommandArgs',
+            $hostTemplate->getEventHandlerCommandArgs() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getEventHandlerCommandArgs()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':comment',
+            $hostTemplate->getComment() === null
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getComment()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':isActivated',
+            (new BoolToEnumNormalizer())->normalize($hostTemplate->isActivated()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':isLocked',
+            $hostTemplate->isLocked() ? 1 : 0,
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':hostType',
+            HostType::Template->value,
+            \PDO::PARAM_STR
+        );
     }
 }

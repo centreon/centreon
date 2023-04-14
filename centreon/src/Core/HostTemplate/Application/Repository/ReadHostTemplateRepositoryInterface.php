@@ -40,6 +40,17 @@ interface ReadHostTemplateRepositoryInterface
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Find a host template by its id.
+     *
+     * @param int $hostTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return ?HostTemplate
+     */
+    public function findById(int $hostTemplateId): ?HostTemplate;
+
+    /**
      * Determine if a host template exists by its ID.
      *
      * @param int $hostTemplateId
@@ -47,4 +58,15 @@ interface ReadHostTemplateRepositoryInterface
      * @return bool
      */
     public function exists(int $hostTemplateId): bool;
+
+    /**
+     * Determine if a host template exists by its name.
+     * (include both host templates and hosts names).
+     *
+     * @param int $hostTemplateId
+     * @param string $hostTemplateName
+     *
+     * @return bool
+     */
+    public function existsByName(string $hostTemplateName): bool;
 }

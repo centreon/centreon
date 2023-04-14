@@ -128,17 +128,10 @@ class NewHostTemplate
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
-        // Assertions on string properties
-        $this->name = trim($name);
-        $this->alias = trim($alias);
-        $this->snmpCommunity = trim($snmpCommunity);
-        $this->checkCommandArgs = trim($checkCommandArgs);
-        $this->eventHandlerCommandArgs = trim($eventHandlerCommandArgs);
-        $this->noteUrl = trim($noteUrl);
-        $this->note = trim($note);
-        $this->actionUrl = trim($actionUrl);
-        $this->iconAlternative = trim($iconAlternative);
-        $this->comment = trim($comment);
+        // Formating
+        $this->name = self::formatName($name);
+        $this->checkCommandArgs = self::formatCommandArgs($checkCommandArgs);
+        $this->eventHandlerCommandArgs = self::formatCommandArgs($eventHandlerCommandArgs);
 
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::notEmptyString($this->alias, "{$shortName}::alias");
@@ -185,6 +178,26 @@ class NewHostTemplate
         Assertion::min($freshnessThreshold ?? 0, 0, "{$shortName}::freshnessThreshold");
         Assertion::min($lowFlapThreshold ?? 0, 0, "{$shortName}::lowFlapThreshold");
         Assertion::min($highFlapThreshold ?? 0, 0, "{$shortName}::highFlapThreshold");
+    }
+
+    /**
+     * Format a string as per domain rules for a host template name.
+     *
+     * @param string $name
+     */
+    public static function formatName(string $name): string
+    {
+        return str_replace(' ', '_', trim($name));
+    }
+
+    /**
+     * Format a string as per domain rules for a command arguments.
+     *
+     * @param string $args
+     */
+    public static function formatCommandArgs(string $args): string
+    {
+        return str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $args);
     }
 
     public function getName(): string
