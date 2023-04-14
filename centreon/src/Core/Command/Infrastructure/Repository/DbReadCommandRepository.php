@@ -21,14 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Timezone\Infrastructure\Repository;
+namespace Core\Command\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Common\Domain\CommandType;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 
-class DbReadTimezoneRepository extends AbstractRepositoryRDB implements ReadTimezoneRepositoryInterface
+class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadCommandRepositoryInterface
 {
     use LoggerTrait;
 
@@ -43,19 +44,21 @@ class DbReadTimezoneRepository extends AbstractRepositoryRDB implements ReadTime
     /**
      * @inheritDoc
      */
-    public function exists(int $timezoneId): bool
+    public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool
     {
-        $this->info('Check existence of timezone with id #' . $timezoneId);
+        $this->info(sprintf('Check existence of command with id #%d and type %s', $commandId, $commandType->value));
 
         $request = $this->translateDbName(
             <<<'SQL'
                 SELECT 1
-                FROM `:db`.timezone
-                WHERE timezone_id = :timezoneId
+                FROM `:db`.command
+                WHERE command_id = :commandId
+                    AND command_type = :commandType
                 SQL
         );
         $statement = $this->db->prepare($request);
-        $statement->bindValue(':timezoneId', $timezoneId, \PDO::PARAM_INT);
+        $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
+        $statement->bindValue(':commandType', $commandType->value, \PDO::PARAM_INT);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

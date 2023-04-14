@@ -21,16 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Timezone\Application\Repository;
+namespace Core\Common\Domain;
 
-interface ReadTimezoneRepositoryInterface
+enum CommandType: int
 {
-    /**
-     * Determine if a timezone exists by its ID.
-     *
-     * @param int $timezoneId
-     *
-     * @return bool
-     */
-    public function exists(int $timezoneId): bool;
+    case Notification = 1;
+    case Check = 2;
+    case Miscellaneous = 3;
+
+    // TODO always keep or dependent on module installation ?
+    case Discovery = 4;
 }

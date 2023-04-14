@@ -21,16 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Timezone\Application\Repository;
+namespace Core\Command\Application\Repository;
 
-interface ReadTimezoneRepositoryInterface
+use Core\Common\Domain\CommandType;
+
+interface ReadCommandRepositoryInterface
 {
     /**
-     * Determine if a timezone exists by its ID.
+     * Determine if a command exists by its ID and type.
      *
-     * @param int $timezoneId
+     * @param int $commandId
+     * @param CommandType $commandType
      *
      * @return bool
      */
-    public function exists(int $timezoneId): bool;
+    public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool;
 }
