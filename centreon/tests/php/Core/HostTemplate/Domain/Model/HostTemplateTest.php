@@ -188,6 +188,30 @@ foreach (
     );
 }
 
+// name and conmmands args should be formated
+it("should return trimmed and formated field name after construct", function (): void {
+    $hostTemplate = new HostTemplate(1, '    host template name   ', 'alias');
+
+    expect($hostTemplate->getName())->toBe('host_template_name');
+});
+
+foreach (
+    [
+        'checkCommandArgs',
+        'eventHandlerCommandArgs',
+    ] as $field
+) {
+    it(
+        "should return a trimmed and formated field {$field}",
+        function () use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)([$field => "  \ncommandArgs\tvalue\r  "]);
+            $valueFromGetter = $hostTemplate->{'get' . $field}();
+
+            expect($valueFromGetter)->toBe('#BR#commandArgs#T#value#R#');
+        }
+    );
+}
+
 // string field trimmed
 foreach (
     [

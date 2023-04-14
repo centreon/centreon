@@ -185,7 +185,30 @@ foreach (
     );
 }
 
-// string field trimmed
+// name and conmmands args should be formated
+it("should return trimmed and formated name field after construct", function (): void {
+    $hostTemplate = new NewHostTemplate('    host template name   ', 'alias');
+
+    expect($hostTemplate->getName())->toBe('host_template_name');
+});
+
+foreach (
+    [
+        'checkCommandArgs',
+        'eventHandlerCommandArgs',
+    ] as $field
+) {
+    it(
+        "should return a trimmed and formated field {$field}",
+        function () use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)([$field => "  \ncommandArgs\tvalue\r  "]);
+            $valueFromGetter = $hostTemplate->{'get' . $field}();
+
+            expect($valueFromGetter)->toBe('#BR#commandArgs#T#value#R#');
+        }
+    );
+}
+
 foreach (
     [
         'name',
@@ -201,7 +224,7 @@ foreach (
     ] as $field
 ) {
     it(
-        "should return trim the field {$field} after construct",
+        "should return trimmed field {$field} after construct",
         function () use ($field): void {
             $hostTemplate = ($this->createHostTemplate)([$field => '  abcd ']);
             $valueFromGetter = $hostTemplate->{'get' . $field}();

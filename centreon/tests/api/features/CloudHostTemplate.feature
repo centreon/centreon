@@ -51,3 +51,65 @@ Feature:
       }
     }
     """
+
+  Scenario: Host template creation
+    Given I am logged in
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "  host template name  ",
+        "alias": "  host-template-alias  ",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "note_url": 'noteUrl-value',
+        "note": 'note-value',
+        "action_url": 'actionUrl-value',
+        "is_activated": false
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 15,
+        "name": "host_template_name",
+        "alias": "host-template-alias",
+        "snmp_version": "2c",
+        "snmp_community": "snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "note_url": 'noteUrl-value',
+        "note": 'note-value',
+        "action_url": 'actionUrl-value',
+        "is_activated": false,
+        "is_locked": false
+      }
+      """
+
+    # conflict on name
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "host_template name",
+        "alias": "host-template-alias",
+        "is_activated": true
+      }
+      """
+    Then the response code should be "409"
+
+    # missing mandatory fields
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      { "not_exists": "foo-bar" }
+      """
+    Then the response code should be "400"
+    And the JSON should be equal to:
+      """
+      {
+        "code": 400,
+        "message": "[name] The property name is required\n[alias] The property alias is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
+      }
+      """
