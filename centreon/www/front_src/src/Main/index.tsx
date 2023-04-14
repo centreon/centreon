@@ -24,7 +24,7 @@ import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import Provider from './Provider';
 import { MainLoaderWithoutTranslation } from './MainLoader';
-import useMain from './useMain';
+import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 
 dayjs.extend(localizedFormat);
@@ -43,7 +43,7 @@ const ResetPasswordPage = lazy(() => import('../ResetPassword'));
 const AppPage = lazy(() => import('./InitializationPage'));
 
 const Main = (): JSX.Element => {
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const { pathname } = useLocation();
 
   useMain();
@@ -59,6 +59,7 @@ const Main = (): JSX.Element => {
   };
 
   useEffect(() => {
+    console.log(platformInstallationStatus, areUserParametersLoaded);
     if (isNil(platformInstallationStatus) || isNil(areUserParametersLoaded)) {
       return;
     }

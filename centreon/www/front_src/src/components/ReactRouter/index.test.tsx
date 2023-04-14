@@ -31,22 +31,19 @@ jest.mock('../../Resources', () => {
   };
 });
 
-
 const renderReactRouter = (navigation = retrievedNavigation): RenderResult => {
   const store = createStore();
-  store.set(navigationAtom, retrievedNavigation);
+  store.set(navigationAtom, navigation);
   store.set(federatedModulesAtom, [retrievedFederatedModule]);
-  
+
   return render(
     <BrowserRouter>
-      <Provider
-        store={store}
-      >
+      <Provider store={store}>
         <ReactRouter />
       </Provider>
     </BrowserRouter>
   );
-      }
+};
 
 describe('React Router', () => {
   afterEach(() => {

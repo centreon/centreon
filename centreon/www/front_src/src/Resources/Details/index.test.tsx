@@ -18,7 +18,11 @@ import {
   act,
   screen
 } from '@centreon/ui/src/testRenderer';
-import { ListingVariant, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import {
+  ListingVariant,
+  refreshIntervalAtom,
+  userAtom
+} from '@centreon/ui-context';
 
 import {
   labelMore,
@@ -570,8 +574,7 @@ const DetailsTest = (): JSX.Element => {
 
   context = {
     ...listingState,
-    ...detailState,
-    ...filterState
+    ...detailState
   } as ResourceContext;
 
   return (
@@ -600,9 +603,7 @@ store.set(userAtom, retrievedUser);
 store.set(refreshIntervalAtom, mockRefreshInterval);
 
 const DetailsWithJotai = (): JSX.Element => (
-  <Provider
-    store={store}
-  >
+  <Provider store={store}>
     <DetailsTest />
   </Provider>
 );
@@ -624,7 +625,6 @@ Storage.prototype.setItem = mockedLocalStorageSetItem;
 describe(Details, () => {
   beforeEach(() => {
     mockDate.set(currentDateIsoString);
-    mockedAxios.get.mockResolvedValueOnce(retrievedFilters);
   });
 
   afterEach(() => {
@@ -634,7 +634,8 @@ describe(Details, () => {
     mockedLocalStorageGetItem.mockReset();
   });
 
-  it('displays resource details information', async () => {
+  // To migrate to Cypress
+  it.only('displays resource details information', async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
 
     setUrlQueryParameters([

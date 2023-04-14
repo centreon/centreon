@@ -59,10 +59,6 @@ const useFilter = (): FilterState => {
     });
   };
 
-  useEffect(() => {
-    loadCustomFilters();
-  }, []);
-
   useDeepCompareEffect(() => {
     setSearch(build(currentFilter.criterias));
   }, [currentFilter.criterias]);

@@ -18,6 +18,10 @@ import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
 
+export const router = {
+  useNavigate
+};
+
 const useMain = (): void => {
   const { sendRequest: getPlatformInstallationStatus } =
     useRequest<PlatformInstallationStatus>({
@@ -40,7 +44,7 @@ const useMain = (): void => {
 
   const loadUser = useUser();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
   useFederatedModules();
