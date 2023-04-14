@@ -5,18 +5,18 @@ Feature: Autologin
   So the selected pages can be displayed permanently on a screen
 
 Scenario: Enable autologin on the platform
-  Given an administrator is logged in the platform 
+  Given an administrator is logged in the platform
   When the administrator activates autologin on the platform
-  Then any user of the platform should be able to generate an autologin link 
+  Then any user of the platform should be able to generate an autologin link
 
 Scenario: Generate autologin key
   Given an authenticated user and the autologin configuration menu can be accessed
   When a user generates his autologin key
-  Then the key is properly generated and displayed 
+  Then the key is properly generated and displayed
 
 Scenario: Generate autologin link
   Given a user with an autologin key generated
-  When a user generates an autologin link  
+  When a user generates an autologin link
   Then the autologin link is copied in the clipboard
 
 Scenario: Connection using autologin
