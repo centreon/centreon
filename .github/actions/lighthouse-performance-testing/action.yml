@@ -22,6 +22,13 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+        cache: pnpm
+        cache-dependency-path: centreon/lighthouse
 
     - name: Setup PHP 8.1
       uses: shivammathur/setup-php@v2
@@ -49,10 +56,10 @@ runs:
       shell: bash
 
     - name: Install npm dependencies
-      run:  pnpm i
+      run:  pnpm install --frozen-lockfile
       shell: bash
       working-directory: centreon/lighthouse
-    
+
     - name: Run lighthouse
       run: pnpm run:lighthouse
       shell: bash

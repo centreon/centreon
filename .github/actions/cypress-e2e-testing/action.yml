@@ -26,9 +26,16 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.module }}
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.module }}
       shell: bash
 

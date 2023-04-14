@@ -14,6 +14,13 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.module }}
 
     - uses: mad9000/actions-find-and-replace-string@2
       id: formatSpecFilePath
@@ -27,7 +34,7 @@ runs:
       with:
         browser: chrome
         component: true
-        install-command: pnpm install
+        install-command: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.module }}
         spec: www/front_src/src/**/${{ inputs.spec_file_path }}
         publish-summary: false
@@ -47,7 +54,7 @@ runs:
         name: cypress-screenshots-${{ steps.formatSpecFilePath.outputs.value }}
         path: ${{ inputs.module }}/cypress/screenshots
         retention-days: 1
-    
+
     - name: Archive snapshots
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
