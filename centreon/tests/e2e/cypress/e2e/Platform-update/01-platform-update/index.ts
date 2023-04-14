@@ -13,55 +13,59 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/step_upgrade/step1.php'
   }).as('getStep1');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/step_upgrade/step2.php'
   }).as('getStep2');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/step_upgrade/step3.php'
   }).as('getStep3');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/step_upgrade/step4.php'
   }).as('getStep4');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/step_upgrade/step5.php'
   }).as('getStep5');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/install/steps/process/generationCache.php'
   }).as('generatingCache');
+
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
     'monitoringEndpoint'
   );
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
   }).as('generateAndReloadPollers');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/internal.php?object=centreon_module&action=install&id=centreon-autodiscovery-server&type=module'
-  }).as('getAutoDiscoInstallation');
 });
 
-Given('a running platform in {string}', (version_A: string) => {
+Given('a running platform in {string}', (version_from: string) => {
   cy.stopContainer(Cypress.env('dockerName'));
 
   cy.startContainer({
     name: Cypress.env('dockerName'),
     os: 'legacy-alma8',
-    version: version_A
+    version: version_from
   });
 
   cy.waitForContainerAndSetToken();
 
-  checkPlatformVersion(version_A);
+  checkPlatformVersion(version_from);
 
   cy.visit(`${Cypress.config().baseUrl}`);
 });
@@ -102,10 +106,10 @@ When('administrator runs the update procedure', () => {
 
 Then(
   'monitoring should be up and running after update procedure is complete to {string}',
-  (version_B: string) => {
+  (version_to: string) => {
     cy.setUserTokenApiV1('admin');
 
-    checkPlatformVersion(version_B);
+    checkPlatformVersion(version_to);
 
     cy.loginByTypeOfUser({
       jsonName: 'admin'

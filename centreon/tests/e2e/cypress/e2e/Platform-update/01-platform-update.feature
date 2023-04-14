@@ -10,7 +10,7 @@ And administrator runs the update procedure
 Then monitoring should be up and running after update procedure is complete to '<version_B>' 
 
 Examples:
-  | version_A | version_B |
+  | version_from | version_to |
   |   22.10.0 |   22.10.7 |
   |   22.10.1 |   22.10.7 |
   |   22.10.2 |   22.10.7 |
