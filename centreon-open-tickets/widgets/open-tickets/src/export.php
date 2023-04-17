@@ -159,6 +159,18 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         );
     }
 }
+
+if (!empty($preferences['poller'])) {
+    $pollers = [];
+    $pollerIds = explode(',', $preferences['poller']);
+    
+    foreach ($pollerIds as $pollerId) {
+        $pollers[] = (int) $pollerId;
+    }
+
+    $query .= " AND h.instance_id IN (" . implode(',', $pollers) . ")";
+}
+
 $stateTab = array();
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;

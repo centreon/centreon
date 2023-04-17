@@ -99,6 +99,7 @@ $stateLabels = array(
     3 => "Unknown",
     4 => "Pending"
 );
+
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.name AS hostname,
@@ -173,6 +174,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 if (!$centreon->user->admin) {
     $query .= " , centreon_acl acl ";
 }
+
 $query .= " WHERE s.host_id = h.host_id
     AND h.enabled = 1 AND h.name NOT LIKE '_Module_%'
     AND s.enabled = 1 ";
@@ -189,6 +191,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
         );
     }
 }
+
 if (isset($preferences['service_description_search']) && $preferences['service_description_search'] != "") {
     $tab = explode(" ", $preferences['service_description_search']);
     $op = $tab[0];
@@ -202,6 +205,18 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         );
     }
 }
+
+if (!empty($preferences['poller'])) {
+    $pollers = [];
+    $pollerIds = explode(',', $preferences['poller']);
+    
+    foreach ($pollerIds as $pollerId) {
+        $pollers[] = (int) $pollerId;
+    }
+
+    $query .= " AND h.instance_id IN (" . implode(',', $pollers) . ")";
+}
+
 $stateTab = [];
 if (isset($preferences['svc_warning']) && $preferences['svc_warning']) {
     $stateTab[] = 1;
