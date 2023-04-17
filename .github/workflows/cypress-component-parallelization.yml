@@ -40,6 +40,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - name: LS
+        run: |
+          ls
+          echo ${{ inputs.spec_file_path }}
+          echo ${{ inputs.prepath }}
+          echo ${{ inputs.module }}
+        shell: bash
+
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
