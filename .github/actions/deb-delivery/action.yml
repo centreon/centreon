@@ -1,6 +1,9 @@
 name: "deb-delivery"
 description: "Package deb Centreon"
 inputs:
+  module_name:
+    description: "The package module name"
+    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
@@ -36,6 +39,16 @@ runs:
       run: |
         FILES="*.deb"
 
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
         if [ "${{ inputs.stability }}" == "pkgtest" ]; then
           ROOT_REPO_PATH="installers"
           jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
@@ -51,6 +64,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash

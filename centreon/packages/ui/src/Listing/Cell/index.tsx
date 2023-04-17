@@ -64,8 +64,7 @@ const getRowHighlightStyle = ({
 }: GetRowHighlightStyleProps): CSSObject | undefined =>
   isRowHighlighted
     ? {
-        color: theme.palette.text.primary,
-        fontWeight: theme.typography.fontWeightBold
+        color: theme.palette.text.primary
       }
     : undefined;
 

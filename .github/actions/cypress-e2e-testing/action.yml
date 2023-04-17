@@ -26,9 +26,18 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.module }}
 
     - name: Install dependencies
-      run: pnpm install
+      run: |
+        pnpm install --frozen-lockfile
+        pnpm cypress install --force
       working-directory: ${{ inputs.module }}
       shell: bash
 
@@ -85,6 +94,7 @@ runs:
       shell: bash
 
     - name: Archive Broker logs
+      if: ${{ failure() }}
       uses: actions/upload-artifact@v3
       with:
         name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}

@@ -1059,14 +1059,14 @@ describe(Actions, () => {
           ...host,
           status: {
             name: 'UP',
-            severity_code: SeverityCode.Ok
+            severity_code: SeverityCode.OK
           }
         },
         {
           ...service,
           status: {
             name: 'OK',
-            severity_code: SeverityCode.Ok
+            severity_code: SeverityCode.OK
           }
         }
       ]);
