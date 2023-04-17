@@ -35,7 +35,8 @@ runs:
         cache-dependency-path: ${{ inputs.module }}
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+        pnpm install --frozen-lockfile
+        pnpm cypress install --force
       working-directory: ${{ inputs.module }}
       shell: bash
 
