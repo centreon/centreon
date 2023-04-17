@@ -17573,3 +17573,9 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "Error while searching for host templates"
+msgstr "Erreur lors de la recherche des templates d'hôtes"
+
+msgid "You are not allowed to access host templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux templates d'hôtes"
