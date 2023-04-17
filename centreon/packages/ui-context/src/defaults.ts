@@ -1,7 +1,7 @@
 import { User, ThemeMode, ListingVariant } from './types';
 
 const defaultUser: User = {
-  alias: 'toto',
+  alias: '',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: false,
   locale: navigator.language,
