@@ -2,9 +2,7 @@ FROM almalinux:9 AS web_fresh
 
 RUN bash -e <<EOF
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
-dnf module reset -y php
-dnf module install -y php:remi-8.1
+dnf module enable -y php:8.1
 
 dnf install -y dnf-plugins-core
 
