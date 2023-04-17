@@ -69,7 +69,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     use HttpUrlTrait;
     use LoggerTrait;
 
-    const MINIMUM_SUPPORTED_VERSION = "22.04";
+    private const MINIMUM_SUPPORTED_VERSION = "22.04";
 
     /**
      * @param Container $dependencyInjector
