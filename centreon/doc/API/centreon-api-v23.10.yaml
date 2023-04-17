@@ -7,6 +7,7 @@ info:
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
     + Added service templates endpoints (GET)
+    + Add host template endpoints (POST, DELETE)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -287,7 +288,32 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/hosts/templates//{host_template_id}:
+    post:
+      tags:
+        - Host template
+      summary: "Create a host template"
+      description: |
+        Create a host template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration.Host.Template.Add"
+      responses:
+        '201':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/templates/{host_template_id}:
     delete:
       tags:
         - Host template
