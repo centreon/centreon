@@ -25,7 +25,6 @@ namespace Core\HostTemplate\Application\Exception;
 
 class HostTemplateException extends \Exception
 {
-    // TODO AddHostTemplate errors
 
     public const CODE_CONFLICT = 1;
 

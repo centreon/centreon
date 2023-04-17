@@ -15747,3 +15747,24 @@ msgstr ""
 
 # msgid "Error while deleting the service template"
 # msgstr ""
+
+#  msgid "Error while deleting a host template"
+#  msgstr ""
+
+#  msgid "Error while adding a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to add host templates"
+#  msgstr ""
+
+#  msgid "The %s with value '%d' does not exist"
+#  msgstr ""
+
+#  msgid "The name %s (original name: %s) already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host template"
+#  msgstr ""
