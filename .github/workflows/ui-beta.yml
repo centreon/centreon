@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
-      module_name: centreon
-      specs_path: packages/ui/src/**
+      module_name: centreon/packages/ui
+      specs_path: src/**
 
   unit-test:
     runs-on: ubuntu-22.04
