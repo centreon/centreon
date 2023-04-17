@@ -28,14 +28,15 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\Exception\ConfigurationException;
 use Core\Security\User\Domain\Exception\UserPasswordException;
 use Core\Security\User\Domain\Model\UserPasswordFactory;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 
 class RenewPassword
 {
@@ -88,7 +89,7 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch(UserPasswordException $ex) {
+        } catch(UserPasswordException | ConfigurationException $ex) {
             $this->error("Unable to update password", ["trace" => (string) $ex]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
