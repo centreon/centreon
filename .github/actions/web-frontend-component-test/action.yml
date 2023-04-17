@@ -27,7 +27,6 @@ runs:
 
     - name: LS
       run: |
-        ls
         echo ${{ inputs.spec_file_path }}
         echo ${{ inputs.prepath }}
         echo ${{ inputs.module }}
