@@ -174,9 +174,6 @@ sub getHostGroups {
 sub getHostCategoriesWithTemplate {
 	my $self = shift;
 
-    $self->loadAllCategories();
-    $self->loadAllHosts();
-
     my @hostCategoriesAllowed = split(/,/, $self->{etlProperties}->{'dimension.hostcategories'});
 
     my %loop = ();
@@ -210,11 +207,13 @@ sub getHostCategoriesWithTemplate {
 }
 
 sub getHostGroupAndCategories {
-	my $self = shift;
+    my $self = shift;
 	
     my $hostGroups = $self->getHostGroups();
+
+    $self->loadAllCategories();
+    $self->loadAllHosts();
     my $hostCategories = $self->getHostCategoriesWithTemplate();
-    my $hosts = $self->getAllHostsByName();
     my @results;
 
     while (my ($hostId, $groups) = each (%$hostGroups)) {
@@ -223,16 +222,16 @@ sub getHostGroupAndCategories {
         if (defined($categories_ref) && scalar(@$categories_ref)) {
             @categoriesTab = @$categories_ref;
         }
-        my $hostName = $hosts->{$hostId};
-        foreach(@$groups) {
+        my $hostName = $self->{hosts}->{$hostId};
+        foreach (@$groups) {
             my $group = $_;
             if (scalar(@categoriesTab)) {
                 foreach(@categoriesTab) {
-                    push @results, $hostId.";".$hostName.";".$group.";".$_;
+                    push @results, $hostId . ';' .$hostName . ';' . $group . ';' . $_;
                 }
     		} else {
                 #If there is no category
-                push @results, $hostId.";".$hostName.";".$group.";0;NoCategory";
+                push @results, $hostId . ";" . $hostName . ";" .  $group . ";0;NoCategory";
             }
         }
     }
