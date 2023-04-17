@@ -12,7 +12,7 @@
     "test": "jest",
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
-    "cypress:cli": "cypress run --component --    "cypress:cli": "./cypress/scripts/cypress-cli.sh",
+    "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome"
   },
