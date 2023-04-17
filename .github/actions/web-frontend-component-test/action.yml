@@ -33,6 +33,7 @@ runs:
       shell: bash
 
     - name: Cypress web component testing
+      working-directory: ${{ inputs.module }}
       uses: cypress-io/github-action@v5
       with:
         browser: chrome
