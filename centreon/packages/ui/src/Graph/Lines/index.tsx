@@ -7,13 +7,21 @@ import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';
 import { Shape } from './models';
 
+interface AnchorPoint {
+  renderRegularLinesAnchorPoint: any;
+  renderStackedAnchorPoint: any;
+}
+
 interface Props {
+  anchorPoint: AnchorPoint;
   height: number;
   shape: Shape;
 }
 
-const Lines = ({ height, shape }: Props): JSX.Element => {
+const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const { areaRegularLines, areaStackedLines } = shape;
+  const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
+    anchorPoint;
   const { regularStackedLinesData, invertedStackedLinesData } =
     areaStackedLines;
 
@@ -52,7 +60,6 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
   const xScaleRegularLines = areaRegularLines?.xScale;
 
   const commonStackedLinesProps = {
-    timeTick: areaStackedLines?.timeTick as Date,
     xScale: areaStackedLines?.xScale,
     yScale: stackedYScale
   };
@@ -62,6 +69,7 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
       {displayAreaStackedLines && (
         <StackedLines
           lines={regularStackedLines}
+          renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={regularStackedLinesTimeSeries}
           {...commonStackedLinesProps}
         />
@@ -69,6 +77,7 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
       {displayAreaInvertedStackedLines && (
         <StackedLines
           lines={invertedStackedLines}
+          renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={invertedStackedLinesTimeSeries}
           {...commonStackedLinesProps}
         />
@@ -100,17 +109,15 @@ const Lines = ({ height, shape }: Props): JSX.Element => {
 
               return (
                 <g key={metric}>
-                  {/* <RegularAnchorPoint
-                areaColor={areaColor}
-                displayTimeValues={displayTimeValues}
-                lineColor={lineColor}
-                metric={metric}
-                timeSeries={timeSeries}
-                timeTick={timeTick}
-                transparency={transparency}
-                xScale={xScale}
-                yScale={yScale}
-              /> */}
+                  {renderRegularLinesAnchorPoint?.({
+                    areaColor,
+                    lineColor,
+                    metric,
+                    regularLinesTimeSeries,
+                    transparency,
+                    xScaleRegularLines,
+                    yScale
+                  })}
                   <RegularLine
                     areaColor={areaColor}
                     filled={filled}

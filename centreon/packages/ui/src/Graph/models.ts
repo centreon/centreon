@@ -15,6 +15,16 @@ export interface Data {
   timeSeries: Array<TimeValue>;
 }
 
+export interface AnchorPoint {
+  [x: string]: unknown;
+  display: boolean;
+}
+
+export interface AreaAnchorPoint {
+  areaRegularLinesAnchorPoint: AnchorPoint;
+  areaStackedLinesAnchorPoint: AnchorPoint;
+}
+
 export interface ShapeLines {
   areaRegularLinesData?: AreaRegularLines;
   areaStackedLinesData?: AreaStackedLinesData;

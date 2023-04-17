@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
 interface DsData {
@@ -62,10 +60,10 @@ export interface AdditionalDataProps<T> {
   additionalData?: T | null;
 }
 
-export interface GetDisplayAdditionalLinesConditionProps {
-  condition: (resource: Resource | ResourceDetails) => boolean;
-  displayAdditionalLines: (args) => ReactNode;
-}
+// export interface GetDisplayAdditionalLinesConditionProps {
+//   condition: (resource: Resource | ResourceDetails) => boolean;
+//   displayAdditionalLines: (args) => ReactNode;
+// }
 
 export interface Xscale {
   dataTime: Array<TimeValue>;
@@ -131,4 +129,11 @@ export interface FormatMetricValueProps {
 export interface YScales {
   leftScale: ScaleLinear<number, number>;
   rightScale: ScaleLinear<number, number>;
+}
+
+export interface TimeValueProps {
+  marginLeft?: number;
+  timeSeries: Array<TimeValue>;
+  x: number;
+  xScale: ScaleLinear<number, number>;
 }

@@ -3,6 +3,7 @@ import {
   getNotInvertedStackedLines,
   getTimeSeriesForLines
 } from '../../../timeSeries';
+import { LinesData } from '../models';
 
 interface StackedLines {
   invertedStackedLines: LinesData;

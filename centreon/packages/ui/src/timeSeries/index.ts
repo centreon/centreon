@@ -1,5 +1,6 @@
 import numeral from 'numeral';
 import { Scale } from '@visx/visx';
+import { bisector } from 'd3-array';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
   map,
@@ -24,18 +25,22 @@ import {
   not,
   min,
   max,
-  lt
+  lt,
+  identity
 } from 'ramda';
+
+import { margin } from '../Graph/common';
+import { GraphData } from '../Graph/models';
 
 import {
   Metric,
   TimeValue,
-  GraphData,
   Line,
   AxeScale,
   Xscale,
   FormatMetricValueProps,
-  YScales
+  YScales,
+  TimeValueProps
 } from './models';
 
 interface TimeTickWithMetrics {
@@ -462,6 +467,20 @@ const getStackedYScale = ({
   });
 };
 
+const bisectDate = bisector(identity).center;
+
+const getTimeValue = ({
+  x,
+  xScale,
+  timeSeries,
+  marginLeft = margin.left
+}: TimeValueProps): TimeValue => {
+  const date = xScale.invert(x - marginLeft);
+  const index = bisectDate(getDates(timeSeries), date);
+
+  return timeSeries[index];
+};
+
 export {
   getTimeSeries,
   getLineData,
@@ -487,5 +506,7 @@ export {
   getXScale,
   getRightScale,
   formatMetricValue,
-  getStackedYScale
+  getStackedYScale,
+  getTimeValue,
+  bisectDate
 };

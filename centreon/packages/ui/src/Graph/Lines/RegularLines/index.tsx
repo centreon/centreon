@@ -4,9 +4,9 @@ import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, prop } from 'ramda';
 
-import { Line, TimeValue } from '../../../timeSeries/models';
-import { getFillColor } from '../../common';
 import { getTime } from '../../../timeSeries';
+import { TimeValue } from '../../../timeSeries/models';
+import { getFillColor } from '../../common';
 
 interface Props {
   areaColor: string;
@@ -14,7 +14,6 @@ interface Props {
   graphHeight: number;
   highlight?: boolean;
   lineColor: string;
-  lines: Array<Line>;
   metric: string;
   timeSeries: Array<TimeValue>;
   transparency: number;
@@ -30,7 +29,6 @@ const RegularLine = ({
   metric,
   lineColor,
   unit,
-  lines,
   yScale,
   xScale,
   areaColor,
@@ -38,10 +36,7 @@ const RegularLine = ({
   graphHeight,
   ...rest
 }: Props): JSX.Element => {
-  const strokeWidth = 0.8;
-
-  const isLegendClicked = lines?.length <= 1;
-  const isHighlighted = highlight || isLegendClicked ? 2 : strokeWidth;
+  const isHighlighted = highlight ? 2 : 0.8;
 
   const props = {
     curve: Curve.curveLinear,
