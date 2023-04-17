@@ -32,13 +32,13 @@ runs:
       with:
         node-version: 18
         cache: pnpm
-        cache-dependency-path: ${{ inputs.module }}
+        cache-dependency-path: ${{ inputs.module }}/tests/e2e
 
     - name: Install dependencies
       run: |
         pnpm install --frozen-lockfile
         pnpm cypress install --force
-      working-directory: ${{ inputs.module }}
+      working-directory: ${{ inputs.module }}/tests/e2e
       shell: bash
 
     - name: Format feature file path
