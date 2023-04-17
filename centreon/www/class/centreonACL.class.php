@@ -1445,25 +1445,28 @@ class CentreonACL
     /**
      * Function that returns
      *
-     * @param string $p
+     * @param mixed $p
      * @param bool $checkAction
+     *
      * @return int | 1 : if user is allowed to access the page
      *               0 : if user is NOT allowed to access the page
      */
-    public function page($p, $checkAction = false)
+    public function page(mixed $p, bool $checkAction = false): int
     {
         $this->checkUpdateACL();
         if ($this->admin) {
-            return 1;
+            return self::ACL_ACCESS_READ_WRITE;
         } elseif (isset($this->topology[$p])) {
-            if ($checkAction && $this->topology[$p] == 2 &&
-                isset($_REQUEST['o']) && $_REQUEST['o'] == 'a'
+            if (
+                $checkAction
+                && $this->topology[$p] == self::ACL_ACCESS_READ_ONLY
+                && isset($_REQUEST['o']) && $_REQUEST['o'] == 'a'
             ) {
-                return 0;
+                return self::ACL_ACCESS_NONE;
             }
-            return $this->topology[$p];
+            return (int) $this->topology[$p];
         }
-        return 0;
+        return self::ACL_ACCESS_NONE;
     }
 
     /**
