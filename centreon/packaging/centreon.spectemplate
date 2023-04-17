@@ -105,8 +105,6 @@ Requires:   php-curl
 Requires:   php-zip
 Requires:   php-pear
 Requires:   php-json
-Requires:   php-pecl-protobuf
-Requires:   php-pecl-grpc
 Requires:   openssl
 Requires:   perl-DBD-MySQL
 Requires:   perl-DBI

@@ -2,14 +2,14 @@ FROM almalinux:9 AS web_fresh
 
 RUN bash -e <<EOF
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
-dnf module reset -y php
-dnf module install -y php:remi-8.1
+dnf module enable -y php:8.1
 
 dnf install -y dnf-plugins-core
 
 dnf config-manager --set-enabled crb
+
 dnf install -y epel-release
+dnf install -y libfaketime
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
@@ -38,7 +38,7 @@ performance_schema      = ON
 open_files_limit        = 32000
 " > /etc/my.cnf.d/container.cnf
 
-dnf config-manager --add-repo https://centreon.jfrog.io/artifactory/rpm-standard/23.04/el9/centreon-23.04.repo
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/23.04/el9/centreon-23.04.repo
 dnf config-manager --set-enabled 'centreon*'
 
 dnf clean all --enablerepo=*
@@ -51,7 +51,7 @@ COPY *.rpm /tmp/rpms-centreon/
 RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
-dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
