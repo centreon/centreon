@@ -26,6 +26,10 @@ dnf install -y \
   cronie \
   httpd \
   initscripts \
+  libsodium \
+  libunwind \
+  lua \
+  openpgm \
   net-snmp \
   net-snmp-perl \
   net-snmp-utils \
@@ -34,30 +38,36 @@ dnf install -y \
   rrdtool-perl \
   rsync \
   sed \
-  sudo
+  sudo \
+  zeromq
 
 #############################
 # install perl dependencies #
 #############################
 
-# dnf install -y \
-#   perl
-#   perl-DBD-MySQL \
-#   perl-DBD-SQLite \
-#   perl-DBI \
-#   perl-HTML-Parser \
-#   perl-Net-Curl \
-#   perl Net-DNS \
-#   perl-Net-HTTP \
-#   perl-Net-Ping \
-#   perl-Pod-Parser \
-#   perl-Specio \
-#   perl-Test-Simple \
-#   perl-Unicode-Collate \
-#   perl-XML-LibXML \
-#   perl-XML-SAX \
-#   perl-XML-Twig \
-#   perltidy
+dnf install -y \
+  perl
+  perl-DBD-MySQL \
+  perl-DBD-SQLite \
+  perl-DBI \
+  perl-EV \
+  perl-FFI-CheckLib \
+  perl-FFI-Platypus \
+  perl-HTML-Parser \
+  perl-NetAddr-IP \
+  perl-Net-Curl \
+  perl Net-DNS \
+  perl-Net-HTTP \
+  perl-Net-Ping \
+  perl-Pod-Parser \
+  perl-Specio \
+  perl-Test-Simple \
+  perl-Unicode-Collate \
+  perl-XML-LibXML \
+  perl-XML-SAX \
+  perl-XML-Twig \
+  perl-UUID \
+  perltidy
 
 #############################
 # install test dependencies #
@@ -148,4 +158,4 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=+x ./.github/docker/init/* /etc/init.d/
+COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
