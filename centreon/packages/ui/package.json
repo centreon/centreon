@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.48-CENTREON/UI-integrate-cypress-and-add-tests-for-rich-text-editor.0",
+  "version": "23.4.47-CENTREON/UI-integrate-cypress-and-add-tests-for-rich-text-editor.0",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
