@@ -115,7 +115,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
         }
 
         # get Ldap contactgroups
-        if ($this->arguments['type'] != 'local') {
+        if ($this->arguments['type'] !== 'local') {
             $ldapCgs = array();
             if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
                 $maxItem = $this->arguments['page_limit'] * $this->arguments['page'];
