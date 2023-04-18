@@ -46,7 +46,7 @@ dnf install -y \
 #############################
 
 dnf install -y \
-  perl
+  perl \
   perl-DBD-MySQL \
   perl-DBD-SQLite \
   perl-DBI \
