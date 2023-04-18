@@ -1,7 +1,7 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
-import { insertContactFixture } from '../common';
+import { loginAsAdminViaApiV2 } from '../../../../commons';
+import { insertContactFixture, removeContact } from '../common';
 
 before(() => {
   cy.startWebContainer()
