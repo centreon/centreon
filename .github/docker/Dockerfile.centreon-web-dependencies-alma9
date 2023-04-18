@@ -22,6 +22,7 @@ dnf config-manager --set-enabled 'centreon*'
 dnf install -y \
   bc \
   brotli \
+  bzip2 \
   cronie \
   httpd \
   initscripts \
@@ -29,15 +30,34 @@ dnf install -y \
   net-snmp-perl \
   net-snmp-utils \
   openssl \
-  perl-DBD-MySQL \
-  perl-DBD-SQLite \
-  perl-DBI \
-  perl-HTML-Parser \
   rrdtool \
   rrdtool-perl \
   rsync \
   sed \
   sudo
+
+#############################
+# install perl dependencies #
+#############################
+
+# dnf install -y \
+#   perl
+#   perl-DBD-MySQL \
+#   perl-DBD-SQLite \
+#   perl-DBI \
+#   perl-HTML-Parser \
+#   perl-Net-Curl \
+#   perl Net-DNS \
+#   perl-Net-HTTP \
+#   perl-Net-Ping \
+#   perl-Pod-Parser \
+#   perl-Specio \
+#   perl-Test-Simple \
+#   perl-Unicode-Collate \
+#   perl-XML-LibXML \
+#   perl-XML-SAX \
+#   perl-XML-Twig \
+#   perltidy
 
 #############################
 # install test dependencies #
@@ -99,6 +119,30 @@ table_definition_cache  = 1400
 performance_schema      = ON
 open_files_limit        = 32000
 " > /etc/my.cnf.d/container.cnf
+
+################################
+# install collect dependencies #
+################################
+
+dnf install -y \
+  centreon-engine
+  centreon-plugin-Applications-Databases-Mysql \
+  centreon-plugin-Applications-Monitoring-Centreon-Central \
+  centreon-plugin-Applications-Monitoring-Centreon-Database \
+  centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx \
+  centreon-plugin-Applications-Monitoring-Centreon-Poller \
+  centreon-plugin-Applications-Protocol-Dns \
+  centreon-plugin-Applications-Protocol-Ftp \
+  centreon-plugin-Applications-Protocol-Http \
+  centreon-plugin-Applications-Protocol-Ldap \
+  centreon-plugin-Hardware-Printers-Generic-Snmp \
+  centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp \
+  centreon-plugin-Network-Cisco-Standard-Snmp \
+  centreon-plugin-Operatingsystems-Linux-Snmp \
+  centreon-plugin-Operatingsystems-Windows-Snmp \
+  nagios-plugins \
+  nagios-plugins-dhcp \
+  nagios-plugins-icmp
 
 dnf clean all --enablerepo=*
 
