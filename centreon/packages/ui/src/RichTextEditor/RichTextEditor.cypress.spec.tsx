@@ -54,6 +54,7 @@ describe('Rich Text Editor', () => {
       cy.findByLabelText('RichTextEditor')
         .should('be.visible')
         .and('have.value', '');
+
       cy.get('#RichTextEditor').contains('Type here...');
     });
 
