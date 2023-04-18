@@ -22,7 +22,6 @@ dnf config-manager --set-enabled 'centreon*'
 dnf install -y \
   bc \
   brotli \
-  coreutils \
   cronie \
   httpd \
   initscripts \
