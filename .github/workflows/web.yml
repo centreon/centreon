@@ -180,7 +180,7 @@ jobs:
     with:
       name: component
       module_name: centreon
-      specs_path: www/front_src/src/**
+      specs_path: www/front_src/src/**/
 
   backend-unit-test:
     runs-on: ubuntu-22.04

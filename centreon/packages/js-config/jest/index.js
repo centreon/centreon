@@ -5,7 +5,7 @@ module.exports = {
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/', '/src/RichTextEditor/'],
   transform: {
     '^.+\\.[jt]sx?$': [
       '@swc/jest',
