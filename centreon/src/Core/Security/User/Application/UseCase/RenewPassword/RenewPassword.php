@@ -96,7 +96,7 @@ class RenewPassword
             return;
         }  catch(\Throwable $ex) {
             $this->error('An error occured while updating password', ['trace' => (string) $ex]);
-            $presenter->setResponseStatus(new ErrorResponse("An error occured while updating password"));
+            $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
 
             return;
         }
