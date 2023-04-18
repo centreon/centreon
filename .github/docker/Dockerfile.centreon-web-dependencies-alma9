@@ -125,7 +125,7 @@ open_files_limit        = 32000
 ################################
 
 dnf install -y \
-  centreon-engine
+  centreon-engine \
   centreon-plugin-Applications-Databases-Mysql \
   centreon-plugin-Applications-Monitoring-Centreon-Central \
   centreon-plugin-Applications-Monitoring-Centreon-Database \
