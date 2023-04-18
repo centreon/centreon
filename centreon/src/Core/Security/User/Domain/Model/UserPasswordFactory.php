@@ -63,7 +63,7 @@ class UserPasswordFactory
             if ($securityPolicy->hasSpecialCharacter()) {
                 Assertion::regex(
                     $password,
-                    '/[' . preg_quote(SecurityPolicy::SPECIAL_CHARACTERS_LIST) . ']/',
+                    '/[' . SecurityPolicy::SPECIAL_CHARACTERS_LIST . ']/',
                     'UserPassword::passwordValue'
                 );
             }
