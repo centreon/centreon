@@ -99,7 +99,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
         $contactgroupList = array();
         foreach ($aclCgs['items'] as $id => $contactgroup) {
-            if (($this->arguments['type'] == 'local') && ($contactgroup['cg_type'] == 'ldap')) {
+            if (($this->arguments['type'] === 'local') && ($contactgroup['cg_type'] === 'ldap')) {
                 $aclCgs['total'] -= 1;
                 continue;
             }
