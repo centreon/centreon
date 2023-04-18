@@ -86,6 +86,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      * @param ContactRepositoryInterface $contactRepository
      * @param MenuServiceInterface $menuService
+     * @param PlatformRepositoryInterface $platformRepository
      */
     public function __construct(
         private AuthenticationServiceInterface $authenticationService,
