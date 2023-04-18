@@ -268,7 +268,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
@@ -305,6 +305,9 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_fresh
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
@@ -323,6 +326,9 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_standard
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}

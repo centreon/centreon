@@ -90,7 +90,7 @@ Requires:   mysql
 Requires:   httpd
 Requires:   mariadb
 %endif
-Requires:   php-common >= 8.0
+Requires:   php-common >= 8.1
 Requires:   php-cli
 Requires:   php-pdo
 Requires:   php-mysqlnd
