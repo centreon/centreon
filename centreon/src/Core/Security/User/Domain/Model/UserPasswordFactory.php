@@ -67,7 +67,7 @@ class UserPasswordFactory
                     'UserPassword::passwordValue'
                 );
             }
-        } catch (AssertionException | InvalidArgumentException | \ValueError) {
+        } catch (AssertionException | InvalidArgumentException) {
             //Throw a generic user password exception to avoid returning a plain password in the AssertionException.
             throw UserPasswordException::passwordDoesnotMatchSecurityPolicy();
         }
