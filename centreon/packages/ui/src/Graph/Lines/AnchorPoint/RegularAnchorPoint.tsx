@@ -11,8 +11,13 @@ import AnchorPoint from '.';
 interface Props {
   areaColor: string;
   displayTimeValues: boolean;
+  graphHeight: number;
+  graphWidth: number;
   lineColor: string;
   metric: string;
+  position: any;
+  positionX: number;
+  positionY: number;
   timeSeries: Array<TimeValue>;
   timeTick: Date | null;
   transparency: number;
@@ -77,5 +82,6 @@ export default memo(
   RegularAnchorPoint,
   (prevProps, nextProps) =>
     equals(prevProps.timeTick, nextProps.timeTick) &&
-    equals(prevProps.timeSeries, nextProps.timeSeries)
+    equals(prevProps.timeSeries, nextProps.timeSeries) &&
+    equals(prevProps.position, nextProps.position)
 );

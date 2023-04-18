@@ -11,7 +11,7 @@ const Header = ({ title, timeTick }: any): JSX.Element => {
         {title}
       </Typography>
 
-      <Typography align="center" variant="body1">
+      <Typography align="center" style={{ height: 20 }} variant="body1">
         {timeTick && toDateTime(timeTick)}
       </Typography>
     </>

@@ -1,10 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 
-import { Group, Shape } from '@visx/visx';
+import { Group } from '@visx/visx';
 import { difference } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { grey } from '@mui/material/colors';
 
 import {
   getLeftScale,
@@ -13,7 +11,6 @@ import {
   getXScale
 } from '../timeSeries';
 import { Line } from '../timeSeries/models';
-import useMemoComponent from '../utils/useMemoComponent';
 
 import Axes from './Axes';
 import Grids from './Grids';
@@ -157,8 +154,19 @@ const Graph = ({
   const displayRegularLinesAnchorPoint =
     anchorPoint?.areaRegularLinesAnchorPoint?.display ?? true;
 
-  const displayLinesForAnchorPoint =
-    displayStackedAnchorPoint || displayRegularLinesAnchorPoint;
+  const mouseLeave = (): void => {
+    setEventMouseMoving(null);
+  };
+
+  const commonAnchorPoint = {
+    displayTimeValues: true,
+    graphHeight,
+    graphWidth,
+    position,
+    positionX,
+    positionY,
+    timeTick
+  };
 
   return (
     <>
@@ -168,6 +176,7 @@ const Graph = ({
           className={classes.overlay}
           left={margin.left}
           top={margin.top}
+          onMouseLeave={mouseLeave}
           onMouseMove={setEventMouseMoving}
         >
           <Grids
@@ -190,29 +199,6 @@ const Graph = ({
             width={graphWidth}
             xScale={xScale}
           />
-          {useMemoComponent({
-            Component: displayLinesForAnchorPoint ? (
-              <g>
-                <Shape.Line
-                  from={{ x: positionX, y: 0 }}
-                  pointerEvents="none"
-                  stroke={grey[400]}
-                  strokeWidth={1}
-                  to={{ x: positionX, y: graphHeight }}
-                />
-                <Shape.Line
-                  from={{ x: 0, y: positionY }}
-                  pointerEvents="none"
-                  stroke={grey[400]}
-                  strokeWidth={1}
-                  to={{ x: graphWidth, y: positionY }}
-                />
-              </g>
-            ) : (
-              <g />
-            ),
-            memoProps: [position]
-          })}
           <Lines
             anchorPoint={{
               renderRegularLinesAnchorPoint: ({
@@ -227,15 +213,14 @@ const Graph = ({
                 <g>
                   {displayRegularLinesAnchorPoint && (
                     <RegularAnchorPoint
-                      displayTimeValues
                       areaColor={areaColor}
                       lineColor={lineColor}
                       metric={metric}
                       timeSeries={regularLinesTimeSeries}
-                      timeTick={timeTick}
                       transparency={transparency}
                       xScale={xScaleRegularLines}
                       yScale={yScale}
+                      {...commonAnchorPoint}
                       {...anchorPoint?.areaRegularLinesAnchorPoint}
                     />
                   )}
@@ -252,14 +237,13 @@ const Graph = ({
                 <g>
                   {displayStackedAnchorPoint && (
                     <StackedAnchorPoint
-                      displayTimeValues
                       areaColor={areaColor}
                       lineColor={lineColor}
                       stackValues={stack as unknown as Array<StackValue>}
-                      timeTick={timeTick}
                       transparency={transparency}
                       xScale={x}
                       yScale={y}
+                      {...commonAnchorPoint}
                       {...anchorPoint?.areaStackedLinesAnchorPoint}
                     />
                   )}

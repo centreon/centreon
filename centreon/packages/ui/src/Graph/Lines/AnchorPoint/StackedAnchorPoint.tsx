@@ -17,7 +17,12 @@ export type StackValue = [number, number, StackData];
 interface Props {
   areaColor: string;
   displayTimeValues: boolean;
+  graphHeight: number;
+  graphWidth: number;
   lineColor: string;
+  position: any;
+  positionX: number;
+  positionY: number;
   stackValues: Array<StackValue>;
   timeTick: Date | null;
   transparency: number;
@@ -91,5 +96,6 @@ export default memo(
   StackedAnchorPoint,
   (prevProps, nextProps) =>
     equals(prevProps.timeTick, nextProps.timeTick) &&
-    equals(prevProps.stackValues, nextProps.stackValues)
+    equals(prevProps.stackValues, nextProps.stackValues) &&
+    equals(prevProps.position, nextProps.position)
 );

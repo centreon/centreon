@@ -27,12 +27,14 @@ const useAnchorPoint = ({
     changeMousePositionAndTimeValueDerivedAtom
   );
 
-  const { x, y } = Event.localPoint(
+  const mousePoint = Event.localPoint(
     graphSvgRef.current as SVGSVGElement,
     event
-  ) || { x: 0, y: 0 };
+  );
 
-  const position: MousePosition = [x, y];
+  const position: MousePosition = mousePoint
+    ? [mousePoint.x, mousePoint.y]
+    : null;
 
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
@@ -71,6 +73,11 @@ const useAnchorPoint = ({
   const positionX = (position?.[0] || 0) - margin.left;
   const positionY = (position?.[1] || 0) - margin.top;
 
-  return { position: mousePosition, positionX, positionY, timeTick };
+  return {
+    position: mousePosition,
+    positionX,
+    positionY,
+    timeTick
+  };
 };
 export default useAnchorPoint;
