@@ -21,7 +21,8 @@ dnf config-manager --set-enabled 'centreon*'
 
 dnf install -y \
   bc \
-  brotly \
+  brotli \
+  coreutils \
   cronie \
   httpd \
   initscripts \
@@ -35,7 +36,9 @@ dnf install -y \
   perl-HTML-Parser \
   rrdtool \
   rrdtool-perl \
-  rsync
+  rsync \
+  sed \
+  sudo
 
 #############################
 # install test dependencies #
