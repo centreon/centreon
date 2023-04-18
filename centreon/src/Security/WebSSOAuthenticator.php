@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Security;
 
-use Security\Domain\Authentication\Model\Session;
 use Centreon\Domain\Contact\Interfaces\{ContactInterface, ContactRepositoryInterface};
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
@@ -50,6 +49,7 @@ use DateInterval;
 use DateTimeImmutable;
 use FOS\RestBundle\View\View;
 use Security\Domain\Authentication\Interfaces\{AuthenticationServiceInterface, SessionRepositoryInterface};
+use Security\Domain\Authentication\Model\Session;
 use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Security\Core\Exception\{
     AuthenticationException,
