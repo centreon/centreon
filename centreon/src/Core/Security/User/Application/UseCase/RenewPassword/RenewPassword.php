@@ -90,7 +90,7 @@ class RenewPassword
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
         } catch(UserPasswordException | ConfigurationException $ex) {
-            $this->error("Unable to update password", ["trace" => (string) $ex]);
+            $this->error('Unable to update password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
             return;
