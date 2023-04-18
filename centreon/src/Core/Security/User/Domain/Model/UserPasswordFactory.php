@@ -63,11 +63,11 @@ class UserPasswordFactory
             if ($securityPolicy->hasSpecialCharacter()) {
                 Assertion::regex(
                     $password,
-                    '/[' . SecurityPolicy::SPECIAL_CHARACTERS_LIST . ']/',
+                    '/[' . preg_quote(SecurityPolicy::SPECIAL_CHARACTERS_LIST) . ']/',
                     'UserPassword::passwordValue'
                 );
             }
-        } catch (AssertionException | InvalidArgumentException) {
+        } catch (AssertionException | InvalidArgumentException | \ValueError) {
             //Throw a generic user password exception to avoid returning a plain password in the AssertionException.
             throw UserPasswordException::passwordDoesnotMatchSecurityPolicy();
         }

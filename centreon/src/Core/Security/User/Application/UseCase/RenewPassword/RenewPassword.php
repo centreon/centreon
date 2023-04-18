@@ -89,12 +89,12 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch(UserPasswordException | ConfigurationException $ex) {
+        } catch (UserPasswordException | ConfigurationException $ex) {
             $this->error('Unable to update password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
             return;
-        }  catch(\Throwable $ex) {
+        }  catch (\Throwable $ex) {
             $this->error('An error occured while updating password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
 
