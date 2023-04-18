@@ -24,12 +24,16 @@ declare(strict_types=1);
 namespace Core\Security\Application\UseCase\RenewPassword;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Security\Domain\User\Model\UserPasswordFactory;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Security\Application\Exception\UserPasswordException;
 use Core\Security\Application\User\Repository\ReadUserRepositoryInterface;
 use Core\Security\Application\User\Repository\WriteUserRepositoryInterface;
+use Core\Security\Infrastructure\ProviderConfiguration\Local\Api\Exception\ConfigurationException;
 use Core\Security\Application\ProviderConfiguration\Local\Repository\ReadConfigurationRepositoryInterface;
 
 class RenewPassword
@@ -74,20 +78,32 @@ class RenewPassword
             return;
         }
 
+        try {
+            $providerConfiguration = $this->readConfigurationRepository->findConfiguration();
+            if ($providerConfiguration === null) {
+                $this->error('No local configuration could be found');
+                $presenter->setResponseStatus(new NotFoundResponse('Configuration'));
+                return;
+            }
 
-        $providerConfiguration = $this->readConfigurationRepository->findConfiguration();
-        if ($providerConfiguration === null) {
-            $this->error('No local configuration could be found');
-            $presenter->setResponseStatus(new NotFoundResponse('Configuration'));
+            $this->info('Validate password against security policy');
+            $newPassword = UserPasswordFactory::create(
+                $renewPasswordRequest->newPassword,
+                $user,
+                $providerConfiguration->getSecurityPolicy()
+            );
+
+        } catch(UserPasswordException | ConfigurationException $ex) {
+            $this->error('Unable to update password', ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
+
+            return;
+        } catch(\Throwable $ex) {
+            $this->error('An error occured while updating password', ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
+
             return;
         }
-
-        $this->info('Validate password against security policy');
-        $newPassword = UserPasswordFactory::create(
-            $renewPasswordRequest->newPassword,
-            $user,
-            $providerConfiguration->getSecurityPolicy()
-        );
         $user->setPassword($newPassword);
 
         $this->info('Updating user password', [
