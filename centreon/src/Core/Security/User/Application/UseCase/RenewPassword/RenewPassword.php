@@ -82,7 +82,7 @@ class RenewPassword
 
         try {
             /** @var Configuration $providerConfiguration */
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
             $this->info('Validate password against security policy');
             $newPassword = UserPasswordFactory::create(
                 $renewPasswordRequest->newPassword,
