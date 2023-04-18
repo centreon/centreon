@@ -101,8 +101,7 @@
   },
   "jest-junit": {
     "suiteName": "jest tests",
-    "output": "./junit.,xml",
-    "testPathIgnorePatterns": ["src/RichTextEditor/RichTextEditor.cypress.spec.tsx"]
+    "output": "./junit.,xml"
   },
   "resolutions": {
     "@storybook/manager-webpack5/html-webpack-plugin": "^5.0.0"
