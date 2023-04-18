@@ -56,7 +56,7 @@ dnf install -y \
   perl-HTML-Parser \
   perl-NetAddr-IP \
   perl-Net-Curl \
-  perl Net-DNS \
+  perl-Net-DNS \
   perl-Net-HTTP \
   perl-Net-Ping \
   perl-Pod-Parser \
