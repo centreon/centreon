@@ -4,11 +4,18 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture, removeContact } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
-  insertContactFixture();
-  cy.intercept(
-    '/centreon/api/internal.php?object=centreon_topcounter&action=user'
-  ).as('userTopCounterEndpoint');
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    })
+    .then(() => {
+      return insertContactFixture();
+    })
+    .intercept(
+      '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    ).as('userTopCounterEndpoint');
 });
 
 When('I enter my credentials on the login page', () => {
@@ -42,4 +49,7 @@ Then('I am logged out and redirected to the login page', () => {
   cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
-after(removeContact);
+after(() => {
+  //removeContact
+  cy.stopContainer(Cypress.env('dockerName'));
+});

@@ -11,7 +11,12 @@ import {
 } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    });
   initializeConfigACLAndGetLoginPage();
 });
 

@@ -3,7 +3,12 @@ import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import { removeContact, initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    });
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -100,7 +105,7 @@ Given(
 
 When('a user generates his autologin key', () => {
   cy.getIframeBody()
-    .find('form #tab1 table tbody tr')
+    .find('form #tab1')
     .within(() => {
       cy.get('#generateAutologinKeyButton').click();
       cy.get('#aKey').invoke('val').should('not.be.undefined');
@@ -109,7 +114,7 @@ When('a user generates his autologin key', () => {
 
 Then('the key is properly generated and displayed', () => {
   cy.getIframeBody()
-    .find('form #tab1 table tbody tr')
+    .find('form #tab1')
     .within(() => {
       cy.get('#generateAutologinKeyButton')
         .invoke('val')
@@ -162,11 +167,18 @@ Given(
       preserveToken: true
     });
     cy.visit('/centreon/main.php?p=50104&o=c');
-    cy.isInProfileMenu('Copy autologin link')
+    cy.wait(2000)
+      .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
-      .invoke('text')
-      .as('link')
-      .should('not.be.undefined');
+      //.invoke('text')
+      .then(($text1) => {
+        let textValue1 = $text1.text()
+        cy.wrap(textValue1).as('link').should('not.be.undefined');
+      });
+      //.as('link')
+      //.should('not.be.undefined');
+
+    //cy.exec('echo ' + JSON.stringify(cy.get('@link')))
 
     cy.contains('Logout').click();
 

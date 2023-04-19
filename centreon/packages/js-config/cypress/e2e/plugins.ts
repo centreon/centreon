@@ -37,7 +37,12 @@ const getWebpackOptions = (config): object => {
 };
 
 export default async (on, config): Promise<void> => {
-  await addCucumberPreprocessorPlugin(on, config);
+  await addCucumberPreprocessorPlugin(on, config, {
+    omitBeforeRunHandler: true,
+    omitBeforeSpecHandler: true,
+  });
+
+  //const baseUrlIPAddress = isDevelopment ? '0.0.0.0' : 'localhost';
 
   const webpackOptions = await getWebpackOptions(config);
   const options = {

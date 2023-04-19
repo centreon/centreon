@@ -30,9 +30,9 @@ export default ({
     chromeWebSecurity: false,
     defaultCommandTimeout: 6000,
     e2e: {
-      baseUrl: `http://${baseUrlIPAddress}:4000`,
+      //baseUrl: 'http://0.0.0.0:4000',
+      //port: 4000,
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
-      experimentalSessionAndOrigin: true,
       setupNodeEvents,
       specPattern
     },
@@ -53,6 +53,6 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
-    videosFolder: `${resultsFolder}/videos`
+    videosFolder: `${resultsFolder}/videos`,
   });
 };

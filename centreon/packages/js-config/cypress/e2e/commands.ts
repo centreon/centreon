@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -101,14 +101,8 @@ Cypress.Commands.add(
             url: apiLoginV2
           });
         })
-        .then(() => {
-          Cypress.Cookies.defaults({
-            preserve: 'PHPSESSID'
-          });
-        })
-        .then(() => {
-          cy.visit(`${Cypress.config().baseUrl}`);
-        });
+        .visit(`${Cypress.config().baseUrl}`)
+        .wait('@getNavigationList');
     }
     cy.visit(`${Cypress.config().baseUrl}`)
       .fixture(`users/${jsonName}.json`)
@@ -176,9 +170,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
-  return cy
-    .exec(`npx wait-on ${Cypress.config().baseUrl}`)
-    .then(() => cy.setUserTokenApiV1());
+  return cy.setUserTokenApiV1();
 });
 
 interface StartContainerProps {
@@ -190,9 +182,18 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, os, version }: StartContainerProps): Cypress.Chainable => {
+    cy.on('uncaught:exception', (err, runnable) => {
+      return false
+    })
     return cy.exec(
-      `docker run -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web-${os}:${version}`
-    );
+      `docker run -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web-${os}:${version} || true`
+    ).then(() => {
+      const baseUrl = 'http://localhost:4000';
+      Cypress.config('baseUrl', baseUrl);
+      return cy.exec(`npx wait-on -v ${baseUrl}/centreon/api/latest/platform/installation/status`)
+    })
+    .visit('/')
+    .setUserTokenApiV1();
   }
 );
 
@@ -200,7 +201,7 @@ Cypress.Commands.add(
   'stopContainer',
   (containerName: string): Cypress.Chainable => {
     return cy.exec(
-      `docker stop ${containerName} && docker rm ${containerName}`
+      `docker kill ${containerName} && docker rm ${containerName}`
     );
   }
 );
@@ -225,7 +226,11 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
-      startContainer: () => Cypress.Chainable;
+      startContainer: ({
+        name,
+        os,
+        version
+      }: StartContainerProps) => Cypress.Chainable;
       stopContainer: (containerName: string) => Cypress.Chainable;
       waitForContainerAndSetToken: () => Cypress.Chainable;
     }

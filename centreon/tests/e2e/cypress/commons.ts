@@ -14,7 +14,7 @@ const stepWaitingTime = 250;
 const pollingCheckTimeout = 100000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
@@ -144,9 +144,11 @@ const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
       });
     })
     .then(() => {
+      /*
       Cypress.Cookies.defaults({
         preserve: 'PHPSESSID'
       });
+      */
     });
 };
 
