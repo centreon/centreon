@@ -100,6 +100,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         private MenuServiceInterface $menuService,
         private PlatformRepositoryInterface $platformRepository
     ) {
+        /** @var string */
         $webVersion = $this->platformRepository->getWebVersion();
         if (VersionHelper::compare($webVersion, self::MINIMUM_SUPPORTED_VERSION, VersionHelper::GE)) {
             $this->provider = $this->providerFactory->create(Provider::WEB_SSO);
@@ -111,6 +112,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): bool
     {
+        /** @var string */
         $webVersion = $this->platformRepository->getWebVersion();
         // We skip all API calls
         if (
