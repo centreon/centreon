@@ -141,9 +141,6 @@ $getTopologyUrl = function (mixed $data): ?string {
 
 $redirect = $loadTopology((int) $p);
 
-if ($redirect && $redirect['topology_url_substitute'] !== null) {
-    $redirect['topology_url'] = $redirect['topology_url_substitute'];
-}
 /**
  *  Is server a remote ?
  */
