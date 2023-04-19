@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { atomWithDefault, atomWithStorage } from 'jotai/utils';
+import { atomWithStorage, atomWithDefault } from 'jotai/utils';
 import {
   find,
   findIndex,
