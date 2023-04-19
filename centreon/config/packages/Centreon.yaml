@@ -37,8 +37,13 @@ services:
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+    Logger:
+        class: Centreon\Domain\Log\Logger
+
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
+        bind:
+            $logger: '@Logger'
         arguments:
             $host: '%database_host%'
             $port: '%database_port%'
