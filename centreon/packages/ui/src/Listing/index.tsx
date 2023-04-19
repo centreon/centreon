@@ -47,7 +47,7 @@ import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import getCumulativeOffset from './getCumulativeOffset';
-import ListingHeader, { headerHeight } from './Header/index';
+import ListingHeader from './Header/index';
 import {
   Column,
   ColumnConfiguration,
@@ -58,10 +58,10 @@ import {
   TableStyleAtom as TableStyle
 } from './models';
 import ListingRow from './Row';
-import ListingLoadingSkeleton from './Skeleton';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
+import LoadingSkeleton from "../LoadingSkeleton";
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -125,20 +125,20 @@ const useStyles = makeStyles<StylesProps>()(
       width: '100%'
     },
     table: {
-      '.listingHeader > div > div:first-of-type': {
-        paddingLeft: theme.spacing(1.5)
-      },
-      '.listingHeader div div': {
+      '.listingHeader': {
         backgroundColor: theme.palette.background.listingHeader,
         boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
-        height: dataStyle.header.height,
-        padding: 0
+        padding: theme.spacing(0, 1)
+      },
+      '.listingHeader > div > div:first-of-type': {
+        height: '100%',
+        paddingLeft: theme.spacing(1.5)
       },
       alignItems: 'center',
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length
+          rows?.length || 3 // add min 3 rows if no data (for empty state and skeleton loader)
       }, ${dataStyle.body.height}px)`,
       position: 'relative'
     },
@@ -490,7 +490,7 @@ const Listing = <TRow extends { id: RowId }>({
 
     return `calc(100vh - ${tableTopOffset}px - ${
       actionBarRef.current?.offsetHeight
-    }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
+    }px - ${dataStyle.header.height}px - ${loadingIndicatorHeight}px - ${theme.spacing(
       1
     )})`;
   };
@@ -514,6 +514,9 @@ const Listing = <TRow extends { id: RowId }>({
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
+
+
+
 
   return (
     <>
@@ -661,26 +664,48 @@ const Listing = <TRow extends { id: RowId }>({
                   </ListingRow>
                 );
               })}
+
               {rows.length < 1 && (
-                <TableRow
-                  className={classes.emptyDataRow}
-                  component="div"
-                  tabIndex={-1}
-                >
-                  <Cell
-                    align="center"
-                    className={classes.emptyDataCell}
-                    disableRowCondition={(): boolean => false}
-                    isRowHovered={false}
+                loading ? (
+                  [...Array(3)].map((v, i) =>
+                    <TableRow
+                      className={classes.emptyDataRow}
+                      component="div"
+                      tabIndex={-1}
+                      key={i}
+                    >
+                      <Cell
+                        align="center"
+                        className={classes.emptyDataCell}
+                        disableRowCondition={(): boolean => false}
+                        isRowHovered={false}
+                      >
+                        <LoadingSkeleton
+                          height={dataStyle.body.height}
+                          variant="text"
+                          width="100%"
+                        />
+                      </Cell>
+                    </TableRow>
+                  )
+                ) : (
+                  <TableRow
+                    className={classes.emptyDataRow}
+                    component="div"
+                    tabIndex={-1}
                   >
-                    {loading ? (
-                      <ListingLoadingSkeleton />
-                    ) : (
-                      t(labelNoResultFound)
-                    )}
-                  </Cell>
-                </TableRow>
+                    <Cell
+                      align="center"
+                      className={classes.emptyDataCell}
+                      disableRowCondition={(): boolean => false}
+                      isRowHovered={false}
+                    >
+                      {t(labelNoResultFound)}
+                    </Cell>
+                  </TableRow>
+                )
               )}
+
             </TableBody>
           </Table>
         </Box>

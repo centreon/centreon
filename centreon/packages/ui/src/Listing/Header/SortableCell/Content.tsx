@@ -42,7 +42,7 @@ const useStyles = makeStyles<StylesProps>()(
       borderRadius: isDragging && isInDragOverlay ? theme.spacing(0.5) : 0,
       color: theme.palette.common.white,
       display: 'flex',
-      minHeight: theme.spacing(3)
+      height: '100%'
     },
     dragHandle: {
       alignSelf: 'center',
@@ -60,7 +60,8 @@ const useStyles = makeStyles<StylesProps>()(
         ? 'transparent'
         : theme.palette.background.listingHeader,
       borderBottom: 'none',
-      padding: 0,
+      height: '100%',
+      padding: theme.spacing(0, 1),
       ...getTextStyleByViewMode({ theme, viewMode })
     }
   })
