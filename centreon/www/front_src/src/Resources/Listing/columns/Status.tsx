@@ -1,7 +1,7 @@
-import { useUpdateAtom } from 'jotai/utils';
 import { equals, isNil, path, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useSetAtom } from 'jotai';
 
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
@@ -68,7 +68,7 @@ const StatusColumnOnHover = ({
   const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
 
-  const setForcedCheckInlineEndpoint = useUpdateAtom(
+  const setForcedCheckInlineEndpoint = useSetAtom(
     forcedCheckInlineEndpointAtom
   );
 

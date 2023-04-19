@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { isNil, isEmpty, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { Typography } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -58,7 +58,7 @@ const PollerWizardStepOne = ({
     request: postData
   });
 
-  const setWizard = useUpdateAtom(setWizardDerivedAtom);
+  const setWizard = useSetAtom(setWizardDerivedAtom);
 
   const getWaitList = (): void => {
     sendRequest({
