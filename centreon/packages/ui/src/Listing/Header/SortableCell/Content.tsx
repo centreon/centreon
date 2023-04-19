@@ -62,7 +62,7 @@ const useStyles = makeStyles<StylesProps>()(
         ? 'transparent'
         : theme.palette.background.listingHeader,
       borderBottom: 'none',
-      height: 'inherit',
+      height: '100%',
       padding: theme.spacing(0, 1),
       ...getTextStyleByViewMode({ theme, viewMode })
     }
