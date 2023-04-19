@@ -33,16 +33,16 @@ use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Centreon\Domain\VersionHelper;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\Provider\{
-    ProviderAuthenticationInterface,
-    ProviderAuthenticationFactoryInterface
+    ProviderAuthenticationFactoryInterface,
+    ProviderAuthenticationInterface
 };
 use Core\Security\Authentication\Application\Repository\{
-    WriteTokenRepositoryInterface,
-    WriteSessionRepositoryInterface
+    WriteSessionRepositoryInterface,
+    WriteTokenRepositoryInterface
 };
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
-use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException as CentreonAuthenticationException;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\{NewProviderToken, ProviderToken};
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use DateInterval;
@@ -51,6 +51,7 @@ use FOS\RestBundle\View\View;
 use Security\Domain\Authentication\Interfaces\{AuthenticationServiceInterface, SessionRepositoryInterface};
 use Security\Domain\Authentication\Model\Session;
 use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\{
     AuthenticationException,
     BadCredentialsException,
@@ -62,7 +63,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WebSSOAuthenticator extends AbstractAuthenticator
 {
