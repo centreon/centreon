@@ -9,20 +9,19 @@ const initializeContactData = (): Cypress.Chainable => {
 const insertContactFixture = (): Cypress.Chainable => {
   return initializeContactData()
     .then(applyConfigurationViaClapi)
-    .then(() => cy.visit(`${Cypress.config().baseUrl}`))
     .then(() => cy.fixture('users/admin.json'));
 };
 
 const removeContact = (): Cypress.Chainable => {
-  return cy.setUserTokenApiV1().then(() => {
-    cy.executeActionViaClapi({
+  return cy
+    .setUserTokenApiV1()
+    .executeActionViaClapi({
       bodyContent: {
         action: 'DEL',
         object: 'CONTACT',
         values: 'user1'
       }
     });
-  });
 };
 
 export { insertContactFixture, removeContact };

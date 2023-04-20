@@ -104,6 +104,6 @@ Then('the problematic Resource is displayed as in downtime', () => {
 
 after(() => {
   cy
-    .logout()
+    .visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'));
 });

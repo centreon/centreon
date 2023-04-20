@@ -98,6 +98,6 @@ Then(
 
 after(() => {
   cy
-    .logout()
+    .visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'));
 });

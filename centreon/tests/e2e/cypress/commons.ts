@@ -142,13 +142,6 @@ const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
         method: 'POST',
         url: apiLoginV2
       });
-    })
-    .then(() => {
-      /*
-      Cypress.Cookies.defaults({
-        preserve: 'PHPSESSID'
-      });
-      */
     });
 };
 

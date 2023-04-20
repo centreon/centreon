@@ -195,6 +195,7 @@ Then('the page is reached without manual login', () => {
 });
 
 after(() => {
-  cy.removeACL();
-  removeContact();
+  cy
+    .visitEmptyPage()
+    .stopContainer(Cypress.env('dockerName'));
 });

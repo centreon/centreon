@@ -247,6 +247,6 @@ Then('the configuration is not generated on selected pollers', () => {
 
 after(() => {
   cy
-    .logout()
+    .visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'));
 });

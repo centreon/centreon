@@ -517,6 +517,7 @@ Then(
 );
 
 after(() => {
-  cy.removeACL();
-  removeContact();
+  cy
+    .visitEmptyPage()
+    .stopContainer(Cypress.env('dockerName'));
 });

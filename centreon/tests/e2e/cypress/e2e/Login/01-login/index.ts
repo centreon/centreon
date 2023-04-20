@@ -34,8 +34,9 @@ Then('I am redirected to the default page', () => {
 
 Given('I am logged in', () => {
   loginAsAdminViaApiV2();
-  cy.visit(`${Cypress.config().baseUrl}/centreon/monitoring/resources`);
-  cy.url().should('include', '/monitoring/resources');
+  cy
+    .visit('/')
+    .url().should('include', '/monitoring/resources');
 });
 
 When('I click on the logout action', () => {
@@ -51,6 +52,6 @@ Then('I am logged out and redirected to the login page', () => {
 
 after(() => {
   cy
-    .logout()
+    .visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'));
 });
