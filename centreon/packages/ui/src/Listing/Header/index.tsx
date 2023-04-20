@@ -25,7 +25,6 @@ import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
 import PredefinedSelectionList from './PredefinedSelectionList';
 import SortableHeaderCellContent from './SortableCell/Content';
 
-
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
     '&.Mui-checked': {

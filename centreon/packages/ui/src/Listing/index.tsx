@@ -41,6 +41,7 @@ import { ListingVariant } from '@centreon/ui-context';
 
 import useKeyObserver from '../utils/useKeyObserver';
 import useMemoComponent from '../utils/useMemoComponent';
+import LoadingSkeleton from '../LoadingSkeleton';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
@@ -61,7 +62,6 @@ import ListingRow from './Row';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
-import LoadingSkeleton from "../LoadingSkeleton";
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -138,7 +138,7 @@ const useStyles = makeStyles<StylesProps>()(
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-          rows?.length || 3 // add min 3 rows if no data (for empty state and skeleton loader)
+        rows?.length || 3 // add min 3 rows if no data (for empty state and skeleton loader)
       }, ${dataStyle.body.height}px)`,
       position: 'relative'
     },
@@ -490,9 +490,9 @@ const Listing = <TRow extends { id: RowId }>({
 
     return `calc(100vh - ${tableTopOffset}px - ${
       actionBarRef.current?.offsetHeight
-    }px - ${dataStyle.header.height}px - ${loadingIndicatorHeight}px - ${theme.spacing(
-      1
-    )})`;
+    }px - ${
+      dataStyle.header.height
+    }px - ${loadingIndicatorHeight}px - ${theme.spacing(1)})`;
   };
 
   const changeLimit = (updatedLimit: string): void => {
@@ -514,9 +514,6 @@ const Listing = <TRow extends { id: RowId }>({
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
-
-
-
 
   return (
     <>
@@ -665,14 +662,14 @@ const Listing = <TRow extends { id: RowId }>({
                 );
               })}
 
-              {rows.length < 1 && (
-                loading ? (
-                  [...Array(3)].map((v, i) =>
+              {rows.length < 1 &&
+                (loading ? (
+                  [...Array(3)].map((v, i) => (
                     <TableRow
                       className={classes.emptyDataRow}
                       component="div"
-                      tabIndex={-1}
                       key={i}
+                      tabIndex={-1}
                     >
                       <Cell
                         align="center"
@@ -687,7 +684,7 @@ const Listing = <TRow extends { id: RowId }>({
                         />
                       </Cell>
                     </TableRow>
-                  )
+                  ))
                 ) : (
                   <TableRow
                     className={classes.emptyDataRow}
@@ -703,9 +700,7 @@ const Listing = <TRow extends { id: RowId }>({
                       {t(labelNoResultFound)}
                     </Cell>
                   </TableRow>
-                )
-              )}
-
+                ))}
             </TableBody>
           </Table>
         </Box>
