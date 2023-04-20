@@ -4,6 +4,8 @@ import { Group } from '@visx/visx';
 import { difference } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import { alpha, useTheme } from '@mui/system';
+
 import {
   getLeftScale,
   getRightScale,
@@ -15,12 +17,14 @@ import { Line } from '../timeSeries/models';
 import Axes from './Axes';
 import Grids from './Grids';
 import Header from './Header';
-import Lines from './Lines';
-import RegularAnchorPoint from './Lines/AnchorPoint/RegularAnchorPoint';
+import RegularAnchorPoint from './InteractionWithGraph/AnchorPoint/RegularAnchorPoint';
 import StackedAnchorPoint, {
   StackValue
-} from './Lines/AnchorPoint/StackedAnchorPoint';
-import useAnchorPoint from './Lines/AnchorPoint/useAnchorPoint';
+} from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
+import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
+import ZoomPreview from './InteractionWithGraph/ZoomPreview';
+import useZoomPreview from './InteractionWithGraph/ZoomPreview/useZoomPreview';
+import Lines from './Lines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { margin } from './common';
 import { adjustGraphData } from './helpers';
@@ -61,6 +65,9 @@ const Graph = ({
   const { classes } = useStyles();
 
   const [eventMouseMoving, setEventMouseMoving] = useState<null | any>(null);
+  const [eventMouseDown, setEventMouseDown] = useState<null | any>(null);
+
+  const theme = useTheme();
 
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -78,11 +85,6 @@ const Graph = ({
     'lines' in graphData ? graphData.lines : adjustGraphData(graphData).lines;
   const baseAxis =
     'baseAxis' in graphData ? graphData.baseAxis : graphData.global?.base;
-
-  const { regularStackedLines, invertedStackedLines } = useStackedLines({
-    lines,
-    timeSeries
-  });
 
   const xScale = useMemo(
     () =>
@@ -120,6 +122,16 @@ const Graph = ({
     xScale
   });
 
+  const { regularStackedLines, invertedStackedLines } = useStackedLines({
+    lines,
+    timeSeries
+  });
+
+  const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
+    eventMouseDown,
+    movingMouseX: positionX
+  });
+
   const regularLines = (): Array<Line> => {
     const stackedLines = getSortedStackedLines(lines);
 
@@ -154,10 +166,6 @@ const Graph = ({
   const displayRegularLinesAnchorPoint =
     anchorPoint?.areaRegularLinesAnchorPoint?.display ?? true;
 
-  const mouseLeave = (): void => {
-    setEventMouseMoving(null);
-  };
-
   const commonAnchorPoint = {
     displayTimeValues: true,
     graphHeight,
@@ -166,6 +174,13 @@ const Graph = ({
     positionX,
     positionY,
     timeTick
+  };
+  const mouseLeave = (): void => {
+    setEventMouseMoving(null);
+  };
+
+  const mouseUp = (): void => {
+    setEventMouseDown(null);
   };
 
   return (
@@ -176,8 +191,10 @@ const Graph = ({
           className={classes.overlay}
           left={margin.left}
           top={margin.top}
+          onMouseDown={setEventMouseDown}
           onMouseLeave={mouseLeave}
           onMouseMove={setEventMouseMoving}
+          onMouseUp={mouseUp}
         >
           <Grids
             height={graphHeight}
@@ -198,6 +215,16 @@ const Graph = ({
             rightScale={rightScale}
             width={graphWidth}
             xScale={xScale}
+          />
+
+          <ZoomPreview
+            open
+            fill={alpha(theme.palette.primary.main, 0.2)}
+            height={graphHeight}
+            stroke={alpha(theme.palette.primary.main, 0.5)}
+            width={zoomBarWidth}
+            x={zoomBoundaries?.start || 0}
+            y={0}
           />
           <Lines
             anchorPoint={{
