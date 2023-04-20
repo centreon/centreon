@@ -402,6 +402,8 @@ jobs:
         legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -431,6 +433,8 @@ jobs:
         legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]

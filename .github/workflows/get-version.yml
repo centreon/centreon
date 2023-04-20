@@ -17,7 +17,9 @@ on:
       stability:
         description: "branch stability (stable, testing, unstable, canary)"
         value: ${{ jobs.get-version.outputs.stability }}
-
+      environment:
+        description: "environment deployed"
+        value: ${{ jobs.get-version.outputs.environment }}
 jobs:
   get-version:
     runs-on: ubuntu-22.04
@@ -26,6 +28,7 @@ jobs:
       minor_version: ${{ steps.get_version.outputs.minor_version }}
       release: ${{ steps.get_version.outputs.release }}
       stability: ${{ steps.get_version.outputs.stability }}
+      environment: ${{ steps.get_version.outputs.env }}
 
     steps:
       - uses: actions/checkout@v3
@@ -101,4 +104,5 @@ jobs:
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
+          echo "env=$major_version.$minor_version-$STABILITY" >> $GITHUB_OUTPUT
         shell: bash
