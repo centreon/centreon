@@ -374,7 +374,6 @@ function set_required_prerequisite() {
         log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
         RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-9.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
 
@@ -396,11 +395,9 @@ function set_required_prerequisite() {
 	    ;;
         esac
 
-        install_remi_repo
-
         log "INFO" "Installing PHP 8.1 and enable it"
-        $PKG_MGR module install php:remi-8.1 -y -q
-        $PKG_MGR module enable php:remi-8.1 -y -q
+        $PKG_MGR module install php:8.1 -y -q
+        $PKG_MGR module enable php:8.1 -y -q
 
         log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
         $PKG_MGR -y -q install ${BASE_PACKAGES[@]}

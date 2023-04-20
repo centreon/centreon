@@ -1,4 +1,4 @@
-import { Provider, useAtomValue } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import { renderHook } from '@testing-library/react';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
@@ -38,11 +38,15 @@ const platformVersion: PlatformVersions = {
   }
 };
 
+const store = createStore();
+
+store.set(platformVersionsAtom, platformVersion);
+
 const mountComponent = (): void => {
   cy.viewport('ipad-mini', 'portrait');
   cy.mount({
     Component: (
-      <Provider initialValues={[[platformVersionsAtom, platformVersion]]}>
+      <Provider store={store}>
         <About />
       </Provider>
     )
