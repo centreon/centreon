@@ -1,7 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'slim-alma9',
+    version: 'MON-17315-platform-update-automation'
+  });
 });
 
 beforeEach(() => {
@@ -53,3 +57,9 @@ Then(
       .should('eq', 200);
   }
 );
+
+after(() => {
+  cy
+    .logout()
+    .stopContainer(Cypress.env('dockerName'));
+});

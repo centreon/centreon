@@ -82,13 +82,13 @@ Cypress.Commands.add(
 
 interface LoginByTypeOfUserProps {
   jsonName?: string;
-  preserveToken?: boolean;
+  loginViaApi?: boolean;
 }
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, preserveToken }): Cypress.Chainable => {
-    if (preserveToken) {
+  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+    if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
         .then((user) => {
@@ -182,18 +182,16 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, os, version }: StartContainerProps): Cypress.Chainable => {
-    cy.on('uncaught:exception', (err, runnable) => {
-      return false
-    })
-    return cy.exec(
-      `docker run -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web-${os}:${version} || true`
-    ).then(() => {
-      const baseUrl = 'http://localhost:4000';
-      Cypress.config('baseUrl', baseUrl);
-      return cy.exec(`npx wait-on -v ${baseUrl}/centreon/api/latest/platform/installation/status`)
-    })
-    .visit('/')
-    .setUserTokenApiV1();
+    return cy
+      .exec(
+        `docker run --rm -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web-${os}:${version} || true`
+      ).then(() => {
+        const baseUrl = 'http://localhost:4000';
+        Cypress.config('baseUrl', baseUrl);
+        return cy.exec(`npx wait-on -v ${baseUrl}/centreon/api/latest/platform/installation/status`)
+      })
+      .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
+      .setUserTokenApiV1();
   }
 );
 
@@ -201,7 +199,7 @@ Cypress.Commands.add(
   'stopContainer',
   (containerName: string): Cypress.Chainable => {
     return cy.exec(
-      `docker kill ${containerName} && docker rm ${containerName}`
+      `docker kill ${containerName}`
     );
   }
 );
@@ -218,7 +216,7 @@ declare global {
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',
-        preserveToken = false
+        loginViaApi = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({

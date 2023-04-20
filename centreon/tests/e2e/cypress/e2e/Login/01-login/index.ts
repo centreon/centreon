@@ -1,7 +1,7 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { loginAsAdminViaApiV2 } from '../../../commons';
-import { insertContactFixture, removeContact } from '../common';
+import { insertContactFixture } from '../common';
 
 before(() => {
   cy
@@ -50,6 +50,7 @@ Then('I am logged out and redirected to the login page', () => {
 });
 
 after(() => {
-  //removeContact
-  cy.stopContainer(Cypress.env('dockerName'));
+  cy
+    .logout()
+    .stopContainer(Cypress.env('dockerName'));
 });

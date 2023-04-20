@@ -4,14 +4,17 @@ import {
   insertResourceFixtures,
   searchInput,
   stateFilterContainer,
-  setUserFilter,
-  deleteUserFilter,
-  tearDownResource
+  setUserFilter
 } from '../common';
 import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'slim-alma9',
+    version: 'MON-17315-platform-update-automation'
+  });
+
   insertResourceFixtures()
     .then(submitResultsViaClapi)
     .then(loginAsAdminViaApiV2)
@@ -53,7 +56,7 @@ Then('only non-ok resources are displayed', () => {
 When('I put in some criterias', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    preserveToken: true
+    loginViaApi: true
   });
   const searchValue = `type:service s.description:(ok|dt)$`;
 
@@ -94,7 +97,7 @@ Then(
 );
 
 after(() => {
-  deleteUserFilter()
-    .then(tearDownResource)
-    .then(() => cy.reload());
+  cy
+    .logout()
+    .stopContainer(Cypress.env('dockerName'));
 });

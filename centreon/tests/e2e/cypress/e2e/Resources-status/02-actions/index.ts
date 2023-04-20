@@ -4,8 +4,7 @@ import {
   stateFilterContainer,
   actionBackgroundColors,
   actions,
-  insertResourceFixtures,
-  tearDownResource
+  insertResourceFixtures
 } from '../common';
 import { submitResultsViaClapi } from '../../../commons';
 
@@ -13,7 +12,13 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    });
+
   insertResourceFixtures().then(submitResultsViaClapi);
 });
 
@@ -25,7 +30,7 @@ beforeEach(() => {
 
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    preserveToken: true
+    loginViaApi: true
   });
 
   cy.get('[aria-label="Add columns"]').click();
@@ -98,5 +103,7 @@ Then('the problematic Resource is displayed as in downtime', () => {
 });
 
 after(() => {
-  tearDownResource().then(() => cy.reload());
+  cy
+    .logout()
+    .stopContainer(Cypress.env('dockerName'));
 });

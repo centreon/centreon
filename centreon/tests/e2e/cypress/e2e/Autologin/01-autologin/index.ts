@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged in the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
     .navigateTo({
       page: 'Centreon UI',
@@ -89,7 +89,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({
       jsonName: 'user',
-      preserveToken: true
+      loginViaApi: true
     })
       .isInProfileMenu('Edit profile')
       .visit('/centreon/main.php?p=50104&o=c')
@@ -130,7 +130,7 @@ Then('the key is properly generated and displayed', () => {
 Given('a user with an autologin key generated', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user',
-    preserveToken: true
+    loginViaApi: true
   });
   cy.isInProfileMenu('Copy autologin link').should('be.exist');
 });
@@ -164,21 +164,13 @@ Given(
   () => {
     cy.loginByTypeOfUser({
       jsonName: 'user',
-      preserveToken: true
+      loginViaApi: true
     });
     cy.visit('/centreon/main.php?p=50104&o=c');
     cy.wait(2000)
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
-      //.invoke('text')
-      .then(($text1) => {
-        let textValue1 = $text1.text()
-        cy.wrap(textValue1).as('link').should('not.be.undefined');
-      });
-      //.as('link')
-      //.should('not.be.undefined');
-
-    //cy.exec('echo ' + JSON.stringify(cy.get('@link')))
+      .then(($text) => cy.wrap($text.text()).as('link').should('not.be.undefined'));
 
     cy.contains('Logout').click();
 

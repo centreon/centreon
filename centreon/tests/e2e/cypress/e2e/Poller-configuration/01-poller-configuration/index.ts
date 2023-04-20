@@ -15,7 +15,11 @@ import {
 } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
+  cy.startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    });
 });
 
 beforeEach(() => {
@@ -47,7 +51,7 @@ Given(
 );
 
 Given('I am logged in', () => {
-  cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true });
+  cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: true });
 });
 
 Given('the platform is configured with some resources', () => {
@@ -103,8 +107,7 @@ When('I select some pollers', () => {
   cy.getIframeBody()
     .find('form .list_one>td')
     .eq(1)
-    .invoke('text')
-    .as('pollerName');
+    .then(($text) => cy.wrap($text.text()).as('pollerName'));
 });
 
 When('I click on the Export configuration button', () => {
@@ -243,5 +246,7 @@ Then('the configuration is not generated on selected pollers', () => {
 });
 
 after(() => {
-  removeFixtures();
+  cy
+    .logout()
+    .stopContainer(Cypress.env('dockerName'));
 });

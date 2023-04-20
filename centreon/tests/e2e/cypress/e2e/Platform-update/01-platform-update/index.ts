@@ -55,15 +55,11 @@ beforeEach(() => {
 });
 
 Given('a running platform in {string}', (version_from: string) => {
-  cy.stopContainer(Cypress.env('dockerName'));
-
   cy.startContainer({
     name: Cypress.env('dockerName'),
     os: 'legacy-alma8',
     version: version_from
   });
-
-  cy.waitForContainerAndSetToken();
 
   checkPlatformVersion(version_from);
 
