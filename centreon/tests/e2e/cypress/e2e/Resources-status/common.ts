@@ -95,6 +95,25 @@ const tearDownResource = (): Cypress.Chainable => {
     .then(applyConfigurationViaClapi);
 };
 
+const checkIfUserNotificationsAreEnabled = (): void => {
+  cy.log('Checking is user notifications are enabled.');
+
+  const query = `SELECT contact_enable_notifications FROM contact WHERE contact_id = 1`;
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
+
+  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+    const notificationAreEnabled = stdout === '1';
+
+    if (notificationAreEnabled) {
+      return null;
+    }
+
+    throw new Error(`User notifications are not enabled.`);
+  });
+};
+
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
   inDowntime: 'rgb(240, 233, 248)'
@@ -116,5 +135,6 @@ export {
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
-  tearDownResource
+  tearDownResource,
+  checkIfUserNotificationsAreEnabled
 };
