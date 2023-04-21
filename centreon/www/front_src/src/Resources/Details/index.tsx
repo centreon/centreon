@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef } from 'react';
 
-import { isNil, isEmpty, pipe, not, defaultTo, propEq, findIndex } from 'ramda';
+import { isNil, propEq, findIndex } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
@@ -71,13 +71,13 @@ const Details = (): JSX.Element | null => {
   };
 
   const getHeaderBackgroundColor = (): string | undefined => {
-    const { downtimes, acknowledgement } = details || {};
+    const { in_downtime, acknowledged } = details || {};
 
     const foundColorCondition = rowColorConditions(theme).find(
       ({ condition }) =>
         condition({
-          acknowledged: !isNil(acknowledgement),
-          in_downtime: pipe(defaultTo([]), isEmpty, not)(downtimes)
+          acknowledged,
+          in_downtime
         })
     );
 
