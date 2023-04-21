@@ -1,10 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import { useCallback } from 'react';
 
-import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, not, pipe } from 'ramda';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -105,23 +106,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     array: Array<unknown>;
     size: number;
   }
-  class Adapter extends DayjsAdapter {
+  class Adapter extends AdapterDayjs {
     public formatByString = (value, formatKey: string): string => {
       return format({
-        date: value.tz(timezone),
+        date: value.tz(timezone).toDate(),
         formatString: formatKey
       });
-    };
-
-    public isEqual = (value, comparing): boolean => {
-      if (value === null && comparing === null) {
-        return true;
-      }
-
-      return equals(
-        format({ date: value, formatString: 'LT' }),
-        format({ date: comparing, formatString: 'LT' })
-      );
     };
 
     public format = (date: dayjs.Dayjs, formatKey: string): string => {
@@ -139,33 +129,8 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).startOf('week');
     };
 
-    public getHours = (date): number => {
-      return date.tz(timezone).get('hour');
-    };
-
-    public setHours = (date: dayjs.Dayjs, count: number): dayjs.Dayjs => {
-      const dateDSTState = getDSTState(date.tz(timezone));
-
-      const isNotASummerDate = pipe(isSummerDate, not)(dateDSTState);
-      const isInUTC = equals(
-        getDestinationAndConfiguredTimezoneOffset('UTC'),
-        0
-      );
-
-      if ((isInUTC && isNotASummerDate) || equals('UTC', timezone)) {
-        return date
-          .tz(timezone)
-          .set('hour', count - getDestinationAndConfiguredTimezoneOffset());
-      }
-
-      return date.tz(timezone).set('hour', count);
-    };
-
-    public isSameHour = (
-      date: dayjs.Dayjs,
-      comparing: dayjs.Dayjs
-    ): boolean => {
-      return date.tz(timezone).isSame(comparing.tz(timezone), 'hour');
+    public setMinutes = (date: dayjs.Dayjs, count: number): dayjs.Dayjs => {
+      return date.tz(timezone).set('minute', count);
     };
 
     public isSameDay = (date: dayjs.Dayjs, comparing: dayjs.Dayjs): boolean => {
@@ -242,32 +207,25 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
       const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
-
       const startOfWeek = date.startOf('month').startOf('week');
       const endOfWeek = date.endOf('month').endOf('week');
-
       const start = startOfWeek.endOf('day');
-
       const end = endOfWeek.endOf('day');
       const customStart = isMorning
         ? startOfWeek.startOf('day')
         : startOfWeek.endOf('day');
-
       const customEnd = isMorning
         ? endOfWeek.startOf('day')
         : endOfWeek.endOf('day');
-
       const currentStart = start.isUTC()
         ? start.tz(timezone, true)
         : customStart;
       const currentEnd = end.isUTC() ? end.tz(timezone, true) : customEnd;
-
       const numberOfDaysInCurrentMonth = currentEnd.diff(
         currentStart,
         'd',
         true
       );
-
       const daysOfMonthWithTimezone = [
         ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
       ].reduce(
@@ -280,14 +238,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
             return [...acc, newCurrent];
           }
-
           const newCurrent = acc[currentIndex].add(1, 'day');
 
           return [...acc, newCurrent];
         },
         [currentStart]
       );
-
       const weeksArray = this.getChunkFromArray({
         array: daysOfMonthWithTimezone,
         size: 7
@@ -302,9 +258,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     ): dayjs.Dayjs => {
       const dateWithTimezone = date.tz(timezone).startOf('day');
       const timeWithTimezone = time.tz(timezone);
-
       const dateDSTState = getDSTState(dateWithTimezone);
-
       if (not(equals(dateDSTState, DSTState.SUMMER))) {
         return dateWithTimezone
           .add(timeWithTimezone.hour(), 'hour')

@@ -16,6 +16,7 @@ import {
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { Dialog, TextField, SelectField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -90,7 +91,7 @@ const DialogDowntime = ({
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
   const [isPickerOpened, setIsPickerOpened] = useState(false);
 
-  const { locale } = useAtomValue(userAtom);
+  const { locale, timezone } = useAtomValue(userAtom);
 
   const {
     Adapter,
@@ -112,19 +113,13 @@ const DialogDowntime = ({
 
   const changeTime =
     (field) =>
-    (newValue: dayjs.Dayjs | null, keyBoardValue: string | undefined): void => {
-      const value = isPickerOpened
-        ? dayjs(newValue).toDate()
-        : dayjs(formatKeyboardValue(keyBoardValue))
-            .add(
-              dayjs.duration({
-                hours: getDestinationAndConfiguredTimezoneOffset()
-              })
-            )
-            .toDate();
+    (newValue: dayjs.Dayjs | null): void => {
+      const value = dayjs(newValue).toDate();
 
       changeDate(field)(value);
     };
+
+  console.log(values.startTime)
 
   return (
     <Dialog
@@ -139,8 +134,8 @@ const DialogDowntime = ({
       onConfirm={onConfirm}
     >
       <LocalizationProvider
+        adapterLocale={locale.substring(0, 2)}
         dateAdapter={Adapter}
-        locale={locale.substring(0, 2)}
       >
         {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
         <Stack spacing={2}>
@@ -151,22 +146,14 @@ const DialogDowntime = ({
             gridTemplateColumns="1fr auto 1fr"
           >
             <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
               maxDate={dayjs(maxEndDate)}
-              renderInput={renderDateTimePickerTextField(t(labelStartTime))}
-              value={values.startTime}
+              value={dayjs(values.startTime).tz(timezone)}
               onChange={changeTime('startTime')}
-              onClose={(): void => setIsPickerOpened(false)}
-              onOpen={(): void => setIsPickerOpened(true)}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
             <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
-              renderInput={renderDateTimePickerTextField(t(labelEndTime))}
-              value={values.endTime}
+              value={dayjs(values.endTime)}
               onChange={changeTime('endTime')}
-              onClose={(): void => setIsPickerOpened(false)}
-              onOpen={(): void => setIsPickerOpened(true)}
             />
             {isNil(errors?.startTime) ? (
               <div />
