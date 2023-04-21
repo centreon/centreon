@@ -1,4 +1,4 @@
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -40,8 +40,8 @@ const useLoadDetails = (): LoadDetails => {
     selectedResourceDetailsEndpointDerivedAtom
   );
   const selectedResourceDetails = useAtomValue(selectedResourcesDetailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const setDetails = useUpdateAtom(detailsAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const setDetails = useSetAtom(detailsAtom);
 
   const loadDetails = (): void => {
     if (isNil(selectedResourceDetails?.resourceId)) {

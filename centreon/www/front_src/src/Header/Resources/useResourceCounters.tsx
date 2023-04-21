@@ -47,12 +47,14 @@ const useResourceCounters: UseRessourceCounters = ({
   queryName,
   decoder
 }) => {
-  const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const navigate = useNavigate();
   const { t } = useTranslation();
+
   const [isAllowed, setIsAllowed] = useState<boolean>(true);
+
   const refetchInterval = useAtomValue(refreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
   const { isLoading, data } = useFetchQuery({
     catchError: ({ statusCode }): void => {

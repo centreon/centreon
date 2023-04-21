@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
