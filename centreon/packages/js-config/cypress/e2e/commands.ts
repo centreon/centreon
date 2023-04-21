@@ -183,7 +183,7 @@ interface StartContainerProps {
   name: string;
   os: string;
   useSlim?: boolean;
-  version: string;
+  version?: string;
 }
 
 Cypress.Commands.add(
@@ -191,9 +191,11 @@ Cypress.Commands.add(
   ({ name, os, useSlim = true, version }: StartContainerProps): Cypress.Chainable => {
     const slimSuffix = useSlim ? '-slim' : '';
 
+    const imageVersion = version || Cypress.env('webImageVersion');
+
     return cy
       .exec(
-        `docker run --rm -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version} || true`
+        `docker run --rm -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${imageVersion} || true`
       ).then(() => {
         const baseUrl = 'http://localhost:4000';
         Cypress.config('baseUrl', baseUrl);

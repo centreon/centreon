@@ -4,7 +4,6 @@ before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
     os: 'alma9',
-    version: 'MON-17315-platform-update-automation'
   });
 });
 

@@ -38,7 +38,9 @@ export default ({
     },
     env: {
       ...env,
-      dockerName: dockerName || 'centreon-dev'
+      dockerName: dockerName || 'centreon-dev',
+      webImageVersion: process.env.WEB_IMAGE_VERSION || 'develop',
+      openidImageVersion: process.env.OPENID_IMAGE_VERSION || '23.04',
     },
     execTimeout: 60000,
     reporter: 'mochawesome',
