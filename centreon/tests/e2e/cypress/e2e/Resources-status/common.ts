@@ -48,11 +48,35 @@ const initializeResourceData = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
+const initializeAckRessources = (): Cypress.Chainable => {
+  const files = [
+    'resources/clapi/host1/01-add.json',
+    'resources/clapi/host1/02-enable-passive-check.json',
+    'resources/clapi/service1/01-add.json',
+    'resources/clapi/service1/02-set-max-check.json',
+    'resources/clapi/service1/03-disable-active-check.json',
+    'resources/clapi/service1/04-enable-passive-check.json'
+  ];
+
+  return cy.wrap(Promise.all(files.map(insertFixture)));
+};
+
 const insertResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
 
   return loginAsAdminViaApiV2()
     .then(initializeResourceData)
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+    .then(submitResultsViaClapi)
+    .then(checkThatFixtureServicesExistInDatabase);
+};
+
+const insertAckResourceFixtures = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
+  return loginAsAdminViaApiV2()
+    .then(initializeAckRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(submitResultsViaClapi)
@@ -99,12 +123,9 @@ const checkIfUserNotificationsAreEnabled = (): void => {
   cy.log('Checking is user notifications are enabled.');
 
   const query = `SELECT contact_enable_notifications FROM contact WHERE contact_id = 1`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
 
-  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
-    const notificationAreEnabled = stdout === '1';
+  cy.requestOnDatabase({ database: 'centreon', query }).then((value): Cypress.Chainable<null> | null => {
+    const notificationAreEnabled = value === 1;
 
     if (notificationAreEnabled) {
       return null;
@@ -136,5 +157,6 @@ export {
   setUserFilter,
   deleteUserFilter,
   tearDownResource,
-  checkIfUserNotificationsAreEnabled
+  checkIfUserNotificationsAreEnabled,
+  insertAckResourceFixtures
 };
