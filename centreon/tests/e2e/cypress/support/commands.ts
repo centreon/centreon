@@ -133,8 +133,7 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
   return cy.exec(
-    //'docker run --rm -p 8080:8080 -d --name e2e-tests-openid-centreon docker.centreon.com/centreon/openid:23.04'
-    'docker run --rm -p 8080:8080 -d --name e2e-tests-openid-centreon openid-dev'
+    'docker run --rm -p 8080:8080 -d --name e2e-tests-openid-centreon docker.centreon.com/centreon/openid:23.04'
   ).then(() => {
     return cy.exec('npx wait-on http://localhost:8080/health/ready')
   });

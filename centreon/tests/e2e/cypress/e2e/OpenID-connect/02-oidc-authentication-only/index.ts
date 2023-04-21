@@ -10,7 +10,7 @@ before(() => {
   cy
     .startContainer({
       name: Cypress.env('dockerName'),
-      os: 'slim-alma9',
+      os: 'alma9',
       version: 'MON-17315-platform-update-automation'
     })
     .startOpenIdProviderContainer()
@@ -93,40 +93,14 @@ Then(
     const username = 'user-non-admin-for-OIDC-authentication';
 
     cy.session(`wrong_${username}`, () => {
-      // Login page redirects to OIDC provider
-      cy.visit('/centreon/login');
+      cy.visit('/');
 
-      // cy.origin(
-      //   'http://172.17.0.3:8080',
-      //   { args: { username } },
-      //   ({ username }) => {
-        cy
-          .fixture(`users/admin.json`)
-          .then((credential) => {
-            cy.get('#username').clear().type(credential.login);
-            cy.get('#password').clear().type(credential.password);
-          })
-          .get('#kc-login')
-          .click();
-        cy.get('#input-error')
-          .should('be.visible')
-          .and('include.text', 'Invalid username or password.')
-          .fixture(`users/${username}.json`)
-          .then((credential) => {
-            cy.get('#username').clear().type(credential.login);
-            cy.get('#password').clear().type(credential.password);
-          })
-          .get('#kc-login')
-          .click();
-          /*
-        cy
-          .loginKeycloack('admin')
-          .get('#input-error')
-          .should('be.visible')
-          .and('include.text', 'Invalid username or password.')
-          .loginKeycloack(username)
-          */
-      // });
+      cy
+        .loginKeycloack('admin')
+        .get('#input-error')
+        .should('be.visible')
+        .and('include.text', 'Invalid username or password.')
+        .loginKeycloack(username)
 
       cy
         .url()

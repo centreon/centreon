@@ -1,14 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeWebSSOUserAndGetLoginPage,
-  removeWebSSOContact
-} from '../common';
+import { initializeWebSSOUserAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
-    os: 'slim-alma9',
+    os: 'alma9',
     version: 'MON-17315-platform-update-automation'
   });
   initializeWebSSOUserAndGetLoginPage();
