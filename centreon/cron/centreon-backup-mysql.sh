@@ -53,18 +53,6 @@ PARTITION_NAME="centreon_storage/data_bin centreon_storage/logs"
 MNT_OPTIONS_XFS="-o nouuid"
 MNT_OPTIONS_NOT_XFS=""
 
-###
-# Check MySQL launch
-###
-if ps -o args --no-headers -C mariadbd >/dev/null  ; then
-    process="mariadb"
-elif ps -o args --no-header -C mysqld >/dev/null ; then
-    process="mysqld"
-else
-    output_log "ERROR: Can't find MySQL process running." 1
-fi
-started=0
-
 #####
 # Functions
 #####
@@ -83,6 +71,18 @@ output_log() {
         echo $no_cr "[$status] [centreon-backup-mysql.sh]" $1
     fi
 }
+
+###
+# Check MySQL launch
+###
+if ps -o args --no-headers -C mariadbd >/dev/null  ; then
+    process="mariadb"
+elif ps -o args --no-header -C mysqld >/dev/null ; then
+    process="mysqld"
+else
+    output_log "ERROR: Can't find MySQL process running." 1
+fi
+started=0
 
 ###
 # Find datadir
