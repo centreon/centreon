@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([23.04]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -287,7 +287,7 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		CENTREON_REPO+="centreon-23.04-$_repo*"
+		CENTREON_REPO+="centreon-$version-$_repo*"
 		if ! [ "$_repo" == "${array_repos[@]:(-1)}" ]; then
 			CENTREON_REPO+=","
 		fi
@@ -326,7 +326,7 @@ function set_required_prerequisite() {
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -335,6 +335,7 @@ function set_required_prerequisite() {
         redhat-release*)
             BASE_PACKAGES=(dnf-plugins-core epel-release)
             subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+            $PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
             ;;
 
         centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -354,26 +355,27 @@ function set_required_prerequisite() {
 	    ;;
         esac
 
-        install_remi_repo
+		install_remi_repo
 
-        log "INFO" "Installing PHP 8.1 and enable it"
-        $PKG_MGR module install php:remi-8.1 -y -q
-        $PKG_MGR module enable php:remi-8.1 -y -q
-
-        log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-        $PKG_MGR -y -q install ${BASE_PACKAGES[@]}
-
-        log "INFO" "Updating package gnutls"
-        $PKG_MGR -y -q update gnutls
-
-        set_centreon_repos
-        set_mariadb_repos
+		if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+			log "INFO" "Installing PHP 8.0 and enable it"
+			$PKG_MGR module reset php -y -q
+			$PKG_MGR module install php:remi-8.0 -y -q
+		else
+			log "INFO" "Installing PHP 8.1 and enable it"
+			$PKG_MGR module install php:remi-8.1 -y -q
+			$PKG_MGR module enable php:remi-8.1 -y -q
+		fi
         ;;
 
     9*)
+		if [ "$version" != "23.04" ]; then
+			error_and_exit "Only Centreon 23.04 is compatible with EL9, you chose $version"
+		fi
+
         log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
-        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
 
@@ -381,6 +383,7 @@ function set_required_prerequisite() {
         redhat-release*)
             BASE_PACKAGES=(dnf-plugins-core epel-release)
             subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+            $PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
             ;;
 
         centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -398,21 +401,21 @@ function set_required_prerequisite() {
         log "INFO" "Installing PHP 8.1 and enable it"
         $PKG_MGR module install php:8.1 -y -q
         $PKG_MGR module enable php:8.1 -y -q
-
-        log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-        $PKG_MGR -y -q install ${BASE_PACKAGES[@]}
-
-        log "INFO" "Updating package gnutls"
-        $PKG_MGR -y -q update gnutls
-
-        set_centreon_repos
-        set_mariadb_repos
         ;;
 
     *)
         error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
         ;;
     esac
+
+	log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
+	$PKG_MGR -y -q install ${BASE_PACKAGES[@]}
+
+	log "INFO" "Updating package gnutls"
+	$PKG_MGR -y -q update gnutls
+
+	set_centreon_repos
+	set_mariadb_repos
 }
 #========= end of function set_required_prerequisite()
 
@@ -610,11 +613,12 @@ function enable_new_services() {
 			log "DEBUG" "On central..."
 			systemctl enable mariadb $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
 			systemctl restart mariadb $OS_SPEC_SERVICES snmpd snmptrapd
+			systemctl start centreontrapd snmptrapd
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
-			systemctl enable centreon centengine centreontrapd snmptrapd
+			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned
 			systemctl start centreontrapd snmptrapd
 			;;
 		esac
