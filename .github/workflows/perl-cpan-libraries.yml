@@ -45,7 +45,6 @@ jobs:
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DateTime::Format::Duration",
-            "DBD::Sybase",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
