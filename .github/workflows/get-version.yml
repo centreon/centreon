@@ -105,4 +105,6 @@ jobs:
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
           echo "env=$major_version-$STABILITY" >> $GITHUB_OUTPUT
+          echo "GH_ENV: $major_version-$STABILITY"
+          echo "ENV: $env"
         shell: bash
