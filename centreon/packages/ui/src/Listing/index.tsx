@@ -130,6 +130,10 @@ const useStyles = makeStyles<StylesProps>()(
         boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
         padding: theme.spacing(0, 1)
       },
+      '.listingHeader > div > div': {
+        backgroundColor: theme.palette.background.listingHeader,
+        height: theme.spacing(dataStyle.header.height / 8)
+      },
       '.listingHeader > div > div:first-of-type': {
         height: '100%',
         paddingLeft: theme.spacing(1.5)

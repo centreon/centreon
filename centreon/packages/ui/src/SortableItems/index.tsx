@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 
 import {
   DndContext,
@@ -79,6 +80,7 @@ interface Props<T> {
   collisionDetection: CollisionDetection;
   getDisableItemCondition?: (item: T) => boolean;
   getDisableOverItemSortableCondition?: (overItem: Over) => boolean;
+  hasKeyboardInputEnabled?: boolean;
   itemProps: Array<string>;
   items: Array<T>;
   memoProps?: Array<unknown>;
@@ -105,7 +107,8 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   Content,
   getDisableItemCondition = (): boolean => false,
   getDisableOverItemSortableCondition = (): boolean => false,
-  updateSortableItemsOnItemsChange = false
+  updateSortableItemsOnItemsChange = false,
+  hasKeyboardInputEnabled = true
 }: Props<T>): JSX.Element => {
   const getItemsIds = (): Array<string> =>
     pluck(propertyToFilterItemsOn, items);
@@ -113,25 +116,31 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [sortableItemsIds, setSortableItemsIds] = React.useState(getItemsIds());
 
+  const keyboardSensor = useSensor(KeyboardSensor, {
+    coordinateGetter: sortableKeyboardCoordinates,
+    keyboardCodes: {
+      cancel: ['Escape'],
+      end: ['Space', 'Enter'],
+      start: [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'Enter',
+        'Space'
+      ]
+    },
+    scrollBehavior: 'smooth'
+  });
+
+  const [usedKeyboardSensor] = useState(
+    hasKeyboardInputEnabled ? keyboardSensor : undefined
+  );
+
   const sensors = useSensors(
     useSensor(MouseSensor),
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-      keyboardCodes: {
-        cancel: ['Escape'],
-        end: ['Space', 'Enter'],
-        start: [
-          'ArrowUp',
-          'ArrowDown',
-          'ArrowLeft',
-          'ArrowRight',
-          'Enter',
-          'Space'
-        ]
-      },
-      scrollBehavior: 'smooth'
-    })
+    usedKeyboardSensor
   );
   const theme = useTheme();
 

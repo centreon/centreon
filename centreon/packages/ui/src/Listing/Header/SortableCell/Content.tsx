@@ -45,10 +45,12 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%'
     },
     dragHandle: {
+      '&, &.Mui-focus, &:focus': {
+        outline: 'none'
+      },
       alignSelf: 'center',
       cursor: isDragging ? 'grabbing' : 'grab',
-      display: 'flex',
-      outline: 'none'
+      display: 'flex'
     },
     simpleHeaderCellContent: {
       alignItems: 'center',
@@ -60,7 +62,7 @@ const useStyles = makeStyles<StylesProps>()(
         ? 'transparent'
         : theme.palette.background.listingHeader,
       borderBottom: 'none',
-      height: '100%',
+      height: 'inherit',
       padding: theme.spacing(0, 1),
       ...getTextStyleByViewMode({ theme, viewMode })
     }
@@ -149,7 +151,7 @@ const SortableHeaderCellContent = ({
             visible={cellHovered}
             {...props}
             isInteractive
-            className={cx({ [classes.dragHandle]: cellHovered })}
+            className={cx(classes.dragHandle)}
             columnLabel={columnLabel}
           />
         )}
