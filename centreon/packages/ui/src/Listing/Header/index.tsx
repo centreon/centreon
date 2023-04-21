@@ -196,6 +196,7 @@ const ListingHeader = ({
           Content={Content}
           additionalProps={[sortField, sortOrder]}
           collisionDetection={closestCenter}
+          hasKeyboardInputEnabled={false}
           itemProps={['id']}
           items={visibleColumns}
           memoProps={memoProps}
