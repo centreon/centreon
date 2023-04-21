@@ -46,10 +46,10 @@ runs:
 
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v5
+      env:
+        CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
+        CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
       with:
-        env:
-          CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
-          CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         browser: chrome
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
