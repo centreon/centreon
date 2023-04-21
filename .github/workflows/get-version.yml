@@ -65,6 +65,7 @@ jobs:
             n=${VERSION//[!0-9]/ }
             a=(${n//\./ })
             echo "major_version=${a[0]}.${a[1]}" >> $GITHUB_OUTPUT
+            MAJOR=${a[0]}.${a[1]}
             echo "minor_version=${a[2]}" >> $GITHUB_OUTPUT
           else
             echo "Cannot parse version number from ${{ inputs.version_file }}"
@@ -104,7 +105,7 @@ jobs:
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
-          echo "env=$major_version-$STABILITY" >> $GITHUB_OUTPUT
-          echo "GH_ENV: $major_version-$STABILITY"
+          echo "env=$MAJOR-$STABILITY" >> $GITHUB_OUTPUT
+          echo "GH_ENV: $MAJOR-$STABILITY"
           echo "ENV: $env"
         shell: bash
