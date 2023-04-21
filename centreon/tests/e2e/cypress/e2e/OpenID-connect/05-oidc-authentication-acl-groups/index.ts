@@ -8,10 +8,16 @@ import {
 } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    })
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -146,6 +152,8 @@ Then(
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy
+    .visitEmptyPage()
+    .stopContainer(Cypress.env('dockerName'))
+    .stopOpenIdProviderContainer();
 });

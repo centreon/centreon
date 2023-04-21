@@ -7,10 +7,16 @@ import {
 } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    })
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -32,47 +38,49 @@ beforeEach(() => {
   }).as('postLocalAuthentification');
 });
 
-Given('an administrator is relogged on the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' })
-    .wait('@postLocalAuthentification')
-    .its('response.statusCode')
-    .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
-    .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+Given('an administrator is logged on the platform', () => {
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.getByLabel({
-      label: 'Enable OpenID Connect authentication',
-      tag: 'input'
-    })
+    cy
+      .navigateTo({
+        page: 'Authentication',
+        rootItemNumber: 4
+      })
+      .get('div[role="tablist"] button:nth-child(2)')
+      .click();
+
+    cy
+      .wait('@getOIDCProvider')
+      .getByLabel({
+        label: 'Enable OpenID Connect authentication',
+        tag: 'input'
+      })
       .check()
       .getByLabel({
         label: 'OpenID Connect only',
         tag: 'input'
       })
-      .check();
-    cy.getByLabel({ label: 'Identity provider' })
+      .check()
+      .getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
       .click({ force: true });
+
     configureOpenIDConnect();
+
     cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
+      .click({ force: true })
       .wait('@updateOIDCProvider')
       .its('response.statusCode')
-      .should('eq', 204);
-    cy.getByLabel({
-      label: 'OpenID Connect only',
-      tag: 'input'
-    })
+      .should('eq', 204)
+      .getByLabel({
+        label: 'OpenID Connect only',
+        tag: 'input'
+      })
       .should('be.checked')
       .and('have.value', 'true')
       .logout();
@@ -82,13 +90,45 @@ When(
 Then(
   'only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
-      cy.loginKeycloack('admin')
-        .get('#input-error')
-        .should('be.visible')
-        .and('include.text', 'Invalid username or password.')
-        .loginKeycloack('user-non-admin-for-OIDC-authentication')
+    const username = 'user-non-admin-for-OIDC-authentication';
+
+    cy.session(`wrong_${username}`, () => {
+      // Login page redirects to OIDC provider
+      cy.visit('/centreon/login');
+
+      // cy.origin(
+      //   'http://172.17.0.3:8080',
+      //   { args: { username } },
+      //   ({ username }) => {
+        cy
+          .fixture(`users/admin.json`)
+          .then((credential) => {
+            cy.get('#username').clear().type(credential.login);
+            cy.get('#password').clear().type(credential.password);
+          })
+          .get('#kc-login')
+          .click();
+        cy.get('#input-error')
+          .should('be.visible')
+          .and('include.text', 'Invalid username or password.')
+          .fixture(`users/${username}.json`)
+          .then((credential) => {
+            cy.get('#username').clear().type(credential.login);
+            cy.get('#password').clear().type(credential.password);
+          })
+          .get('#kc-login')
+          .click();
+          /*
+        cy
+          .loginKeycloack('admin')
+          .get('#input-error')
+          .should('be.visible')
+          .and('include.text', 'Invalid username or password.')
+          .loginKeycloack(username)
+          */
+      // });
+
+      cy
         .url()
         .should('include', '/monitoring/resources');
     });
@@ -96,6 +136,8 @@ Then(
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy
+    .visitEmptyPage()
+    .stopContainer(Cypress.env('dockerName'))
+    .stopOpenIdProviderContainer();
 });

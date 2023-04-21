@@ -3,14 +3,19 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureOpenIDConnect,
   initializeOIDCUserAndGetLoginPage,
-  removeContact
 } from '../common';
 
 before(() => {
-  cy.waitForContainerAndSetToken();
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy
+    .startContainer({
+      name: Cypress.env('dockerName'),
+      os: 'slim-alma9',
+      version: 'MON-17315-platform-update-automation'
+    })
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -47,7 +52,7 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When(
-  'the adminstrator sets valid settings in the Authentication conditions and saves',
+  'the administrator sets valid settings in the Authentication conditions and saves',
   () => {
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
@@ -108,6 +113,8 @@ Then(
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy
+    .visitEmptyPage()
+    .stopContainer(Cypress.env('dockerName'))
+    .stopOpenIdProviderContainer();
 });

@@ -125,6 +125,12 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('visitEmptyPage', (): Cypress.Chainable =>
+  cy
+    .intercept('/', { statusCode: 200, headers: { 'content-type': 'text/html' } })
+    .visit('/')
+);
+
 interface ActionClapi {
   action: string;
   object?: string;
@@ -188,7 +194,7 @@ Cypress.Commands.add(
       ).then(() => {
         const baseUrl = 'http://localhost:4000';
         Cypress.config('baseUrl', baseUrl);
-        return cy.exec(`npx wait-on -v ${baseUrl}/centreon/api/latest/platform/installation/status`)
+        return cy.exec(`npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`)
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
@@ -218,6 +224,7 @@ declare global {
         jsonName = 'admin',
         loginViaApi = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
+      visitEmptyPage: () => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
         page,
