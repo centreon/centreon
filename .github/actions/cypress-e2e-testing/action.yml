@@ -55,10 +55,3 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
-
-    - name: Archive logs
-      uses: actions/upload-artifact@v3
-      with:
-        name: docker-logs
-        path: ${{ inputs.module }}/tests/e2e/cypress/results/logs/*
-        retention-days: 1

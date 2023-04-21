@@ -67,7 +67,15 @@ jobs:
           module: centreon
           feature_file_path: ${{matrix.feature}}
 
-      - name: Upload e2e tests Results
+      - name: Upload e2e test logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-logs
+          path: centreon/tests/e2e/cypress/results/logs/*
+          retention-days: 1
+
+      - name: Upload e2e test results
         if: failure()
         uses: actions/upload-artifact@v3
         with:
