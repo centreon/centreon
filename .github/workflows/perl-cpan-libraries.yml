@@ -45,6 +45,7 @@ jobs:
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DateTime::Format::Duration",
+            "DBD::Sybase",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
@@ -68,8 +69,7 @@ jobs:
             "LV",
             "MongoDB",
             "Net::Curl::Easy",
-            "Net::DHCP::Constants",
-            "Net::DHCP::Packet",
+            "Net::DHCP",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
             "Net::NTP",
@@ -156,7 +156,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI.x86_64
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI.x86_64 perl-Net-Pcap.x86_64
         shell: bash
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
