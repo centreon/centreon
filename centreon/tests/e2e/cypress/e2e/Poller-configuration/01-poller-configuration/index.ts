@@ -17,7 +17,7 @@ import {
 before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
-    os: 'alma9',
+    os: 'alma9'
   });
 });
 
@@ -45,7 +45,7 @@ Given(
   () => {
     clearCentengineLogs().then(() => {
       insertPollerConfigUserAcl();
-    })
+    });
   }
 );
 
@@ -69,14 +69,16 @@ Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
     cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
 
-    cy.executeSqlRequestInContainer(`INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`);
+    cy.executeSqlRequestInContainer(
+      `INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`
+    );
 
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
       .contains('Save')
       .click({ force: true });
-  })
+  });
 });
 
 When('I visit the export configuration page', () => {
@@ -84,9 +86,11 @@ When('I visit the export configuration page', () => {
     page: 'Pollers',
     rootItemNumber: 0,
     subMenu: 'Pollers'
-  }).wait('@getTimeZone').then(() => {
-    cy.url().should('include', '/centreon/main.php?p=60901');
-  });
+  })
+    .wait('@getTimeZone')
+    .then(() => {
+      cy.url().should('include', '/centreon/main.php?p=60901');
+    });
 });
 
 Then(
@@ -210,9 +214,7 @@ Then(
 );
 
 When('I click on the export configuration action and confirm', () => {
-  cy.get('header')
-    .get('svg[data-testid="DeviceHubIcon"]')
-    .click();
+  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
 
   cy.get('button[data-testid="Export configuration"]').click();
 
@@ -221,15 +223,14 @@ When('I click on the export configuration action and confirm', () => {
 
 Then('a success message is displayed', () => {
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.contains('Configuration exported and reloaded')
-      .should('have.length', 1);
+    cy.contains('Configuration exported and reloaded').should('have.length', 1);
   });
 });
 
 Then('the configuration is generated on all pollers', () => {
   checkIfConfigurationIsExported(dateBeforeLogin);
 
-  cy.logout()
+  cy.logout();
 
   cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -245,7 +246,5 @@ Then('the configuration is not generated on selected pollers', () => {
 });
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

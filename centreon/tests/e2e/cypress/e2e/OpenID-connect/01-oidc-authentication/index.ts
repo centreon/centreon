@@ -2,15 +2,14 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage,
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    })
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  })
     .startOpenIdProviderContainer()
     .then(() => {
       initializeOIDCUserAndGetLoginPage();
@@ -86,11 +85,10 @@ When('the administrator configures the authentication mode', () => {
 Then(
   'default authentication mode must be Mixed and users created locally to centreon platform must be able to authenticate',
   () => {
-    cy
-      .getByLabel({
-        label: 'Mixed',
-        tag: 'input'
-      })
+    cy.getByLabel({
+      label: 'Mixed',
+      tag: 'input'
+    })
       .should('be.checked')
       .and('have.value', 'false');
 
@@ -98,10 +96,9 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    cy
-      .loginByTypeOfUser({
-        jsonName: 'user-non-admin-for-OIDC-authentication'
-      })
+    cy.loginByTypeOfUser({
+      jsonName: 'user-non-admin-for-OIDC-authentication'
+    })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
@@ -122,28 +119,23 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator activates OpenID Connect authentication on the platform',
   () => {
-    cy
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      })
+    cy.navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
-    cy
-      .wait('@getOIDCProvider')
+    cy.wait('@getOIDCProvider')
       .getByLabel({
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
       .check();
 
-    cy
-      .getByLabel({ label: 'save button', tag: 'button' })
-      .click();
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
-    cy
-      .wait('@updateOIDCProvider')
+    cy.wait('@updateOIDCProvider')
       .its('response.statusCode')
       .should('eq', 204)
       .getByLabel({
@@ -154,9 +146,7 @@ When(
       .and('have.value', 'on')
       .logout();
 
-    cy
-      .getByLabel({ label: 'Alias', tag: 'input' })
-      .should('exist');
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
@@ -166,10 +156,7 @@ Then(
     const username = 'user-non-admin-for-OIDC-authentication';
 
     cy.session(username, () => {
-      cy
-        .visit('/')
-        .get('a')
-        .click();
+      cy.visit('/').get('a').click();
       cy.loginKeycloack(username)
         .url()
         .should('include', '/monitoring/resources');
@@ -178,8 +165,7 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
+  cy.visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'))
     .stopOpenIdProviderContainer();
 });

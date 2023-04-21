@@ -11,11 +11,10 @@ import {
 } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    });
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  });
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -516,7 +515,5 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

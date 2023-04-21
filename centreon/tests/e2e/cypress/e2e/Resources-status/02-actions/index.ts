@@ -12,11 +12,10 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    });
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  });
 
   insertResourceFixtures().then(submitResultsViaClapi);
 });
@@ -54,19 +53,22 @@ When('I select the acknowledge action on a problematic Resource', () => {
 
 Then('the problematic Resource is displayed as acknowledged', () => {
   cy.get(stateFilterContainer).click().get('[data-value="all"]').click();
-  cy.waitUntil(() => {
-    return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInAcknowledgementName))
-      .parent()
-      .then((val) => {
-        return (
-          val.css('background-color') === actionBackgroundColors.acknowledge
-        );
-      });
-  }, {
-    timeout: 15000
-  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInAcknowledgementName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
 });
 
 When('I select the downtime action on a problematic Resource', () => {
@@ -86,23 +88,24 @@ Then('the problematic Resource is displayed as in downtime', () => {
   cy.get(stateFilterContainer).click();
   cy.get('li[data-value="all"]').click({ force: true });
 
-  cy.waitUntil(() => {
-    return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInDowntimeName))
-      .parent()
-      .then((val) => {
-        return (
-          val.css('background-color') === actionBackgroundColors.inDowntime
-        );
-      });
-  }, {
-    timeout: 60000
-  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDowntimeName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 60000
+    }
+  );
 });
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

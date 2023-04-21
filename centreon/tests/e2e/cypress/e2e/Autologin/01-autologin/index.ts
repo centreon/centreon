@@ -3,11 +3,10 @@ import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import { removeContact, initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    });
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  });
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -169,7 +168,9 @@ Given(
     cy.wait(2000)
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
-      .then(($text) => cy.wrap($text.text()).as('link').should('not.be.undefined'));
+      .then(($text) =>
+        cy.wrap($text.text()).as('link').should('not.be.undefined')
+      );
 
     cy.contains('Logout').click();
 
@@ -194,7 +195,5 @@ Then('the page is reached without manual login', () => {
 });
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

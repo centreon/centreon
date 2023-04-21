@@ -1,4 +1,4 @@
-import { insertFixture } from "../../commons";
+import { insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
@@ -36,7 +36,9 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
         return null;
       }
 
-      throw new Error(`The platform version isn't the correct one (expected: ${platformVersion}, actual: ${stdout}).`);
+      throw new Error(
+        `The platform version isn't the correct one (expected: ${platformVersion}, actual: ${stdout}).`
+      );
     });
 };
 

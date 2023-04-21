@@ -11,7 +11,7 @@ import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
-    os: 'alma9',
+    os: 'alma9'
   });
 
   insertResourceFixtures()
@@ -40,7 +40,7 @@ beforeEach(() => {
 });
 
 Then('the unhandled problems filter is selected', (): void => {
-  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.visit('/');
   cy.contains('Unhandled alerts');
 });
 
@@ -96,7 +96,5 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

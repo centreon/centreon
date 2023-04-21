@@ -4,17 +4,17 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    })
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  })
     .then(() => {
       return insertContactFixture();
     })
     .intercept(
       '/centreon/api/internal.php?object=centreon_topcounter&action=user'
-    ).as('userTopCounterEndpoint');
+    )
+    .as('userTopCounterEndpoint');
 });
 
 When('I enter my credentials on the login page', () => {
@@ -33,9 +33,7 @@ Then('I am redirected to the default page', () => {
 
 Given('I am logged in', () => {
   loginAsAdminViaApiV2();
-  cy
-    .visit('/')
-    .url().should('include', '/monitoring/resources');
+  cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
 When('I click on the logout action', () => {
@@ -50,7 +48,5 @@ Then('I am logged out and redirected to the login page', () => {
 });
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

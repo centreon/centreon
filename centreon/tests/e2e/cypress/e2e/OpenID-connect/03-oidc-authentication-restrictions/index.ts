@@ -2,15 +2,14 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage,
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    })
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  })
     .startOpenIdProviderContainer()
     .then(() => {
       initializeOIDCUserAndGetLoginPage();
@@ -102,7 +101,7 @@ Then(
   'only users with the valid authentication conditions can access the platform',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.visit('/');
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
@@ -112,8 +111,7 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
+  cy.visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'))
     .stopOpenIdProviderContainer();
 });

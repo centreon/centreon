@@ -1,6 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-const waitOnOpenIdProviderToStart = 250;
 const oidcConfigValues = {
   authEndpoint: '/auth',
   baseUrl: 'http://172.17.0.3:8080/realms/Centreon_SSO/protocol/openid-connect',

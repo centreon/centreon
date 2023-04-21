@@ -13,15 +13,13 @@ const insertContactFixture = (): Cypress.Chainable => {
 };
 
 const removeContact = (): Cypress.Chainable => {
-  return cy
-    .setUserTokenApiV1()
-    .executeActionViaClapi({
-      bodyContent: {
-        action: 'DEL',
-        object: 'CONTACT',
-        values: 'user1'
-      }
-    });
+  return cy.setUserTokenApiV1().executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'CONTACT',
+      values: 'user1'
+    }
+  });
 };
 
 export { insertContactFixture, removeContact };

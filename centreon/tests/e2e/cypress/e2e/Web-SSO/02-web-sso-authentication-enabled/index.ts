@@ -1,13 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeWebSSOUserAndGetLoginPage,
-} from '../common';
+import { initializeWebSSOUserAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
-    os: 'alma9',
+    os: 'alma9'
   });
 
   initializeWebSSOUserAndGetLoginPage();
@@ -84,7 +82,5 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });

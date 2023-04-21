@@ -8,11 +8,10 @@ import {
 } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    })
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  })
     .startOpenIdProviderContainer()
     .then(() => {
       initializeOIDCUserAndGetLoginPage();
@@ -125,7 +124,7 @@ Then(
   'the users from the 3rd party authentication service are affected to ACL groups',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.visit('/');
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
@@ -151,8 +150,7 @@ Then(
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
+  cy.visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'))
     .stopOpenIdProviderContainer();
 });

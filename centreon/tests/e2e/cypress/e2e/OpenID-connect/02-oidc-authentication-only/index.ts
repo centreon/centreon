@@ -7,11 +7,10 @@ import {
 } from '../common';
 
 before(() => {
-  cy
-    .startContainer({
-      name: Cypress.env('dockerName'),
-      os: 'alma9',
-    })
+  cy.startContainer({
+    name: Cypress.env('dockerName'),
+    os: 'alma9'
+  })
     .startOpenIdProviderContainer()
     .then(() => {
       initializeOIDCUserAndGetLoginPage();
@@ -44,16 +43,14 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      })
+    cy.navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
+    })
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
-    cy
-      .wait('@getOIDCProvider')
+    cy.wait('@getOIDCProvider')
       .getByLabel({
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
@@ -94,23 +91,19 @@ Then(
     cy.session(`wrong_${username}`, () => {
       cy.visit('/');
 
-      cy
-        .loginKeycloack('admin')
+      cy.loginKeycloack('admin')
         .get('#input-error')
         .should('be.visible')
         .and('include.text', 'Invalid username or password.')
-        .loginKeycloack(username)
+        .loginKeycloack(username);
 
-      cy
-        .url()
-        .should('include', '/monitoring/resources');
+      cy.url().should('include', '/monitoring/resources');
     });
   }
 );
 
 after(() => {
-  cy
-    .visitEmptyPage()
+  cy.visitEmptyPage()
     .stopContainer(Cypress.env('dockerName'))
     .stopOpenIdProviderContainer();
 });

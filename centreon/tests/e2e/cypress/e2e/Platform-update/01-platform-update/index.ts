@@ -63,7 +63,7 @@ Given('a running platform in {string}', (version_from: string) => {
 
   checkPlatformVersion(version_from);
 
-  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.visit('/');
 });
 
 When('administrator updates packages to {string}', () => {
@@ -71,7 +71,7 @@ When('administrator updates packages to {string}', () => {
 });
 
 When('administrator runs the update procedure', () => {
-  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.visit('/');
 
   cy.wait('@getStep1').then(() => {
     cy.get('.btc.bt_info').eq(0).click();

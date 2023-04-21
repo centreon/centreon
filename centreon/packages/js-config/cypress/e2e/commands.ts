@@ -181,17 +181,17 @@ Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
 
 interface StartContainerProps {
   name: string;
-  os: string;
+  os?: string;
   useSlim?: boolean;
   version?: string;
 }
 
 Cypress.Commands.add(
   'startContainer',
-  ({ name, os, useSlim = true, version }: StartContainerProps): Cypress.Chainable => {
+  ({ name, os = 'alma9', useSlim = true, version }: StartContainerProps): Cypress.Chainable => {
     const slimSuffix = useSlim ? '-slim' : '';
 
-    const imageVersion = version || Cypress.env('webImageVersion');
+    const imageVersion = version || Cypress.env('WEB_IMAGE_VERSION');
 
     return cy
       .exec(

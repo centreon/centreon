@@ -5,7 +5,7 @@ import { initializeWebSSOUserAndGetLoginPage } from '../common';
 before(() => {
   cy.startContainer({
     name: Cypress.env('dockerName'),
-    os: 'alma9',
+    os: 'alma9'
   });
 
   initializeWebSSOUserAndGetLoginPage();
@@ -74,7 +74,5 @@ Then('users and local admin user must not be able to authenticate', () => {
 });
 
 after(() => {
-  cy
-    .visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'));
+  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
 });
