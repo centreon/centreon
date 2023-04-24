@@ -5,13 +5,13 @@ function checkConnection(url) {
     xhr.open('HEAD', url);
     xhr.onload = function () {
       if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(true);
+        resolve();
       } else {
-        resolve(false);
+        reject();
       }
     };
     xhr.onerror = function () {
-      resolve(false);
+      reject();
     };
       xhr.send();
   });
@@ -19,8 +19,7 @@ function checkConnection(url) {
 const apiKey = 'b06b875d-4a10-4365-7edf-8efeaf53dfdd';
 // Pendo.io
 if (navigator.onLine ) {
-  checkConnection('https://cdn.eu.pendo.io/agent/static/'+apiKey+'/pendo.js').then(function(reachable) {
-    if (reachable) {
+  checkConnection('https://cdn.eu.pendo.io/agent/static/'+apiKey+'/pendo.js').then(function() {
 
       const initPendo = (data) => {
         (function (apiKey, platformData) {
@@ -93,8 +92,7 @@ if (navigator.onLine ) {
           });
         }
       }
-    } else {
-      console.log("Offline mode: pendo is not loaded");
-    }
+  }).catch(() => {
+    console.warn('Offline mode: pendo is not loaded');
   });
 }
