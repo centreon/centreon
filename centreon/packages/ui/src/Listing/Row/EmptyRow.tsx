@@ -1,4 +1,4 @@
-import { ReactNode } from 'React';
+import { ReactNode } from 'react';
 
 import { TableRow } from '@mui/material';
 
