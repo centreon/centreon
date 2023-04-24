@@ -1,4 +1,4 @@
-import { isNil, is, isEmpty } from 'ramda';
+import { isNil, is, isEmpty, flatten, includes } from 'ramda';
 import type { NavigateFunction } from 'react-router-dom';
 import type { TFunction } from 'react-i18next';
 
@@ -112,7 +112,9 @@ export const getPollerPropsAdapter = ({
       },
       issues: formatedIssues,
       pollerConfig: {
-        isAllowed: !!allowedPages?.includes(pollerConfigurationPageNumber),
+        isAllowed:
+          !!allowedPages &&
+          includes(pollerConfigurationPageNumber, flatten(allowedPages)),
         label: t(labelConfigurePollers),
         redirect: (): void =>
           navigate(`/main.php?p=${pollerConfigurationPageNumber}`),
