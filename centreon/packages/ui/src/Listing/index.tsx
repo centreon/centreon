@@ -26,22 +26,13 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
-import {
-  Box,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableRow,
-  useTheme
-} from '@mui/material';
+import { Box, LinearProgress, Table, TableBody, useTheme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
 import useKeyObserver from '../utils/useKeyObserver';
 import useMemoComponent from '../utils/useMemoComponent';
-import LoadingSkeleton from '../LoadingSkeleton';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
@@ -55,13 +46,15 @@ import {
   PredefinedRowSelection,
   RowColorCondition,
   RowId,
-  SortOrder,
-  TableStyleAtom as TableStyle
+  SortOrder
 } from './models';
-import ListingRow from './Row';
+import ListingRow from './Row/Row';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
+import { loadingIndicatorHeight, useStyles } from './Listing.styles';
+import { EmptyResult } from './EmptyResult/EmptyResult';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -77,92 +70,6 @@ const getVisibleColumns = ({
     columns.find(propEq('id', id))
   ) as Array<Column>;
 };
-
-const loadingIndicatorHeight = 3;
-
-interface StylesProps {
-  checkable: boolean;
-  currentVisibleColumns: Array<Column>;
-  dataStyle: TableStyle;
-  getGridTemplateColumn: string;
-  rows: Array<unknown>;
-  viewMode: ListingVariant;
-}
-
-const useStyles = makeStyles<StylesProps>()(
-  (
-    theme,
-    { dataStyle, getGridTemplateColumn, rows, checkable, currentVisibleColumns }
-  ) => ({
-    actionBar: {
-      alignItems: 'center',
-      display: 'flex'
-    },
-    checkbox: {
-      justifyContent: 'start'
-    },
-    container: {
-      background: 'none',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%'
-    },
-    emptyDataCell: {
-      flexDirection: 'column',
-      gridColumn: `auto / span ${
-        checkable
-          ? currentVisibleColumns.length + 1
-          : currentVisibleColumns.length
-      }`,
-      justifyContent: 'center'
-    },
-    emptyDataRow: {
-      display: 'contents'
-    },
-    loadingIndicator: {
-      height: loadingIndicatorHeight,
-      width: '100%'
-    },
-    table: {
-      '.listingHeader': {
-        backgroundColor: theme.palette.background.listingHeader,
-        boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
-        padding: theme.spacing(0, 1)
-      },
-      '.listingHeader > div > div': {
-        backgroundColor: theme.palette.background.listingHeader,
-        height: theme.spacing(dataStyle.header.height / 8)
-      },
-      '.listingHeader > div > div:first-of-type': {
-        height: '100%',
-        paddingLeft: theme.spacing(1.5)
-      },
-      alignItems: 'center',
-      display: 'grid',
-      gridTemplateColumns: getGridTemplateColumn,
-      gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length || 3 // add min 3 rows if no data (for empty state and skeleton loader)
-      }, ${dataStyle.body.height}px)`,
-      position: 'relative'
-    },
-    tableBody: {
-      '.MuiTableRow-root > div:first-of-type': {
-        paddingLeft: theme.spacing(1.5)
-      },
-
-      display: 'contents',
-      'div:first-of-type': {
-        gridColumnStart: 1
-      },
-      position: 'relative'
-    },
-    tableWrapper: {
-      borderBottom: 'none',
-      overflow: 'auto'
-    }
-  })
-);
 
 interface CustomStyle {
   customStyleViewerModeContainer?: string;
@@ -267,10 +174,9 @@ const Listing = <TRow extends { id: RowId }>({
   });
 
   const { classes } = useStyles({
-    checkable,
-    currentVisibleColumns,
     dataStyle,
     getGridTemplateColumn,
+    limit,
     rows,
     viewMode
   });
@@ -668,42 +574,9 @@ const Listing = <TRow extends { id: RowId }>({
 
               {rows.length < 1 &&
                 (loading ? (
-                  [...Array(3)].map((v, i) => (
-                    <TableRow
-                      className={classes.emptyDataRow}
-                      component="div"
-                      key={i}
-                      tabIndex={-1}
-                    >
-                      <Cell
-                        align="center"
-                        className={classes.emptyDataCell}
-                        disableRowCondition={(): boolean => false}
-                        isRowHovered={false}
-                      >
-                        <LoadingSkeleton
-                          height={dataStyle.body.height}
-                          variant="text"
-                          width="100%"
-                        />
-                      </Cell>
-                    </TableRow>
-                  ))
+                  <SkeletonLoader rows={limit} />
                 ) : (
-                  <TableRow
-                    className={classes.emptyDataRow}
-                    component="div"
-                    tabIndex={-1}
-                  >
-                    <Cell
-                      align="center"
-                      className={classes.emptyDataCell}
-                      disableRowCondition={(): boolean => false}
-                      isRowHovered={false}
-                    >
-                      {t(labelNoResultFound)}
-                    </Cell>
-                  </TableRow>
+                  <EmptyResult label={t(labelNoResultFound)} />
                 ))}
             </TableBody>
           </Table>
