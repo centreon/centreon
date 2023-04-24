@@ -210,7 +210,7 @@ Cypress.Commands.add(
   'stopContainer',
   (containerName: string): Cypress.Chainable => {
     cy.exec(`docker logs ${containerName}`).then(({ stdout }) => {
-      cy.writeFile(`cypress/results/logs/${Cypress.currentTest.title.replace(/, /g, '_')}.log`, stdout);
+      cy.writeFile(`cypress/results/logs/${Cypress.spec.name}/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}.log`, stdout);
     });
     return cy.exec(`docker kill ${containerName}`);
   }

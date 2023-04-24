@@ -1,6 +1,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
+import { execSync } from 'child_process';
 import { defineConfig } from 'cypress';
 
 import setupNodeEvents from './plugins';
@@ -26,6 +27,32 @@ export default ({
 
   const baseUrlIPAddress = isDevelopment ? '0.0.0.0' : 'localhost';
 
+  /*
+  const getBranch = () => new Promise((resolve, reject) => {
+    return exec('git rev-parse --abbrev-ref HEAD', (err, stdout, stderr) => {
+      if (err)
+        reject(`getBranch Error: ${err}`);
+      else if (typeof stdout === 'string')
+        resolve(stdout.trim());
+    });
+  });
+  */
+  const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
+    .toString('utf8')
+    .replace(/[\n\r\s]+$/, '');
+  /*
+  execSync(
+    'git branch --show-current',
+    (err, stdout, stderr) => {
+      if (err) {
+        webImageVersion = 'develop';
+        return;
+      }
+      webImageVersion = stdout;
+    }
+  );
+  */
+
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 6000,
@@ -39,7 +66,7 @@ export default ({
     env: {
       ...env,
       dockerName: dockerName || 'centreon-dev',
-      WEB_IMAGE_VERSION: 'develop',
+      WEB_IMAGE_VERSION: webImageVersion,
       OPENID_IMAGE_VERSION: '23.04',
     },
     execTimeout: 60000,
