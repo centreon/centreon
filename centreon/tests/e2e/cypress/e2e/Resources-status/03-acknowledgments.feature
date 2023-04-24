@@ -18,3 +18,14 @@ Scenario: Acknowledge a single resource configured with default settings
     And the previously selected resource is marked as acknowledged in the listing with the corresponding colour
     And the previously selected resource is marked as acknowledged in the listing with the acknowledgement icon
     And the tooltip on acknowledgement icon contains the information related to the acknowledgment
+
+Scenario: Acknowledge multiple resources with default settings
+    Given a multiple resources selected on Resources Status with the "Resource Problems" filter enabled
+    And acknowledgment column is enabled in Resource Status
+    When the user uses one of the "Acknowledge" actions
+    And the user fills in the required fields in the form with default parameters "sticky & persistent checked" 
+    And the user applies the acknowledgement
+    Then the user is notified by the UI about the acknowledgement command being sent
+    And the previously selected resources are marked as acknowledged in the listing with the corresponidng colour
+    And the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon
+    And the tooltip on acknowledgement icon for each resource contains the information related to the acknowledgment
