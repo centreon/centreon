@@ -48,7 +48,6 @@ jobs:
             "Convert::EBCDIC",
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
-            "DateTime",
             "DateTime::Format::Duration::ISO8601",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
@@ -76,7 +75,7 @@ jobs:
             "MIME::Types",
             "MongoDB",
             "Net::Curl::Easy",
-            "Net::DHCP::Packet",
+            "Net::DHCP",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
             "Net::NTP",
@@ -144,6 +143,8 @@ jobs:
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
+          - name: "Net::DHCP"
+            rpm_provides: "perl(Net::DHCP::Client) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
