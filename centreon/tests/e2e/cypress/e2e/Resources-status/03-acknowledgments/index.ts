@@ -4,6 +4,7 @@ import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
   insertAckResourceFixtures,
+  searchInput,
   tearDownResource
 } from '../common';
 
@@ -15,14 +16,19 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
 });
 
 Given('the user have the necessary rights to page Ressource Status', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'admin'
+    jsonName: 'admin',
+    preserveToken: true
   });
 
-  cy.contains('Centreon-Server');
+  cy.get(searchInput).should('exist');
 });
 
 Given(
@@ -142,10 +148,11 @@ Then(
 
     cy.get('div[role="tooltip"]').should('be.visible');
 
-    tearDownResource().then(() => {
-      cy.logout();
-      cy.reload();
-    });
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    tearDownResource();
   }
 );
 
@@ -215,7 +222,7 @@ Then(
     cy.contains(hostInAcknowledgementName)
       .parent()
       .parent()
-      .getByLabel({ label: `${serviceInAcknowledgementName} Acknowledged` })
+      .getByLabel({ label: `${hostInAcknowledgementName} Acknowledged` })
       .should('be.visible');
   }
 );
