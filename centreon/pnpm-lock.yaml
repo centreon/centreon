@@ -266,6 +266,8 @@ importers:
   packages/js-config:
     specifiers:
       '@badeball/cypress-cucumber-preprocessor': ^14.0.0
+      '@types/dockerode': ^3.3.16
+      dockerode: ^3.3.5
       eslint: ^8.17.0
       eslint-config-airbnb: 19.0.4
       eslint-config-prettier: ^8.5.0
@@ -284,6 +286,8 @@ importers:
       eslint-plugin-typescript-sort-keys: ^2.1.0
     devDependencies:
       '@badeball/cypress-cucumber-preprocessor': 14.0.0
+      '@types/dockerode': 3.3.16
+      dockerode: 3.3.5
       eslint: 8.37.0
       eslint-config-airbnb: 19.0.4_m7fpnnvzewd4bw2kt67dqtucga
       eslint-config-prettier: 8.8.0_eslint@8.37.0
@@ -374,30 +378,34 @@ importers:
       '@swc/core': ^1.2.203
       '@types/cypress': ^1.1.3
       '@types/cypress-cucumber-preprocessor': ^4.0.1
+      '@types/dockerode': ^3.3.16
       '@types/node': ^14.14.44
       cypress: ^12.10.0
       cypress-wait-until: ^1.7.2
+      dockerode: ^3.3.5
       mochawesome: ^7.1.3
       path: ^0.12.7
       shell-exec: ^1.1.2
       swc-loader: ^0.2.3
       typescript: ^4.7.3
-      webpack: ^4.46.0
+      webpack: ^5.77.0
     devDependencies:
       '@badeball/cypress-cucumber-preprocessor': 16.0.3_cypress@12.10.0
-      '@cypress/webpack-preprocessor': 5.17.0_webpack@4.46.0
+      '@cypress/webpack-preprocessor': 5.17.0_webpack@5.77.0
       '@swc/core': 1.3.42
       '@types/cypress': 1.1.3
       '@types/cypress-cucumber-preprocessor': 4.0.1
+      '@types/dockerode': 3.3.16
       '@types/node': 14.18.42
       cypress: 12.10.0
       cypress-wait-until: 1.7.2
+      dockerode: 3.3.5
       mochawesome: 7.1.3
       path: 0.12.7
       shell-exec: 1.1.2
-      swc-loader: 0.2.3_n6e7f7nhnbryg4sbzw32gbccei
+      swc-loader: 0.2.3_qzovmxfwlzvmhmg6h6no432ruq
       typescript: 4.9.5
-      webpack: 4.46.0
+      webpack: 5.77.0_@swc+core@1.3.42
 
 packages:
 
@@ -2820,6 +2828,10 @@ packages:
       - supports-color
     dev: true
 
+  /@balena/dockerignore/1.0.2:
+    resolution: {integrity: sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==}
+    dev: true
+
   /@base2/pretty-print-object/1.0.1:
     resolution: {integrity: sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==}
     dev: true
@@ -3067,22 +3079,6 @@ packages:
       - webpack-cli
     dev: true
 
-  /@cypress/webpack-preprocessor/5.17.0_webpack@4.46.0:
-    resolution: {integrity: sha512-HyFqHkrOrIIYOt4G+r3VK0kVYTcev1tEcqBI/0DJ4AzEuEgW/TB+cX56txy4Cgn60XXdJoul2utclZwUqOsPZA==}
-    peerDependencies:
-      '@babel/core': ^7.0.1
-      '@babel/preset-env': ^7.0.0
-      babel-loader: ^8.0.2 || ^9
-      webpack: ^4 || ^5
-    dependencies:
-      bluebird: 3.7.1
-      debug: 4.3.4
-      lodash: 4.17.21
-      webpack: 4.46.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@cypress/webpack-preprocessor/5.17.0_webpack@5.77.0:
     resolution: {integrity: sha512-HyFqHkrOrIIYOt4G+r3VK0kVYTcev1tEcqBI/0DJ4AzEuEgW/TB+cX56txy4Cgn60XXdJoul2utclZwUqOsPZA==}
     peerDependencies:
@@ -3094,7 +3090,7 @@ packages:
       bluebird: 3.7.1
       debug: 4.3.4
       lodash: 4.17.21
-      webpack: 5.77.0_nl3jfu7mwj7uwachqx6dmj7y3q
+      webpack: 5.77.0_@swc+core@1.3.42
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7053,17 +7049,31 @@ packages:
       '@types/ms': 0.7.31
     dev: true
 
+  /@types/docker-modem/3.0.2:
+    resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
+    dependencies:
+      '@types/node': 18.15.11
+      '@types/ssh2': 1.11.11
+    dev: true
+
+  /@types/dockerode/3.3.16:
+    resolution: {integrity: sha512-ZAX2VrkTjwjk1808T8m6vMr+CFXSLiDD+tkEkLThI+v83AfzlYQZEWfZKwFyk1PWopSXkdDunmIhrF7sxt+zWg==}
+    dependencies:
+      '@types/docker-modem': 3.0.2
+      '@types/node': 18.15.11
+    dev: true
+
   /@types/eslint-scope/3.7.4:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.21.3
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
     dev: true
 
   /@types/eslint/8.21.3:
     resolution: {integrity: sha512-fa7GkppZVEByMWGbTtE5MbmXWJTVbrjjaS8K6uQj+XtuuUv1fsuPAxhygfqLmsb/Ufb3CV8deFCpiMfAgi00Sw==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
     dev: true
 
@@ -7391,6 +7401,12 @@ packages:
     resolution: {integrity: sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==}
     dev: true
 
+  /@types/ssh2/1.11.11:
+    resolution: {integrity: sha512-LdnE7UBpvHCgUznvn2fwLt2hkaENcKPFqOyXGkvyTLfxCXBN6roc1RmECNYuzzbHePzD3PaAov5rri9hehzx9Q==}
+    dependencies:
+      '@types/node': 18.15.11
+    dev: true
+
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
 
@@ -7660,7 +7676,7 @@ packages:
       '@typescript-eslint/typescript-estree': 5.57.0_typescript@4.9.5
       eslint: 8.37.0
       eslint-scope: 5.1.1
-      semver: 7.3.8
+      semver: 7.5.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9647,6 +9663,12 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
+  /buildcheck/0.0.6:
+    resolution: {integrity: sha512-8f9ZJCUXyT1M35Jx7MkBgmBMo3oHTTBIPLiY9xyL0pl3T5RwcPEY8cUHr5LBNfu/fk6c2T4DJZuVM/8ZZT2D2A==}
+    engines: {node: '>=10.0.0'}
+    dev: true
+    optional: true
+
   /builtin-status-codes/3.0.0:
     resolution: {integrity: sha512-HpGFw18DgFWlncDfjTa2rcQ4W88O1mC8e8yZ2AvQY5KDaktSTwo+KRf6nHK6FRI5FyRyb/5T6+TSxfP7QyGsmQ==}
     dev: true
@@ -10474,6 +10496,16 @@ packages:
       nested-error-stacks: 2.1.1
       p-event: 4.2.0
     dev: true
+
+  /cpu-features/0.0.7:
+    resolution: {integrity: sha512-fjzFmsUKKCrC9GrM1eQTvQx18e+kjXFzjRLvJPNEDjk31+bJ6ZiV6uchv/hzbzXVIgbWdrEyyX1IFKwse65+8w==}
+    engines: {node: '>=10.0.0'}
+    requiresBuild: true
+    dependencies:
+      buildcheck: 0.0.6
+      nan: 2.17.0
+    dev: true
+    optional: true
 
   /cpy/8.1.2:
     resolution: {integrity: sha512-dmC4mUesv0OYH2kNFEidtf/skUwv4zePmGeepjyyJ0qTo5+8KhA1o99oIAwVVLzQMAeDJml74d6wPPKb6EZUTg==}
@@ -11339,6 +11371,29 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       '@leichtgewicht/ip-codec': 2.0.4
+    dev: true
+
+  /docker-modem/3.0.8:
+    resolution: {integrity: sha512-f0ReSURdM3pcKPNS30mxOHSbaFLcknGmQjwSfmbcdOw1XWKXVhukM3NJHhr7NpY9BIyyWQb0EBo3KQvvuU5egQ==}
+    engines: {node: '>= 8.0'}
+    dependencies:
+      debug: 4.3.4
+      readable-stream: 3.6.2
+      split-ca: 1.0.1
+      ssh2: 1.11.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /dockerode/3.3.5:
+    resolution: {integrity: sha512-/0YNa3ZDNeLr/tSckmD69+Gq+qVNhvKfAHNeZJBnp7EOP6RGKV8ORrJHkUn20So5wU+xxT7+1n5u8PjHbfjbSA==}
+    engines: {node: '>= 8.0'}
+    dependencies:
+      '@balena/dockerignore': 1.0.2
+      docker-modem: 3.0.8
+      tar-fs: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /doctrine/2.1.0:
@@ -20311,6 +20366,10 @@ packages:
       jpeg-js: 0.4.4
     dev: true
 
+  /split-ca/1.0.1:
+    resolution: {integrity: sha512-Q5thBSxp5t8WPTTJQS59LrGqOZqOsrhDGDVm8azCqIBjSBd7nd9o2PM+mDulQQkh8h//4U6hFZnc/mul8t5pWQ==}
+    dev: true
+
   /split-string/3.1.0:
     resolution: {integrity: sha512-NzNVhJDYpwceVVii8/Hu6DKfD2G+NrQHlS/V/qgv763EYudVwEcMQNxd2lh+0VrUByXN/oJkl5grOhYWvQUYiw==}
     engines: {node: '>=0.10.0'}
@@ -20320,6 +20379,18 @@ packages:
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
+
+  /ssh2/1.11.0:
+    resolution: {integrity: sha512-nfg0wZWGSsfUe/IBJkXVll3PEZ//YH2guww+mP88gTpuSU4FtZN7zu9JoeTGOyCNx2dTDtT9fOpWwlzyj4uOOw==}
+    engines: {node: '>=10.16.0'}
+    requiresBuild: true
+    dependencies:
+      asn1: 0.2.6
+      bcrypt-pbkdf: 1.0.2
+    optionalDependencies:
+      cpu-features: 0.0.7
+      nan: 2.17.0
+    dev: true
 
   /sshpk/1.17.0:
     resolution: {integrity: sha512-/9HIEs1ZXGhSPE8X6Ccm7Nam1z8KcoCqPdI7ecm1N33EzAetWahvQWVqLZtaZQ+IDKX4IyA2o0gBzqIMkAagHQ==}
@@ -20741,16 +20812,6 @@ packages:
       stable: 0.1.8
     dev: true
 
-  /swc-loader/0.2.3_n6e7f7nhnbryg4sbzw32gbccei:
-    resolution: {integrity: sha512-D1p6XXURfSPleZZA/Lipb3A8pZ17fP4NObZvFCDjK/OKljroqDpPmsBdTraWhVBqUNpcWBQY1imWdoPScRlQ7A==}
-    peerDependencies:
-      '@swc/core': ^1.2.147
-      webpack: '>=2'
-    dependencies:
-      '@swc/core': 1.3.42
-      webpack: 4.46.0
-    dev: true
-
   /swc-loader/0.2.3_qzovmxfwlzvmhmg6h6no432ruq:
     resolution: {integrity: sha512-D1p6XXURfSPleZZA/Lipb3A8pZ17fP4NObZvFCDjK/OKljroqDpPmsBdTraWhVBqUNpcWBQY1imWdoPScRlQ7A==}
     peerDependencies:
@@ -20758,7 +20819,7 @@ packages:
       webpack: '>=2'
     dependencies:
       '@swc/core': 1.3.42
-      webpack: 5.77.0_nl3jfu7mwj7uwachqx6dmj7y3q
+      webpack: 5.77.0_@swc+core@1.3.42
     dev: true
 
   /symbol-tree/3.2.4:
@@ -20787,6 +20848,15 @@ packages:
   /tapable/2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
+    dev: true
+
+  /tar-fs/2.0.1:
+    resolution: {integrity: sha512-6tzWDMeroL87uF/+lin46k+Q+46rAJ0SyPGz7OW7wTgblI273hsBqk2C1j0/xNadNLKDTUL9BukSjB7cwgmlPA==}
+    dependencies:
+      chownr: 1.1.4
+      mkdirp-classic: 0.5.3
+      pump: 3.0.0
+      tar-stream: 2.2.0
     dev: true
 
   /tar-fs/2.1.1:
@@ -20919,7 +20989,7 @@ packages:
       schema-utils: 3.1.1
       serialize-javascript: 6.0.1
       terser: 5.16.8
-      webpack: 5.77.0_nl3jfu7mwj7uwachqx6dmj7y3q
+      webpack: 5.77.0_@swc+core@1.3.42
     dev: true
 
   /terser-webpack-plugin/5.3.7_webpack@5.77.0:
@@ -22255,6 +22325,46 @@ packages:
       schema-utils: 3.1.1
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.7_webpack@5.77.0
+      watchpack: 2.4.0
+      webpack-sources: 3.2.3
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+    dev: true
+
+  /webpack/5.77.0_@swc+core@1.3.42:
+    resolution: {integrity: sha512-sbGNjBr5Ya5ss91yzjeJTLKyfiwo5C628AFjEa6WSXcZa4E+F57om3Cc8xLb1Jh0b243AWuSYRf3dn7HVeFQ9Q==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      webpack-cli: '*'
+    peerDependenciesMeta:
+      webpack-cli:
+        optional: true
+    dependencies:
+      '@types/eslint-scope': 3.7.4
+      '@types/estree': 0.0.51
+      '@webassemblyjs/ast': 1.11.1
+      '@webassemblyjs/wasm-edit': 1.11.1
+      '@webassemblyjs/wasm-parser': 1.11.1
+      acorn: 8.8.2
+      acorn-import-assertions: 1.8.0_acorn@8.8.2
+      browserslist: 4.21.5
+      chrome-trace-event: 1.0.3
+      enhanced-resolve: 5.12.0
+      es-module-lexer: 0.9.3
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      glob-to-regexp: 0.4.1
+      graceful-fs: 4.2.11
+      json-parse-even-better-errors: 2.3.1
+      loader-runner: 4.3.0
+      mime-types: 2.1.35
+      neo-async: 2.6.2
+      schema-utils: 3.1.1
+      tapable: 2.2.1
+      terser-webpack-plugin: 5.3.7_qzovmxfwlzvmhmg6h6no432ruq
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:

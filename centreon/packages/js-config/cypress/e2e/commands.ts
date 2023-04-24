@@ -193,10 +193,8 @@ Cypress.Commands.add(
 
     const imageVersion = version || Cypress.env('WEB_IMAGE_VERSION');
 
-    return cy
-      .exec(
-        `docker run --rm -p 4000:80 -d --name ${name} docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${imageVersion} || true`
-      ).then(() => {
+    return cy.task('startContainer', {name, os, useSlim, version: imageVersion})
+      .then(() => {
         const baseUrl = 'http://localhost:4000';
         Cypress.config('baseUrl', baseUrl);
         return cy.exec(`npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`)
@@ -212,7 +210,7 @@ Cypress.Commands.add(
     cy.exec(`docker logs ${containerName}`).then(({ stdout }) => {
       cy.writeFile(`cypress/results/logs/${Cypress.spec.name}/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}.log`, stdout);
     });
-    return cy.exec(`docker kill ${containerName}`);
+    return cy.exec(`docker kill ${containerName} && docker rm ${containerName}`);
   }
 );
 

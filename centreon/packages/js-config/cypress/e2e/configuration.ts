@@ -35,8 +35,6 @@ export default ({
     chromeWebSecurity: false,
     defaultCommandTimeout: 6000,
     e2e: {
-      //baseUrl: 'http://0.0.0.0:4000',
-      //port: 4000,
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
       setupNodeEvents,
       specPattern
