@@ -421,6 +421,8 @@ function set_required_prerequisite() {
 	set_centreon_repos
 	if [ "$topology" == "central" ]; then
 		set_mariadb_repos
+		log "INFO" "Installing glibc langpack for Centreon UI translation"
+		$PKG_MGR -y -q install glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de
 	fi
 }
 #========= end of function set_required_prerequisite()
