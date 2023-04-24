@@ -219,7 +219,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
           </>
         </RootComponent>
       </SortableContext>
-      <DragOverlay style={{ zIndex: theme.zIndex.tooltip }}>
+      {/* <DragOverlay style={{ zIndex: theme.zIndex.tooltip }}>
         <RootComponent isInDragOverlay>
           {activeId ? (
             <Item
@@ -232,7 +232,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
             />
           ) : null}
         </RootComponent>
-      </DragOverlay>
+      </DragOverlay> */}
     </DndContext>
   );
 };

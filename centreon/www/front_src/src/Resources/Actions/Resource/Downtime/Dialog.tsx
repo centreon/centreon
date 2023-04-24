@@ -16,14 +16,12 @@ import {
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { Dialog, TextField, SelectField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
   labelCancel,
-  labelEndTime,
   labelComment,
   labelDowntime,
   labelDuration,
@@ -95,8 +93,6 @@ const DialogDowntime = ({
 
   const {
     Adapter,
-    getDestinationAndConfiguredTimezoneOffset,
-    formatKeyboardValue
   } = useDateTimePickerAdapter();
 
   const open = resources.length > 0;
@@ -118,8 +114,6 @@ const DialogDowntime = ({
 
       changeDate(field)(value);
     };
-
-  console.log(values.startTime)
 
   return (
     <Dialog
@@ -147,7 +141,7 @@ const DialogDowntime = ({
           >
             <DateTimePicker<dayjs.Dayjs>
               maxDate={dayjs(maxEndDate)}
-              value={dayjs(values.startTime).tz(timezone)}
+              value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>

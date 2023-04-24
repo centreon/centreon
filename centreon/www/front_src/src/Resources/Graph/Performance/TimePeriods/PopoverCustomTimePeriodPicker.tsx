@@ -165,7 +165,7 @@ const PopoverCustomTimePeriodPickers = ({
         {renderTitle}
         <LocalizationProvider
           dateAdapter={Adapter}
-          locale={locale.substring(0, 2)}
+          adapterLocale={locale.substring(0, 2)}
         >
           <div className={classNamePicker}>
             <Typography>{t(labelFrom)}</Typography>
@@ -177,7 +177,6 @@ const PopoverCustomTimePeriodPickers = ({
                 maxDate={pickersData?.maxDatePickerStartInput}
                 minDate={pickersData?.minDatePickerStartInput}
                 property={CustomTimePeriodProperty.start}
-                setDate={setStart}
                 onClosePicker={pickersData?.onCloseStartPicker}
               />
             </div>
@@ -190,7 +189,6 @@ const PopoverCustomTimePeriodPickers = ({
                 maxDate={pickersData?.maxDatePickerEndInput}
                 minDate={pickersData?.minDatePickerEndInput}
                 property={CustomTimePeriodProperty.end}
-                setDate={setEnd}
                 onClosePicker={pickersData?.onCloseEndPicker}
               />
             </div>
