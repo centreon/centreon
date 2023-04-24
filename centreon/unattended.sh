@@ -80,7 +80,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-h (show this help output)]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -732,6 +732,26 @@ function install_poller() {
 }
 #========= end of function install_poller()
 
+#========= begin of function update_centreon_packages()
+# update Centreon packages
+#
+function update_centreon_packages() {
+	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
+	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
+	if [ $? -ne 0 ]; then
+		error_and_exit "Could not update Centreon"
+	fi
+}
+#========= end of function update_centreon_packages()
+
+#========= begin of function restart_centreon_process()
+# Restart Centreon process
+#
+function restart_centreon_process() {
+	systemctl restart centreon snmpd snmptrapd
+}
+#========= end of function restart_centreon_process()
+
 #========= begin of function update_after_installation()
 # execute some tasks after having installed Centreon
 # - update firewall config
@@ -775,8 +795,8 @@ case "$1" in
 	exit 0
 	;;
 
-upgrade)
-	operation="upgrade"
+update)
+	operation="update"
 	parse_subcommand_options "$@"
 	;;
 
@@ -859,8 +879,18 @@ install)
 	log "INFO" "Centreon [$topology] successfully installed !"
 	;;
 
-upgrade)
-	error_and_exit "Upgrade operation is not supported yet" ##TODO
+update)
+	case $topology in
+	central)
+		error_and_exit "Update operation is not supported yet" ##TODO
+		;;
+	poller)
+		CENTREON_DOC_URL=""
+		update_centreon_packages
+		restart_centreon_process
+		log "INFO" "Centreon [$topology] successfully updated !"
+		;;
+	esac
 	;;
 esac
 
