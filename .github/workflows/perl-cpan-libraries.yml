@@ -56,7 +56,6 @@ jobs:
             "Digest::SHA1",
             "Email::Send::SMTP::Gmail",
             "EV",
-            "Exporter::Tiny",
             "FFI::CheckLib",
             "FFI::Platypus",
             "File::SearchPath",
@@ -68,7 +67,6 @@ jobs:
             "JMX::Jmx4Perl",
             "JSON::Parse",
             "JSON::Path",
-            "JSON::XS",
             "JSON::WebToken",
             "Libssh::Session",
             "LV",
@@ -84,15 +82,12 @@ jobs:
             "Net::Subnet",
             "Net::TFTP",
             "PBKDF2::Tiny",
-            "Readonly",
             "Schedule::Cron",
             "Statistics::Descriptive",
             "Statistics::Regression",
             "Sys::SigAction",
             "Term::Clui",
             "Term::ShellUI",
-            "Tie::IxHash",
-            "Types::Serialiser",
             "Unicode::Stringprep",
             "URI::Encode",
             "URI::Template",
@@ -103,7 +98,6 @@ jobs:
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
-            "XML::Twig",
             "ZMQ::FFI",
             "ZMQ::LibZMQ4"
           ]
@@ -127,6 +121,8 @@ jobs:
             image: packaging-bullseye
           - name: "Convert::Binary::C"
             build_deb: "false"
+          - name: "DateTime::Format::Duration::ISO8601"
+            rpm_provides: "perl(DateTime-Format-Duration-ISO8601)"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
