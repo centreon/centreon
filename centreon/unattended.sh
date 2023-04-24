@@ -355,16 +355,18 @@ function set_required_prerequisite() {
 	    ;;
         esac
 
-		install_remi_repo
+		if [ "$topology" == "central" ]; then
+			install_remi_repo
 
-		if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-			log "INFO" "Installing PHP 8.0 and enable it"
-			$PKG_MGR module reset php -y -q
-			$PKG_MGR module install php:remi-8.0 -y -q
-		else
-			log "INFO" "Installing PHP 8.1 and enable it"
-			$PKG_MGR module install php:remi-8.1 -y -q
-			$PKG_MGR module enable php:remi-8.1 -y -q
+			if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+				log "INFO" "Installing PHP 8.0 and enable it"
+				$PKG_MGR module reset php -y -q
+				$PKG_MGR module install php:remi-8.0 -y -q
+			else
+				log "INFO" "Installing PHP 8.1 and enable it"
+				$PKG_MGR module install php:remi-8.1 -y -q
+				$PKG_MGR module enable php:remi-8.1 -y -q
+			fi
 		fi
         ;;
 
@@ -398,9 +400,11 @@ function set_required_prerequisite() {
 	    ;;
         esac
 
-        log "INFO" "Installing PHP 8.1 and enable it"
-        $PKG_MGR module install php:8.1 -y -q
-        $PKG_MGR module enable php:8.1 -y -q
+		if [ "$topology" == "central" ]; then
+			log "INFO" "Installing PHP 8.1 and enable it"
+			$PKG_MGR module install php:8.1 -y -q
+			$PKG_MGR module enable php:8.1 -y -q
+		fi
         ;;
 
     *)
@@ -415,7 +419,9 @@ function set_required_prerequisite() {
 	$PKG_MGR -y -q update gnutls
 
 	set_centreon_repos
-	set_mariadb_repos
+	if [ "$topology" == "central" ]; then
+		set_mariadb_repos
+	fi
 }
 #========= end of function set_required_prerequisite()
 
