@@ -119,6 +119,10 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "BSON"
+            build_deb: "false"
+          - name: "BSON::XS"
+            build_deb: "false"
           - name: "Convert::Binary::C"
             build_deb: "false"
           - name: "DateTime::Format::Duration::ISO8601"
