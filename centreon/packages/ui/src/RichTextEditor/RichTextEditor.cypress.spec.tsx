@@ -100,7 +100,7 @@ describe('Rich Text Editor', () => {
       });
     });
 
-    it('add link with an url when link button is clicked', () => {
+    it('adds link with an url when link button is clicked', () => {
       cy.get('[data-testid="RichTextEditor"]').type('cypress');
       cy.get('[data-testid="RichTextEditor"]').focus().type('{selectAll}');
 
@@ -145,7 +145,7 @@ describe('Rich Text Editor', () => {
     });
   });
 
-  describe('Uneditable Rich Text Editor', () => {
+  describe('Disabled Rich Text Editor', () => {
     beforeEach(() => {
       cy.mount({
         Component: (
@@ -161,13 +161,13 @@ describe('Rich Text Editor', () => {
       cy.get('[data-testid="RichTextEditor"]')
         .invoke('attr', 'contenteditable')
         .should('eq', 'false');
-      cy.findByLabelText('Undo').should('not.be.exist');
-      cy.findByLabelText('Redo').should('not.be.exist');
-      cy.findByLabelText('bold').should('not.be.exist');
-      cy.findByLabelText('italic').should('not.be.exist');
-      cy.findByLabelText('underline').should('not.be.exist');
-      cy.findByLabelText('strikethrough').should('not.be.exist');
-      cy.findByLabelText('link').should('not.be.exist');
+      cy.findByLabelText('Undo').should('not.exist');
+      cy.findByLabelText('Redo').should('not.exist');
+      cy.findByLabelText('bold').should('not.exist');
+      cy.findByLabelText('italic').should('not.exist');
+      cy.findByLabelText('underline').should('not.exist');
+      cy.findByLabelText('strikethrough').should('not.exist');
+      cy.findByLabelText('link').should('not.exist');
     });
   });
 
