@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Domain\Model;
 
+use Assert\InvalidArgumentException;
 use Core\Security\User\Domain\Model\User;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Security\User\Domain\Model\UserPassword;
@@ -66,7 +67,7 @@ class UserPasswordFactory
                     'UserPassword::passwordValue'
                 );
             }
-        } catch (AssertionException $ex) {
+        } catch (AssertionException | InvalidArgumentException) {
             //Throw a generic user password exception to avoid returning a plain password in the AssertionException.
             throw UserPasswordException::passwordDoesnotMatchSecurityPolicy();
         }

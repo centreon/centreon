@@ -24,12 +24,16 @@ declare(strict_types=1);
 namespace Core\Security\User\Application\UseCase\RenewPassword;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\User\Domain\Model\UserPasswordFactory;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\User\Domain\Exception\UserPasswordException;
+use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
@@ -76,17 +80,28 @@ class RenewPassword
             return;
         }
 
+        try {
+            /** @var Configuration $providerConfiguration */
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
+            $this->info('Validate password against security policy');
+            $newPassword = UserPasswordFactory::create(
+                $renewPasswordRequest->newPassword,
+                $user,
+                $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
+            );
+        } catch (UserPasswordException | ConfigurationException $ex) {
+            $this->error('Unable to update password', ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
-        /** @var Configuration $providerConfiguration */
-        $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
-        $this->info('Validate password against security policy');
-        $newPassword = UserPasswordFactory::create(
-            $renewPasswordRequest->newPassword,
-            $user,
-            $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
-        );
+            return;
+        }  catch (\Throwable $ex) {
+            $this->error('An error occured while updating password', ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
+
+            return;
+        }
+
         $user->setPassword($newPassword);
-
         $this->info('Updating user password', [
             'user_alias' => $user->getAlias()
         ]);
