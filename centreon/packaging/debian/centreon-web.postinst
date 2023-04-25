@@ -59,7 +59,8 @@ fi
 
 # rebuild symfony cache on upgrade
 if [ -n "$2" ]; then
-  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear --no-warmup"
+  rm -rf /var/cache/centreon/symfony
+  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 fi
 
 # Try auto configure timezone for php
