@@ -2,6 +2,7 @@
 /* eslint-disable import/no-unresolved */
 
 import { execSync } from 'child_process';
+
 import { defineConfig } from 'cypress';
 
 import setupNodeEvents from './plugins';
@@ -25,8 +26,6 @@ export default ({
     isDevelopment ? '/dev' : ''
   }`;
 
-  const baseUrlIPAddress = isDevelopment ? '0.0.0.0' : 'localhost';
-
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
     .replace(/[\n\r\s]+$/, '');
@@ -41,9 +40,9 @@ export default ({
     },
     env: {
       ...env,
-      dockerName: dockerName || 'centreon-dev',
-      WEB_IMAGE_VERSION: webImageVersion,
       OPENID_IMAGE_VERSION: '23.04',
+      WEB_IMAGE_VERSION: webImageVersion,
+      dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
     reporter: 'mochawesome',
@@ -58,6 +57,6 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
-    videosFolder: `${resultsFolder}/videos`,
+    videosFolder: `${resultsFolder}/videos`
   });
 };

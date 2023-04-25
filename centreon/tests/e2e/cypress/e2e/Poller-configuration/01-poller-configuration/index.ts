@@ -15,10 +15,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  });
+  cy.startWebContainer();
 });
 
 beforeEach(() => {
@@ -246,5 +243,5 @@ Then('the configuration is not generated on selected pollers', () => {
 });
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });

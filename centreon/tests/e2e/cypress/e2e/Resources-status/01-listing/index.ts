@@ -9,10 +9,7 @@ import {
 import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  });
+  cy.startWebContainer();
 
   insertResourceFixtures()
     .then(submitResultsViaClapi)
@@ -96,5 +93,5 @@ Then(
 );
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });

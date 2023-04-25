@@ -3,15 +3,11 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureOpenIDConnect,
   getAccessGroupId,
-  initializeOIDCUserAndGetLoginPage,
-  removeContact
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  })
+  cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
       initializeOIDCUserAndGetLoginPage();
@@ -150,7 +146,5 @@ Then(
 );
 
 after(() => {
-  cy.visitEmptyPage()
-    .stopContainer(Cypress.env('dockerName'))
-    .stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });

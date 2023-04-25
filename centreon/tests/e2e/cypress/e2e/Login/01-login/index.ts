@@ -4,10 +4,7 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 import { insertContactFixture } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  })
+  cy.startWebContainer()
     .then(() => {
       return insertContactFixture();
     })
@@ -48,5 +45,5 @@ Then('I am logged out and redirected to the login page', () => {
 });
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });

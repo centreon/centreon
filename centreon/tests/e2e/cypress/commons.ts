@@ -131,18 +131,16 @@ const submitResultsViaClapi = (): Cypress.Chainable => {
 };
 
 const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
-  return cy
-    .fixture('users/admin.json')
-    .then((userAdmin) => {
-      return cy.request({
-        body: {
-          login: userAdmin.login,
-          password: userAdmin.password
-        },
-        method: 'POST',
-        url: apiLoginV2
-      });
+  return cy.fixture('users/admin.json').then((userAdmin) => {
+    return cy.request({
+      body: {
+        login: userAdmin.login,
+        password: userAdmin.password
+      },
+      method: 'POST',
+      url: apiLoginV2
     });
+  });
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {

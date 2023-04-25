@@ -5,8 +5,6 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
 
-const apiLogout = '/centreon/api/latest/authentication/logout';
-
 Cypress.Commands.add(
   'getByLabel',
   ({ tag = '', label }: GetByLabelProps): Cypress.Chainable => {
@@ -61,14 +59,12 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'loginKeycloack',
   (jsonName: string): Cypress.Chainable => {
-    return cy
-      .fixture(`users/${jsonName}.json`)
-      .then((credential) => {
-        cy.get('#username').clear().type(credential.login);
-        cy.get('#password').clear().type(credential.password);
-      })
-      .get('#kc-login')
-      .click();
+    cy.fixture(`users/${jsonName}.json`).then((credential) => {
+      cy.get('#username').clear().type(credential.login);
+      cy.get('#password').clear().type(credential.password);
+    });
+
+    return cy.get('#kc-login').click();
   }
 );
 
@@ -97,12 +93,9 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
-    return cy
-      .get('header')
-      .get('svg[aria-label="Profile"]')
-      .click()
-      .get('div[role="tooltip"]')
-      .contains(targetedMenu);
+    cy.get('header svg[aria-label="Profile"]').click();
+
+    return cy.get('div[role="tooltip"]').contains(targetedMenu);
   }
 );
 
@@ -132,17 +125,26 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy.exec(
-    `docker run --rm -p 8080:8080 -d --name e2e-tests-openid-centreon docker.centreon.com/centreon/openid:${Cypress.env('OPENID_IMAGE_VERSION')}`
-  ).then(() => {
-    return cy.exec('npx wait-on http://localhost:8080/health/ready')
-  });
+  return cy
+    .startContainer({
+      image: `docker.centreon.com/centreon/openid:${Cypress.env(
+        'OPENID_IMAGE_VERSION'
+      )}`,
+      name: 'e2e-tests-openid-centreon',
+      portBindings: [
+        {
+          destination: 8080,
+          source: 8080
+        }
+      ]
+    })
+    .then(() => {
+      return cy.exec('npx wait-on http://localhost:8080/health/ready');
+    });
 });
 
 Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy.exec(
-    'docker kill e2e-tests-openid-centreon'
-  );
+  return cy.stopContainer({ name: 'e2e-tests-openid-centreon' });
 });
 
 Cypress.Commands.add('executeSqlRequestInContainer', (request) => {

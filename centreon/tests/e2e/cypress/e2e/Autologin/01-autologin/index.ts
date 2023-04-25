@@ -1,12 +1,9 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { removeContact, initializeConfigACLAndGetLoginPage } from '../common';
+import { initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  });
+  cy.startWebContainer();
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -37,34 +34,32 @@ Given('an administrator is logged in the platform', () => {
 });
 
 When('the administrator activates autologin on the platform', () => {
-  cy.getIframeBody()
-    .find('#Form #enableAutoLogin')
-    .check({ force: true })
-    .should('be.checked')
-    .getIframeBody()
-    .find('#submitGeneralOptionsForm')
-    .click({ force: true })
-    .reload();
+  cy.getIframeBody().find('#Form #enableAutoLogin').check({ force: true });
+  cy.getIframeBody().find('#Form #enableAutoLogin').should('be.checked');
+
+  cy.getIframeBody().find('#submitGeneralOptionsForm').click({ force: true });
+  cy.getIframeBody().find('#submitGeneralOptionsForm').reload();
 });
 
 Then(
   'any user of the platform should be able to generate an autologin link',
   () => {
-    cy.isInProfileMenu('Edit profile')
-      .click()
-      .visit('/centreon/main.php?p=50104&o=c')
+    cy.isInProfileMenu('Edit profile').click();
+
+    cy.visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
       .within(() => {
         cy.get('#generateAutologinKeyButton').should('be.visible');
         cy.get('#aKey').invoke('val').should('not.be.undefined');
-      })
-      .navigateTo({
-        page: 'Contacts / Users',
-        rootItemNumber: 3,
-        subMenu: 'Users'
-      })
+      });
+
+    cy.navigateTo({
+      page: 'Contacts / Users',
+      rootItemNumber: 3,
+      subMenu: 'Users'
+    })
       .reload()
       .wait('@getTimeZone')
       .getIframeBody()
@@ -117,12 +112,9 @@ Then('the key is properly generated and displayed', () => {
       cy.get('#generateAutologinKeyButton')
         .invoke('val')
         .should('not.be.undefined');
-    })
-    .getIframeBody()
-    .find('form input[name="submitC"]')
-    .eq(0)
-    .click()
-    .reload();
+    });
+  cy.getIframeBody().find('form input[name="submitC"]').eq(0).click();
+  cy.reload();
 });
 
 Given('a user with an autologin key generated', () => {
@@ -164,8 +156,8 @@ Given(
       jsonName: 'user',
       loginViaApi: true
     });
-    cy.visit('/centreon/main.php?p=50104&o=c');
-    cy.wait(2000)
+    cy.visit('/centreon/main.php?p=50104&o=c')
+      .wait('@getTimeZone')
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
       .then(($text) =>
@@ -180,8 +172,7 @@ Given(
 
 When('the user opens the autologin link in a browser', () => {
   cy.get<string>('@link').then((text) => {
-    const urlAsLink = text;
-    cy.visit(urlAsLink);
+    cy.visit(text);
   });
 });
 
@@ -195,5 +186,5 @@ Then('the page is reached without manual login', () => {
 });
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });

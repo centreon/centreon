@@ -56,9 +56,14 @@ beforeEach(() => {
 
 Given('a running platform in {string}', (version_from: string) => {
   cy.startContainer({
+    image: `docker.centreon.com/centreon/centreon-web-legacy-alma8:${version_from}`,
     name: Cypress.env('dockerName'),
-    os: 'legacy-alma8',
-    version: version_from
+    portBindings: [
+      {
+        destination: 4000,
+        source: 80
+      }
+    ]
   });
 
   checkPlatformVersion(version_from);

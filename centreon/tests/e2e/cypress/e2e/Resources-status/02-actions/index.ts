@@ -12,11 +12,7 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  });
-
+  cy.startWebContainer();
   insertResourceFixtures().then(submitResultsViaClapi);
 });
 
@@ -107,5 +103,5 @@ Then('the problematic Resource is displayed as in downtime', () => {
 });
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });

@@ -11,10 +11,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startContainer({
-    name: Cypress.env('dockerName'),
-    os: 'alma9'
-  });
+  cy.startWebContainer();
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -515,5 +512,5 @@ Then(
 );
 
 after(() => {
-  cy.visitEmptyPage().stopContainer(Cypress.env('dockerName'));
+  cy.stopWebContainer();
 });
