@@ -35,7 +35,11 @@ jobs:
         distrib: [el8, el9, bullseye]
         name:
           [
+            "Authen::SASL::SASLprep",
+            "Authen::SCRAM::Client",
             "boolean",
+            "BSON",
+            "BSON::XS",
             "Carp::Assert",
             "Clone",
             "Clone::Choose",
@@ -44,7 +48,7 @@ jobs:
             "Convert::EBCDIC",
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
-            "DateTime::Format::Duration",
+            "DateTime::Format::Duration::ISO8601",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
@@ -66,6 +70,7 @@ jobs:
             "JSON::WebToken",
             "Libssh::Session",
             "LV",
+            "MIME::Types",
             "MongoDB",
             "Net::Curl::Easy",
             "Net::DHCP",
@@ -76,12 +81,14 @@ jobs:
             "Net::SMTP_auth",
             "Net::Subnet",
             "Net::TFTP",
+            "PBKDF2::Tiny",
             "Schedule::Cron",
             "Statistics::Descriptive",
             "Statistics::Regression",
             "Sys::SigAction",
             "Term::Clui",
             "Term::ShellUI",
+            "Unicode::Stringprep",
             "URI::Encode",
             "URI::Template",
             "URL::Encode",
@@ -112,8 +119,15 @@ jobs:
           - distrib: bullseye
             package_extension: deb
             image: packaging-bullseye
+          - name: "BSON"
+            build_deb: "false"
+            rpm_provides: "perl(BSON::Bytes) perl(BSON::Code) perl(BSON::DBRef) perl(BSON::OID) perl(BSON::Raw) perl(BSON::Regex) perl(BSON::Time) perl(BSON::Timestamp) perl(BSON::Types)"
+          - name: "BSON::XS"
+            build_deb: "false"
           - name: "Convert::Binary::C"
             build_deb: "false"
+          - name: "DateTime::Format::Duration::ISO8601"
+            rpm_provides: "perl(DateTime-Format-Duration-ISO8601)"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
@@ -130,6 +144,8 @@ jobs:
           - name: "Libssh::Session"
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
+          - name: "Net::DHCP"
+            rpm_provides: "perl(Net::DHCP::Constants) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
