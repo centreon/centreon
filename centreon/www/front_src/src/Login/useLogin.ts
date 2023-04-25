@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -14,7 +14,6 @@ import {
   equals,
   prop
 } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
 
 import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
 
@@ -123,7 +122,7 @@ const useLogin = (): UseLoginState => {
   const loadUser = useUser();
 
   const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
-  const setPasswordResetInformations = useUpdateAtom(
+  const setPasswordResetInformations = useSetAtom(
     passwordResetInformationsAtom
   );
 

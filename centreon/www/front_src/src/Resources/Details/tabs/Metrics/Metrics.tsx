@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { equals, last } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -50,7 +50,7 @@ interface Props {
 const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
+  const selectResource = useSetAtom(selectResourceDerivedAtom);
 
   return (
     <>
