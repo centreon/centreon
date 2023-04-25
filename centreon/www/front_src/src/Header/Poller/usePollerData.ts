@@ -24,7 +24,6 @@ interface UsePollerDataResult {
 export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { allowedPages } = useNavigation();
   const [isAllowed, setIsAllowed] = useState<boolean>(true);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
   const refetchInterval = useAtomValue(refreshIntervalAtom);
@@ -48,7 +47,6 @@ export const usePollerData = (): UsePollerDataResult => {
     () => ({
       data: !isNil(data)
         ? getPollerPropsAdapter({
-            allowedPages,
             data,
             isExportButtonEnabled,
             navigate,

@@ -41,7 +41,6 @@ export interface PollerSubMenuProps {
     total: string;
   }>;
   pollerConfig: {
-    isAllowed: boolean;
     label: string;
     redirect: () => void;
     testId: string;
