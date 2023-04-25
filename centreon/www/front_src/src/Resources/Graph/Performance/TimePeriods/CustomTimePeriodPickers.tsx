@@ -21,6 +21,8 @@ import {
 } from '../../../translatedLabels';
 
 import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@centreon/ui-context';
 
 interface AcceptDateProps {
   date: Date;
@@ -97,6 +99,8 @@ const CustomTimePeriodPickers = ({
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
+  const { timezone } = useAtomValue(userAtom);
+
   const { format } = useLocaleDateTimeFormat();
 
   const openPopover = (event: MouseEvent): void => {
@@ -131,7 +135,7 @@ const CustomTimePeriodPickers = ({
               <div className={classes.date}>
                 <Typography variant="caption">
                   {format({
-                    date: customTimePeriod.start,
+                    date: dayjs(customTimePeriod.start).tz(timezone).toDate(),
                     formatString: dateTimeFormat
                   })}
                 </Typography>
@@ -144,7 +148,7 @@ const CustomTimePeriodPickers = ({
               <div className={classes.date}>
                 <Typography variant="caption">
                   {format({
-                    date: customTimePeriod.end,
+                    date: dayjs(customTimePeriod.end).tz(timezone).toDate(),
                     formatString: dateTimeFormat
                   })}
                 </Typography>
