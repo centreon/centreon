@@ -68,7 +68,7 @@ class DatabaseConnection extends \PDO
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             );
             parent::__construct($dsn, $login, $password, $options);
-        } catch (\Exception $ex) {
+        } catch (\PDOException $ex) {
             if ($ex->getCode() === 2002) {
                 $logger->error("Unable to connect to database", ["trace" => (string) $ex]);
                 throw new \Exception("Unable to connect to database");
