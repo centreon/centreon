@@ -31,6 +31,7 @@ const useStyles = makeStyles()((theme) => ({
 export interface PollerSubMenuProps {
   allPollerLabel: string;
   closeSubMenu: () => void;
+  displayPollerButton: boolean;
   exportConfig: {
     isExportButtonEnabled: boolean;
   };
@@ -40,7 +41,6 @@ export interface PollerSubMenuProps {
     total: string;
   }>;
   pollerConfig: {
-    isAllowed: boolean;
     label: string;
     redirect: () => void;
     testId: string;
@@ -54,7 +54,8 @@ export const PollerSubMenu = ({
   pollerCount,
   allPollerLabel,
   pollerConfig,
-  exportConfig
+  exportConfig,
+  displayPollerButton
 }: PollerSubMenuProps): JSX.Element => {
   const { classes, cx } = useStyles();
 
@@ -80,7 +81,7 @@ export const PollerSubMenu = ({
           <Typography variant="body2">{pollerCount as number}</Typography>
         </ListItem>
       )}
-      {pollerConfig.isAllowed && (
+      {displayPollerButton && (
         <ListItem className={classes.listItem}>
           <Button
             fullWidth
