@@ -3004,7 +3004,7 @@ ul.module_list {
 .bt-poller-action{
     line-height: 20px;
     font-size: 13.3333px;
-    margin: 4px 8px 0px 0px !important;
+    margin: 4px 16px 0px 0px !important;
 }
 
 .bt-poller-action:disabled {
@@ -3025,6 +3025,9 @@ ul.module_list {
 /* utilities */
 .ml-1 {
     margin-left: 8px;
+}
+.ml-2 {
+    margin-left: 16px;
 }
 .mr-1 {
     margin-right: 8px;
