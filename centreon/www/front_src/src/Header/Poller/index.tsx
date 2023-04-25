@@ -16,7 +16,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = usePollerData();
   const { allowedPages } = useNavigation();
 
-  const showPollerButton =
+  const displayPollerButton =
     !!allowedPages &&
     includes(pollerConfigurationPageNumber, flatten(allowedPages));
 
@@ -38,7 +38,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
         <PollerSubMenu
           {...data.subMenu}
           closeSubMenu={closeSubMenu}
-          showPollerButton={showPollerButton}
+          displayPollerButton={displayPollerButton}
         />
       )}
       title={data.buttonLabel}
