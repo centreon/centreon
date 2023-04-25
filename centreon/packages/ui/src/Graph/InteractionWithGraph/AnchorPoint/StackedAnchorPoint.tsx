@@ -3,8 +3,8 @@ import { memo } from 'react';
 import { equals, isNil, map, pipe, not } from 'ramda';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { bisectDate } from '../../../timeSeries';
-import { TimeValue } from '../../../timeSeries/models';
+import { bisectDate } from '../../timeSeries';
+import { TimeValue } from '../../timeSeries/models';
 
 import AnchorPoint from '.';
 
@@ -30,11 +30,14 @@ interface Props {
   yScale: ScaleLinear<number, number>;
 }
 
-const test = 'data';
+const key = 'data';
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
-  const toTimeTick = (stackValue: StackValue): string =>
-    stackValue[test].timeTick;
+  const toTimeTick = (stackValue: StackValue): string => {
+    return key in stackValue
+      ? (stackValue as StackData) && stackValue[key].timeTick
+      : '';
+  };
   const toDate = (tick: string): Date => new Date(tick);
 
   return pipe(map(toTimeTick), map(toDate))(stackValues);
