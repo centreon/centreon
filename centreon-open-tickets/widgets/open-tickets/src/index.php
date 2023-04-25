@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2022 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2023 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -90,20 +90,30 @@ if (!isset($preferences['rule'])) {
 $macro_tickets = $rule->getMacroNames($preferences['rule'], $widgetId);
 
 // Set Colors Table
-$res = $db->query("SELECT `key`, `value` FROM `options` WHERE `key` LIKE 'color%'");
+$res = $db->query(
+    <<<SQL
+        SELECT `key`, `value` 
+        FROM `options` 
+        WHERE `key` IN (
+            'color_ok', 'color_warning', 'color_critical', 'color_unknown', 'color_pending',
+            'color_up', 'color_down', 'color_unreachable'
+        )
+        SQL
+);
+$colorOptions = $res->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $stateSColors = [
-    0 => '#88b917',
-    1 => '#ff9a13',
-    2 => '#e00b3d',
-    3 => '#818285',
-    4 => '#2ad1d4',
+    0 => $colorOptions['color_ok'] ?? null ?: '#88b917',
+    1 => $colorOptions['color_warning'] ?? null ?: '#ff9a13',
+    2 => $colorOptions['color_critical'] ?? null ?: '#e00b3d',
+    3 => $colorOptions['color_unknown'] ?? null ?: '#818285',
+    4 => $colorOptions['color_pending'] ?? null ?: '#2ad1d4',
 ];
 $stateHColors = [
-    0 => '#88b917',
-    1 => '#e00b3d',
-    2 => '#82CFD8',
-    4 => '#2ad1d4',
+    0 => $colorOptions['color_up'] ?? null ?: '#88b917',
+    1 => $colorOptions['color_down'] ?? null ?: '#e00b3d',
+    2 => $colorOptions['color_unreachable'] ?? null ?: '#82CFD8',
+    3 => '#2ad1d4', // pending
 ];
 
 $stateLabels = [
@@ -114,25 +124,6 @@ $stateLabels = [
     4 => 'Pending',
 ];
 
-while ($row = $res->fetch()) {
-    if ($row['key'] == "color_ok") {
-        $stateSColors[0] = $row['value'];
-    } elseif ($row['key'] == "color_warning") {
-        $stateSColors[1] = $row['value'];
-    } elseif ($row['key'] == "color_critical") {
-        $stateSColors[2] = $row['value'];
-    } elseif ($row['key'] == "color_unknown") {
-        $stateSColors[3] = $row['value'];
-    } elseif ($row['key'] == "color_pending") {
-        $stateSColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_up") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_down") {
-        $stateHColors[4] = $row['value'];
-    } elseif ($row['key'] == "color_unreachable") {
-        $stateHColors[4] = $row['value'];
-    }
-}
 
 $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
@@ -333,7 +324,7 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
     }
 }
 
-if (isset($preferences['poller']) && $preferences['poller']) {
+if (! empty($preferences['poller'])) {
     $mainQueryParameters[] = [
         'parameter' => ':instance_id',
         'value' => $preferences['poller'],
@@ -343,12 +334,12 @@ if (isset($preferences['poller']) && $preferences['poller']) {
     $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
 }
 
-if (isset($preferences['poller']) && $preferences['poller']) {
+if (! empty($preferences['poller'])) {
     $resultsPoller = explode(',', $preferences['poller']);
     $queryPoller = '';
 
     foreach ($resultsPoller as $resultPoller) {
-        if ($queryPoller != '') {
+        if ($queryPoller !== '') {
             $queryPoller .= ', ';
         }
         $queryPoller .= ':instance_id_' . $resultPoller;
@@ -367,7 +358,7 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $results = explode(',', $preferences['hostgroup']);
     $queryHG = '';
     foreach ($results as $result) {
-        if ($queryHG != '') {
+        if ($queryHG !== '') {
             $queryHG .= ', ';
         }
         $queryHG .= ":id_" . $result;
@@ -391,7 +382,7 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
     $resultsSG = explode(',', $preferences['servicegroup']);
     $querySG = '';
     foreach ($resultsSG as $resultSG) {
-        if ($querySG != '') {
+        if ($querySG !== '') {
             $querySG .= ', ';
         }
         $querySG .= ":id_" . $resultSG;
