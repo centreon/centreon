@@ -121,6 +121,7 @@ jobs:
             image: packaging-bullseye
           - name: "BSON"
             build_deb: "false"
+            rpm_provides: "perl(BSON::Bytes) perl(BSON::Code) perl(BSON::DBRef) perl(BSON::OID) perl(BSON::Raw) perl(BSON::Regex) perl(BSON::Time) perl(BSON::Timestamp) perl(BSON::Types)"
           - name: "BSON::XS"
             build_deb: "false"
           - name: "Convert::Binary::C"
@@ -144,7 +145,7 @@ jobs:
             rpm_dependencies: "libssh"
             deb_dependencies: "libssh2-1"
           - name: "Net::DHCP"
-            rpm_provides: "perl(Net::DHCP::Client) perl(Net::DHCP::Packet)"
+            rpm_provides: "perl(Net::DHCP::Constants) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
