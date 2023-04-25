@@ -184,6 +184,18 @@ Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
   return cy.setUserTokenApiV1();
 });
 
+interface ExecInContainerProps {
+  command: string;
+  name: string;
+}
+
+Cypress.Commands.add(
+  'execInContainer',
+  ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
+    return cy.task('execInContainer', { command, name });
+  }
+);
+
 interface PortBinding {
   destination: number;
   source: number;
@@ -306,6 +318,10 @@ declare global {
   namespace Cypress {
     interface Chainable {
       copyOntoContainer: (props: CopyOntoContainerProps) => Cypress.Chainable;
+      execInContainer: ({
+        command,
+        name
+      }: ExecInContainerProps) => Cypress.Chainable;
       executeActionViaClapi: (
         props: ExecuteActionViaClapiProps
       ) => Cypress.Chainable;

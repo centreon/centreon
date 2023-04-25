@@ -56,7 +56,8 @@ beforeEach(() => {
 
 Given('a running platform in {string}', (version_from: string) => {
   cy.startContainer({
-    image: `docker.centreon.com/centreon/centreon-web-legacy-alma8:${version_from}`,
+    // image: `docker.centreon.com/centreon/centreon-web-dependencies-alma8:${version_from}`,
+    image: 'docker.centreon.com/centreon/centreon-web-dependencies-alma9:23.04',
     name: Cypress.env('dockerName'),
     portBindings: [
       {
@@ -64,6 +65,9 @@ Given('a running platform in {string}', (version_from: string) => {
         source: 80
       }
     ]
+  }).execInContainer({
+    command: 'dnf install centreon',
+    name: Cypress.env('dockerName')
   });
 
   checkPlatformVersion(version_from);

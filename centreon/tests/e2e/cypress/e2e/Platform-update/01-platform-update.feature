@@ -7,7 +7,7 @@ Scenario: Administrator performs a platform update procedure
 Given a running platform in '<version_A>'
 When administrator updates packages to '<version_B>'
 And administrator runs the update procedure
-Then monitoring should be up and running after update procedure is complete to '<version_B>' 
+Then monitoring should be up and running after update procedure is complete to '<version_B>'
 
 Examples:
   | version_from | version_to |

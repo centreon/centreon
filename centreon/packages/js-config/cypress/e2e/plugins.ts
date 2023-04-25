@@ -69,6 +69,11 @@ export default async (on, config): Promise<void> => {
     source: string;
   }
 
+  interface ExecInContainerProps {
+    command: string;
+    name: string;
+  }
+
   interface PortBinding {
     destination: number;
     source: number;
@@ -117,6 +122,30 @@ export default async (on, config): Promise<void> => {
 
       return null;
     },
+    execInContainer: async ({ command, name }: ExecInContainerProps) => {
+      const container = await docker.getContainer(name);
+
+      const exec = await container.exec({
+        AttachStderr: true,
+        AttachStdout: true,
+        Cmd: ['bash', '-c', command]
+      });
+
+      await new Promise((resolve, reject) => {
+        exec.start({}, (err, stream) => {
+          if (err) {
+            reject(err);
+          }
+
+          if (stream) {
+            stream.setEncoding('utf-8');
+            stream.on('end', resolve);
+          }
+        });
+      });
+
+      return null;
+    },
     startContainer: async ({
       image,
       name,
@@ -129,6 +158,8 @@ export default async (on, config): Promise<void> => {
       if (webContainers.length) {
         return webContainers[0];
       }
+
+      await docker.pull(image);
 
       const container = await docker.createContainer({
         AttachStderr: true,
