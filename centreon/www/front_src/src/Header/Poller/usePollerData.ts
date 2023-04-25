@@ -8,7 +8,6 @@ import { equals, isNil } from 'ramda';
 import { useFetchQuery } from '@centreon/ui';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
-import useNavigation from '../../Navigation/useNavigation';
 import { pollerListIssuesEndPoint } from '../api/endpoints';
 import { pollerIssuesDecoder } from '../api/decoders';
 
