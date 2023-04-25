@@ -9,6 +9,8 @@ import {
   insertFixture
 } from '../../commons';
 
+const apiActionV1Url = `${Cypress.config().baseUrl}/centreon/api/index.php`;
+
 interface Criteria {
   name: string;
   object_type: string | null;
@@ -19,6 +21,13 @@ interface Criteria {
 interface Filter {
   criterias: Array<Criteria>;
   name: string;
+}
+
+interface SubmitResult {
+  host: string;
+  output: string;
+  service?: string;
+  status: string;
 }
 
 const stateFilterContainer = '[aria-label="State filter"]';
@@ -140,6 +149,24 @@ const checkIfUserNotificationsAreEnabled = (): void => {
   );
 };
 
+const submitCustomResultsViaClapi = (
+  submitResults: SubmitResult
+): Cypress.Chainable => {
+  const timestampNow = Math.floor(Date.now() / 1000) - 15;
+
+  return cy.request({
+    body: {
+      results: { ...submitResults, updatetime: timestampNow.toString() }
+    },
+    headers: {
+      'Content-Type': 'application/json',
+      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
+    },
+    method: 'POST',
+    url: `${apiActionV1Url}?action=submit&object=centreon_submit_results`
+  });
+};
+
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
   inDowntime: 'rgb(240, 233, 248)'
@@ -163,5 +190,6 @@ export {
   deleteUserFilter,
   tearDownResource,
   checkIfUserNotificationsAreEnabled,
-  insertAckResourceFixtures
+  insertAckResourceFixtures,
+  submitCustomResultsViaClapi
 };

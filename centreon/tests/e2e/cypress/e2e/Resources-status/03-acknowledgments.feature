@@ -29,3 +29,18 @@ Scenario: Acknowledge multiple resources with default settings
     And the previously selected resources are marked as acknowledged in the listing with the corresponidng colour
     And the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon
     And the tooltip on acknowledgement icon for each resource contains the information related to the acknowledgment
+
+Scenario Outline: Acknowledge a resource with sticky only on a host
+    Given the "Resource Problems" filter enabled
+    And criteria is "type: host"
+    And a resource of host is selected with '<initial_status>'
+    When the user uses one of the "Acknowledge" actions
+    And the user fills in the required fields in the form with default parameters "sticky & persistent checked"
+    And the user applies the acknowledgement
+    And the resource is marked as acknowledged
+    When the resource status changes to '<changed_status>'
+    
+    Examples:
+      | initial_status | changed_status |
+      | down           | unreachable    |
+      | unreachable    | warning        |

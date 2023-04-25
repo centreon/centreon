@@ -5,6 +5,7 @@ import {
   checkIfUserNotificationsAreEnabled,
   insertAckResourceFixtures,
   searchInput,
+  submitCustomResultsViaClapi,
   tearDownResource
 } from '../common';
 
@@ -197,6 +198,7 @@ Then(
           .refreshListing()
           .then(() => cy.contains(serviceInAcknowledgementName))
           .parent()
+          .parent()
           .then((val) => {
             return (
               val.css('background-color') === actionBackgroundColors.acknowledge
@@ -247,6 +249,80 @@ Then(
     cy.get('div[role="tooltip"]').should('be.visible');
   }
 );
+
+Given('the "Resource Problems" filter enabled', () => {
+  cy.contains('Unhandled alerts');
+});
+
+Given('criteria is "type: host"', () => {
+  const searchValue = `type:host`;
+
+  cy.get(searchInput).as('searchInput');
+
+  cy.get('@searchInput').clear();
+
+  cy.get('@searchInput').type(searchValue);
+
+  cy.get('@searchInput').type('{enter}');
+});
+
+Given(
+  'a resource of host is selected with {string}',
+  (initial_status: string) => {
+    submitCustomResultsViaClapi({
+      host: hostInAcknowledgementName,
+      output: `submit_${hostInAcknowledgementName}`,
+      status: initial_status
+    });
+
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(hostInAcknowledgementName))
+          .parent()
+          .parent()
+          .get('[class^="css-"][class$="-statusColumn"]:first')
+          .contains(initial_status);
+      },
+      {
+        timeout: 15000
+      }
+    );
+  }
+);
+
+When('the resource is marked as acknowledged', () => {
+  cy.getByLabel({ label: 'State filter' })
+    .click()
+    .get('[data-value="all"]')
+    .click();
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(hostInAcknowledgementName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+When('the resource status changes to {string}', (changed_status: string) => {
+  cy.contains(hostInAcknowledgementName)
+    .parent()
+    .parent()
+    .get('[class^="css-"][class$="-statusColumn"]:first')
+    .contains(changed_status);
+});
 
 after(() => {
   tearDownResource().then(() => cy.reload());
