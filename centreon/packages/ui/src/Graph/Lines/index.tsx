@@ -1,7 +1,7 @@
 import { isEmpty, isNil } from 'ramda';
 
-import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
-import { Line } from '../../timeSeries/models';
+import { getStackedYScale, getUnits, getYScale } from '../timeSeries';
+import { Line } from '../timeSeries/models';
 
 import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';

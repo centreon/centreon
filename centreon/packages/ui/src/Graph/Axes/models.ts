@@ -1,4 +1,4 @@
-import { Line, TimeValue } from '../../timeSeries/models';
+import { Line, TimeValue } from '../timeSeries/models';
 
 export interface LabelProps {
   [x: string]: unknown;

@@ -9,22 +9,30 @@ const useZoomPreview = ({ eventMouseDown, movingMouseX }: any): any => {
   const [zoomBoundaries, setZoomBoundaries] = useState<any | null>(null);
   const mousePoint = Event.localPoint(eventMouseDown);
 
-  const mouseX = mousePoint ? mousePoint.x - margin.left : null;
+  const mouseDownX = mousePoint ? mousePoint.x - margin.left : null;
 
   useEffect(() => {
+    if (isNil(eventMouseDown)) {
+      setZoomBoundaries(null);
+
+      return;
+    }
+    if (!isNil(movingMouseX)) {
+      return;
+    }
     setZoomBoundaries({
-      end: mouseX,
-      start: mouseX
+      end: mouseDownX,
+      start: mouseDownX
     });
   }, [eventMouseDown]);
 
   useEffect(() => {
-    if (isNil(mouseX)) {
+    if (isNil(mouseDownX) || isNil(movingMouseX)) {
       return;
     }
     setZoomBoundaries({
-      end: gte(movingMouseX, mouseX) ? movingMouseX : mouseX,
-      start: lt(movingMouseX, mouseX) ? movingMouseX : mouseX
+      end: gte(movingMouseX, mouseDownX) ? movingMouseX : mouseDownX,
+      start: lt(movingMouseX, mouseDownX) ? movingMouseX : mouseDownX
     });
   }, [movingMouseX]);
 

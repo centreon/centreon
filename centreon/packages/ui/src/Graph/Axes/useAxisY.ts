@@ -3,7 +3,7 @@ import { Axis } from '@visx/visx';
 
 import { useTheme } from '@mui/material';
 
-import { formatMetricValue, getUnits } from '../../timeSeries';
+import { formatMetricValue, getUnits } from '../timeSeries';
 import { commonTickLabelProps } from '../common';
 
 import { Data, LabelProps } from './models';

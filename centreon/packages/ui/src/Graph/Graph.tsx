@@ -11,9 +11,8 @@ import {
   getRightScale,
   getSortedStackedLines,
   getXScale
-} from '../timeSeries';
-import { Line } from '../timeSeries/models';
-
+} from './timeSeries';
+import { Line } from './timeSeries/models';
 import Axes from './Axes';
 import Grids from './Grids';
 import Header from './Header';
@@ -177,6 +176,7 @@ const Graph = ({
   };
   const mouseLeave = (): void => {
     setEventMouseMoving(null);
+    setEventMouseDown(null);
   };
 
   const mouseUp = (): void => {
@@ -186,15 +186,20 @@ const Graph = ({
   return (
     <>
       <Header timeTick={timeTick} title={title} />
-      <svg height={height} ref={graphSvgRef} width="100%">
+      <svg
+        className={classes.overlay}
+        height={height}
+        ref={graphSvgRef}
+        width="100%"
+        onMouseDown={setEventMouseDown}
+        onMouseLeave={mouseLeave}
+        onMouseMove={setEventMouseMoving}
+        onMouseUp={mouseUp}
+      >
         <Group.Group
           className={classes.overlay}
           left={margin.left}
           top={margin.top}
-          onMouseDown={setEventMouseDown}
-          onMouseLeave={mouseLeave}
-          onMouseMove={setEventMouseMoving}
-          onMouseUp={mouseUp}
         >
           <Grids
             height={graphHeight}

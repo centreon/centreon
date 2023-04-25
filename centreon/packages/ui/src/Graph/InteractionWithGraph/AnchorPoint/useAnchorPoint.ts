@@ -4,8 +4,8 @@ import { Event } from '@visx/visx';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { equals, isEmpty, isNil, not } from 'ramda';
 
-import { getMetrics, getTimeValue } from '../../../timeSeries';
-import { TimeValue } from '../../../timeSeries/models';
+import { getMetrics, getTimeValue } from '../../timeSeries';
+import { TimeValue } from '../../timeSeries/models';
 import { margin } from '../../common';
 import {
   MousePosition,
@@ -70,8 +70,8 @@ const useAnchorPoint = ({
     : 0;
   const timeTick = containsMetrics ? new Date(mousePositionTimeTick) : null;
 
-  const positionX = (position?.[0] || 0) - margin.left;
-  const positionY = (position?.[1] || 0) - margin.top;
+  const positionX = position ? position[0] - margin.left : null;
+  const positionY = position ? position[1] - margin.top : null;
 
   return {
     position: mousePosition,

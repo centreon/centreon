@@ -3,8 +3,8 @@ import { memo } from 'react';
 import { equals, isNil, not, prop } from 'ramda';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { getDates, bisectDate } from '../../../timeSeries';
-import { TimeValue } from '../../../timeSeries/models';
+import { getDates, bisectDate } from '../../timeSeries';
+import { TimeValue } from '../../timeSeries/models';
 
 import AnchorPoint from '.';
 

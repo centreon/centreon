@@ -4,8 +4,8 @@ import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, prop } from 'ramda';
 
-import { getTime } from '../../../timeSeries';
-import { TimeValue } from '../../../timeSeries/models';
+import { getTime } from '../../timeSeries';
+import { TimeValue } from '../../timeSeries/models';
 import { getFillColor } from '../../common';
 
 interface Props {

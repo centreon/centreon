@@ -2,8 +2,8 @@ import { map, nth, pipe, path, all, not, isNil, prop } from 'ramda';
 import { Shape, Curve } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { Line, TimeValue } from '../../../timeSeries/models';
-import { getTime } from '../../../timeSeries';
+import { Line, TimeValue } from '../../timeSeries/models';
+import { getTime } from '../../timeSeries';
 import { getFillColor } from '../../common';
 
 interface Props {

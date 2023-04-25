@@ -8,6 +8,8 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
+import TimePeriodButtonGroup from '../TimePeriods';
+
 import Graph from './Graph';
 import { Data, GraphData } from './models';
 
@@ -24,13 +26,16 @@ rootElement.style.height = '80%';
 
 const WrapperGraph = ({ graphData }: Graph): JSX.Element => {
   return (
-    <div style={{ height: '100%', width: '100%' }}>
-      <Responsive.ParentSize>
-        {({ height, width }): JSX.Element => (
-          <Graph graphData={graphData} height={height} width={width} />
-        )}
-      </Responsive.ParentSize>
-    </div>
+    <>
+      <TimePeriodButtonGroup />
+      <div style={{ height: '100%', width: '100%' }}>
+        <Responsive.ParentSize>
+          {({ height, width }): JSX.Element => (
+            <Graph graphData={graphData} height={height} width={width} />
+          )}
+        </Responsive.ParentSize>
+      </div>
+    </>
   );
 };
 

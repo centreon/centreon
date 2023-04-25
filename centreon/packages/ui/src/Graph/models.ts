@@ -1,5 +1,4 @@
-import { Line, Metric, TimeValue } from '../timeSeries/models';
-
+import { Line, Metric, TimeValue } from './timeSeries/models';
 import { Axis as AxisYLeft, AxisYRight } from './Axes/models';
 import { AreaRegularLines, AreaStackedLinesData } from './Lines/models';
 

@@ -1,7 +1,7 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 
-import { getUnits } from '../../timeSeries';
+import { getUnits } from '../timeSeries';
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 
 import UnitLabel from './UnitLabel';

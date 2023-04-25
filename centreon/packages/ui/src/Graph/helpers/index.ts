@@ -1,6 +1,6 @@
 import { prop, propEq, reject, sortBy } from 'ramda';
 
-import { getLineData, getTimeSeries } from '../../timeSeries';
+import { getLineData, getTimeSeries } from '../timeSeries';
 import { LinesData } from '../Lines/models';
 import { GraphData } from '../models';
 
