@@ -102,7 +102,7 @@ sub action_getcron {
             while (1) {
                 my $watcher_timer = $self->{loop}->timer(1, 0, \&stop_ev);
                 $self->{loop}->run();
-                last if (time() > ($ctime + 5));
+                last if (time() > ($ctime + $timeout));
             }
 
             $data = $connector->{ack}->{data}->{data}->{result};
@@ -447,7 +447,7 @@ sub dispatcher {
     while (1) {
         my $watcher_timer = $options->{connector}->{loop}->timer(1, 0, \&stop_ev);
         $options->{connector}->{loop}->run();
-        last if (time() > ($ctime + 5));
+        last if (time() > ($ctime + $timeout));
     }
 }
 

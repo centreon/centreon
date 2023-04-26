@@ -154,7 +154,7 @@ sub call_internal {
     while (1) {
         my $watcher_timer = $options{module}->{loop}->timer(1, 0, \&stop_ev);
         $options{module}->{loop}->run();
-        last if (time() > ($ctime + 5) || defined($options{module}->{tokens}->{$action_token}));
+        last if (time() > ($ctime + $timeout) || defined($options{module}->{tokens}->{$action_token}));
     }
 
     $options{module}->{break_token} = undef;
@@ -218,7 +218,7 @@ sub get_log {
     while (1) {
         my $watcher_timer = $options{module}->{loop}->timer(1, 0, \&stop_ev);
         $options{module}->{loop}->run();
-        last if (time() > $ctime + 5 || defined($options{module}->{tokens}->{$token_log}));
+        last if (time() > ($ctime + $timeout) || defined($options{module}->{tokens}->{$token_log}));
     }
 
     $options{module}->{break_token} = undef;
