@@ -1,10 +1,9 @@
-import { ScaleLinear } from 'd3-scale';
 import { Grid } from '@visx/visx';
+import { ScaleLinear } from 'd3-scale';
 
 import { GridsModel } from '../models';
 
 interface Props {
-  // [x: string]: unknown;
   height: number;
   leftScale: ScaleLinear<number, number>;
   width: number;
@@ -17,7 +16,7 @@ const Grids = ({
   leftScale,
   xScale,
   ...rest
-}: Props): JSX.Element => {
+}: Props & GridsModel): JSX.Element => {
   return (
     <>
       <Grid.GridRows
