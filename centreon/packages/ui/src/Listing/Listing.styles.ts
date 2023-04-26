@@ -46,7 +46,7 @@ const useStyles = makeStyles<StylesProps>()(
       },
       '.listingHeader > div > div:first-of-type': {
         height: '100%',
-        paddingLeft: theme.spacing(1.5)
+        padding: theme.spacing(0, 0.5, 0, 1.5)
       },
       alignItems: 'center',
       display: 'grid',

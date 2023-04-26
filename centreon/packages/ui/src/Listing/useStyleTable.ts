@@ -50,7 +50,7 @@ const useStyleTable = ({
   const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
 
   const getGridTemplateColumn = (): string => {
-    const checkbox = checkable ? '50px ' : '';
+    const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
     const columnTemplate = currentVisibleColumns
       ?.map(({ width, shortLabel }) => {
