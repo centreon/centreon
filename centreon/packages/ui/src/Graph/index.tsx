@@ -56,13 +56,12 @@ const WrapperGraph = ({ graphEndpoint }: Graph): JSX.Element | null => {
               find(propEq('name', line.name), data.lines)?.display ?? true
           }));
 
-          setData({ ...data, baseAxis, lines: newLines, timeSeries, title });
+          setData({ baseAxis, lines: newLines, timeSeries, title });
 
           return;
         }
 
         setData({
-          ...data,
           baseAxis,
           lines: newLineData,
           timeSeries,
