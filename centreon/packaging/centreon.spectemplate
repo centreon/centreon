@@ -450,7 +450,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 # Sudoers files
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
 %{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
-%{__cp} centreon/tmpl/install/sudoersCentreonPlugins %buildroot%{_sysconfdir}/sudoers.d/centreon-plugins
+%{__cp} centreon/packaging/src/sudoersCentreonPlugins %buildroot%{_sysconfdir}/sudoers.d/centreon-plugins
 
 # MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
