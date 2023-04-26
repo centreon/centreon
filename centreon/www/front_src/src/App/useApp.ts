@@ -1,26 +1,28 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import type { Actions } from '@centreon/ui';
+import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
-  Actions,
   downtimeAtom,
-  refreshIntervalAtom,
+  platformNameAtom,
+  refreshIntervalAtom
 } from '@centreon/ui-context';
-import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
 
+import { logoutEndpoint } from '../api/endpoint';
+import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
+import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
-import { logoutEndpoint } from '../api/endpoint';
-import { areUserParametersLoadedAtom } from '../Main/useUser';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
-import { DefaultParameters } from './models';
+import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
 
@@ -44,24 +46,32 @@ const useApp = (): UseAppState => {
 
   const { sendRequest: keepAliveRequest } = useRequest({
     httpCodesBypassErrorSnackbar: [401],
-    request: getData,
+    request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
-    request: getData,
+    request: getData
   });
   const { sendRequest: getAcl } = useRequest<Actions>({
-    request: getData,
+    request: getData
   });
 
   const { sendRequest: logoutRequest } = useRequest({
-    request: postData,
+    request: postData
   });
 
-  const setDowntime = useUpdateAtom(downtimeAtom);
-  const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
-  const setAcl = useUpdateAtom(aclAtom);
-  const setAcknowledgement = useUpdateAtom(acknowledgementAtom);
-  const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
+  const { sendRequest: getCustomPlatformRequest } =
+    useRequest<CustomLoginPlatform>({
+      httpCodesBypassErrorSnackbar: [404],
+      request: getData
+    });
+
+  const setDowntime = useSetAtom(downtimeAtom);
+  const setRefreshInterval = useSetAtom(refreshIntervalAtom);
+  const setAcl = useSetAtom(aclAtom);
+  const setAcknowledgement = useSetAtom(acknowledgementAtom);
+  const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
+
+  const setPlaformName = useSetAtom(platformNameAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -69,7 +79,7 @@ const useApp = (): UseAppState => {
     setAreUserParametersLoaded(false);
     logoutRequest({
       data: {},
-      endpoint: logoutEndpoint,
+      endpoint: logoutEndpoint
     }).then(() => {
       showErrorMessage(t(labelYouAreDisconnected));
       navigate(reactRoutes.login);
@@ -81,24 +91,24 @@ const useApp = (): UseAppState => {
 
     Promise.all([
       getParameters({
-        endpoint: parametersEndpoint,
+        endpoint: parametersEndpoint
       }),
       getAcl({
-        endpoint: aclEndpoint,
-      }),
+        endpoint: aclEndpoint
+      })
     ])
       .then(([retrievedParameters, retrievedAcl]) => {
         setDowntime({
           duration: parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
-            10,
+            10
           ),
           fixed: retrievedParameters.monitoring_default_downtime_fixed,
           with_services:
-            retrievedParameters.monitoring_default_downtime_with_services,
+            retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10),
+          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
         );
         setAcl({ actions: retrievedAcl });
         setAcknowledgement({
@@ -109,7 +119,7 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_acknowledgement_persistent,
           sticky: retrievedParameters.monitoring_default_acknowledgement_sticky,
           with_services:
-            retrievedParameters.monitoring_default_acknowledgement_with_services,
+            retrievedParameters.monitoring_default_acknowledgement_with_services
         });
       })
       .catch((error) => {
@@ -117,13 +127,18 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+    getCustomPlatformRequest({
+      endpoint: loginPageCustomisationEndpoint
+    })
+      .then(({ platform_name }) => setPlaformName(platform_name))
+      .catch(() => undefined);
   }, []);
 
   const hasMinArgument = (): boolean => equals(searchParams.get('min'), '1');
 
   const keepAlive = (): void => {
     keepAliveRequest({
-      endpoint: keepAliveEndpoint,
+      endpoint: keepAliveEndpoint
     }).catch((error) => {
       if (not(pathEq(['response', 'status'], 401, error))) {
         return;
@@ -145,7 +160,7 @@ const useApp = (): UseAppState => {
   }, []);
 
   return {
-    hasMinArgument,
+    hasMinArgument
   };
 };
 

@@ -1,19 +1,19 @@
 import { lazy, useEffect, Suspense } from 'react';
 
 import { isNil } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   ListingPage,
   LoadingSkeleton,
   useMemoComponent,
-  WithPanel,
+  WithPanel
 } from '@centreon/ui';
 
 import Details from './Details';
 import {
   selectedResourcesDetailsAtom,
-  clearSelectedResourceDerivedAtom,
+  clearSelectedResourceDerivedAtom
 } from './Details/detailsAtoms';
 import useDetails from './Details/useDetails';
 import { editPanelOpenAtom } from './Filter/filterAtoms';
@@ -27,7 +27,7 @@ const Listing = lazy(() => import('./Listing'));
 const ResourcesPage = (): JSX.Element => {
   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
   const editPanelOpen = useAtomValue(editPanelOpenAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
 
   useEffect(() => {
     window.addEventListener('beforeunload', clearSelectedResource);
@@ -58,7 +58,7 @@ const ResourcesPage = (): JSX.Element => {
         />
       </WithPanel>
     ),
-    memoProps: [selectedResource?.resourceId, editPanelOpen],
+    memoProps: [selectedResource?.resourceId, editPanelOpen]
   });
 };
 

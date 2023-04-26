@@ -50,7 +50,7 @@ access notConfigGroup \"\" any noauth exact centreon none none" \
     if [ "$(getent passwd centreon-broker)" -a "$(getent passwd centreon-engine)" ]; then
         usermod -a -G centreon-engine centreon-broker
         usermod -a -G centreon-broker centreon-engine
-    fi    
+    fi
 
 fi
 exit 0

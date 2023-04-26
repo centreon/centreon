@@ -40,7 +40,7 @@ class AcknowledgementTimeoutContext extends CentreonContext
             'acknowledgement_timeout' => 1
         ));
         $hostPage->save();
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
     }
 
     /**
@@ -63,7 +63,7 @@ class AcknowledgementTimeoutContext extends CentreonContext
             'acknowledgement_timeout' => 1
         ));
         $servicePage->save();
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
     }
 
     /**

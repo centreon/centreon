@@ -1,6 +1,6 @@
 import { find, propEq } from 'ramda';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { Criteria } from '../../Filter/Criterias/models';
 
@@ -23,7 +23,7 @@ const buildEndPoint = ({ action, id, type }: Parameter): string => {
 
 const buildExtensionEndPoint = ({
   action,
-  criteriaStatus,
+  criteriaStatus
 }: ParameterWithFilter): string => {
   let params = `${baseEndpoint}action=${action}`;
 

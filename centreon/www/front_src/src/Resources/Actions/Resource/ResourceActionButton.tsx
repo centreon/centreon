@@ -7,12 +7,15 @@ import { IconButton } from '@centreon/ui';
 import ActionButton from '../ActionButton';
 import { labelActionNotPermitted } from '../../translatedLabels';
 
+import useMediaQueryListing from './useMediaQueryListing';
+
 interface Props {
   disabled: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: () => void;
+  onClick: (event) => void;
   permitted?: boolean;
+  testId: string;
 }
 
 const ResourceActionButton = ({
@@ -20,20 +23,24 @@ const ResourceActionButton = ({
   label,
   onClick,
   disabled,
-  permitted = true,
+  testId,
+  permitted = true
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const displayCondensed = Boolean(useMediaQuery(theme.breakpoints.down(1100)));
+  const { applyBreakPoint } = useMediaQueryListing();
+
+  const displayCondensed =
+    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const title = permitted ? label : `${label} (${t(labelActionNotPermitted)})`;
 
   if (displayCondensed) {
     return (
       <IconButton
-        ariaLabel={t(label)}
-        data-testid={label}
+        ariaLabel={t(label) as string}
+        data-testid={testId}
         disabled={disabled}
         size="large"
         title={title}
@@ -48,8 +55,8 @@ const ResourceActionButton = ({
     <Tooltip title={permitted ? '' : labelActionNotPermitted}>
       <span>
         <ActionButton
-          aria-label={t(label)}
-          data-testid={label}
+          aria-label={t(label) as string}
+          data-testid={testId}
           disabled={disabled}
           startIcon={icon}
           variant="contained"

@@ -88,10 +88,6 @@ class FindOpenIdConfiguration
             : $findOpenIdConfigurationResponse::contactTemplateToArray($customConfiguration->getContactTemplate());
         $findOpenIdConfigurationResponse->emailBindAttribute = $customConfiguration->getEmailBindAttribute();
         $findOpenIdConfigurationResponse->userNameBindAttribute = $customConfiguration->getUserNameBindAttribute();
-        $findOpenIdConfigurationResponse->contactGroup = $customConfiguration->getContactGroup() === null
-            ? null
-            : $findOpenIdConfigurationResponse::contactGroupToArray($customConfiguration->getContactGroup());
-
         $findOpenIdConfigurationResponse->aclConditions = FindOpenIdConfigurationResponse::aclConditionsToArray(
             $customConfiguration->getACLConditions()
         );
@@ -102,6 +98,7 @@ class FindOpenIdConfiguration
         $findOpenIdConfigurationResponse->groupsMapping = $findOpenIdConfigurationResponse::groupsMappingToArray(
             $customConfiguration->getGroupsMapping()
         );
+        $findOpenIdConfigurationResponse->redirectUrl = $customConfiguration->getRedirectUrl();
 
         return $findOpenIdConfigurationResponse;
     }

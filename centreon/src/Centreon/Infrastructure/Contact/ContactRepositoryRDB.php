@@ -55,14 +55,16 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
+            LEFT JOIN `:db`.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
             WHERE contact.contact_id = :contact_id
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
@@ -87,15 +89,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
+            LEFT JOIN `:db`.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
-            WHERE contact_alias = :username
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+            WHERE contact.contact_alias = :username
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
         $statement = $this->db->prepare($request);
@@ -118,15 +122,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
+            LEFT JOIN `:db`.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
-            WHERE contact_email = :email
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+            WHERE contact.contact_email = :email
             ORDER BY cp.creation_date DESC LIMIT 1'
         );
         $statement = $this->db->prepare($request);
@@ -148,14 +154,16 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $request = $this->translateDbName(
             'SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+            t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
             FROM `:db`.contact
+            LEFT JOIN `:db`.contact as template
+                ON contact.contact_template_id = template.contact_id
             LEFT JOIN `:db`.contact_password cp
                 ON cp.contact_id = contact.contact_id
             LEFT JOIN `:db`.timezone tz
                 ON tz.timezone_id = contact.contact_location
             LEFT JOIN `:db`.topology t
-                ON t.topology_page = contact.default_page
+                ON t.topology_page = COALESCE(contact.default_page, template.default_page)
             INNER JOIN `:db`.session
               on session.user_id = contact.contact_id
             WHERE session.session_id = :session_id
@@ -176,23 +184,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 
     /**
      * @inheritDoc
+     *
+     * Check if token is present in security_authentication_tokens (session token)
+     * and on top of that in security_token (JWT, OAuth access token...)
      */
     public function findByAuthenticationToken(string $token): ?Contact
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
                 "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name
+                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
                 FROM `:db`.contact
+                LEFT JOIN `:db`.contact as template
+                    ON contact.contact_template_id = template.contact_id
                 LEFT JOIN `:db`.contact_password cp
                     ON cp.contact_id = contact.contact_id
                 LEFT JOIN `:db`.timezone tz
                     ON tz.timezone_id = contact.contact_location
                 LEFT JOIN `:db`.topology t
-                    ON t.topology_page = contact.default_page
+                    ON t.topology_page = COALESCE(contact.default_page, template.default_page)
                 INNER JOIN `:db`.security_authentication_tokens sat
                     ON sat.user_id = contact.contact_id
-                WHERE sat.token = :token
+                INNER JOIN `:db`.security_token st
+                    ON st.id = sat.provider_token_id
+                WHERE (sat.token = :token OR st.token = :token)
                 ORDER BY cp.creation_date DESC LIMIT 1"
             )
         );
@@ -218,8 +233,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $toplogySubquery =
             $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
-                FROM topology
-                WHERE topology.is_react = \'0\''
+                FROM topology'
             : 'SELECT topology.topology_id, acltr.access_right
                 FROM `:db`.contact contact
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
@@ -235,8 +249,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                     ON acltr.acl_topo_id = agtr.acl_topology_id
                 INNER JOIN `:db`.topology
                     ON topology.topology_id = acltr.topology_topology_id
-                WHERE contact.contact_id = :contact_id
-                    AND topology.is_react = \'0\'';
+                WHERE contact.contact_id = :contact_id';
 
         $request =
             'SELECT topology.topology_name, topology.topology_page,
@@ -271,7 +284,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         if ($rightsCounter > 0) {
             foreach ($topologies as $topologyPage => $details) {
                 $originalTopologyPage = $topologyPage;
-                if ($details['right'] === 0 || strlen((string) $topologyPage) < 5) {
+                if ($details['right'] === 0) {
                     continue;
                 }
                 $ruleName = null;
@@ -378,6 +391,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
+     * Get the default timezone.
+     *
+     * @return string The timezone name
+     */
+    private function getDefaultTimezone(): string
+    {
+        $query = <<<'SQL'
+            SELECT timezone.timezone_name
+            FROM `:db`.timezone
+            JOIN `:db`.options ON timezone.timezone_id = options.value
+            WHERE options.key = 'gmt'
+            SQL;
+
+        $query = $this->translateDbName($query);
+
+        $statement = $this->db->prepare($query);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $result['timezone_name'] ?? date_default_timezone_get();
+    }
+
+    /**
      * Create a contact based on the data.
      *
      * @param mixed[] $contact Array of values representing the contact information
@@ -387,7 +424,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $contactTimezoneName = !empty($contact['timezone_name'])
             ? $contact['timezone_name']
-            : date_default_timezone_get();
+            : $this->getDefaultTimezone();
 
         $contactLocale = !empty($contact['contact_lang'])
             ? $this->parseLocaleFromContactLang($contact['contact_lang'])
@@ -405,7 +442,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $page->setUrlOptions($contact['topology_url_opt']);
             }
         }
-
         $contact = (new Contact())
             ->setId((int) $contact['contact_id'])
             ->setName($contact['contact_name'])
@@ -425,7 +461,14 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setLocale($contactLocale)
             ->setDefaultPage($page)
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
-            ->setTheme($contact['contact_theme']);
+            ->setTheme($contact['contact_theme'])
+            ->setUserInterfaceDensity($contact['user_interface_density']);
+
+        if ($contact->isAdmin()) {
+            $contact
+                ->setAccessToApiConfiguration(true)
+                ->setAccessToApiRealTime(true);
+        }
 
         $this->addActionRules($contact);
         $this->addTopologyRules($contact);
@@ -443,12 +486,18 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         switch ($ruleName) {
             case 'host_schedule_check':
-            case 'host_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_HOST_CHECK);
                 break;
+            case 'host_schedule_forced_check':
+                $contact->addRole(Contact::ROLE_HOST_CHECK);
+                $contact->addRole(Contact::ROLE_HOST_FORCED_CHECK);
+                break;
             case 'service_schedule_check':
+                $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                break;
             case 'service_schedule_forced_check':
                 $contact->addRole(Contact::ROLE_SERVICE_CHECK);
+                $contact->addRole(Contact::ROLE_SERVICE_FORCED_CHECK);
                 break;
             case 'host_acknowledgement':
                 $contact->addRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT);

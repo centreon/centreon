@@ -466,7 +466,7 @@ class Escalation extends AbstractObject
 
     public function doHostService()
     {
-        $services = &$this->service_instance->getGeneratedServices();
+        $services = $this->service_instance->getGeneratedServices();
         foreach ($services as $host_id => &$values) {
             $this->addHost($host_id);
             foreach ($values as $service_id) {
@@ -480,7 +480,7 @@ class Escalation extends AbstractObject
 
     public function doHostgroup()
     {
-        $hostgroups = &$this->hg_instance->getHostgroups();
+        $hostgroups = $this->hg_instance->getHostgroups();
         foreach ($hostgroups as $hg_id => &$value) {
             $this->addHostgroup($hg_id, $value);
         }
@@ -490,7 +490,7 @@ class Escalation extends AbstractObject
 
     public function doServicegroup()
     {
-        $servicegroups = &$this->sg_instance->getServicegroups();
+        $servicegroups = $this->sg_instance->getServicegroups();
         foreach ($servicegroups as $sg_id => &$value) {
             $this->addServicegroup($sg_id);
         }

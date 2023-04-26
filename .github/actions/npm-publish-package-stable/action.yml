@@ -1,0 +1,76 @@
+name: NPM publish
+description: This publishes a package to NPM and creates a PR to update the package version
+
+inputs:
+  directory:
+    description: The package directory
+    required: true
+  pat:
+    description: The Github PAT
+    required: true
+  npm_token:
+    description: The NPM token
+    required: true
+  package:
+    description: The frontend package
+    required: true
+  version:
+    description: The version
+    default: latest
+  release_branch:
+    description: The release branch
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+
+    - name: Moving to the ${{ inputs.release_branch }} branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.release_branch }}
+        token: ${{ inputs.pat }}
+
+    - name: Configure tag
+      run: |
+        echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Bump NPM package version
+      run: |
+        npm version patch --legacy-peer-deps
+        VERSION=$(node -p "require('./package.json').version")
+        rm ../../package-lock.json
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      working-directory: ${{ env.directory }}
+      shell: bash
+
+    - name: Configure git
+      run: |
+        git config pull.rebase false
+        git config user.email "technique-ci@centreon.com"
+        git config user.name "technique-ci"
+      shell: bash
+
+    - name: Commit and push changes on ${{ github.ref_name }}
+      run: |
+        git add .
+        git commit -m "chore: release ${VERSION} of ${{ inputs.package }}"
+        git pull origin ${{ github.ref_name }}
+        git push origin ${{ github.ref_name }}
+      shell: bash
+
+    - name: Publish package to NPM (${{ env.TAG }})
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        access: public
+        package: ${{ env.directory }}/package.json
+        tag: ${{ env.TAG }}
+        token: ${{ inputs.npm_token }}

@@ -17,22 +17,27 @@ inputs:
     description: "The frontend static directory cache key"
     required: true
 
-
 runs:
   using: "composite"
   steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+        run_install: false
+
     - uses: actions/setup-node@v3
       with:
-        node-version: 17
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.base_directory }}
 
     - name: Install dependencies
-      uses: bahmutov/npm-install@v1
-      with:
-        working-directory: ${{ inputs.base_directory }}
-        install-command: npm ci --legacy-peer-deps
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.base_directory }}
+      shell: bash
 
     - name: Build frontend
-      run: npm run build
+      run: pnpm build
       working-directory: ${{ inputs.base_directory }}
       shell: bash
 

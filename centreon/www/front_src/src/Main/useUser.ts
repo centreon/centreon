@@ -1,9 +1,9 @@
-import { useAtom, atom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtom, atom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
-import { User, userAtom } from '@centreon/ui-context';
 import { useRequest, getData } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+import type { User } from '@centreon/ui';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';
@@ -13,14 +13,14 @@ export const areUserParametersLoadedAtom = atom<boolean | null>(null);
 const useUser = (): (() => null | Promise<void>) => {
   const { sendRequest: getUser } = useRequest<User>({
     decoder: userDecoder,
-    httpCodesBypassErrorSnackbar: [403, 401, 500],
-    request: getData,
+    httpCodesBypassErrorSnackbar: [403, 401],
+    request: getData
   });
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
-    areUserParametersLoadedAtom,
+    areUserParametersLoadedAtom
   );
-  const setUser = useUpdateAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
 
   const loadUser = (): null | Promise<void> => {
     if (areUserParametersLoaded) {
@@ -28,7 +28,7 @@ const useUser = (): (() => null | Promise<void>) => {
     }
 
     return getUser({
-      endpoint: userEndpoint,
+      endpoint: userEndpoint
     })
       .then((retrievedUser) => {
         if (isNil(retrievedUser)) {
@@ -44,6 +44,7 @@ const useUser = (): (() => null | Promise<void>) => {
           timezone,
           use_deprecated_pages: useDeprecatedPages,
           default_page: defaultPage,
+          user_interface_density
         } = retrievedUser as User;
 
         setUser({
@@ -55,6 +56,7 @@ const useUser = (): (() => null | Promise<void>) => {
           themeMode,
           timezone,
           use_deprecated_pages: useDeprecatedPages,
+          user_interface_density
         });
         setAreUserParametersLoaded(true);
       })

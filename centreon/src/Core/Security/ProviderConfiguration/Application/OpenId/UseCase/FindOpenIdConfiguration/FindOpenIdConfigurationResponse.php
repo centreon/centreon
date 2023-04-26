@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
-use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 
 class FindOpenIdConfigurationResponse
 {
@@ -125,11 +123,6 @@ class FindOpenIdConfigurationResponse
     public ?string $userNameBindAttribute = null;
 
     /**
-     * @var array{id: int, name: string}|null
-     */
-    public ?array $contactGroup = null;
-
-    /**
      * @var array<string, array<int|string, string|null>|string|bool>
      */
     public array $aclConditions = [];
@@ -158,6 +151,8 @@ class FindOpenIdConfigurationResponse
      */
     public array $groupsMapping = [];
 
+    public ?string $redirectUrl = null;
+
     /**
      * @param ContactTemplate $contactTemplate
      * @return array<string,int|string>
@@ -167,18 +162,6 @@ class FindOpenIdConfigurationResponse
         return [
             "id" => $contactTemplate->getId(),
             "name" => $contactTemplate->getName(),
-        ];
-    }
-
-    /**
-     * @param ContactGroup $contactGroup
-     * @return array{id: int, name: string}
-     */
-    public static function contactGroupToArray(ContactGroup $contactGroup): array
-    {
-        return [
-            "id" => $contactGroup->getId(),
-            "name" => $contactGroup->getName()
         ];
     }
 
@@ -194,7 +177,8 @@ class FindOpenIdConfigurationResponse
                 'access_group' => [
                     "id" => $authorizationRule->getAccessGroup()->getId(),
                     "name" => $authorizationRule->getAccessGroup()->getName()
-                ]
+                ],
+                'priority' => $authorizationRule->getPriority()
             ];
         }, $authorizationRules);
     }

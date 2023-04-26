@@ -1,40 +1,41 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { Divider } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   buttonsGroup: {
     columnGap: theme.spacing(2),
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 77px)',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
   formContainer: {
-    margin: theme.spacing(2, 1),
+    margin: theme.spacing(2, 1)
   },
   formGroup: {
     marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(0.5),
+    marginTop: theme.spacing(0.5)
   },
   passwordCaseGroup: {
     columnGap: theme.spacing(4),
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     marginTop: theme.spacing(1),
-    width: theme.spacing(60),
+    width: theme.spacing(60)
   },
   passwordExpirationAndBlockingGroups: {
     display: 'flex',
     flexDirection: 'column',
     marginTop: theme.spacing(1),
-    rowGap: theme.spacing(1),
-  },
+    rowGap: theme.spacing(1)
+  }
 }));
 
 const AuthenticationLoadingSkeleton = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.formContainer}>

@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -11,13 +11,11 @@ import {
   not,
   propEq,
   reject,
-  path,
-  pathEq,
   equals,
+  prop
 } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
 
-import { useRequest, useSnackbar, getData } from '@centreon/ui';
+import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
 
 import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
@@ -25,74 +23,121 @@ import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
+import centreonLogo from '../assets/logo-centreon-colors.svg';
 
-import postLogin from './api';
-import { providersConfigurationDecoder, redirectDecoder } from './api/decoder';
+import {
+  loginPageCustomisationDecoder,
+  providersConfigurationDecoder
+} from './api/decoder';
 import {
   labelLoginSucceeded,
-  labelPasswordHasExpired,
+  labelPasswordHasExpired
 } from './translatedLabels';
-import { providersConfigurationEndpoint } from './api/endpoint';
+import {
+  loginPageCustomisationEndpoint,
+  providersConfigurationEndpoint
+} from './api/endpoint';
 import {
   LoginFormValues,
   Redirect,
   RedirectAPI,
   ProviderConfiguration,
+  LoginPageCustomisation
 } from './models';
+import usePostLogin from './usePostLogin';
+import useWallpaper from './useWallpaper';
 
 interface UseLoginState {
+  loginPageCustomisation: LoginPageCustomisation;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
-  sendLogin: (values) => Promise<Redirect>;
   submitLoginForm: (
     values: LoginFormValues,
-    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>,
+    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ) => void;
 }
 
+const getForcedProviders = filter<ProviderConfiguration>(
+  (provider): boolean =>
+    not(isNil(provider.isForced)) &&
+    (provider.isForced as boolean) &&
+    not(equals(provider.name, 'local'))
+);
+
+const getExternalProviders = reject<ProviderConfiguration>(
+  propEq('name', 'local')
+);
+
+const getActiveProviders = filter<ProviderConfiguration>(
+  propEq('isActive', true)
+);
+
+const defaultLoginPageCustomisation: LoginPageCustomisation = {
+  customText: null,
+  iconSource: null,
+  imageSource: null,
+  platformName: null,
+  textPosition: null
+};
+
+export const router = {
+  useNavigate
+};
+
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
-  const [providersConfiguration, setProvidersConfiguration] =
-    useState<Array<ProviderConfiguration> | null>(null);
 
-  const { sendRequest: sendLogin } = useRequest<Redirect>({
-    decoder: redirectDecoder,
-    httpCodesBypassErrorSnackbar: [401],
-    request: postLogin,
-  });
+  const { sendLogin } = usePostLogin();
 
-  const { sendRequest: getProvidersConfiguration } = useRequest<
-    Array<ProviderConfiguration>
-  >({
+  const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
-    request: getData,
+    getEndpoint: () => providersConfigurationEndpoint,
+    getQueryKey: () => ['providerConfiguration'],
+    queryOptions: {
+      refetchOnMount: false,
+      suspense: false
+    }
   });
+
+  const { data: loginPageCustomisationData, isLoading } =
+    useFetchQuery<LoginPageCustomisation>({
+      decoder: loginPageCustomisationDecoder,
+      getEndpoint: () => loginPageCustomisationEndpoint,
+      getQueryKey: () => ['loginPageCustomisation'],
+      httpCodesBypassErrorSnackbar: [404],
+      queryOptions: {
+        retry: false,
+        suspense: false
+      }
+    });
 
   const { getInternalTranslation, getExternalTranslation } =
     useInitializeTranslation();
 
+  const wallpaper = useWallpaper();
+
   const { showSuccessMessage, showWarningMessage, showErrorMessage } =
     useSnackbar();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const loadUser = useUser();
 
   const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
-  const setPasswordResetInformations = useUpdateAtom(
-    passwordResetInformationsAtom,
+  const setPasswordResetInformations = useSetAtom(
+    passwordResetInformationsAtom
   );
 
   const checkPasswordExpiration = useCallback(
     ({ error, alias, setSubmitting }) => {
-      const isUserNotAllowed = pathEq(['response', 'status'], 401, error);
+      const isUserNotAllowed = propEq('statusCode', 401, error);
 
-      const { password_is_expired: passwordIsExpired } = path(
-        ['response', 'data'],
-        error,
+      const { password_is_expired: passwordIsExpired } = prop(
+        'additionalInformation',
+        error
       ) as RedirectAPI;
 
       if (isUserNotAllowed && passwordIsExpired) {
         setPasswordResetInformations({
-          alias,
+          alias
         });
         navigate(routeMap.resetPassword);
         showWarningMessage(t(labelPasswordHasExpired));
@@ -101,27 +146,38 @@ const useLogin = (): UseLoginState => {
       }
 
       setSubmitting(false);
-      showErrorMessage(path(['response', 'data', 'message'], error) as string);
+      showErrorMessage(prop('message', error) as string);
     },
-    [],
+    []
   );
 
   const submitLoginForm = (
     values: LoginFormValues,
-    { setSubmitting },
+    { setSubmitting }
   ): void => {
     sendLogin({
       login: values.alias,
-      password: values.password,
+      password: values.password
     })
-      .then(({ redirectUri }) => {
+      .then((response) => {
+        if ((response as ResponseError).isError) {
+          checkPasswordExpiration({
+            alias: values.alias,
+            error: response as ResponseError,
+            setSubmitting
+          });
+
+          return;
+        }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().finally(() =>
-          loadUser()?.then(() => navigate(redirectUri)),
+        getInternalTranslation().then(() =>
+          loadUser()?.then(() =>
+            navigate(prop('redirectUri', response as Redirect))
+          )
         );
       })
       .catch((error) =>
-        checkPasswordExpiration({ alias: values.alias, error, setSubmitting }),
+        checkPasswordExpiration({ alias: values.alias, error, setSubmitting })
       );
   };
 
@@ -129,45 +185,45 @@ const useLogin = (): UseLoginState => {
 
   useEffect(() => {
     getExternalTranslation().then(() =>
-      i18n.changeLanguage?.(getBrowserLocale()),
+      i18n.changeLanguage?.(getBrowserLocale())
     );
-
-    getProvidersConfiguration({
-      endpoint: providersConfigurationEndpoint,
-    }).then((providers) => {
-      const forcedProviders = filter<ProviderConfiguration>(
-        (provider): boolean =>
-          not(isNil(provider.isForced)) &&
-          (provider.isForced as boolean) &&
-          not(equals(provider.name, 'local')),
-        providers || [],
-      );
-
-      if (not(isEmpty(forcedProviders))) {
-        window.location.replace(forcedProviders[0].authenticationUri);
-
-        return;
-      }
-
-      const externalProviders = reject<ProviderConfiguration>(
-        propEq('name', 'local'),
-        providers,
-      );
-
-      const activeProviders = filter<ProviderConfiguration>(
-        propEq('isActive', true),
-        externalProviders || [],
-      );
-
-      setProvidersConfiguration(activeProviders);
-    });
   }, []);
 
+  const forcedProviders = getForcedProviders(providers || []);
+
+  const externalProviders = getExternalProviders(providers || []);
+
+  const activeProviders = getActiveProviders(externalProviders || []);
+
+  const loginPageCustomisation: LoginPageCustomisation = isLoading
+    ? defaultLoginPageCustomisation
+    : {
+        customText:
+          loginPageCustomisationData?.customText ||
+          defaultLoginPageCustomisation.customText,
+        iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
+        imageSource: loginPageCustomisationData?.imageSource || wallpaper,
+        platformName:
+          loginPageCustomisationData?.platformName ||
+          defaultLoginPageCustomisation.platformName,
+        textPosition:
+          loginPageCustomisationData?.textPosition ||
+          defaultLoginPageCustomisation.textPosition
+      };
+
+  useEffect(() => {
+    if (isEmpty(forcedProviders)) {
+      return;
+    }
+
+    window.location.replace(forcedProviders[0].authenticationUri);
+  }, [forcedProviders]);
+
   return {
+    loginPageCustomisation,
     platformInstallationStatus,
-    providersConfiguration,
-    sendLogin,
-    submitLoginForm,
+    providersConfiguration: activeProviders,
+    submitLoginForm
   };
 };
 

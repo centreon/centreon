@@ -41,7 +41,6 @@ class ParametersController extends AbstractController
 
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration',
                   DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale',
-
                   DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring',
                   DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
                   DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
@@ -63,7 +62,7 @@ class ParametersController extends AbstractController
         self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES => 'monitoring_default_acknowledgement_with_services',
         self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS => 'monitoring_default_acknowledgement_force_active_checks',
         self::DEFAULT_DOWNTIME_FIXED => 'monitoring_default_downtime_fixed',
-        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
+        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services'
     ];
 
     /**

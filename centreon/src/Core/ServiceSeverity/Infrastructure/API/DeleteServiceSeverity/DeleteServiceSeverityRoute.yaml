@@ -1,0 +1,7 @@
+DeleteServiceSeverity:
+  methods: DELETE
+  path: /configuration/services/severities/{serviceSeverityId}
+  requirements:
+    serviceSeverityId: '\d+'
+  controller: 'Core\ServiceSeverity\Infrastructure\API\DeleteServiceSeverity\DeleteServiceSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"

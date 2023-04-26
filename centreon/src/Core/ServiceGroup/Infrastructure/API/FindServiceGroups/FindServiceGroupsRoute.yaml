@@ -1,0 +1,5 @@
+FindServiceGroups:
+  methods: GET
+  path: /configuration/services/groups
+  controller: 'Core\ServiceGroup\Infrastructure\API\FindServiceGroups\FindServiceGroupsController'
+  condition: "request.attributes.get('version') >= 23.04"

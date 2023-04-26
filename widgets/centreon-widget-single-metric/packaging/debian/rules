@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Tdebian/substvars
+
+override_dh_auto_build:
+	find . \
+		-type f \
+		-exec grep -qE '(@CENTREON_ETC@)|(@BIN_DIR@)|(CENTREON_DIR)|(CENTREON_LOG)|(CENTREON_VARLIB)|(MODULE_NAME)' {} ';'   \
+		-exec sed -i -e "s|@CENTREON_ETC@|/etc/centreon|g" \
+			-e "s|@BIN_DIR@|/usr/bin|g" \
+			-e "s|@CENTREON_DIR@|/usr/share/centreon|g" \
+			-e "s|@CENTREON_LOG@|/var/log/centreon|g" \
+			-e "s|@CENTREON_VARLIB@|/var/lib/centreon|g" \
+			-e "s|@MODULE_NAME@|centreon-bam-server|g" \
+		{} ';'

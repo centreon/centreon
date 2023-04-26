@@ -145,4 +145,38 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
 
         return $icons;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIcon(int $id): ?Icon
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                SELECT vi.*, vid.dir_name AS `img_dir`
+                    FROM `:db`.`view_img` AS `vi`
+                LEFT JOIN `:db`.`view_img_dir_relation` AS `vidr`
+                    ON vi.img_id = vidr.img_img_id
+                LEFT JOIN `:db`.`view_img_dir` AS `vid`
+                    ON vid.dir_id = vidr.dir_dir_parent_id
+                WHERE vi.img_id = :id
+                SQL
+            )
+        );
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $icon = null;
+        if (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $icon = new Icon();
+            $icon
+                ->setId((int) $row['img_id'])
+                ->setDirectory($row['img_dir'])
+                ->setName($row['img_name'])
+                ->setUrl($row['img_dir'] . '/' . $row['img_path']);
+        }
+
+        return $icon;
+    }
 }

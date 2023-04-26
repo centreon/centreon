@@ -1,18 +1,18 @@
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   globalActions: {
     alignItems: 'center',
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, min-content)',
-  },
+    gridTemplateColumns: 'repeat(2, min-content)'
+  }
 }));
 
 const GlobalActionsSkeleton = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.globalActions}>

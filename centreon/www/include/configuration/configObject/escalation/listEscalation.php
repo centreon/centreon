@@ -66,7 +66,7 @@ $aclCond = array(
     'ms' => ''
 );
 if (!$centreon->user->admin) {
-    $aclFrom = ", $dbmon.centreon_acl acl ";
+    $aclFrom = ", `$dbmon`.centreon_acl acl ";
     $aclCond['h'] = " AND ehr.host_host_id = acl.host_id
                       AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
     $aclCond['sv'] = " AND esr.host_host_id = acl.host_id

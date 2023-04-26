@@ -1,0 +1,26 @@
+<tr>
+    <td class="FormRowField" style="padding-left:15px;">{$groups.$groupId.label}</td>
+    <td class="FormRowValue" style="padding-left:15px;">
+    {if isset($groups.$groupId.code) and $groups.$groupId.code == -1}
+        <span style="color: red">{$groups.$groupId.msg_error}</span>
+    {else}
+        {assign var="group" value=$groups.$groupId.values}
+        {if isset($groups.$groupId.sort) and $groups.$groupId.sort == 1}
+            {sortgroup group=$groups.$groupId.values}
+            {assign var="group" value=$sortgroup_result}
+        {/if}
+        <select id="select_{$groupId}" name="select_{$groupId}">
+        {if $group|is_array && $group|@count != 1}
+            <option value="-1"> -- select -- </option>
+        {/if}
+        {foreach from=$group key=k item=v}
+        {if $groups.$groupId.placeholder.$k != ""}
+            <option value='{$k}___{$v}___{$groups.$groupId.placeholder.$k}' {if $v eq $groups.$groupId.default}selected{/if}>{$groups.$groupId.placeholder.$k}</option>
+        {else}
+            <option value='{$k}___{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
+        {/if}
+        {/foreach}
+        </select>
+    {/if}
+    </td>
+</tr>

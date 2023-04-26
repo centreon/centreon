@@ -210,7 +210,7 @@ class CentreonConfigPoller
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
-            "UPDATE `nagios_server` SET `last_restart` = :last_restart WHERE `id` = :poller_id LIMIT 1"
+            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
@@ -288,7 +288,7 @@ class CentreonConfigPoller
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
-            "UPDATE `nagios_server` SET `last_restart` = :last_restart WHERE `id` = :poller_id LIMIT 1"
+            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
@@ -405,7 +405,8 @@ class CentreonConfigPoller
         $this->testPollerId($variables);
 
         $poller_id = $this->getPollerId($variables);
-
+        //sanitize poller id against traversal path vulnerability
+        $poller_id = basename($poller_id);
         $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
@@ -510,10 +511,18 @@ class CentreonConfigPoller
             /* Change files owner */
             if ($apacheUser != "") {
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
+                    //handle path traversal vulnerability
+                    if (strpos($file, '..') !== false) {
+                        throw new Exception('Path traversal found');
+                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
+                    //handle path traversal vulnerability
+                    if (strpos($file, '..') !== false) {
+                        throw new Exception('Path traversal found');
+                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
@@ -559,6 +568,10 @@ class CentreonConfigPoller
                 /* Change files owner */
                 if ($apacheUser != "") {
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
+                        //handle path traversal vulnerability
+                        if (strpos($file, '..') !== false) {
+                            throw new Exception('Path traversal found');
+                        }
                         @chown($file, $apacheUser);
                         @chgrp($file, $apacheUser);
                     }
@@ -693,6 +706,10 @@ class CentreonConfigPoller
             mkdir("{$trapdPath}/{$pollerId}");
         }
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
+        //handle path traversal vulnerability
+        if (strpos($filename, '..') !== false) {
+            throw new Exception('Path traversal found');
+        }
         passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
         exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->centcore_pipe, $stdout, $return);
         return $return;

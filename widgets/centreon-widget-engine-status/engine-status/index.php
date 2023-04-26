@@ -93,75 +93,82 @@ $dataSth = array();
 $dataSts = array();
 $db = new CentreonDB("centstorage");
 
-$idP = (int) $preferences['poller'];
-
-$sql = "SELECT
-    Max(T1.latency) as h_max,
-    AVG(T1.latency) as h_moy,
-    Max(T2.latency) as s_max,
-    AVG(T2.latency) as s_moy
-    FROM hosts T1, services T2
-    WHERE T1.instance_id = :idP AND T1.host_id = T2.host_id AND T2.enabled = '1' and T2.check_type = '0'";
-
-$res = $db->prepare($sql);
-$res->bindValue(':idP', $idP, \PDO::PARAM_INT);
-$res->execute();
-while ($row = $res->fetch()) {
-    $row['h_max'] = round($row['h_max'], 3);
-    $row['h_moy'] = round($row['h_moy'], 3);
-    $row['s_max'] = round($row['s_max'], 3);
-    $row['s_moy'] = round($row['s_moy'], 3);
-    $dataLat[] = $row;
+$instances = [];
+if (isset($preferences['poller']) && $preferences['poller']) {
+    $pollerIds = explode(',', $preferences['poller']);
+    $queryPoller = '';
+    foreach ($pollerIds as $pollerId) {
+        $instances[] = (int) $pollerId;
+    }
 }
 
-$sql = "SELECT
-    Max(T1.execution_time) as h_max,
-    AVG(T1.execution_time) as h_moy,
-    Max(T2.execution_time) as s_max,
-    AVG(T2.execution_time) as s_moy
-    FROM hosts T1, services T2
-    WHERE T1.instance_id = :idP AND T1.host_id = T2.host_id AND T2.enabled = '1' and T2.check_type = '0'";
+if (!empty($instances)) {
+    $queryLat = "SELECT MAX(T1.latency) AS h_max, AVG(T1.latency) AS h_moy,
+            MAX(T2.latency) AS s_max, AVG(T2.latency) AS s_moy
+            FROM hosts T1, services T2
+            WHERE T1.instance_id IN (" . implode(',', $instances) . ")
+            AND T1.host_id = T2.host_id
+            AND T2.enabled = '1'
+            AND T2.check_type = '0'";
+    $queryEx = "SELECT MAX(T1.execution_time) AS h_max, AVG(T1.execution_time) AS h_moy,
+            MAX(T2.execution_time) AS s_max, AVG(T2.execution_time) AS s_moy
+            FROM hosts T1, services T2
+            WHERE T1.instance_id IN (" . implode(',', $instances) . ") AND T1.host_id = T2.host_id
+            AND T2.enabled = '1'
+            AND T2.check_type = '0'";
 
-$res = $db->prepare($sql);
-$res->bindValue(':idP', $idP, \PDO::PARAM_INT);
-$res->execute();
-while ($row = $res->fetch()) {
-    $row['h_max'] = round($row['h_max'], 3);
-    $row['h_moy'] = round($row['h_moy'], 3);
-    $row['s_max'] = round($row['s_max'], 3);
-    $row['s_moy'] = round($row['s_moy'], 3);
-    $dataEx[] = $row;
-}
+    $res = $db->query($queryLat);
+    $res2 = $db->query($queryEx);
 
-$sql = "SELECT
-    SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Dow,
-    SUM(CASE WHEN h.state = 2 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Un,
-    SUM(CASE WHEN h.state = 0 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Up,
-    SUM(CASE WHEN h.state = 4 AND h.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Pend
-    FROM hosts h
-    WHERE h.instance_id = :idP";
+    while ($row = $res->fetch()) {
+        $row['h_max'] = round($row['h_max'], 3);
+        $row['h_moy'] = round($row['h_moy'], 3);
+        $row['s_max'] = round($row['s_max'], 3);
+        $row['s_moy'] = round($row['s_moy'], 3);
+        $dataLat[] = $row;
+    }
 
-$res = $db->prepare($sql);
-$res->bindValue(':idP', $idP, \PDO::PARAM_INT);
-$res->execute();
-while ($row = $res->fetch()) {
-    $dataSth[] = $row;
-}
+    while ($row = $res2->fetch()) {
+        $row['h_max'] = round($row['h_max'], 3);
+        $row['h_moy'] = round($row['h_moy'], 3);
+        $row['s_max'] = round($row['s_max'], 3);
+        $row['s_moy'] = round($row['s_moy'], 3);
+        $dataEx[] = $row;
+    }
 
-$sql = "SELECT
-    SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Cri,
-    SUM(CASE WHEN s.state = 1 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Wa,
-    SUM(CASE WHEN s.state = 0 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Ok,
-    SUM(CASE WHEN s.state = 4 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Pend,
-    SUM(CASE WHEN s.state = 3 AND s.enabled = 1 AND h.name not like '%Module%' then 1 else 0 end) as Unk
-    FROM services s, hosts h
-    WHERE h.host_id = s.host_id AND h.instance_id = :idP";
+    $querySth = "SELECT SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Dow,
+                SUM(CASE WHEN h.state = 2 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Un,
+                SUM(CASE WHEN h.state = 0 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Up,
+                SUM(CASE WHEN h.state = 4 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Pend
+                FROM hosts h WHERE h.instance_id IN (" . implode(',', $instances) . ")";
 
-$res = $db->prepare($sql);
-$res->bindValue(':idP', $idP, \PDO::PARAM_INT);
-$res->execute();
-while ($row = $res->fetch()) {
-    $dataSts[] = $row;
+    $querySts = "SELECT SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Cri,
+                SUM(CASE WHEN s.state = 1 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Wa,
+                SUM(CASE WHEN s.state = 0 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Ok,
+                SUM(CASE WHEN s.state = 4 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Pend,
+                SUM(CASE WHEN s.state = 3 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+                THEN 1 ELSE 0 END) AS Unk
+                FROM services s, hosts h
+                WHERE h.host_id = s.host_id AND h.instance_id IN (" . implode(',', $instances) . ")";
+
+    $res = $db->query($querySth);
+    $res2 = $db->query($querySts);
+
+    while ($row = $res->fetch()) {
+        $dataSth[] = $row;
+    }
+
+    while ($row = $res2->fetch()) {
+        $dataSts[] = $row;
+    }
 }
 
 $avg_l = $preferences['avg-l'];

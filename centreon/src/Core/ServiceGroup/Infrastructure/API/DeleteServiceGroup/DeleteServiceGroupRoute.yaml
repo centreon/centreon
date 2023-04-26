@@ -1,0 +1,7 @@
+DeleteServiceGroup:
+  methods: DELETE
+  path: /configuration/services/groups/{serviceGroupId}
+  requirements:
+    serviceGroupId: '\d+'
+  controller: 'Core\ServiceGroup\Infrastructure\API\DeleteServiceGroup\DeleteServiceGroupController'
+  condition: "request.attributes.get('version') >= 23.04"

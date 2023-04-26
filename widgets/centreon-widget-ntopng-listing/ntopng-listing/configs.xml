@@ -4,7 +4,7 @@
     <email>contact@centreon.com</email>
     <website>http://www.centreon.com</website>
     <description>This widget allows to request a NtopNG appliance through API</description>
-    <version>22.10.0</version>
+    <version>23.04.0</version>
     <keywords>centreon, widget, network, ntopng</keywords>
     <screenshot></screenshot>
     <thumbnail>./widgets/ntopng-listing/resources/ntopng.png</thumbnail>

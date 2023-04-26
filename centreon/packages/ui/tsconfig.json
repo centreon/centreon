@@ -1,0 +1,29 @@
+{
+  "extends": "../js-config/tsconfig/index.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ],
+    "outDir": "./dist",
+    "declaration": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "emitDeclarationOnly": true,
+    "types": [],
+    "esModuleInterop": true
+  },
+  "include": [
+    "./src",
+    "./types"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "./src/**/*.test.ts",
+    "./src/**/*.test.tsx",
+    "./src/**/*.stories.tsx",
+    "../../node_modules",
+  ]
+}

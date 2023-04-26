@@ -1,46 +1,45 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { RefObject } from 'react';
 
+import { useSetAtom } from 'jotai';
 import { equals, last } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
-import { Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
+import { Typography } from '@mui/material';
 
-import Card from '../Details/Card';
-import SelectableResourceName from '../Details/SelectableResourceName';
 import { Resource } from '../../../models';
 import ShortTypeChip from '../../../ShortTypeChip';
 import { selectResourceDerivedAtom } from '../../detailsAtoms';
+import Card from '../Details/Card';
+import SelectableResourceName from '../Details/SelectableResourceName';
 
 import { MetaServiceMetric } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   card: {
     alignItems: 'center',
     display: 'grid',
     gridColumnGap: theme.spacing(2),
     gridTemplateColumns: '1fr 1fr auto',
     justifyItems: 'flex-start',
-    width: '100%',
+    width: '100%'
   },
   container: {
     display: 'grid',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   iconValuePair: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   resources: {
     display: 'flex',
     flexDirection: 'column',
     gridGap: theme.spacing(1),
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'
+  }
 }));
 
 interface Props {
@@ -49,9 +48,9 @@ interface Props {
 }
 
 const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
+  const selectResource = useSetAtom(selectResourceDerivedAtom);
 
   return (
     <>

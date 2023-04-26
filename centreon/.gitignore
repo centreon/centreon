@@ -5,21 +5,16 @@ www/index.html
 doc/API/centreon-api-v2.html
 
 #backend development and project files
-.idea/
-.vscode/
-.scannerwork/
-vendor/
-nbproject/
 GPL_LIB/SmartyCache/*
 
 #front development files
-node_modules/
 www/static
 www/asset-manifest.json
 www/front_src/src/App.css
 www/service-worker.js
 www/include/core/menu/templates/*.js
 www/include/core/menu/templates/*.tpl
+junit.xml
 
 #sample files
 !www/img/media/.keep
@@ -36,12 +31,7 @@ config/centreon.config.php
 
 #continuous integration and testing files
 *-dev.yml
-.phpunit.result.cache
-coverage-report/
-centreon-build/
 secret
-build/*
-build/coverage/*
 
 #symfony/framework-bundle
 .env.local
@@ -65,14 +55,6 @@ www/modules/centreon-*
 www/widgets
 !www/widgets/require.php
 
-.DS_store
-
-# Windows thumbnail cache files
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-
 .lighthouseci
 lighthouse/report
 lighthouse/build
@@ -88,3 +70,6 @@ docker-compose.yml
 
 # Php-CS-Fixer output file
 checkstyle.core.xml
+.swc
+junit.xml
+

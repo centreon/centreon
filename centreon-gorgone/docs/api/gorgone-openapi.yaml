@@ -1,0 +1,1044 @@
+openapi: 3.0.1
+info:
+  title: Centreon Gorgone RestAPI
+  description: |
+    # Information
+    Centreon Gorgone and his "gorgoned" daemon is a lightweight, distributed, modular tasks handler.
+
+    It provides a set of actions like:
+    
+      - Execute commands
+      - Send files/directories,
+      - Schedule cron-like tasks,
+      - Push or execute tasks through SSH.
+    
+    The daemon can be installed on Centreon environments like Centreon Central, Remote and Poller servers.
+    
+    It uses ZeroMQ library.
+  x-logo:
+    url: ./centreon-logo.png
+  contact:
+    url: 'https://www.centreon.com'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: "1.0"
+externalDocs:
+  description: You can contact us on our community Slack
+  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+servers:
+  - url: '{protocol}://{server}:{port}/api'
+    description: "Local Gorgone instance"
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+        description: "HTTP schema"
+      server:
+        default: localhost
+        description: "IP address or hostname of Gorgone instance"
+      port:
+        default: '8085'
+        description: "Port used by HTTP server"
+  - url: '{protocol}://{server}:{port}/api/nodes/{id}'
+    description: "Remote Gorgone instance"
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+        description: "HTTP schema"
+      server:
+        default: localhost
+        description: "IP address or hostname of Gorgone instance"
+      port:
+        default: '8085'
+        description: "Port used by HTTP server"
+      id:
+        default: '1'
+        description: "ID of the remote Gorgone node"
+tags:
+  - name: Internal
+    description: "Internal events."
+  - name: Logs
+    description: "Logs management."
+  - name: Cron
+    description: "Module aiming to reproduce a cron-like scheduler that can send events to other Gorgone modules."
+  - name: Action
+    description: "Module aiming to execute actions on the server running the Gorgone daemon or remotly using SSH."
+  - name: Engine
+    description: "Module aiming to provide a bridge to communicate with Centreon Engine daemon."
+  - name: Statistics
+    description: "Module aiming to deal with statistics collection of Centreon Engine and Broker."
+  - name: Autodiscovery
+    description: "Module aiming to extend Centreon Autodiscovery server functionalities."
+security:
+  - Basic Authentication: []
+paths:
+  /internal/constatus:
+    get:
+      tags:
+        - Internal
+      summary: "Get nodes connection status"
+      description: "Get the connection status of all nodes managed by the Gorgone daemon."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodesStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /internal/information:
+    get:
+      tags:
+        - Internal
+      summary: "Get runtime informations and statistics"
+      description: "Get informations and statistics about loaded modules, available endpoints and number of events computed at runtime."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Information'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /internal/thumbprint:
+    get:
+      tags:
+        - Internal
+      summary: "Get public key thumbprint"
+      description: "Get the thumbprint of the public key of the Gorgone daemon."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thumbprint'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /internal/logger:
+    post:
+      tags:
+        - Internal
+      summary: "Set logger severity level"
+      description: "Set the logger severity level for all modules."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeverityLevel'
+      responses:
+        '204':
+          description: OK
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /log/{token}:
+    get:
+      tags:
+        - Logs
+      summary: "Retrieve event's logs"
+      description: "Retrieve the event's logs based on event's token."
+      parameters:
+        - $ref: '#/components/parameters/Token'
+        - $ref: '#/components/parameters/Code'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Ctime'
+        - $ref: '#/components/parameters/Etime'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /core/cron/definitions:
+    get:
+      tags:
+        - Cron
+      summary: "List definitions"
+      description: "List all cron definitions."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+        - Cron
+      summary: "Add definitions"
+      description: "Add one or multiple cron definitions to runtime."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CronDefinitions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /core/cron/definitions/{definition_id}:
+    get:
+      tags:
+        - Cron
+      summary: "Get a definition"
+      description: "List cron definition identified by id."
+      parameters:
+        - $ref: '#/components/parameters/DefinitionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    patch:
+      tags:
+        - Cron
+      summary: "Update a definition"
+      description: "Update a cron definition."
+      parameters:
+        - $ref: '#/components/parameters/DefinitionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CronDefinition'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags:
+        - Cron
+      summary: "Delete a definition"
+      description: "Delete a cron definition."
+      parameters:
+        - $ref: '#/components/parameters/DefinitionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /core/cron/definitions/{definition_id}/status:
+    get:
+      tags:
+        - Cron
+      summary: "Get a definition status"
+      description: "Get a definition execution status."
+      parameters:
+        - $ref: '#/components/parameters/DefinitionId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /core/action/command:
+    post:
+      tags:
+        - Action
+      summary: "Execute one or several command lines"
+      description: "Execute a command or a set of commands on server running Gorgone."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionCommands'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/engine/command:
+    post:
+      tags:
+        - Engine
+      summary: "Send one or several external commands"
+      description: |
+        Send an external command or a set of external commands to a running Centreon Engine instance using command file pipe.
+        This method needs the commands to be preformatted as Nagios external commands format.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EngineCommands'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/statistics/broker:
+    get:
+      tags:
+        - Statistics
+      summary: "Launch Broker statistics collection"
+      description: "Launch Broker statistics collection and store the result on disk."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/statistics/broker/{monitoring_server_id}:
+    get:
+      tags:
+        - Statistics
+      summary: "Launch Broker statistics collection of a specific monitoring server"
+      description: "Launch Broker statistics collection and store the result on disk."
+      parameters:
+        - $ref: '#/components/parameters/MonitoringServerId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/autodiscovery/hosts:
+    post:
+      tags:
+        - Autodiscovery
+      summary: "Add a host discovery job"
+      description: "Add one Centreon Autodiscovery job to discover hosts."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostDiscoveryJob'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/autodiscovery/hosts/{job_id}/schedule:
+    get:
+      tags:
+        - Autodiscovery
+      summary: "Launch a host discovery job"
+      description: "Launch a host discovery job identified by id (even if in cron mode)."
+      parameters:
+        - $ref: '#/components/parameters/HostDiscoveryId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /centreon/autodiscovery/hosts/{token}:
+    delete:
+      tags:
+        - Autodiscovery
+      summary: "Delete a host discovery job"
+      description: "Delete one Centreon Autodiscovery scheduled job."
+      parameters:
+        - $ref: '#/components/parameters/HostDiscoveryToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Token'
+                  - $ref: '#/components/schemas/Logs'
+                  - $ref: '#/components/schemas/NoLogs'
+                  - $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  securitySchemes:
+    Basic Authentication:
+      type: http
+      scheme: basic
+  parameters:
+    Token:
+      in: path
+      name: token
+      required: true
+      description: "Token of the event"
+      schema:
+        type: string
+        example: "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
+    Code:
+      in: query
+      name: code
+      required: false
+      description: "Only retrieve logs with defined code"
+      schema:
+        type: integer
+        enum: [0, 1, 2]
+        example: 2
+    Limit:
+      in: query
+      name: limit
+      required: false
+      description: "Only retrieve the last x logs"
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    Ctime:
+      in: query
+      name: ctime
+      required: false
+      description: "Only retrieve logs with a creation time equal or superior to a timestamp"
+      schema:
+        type: integer
+        format: int64
+        example: 1577726040
+    Etime:
+      in: query
+      name: etime
+      required: false
+      description: "Only retrieve logs of an event time superior to a timestamp"
+      schema:
+        type: integer
+        format: int64
+        example: 1577726040
+    DefinitionId:
+      in: path
+      name: definition_id
+      required: true
+      description: "ID of the definition"
+      schema:
+        type: string
+        example: "broker_stats"
+    MonitoringServerId:
+      in: path
+      name: monitoring_server_id
+      required: true
+      description: "ID of the monitoring server"
+      schema:
+        type: integer
+        example: 2
+    HostDiscoveryId:
+      in: path
+      name: job_id
+      required: true
+      description: "ID of the job"
+      schema:
+        type: integer
+        example: 2
+    HostDiscoveryToken:
+      in: path
+      name: token
+      required: true
+      description: "Token of the scheduled job"
+      schema:
+        type: string
+        example: "discovery_14_6b7d1bb8"
+  responses:
+    NotFound:
+      description: "The specified resource was not found"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: "Unauthorized"
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: "Short error description"
+                example: "http_error_401"
+              message:
+                type: string
+                description: "Message explaining the error"
+                example: "unauthorized"
+            required:
+              - error
+              - message
+    Forbidden:
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: "Short error description"
+                example: "http_error_403"
+              message:
+                type: string
+                description: "Message explaining the error"
+                example: "forbidden"
+            required:
+              - error
+              - message
+    UnknownEndpoint:
+      description: "Unknown endpoint"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: "Short error description"
+                example: "method_unknown"
+              message:
+                type: string
+                description: "Message explaining the error"
+                example: "Method not implemented"
+            required:
+              - error
+              - message
+    UnknownMethod:
+      description: "Unknown method"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: "Short error description"
+                example: "endpoint_unknown"
+              message:
+                type: string
+                description: "Message explaining the error"
+                example: "endpoint not implemented"
+            required:
+              - error
+              - message
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Short error description"
+        message:
+          type: string
+          description: "Message explaining the error"
+      required:
+        - error
+        - message
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          format: byte
+          description: "Token related to the event's result"
+          example: "1d48a26a0fc37c1d8658222378044007d9c12311ba49b214de633739be05353415eee946f41b43babb6cb2a083a45c0d6359f361874af39a45b07542de8e2165"
+    Logs:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Additionnal message"
+          example: "Logs found"
+        token:
+          type: string
+          format: byte
+          description: "Token related to the event's result"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+        data:
+          type: array
+          description: "Results array containing all logs related to token"
+          items:
+            $ref: '#/components/schemas/Log'
+    Log:
+      type: object
+      properties:
+        ctime:
+          type: string
+          format: timestamp
+          description: "Time when the server has stored the log in its database"
+          example: 1577727699
+        etime:
+          type: string
+          format: timestamp
+          description: "Time when the event has occured"
+          example: 1577727699
+        id:
+          type: integer
+          description: "ID of the event"
+          example: 101483
+        instant:
+          type: integer
+          example: 0
+        data:
+          type: object
+          description: "Data stored for this event"
+        token:
+          type: string
+          format: byte
+          description: "Token related to the event"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+        code:
+          type: integer
+          description: "Returned code of the event"
+          example: 2
+    NoLogs:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Short error description"
+          example: "no_log"
+        message:
+          type: string
+          description: "Message explaining the error"
+          example: "No log found for token"
+        token:
+          type: string
+          description: "Token related to the event's result"
+          example: "03008486ba50b52e529ff5828d1432e5578dd18bb530c145b133dc902c8cfa6b8aac4d58fffb0c5ed44b943d2acbfb7cd1b18c55fcebce62e51999db460112c7"
+        data:
+          type: array
+          description: "Empty array"
+          items:
+            type: object
+    NodesStatus:
+      type: object
+      properties:
+        action:
+          type: string
+          description: "Event sent to retrieve data"
+          example: "constatus"
+        message:
+          type: string
+          description: "Response message"
+          example: "ok"
+        data:
+          type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/NodeStatus'
+    NodeStatus:
+      type: object
+      properties:
+        last_ping_sent:
+          type: string
+          format: timestamp
+          description: "Last ping sent timestamp"
+          example: 1577726040
+        type:
+          type: string
+          enum: [push_zmq, pull_zmq, ssh]
+          description: "Communication type"
+          example: "push_zmq"
+        nodes:
+          type: object
+          description: "Nodes managed by this Gorgone daemon"
+        last_ping_recv:
+          type: string
+          format: timestamp
+          description: "Last ping received timestamp"
+          example: 1577726040
+    Information:
+      type: object
+      properties:
+        action:
+          type: string
+          description: "Event sent to retrieve data"
+          example: "information"
+        message:
+          type: string
+          description: "Response message"
+          example: "ok"
+        data:
+          type: object
+          properties:
+            modules:
+              $ref: '#/components/schemas/Modules'
+            api_endpoints:
+              $ref: '#/components/schemas/ApiEndpoints'
+            counters:
+              $ref: '#/components/schemas/Counters'
+    Modules:
+      type: object
+      description: "List of loaded modules"
+      additionalProperties:
+        type: string
+      example:
+        httpserver: "gorgone::modules::core::httpserver::hooks"
+        dbcleaner: "gorgone::modules::core::dbcleaner::hooks"
+        cron: "gorgone::modules::core::cron::hooks"
+        engine: "gorgone::modules::centreon::engine::hooks"
+        action: "gorgone::modules::core::action::hooks"
+        statistics: "gorgone::modules::centreon::statistics::hooks"
+        nodes: "gorgone::modules::centreon::nodes::hooks"
+        legacycmd: "gorgone::modules::centreon::legacycmd::hooks"
+        proxy: "gorgone::modules::core::proxy::hooks"
+    ApiEndpoints:
+      type: object
+      description: "List of available endpoints"
+      additionalProperties:
+        type: string
+      example:
+        POST_/internal/logger: "BCASTLOGGER"
+        GET_/centreon/statistics/broker: "BROKERSTATS"
+        GET_/internal/thumbprint: "GETTHUMBPRINT"
+        GET_/core/cron/definitions: "GETCRON"
+        GET_/internal/information: "INFORMATION"
+        POST_/core/cron/definitions: "ADDCRON"
+        POST_/core/action/command: "COMMAND"
+        POST_/core/proxy/remotecopy: "REMOTECOPY"
+        POST_/centreon/engine/command: "ENGINECOMMAND"
+        PATCH_/core/cron/definitions: "UPDATECRON"
+        DELETE_/core/cron/definitions: "DELETECRON"
+        GET_/internal/constatus: "CONSTATUS"
+    Counters:
+      type: object
+      description: "List of metric counters"
+      properties:
+        total:
+          type: integer
+          description: "Total number of events processed since startup"
+          example: 40210
+        external:
+          type: object
+          description: "Number of external events since startup"
+          additionalProperties:
+            type: string
+          example:
+            total: 0
+        internal:
+          type: object
+          description: "Number of internal events since startup"
+          additionalProperties:
+            type: string
+          example:
+            legacycmdready: 1
+            setlogs: 7841
+            enginecommand: 20
+            registernodes: 443
+            pong: 3397
+            proxyready: 5
+            statisticsready: 1
+            addcron: 1
+            cronready: 1
+            getthumbprint: 2
+            centreonnodesready: 1
+            httpserverready: 1
+            command: 4446
+            putlog: 9809
+            dbcleanerready: 1
+            information: 6
+            brokerstats: 4446
+            constatus: 1
+            total: 40210
+            setcoreid: 443
+            getlog: 8893
+            engineready: 1
+            unregisternodes: 443
+            actionready: 1
+        proxy:
+          type: object
+          description: "Number of events passed through proxy since startup"
+          additionalProperties:
+            type: string
+          example:
+            enginecommand: 10
+            getlog: 4446
+            total: 8902
+            command: 4446
+    Thumbprint:
+      type: object
+      properties:
+        action:
+          type: string
+          description: "Event sent to retrieve data"
+          example: "getthumbprint"
+        message:
+          type: string
+          description: "Response message"
+          example: "ok"
+        data:
+          type: object
+          properties:
+            thumbprint:
+              type: string
+              description: "Thumbprint of the public key"
+              example:
+                "cS4B3lZq96qcP4FTMhVMuwAhztqRBQERKyhnEitnTFM"
+    SeverityLevel:
+      type: object
+      properties:
+        severity:
+          type: string
+          description: "Severity level to be defined for all loaded modules"
+          enum:
+            - info
+            - error
+            - debug
+    CronDefinitions:
+      type: array
+      items:
+        $ref: '#/components/schemas/CronDefinition'
+    CronDefinition:
+      type: object
+      properties:
+        timespec:
+          type: string
+          description: "Cron-like time specification"
+        id:
+          type: string
+          description: "Unique identifier of the cron definition"
+        action:
+          type: string
+          description: "Action/event to call at job execution"
+        parameters:
+          type: object
+          description: "Parameters needed by the called action/event"
+        keep_token:
+          type: boolean
+          description: "Boolean to define whether or not the ID of the definition will be used as token for the command"
+      required:
+        - timespec
+        - id
+        - action
+        - parameters
+    ActionCommands:
+      type: array
+      items:
+        $ref: '#/components/schemas/ActionCommand'
+    ActionCommand:
+      type: object
+      properties:
+        command:
+          type: string
+          description: "Command to execute"
+          example: "echo data > /tmp/date.log"
+        timeout:
+          type: integer
+          description: "Time in seconds before a command is considered timed out"
+          example: 5
+          default: 30
+        continue_on_error:
+          type: boolean
+          description: "Behaviour in case of execution issue"
+          example: true
+          default: false
+      required:
+        - command
+    EngineCommands:
+      type: object
+      properties:
+        command_file:
+          type: string
+          description: "Path to the Centreon Engine command file pipe"
+          example: "/var/lib/centreon-engine/rw/centengine.cmd"
+        command:
+          type: array
+          items:
+            type: string
+            description: "External command"
+            example: "[653284380] SCHEDULE_SVC_CHECK;host1;service1;653284380"
+    HostDiscoveryJob:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          description: "ID of the Host Discovery job"
+          example: 14
+        target:
+          type: integer
+          description: "Identifier of the target on which to execute the command"
+          example: 2
+        command_line:
+          type: string
+          description: "Command line to execute to perform the discovery"
+          example: "perl /usr/lib/centreon/plugins/centreon_generic_snmp.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='10.1.2.3/24' --snmp-port='161' --snmp-version='2c' --snmp-community='public'"
+        timeout:
+          type: integer
+          description: "Time in seconds before the command is considered timed out"
+          example: 300
+        execution:
+          type: object
+          description: "Execution mode of this job ('0': execute immediately, '1': schedule with cron)"
+          properties:
+            mode:
+              type: integer
+              description: "Execution mode ('0': immediate, '1': scheduled)"
+              example: 0
+            parameters:
+              type: object
+              description: "Parameters needed by execution mode"
+              properties:
+                cron_definition:
+                  type: string
+                  description: "Cron definition"
+                  example: "*/10 * * * *"
+        post_execution:
+          type: object
+          description: "Post-execution settings"
+          properties:
+            commands:
+              type: array
+              description: "Array of commands (content depends on command)"
+              items:
+                type: object
+                description: "Command"
+                properties:
+                  action:
+                    type: string
+                    description: "Action to perform"
+                    example: COMMAND
+                  command_line:
+                    type: string
+                    description: "Command line to execute"
+                    example: "/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --job-id=14"
+      required:
+        - job_id
+        - target
+        - command_line
+        - execution
+          

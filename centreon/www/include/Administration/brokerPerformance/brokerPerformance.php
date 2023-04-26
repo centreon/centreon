@@ -154,6 +154,10 @@ function createArrayStats($arrayFromJson)
 
 function parseStatsFile($statfile)
 {
+    //handle path traversal vulnerability
+    if (strpos($statfile, '..') !== false) {
+        throw new Exception('Path traversal found');
+    }
     $jsonc_content = file_get_contents($statfile);
     $json_stats = json_decode($jsonc_content, true);
 
@@ -309,7 +313,7 @@ try {
     $perf_info = array();
     $perf_err = array();
     while ($row = $stmt->fetch()) {
-        $statsfile = $row['cache_directory'] . '/' . $row['config_name'] . '-stats.json';
+        $statsfile = $row['cache_directory'] . '/' . basename($row['config_name']) . '-stats.json';
         if ($defaultPoller != $selectedPoller) {
             $statsfile = _CENTREON_CACHEDIR_ . '/broker-stats/' . $selectedPoller . '/' . $row['config_name'] . '.json';
         }

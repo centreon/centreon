@@ -20,10 +20,12 @@ parameters:
     translation_path: "%centreon_path%/www/locale"
     log_path: "%env(_CENTREON_LOG_)%"
     media_path: "img/media"
+    media_full_path: "%centreon_path%/www/%media_path%"
     redirect_default_page: "/monitoring/resources"
     session_expiration_delay: 120
     required_php_version: "%env(_CENTREON_PHP_VERSION_)%"
     required_mariadb_min_version: "%env(_CENTREON_MARIA_DB_MIN_VERSION_)%"
+    env(IS_CLOUD_PLATFORM): false
 
 services:
     # Default configuration for services in *this* file
@@ -52,6 +54,10 @@ services:
 
     security.provider.sessionapi:
         class: Security\SessionAPIAuthenticator
+        public: false
+
+    security.provider.websso:
+        class: Security\WebSSOAuthenticator
         public: false
 
     Centreon\Domain\Entity\EntityValidator:

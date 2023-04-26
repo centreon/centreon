@@ -410,9 +410,7 @@ $form->addElement('text', 'host_parallel_template', _('Templates'));
 $form->addElement(
     'static',
     'tplTextParallel',
-    _("A host can have multiple templates, their orders have a significant importance")
-    . "<br><a href='#' onmouseover=\"Tip('<img src=\'img/misc/multiple-templates2.png\'>', OPACITY, 70,"
-    . " FIX, [this, 0, 10])\" onmouseout=\"UnTip()\">" . _("Here is a self-explanatory image.") . "</a>"
+    _("A host or host template can have several templates. See help for more details.")
 );
 $form->addElement('static', 'tplText', _("Using a Template allows you to have multi-level Template connection"));
 

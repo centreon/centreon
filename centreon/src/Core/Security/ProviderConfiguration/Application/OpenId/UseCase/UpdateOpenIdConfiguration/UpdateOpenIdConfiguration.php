@@ -31,21 +31,21 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
 
 class UpdateOpenIdConfiguration
@@ -99,7 +99,7 @@ class UpdateOpenIdConfiguration
 
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
-        } catch (AssertionException | AssertionFailedException | OpenIdConfigurationException $ex) {
+        } catch (AssertionException | AssertionFailedException | ConfigurationException $ex) {
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
                 ['trace' => $ex->getTraceAsString()]
@@ -120,7 +120,7 @@ class UpdateOpenIdConfiguration
      *
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
      * @return ContactTemplate|null
-     * @throws \Throwable|OpenIdConfigurationException
+     * @throws \Throwable|ConfigurationException
      */
     private function getContactTemplateOrFail(?array $contactTemplateFromRequest): ?ContactTemplate
     {
@@ -128,7 +128,7 @@ class UpdateOpenIdConfiguration
             return null;
         }
         if (($contactTemplate = $this->contactTemplateRepository->find($contactTemplateFromRequest["id"])) === null) {
-            throw OpenIdConfigurationException::contactTemplateNotFound(
+            throw ConfigurationException::contactTemplateNotFound(
                 $contactTemplateFromRequest["name"]
             );
         }
@@ -139,7 +139,7 @@ class UpdateOpenIdConfiguration
     /**
      * Create Authorization Rules
      *
-     * @param array<array{claim_value: string, access_group_id: int}> $authorizationRulesFromRequest
+     * @param array<array{claim_value: string, access_group_id: int, priority: int}> $authorizationRulesFromRequest
      * @return AuthorizationRule[]
      * @throws \Throwable
      */
@@ -163,7 +163,11 @@ class UpdateOpenIdConfiguration
                 $foundAccessGroups
             );
             if ($accessGroup !== null) {
-                $authorizationRules[] = new AuthorizationRule($authorizationRule["claim_value"], $accessGroup);
+                $authorizationRules[] = new AuthorizationRule(
+                    $authorizationRule["claim_value"],
+                    $accessGroup,
+                    $authorizationRule["priority"]
+                );
             }
         }
 
@@ -284,7 +288,8 @@ class UpdateOpenIdConfiguration
      *  }
      * } $authenticationConditionsParameters
      * @return AuthenticationConditions
-     * @throws OpenIdConfigurationException
+     * @throws AssertionFailedException
+     * @throws ConfigurationException
      */
     private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
     {

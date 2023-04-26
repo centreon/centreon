@@ -1,23 +1,25 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pipe, isNil, sortBy, reject } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Grid } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { PopoverMenu, SelectEntry, useMemoComponent } from '@centreon/ui';
+import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
+import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import {
   labelClear,
   labelSearch,
-  labelSearchOptions,
+  labelSearchOptions
 } from '../../translatedLabels';
 import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom,
-  filterByInstalledModulesWithParsedSearchDerivedAtom,
+  filterByInstalledModulesWithParsedSearchDerivedAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 
@@ -25,34 +27,35 @@ import Criteria from './Criteria';
 import { CriteriaDisplayProps, Criteria as CriteriaModel } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   },
   searchButton: {
-    marginTop: theme.spacing(1),
-  },
+    marginTop: theme.spacing(1)
+  }
 }));
 
 const CriteriasContent = (): JSX.Element => {
-  const classes = useStyles();
-
+  const { classes } = useStyles();
   const { t } = useTranslation();
+  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
   const filterByInstalledModulesWithParsedSearch = useAtomValue(
-    filterByInstalledModulesWithParsedSearchDerivedAtom,
+    filterByInstalledModulesWithParsedSearchDerivedAtom
   );
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
-      criteriaName: newCriteriaValueName,
+      criteriaName: newCriteriaValueName
     });
 
     const criterias = sortBy(
       ({ name }) => criteriaNameSortOrder[name],
-      criteriasValue.criterias,
+      criteriasValue.criterias
     );
 
     return reject(isNonSelectableCriteria)(criterias);
@@ -64,14 +67,15 @@ const CriteriasContent = (): JSX.Element => {
   const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu
+      canOpen={canOpenPopover}
       icon={<TuneIcon fontSize="small" />}
       popperPlacement="bottom-start"
-      title={t(labelSearchOptions)}
+      title={t(labelSearchOptions) as string}
       onClose={applyCurrentFilter}
     >
       {(): JSX.Element => (
@@ -91,13 +95,19 @@ const CriteriasContent = (): JSX.Element => {
           })}
           <Grid container item className={classes.searchButton} spacing={1}>
             <Grid item data-testid={labelClear}>
-              <Button color="primary" size="small" onClick={clearFilter}>
+              <Button
+                color="primary"
+                data-testid="Filter Clear"
+                size="small"
+                onClick={clearFilter}
+              >
                 {t(labelClear)}
               </Button>
             </Grid>
             <Grid item data-testid={labelSearch}>
               <Button
                 color="primary"
+                data-testid="Filter Search"
                 size="small"
                 variant="contained"
                 onClick={applyCurrentFilter}
@@ -114,12 +124,12 @@ const CriteriasContent = (): JSX.Element => {
 
 const Criterias = (): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
 
   return useMemoComponent({
     Component: <CriteriasContent />,
-    memoProps: [filterWithParsedSearch],
+    memoProps: [filterWithParsedSearch]
   });
 };
 

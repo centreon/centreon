@@ -1,0 +1,3 @@
+{foreach from=$groups_order item=group_id}
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/group.ihtml" groupId="$group_id"}
+{/foreach}

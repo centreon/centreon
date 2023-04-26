@@ -1,0 +1,70 @@
+name: "Web Cypress Component Testing"
+description: "Web Cypress Component Testing"
+inputs:
+  module:
+    description: "Module on which the test will be run"
+    required: true
+  spec_file_path:
+    description: "Path of spec file."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.module }}
+
+    - name: Install dependencies
+      run: |
+        pnpm install --frozen-lockfile
+        pnpm cypress install --force
+      working-directory: ${{ inputs.module }}
+      shell: bash
+
+    - name: Format feature file path
+      id: formatSpecFilePath
+      run:
+        echo "value=$(echo '${{ inputs.spec_file_path }}' | sed -e 's#.cypress.spec.tsx##g')" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Cypress web component testing
+      uses: cypress-io/github-action@v5
+      with:
+        browser: chrome
+        component: true
+        install: false
+        working-directory: ${{ inputs.module }}
+        spec: www/front_src/src/**/${{ inputs.spec_file_path }}
+        publish-summary: false
+
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/results/videos
+        retention-days: 1
+
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-screenshots-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/screenshots
+        retention-days: 1
+
+    - name: Archive snapshots
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-snapshots-${{ steps.formatSpecFilePath.outputs.value }}
+        path: ${{ inputs.module }}/cypress/visual-testing-snapshots
+        retention-days: 1

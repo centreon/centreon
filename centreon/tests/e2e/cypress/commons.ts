@@ -20,21 +20,6 @@ const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
-const executeActionViaClapi = (
-  bodyContent: ActionClapi,
-  method?: string,
-): Cypress.Chainable => {
-  return cy.request({
-    body: bodyContent,
-    headers: {
-      'Content-Type': 'application/json',
-      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1'),
-    },
-    method: method || 'POST',
-    url: `${apiActionV1}?action=action&object=centreon_clapi`,
-  });
-};
-
 let servicesFoundStepCount = 0;
 
 const checkThatFixtureServicesExistInDatabase = (): void => {
@@ -42,8 +27,8 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
 
   const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%service_test_ack%' AND s.output LIKE '%submit_status_2%' AND s.enabled=1;`;
   const command = `docker exec -i ${Cypress.env(
-    'dockerName',
-  )} mysql -ucentreon -pcentreon centreon_storage <<< "${query}"`;
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
 
   cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
     servicesFoundStepCount += 1;
@@ -68,7 +53,7 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
     }
 
     throw new Error(
-      `No service found in the database after ${pollingCheckTimeout}ms`,
+      `No service found in the database after ${pollingCheckTimeout}ms`
     );
   });
 };
@@ -76,7 +61,7 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
 let configurationExportedCheckStepCount = 0;
 
 const checkThatConfigurationIsExported = ({
-  dateBeforeLogin,
+  dateBeforeLogin
 }: DateBeforeLoginProps): void => {
   const now = dateBeforeLogin.getTime();
 
@@ -84,8 +69,8 @@ const checkThatConfigurationIsExported = ({
 
   cy.exec(
     `docker exec -i ${Cypress.env(
-      'dockerName',
-    )} date -r /etc/centreon-engine/hosts.cfg`,
+      'dockerName'
+    )} date -r /etc/centreon-engine/hosts.cfg`
   ).then(({ stdout }): Cypress.Chainable<null> | null => {
     configurationExportedCheckStepCount += 1;
 
@@ -109,9 +94,11 @@ const checkThatConfigurationIsExported = ({
 };
 
 const applyConfigurationViaClapi = (): Cypress.Chainable => {
-  return executeActionViaClapi({
-    action: 'APPLYCFG',
-    values: '1',
+  return cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'APPLYCFG',
+      values: '1'
+    }
   });
 };
 
@@ -135,10 +122,10 @@ const submitResultsViaClapi = (): Cypress.Chainable => {
       body: { results: submitResults },
       headers: {
         'Content-Type': 'application/json',
-        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1'),
+        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
       },
       method: 'POST',
-      url: `${apiActionV1}?action=submit&object=centreon_submit_results`,
+      url: `${apiActionV1}?action=submit&object=centreon_submit_results`
     });
   });
 };
@@ -150,34 +137,31 @@ const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
       return cy.request({
         body: {
           login: userAdmin.login,
-          password: userAdmin.password,
+          password: userAdmin.password
         },
         method: 'POST',
-        url: apiLoginV2,
+        url: apiLoginV2
       });
     })
     .then(() => {
       Cypress.Cookies.defaults({
-        preserve: 'PHPSESSID',
+        preserve: 'PHPSESSID'
       });
     });
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {
-  return cy.fixture(file).then(executeActionViaClapi);
+  return cy
+    .fixture(file)
+    .then((fixture) => cy.executeActionViaClapi({ bodyContent: fixture }));
 };
 
-const logout = (): Cypress.Chainable =>
-  cy.request({
-    body: {},
-    method: 'POST',
-    url: apiLogout,
-  });
+const logout = (): Cypress.Chainable => cy.visit(apiLogout);
 
 export {
+  ActionClapi,
   checkThatConfigurationIsExported,
   checkThatFixtureServicesExistInDatabase,
-  executeActionViaClapi,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
@@ -186,5 +170,5 @@ export {
   versionApi,
   loginAsAdminViaApiV2,
   insertFixture,
-  logout,
+  logout
 };

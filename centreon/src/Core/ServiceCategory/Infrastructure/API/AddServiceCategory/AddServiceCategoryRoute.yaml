@@ -1,0 +1,5 @@
+AddServiceCategory:
+  methods: POST
+  path: /configuration/services/categories
+  controller: 'Core\ServiceCategory\Infrastructure\API\AddServiceCategory\AddServiceCategoryController'
+  condition: "request.attributes.get('version') >= 23.04"

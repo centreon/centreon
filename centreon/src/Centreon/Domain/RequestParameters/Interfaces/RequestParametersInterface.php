@@ -40,10 +40,10 @@ interface RequestParametersInterface
      * Check if a search parameter exists.
      *
      * @param string $keyToFind Name of the search parameter
-     * @param array $parameters List of parameters
+     * @param null|array $parameters List of parameters
      * @return bool Returns true if the parameter exists
      */
-    public function hasSearchParameter(string $keyToFind, array $parameters): bool;
+    public function hasSearchParameter(string $keyToFind, ?array $parameters = null): bool;
 
     /**
      * @return int

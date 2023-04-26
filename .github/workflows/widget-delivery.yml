@@ -4,21 +4,46 @@ on:
       widget_name:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
     secrets:
-      nexus_username:
+      artifactory_token:
         required: true
-      nexus_password:
+      token_download_centreon_com:
         required: true
-
-env:
-  version: "22.10"
 
 jobs:
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    if: ${{ contains(fromJson('["stable"]'), inputs.stability) }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon-widgets/centreon-widget-${{ inputs.widget_name }}
+          module_directory: widgets/centreon-widget-${{ inputs.widget_name }}
+          module_name: centreon-widget-${{ inputs.widget_name }}
+          major_version: ${{ inputs.major_version }}
+          minor_version: ${{ inputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.token_download_centreon_com }}
+
   delivery-rpm:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el7, el8]
+        distrib: [el8, el9]
 
     steps:
       - name: Checkout sources
@@ -27,14 +52,15 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
+          module_name: widget-${{ inputs.widget_name }}
           distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          version: ${{ inputs.major_version }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          stability: ${{ inputs.stability }}
 
   delivery-deb:
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -47,9 +73,9 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: ${{ inputs.widget_name }}
+          module_name: widget-${{ inputs.widget_name }}
           distrib: ${{ matrix.distrib }}
-          version: ${{ env.version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          version: ${{ inputs.major_version }}
+          artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ inputs.stability }}

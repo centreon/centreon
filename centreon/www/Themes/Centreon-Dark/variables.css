@@ -1,6 +1,9 @@
 @import "../Generic-theme/Variables-css/variables.css";
 
 :root{
+    --scrollbar-background: var(--color-gray-medium);
+    --scrollbar-thumb-background: var(--color-secondary);
+    --scrollbar-thumb-background-hover: var(--color-primary-dark);
     --body-background: var(--color-primary-body-background-dark);
     --body-color: var(--color-primary-body-dark);
     --info-box-background-color:var(--color-cinder);
@@ -234,5 +237,6 @@
     --bt-danger-hover-font-color: var(--color-white);
     --view-body-portlet-border-color: var(--color-divider-dark);
     --chart-legend-color: var(--color-white);
-
+    /* license manager error page variables */
+    --license-manager-error-message-color: var(--color-primary-dark);
 }

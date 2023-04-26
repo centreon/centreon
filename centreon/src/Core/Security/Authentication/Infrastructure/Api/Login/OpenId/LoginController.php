@@ -58,8 +58,8 @@ class LoginController extends AbstractController
         SessionInterface $session
     ): object {
         $request = LoginRequest::createForOpenId(
-            $request->getClientIp(),
-            $request->query->get("code")
+            $request->getClientIp() ?: '',
+            $request->query->get("code", '')
         );
 
         $useCase($request, $presenter);
@@ -78,9 +78,9 @@ class LoginController extends AbstractController
                 );
             default:
                 /**
-                 * @var LoginResponse
+                 * @var LoginResponse $response
                  */
-                $response = $presenter->getResponseStatus();
+                $response = $presenter->getPresentedData();
                 return View::createRedirect(
                     $this->getBaseUrl() . $response->getRedirectUri(),
                     Response::HTTP_FOUND,

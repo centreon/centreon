@@ -1,39 +1,40 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pipe, isNil, sortBy, reject } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Grid } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { PopoverMenu, SelectEntry, useMemoComponent } from '@centreon/ui';
+import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import {
   labelClear,
   labelSearch,
-  labelSearchOptions,
+  labelSearchOptions
 } from '../../translatedLabels';
 import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
-  filterWithParsedSearchDerivedAtom,
+  filterWithParsedSearchDerivedAtom
 } from '../filterAtoms';
 
 import Criteria from './Criteria';
 import {
   CriteriaDisplayProps,
   selectableCriterias,
-  Criteria as CriteriaModel,
+  Criteria as CriteriaModel
 } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   },
   searchButton: {
-    marginTop: theme.spacing(1),
-  },
+    marginTop: theme.spacing(1)
+  }
 }));
 
 const getSelectableCriteriaByName = (name: string): CriteriaDisplayProps =>
@@ -43,25 +44,25 @@ const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
   pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
 const CriteriasContent = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const { t } = useTranslation();
 
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criterias = sortBy(
       ({ name }) => criteriaNameSortOrder[name],
-      filterWithParsedSearch,
+      filterWithParsedSearch
     );
 
     return reject(isNonSelectableCriteria)(criterias);
   };
 
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu
@@ -110,12 +111,12 @@ const CriteriasContent = (): JSX.Element => {
 
 const Criterias = (): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
 
   return useMemoComponent({
     Component: <CriteriasContent />,
-    memoProps: [filterWithParsedSearch],
+    memoProps: [filterWithParsedSearch]
   });
 };
 

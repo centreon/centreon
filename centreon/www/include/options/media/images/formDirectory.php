@@ -179,12 +179,16 @@ if ($o == IMAGE_MOVE) {
     } else {
         $confirm = "";
     }
-    $subC = $form->addElement('submit', 'submitC', _("Save"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"),['class' => 'btc bt_success']);
     $res = $form->addElement(
         "button",
         "cancel",
         _("Cancel"),
-        array("onClick" => "javascript:window.location.href='?p=$p'")
+        [
+            "class" => "btc bt_success",
+            "onClick" => "javascript:window.location.href='?p=$p'"
+        ]
+
     );
     $form->setDefaults($dir);
 }

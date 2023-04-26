@@ -1,14 +1,5 @@
-import React from 'react';
-
 import './commands';
-import { mount } from 'cypress/react18';
 
-import { ThemeProvider } from '@centreon/ui';
+import enableVisualTesting from '@centreon/js-config/cypress/component/enableVisualTesting';
 
-window.React = React;
-
-Cypress.Commands.add('mount', (component, options = {}) => {
-  const wrapped = <ThemeProvider>{component}</ThemeProvider>;
-
-  return mount(wrapped, options);
-});
+enableVisualTesting();

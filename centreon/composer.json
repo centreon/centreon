@@ -18,7 +18,7 @@
         "behat/mink-selenium2-driver": "^1.5",
         "friends-of-behat/mink": "^1.9",
         "friends-of-behat/mink-extension": "^2.5",
-        "centreon/centreon-test-lib": "dev-monorepo",
+        "centreon/centreon-test-lib": "dev-master",
         "phpstan/phpstan": "^1.3.0",
         "phpstan/phpstan-beberlei-assert": "^1.0.0",
         "squizlabs/php_codesniffer": "3.6.2",
@@ -32,7 +32,8 @@
         "zircote/swagger-php": "^4.0",
         "pestphp/pest": "^1.21",
         "php-vfs/php-vfs": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.10"
+        "friendsofphp/php-cs-fixer": "^3.10",
+        "robertfausk/mink-panther-driver": "^1.1"
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -84,13 +85,14 @@
         "symfony/translation": "5.4.*",
         "symfony/validator": "5.4.*",
         "symfony/yaml": "5.4.*",
-        "psr/container": "1.1.1"
+        "psr/container": "1.1.1",
+        "onelogin/php-saml": "^4.1",
+        "symfony/uid": "^6.2"
     },
     "autoload": {
         "psr-4": {
             "": "src/",
             "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-            "App\\": "src/",
             "Tests\\": "tests/php/",
             "Centreon\\Test\\Api\\": "tests/api/"
         },

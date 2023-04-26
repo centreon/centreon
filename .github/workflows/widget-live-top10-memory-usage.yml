@@ -1,37 +1,52 @@
 name: widget-live-top10-memory-usage
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - ".github/workflows/centreon-widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
     tags:
-      - centreon-widget-live-top10-memory-usage-22.10.**
-
-env:
-  version: "22.10"
+      - centreon-widget-live-top10-memory-usage-*
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: widgets/centreon-widget-live-top10-memory-usage/live-top10-memory-usage/configs.xml
+
   package:
+    needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: live-top10-memory-usage
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      release: ${{ needs.get-version.outputs.release }}
+      commit_hash: ${{ github.sha }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   delivery:
-    needs: [package]
+    needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: live-top10-memory-usage
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}

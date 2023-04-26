@@ -24,7 +24,7 @@
             {if $elem.host_id|in_array:$servi.hosts}
         <td class="ListColCenter">
             <a href="{$servi.details_uri[$elem.host_id]}" target="_blank">
-            <span style="background-color: {$servi.hostsStatus[$elem.host_id]}; margin-right: 1px;" class="state_badge"></a></span>
+            <span style=" margin-right: 1px;" class="state_badge {$servi.hostsStatus[$elem.host_id]}"></a></span>
         </td>
             {else}
         <td class="ListColCenter"><span style="border-left: 12px;">-</span></td>

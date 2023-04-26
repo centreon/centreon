@@ -1,4 +1,4 @@
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -8,12 +8,12 @@ import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourcesDetailsAtom,
+  selectedResourcesDetailsAtom
 } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
 import {
   labelNoResourceFound,
-  labelSomethingWentWrong,
+  labelSomethingWentWrong
 } from '../../translatedLabels';
 
 export interface LoadResources {
@@ -31,17 +31,17 @@ const useLoadDetails = (): LoadDetails => {
     getErrorMessage: ifElse(
       pathEq(['response', 'status'], 404),
       always(t(labelNoResourceFound)),
-      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message']),
+      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData,
+    request: getData
   });
 
   const selectedResourceDetailsEndpoint = useAtomValue(
-    selectedResourceDetailsEndpointDerivedAtom,
+    selectedResourceDetailsEndpointDerivedAtom
   );
   const selectedResourceDetails = useAtomValue(selectedResourcesDetailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const setDetails = useUpdateAtom(detailsAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const setDetails = useSetAtom(detailsAtom);
 
   const loadDetails = (): void => {
     if (isNil(selectedResourceDetails?.resourceId)) {
@@ -49,7 +49,7 @@ const useLoadDetails = (): LoadDetails => {
     }
 
     sendLoadDetailsRequest({
-      endpoint: selectedResourceDetailsEndpoint,
+      endpoint: selectedResourceDetailsEndpoint
     })
       .then(setDetails)
       .catch(() => {

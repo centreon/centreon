@@ -1,13 +1,18 @@
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen
+} from '@centreon/ui/src/testRenderer';
 
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
 import navigationAtom from '../../Navigation/navigationAtoms';
 import {
   retrievedNavigation,
-  retrievedNavigationWithAnEmptySet,
+  retrievedNavigationWithAnEmptySet
 } from '../../Navigation/mocks';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
 import { federatedModulesAtom } from '../../federatedModules/atoms';
@@ -22,23 +27,23 @@ jest.mock('../../Resources', () => {
 
   return {
     __esModule: true,
-    default: Resources,
+    default: Resources
   };
 });
 
-const renderReactRouter = (navigation = retrievedNavigation): RenderResult =>
-  render(
+const renderReactRouter = (navigation = retrievedNavigation): RenderResult => {
+  const store = createStore();
+  store.set(navigationAtom, navigation);
+  store.set(federatedModulesAtom, [retrievedFederatedModule]);
+
+  return render(
     <BrowserRouter>
-      <Provider
-        initialValues={[
-          [navigationAtom, navigation],
-          [federatedModulesAtom, [retrievedFederatedModule]],
-        ]}
-      >
+      <Provider store={store}>
         <ReactRouter />
       </Provider>
-    </BrowserRouter>,
+    </BrowserRouter>
   );
+};
 
 describe('React Router', () => {
   afterEach(() => {
@@ -62,13 +67,13 @@ describe('React Router', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(labelThisPageCouldNotBeFound),
+        screen.getByText(labelThisPageCouldNotBeFound)
       ).toBeInTheDocument();
     });
 
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(
-      screen.getByText('This page could not be found'),
+      screen.getByText('This page could not be found')
     ).toBeInTheDocument();
   });
 
@@ -79,13 +84,13 @@ describe('React Router', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(labelYouAreNotAllowedToSeeThisPage),
+        screen.getByText(labelYouAreNotAllowedToSeeThisPage)
       ).toBeInTheDocument();
     });
 
     expect(screen.getByText('Lost in space?')).toBeInTheDocument();
     expect(
-      screen.getByText('You are not allowed to see this page'),
+      screen.getByText('You are not allowed to see this page')
     ).toBeInTheDocument();
   });
 });

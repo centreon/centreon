@@ -2,12 +2,11 @@ import { MouseEvent, useEffect, useRef, useState } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import List from '@mui/material/List';
 import { ListItem, useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -16,9 +15,9 @@ import { Page } from '../../models';
 import {
   selectedNavigationItemsAtom,
   hoveredNavigationItemsAtom,
-  setHoveredNavigationItemsDerivedAtom,
+  setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-import { closedDrawerWidth, openedDrawerWidth } from '../index';
+import { closedDrawerWidth, openDrawerWidth } from '../index';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 
 import CollapsibleItems from './CollapsibleItems';
@@ -30,22 +29,22 @@ interface Props {
   navigationData?: Array<Page>;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   icon: {
-    fontSize: 26,
+    fontSize: 26
   },
   list: {
     '&.MuiList-root': {
-      padding: 0,
-    },
-  },
+      padding: 0
+    }
+  }
 }));
 
 const NavigationMenu = ({
   isDrawerOpen,
-  navigationData,
+  navigationData
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const theme = useTheme();
@@ -59,22 +58,25 @@ const NavigationMenu = ({
     number | undefined
   >(undefined);
   const [isDoubleClickedFromRoot, setIsDoubleClickedFromRoot] = useState(false);
+
+  const [isOverMenu, setIsOverMenu] = useState(false);
+
   const timeoutRef = useRef<null | NodeJS.Timeout>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const [selectedNavigationItems, setSelectedNavigationItems] = useAtom(
-    selectedNavigationItemsAtom,
+    selectedNavigationItemsAtom
   );
   const [hoveredNavigationItems, setHoveredNavigationItems] = useAtom(
-    hoveredNavigationItemsAtom,
+    hoveredNavigationItemsAtom
   );
   const user = useAtomValue(userAtom);
 
-  const setHoveredNavigationItemsDerived = useUpdateAtom(
-    setHoveredNavigationItemsDerivedAtom,
+  const setHoveredNavigationItemsDerived = useSetAtom(
+    setHoveredNavigationItemsDerivedAtom
   );
 
   const levelName = 'level_0';
-  const currentWidth = isDrawerOpen ? openedDrawerWidth / 8 : closedDrawerWidth;
+  const currentWidth = isDrawerOpen ? openDrawerWidth / 8 : closedDrawerWidth;
   const dismissMenuDuration = theme.transitions.duration.complex;
 
   const hoverItem = ({ e, index, currentPage }): void => {
@@ -133,10 +135,10 @@ const NavigationMenu = ({
       (previousItem, currentItem, currentIndex) => {
         return {
           ...previousItem,
-          [`level_${currentIndex}`]: currentItem,
+          [`level_${currentIndex}`]: currentItem
         };
       },
-      {},
+      {}
     );
 
     setSelectedNavigationItems(selectedNavigationItemsToAdd);
@@ -240,12 +242,18 @@ const NavigationMenu = ({
     });
   };
 
-  const closeMenu = (event): void => {
+  const moveMouse = (event): void => {
     const mouseOver = menuRef?.current?.contains(event.target);
-    if (!mouseOver) {
-      handleLeave();
-    }
+    setIsOverMenu(Boolean(mouseOver));
   };
+
+  useEffect(() => {
+    if (isOverMenu) {
+      return;
+    }
+
+    handleLeave();
+  }, [isOverMenu]);
 
   const visibilitychange = (): void => {
     if (equals(document.visibilityState, 'visible')) {
@@ -271,11 +279,11 @@ const NavigationMenu = ({
       iframe.addEventListener('load', () => {
         iframe.contentWindow?.document?.addEventListener(
           'mousemove',
-          closeMenu,
+          moveMouse
         );
       });
     } else {
-      window.addEventListener('mousemove', closeMenu);
+      window.addEventListener('mousemove', moveMouse);
     }
   }, [pathname, search]);
 
@@ -290,7 +298,7 @@ const NavigationMenu = ({
     pathname,
     search,
     setCollapseScrollMaxHeight,
-    setCollapseScrollMaxWidth,
+    setCollapseScrollMaxWidth
   };
 
   return useMemoComponent({
@@ -307,7 +315,7 @@ const NavigationMenu = ({
             isItemHovered({
               currentPage: item,
               level: levelName,
-              navigationItem: selectedNavigationItems,
+              navigationItem: selectedNavigationItems
             }) || equals(hoveredIndex, index);
 
           return (
@@ -351,8 +359,8 @@ const NavigationMenu = ({
       selectedNavigationItems,
       user,
       hoveredNavigationItems,
-      navigationData,
-    ],
+      navigationData
+    ]
   });
 };
 

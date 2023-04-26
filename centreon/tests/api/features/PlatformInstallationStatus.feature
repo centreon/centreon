@@ -16,3 +16,7 @@ Feature:
         When I send a GET request to '/api/latest/platform/installation/status'
         Then the response code should be "200"
         And the JSON node "is_installed" should be equal to false
+
+        Given Centreon Web is not installed and not installable
+        When I send a GET request to '/api/latest/platform/installation/status'
+        Then the response code should be "500"

@@ -29,11 +29,11 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface
     as WriteRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 
 class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
 {
@@ -123,7 +123,8 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
             ),
             "groups_mapping" => $this->groupsMappingToArray(
                 $customConfiguration->getGroupsMapping()
-            )
+            ),
+            'redirect_url' => $customConfiguration->getRedirectUrl()
         ];
     }
 
@@ -157,7 +158,6 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
                     (claim_value, access_group_id, provider_configuration_id, priority)
                     VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)"
             );
-            $priority = 0;
             foreach ($authorizationRules as $authorizationRule) {
                 $insertStatement->bindValue(':claimValue', $authorizationRule->getClaimValue());
                 $insertStatement->bindValue(
@@ -172,7 +172,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
                 );
                 $insertStatement->bindValue(
                     ':priority',
-                    ++$priority,
+                    $authorizationRule->getPriority(),
                     \PDO::PARAM_INT
                 );
                 $insertStatement->execute();

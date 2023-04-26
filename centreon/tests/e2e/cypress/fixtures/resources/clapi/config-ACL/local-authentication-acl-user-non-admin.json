@@ -1,0 +1,17 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user2;User2;user2@test.com;Centreon!2021User2;0;1;en_US;local"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;user2"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

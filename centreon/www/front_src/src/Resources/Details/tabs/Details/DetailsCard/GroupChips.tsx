@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Grid, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { Category, Group } from '../../../models';
@@ -14,15 +14,15 @@ interface Props {
   title: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   groups: {
     display: 'flex',
-    padding: theme.spacing(1),
-  },
+    padding: theme.spacing(1)
+  }
 }));
 
 const GroupChips = ({ groups = [], title, getType }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const { t } = useTranslation();
 

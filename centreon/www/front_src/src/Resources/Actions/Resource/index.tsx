@@ -1,122 +1,90 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { useAtom } from 'jotai';
 import { all, head, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
-import makeStyles from '@mui/styles/makeStyles';
-import IconAcknowledge from '@mui/icons-material/Person';
-import IconCheck from '@mui/icons-material/Sync';
 import IconMore from '@mui/icons-material/MoreHoriz';
+import IconAcknowledge from '@mui/icons-material/Person';
 
-import {
-  useCancelTokenSource,
-  useSnackbar,
-  SeverityCode,
-  PopoverMenu,
-} from '@centreon/ui';
+import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
+import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import IconDowntime from '../../icons/Downtime';
+import { Resource } from '../../models';
 import {
   labelAcknowledge,
-  labelSetDowntime,
-  labelCheck,
-  labelSomethingWentWrong,
-  labelCheckCommandSent,
-  labelDisacknowledge,
-  labelSubmitStatus,
   labelAddComment,
+  labelDisacknowledge,
   labelMoreActions,
+  labelSetDowntime,
+  labelSubmitStatus
 } from '../../translatedLabels';
-import { checkResources } from '../api';
-import { Resource } from '../../models';
-import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import {
   resourcesToAcknowledgeAtom,
-  resourcesToCheckAtom,
   resourcesToDisacknowledgeAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom,
+  selectedResourcesAtom
 } from '../actionsAtoms';
 
-import useAclQuery from './aclQuery';
-import DowntimeForm from './Downtime';
 import AcknowledgeForm from './Acknowledge';
-import DisacknowledgeForm from './Disacknowledge';
-import SubmitStatusForm from './SubmitStatus';
-import ResourceActionButton from './ResourceActionButton';
+import useAclQuery from './aclQuery';
 import ActionMenuItem from './ActionMenuItem';
+import CheckActionButton from './Check';
+import DisacknowledgeForm from './Disacknowledge';
+import DowntimeForm from './Downtime';
+import ResourceActionButton from './ResourceActionButton';
+import SubmitStatusForm from './SubmitStatus';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   action: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   flex: {
     alignItems: 'center',
-    display: 'flex',
-  },
+    display: 'flex'
+  }
 }));
 
 const ResourceActions = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
-  const { cancel, token } = useCancelTokenSource();
-  const { showErrorMessage, showSuccessMessage } = useSnackbar();
+  const { cancel } = useCancelTokenSource();
 
   const [resourceToSubmitStatus, setResourceToSubmitStatus] =
     useState<Resource | null>();
   const [resourceToComment, setResourceToComment] = useState<Resource | null>();
 
   const [selectedResources, setSelectedResources] = useAtom(
-    selectedResourcesAtom,
+    selectedResourcesAtom
   );
   const [resourcesToAcknowledge, setResourcesToAcknowledge] = useAtom(
-    resourcesToAcknowledgeAtom,
+    resourcesToAcknowledgeAtom
   );
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
-    resourcesToSetDowntimeAtom,
+    resourcesToSetDowntimeAtom
   );
-  const [resourcesToCheck, setResourcesToCheck] = useAtom(resourcesToCheckAtom);
   const [resourcesToDisacknowledge, setResourcesToDisacknowledge] = useAtom(
-    resourcesToDisacknowledgeAtom,
+    resourcesToDisacknowledgeAtom
   );
 
   const {
     canAcknowledge,
     canDowntime,
-    canCheck,
     canDisacknowledge,
     canSubmitStatus,
-    canComment,
+    canComment
   } = useAclQuery();
-
-  const hasResourcesToCheck = resourcesToCheck.length > 0;
 
   const confirmAction = (): void => {
     setSelectedResources([]);
     setResourcesToAcknowledge([]);
     setResourcesToSetDowntime([]);
-    setResourcesToCheck([]);
     setResourceToSubmitStatus(null);
     setResourcesToDisacknowledge([]);
     setResourceToComment(null);
   };
-
-  useEffect(() => {
-    if (!hasResourcesToCheck) {
-      return;
-    }
-
-    checkResources({
-      cancelToken: token,
-      resources: resourcesToCheck,
-    })
-      .then(() => {
-        confirmAction();
-        showSuccessMessage(t(labelCheckCommandSent));
-      })
-      .catch(() => showErrorMessage(t(labelSomethingWentWrong)));
-  }, [resourcesToCheck]);
 
   useEffect(() => (): void => cancel(), []);
 
@@ -126,10 +94,6 @@ const ResourceActions = (): JSX.Element => {
 
   const prepareToSetDowntime = (): void => {
     setResourcesToSetDowntime(selectedResources);
-  };
-
-  const prepareToCheck = (): void => {
-    setResourcesToCheck(selectedResources);
   };
 
   const cancelAcknowledge = (): void => {
@@ -169,14 +133,13 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const areSelectedResourcesOk = all(
-    pathEq(['status', 'severity_code'], SeverityCode.Ok),
-    selectedResources,
+    pathEq(['status', 'severity_code'], SeverityCode.OK),
+    selectedResources
   );
 
   const disableAcknowledge =
     !canAcknowledge(selectedResources) || areSelectedResourcesOk;
   const disableDowntime = !canDowntime(selectedResources);
-  const disableCheck = !canCheck(selectedResources);
   const disableDisacknowledge = !canDisacknowledge(selectedResources);
 
   const hasSelectedResources = selectedResources.length > 0;
@@ -194,7 +157,6 @@ const ResourceActions = (): JSX.Element => {
     canAcknowledge(selectedResources) || !hasSelectedResources;
   const isDowntimePermitted =
     canDowntime(selectedResources) || !hasSelectedResources;
-  const isCheckPermitted = canCheck(selectedResources) || !hasSelectedResources;
   const isDisacknowledgePermitted =
     canDisacknowledge(selectedResources) || !hasSelectedResources;
   const isSubmitStatusPermitted =
@@ -211,6 +173,7 @@ const ResourceActions = (): JSX.Element => {
             icon={<IconAcknowledge />}
             label={t(labelAcknowledge)}
             permitted={isAcknowledgePermitted}
+            testId="Multiple Acknowledge"
             onClick={prepareToAcknowledge}
           />
         </div>
@@ -220,16 +183,15 @@ const ResourceActions = (): JSX.Element => {
             icon={<IconDowntime />}
             label={t(labelSetDowntime)}
             permitted={isDowntimePermitted}
+            testId="Multiple Set Downtime"
             onClick={prepareToSetDowntime}
           />
         </div>
         <div className={classes.action}>
-          <ResourceActionButton
-            disabled={disableCheck}
-            icon={<IconCheck />}
-            label={t(labelCheck)}
-            permitted={isCheckPermitted}
-            onClick={prepareToCheck}
+          <CheckActionButton
+            selectedResources={selectedResources}
+            setSelectedResources={setSelectedResources}
+            testId="Multiple Check"
           />
         </div>
         {resourcesToAcknowledge.length > 0 && (
@@ -280,6 +242,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableDisacknowledge}
               label={labelDisacknowledge}
               permitted={isDisacknowledgePermitted}
+              testId="Multiple Disacknowledge"
               onClick={(): void => {
                 close();
                 prepareToDisacknowledge();
@@ -289,6 +252,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableSubmitStatus}
               label={labelSubmitStatus}
               permitted={isSubmitStatusPermitted}
+              testId="Submit a status"
               onClick={(): void => {
                 close();
                 prepareToSubmitStatus();
@@ -299,6 +263,7 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableAddComment}
               label={labelAddComment}
               permitted={isAddCommentPermitted}
+              testId="Add a comment"
               onClick={(): void => {
                 close();
                 prepareToAddComment();

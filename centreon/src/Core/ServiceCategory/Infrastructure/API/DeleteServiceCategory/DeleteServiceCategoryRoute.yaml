@@ -1,0 +1,7 @@
+DeleteServiceCategory:
+  methods: DELETE
+  path: /configuration/services/categories/{serviceCategoryId}
+  requirements:
+    serviceCategoryId: '\d+'
+  controller: 'Core\ServiceCategory\Infrastructure\API\DeleteServiceCategory\DeleteServiceCategoryController'
+  condition: "request.attributes.get('version') >= 23.04"

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\WebSSO\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
@@ -93,20 +93,10 @@ final class CustomConfiguration implements CustomConfigurationInterface, Provide
     private function guard(): void
     {
         foreach ($this->getTrustedClientAddresses() as $trustedClientAddress) {
-            if (filter_var($trustedClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $trustedClientAddress,
-                    'WebSSOConfiguration::trustedClientAddresses'
-                );
-            }
+            Assertion::ipAddress($trustedClientAddress, 'WebSSOConfiguration::trustedClientAddresses');
         }
         foreach ($this->getBlackListClientAddresses() as $blacklistClientAddress) {
-            if (filter_var($blacklistClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $blacklistClientAddress,
-                    'WebSSOConfiguration::blacklistClientAddresses'
-                );
-            }
+            Assertion::ipAddress($blacklistClientAddress, 'WebSSOConfiguration::blacklistClientAddresses');
         }
     }
 }

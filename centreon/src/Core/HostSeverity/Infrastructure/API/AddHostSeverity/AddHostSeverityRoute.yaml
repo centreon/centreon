@@ -1,0 +1,5 @@
+AddHostSeverity:
+  methods: POST
+  path: /configuration/hosts/severities
+  controller: 'Core\HostSeverity\Infrastructure\API\AddHostSeverity\AddHostSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"

@@ -294,11 +294,12 @@
             </xsl:if>
         </td>
         <td class="ListColRight">
-            <xsl:if test="svc_index &gt; 0">
+            <xsl:if test="hasGraph &gt; 0">
                 <xsl:element name="a">
                     <xsl:attribute name="href">main.php?p=204&amp;mode=0&amp;svc_id=<xsl:value-of select="hnl"/>;<xsl:value-of select="sdl"/></xsl:attribute>
                     <xsl:element name="span">
-                        <xsl:attribute name="class">svgs</xsl:attribute>
+                        <xsl:attribute name="class">svgs graph-volant</xsl:attribute>
+                        <xsl:attribute name="id"><xsl:value-of select="hid"/>-<xsl:value-of select="svc_id"/></xsl:attribute>
                         <xsl:value-of select="chartIcon" disable-output-escaping="yes"/>
                     </xsl:element>
                 </xsl:element>

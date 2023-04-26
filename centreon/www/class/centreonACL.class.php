@@ -1638,7 +1638,7 @@ class CentreonACL
         }
 
         $tab = array();
-        $query = "SELECT DISTINCT s.service_id, s.description "
+        $query = "SELECT DISTINCT s.service_id, s.description, h.name "
             . "FROM hosts h "
             . "LEFT JOIN services s "
             . "ON h.host_id = s.host_id "
@@ -2024,7 +2024,7 @@ class CentreonACL
             $empty_exists = "";
             if (!is_null($sg_empty)) {
                 $empty_exists = 'AND EXISTS (
-                    SELECT * FROM servicegroup_relation 
+                    SELECT * FROM servicegroup_relation
                         WHERE (servicegroup_relation.servicegroup_sg_id = servicegroup.sg_id
                             AND servicegroup_relation.service_service_id IS NOT NULL)) ';
             }
@@ -2038,19 +2038,19 @@ class CentreonACL
             $query = $request['select'] . $request['simpleFields'] . " "
                 . "FROM ( "
                 . "SELECT " . $request['fields'] . " "
-                . "FROM hostgroup_relation, servicegroup_relation,servicegroup, "
-                . "acl_res_group_relations, acl_resources_hg_relations "
-                . "WHERE acl_res_group_relations.acl_group_id  IN (" . implode(',', $groupIds) . ") "
-                . "AND acl_resources_hg_relations.acl_res_id = acl_res_group_relations.acl_res_id "
+                . "FROM servicegroup "
+                . "JOIN servicegroup_relation ON servicegroup.sg_id = servicegroup_relation.servicegroup_sg_id "
+                . "JOIN hostgroup_relation ON hostgroup_relation.hostgroup_hg_id = servicegroup_relation.hostgroup_hg_id "
+                . "JOIN acl_resources_hg_relations ON hostgroup_relation.hostgroup_hg_id = acl_resources_hg_relations.hg_hg_id "
+                . "JOIN acl_res_group_relations ON acl_res_group_relations.acl_res_id = acl_resources_hg_relations.acl_res_id "
+                . "WHERE acl_res_group_relations.acl_group_id IN (" . implode(',', $groupIds) . ") "
                 . $searchCondition
-                . "AND servicegroup_relation.hostgroup_hg_id = hostgroup_relation.hostgroup_hg_id "
-                . "AND servicegroup.sg_id = servicegroup_relation.servicegroup_sg_id "
                 . "UNION "
                 . "SELECT " . $request['fields'] . " "
-                . "FROM servicegroup, acl_resources_sg_relations, acl_res_group_relations "
-                . "WHERE acl_res_group_relations.acl_group_id  IN (" . implode(',', $groupIds) . ") "
-                . "AND acl_resources_sg_relations.acl_res_id = acl_res_group_relations.acl_res_id "
-                . "AND acl_resources_sg_relations.sg_id = servicegroup.sg_id "
+                . "FROM servicegroup "
+                . "JOIN acl_resources_sg_relations ON servicegroup.sg_id = acl_resources_sg_relations.sg_id "
+                . "JOIN acl_res_group_relations ON acl_resources_sg_relations.acl_res_id = acl_res_group_relations.acl_res_id "
+                . "WHERE acl_res_group_relations.acl_group_id IN (" . implode(',', $groupIds) . ") "
                 . $searchCondition
                 . ") as t ";
         }
@@ -2098,10 +2098,10 @@ class CentreonACL
         $where_acl = "";
         if (!$this->admin) {
             $groupIds = array_keys($this->accessGroups);
-            $from_acl = ", $db_name_acl.centreon_acl ";
-            $where_acl = " AND $db_name_acl.centreon_acl.group_id IN (" . implode(',', $groupIds) . ") "
-                . "AND $db_name_acl.centreon_acl.host_id = host.host_id "
-                . "AND $db_name_acl.centreon_acl.service_id = service.service_id ";
+            $from_acl = ", `$db_name_acl`.centreon_acl ";
+            $where_acl = " AND `$db_name_acl`.centreon_acl.group_id IN (" . implode(',', $groupIds) . ") "
+                . "AND `$db_name_acl`.centreon_acl.host_id = host.host_id "
+                . "AND `$db_name_acl`.centreon_acl.service_id = service.service_id ";
         }
 
         // Making sure that the id provided is a real int
@@ -2119,7 +2119,7 @@ class CentreonACL
         $query = $request['select'] . $request['simpleFields'] . " "
             . "FROM ( "
             . "SELECT " . $request['fields'] . " "
-            . "FROM " . $db_name_acl . ".services_servicegroups, service, host" . $from_acl . " "
+            . "FROM `$db_name_acl`.services_servicegroups, service, host" . $from_acl . " "
             . "WHERE servicegroup_id = " . $sgId . " "
             . "AND host.host_id = services_servicegroups.host_id "
             . "AND service.service_id = services_servicegroups.service_id "
@@ -2193,13 +2193,13 @@ class CentreonACL
         } else {
             $groupIds = array_keys($this->accessGroups);
             if ($host_empty) {
-                $emptyJoin .= "AND $db_name_acl.centreon_acl.service_id IS NOT NULL ";
+                $emptyJoin .= "AND `$db_name_acl`.centreon_acl.service_id IS NOT NULL ";
             }
             $query = $request['select'] . $request['fields'] . " "
                 . "FROM host "
-                . "JOIN $db_name_acl.centreon_acl "
-                . "ON $db_name_acl.centreon_acl.host_id = host.host_id "
-                . "AND $db_name_acl.centreon_acl.group_id IN (" . implode(',', $groupIds) . ") "
+                . "JOIN `$db_name_acl`.centreon_acl "
+                . "ON `$db_name_acl`.centreon_acl.host_id = host.host_id "
+                . "AND `$db_name_acl`.centreon_acl.group_id IN (" . implode(',', $groupIds) . ") "
                 . $emptyJoin
                 . "WHERE host.host_register = '1' "
                 //. "AND host.host_activate = '1' "
@@ -2258,31 +2258,31 @@ class CentreonACL
                 . ") as t ";
         } else {
             $query = "SELECT " . $request['fields'] . " "
-                . "FROM host_service_relation hsr, host h, service s, $db_name_acl.centreon_acl "
+                . "FROM host_service_relation hsr, host h, service s, `$db_name_acl`.centreon_acl "
                 . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . "AND h.host_id = hsr.host_host_id "
                 . "AND hsr.service_service_id = s.service_id "
                 . "AND s.service_activate = '1' "
-                . "AND $db_name_acl.centreon_acl.host_id = h.host_id "
-                . "AND $db_name_acl.centreon_acl.service_id IS NOT NULL "
-                . "AND $db_name_acl.centreon_acl.service_id = s.service_id "
-                . "AND $db_name_acl.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ") "
+                . "AND `$db_name_acl`.centreon_acl.host_id = h.host_id "
+                . "AND `$db_name_acl`.centreon_acl.service_id IS NOT NULL "
+                . "AND `$db_name_acl`.centreon_acl.service_id = s.service_id "
+                . "AND `$db_name_acl`.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ") "
                 . "UNION "
                 . "SELECT " . $request['fields'] . " "
                 . "FROM host h, hostgroup_relation hgr, "
-                . "service s, host_service_relation hsr, $db_name_acl.centreon_acl "
+                . "service s, host_service_relation hsr, `$db_name_acl`.centreon_acl "
                 . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . "AND h.host_id = hgr.host_host_id "
                 . "AND hgr.hostgroup_hg_id = hsr.hostgroup_hg_id "
                 . "AND hsr.service_service_id = s.service_id "
-                . "AND $db_name_acl.centreon_acl.host_id = h.host_id "
-                . "AND $db_name_acl.centreon_acl.service_id IS NOT NULL "
-                . "AND $db_name_acl.centreon_acl.service_id = s.service_id "
-                . "AND $db_name_acl.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ") ";
+                . "AND `$db_name_acl`.centreon_acl.host_id = h.host_id "
+                . "AND `$db_name_acl`.centreon_acl.service_id IS NOT NULL "
+                . "AND `$db_name_acl`.centreon_acl.service_id = s.service_id "
+                . "AND `$db_name_acl`.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ") ";
         }
 
         $query .= $request['order'] . $request['pages'];
@@ -2293,7 +2293,7 @@ class CentreonACL
     }
 
     /**
-     * Get HostGroup from ACL and configuration DB
+     * Get HostGroup from ACL and configuration DB (enabled only)
      */
     public function getHostGroupAclConf($search = null, $broker = null, $options = null, $hg_empty = false)
     {
@@ -2336,6 +2336,68 @@ class CentreonACL
                 . "FROM hostgroup, acl_res_group_relations, acl_resources_hg_relations "
                 . "WHERE hg_activate = '1' "
                 . "AND acl_res_group_relations.acl_group_id  IN (" . implode(',', $groupIds) . ") "
+                . "AND acl_res_group_relations.acl_res_id = acl_resources_hg_relations.acl_res_id "
+                . "AND acl_resources_hg_relations.hg_hg_id = hostgroup.hg_id "
+                . $request['conditions']
+                . $searchCondition;
+        }
+
+        $query .= $request['order'] . $request['pages'];
+
+        $hg = $this->constructResult($query, $options);
+
+        return $hg;
+    }
+
+    /**
+     * Get HostGroup from ACL and configuration DB (enabled and disabled)
+     *
+     * @param string $search
+     * @param array<string,mixed> $options
+     * @param bool $hg_empty
+     * @return string[]
+     */
+    public function getAllHostGroupAclConf($search = null, $options = null, $hg_empty = false)
+    {
+        $hg = [];
+
+        if (is_null($options)) {
+            $options = [
+                'order' => ['LOWER(hg_name)'],
+                'fields' => ['hg_id', 'hg_name'],
+                'keys' => ['hg_id'],
+                'keys_separator' => '',
+                'get_row' => 'hg_name'
+            ];
+        }
+
+        $request = $this->constructRequest($options, true);
+
+        $searchCondition = "";
+        if ($search != "") {
+            $searchCondition = "AND hg_name LIKE '%" . CentreonDB::escape($search) . "%' ";
+        }
+        if ($this->admin) {
+            $empty_exists = "";
+            if ($hg_empty) {
+                $empty_exists = 'AND EXISTS (SELECT * FROM hostgroup_relation WHERE
+                    (hostgroup_relation.hostgroup_hg_id = hostgroup.hg_id
+                        AND hostgroup_relation.host_host_id IS NOT NULL)) ';
+            }
+            $request = $this->constructRequest($options, false);
+
+            $query = $request['select'] . $request['fields'] . " "
+                . "FROM hostgroup "
+                . $request['conditions']
+                . $searchCondition
+                . $empty_exists;
+        } else {
+            $groupIds = array_keys($this->accessGroups);
+            $request = $this->constructRequest($options, true);
+
+            $query = $request['select'] . $request['fields'] . " "
+                . "FROM hostgroup, acl_res_group_relations, acl_resources_hg_relations "
+                . "WHERE acl_res_group_relations.acl_group_id  IN (" . implode(',', $groupIds) . ") "
                 . "AND acl_res_group_relations.acl_res_id = acl_resources_hg_relations.acl_res_id "
                 . "AND acl_resources_hg_relations.hg_hg_id = hostgroup.hg_id "
                 . $request['conditions']
@@ -2572,10 +2634,10 @@ class CentreonACL
      */
     public static function duplicateHgAcl($hgs = array())
     {
-        $sql = "INSERT INTO %s 
+        $sql = "INSERT INTO %s
                     (hg_hg_id, acl_res_id)
-                    (SELECT %d, acl_res_id 
-                    FROM %s 
+                    (SELECT %d, acl_res_id
+                    FROM %s
                     WHERE hg_hg_id = %d)";
         $tb = "acl_resources_hg_relations";
         foreach ($hgs as $copyId => $originalId) {
@@ -2591,10 +2653,10 @@ class CentreonACL
      */
     public static function duplicateSgAcl($sgs = array())
     {
-        $sql = "INSERT INTO %s 
+        $sql = "INSERT INTO %s
                     (sg_id, acl_res_id)
-                    (SELECT %d, acl_res_id 
-                    FROM %s 
+                    (SELECT %d, acl_res_id
+                    FROM %s
                     WHERE sg_id = %d)";
         $tb = "acl_resources_sg_relations";
         foreach ($sgs as $copyId => $originalId) {
@@ -2610,10 +2672,10 @@ class CentreonACL
      */
     public static function duplicateHcAcl($hcs = array())
     {
-        $sql = "INSERT INTO %s 
+        $sql = "INSERT INTO %s
                     (hc_id, acl_res_id)
-                    (SELECT %d, acl_res_id 
-                    FROM %s 
+                    (SELECT %d, acl_res_id
+                    FROM %s
                     WHERE hc_id = %d)";
         $tb = "acl_resources_hc_relations";
         foreach ($hcs as $copyId => $originalId) {
@@ -2629,10 +2691,10 @@ class CentreonACL
      */
     public static function duplicateScAcl($scs = array())
     {
-        $sql = "INSERT INTO %s 
+        $sql = "INSERT INTO %s
                     (sc_id, acl_res_id)
-                    (SELECT %d, acl_res_id 
-                    FROM %s 
+                    (SELECT %d, acl_res_id
+                    FROM %s
                     WHERE sc_id = %d)";
         $tb = "acl_resources_sc_relations";
         foreach ($scs as $copyId => $originalId) {

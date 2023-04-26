@@ -34,7 +34,9 @@ class Contact implements UserInterface, ContactInterface
 
     // user action roles
     public const ROLE_HOST_CHECK = 'ROLE_HOST_CHECK';
+    public const ROLE_HOST_FORCED_CHECK = 'ROLE_HOST_FORCED_CHECK';
     public const ROLE_SERVICE_CHECK = 'ROLE_SERVICE_CHECK';
+    public const ROLE_SERVICE_FORCED_CHECK = 'ROLE_SERVICE_FORCED_CHECK';
     public const ROLE_HOST_ACKNOWLEDGEMENT = 'ROLE_HOST_ACKNOWLEDGEMENT';
     public const ROLE_HOST_DISACKNOWLEDGEMENT = 'ROLE_HOST_DISACKNOWLEDGEMENT';
     public const ROLE_SERVICE_ACKNOWLEDGEMENT = 'ROLE_SERVICE_ACKNOWLEDGEMENT';
@@ -71,10 +73,13 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_CONTACTS_READ = 'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R';
     public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_RW';
     public const ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ = 'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R';
+    public const ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE = 'ROLE_CONFIGURATION_USERS_TIME_PERIODS_RW';
+    public const ROLE_CONFIGURATION_TIME_PERIODS_READ = 'ROLE_CONFIGURATION_USERS_TIME_PERIODS_R';
     public const ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ = 'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R';
     public const ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW';
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW';
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R';
+    public const ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE = 'ROLE_ADMINISTRATION_AUTHENTICATION_RW';
 
     /**
      * @var string
@@ -192,6 +197,9 @@ class Contact implements UserInterface, ContactInterface
      * @var string|null
      */
     private $theme;
+
+    /** @var string|null */
+    private $userInterfaceDensity;
 
     /**
      * @param int $timezoneId
@@ -432,7 +440,39 @@ class Contact implements UserInterface, ContactInterface
      */
     public function getRoles(): array
     {
-        return array_merge($this->roles, $this->topologyRulesNames);
+        return $this->roles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = [];
+        foreach ($roles as $role) {
+            $this->addRole($role);
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTopologyRules(): array
+    {
+        return $this->topologyRulesNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTopologyRules(array $topologyRoles): self
+    {
+        $this->topologyRulesNames = [];
+        foreach ($topologyRoles as $topologyRole) {
+            $this->addTopologyRule($topologyRole);
+        }
+        return $this;
     }
 
     /**
@@ -562,7 +602,9 @@ class Contact implements UserInterface, ContactInterface
      */
     private function removeRole(string $roleName): void
     {
-        unset($this->roles[$roleName]);
+        if (($index = array_search($roleName, $this->roles)) !== false) {
+            unset($this->roles[$index]);
+        }
     }
 
     /**
@@ -686,5 +728,25 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    /**
+     * @param string|null $userInterfaceDensity
+     *
+     * @return $this
+     */
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
+    {
+        $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string
+    {
+        return $this->userInterfaceDensity;
     }
 }

@@ -1,0 +1,10 @@
+@GORGONE_LOG_DIR@/gorgoned.log {
+    copytruncate
+    weekly
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    missingok
+    su root root
+}

@@ -80,7 +80,7 @@ $tpl->assign("headerMenu_options", _("Options"));
 $aclFrom = "";
 $aclCond = "";
 if (!$oreon->user->admin) {
-    $aclFrom = ", $aclDbName.centreon_acl acl ";
+    $aclFrom = ", `$aclDbName`.centreon_acl acl ";
     $aclCond = " AND acl.host_id = msr.host_id
                  AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
 }

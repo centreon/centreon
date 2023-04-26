@@ -42,7 +42,7 @@ class FileReadPlatformRepository implements ReadPlatformRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function isCentreonWebUpgradeAvailable(): bool
+    public function isCentreonWebInstallableOrUpgradable(): bool
     {
         return is_dir($this->installDir);
     }

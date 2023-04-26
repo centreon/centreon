@@ -1,6 +1,8 @@
-import { useAtomValue } from 'jotai/utils';
+import { useEffect } from 'react';
 
-import { SelectEntry } from '@centreon/ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
 
@@ -10,8 +12,9 @@ import {
   CriteriaNames,
   criteriaValueNameById,
   selectableCriterias,
-  selectableResourceTypes,
+  selectableResourceTypes
 } from './Criterias/models';
+import { criteriaValueNameByIdAtom } from './filterAtoms';
 
 interface FilterByModule {
   newCriteriaValueName: Record<string, string>;
@@ -20,6 +23,7 @@ interface FilterByModule {
 
 const useFilterByModule = (): FilterByModule => {
   const platformVersions = useAtomValue(platformVersionsAtom);
+  const setCriteriaValueNameById = useSetAtom(criteriaValueNameByIdAtom);
 
   const installedModules = platformVersions?.modules
     ? Object.keys(platformVersions?.modules)
@@ -44,14 +48,14 @@ const useFilterByModule = (): FilterByModule => {
       const criteriasNameById = Object.keys(item).reduce(
         (previousValue, key) => ({
           ...previousValue,
-          [key]: item[key],
+          [key]: item[key]
         }),
-        { ...criteriaValueNameById },
+        { ...criteriaValueNameById }
       );
 
       return { ...prev, ...criteriasNameById };
     },
-    { ...criteriaValueNameById },
+    { ...criteriaValueNameById }
   );
 
   const newSelectableResourceTypes = filtersToAdd.reduce(
@@ -64,30 +68,34 @@ const useFilterByModule = (): FilterByModule => {
         (previousValue, key) => {
           const serviceType = {
             id: key,
-            name: newCriteriaValueNameById[key],
+            name: newCriteriaValueNameById[key]
           };
 
           return [...previousValue, serviceType];
         },
-        [...selectableResourceTypes],
+        [...selectableResourceTypes]
       );
 
       return [...prev, ...selectableTypes];
     },
-    [...selectableResourceTypes],
+    [...selectableResourceTypes]
   );
 
   const newSelectableCriterias = {
     ...selectableCriterias,
     [CriteriaNames.resourceTypes]: {
       ...selectableCriterias[CriteriaNames.resourceTypes],
-      options: [...new Set(newSelectableResourceTypes)] as Array<SelectEntry>,
-    },
+      options: [...new Set(newSelectableResourceTypes)] as Array<SelectEntry>
+    }
   };
+
+  useEffect(() => {
+    setCriteriaValueNameById(newCriteriaValueNameById);
+  }, useDeepCompare(newCriteriaValueNameById));
 
   return {
     newCriteriaValueName: newCriteriaValueNameById,
-    newSelectableCriterias,
+    newSelectableCriterias
   };
 };
 

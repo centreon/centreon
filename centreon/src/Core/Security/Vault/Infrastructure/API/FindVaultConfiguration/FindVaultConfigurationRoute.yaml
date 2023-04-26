@@ -1,0 +1,8 @@
+FindVaultConfiguration:
+  methods: GET
+  path: /administration/vaults/{vaultId}/configurations/{vaultConfigurationId}
+  requirements:
+    vaultId: '\d+'
+    vaultConfigurationId: '\d+'
+  controller: 'Core\Security\Vault\Infrastructure\API\FindVaultConfiguration\FindVaultConfigurationController'
+  condition: "request.attributes.get('version') >= 23.04"

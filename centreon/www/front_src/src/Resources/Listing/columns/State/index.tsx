@@ -1,10 +1,9 @@
 import { FC } from 'react';
 
 import { path } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Grid } from '@mui/material';
-
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelInDowntime, labelAcknowledged } from '../../../translatedLabels';
 import { Resource } from '../../../models';
@@ -22,11 +21,20 @@ interface StateChipProps {
   label: string;
 }
 
+const useStyles = makeStyles()({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gridGap: 2,
+    marginLeft: 2
+  }
+});
+
 const StateHoverChip = ({
   endpoint,
   Chip,
   DetailsTable,
-  label,
+  label
 }: StateChipProps): JSX.Element => {
   return (
     <HoverChip Chip={Chip} label={label}>
@@ -36,7 +44,7 @@ const StateHoverChip = ({
 };
 
 const DowntimeHoverChip = ({
-  resource,
+  resource
 }: {
   resource: Resource;
 }): JSX.Element => {
@@ -53,13 +61,13 @@ const DowntimeHoverChip = ({
 };
 
 const AcknowledgeHoverChip = ({
-  resource,
+  resource
 }: {
   resource: Resource;
 }): JSX.Element => {
   const acknowledgementEndpoint = path(
     ['links', 'endpoints', 'acknowledgement'],
-    resource,
+    resource
   );
 
   return (
@@ -73,19 +81,13 @@ const AcknowledgeHoverChip = ({
 };
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
+  const { classes } = useStyles();
+
   return (
-    <Grid container justifyContent="center" spacing={1}>
-      {row.in_downtime && (
-        <Grid item>
-          <DowntimeHoverChip resource={row} />
-        </Grid>
-      )}
-      {row.acknowledged && (
-        <Grid item>
-          <AcknowledgeHoverChip resource={row} />
-        </Grid>
-      )}
-    </Grid>
+    <div className={classes.container}>
+      {row.in_downtime && <DowntimeHoverChip resource={row} />}
+      {row.acknowledged && <AcknowledgeHoverChip resource={row} />}
+    </div>
   );
 };
 

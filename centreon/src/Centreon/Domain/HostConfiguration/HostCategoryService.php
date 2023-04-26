@@ -80,30 +80,6 @@ class HostCategoryService implements HostCategoryServiceInterface
     /**
      * @inheritDoc
      */
-    public function findAllWithAcl(): array
-    {
-        try {
-            return $this->readRepository->findAllByContact($this->contact);
-        } catch (\Throwable $ex) {
-            throw HostCategoryException::findHostCategoriesException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAllWithoutAcl(): array
-    {
-        try {
-            return $this->readRepository->findAll();
-        } catch (\Throwable $ex) {
-            throw HostCategoryException::findHostCategoriesException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function findWithAcl(int $categoryId): ?HostCategory
     {
         try {
@@ -122,30 +98,6 @@ class HostCategoryService implements HostCategoryServiceInterface
             return $this->readRepository->findById($categoryId);
         } catch (\Throwable $ex) {
             throw HostCategoryException::findHostCategoryException($ex, ['id' => $categoryId]);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findByNameWithAcl(string $categoryName): ?HostCategory
-    {
-        try {
-            return $this->readRepository->findByNameAndContact($categoryName, $this->contact);
-        } catch (\Throwable $ex) {
-            throw HostCategoryException::findHostCategoryException($ex, ['name' => $categoryName]);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findByNameWithoutAcl(string $categoryName): ?HostCategory
-    {
-        try {
-            return $this->readRepository->findByName($categoryName);
-        } catch (\Throwable $ex) {
-            throw HostCategoryException::findHostCategoryException($ex, ['name' => $categoryName]);
         }
     }
 

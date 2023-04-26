@@ -55,19 +55,19 @@ class Severity extends AbstractObject
     protected $object_name = 'severity';
     protected $attributesSelectHost = [
         'hc_id' => 'id',
-        'hc_name' => 'name',
+        'hc_name' => 'severity_name',
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
     protected $attributesSelectService = [
         'sc_id' => 'id',
-        'sc_name' => 'name',
+        'sc_name' => 'severity_name',
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
     protected $attributes_write = [
         'id',
-        'name',
+        'severity_name',
         'level',
         'icon_id',
         'type',

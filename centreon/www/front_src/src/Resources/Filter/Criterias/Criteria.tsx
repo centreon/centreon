@@ -1,21 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   PopoverMultiAutocompleteField,
   PopoverMultiConnectedAutocompleteField,
-  SelectEntry,
-  useMemoComponent,
+  useMemoComponent
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import {
   filterWithParsedSearchDerivedAtom,
-  setCriteriaAndNewFilterDerivedAtom,
+  setCriteriaAndNewFilterDerivedAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
-
-import { criteriaValueNameById } from './models';
 
 interface Props {
   name: string;
@@ -24,16 +22,16 @@ interface Props {
 
 const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const { newSelectableCriterias } = useFilterByModule();
+  const { newSelectableCriterias, newCriteriaValueName } = useFilterByModule();
 
-  const setCriteriaAndNewFilter = useUpdateAtom(
-    setCriteriaAndNewFilterDerivedAtom,
+  const setCriteriaAndNewFilter = useSetAtom(
+    setCriteriaAndNewFilterDerivedAtom
   );
 
   const getTranslated = (values: Array<SelectEntry>): Array<SelectEntry> => {
     return values.map((entry) => ({
       id: entry.id,
-      name: t(entry.name),
+      name: t(entry.name)
     }));
   };
 
@@ -44,7 +42,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
   const getUntranslated = (values): Array<SelectEntry> => {
     return values.map(({ id }) => ({
       id,
-      name: criteriaValueNameById[id],
+      name: newCriteriaValueName[id]
     }));
   };
 
@@ -53,7 +51,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
 
   const commonProps = {
     label: t(label),
-    search: autocompleteSearch,
+    search: autocompleteSearch
   };
 
   if (isNil(options)) {
@@ -66,7 +64,7 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
       buildAutocompleteEndpoint({
         limit: 10,
         page,
-        search,
+        search
       });
 
     const displayedColumn = label.includes('level') ? 'level' : '';
@@ -105,12 +103,12 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
 
 const Criteria = ({ value, name }: Props): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
 
   return useMemoComponent({
     Component: <CriteriaContent name={name} value={value} />,
-    memoProps: [value, name, filterWithParsedSearch],
+    memoProps: [value, name, filterWithParsedSearch]
   });
 };
 

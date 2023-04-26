@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import truncate from '../../../../../truncate';
 import { TimelineEvent } from '../../../../../Details/tabs/Timeline/models';
@@ -12,13 +12,13 @@ import { annotationHoveredAtom } from '../../annotationsAtoms';
 const yMargin = -32;
 const iconSize = 20;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   tooltip: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent'
   },
   tooltipContent: {
-    padding: theme.spacing(1),
-  },
+    padding: theme.spacing(1)
+  }
 }));
 
 export interface Props {
@@ -36,12 +36,12 @@ const Annotation = ({
   event,
   xIcon,
   marker,
-  resourceId,
+  resourceId
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const setAnnotationHovered = useUpdateAtom(annotationHoveredAtom);
+  const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
 
   const content = `${truncate(event.content)} (${t(labelBy)} ${
     event.contact?.name

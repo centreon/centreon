@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelDowntimeDuration,
   labelFrom,
-  labelTo,
+  labelTo
 } from '../../../../translatedLabels';
 import DowntimeChip from '../../../../Chip/Downtime';
 import StateCard from '../StateCard';
@@ -17,15 +16,15 @@ interface Props {
   details: ResourceDetails;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   downtimes: {
     display: 'grid',
-    rowGap: theme.spacing(1),
-  },
+    rowGap: theme.spacing(1)
+  }
 }));
 
 const DowntimesCard = ({ details }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { toDateTime } = useLocaleDateTimeFormat();
 
@@ -38,8 +37,8 @@ const DowntimesCard = ({ details }: Props): JSX.Element => {
           contentLines={[
             ...[
               { prefix: t(labelFrom), time: start_time },
-              { prefix: t(labelTo), time: end_time },
-            ].map(({ prefix, time }) => `${prefix} ${toDateTime(time)}`),
+              { prefix: t(labelTo), time: end_time }
+            ].map(({ prefix, time }) => `${prefix} ${toDateTime(time)}`)
           ]}
           key={`downtime-${start_time}-${end_time}`}
           title={t(labelDowntimeDuration)}

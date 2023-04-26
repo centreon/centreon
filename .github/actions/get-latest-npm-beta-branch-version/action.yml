@@ -1,0 +1,19 @@
+name: 'Get Latest NPM Beta Branch Version'
+
+description: 'Get the latest version of a package on the NPM beta branch'
+
+inputs:
+  package:
+    description: 'The package name to get the latest version of'
+    required: true
+  branch_name:
+    description: 'The branch name to match the NPM tag'
+    required: true
+
+outputs:
+  package_version:
+    description: "The latest NPM version for the beta branch"
+
+runs:
+  using: 'node16'
+  main: 'index.js'

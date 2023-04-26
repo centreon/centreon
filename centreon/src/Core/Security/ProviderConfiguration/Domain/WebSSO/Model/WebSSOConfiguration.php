@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\WebSSO\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
 class WebSSOConfiguration implements ProviderConfigurationInterface
@@ -54,20 +54,10 @@ class WebSSOConfiguration implements ProviderConfigurationInterface
         private ?string $patternReplaceLogin
     ) {
         foreach ($trustedClientAddresses as $trustedClientAddress) {
-            if (filter_var($trustedClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $trustedClientAddress,
-                    'WebSSOConfiguration::trustedClientAddresses'
-                );
-            }
+            Assertion::ipAddress($trustedClientAddress, 'WebSSOConfiguration::trustedClientAddresses');
         }
         foreach ($blacklistClientAddresses as $blacklistClientAddress) {
-            if (filter_var($blacklistClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $blacklistClientAddress,
-                    'WebSSOConfiguration::blacklistClientAddresses'
-                );
-            }
+            Assertion::ipAddress($blacklistClientAddress, 'WebSSOConfiguration::blacklistClientAddresses');
         }
     }
 

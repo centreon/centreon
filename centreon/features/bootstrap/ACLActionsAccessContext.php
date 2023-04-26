@@ -450,9 +450,6 @@ class ACLActionsAccessContext extends CentreonContext
         $this->currentPage = new ContactConfigurationPage($this);
         $this->currentPage->setProperties($this->nonAdminUser);
         $this->currentPage->save();
-        $this->currentPage = new ContactGroupsConfigurationPage($this);
-        $this->currentPage->setProperties($this->adminContactGroup);
-        $this->currentPage->save();
         $this->currentPage = new ACLGroupConfigurationPage($this);
         $this->currentPage->setProperties($this->nonAdminAclGroup);
         $this->currentPage->save();
@@ -465,6 +462,9 @@ class ACLActionsAccessContext extends CentreonContext
     {
         $this->currentPage = new ContactConfigurationPage($this);
         $this->currentPage->setProperties($this->adminUser);
+        $this->currentPage->save();
+        $this->currentPage = new ContactGroupsConfigurationPage($this);
+        $this->currentPage->setProperties($this->adminContactGroup);
         $this->currentPage->save();
         $this->currentPage = new ACLGroupConfigurationPage($this);
         $this->currentPage->setProperties($this->adminAclGroup);
@@ -486,32 +486,10 @@ class ACLActionsAccessContext extends CentreonContext
      */
     public function theActionAccessRecordIsSavedWithItsProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ACLActionConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->initialProperties['acl_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->initialProperties as $key => $value) {
-                        if ($key != 'acl_group' && $value != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                        if ($key == 'acl_group') {
-                            if ($object[$key] != $value) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ACLActionConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['acl_name']);
+
+        $this->comparePageProperties($this->currentPage, $this->initialProperties);
     }
 
     /**
@@ -565,32 +543,10 @@ class ACLActionsAccessContext extends CentreonContext
      */
     public function allRadioButtonsHaveToBeChecked()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ACLActionConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->allSelected['acl_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->allSelected as $key => $value) {
-                        if ($key != 'acl_group' && $value != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                        if ($key == 'acl_group') {
-                            if ($object[$key] != $value) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ACLActionConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->allSelected['acl_name']);
+
+        $this->comparePageProperties($this->currentPage, $this->allSelected);
     }
 
     /**
@@ -614,58 +570,17 @@ class ACLActionsAccessContext extends CentreonContext
      */
     public function allButtonsRadioOfTheAuthorizedActionsLotAreChecked()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ACLActionConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->checkActionEngine['acl_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->checkActionEngine as $key => $value) {
-                        if ($key != 'acl_group' && $value != $object[$key]) {
-                            $this->tableau[] = 'test action_engine : ' . $key;
-                        }
-                        if ($key == 'acl_group') {
-                            if ($object[$key] != $value) {
-                                $this->tableau[] = 'test action_engine : ' . $key;
-                            }
-                        }
-                    }
-                    $this->currentPage = new ACLActionConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->checkActionService['acl_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->checkActionService as $key => $value) {
-                        if ($key != 'acl_group' && $value != $object[$key]) {
-                            $this->tableau[] = 'test action_service : ' . $key;
-                        }
-                        if ($key == 'acl_group') {
-                            if ($object[$key] != $value) {
-                                $this->tableau[] = 'test action_service : ' . $key;
-                            }
-                        }
-                    }
-                    $this->currentPage = new ACLActionConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->checkActionHost['acl_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->checkActionHost as $key => $value) {
-                        if ($key != 'acl_group' && $value != $object[$key]) {
-                            $this->tableau[] = 'test action_host : ' . $key;
-                        }
-                        if ($key == 'acl_group') {
-                            if ($object[$key] != $value) {
-                                $this->tableau[] = 'test action_host : ' . $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ACLActionConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->checkActionEngine['acl_name']);
+        $this->comparePageProperties($this->currentPage, $this->checkActionEngine);
+
+        $this->currentPage = new ACLActionConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->checkActionService['acl_name']);
+        $this->comparePageProperties($this->currentPage, $this->checkActionService);
+
+        $this->currentPage = new ACLActionConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->checkActionHost['acl_name']);
+        $this->comparePageProperties($this->currentPage, $this->checkActionHost);
     }
 
     /**

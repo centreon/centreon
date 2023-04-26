@@ -1,4 +1,5 @@
-import { SelectEntry, SelectField } from '@centreon/ui';
+import { SelectField } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import memoizeComponent from '../../memoizedComponent';
 
@@ -13,7 +14,7 @@ const SelectFilter = ({
   options,
   selectedOptionId,
   onChange,
-  ariaLabel,
+  ariaLabel
 }: Props): JSX.Element => (
   <SelectField
     aria-label={ariaLabel}
@@ -27,7 +28,7 @@ const memoProps = ['options', 'selectedOptionId'];
 
 const MemoizedSelectFilter = memoizeComponent<Props>({
   Component: SelectFilter,
-  memoProps,
+  memoProps
 });
 
 export default MemoizedSelectFilter;

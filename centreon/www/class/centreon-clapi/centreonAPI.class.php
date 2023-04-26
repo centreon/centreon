@@ -547,7 +547,12 @@ class CentreonAPI
                         $row['blocking_time'] + $securityPolicy['blocking_duration']
                     );
                     $interval = (date_diff($now, $expirationDate))->format('%Dd %Hh %Im %Ss');
-                    print "Unable to login, max login attempts has been reached. $interval left\n";
+                    print "Authentication failed.\n";
+                    $CentreonLog = new \CentreonLog();
+                    $CentreonLog->insertLog(
+                        1, "Authentication failed for '" . $row['contact_alias'] . "',"
+                        . " max login attempts has been reached. $interval left\n"
+                    );
                     exit(1);
                 }
             }
@@ -556,6 +561,8 @@ class CentreonAPI
             if (
                 $passwordExpirationDelay !== null
                 && (int) $row['password_creation'] + (int) $passwordExpirationDelay < time()
+                // Do not check expiration for excluded users of local security policy
+                && !in_array($row['contact_alias'], $securityPolicy['password_expiration']['excluded_users'])
             ) {
                 print "Unable to login, your password has expired.\n";
                 exit(1);
@@ -607,7 +614,7 @@ class CentreonAPI
                 );
             }
         }
-        print "Invalid credentials.\n";
+        print "Authentication failed.\n";
         exit(1);
     }
 
@@ -1245,15 +1252,21 @@ class CentreonAPI
         int $securityPolicyAttempts,
         int $blockingDuration
     ): void {
+        $CentreonLog = new \CentreonLog();
         $loginAttempts = $this->incrementLoginAttempts($contactLoginAttempts);
         if ($loginAttempts === $securityPolicyAttempts) {
             $this->blockLoginForUser();
-            print "Invalid credentials. Max attempts has been reached, you can't login for "
-                . "$blockingDuration seconds. \n";
+            print "Authentication failed.\n";
+            $CentreonLog->insertLog(
+                1,
+                "Authentication failed. Max attempts has been reached, User can't login for "
+                . "$blockingDuration seconds."
+            );
             exit(1);
         }
         $attemptRemaining = $securityPolicyAttempts - $loginAttempts;
-        print "Invalid credentials. $attemptRemaining attempt(s) remaining \n";
+        print "Authentication failed.\n";
+        $CentreonLog->insertLog(1, "Authentication failed. $attemptRemaining attempt(s) remaining");
         exit(1);
     }
 

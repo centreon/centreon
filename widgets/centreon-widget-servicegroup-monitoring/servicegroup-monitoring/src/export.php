@@ -85,41 +85,49 @@ $serviceStateLabels = array(
 );
 
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name FROM servicegroups ";
+$whereConditions = [];
+$whereParams = [];
+
 if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
-    $op = $tab[0];
-    if (isset($tab[1])) {
-        $search = $tab[1];
+    $operand = CentreonUtils::operandToMysqlFormat($tab[0]);
+    $searchString = $tab[1];
+
+    if ($operand && $searchString) {
+        $whereConditions[] = "name $operand :search_string";
+        $whereParams[':search_string'] = $searchString;
     }
-    if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder(
-            $query,
-            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
-        );
-    }
-}
-if (!$centreon->user->admin) {
-    $query = CentreonUtils::conditionBuilder(
-        $query,
-        "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")"
-    );
 }
 
-$orderby = "name ASC";
+if (! $centreon->user->admin) {
+    $whereConditions[] = "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")";
+
+}
+
+if ($whereConditions) {
+    $query .= " WHERE " . implode(" AND ", $whereConditions);
+}
+
+$orderBy = "name ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+    $orderBy = $preferences['order_by'];
 }
-$query .= "ORDER BY $orderby";
-file_put_contents("/tmp/log", $query);
 
-$res = $dbb->query($query);
-$nbRows = $res->rowCount();
+$query .= " ORDER BY $orderBy";
+
+$stmt = $dbb->prepare($query);
+// bind params
+foreach ($whereParams as $key => $value) {
+    $stmt->bindValue($key, $value, \PDO::PARAM_STR);
+}
+$stmt->execute();
+$nbRows = $stmt->rowCount();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
-while ($row = $res->fetch()) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     foreach ($row as $key => $value) {
         $data[$row['name']][$key] = $value;
         $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(

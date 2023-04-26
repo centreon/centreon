@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   useRequest,
   setUrlQueryParameters,
-  getUrlQueryParameters,
+  getUrlQueryParameters
 } from '@centreon/ui';
 
 import { listCustomFilters } from './api';
@@ -22,7 +22,7 @@ import {
   getDefaultFilterDerivedAtom,
   searchAtom,
   sendingFilterAtom,
-  storedFilterAtom,
+  storedFilterAtom
 } from './filterAtoms';
 import { CriteriaValue } from './Criterias/models';
 
@@ -41,19 +41,19 @@ export interface FilterState {
 const useFilter = (): void => {
   const { sendRequest: sendListCustomFiltersRequest, sending } = useRequest({
     decoder: listCustomFiltersDecoder,
-    request: listCustomFilters,
+    request: listCustomFilters
   });
 
   const currentFilter = useAtomValue(currentFilterAtom);
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
   const getDefaultFilter = useAtomValue(getDefaultFilterDerivedAtom);
-  const setCustomFilters = useUpdateAtom(customFiltersAtom);
-  const setSearch = useUpdateAtom(searchAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const storeFilter = useUpdateAtom(storedFilterAtom);
-  const setSendingFilter = useUpdateAtom(sendingFilterAtom);
+  const setCustomFilters = useSetAtom(customFiltersAtom);
+  const setSearch = useSetAtom(searchAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const storeFilter = useSetAtom(storedFilterAtom);
+  const setSendingFilter = useSetAtom(sendingFilterAtom);
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
@@ -81,8 +81,8 @@ const useFilter = (): void => {
     const queryParameters = [
       {
         name: 'filter',
-        value: filterWithParsedSearch,
-      },
+        value: filterWithParsedSearch
+      }
     ];
 
     setUrlQueryParameters(queryParameters);
@@ -96,8 +96,8 @@ const useFilter = (): void => {
     setUrlQueryParameters([
       {
         name: 'fromTopCounter',
-        value: false,
-      },
+        value: false
+      }
     ]);
 
     applyFilter(getDefaultFilter());

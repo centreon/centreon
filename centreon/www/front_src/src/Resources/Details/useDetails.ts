@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 
 import { isNil } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
 
 import {
   customTimePeriodAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
 
@@ -21,30 +20,30 @@ import {
   selectedResourcesDetailsAtom,
   selectedResourceUuidAtom,
   sendingDetailsAtom,
-  tabParametersAtom,
+  tabParametersAtom
 } from './detailsAtoms';
 
 const useDetails = (): void => {
   const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
-    selectedResourceUuidAtom,
+    selectedResourceUuidAtom
   );
   const [selectedResource, setSelectedResource] = useAtom(
-    selectedResourcesDetailsAtom,
+    selectedResourcesDetailsAtom
   );
   const [tabParameters, setTabParameters] = useAtom(tabParametersAtom);
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const sendingDetails = useAtomValue(sendingDetailsAtom);
-  const setDefaultSelectedTimePeriodId = useUpdateAtom(
-    defaultSelectedTimePeriodIdAtom,
+  const setDefaultSelectedTimePeriodId = useSetAtom(
+    defaultSelectedTimePeriodIdAtom
   );
-  const setDefaultSelectedCustomTimePeriod = useUpdateAtom(
-    defaultSelectedCustomTimePeriodAtom,
+  const setDefaultSelectedCustomTimePeriod = useSetAtom(
+    defaultSelectedCustomTimePeriodAtom
   );
 
   useTimePeriod({
-    sending: sendingDetails,
+    sending: sendingDetails
   });
 
   useEffect(() => {
@@ -66,7 +65,7 @@ const useDetails = (): void => {
       tabParameters: tabParametersFromUrl,
       selectedTimePeriodId,
       customTimePeriod: customTimePeriodFromUrl,
-      resourcesDetailsEndpoint,
+      resourcesDetailsEndpoint
     } = detailsUrlQueryParameters;
 
     if (!isNil(tab)) {
@@ -79,7 +78,7 @@ const useDetails = (): void => {
       parentResourceId: parentId,
       parentResourceType: parentType,
       resourceId: id,
-      resourcesDetailsEndpoint,
+      resourcesDetailsEndpoint
     });
     setTabParameters(tabParametersFromUrl || {});
     setDefaultSelectedTimePeriodId(selectedTimePeriodId);
@@ -99,9 +98,9 @@ const useDetails = (): void => {
           selectedTimePeriodId: selectedTimePeriod?.id,
           tab: getTabLabelFromId(openDetailsTabId),
           tabParameters,
-          uuid: selectedResourceUuid,
-        },
-      },
+          uuid: selectedResourceUuid
+        }
+      }
     ]);
   }, [
     openDetailsTabId,
@@ -112,7 +111,7 @@ const useDetails = (): void => {
     tabParameters,
     selectedTimePeriod,
     customTimePeriod,
-    selectedResourceUuid,
+    selectedResourceUuid
   ]);
 };
 

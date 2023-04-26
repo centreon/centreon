@@ -34,6 +34,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
+use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
@@ -81,6 +82,7 @@ class LocalProvider implements LocalProviderInterface
      * @param ReadUserRepositoryInterface $readUserRepository
      * @param WriteUserRepositoryInterface $writeUserRepository
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
+     * @param LoginLogger $loginLogger
      */
     public function __construct(
         private int $sessionExpirationDelay,
@@ -89,7 +91,8 @@ class LocalProvider implements LocalProviderInterface
         private OptionServiceInterface $optionService,
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
+        private readonly LoginLoggerInterface $loginLogger
     ) {
     }
 
@@ -141,7 +144,7 @@ class LocalProvider implements LocalProviderInterface
                 throw new Exception('user not found');
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();
@@ -161,8 +164,9 @@ class LocalProvider implements LocalProviderInterface
         }
 
         $this->contactId = (int) $auth->userInfos['contact_id'];
+        $auth->userInfos['auth_type'] = Provider::LOCAL;
         $this->setLegacySession(new \Centreon($auth->userInfos));
-        $this->info('[LOCAL PROVIDER] authentication succeed');
+        $this->info('[LOCAL PROVIDER] authentication succeeded');
     }
 
     /**
@@ -278,6 +282,11 @@ class LocalProvider implements LocalProviderInterface
         $this->writeUserRepository->updateBlockingInformation($user);
 
         if ($isUserBlocked) {
+            $this->loginLogger->info(
+                Provider::LOCAL,
+                "User is blocked: maximum number of authentication attempts was reached",
+                ['contact_alias' => $user->getAlias()]
+            );
             $this->info(
                 '[LOCAL PROVIDER] authentication failed because user is blocked',
                 [

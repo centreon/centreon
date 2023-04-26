@@ -1,0 +1,5 @@
+findTimePeriods:
+  methods: GET
+  path: /configuration/timeperiods
+  controller: 'Core\TimePeriod\Infrastructure\API\FindTimePeriods\FindTimePeriodsController'
+  condition: "request.attributes.get('version') >= 23.04"

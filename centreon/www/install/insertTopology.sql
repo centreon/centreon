@@ -70,7 +70,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topo
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (106, 'Platform Status' , 5, 505, 14, 1, './include/Administration/brokerPerformance/brokerPerformance.php', NULL, '0', '0', '1', NULL, NULL, NULL, '1');
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (109,'Databases',505,50503,60,1,'./include/options/db/viewDBInfos.php',NULL,'0','0','1',NULL,NULL,NULL,'1');
 
-INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (111,'About',5,506,15,1,'./include/Administration/about/about.php',NULL,'0','0','1',NULL,NULL,NULL,'1');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`) VALUES ('About', '/administration/about', '1', '1', 5,506,15,1);
 
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (119,'My Account',501,50104,40,1,'./include/Administration/myAccount/formMyAccount.php','&o=c','0','0','1',NULL,NULL,NULL,'1');
 
@@ -191,10 +191,6 @@ INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VAL
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (41,307,NULL,'./include/common/javascript/Timeline/src/main/webapp/api/timeline-api.js','initTimeline');
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (42,30701,NULL,'./include/common/javascript/Timeline/src/main/webapp/api/timeline-api.js','initTimeline');
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (43,30702,NULL,'./include/common/javascript/Timeline/src/main/webapp/api/timeline-api.js','initTimeline');
-INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (47,20404,'a','./include/common/javascript/color_picker_mb.js',NULL);
-INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (48,20404,'c','./include/common/javascript/color_picker_mb.js',NULL);
-INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (52,20405,'a','./include/common/javascript/color_picker_mb.js',NULL);
-INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (53,20405,'c','./include/common/javascript/color_picker_mb.js',NULL);
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (65,602,'a','./include/common/javascript/commandGetArgs/cmdGetExample.js',NULL);
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (66,602,'c','./include/common/javascript/commandGetArgs/cmdGetExample.js',NULL);
 INSERT INTO `topology_JS` (`id_t_js`, `id_page`, `o`, `PathName_js`, `Init`) VALUES (67,602,'mc','./include/common/javascript/commandGetArgs/cmdGetExample.js',NULL);

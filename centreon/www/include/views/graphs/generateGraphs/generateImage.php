@@ -43,6 +43,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonGraph.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonBroker.class.php';
+require_once _CENTREON_PATH_ . '/www/class/HtmlAnalyzer.php';
 
 $pearDB = new CentreonDB();
 
@@ -197,7 +198,7 @@ if (!$isAdmin) {
 
     $aclGroupsQueryBinds = [];
     foreach ($aclGroupsExploded as $key => $value) {
-        $aclGroupsQueryBinds[':acl_group_' . $key] = $value;
+        $aclGroupsQueryBinds[':acl_group_' . $key] = str_replace("'","",$value);
     }
     $aclGroupBinds = implode(',', array_keys($aclGroupsQueryBinds));
     $sql = "SELECT service_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id

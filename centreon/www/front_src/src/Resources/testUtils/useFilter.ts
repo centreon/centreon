@@ -2,13 +2,12 @@ import { useEffect } from 'react';
 
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import {
   useRequest,
   setUrlQueryParameters,
-  getUrlQueryParameters,
+  getUrlQueryParameters
 } from '@centreon/ui';
 
 import {
@@ -21,7 +20,7 @@ import {
   getCriteriaValueDerivedAtom,
   searchAtom,
   setCriteriaDerivedAtom,
-  storedFilterAtom,
+  storedFilterAtom
 } from '../Filter/filterAtoms';
 import { listCustomFilters } from '../Filter/api';
 import { listCustomFiltersDecoder } from '../Filter/api/decoders';
@@ -32,25 +31,25 @@ import { FilterState } from '../Filter/useFilter';
 const useFilter = (): FilterState => {
   const {
     sendRequest: sendListCustomFiltersRequest,
-    sending: customFiltersLoading,
+    sending: customFiltersLoading
   } = useRequest({
     decoder: listCustomFiltersDecoder,
-    request: listCustomFilters,
+    request: listCustomFilters
   });
 
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
   const filterWithParsedSearch = useAtomValue(
-    filterWithParsedSearchDerivedAtom,
+    filterWithParsedSearchDerivedAtom
   );
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const defaultFilter = useAtomValue(storedFilterAtom);
-  const setSearch = useUpdateAtom(searchAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const setCriteria = useUpdateAtom(setCriteriaDerivedAtom);
-  const storeFilter = useUpdateAtom(storedFilterAtom);
-  const setEditPanelOpen = useUpdateAtom(editPanelOpenAtom);
+  const setSearch = useSetAtom(searchAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const setCriteria = useSetAtom(setCriteriaDerivedAtom);
+  const storeFilter = useSetAtom(storedFilterAtom);
+  const setEditPanelOpen = useSetAtom(editPanelOpenAtom);
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
@@ -60,13 +59,13 @@ const useFilter = (): FilterState => {
     });
   };
 
-  useEffect(() => {
-    loadCustomFilters();
-  }, []);
-
   useDeepCompareEffect(() => {
     setSearch(build(currentFilter.criterias));
   }, [currentFilter.criterias]);
+
+  useEffect(() => {
+    loadCustomFilters();
+  }, []);
 
   useEffect(() => {
     if (getUrlQueryParameters().fromTopCounter) {
@@ -78,8 +77,8 @@ const useFilter = (): FilterState => {
     const queryParameters = [
       {
         name: 'filter',
-        value: filterWithParsedSearch,
-      },
+        value: filterWithParsedSearch
+      }
     ];
 
     setUrlQueryParameters(queryParameters);
@@ -93,8 +92,8 @@ const useFilter = (): FilterState => {
     setUrlQueryParameters([
       {
         name: 'fromTopCounter',
-        value: false,
-      },
+        value: false
+      }
     ]);
 
     applyFilter(defaultFilter);
@@ -109,7 +108,7 @@ const useFilter = (): FilterState => {
     loadCustomFilters,
     setCriteria,
     setCurrentFilter,
-    setEditPanelOpen,
+    setEditPanelOpen
   };
 };
 

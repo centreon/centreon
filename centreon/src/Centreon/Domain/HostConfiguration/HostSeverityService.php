@@ -61,30 +61,6 @@ class HostSeverityService implements HostSeverityServiceInterface
     /**
      * @inheritDoc
      */
-    public function findAllWithAcl(): array
-    {
-        try {
-            return $this->readRepository->findAllByContact($this->contact);
-        } catch (\Throwable $ex) {
-            throw HostSeverityException::findHostSeveritiesException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAllWithoutAcl(): array
-    {
-        try {
-            return $this->readRepository->findAll();
-        } catch (\Throwable $ex) {
-            throw HostSeverityException::findHostSeveritiesException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function findWithAcl(int $severityId): ?HostSeverity
     {
         try {

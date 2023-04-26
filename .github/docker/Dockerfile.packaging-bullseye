@@ -1,0 +1,11 @@
+FROM debian:bullseye
+
+RUN <<EOF
+
+apt-get update
+apt-get install -y debmake pbuilder dh-exec aptitude zstd
+apt-get clean
+
+EOF
+
+WORKDIR /src

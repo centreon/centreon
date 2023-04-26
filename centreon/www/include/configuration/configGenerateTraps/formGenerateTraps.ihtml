@@ -45,7 +45,7 @@
             <td class="FormRowField">
                 <img class="helpTooltip" name="signal">&nbsp;{$form.signal.label}
             </td>
-            <td>
+            <td style="padding-left: 5px;">
                 {$form.signal.html}
             </td>
         </tr>

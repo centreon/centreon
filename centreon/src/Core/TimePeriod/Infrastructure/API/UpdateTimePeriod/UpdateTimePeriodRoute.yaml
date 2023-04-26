@@ -1,0 +1,7 @@
+UpdateTimePeriod:
+  methods: PUT
+  path: /configuration/timeperiods/{id}
+  requirements:
+    id: '\d+'
+  controller: 'Core\TimePeriod\Infrastructure\API\UpdateTimePeriod\UpdateTimePeriodController'
+  condition: "request.attributes.get('version') >= 23.04"

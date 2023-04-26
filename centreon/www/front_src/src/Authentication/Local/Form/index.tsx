@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { Form, Group, useRequest, useSnackbar } from '@centreon/ui';
+import { Form, useRequest, useSnackbar } from '@centreon/ui';
+import type { Group } from '@centreon/ui';
 
 import { PasswordSecurityPolicy } from '../models';
 import useValidationSchema from '../useValidationSchema';
@@ -9,7 +10,7 @@ import {
   labelPasswordBlockingPolicy,
   labelPasswordCasePolicy,
   labelPasswordExpirationPolicy,
-  labelPasswordPasswordSecurityPolicySaved,
+  labelPasswordPasswordSecurityPolicySaved
 } from '../translatedLabels';
 import { putPasswordPasswordSecurityPolicy } from '../../api';
 import FormButtons from '../../FormButtons';
@@ -25,22 +26,22 @@ interface Props {
 const groups: Array<Group> = [
   {
     name: labelPasswordCasePolicy,
-    order: 1,
+    order: 1
   },
   {
     name: labelPasswordExpirationPolicy,
-    order: 2,
+    order: 2
   },
   {
     name: labelPasswordBlockingPolicy,
-    order: 3,
-  },
+    order: 3
+  }
 ];
 
 const PasswordSecurityPolicyForm = ({
   initialValues,
   isLoading,
-  loadPasswordSecurityPolicy,
+  loadPasswordSecurityPolicy
 }: Props): JSX.Element => {
   const validationSchema = useValidationSchema();
   const { showSuccessMessage } = useSnackbar();
@@ -48,12 +49,12 @@ const PasswordSecurityPolicyForm = ({
 
   const { sendRequest } = useRequest({
     defaultFailureMessage: t(labelFailedToSavePasswordPasswordSecurityPolicy),
-    request: putPasswordPasswordSecurityPolicy,
+    request: putPasswordPasswordSecurityPolicy
   });
 
   const submit = (
     values: PasswordSecurityPolicy,
-    { setSubmitting },
+    { setSubmitting }
   ): Promise<void> =>
     sendRequest(values)
       .then(() => {

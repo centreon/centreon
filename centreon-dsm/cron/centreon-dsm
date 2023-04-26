@@ -1,0 +1,5 @@
+#####################################
+# Centreon DSM
+#
+
+30 22 * * * root @CENTREON_DSM_PATH@/cron/centreon_dsm_purge.pl --config='@CENTREON_ETC@/conf.pm' --severity=error >> @CENTREON_LOG@/centreon_dsm_purge.log 2>&1

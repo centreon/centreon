@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Add a new service group",
+  "type": "object",
+  "required": [
+    "name",
+    "alias"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "alias": {
+      "type": "string"
+    },
+    "geo_coords": {
+      "type": ["string", "null"]
+    },
+    "comment": {
+      "type": ["string", "null"]
+    },
+    "is_activated": {
+      "type": "boolean"
+    }
+  }
+}

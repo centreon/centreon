@@ -43,22 +43,24 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Domain\RequestParameters\RequestParametersException;
+use Centreon\Domain\RequestParameters\{
+    Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
+};
 use Centreon\Domain\VersionHelper;
 use JMS\Serializer\Exception\ValidationFailedException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\Event\{
+    ExceptionEvent, RequestEvent, ResponseEvent
+};
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\{
+    Exception\AccessDeniedException, Security, User\UserInterface
+};
 
 /**
  * We defined an event subscriber on the kernel event request to create a
@@ -356,14 +358,19 @@ class CentreonEventSubscriber implements EventSubscriberInterface
          * If we don't do that a HTML error will appeared.
          */
         if ($errorIsBeforeController) {
-            if ($event->getThrowable()->getCode() !== 403) {
-                $errorCode = $event->getThrowable()->getCode() > 0
-                    ? $event->getThrowable()->getCode()
-                    : Response::HTTP_INTERNAL_SERVER_ERROR;
+            if ($event->getThrowable()->getCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
+                $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-            } else {
+            } elseif ($event->getThrowable()->getCode() === Response::HTTP_FORBIDDEN) {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_FORBIDDEN;
+            } elseif ($event->getThrowable() instanceof NotFoundHttpException) {
+                $errorCode = Response::HTTP_NOT_FOUND;
+                $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                $errorCode = $event->getThrowable()->getCode();
+                $statusCode = $event->getThrowable()->getCode()
+                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
             }
             $this->logException($event->getThrowable());
             // Manage exception outside controllers
@@ -490,17 +497,14 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Initialize the contact for the global context.
+     * Initialise the contact that will be used as the Service.
+     * This will not change the user identified during authentication.
      *
      * @param ContactInterface $user Local contact with information to be used
      */
     private function initGlobalContact(ContactInterface $user): void
     {
-        /**
-         * @var Contact $globalContact
-         */
-        $globalContact = $this->contact;
-        $globalContact->setId($user->getId())
+        $this->contact->setId($user->getId())
             ->setName($user->getName())
             ->setAlias($user->getAlias())
             ->setEmail($user->getEmail())
@@ -508,14 +512,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setIsActive($user->isActive())
             ->setAdmin($user->isAdmin())
             ->setTimezone($user->getTimezone())
-            ->setLocale($user->getLocale());
-
-        foreach ($user->getRoles() as $role) {
-            if (substr($role, 0, 8) === 'ROLE_API') {
-                $globalContact->addRole($role);
-            } else {
-                $globalContact->addTopologyRule($role);
-            }
-        }
+            ->setLocale($user->getLocale())
+            ->setRoles($user->getRoles())
+            ->setTopologyRules($user->getTopologyRules())
+            ->setAccessToApiRealTime($user->hasAccessToApiRealTime())
+            ->setAccessToApiConfiguration($user->hasAccessToApiConfiguration());
     }
 }

@@ -1,8 +1,7 @@
 import { RefObject } from 'react';
 
 import { path, isNil, equals, last, pipe, not } from 'ramda';
-
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
 import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
@@ -18,25 +17,25 @@ export interface ResourceGraphMousePosition {
   resourceId: string | number;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   graph: {
     columnGap: '8px',
     display: 'grid',
     gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(
-      40,
+      40
     )}, auto))`,
-    rowGap: '8px',
-  },
+    rowGap: '8px'
+  }
 }));
 
 const ServiceGraphs = ({
   services,
-  infiniteScrollTriggerRef,
+  infiniteScrollTriggerRef
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const servicesWithGraph = services.filter(
-    pipe(path(['links', 'endpoints', 'performance_graph']), isNil, not),
+    pipe(path(['links', 'endpoints', 'performance_graph']), isNil, not)
   );
 
   return (
@@ -48,6 +47,7 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ExportableGraphWithTimeline
+              interactWithGraph
               limitLegendRows
               graphHeight={120}
               resource={service}

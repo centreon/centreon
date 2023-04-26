@@ -1,3 +1,10 @@
+import { ReactNode } from 'react';
+
+import { ScaleLinear, ScaleTime } from 'd3-scale';
+
+import { ResourceDetails } from '../../Details/models';
+import { Resource } from '../../models';
+
 interface DsData {
   ds_color_area: string;
   ds_color_line: string;
@@ -57,5 +64,69 @@ export interface AdjustTimePeriodProps {
 
 export enum GraphOptionId {
   displayEvents = 'displayEvents',
-  displayTooltips = 'displayTooltips',
+  displayTooltips = 'displayTooltips'
+}
+
+export interface AdditionalDataProps<T> {
+  additionalData?: T | null;
+}
+
+export interface GetDisplayAdditionalLinesConditionProps {
+  condition: (resource: Resource | ResourceDetails) => boolean;
+  displayAdditionalLines: (args) => ReactNode;
+}
+
+export interface Xscale {
+  dataTime: Array<TimeValue>;
+  valueWidth: number;
+}
+export interface AxeScale {
+  dataLines: Array<Line>;
+  dataTimeSeries: Array<TimeValue>;
+  valueGraphHeight: number;
+}
+
+export interface GetYScaleProps {
+  hasMoreThanTwoUnits: boolean;
+  invert: string | null;
+  leftScale: ScaleLinear<number, number>;
+  rightScale: ScaleLinear<number, number>;
+  secondUnit: string;
+  unit: string;
+}
+
+export interface LinesProps {
+  getSortedStackedLines: (lines: Array<Line>) => Array<Line>;
+  getTime: (timeValue: TimeValue) => number;
+  getUnits: (lines: Array<Line>) => Array<string>;
+  getYScale: ({
+    hasMoreThanTwoUnits,
+    unit,
+    secondUnit,
+    leftScale,
+    rightScale,
+    invert
+  }: GetYScaleProps) => ScaleLinear<number, number>;
+  graphHeight: number;
+  graphWidth: number;
+  leftScale: ScaleLinear<number, number, never>;
+  lines: Array<Line>;
+  rightScale: ScaleLinear<number, number, never>;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleTime<number, number, never>;
+}
+
+export interface AdditionalLines {
+  additionalLinesProps: LinesProps;
+  resource: ResourceDetails | Resource;
+}
+
+export interface FilterLines {
+  lines: Array<Line>;
+  resource: ResourceDetails | Resource;
+}
+
+export interface NewLines {
+  newLines: Array<Line>;
+  newSortedLines: Array<Line>;
 }

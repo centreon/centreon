@@ -162,12 +162,14 @@ class RequestParameters implements RequestParametersInterface
     /**
      * @inheritDoc
      */
-    public function hasSearchParameter(string $keyToFind, array $parameters): bool
+    public function hasSearchParameter(string $keyToFind, ?array $parameters = null): bool
     {
-        foreach ($parameters as $key => $value) {
+        foreach ($parameters ?? $this->search as $key => $value) {
             if ($key === $keyToFind) {
                 return true;
-            } elseif (is_array($value) || is_object($value)) {
+            }
+
+            if (\is_array($value) || \is_object($value)) {
                 $value = (array) $value;
                 if ($this->hasSearchParameter($keyToFind, $value)) {
                     return true;

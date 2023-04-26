@@ -1,14 +1,14 @@
 import { Typography } from '@mui/material';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { useColumnStyles } from '.';
 
 const ParentAliasColumn = ({
   row,
-  isHovered,
+  isHovered
 }: ComponentColumnProps): JSX.Element | null => {
-  const classes = useColumnStyles({ isHovered });
+  const { classes } = useColumnStyles({ isHovered });
 
   if (!row.parent) {
     return null;

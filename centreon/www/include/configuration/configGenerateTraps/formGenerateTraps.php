@@ -152,6 +152,10 @@ if ($form->validate()) {
             }
             if ($tab['localhost'] && $tab['snmp_trapd_path_conf']) {
                 $trapdPath = $tab['snmp_trapd_path_conf'];
+                //handle path traversal vulnerability
+                if (strpos($trapdPath, '..') !== false) {
+                    throw new Exception('Path traversal found');
+                }
             }
         }
         if (isset($ret["generate"]) && $ret["generate"]) {

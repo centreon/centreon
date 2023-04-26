@@ -1,21 +1,22 @@
 import { FormikValues } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, pick, pipe, values, or, all, not } from 'ramda';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { useRequest, useSnackbar, Form } from '@centreon/ui';
+import { useSnackbar, Form, Method, useMutationQuery } from '@centreon/ui';
 
 import useValidationSchema from '../useValidationSchema';
 import {
   labelFailedToSaveOpenidConfiguration,
   labelOpenIDConnectConfigurationSaved,
-  labelRequired,
+  labelRequired
 } from '../translatedLabels';
-import { putProviderConfiguration } from '../../api';
 import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
 import FormButtons from '../../FormButtons';
-import { groups } from '../..';
+import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
+import { authenticationProvidersEndpoint } from '../../api/endpoints';
 
 import { inputs } from './inputs';
 
@@ -30,27 +31,28 @@ const isNilOrEmpty = (value): boolean => or(isNil(value), isEmpty(value));
 const OpenidForm = ({
   initialValues,
   loadOpenidConfiguration,
-  isLoading,
+  isLoading
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { sendRequest } = useRequest({
+  const { mutateAsync } = useMutationQuery<OpenidConfigurationToAPI>({
     defaultFailureMessage: t(labelFailedToSaveOpenidConfiguration),
-    request: putProviderConfiguration<
-      OpenidConfiguration,
-      OpenidConfigurationToAPI
-    >({ adapter: adaptOpenidConfigurationToAPI, type: Provider.Openid }),
+    getEndpoint: () => authenticationProvidersEndpoint(Provider.Openid),
+    method: Method.PUT
   });
+  const queryClient = useQueryClient();
+
   const { showSuccessMessage } = useSnackbar();
 
   const validationSchema = useValidationSchema();
 
   const submit = (
     formikValues: OpenidConfiguration,
-    { setSubmitting },
+    { setSubmitting }
   ): Promise<void> =>
-    sendRequest(formikValues)
+    mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
       .then(() => {
+        queryClient.invalidateQueries([Provider.Openid]);
         loadOpenidConfiguration();
         showSuccessMessage(t(labelOpenIDConnectConfigurationSaved));
       })
@@ -60,7 +62,7 @@ const OpenidForm = ({
     const isUserInfoOrIntrospectionTokenEmpty = pipe(
       pick(['introspectionTokenEndpoint', 'userinfoEndpoint']),
       values,
-      all(isNilOrEmpty),
+      all(isNilOrEmpty)
     )(formikValues);
 
     if (not(isUserInfoOrIntrospectionTokenEmpty)) {
@@ -69,7 +71,7 @@ const OpenidForm = ({
 
     return {
       introspectionTokenEndpoint: t(labelRequired),
-      userinfoEndpoint: t(labelRequired),
+      userinfoEndpoint: t(labelRequired)
     };
   };
 

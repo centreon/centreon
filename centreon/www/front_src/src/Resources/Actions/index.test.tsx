@@ -1,75 +1,79 @@
-import mockDate from 'mockdate';
-import axios from 'axios';
-import { last, pick, map, head } from 'ramda';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'jotai';
+import axios from 'axios';
 import dayjs from 'dayjs';
+import { createStore, Provider } from 'jotai';
+import mockDate from 'mockdate';
+import { equals, head, last, map, pick } from 'ramda';
 
-import {
-  render,
-  RenderResult,
-  waitFor,
-  fireEvent,
-  act,
-  SeverityCode,
-  screen,
-} from '@centreon/ui';
+import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
   refreshIntervalAtom,
-  userAtom,
+  userAtom
 } from '@centreon/ui-context';
-
 import {
-  labelAcknowledgedBy,
-  labelDowntimeBy,
-  labelRefresh,
-  labelDisableAutorefresh,
-  labelEnableAutorefresh,
+  act,
+  fireEvent,
+  getFetchCall,
+  mockResponse,
+  render,
+  RenderResult,
+  resetMocks,
+  screen,
+  waitFor
+} from '@centreon/ui/src/testRenderer';
+
+import useDetails from '../Details/useDetails';
+import useListing from '../Listing/useListing';
+import useLoadResources from '../Listing/useLoadResources';
+import { Resource } from '../models';
+import Context, { ResourceContext } from '../testUtils/Context';
+import useActions from '../testUtils/useActions';
+import useFilter from '../testUtils/useFilter';
+import useLoadDetails from '../testUtils/useLoadDetails';
+import {
   labelAcknowledge,
-  labelSetDowntime,
-  labelSetDowntimeOnServices,
+  labelAcknowledgedBy,
   labelAcknowledgeServices,
-  labelNotify,
-  labelFixed,
+  labelAddComment,
   labelCheck,
-  labelHostsDenied,
-  labelMoreActions,
+  labelCritical,
+  labelDisableAutorefresh,
   labelDisacknowledge,
   labelDisacknowledgeServices,
-  labelSubmitStatus,
-  labelUp,
-  labelUnreachable,
   labelDown,
+  labelDowntimeBy,
+  labelDuration,
+  labelEnableAutorefresh,
+  labelEndDateGreaterThanStartDate,
+  labelEndTime,
+  labelFixed,
+  labelForcedCheck,
+  labelHostsDenied,
+  labelInvalidFormat,
+  labelMoreActions,
+  labelNotify,
+  labelOk,
   labelOutput,
   labelPerformanceData,
-  labelSubmit,
-  labelOk,
-  labelWarning,
-  labelCritical,
-  labelUnknown,
-  labelAddComment,
-  labelEndTime,
-  labelEndDateGreaterThanStartDate,
-  labelInvalidFormat,
+  labelRefresh,
+  labelSetDowntime,
+  labelSetDowntimeOnServices,
   labelStartTime,
-  labelDuration,
+  labelSubmit,
+  labelSubmitStatus,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../translatedLabels';
-import useLoadResources from '../Listing/useLoadResources';
-import useListing from '../Listing/useListing';
-import useFilter from '../testUtils/useFilter';
-import Context, { ResourceContext } from '../testUtils/Context';
-import { Resource } from '../models';
-import useLoadDetails from '../testUtils/useLoadDetails';
-import useDetails from '../Details/useDetails';
-import useActions from '../testUtils/useActions';
 
 import {
   acknowledgeEndpoint,
-  downtimeEndpoint,
   checkEndpoint,
+  downtimeEndpoint
 } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
@@ -81,20 +85,20 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 const onRefresh = jest.fn();
 
 jest.mock('@centreon/ui-context', () =>
-  jest.requireActual('centreon-frontend/packages/ui-context'),
+  jest.requireActual('@centreon/ui-context')
 );
 
 const mockUser = {
   alias: 'admin',
   isExportButtonEnabled: true,
   locale: 'en',
-  timezone: 'Europe/Paris',
+  timezone: 'Europe/Paris'
 };
 const mockRefreshInterval = 15;
 const mockDowntime = {
   duration: 7200,
   fixed: true,
-  with_services: false,
+  with_services: false
 };
 const mockAcl = {
   actions: {
@@ -104,7 +108,8 @@ const mockAcl = {
       comment: true,
       disacknowledgement: true,
       downtime: true,
-      submit_status: true,
+      forced_check: true,
+      submit_status: true
     },
     service: {
       acknowledgement: true,
@@ -112,24 +117,45 @@ const mockAcl = {
       comment: true,
       disacknowledgement: true,
       downtime: true,
-      submit_status: true,
-    },
-  },
+      forced_check: true,
+      submit_status: true
+    }
+  }
 };
 const mockAcknowledgement = {
   force_active_checks: false,
   notify: false,
   persistent: true,
   sticky: true,
-  with_services: true,
+  with_services: true
 };
 
 jest.mock('../icons/Downtime');
 
+interface UseMediaQueryListing {
+  applyBreakPoint: boolean;
+}
+
+jest.mock('./Resource/useMediaQueryListing', () => {
+  const originalModule = jest.requireActual('./Resource/useMediaQueryListing');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    default: (): UseMediaQueryListing => ({
+      applyBreakPoint: false
+    })
+  };
+});
+
 const ActionsWithLoading = (): JSX.Element => {
   useLoadResources();
 
-  return <Actions onRefresh={onRefresh} />;
+  return (
+    <TestQueryProvider>
+      <Actions onRefresh={onRefresh} />
+    </TestQueryProvider>
+  );
 };
 
 let context: ResourceContext;
@@ -138,16 +164,16 @@ const host = {
   id: 0,
   parent: null,
   passive_checks: true,
-  type: 'host',
+  type: 'host'
 } as Resource;
 
 const service = {
   id: 1,
   parent: {
-    id: 1,
+    id: 1
   },
   passive_checks: true,
-  type: 'service',
+  type: 'service'
 } as Resource;
 
 const ActionsWithContext = (): JSX.Element => {
@@ -162,7 +188,7 @@ const ActionsWithContext = (): JSX.Element => {
     ...detailsState,
     ...listingState,
     ...actionsState,
-    ...filterState,
+    ...filterState
   } as ResourceContext;
 
   return (
@@ -173,18 +199,17 @@ const ActionsWithContext = (): JSX.Element => {
 };
 
 const renderActions = (aclAtions = mockAcl): RenderResult => {
+  const store = createStore();
+  store.set(userAtom, mockUser);
+  store.set(refreshIntervalAtom, mockRefreshInterval);
+  store.set(downtimeAtom, mockDowntime);
+  store.set(aclAtom, aclAtions);
+  store.set(acknowledgementAtom, mockAcknowledgement);
+
   return render(
-    <Provider
-      initialValues={[
-        [userAtom, mockUser],
-        [refreshIntervalAtom, mockRefreshInterval],
-        [downtimeAtom, mockDowntime],
-        [aclAtom, aclAtions],
-        [acknowledgementAtom, mockAcknowledgement],
-      ]}
-    >
+    <Provider store={store}>
       <ActionsWithContext />
-    </Provider>,
+    </Provider>
   );
 };
 
@@ -207,9 +232,9 @@ describe(Actions, () => {
         media: query,
         onchange: (): void => undefined,
         removeEventListener: (): void => undefined,
-        removeListener: (): void => undefined,
+        removeListener: (): void => undefined
       }),
-      writable: true,
+      writable: true
     });
 
     mockedAxios.post.mockReset();
@@ -218,14 +243,15 @@ describe(Actions, () => {
         meta: {
           limit: 30,
           page: 1,
-          total: 0,
+          total: 0
         },
-        result: [],
-      },
+        result: []
+      }
     });
 
     mockDate.set(mockNow);
     onRefresh.mockReset();
+    mockResponse({ data: {} });
   });
 
   afterEach(() => {
@@ -235,6 +261,7 @@ describe(Actions, () => {
 
     mockDate.reset();
     mockedAxios.get.mockReset();
+    resetMocks();
   });
 
   it('executes a listing request when the refresh button is clicked', async () => {
@@ -263,13 +290,13 @@ describe(Actions, () => {
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
     fireEvent.click(
-      getByLabelText(labelDisableAutorefresh).firstElementChild as HTMLElement,
+      getByLabelText(labelDisableAutorefresh).firstElementChild as HTMLElement
     );
 
     expect(getByLabelText(labelEnableAutorefresh)).toBeTruthy();
 
     fireEvent.click(
-      getByLabelText(labelEnableAutorefresh).firstElementChild as HTMLElement,
+      getByLabelText(labelEnableAutorefresh).firstElementChild as HTMLElement
     );
 
     expect(getByLabelText(labelDisableAutorefresh)).toBeTruthy();
@@ -277,7 +304,7 @@ describe(Actions, () => {
 
   it.each([
     [labelAcknowledge, labelAcknowledgedByAdmin, labelAcknowledge],
-    [labelSetDowntime, labelDowntimeByAdmin, labelSetDowntime],
+    [labelSetDowntime, labelDowntimeByAdmin, labelSetDowntime]
   ])(
     'cannot send a %p request when the corresponding action is fired and the comment field is left empty',
     async (labelAction, labelComment, labelConfirmAction) => {
@@ -290,7 +317,7 @@ describe(Actions, () => {
       });
 
       await waitFor(() =>
-        expect(context.selectedResources).toEqual(selectedResources),
+        expect(context.selectedResources).toEqual(selectedResources)
       );
 
       fireEvent.click(getByText(labelAction));
@@ -301,10 +328,10 @@ describe(Actions, () => {
 
       await waitFor(() =>
         expect(
-          last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement,
-        ).toBeDisabled(),
+          last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement
+        ).toBeDisabled()
       );
-    },
+    }
   );
 
   it('sends an acknowledgement request when Resources are selected and the Ackowledgement action is clicked and confirmed', async () => {
@@ -340,13 +367,13 @@ describe(Actions, () => {
             is_notify_contacts: true,
             is_persistent_comment: true,
             is_sticky: true,
-            with_services: true,
+            with_services: true
           },
 
-          resources: map(pick(['type', 'id', 'parent']), selectedResources),
+          resources: map(pick(['type', 'id', 'parent']), selectedResources)
         },
-        expect.anything(),
-      ),
+        expect.anything()
+      )
     );
   });
 
@@ -361,7 +388,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        getByLabelText(labelMoreActions).firstChild as HTMLElement,
+        getByLabelText(labelMoreActions).firstChild as HTMLElement
       ).toBeInTheDocument();
     });
 
@@ -378,12 +405,12 @@ describe(Actions, () => {
         cancelToken: expect.anything(),
         data: {
           disacknowledgement: {
-            with_services: true,
+            with_services: true
           },
 
-          resources: map(pick(['type', 'id', 'parent']), selectedResources),
-        },
-      }),
+          resources: map(pick(['type', 'id', 'parent']), selectedResources)
+        }
+      })
     );
   });
 
@@ -418,7 +445,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        getByLabelText(labelMoreActions).firstChild as HTMLElement,
+        getByLabelText(labelMoreActions).firstChild as HTMLElement
       ).toBeInTheDocument();
     });
 
@@ -442,7 +469,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
+        last(getAllByText(labelSetDowntime)) as HTMLElement
       ).toBeInTheDocument();
     });
 
@@ -456,13 +483,11 @@ describe(Actions, () => {
 
     fireEvent.click(getByLabelText(labelFixed));
     fireEvent.change(getByLabelText(labelDuration), {
-      target: { value: '' },
+      target: { value: '' }
     });
 
     await waitFor(() =>
-      expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
-      ).toBeDisabled(),
+      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
   });
 
@@ -478,7 +503,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        head(getAllByText(labelSetDowntime)) as HTMLElement,
+        head(getAllByText(labelSetDowntime)) as HTMLElement
       ).toBeInTheDocument();
     });
 
@@ -486,13 +511,14 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.clear(getByLabelText(labelEndTime));
-    userEvent.type(getByLabelText(labelEndTime), dayjs(mockNow).format('L LT'));
+    userEvent.type(getByLabelText(labelEndTime), '{selectall}');
+    userEvent.paste(
+      getByLabelText(labelEndTime),
+      dayjs(mockNow).format('L LT')
+    );
 
     await waitFor(() =>
-      expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
-      ).toBeDisabled(),
+      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
 
     expect(getByText(labelEndDateGreaterThanStartDate)).toBeInTheDocument();
@@ -504,7 +530,7 @@ describe(Actions, () => {
       getAllByText,
       findByText,
       getByText,
-      findAllByText,
+      findAllByText
     } = renderActions();
 
     const selectedResources = [host];
@@ -523,7 +549,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
+        last(getAllByText(labelSetDowntime)) as HTMLElement
       ).toBeDisabled();
     });
 
@@ -532,15 +558,13 @@ describe(Actions, () => {
     userEvent.type(getByLabelText(labelStartTime), '{backspace}M');
 
     await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled(),
+      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled()
     );
 
     userEvent.type(getByLabelText(labelEndTime), 'a');
 
     await waitFor(() =>
-      expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
-      ).toBeDisabled(),
+      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
 
     expect(getByText(labelInvalidFormat)).toBeInTheDocument();
@@ -548,7 +572,7 @@ describe(Actions, () => {
     userEvent.type(getByLabelText(labelEndTime), '{backspace}');
 
     await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled(),
+      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled()
     );
   });
 
@@ -563,7 +587,7 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement,
+        last(getAllByText(labelSetDowntime)) as HTMLElement
       ).toBeInTheDocument();
     });
 
@@ -590,44 +614,61 @@ describe(Actions, () => {
             end_time: '2020-01-01T02:00:00Z',
             is_fixed: true,
             start_time: '2020-01-01T00:00:00Z',
-            with_services: false,
+            with_services: false
           },
-          resources: map(pick(['type', 'id', 'parent']), selectedResources),
+          resources: map(pick(['type', 'id', 'parent']), selectedResources)
         },
-        expect.anything(),
-      ),
+        expect.anything()
+      )
     );
   });
 
-  it('sends a check request when Resources are selected and the Check action is clicked', async () => {
-    const { getByText } = renderActions();
+  it.each([
+    [labelForcedCheck, { is_forced: true }],
+    [labelCheck, { is_forced: false }]
+  ])(
+    'sends a %p request when Resources are selected and the action is selected',
+    async (label, { is_forced }) => {
+      const { getByText, findByText, getByLabelText, getAllByText } =
+        renderActions();
 
-    const selectedResources = [host, service];
+      await waitFor(() => {
+        expect(getByText(labelForcedCheck)).toBeInTheDocument();
+      });
+      const selectedResources = [host, service];
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      mockedAxios.get.mockResolvedValueOnce({ data: {} });
+      mockedAxios.all.mockResolvedValueOnce([]);
 
-    mockedAxios.get.mockResolvedValueOnce({ data: {} });
-    mockedAxios.all.mockResolvedValueOnce([]);
-    mockedAxios.post.mockResolvedValueOnce({});
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    await waitFor(() => {
-      expect(getByText(labelCheck)).toBeInTheDocument();
-    });
+      await findByText(labelForcedCheck);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      await waitFor(() => {
+        expect(getByText(labelCheck)).toBeInTheDocument();
+        expect(getAllByText(labelForcedCheck)[1]).toBeInTheDocument();
+      });
+      const selectedLabel = equals(label, labelForcedCheck)
+        ? getAllByText(label)[1]
+        : getByText(label);
 
-    fireEvent.click(getByText(labelCheck));
+      fireEvent.click(selectedLabel);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      fireEvent.click(getByLabelText(label).firstElementChild as HTMLElement);
 
-    await waitFor(() => {
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        checkEndpoint,
-        {
-          resources: map(pick(['type', 'id', 'parent']), selectedResources),
-        },
-        expect.anything(),
-      );
-    });
-  });
+      const payload = {
+        check: { is_forced },
+        resources: map(pick(['id', 'parent', 'type']), selectedResources)
+      };
+
+      await waitFor(() => {
+        expect(getFetchCall(0)).toEqual(`${checkEndpoint}`);
+        expect(getFetchCall(0, 1)?.body).toEqual(JSON.stringify(payload));
+      });
+    }
+  );
 
   it('sends a submit status request when a Resource is selected and the Submit status action is clicked', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
@@ -640,12 +681,12 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        getByLabelText(labelMoreActions).firstElementChild as HTMLElement,
+        getByLabelText(labelMoreActions).firstElementChild as HTMLElement
       ).toBeInTheDocument();
     });
 
     fireEvent.click(
-      getByLabelText(labelMoreActions).firstElementChild as HTMLElement,
+      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
     );
 
     fireEvent.click(getByText(labelSubmitStatus) as HTMLElement);
@@ -665,14 +706,14 @@ describe(Actions, () => {
 
     fireEvent.change(getByLabelText(labelOutput), {
       target: {
-        value: output,
-      },
+        value: output
+      }
     });
 
     fireEvent.change(getByLabelText(labelPerformanceData), {
       target: {
-        value: performanceData,
-      },
+        value: performanceData
+      }
     });
 
     fireEvent.click(getByText(labelSubmit));
@@ -686,11 +727,11 @@ describe(Actions, () => {
               ...pick(['type', 'id', 'parent'], service),
               output,
               performance_data: performanceData,
-              status: 1,
-            },
-          ],
+              status: 1
+            }
+          ]
         },
-        expect.anything(),
+        expect.anything()
       );
     });
 
@@ -699,7 +740,7 @@ describe(Actions, () => {
     });
 
     fireEvent.click(
-      getByLabelText(labelMoreActions).firstElementChild as HTMLElement,
+      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
     );
 
     fireEvent.click(getAllByText(labelSubmitStatus)[1] as HTMLElement);
@@ -721,7 +762,8 @@ describe(Actions, () => {
           comment: false,
           disacknowledgement: false,
           downtime: false,
-          submit_status: false,
+          forced_check: false,
+          submit_status: false
         },
         service: {
           acknowledgement: false,
@@ -729,9 +771,10 @@ describe(Actions, () => {
           comment: false,
           disacknowledgement: false,
           downtime: false,
-          submit_status: false,
-        },
-      },
+          forced_check: false,
+          submit_status: false
+        }
+      }
     });
 
     const selectedResources = [host, service];
@@ -741,7 +784,7 @@ describe(Actions, () => {
     });
 
     await waitFor(() => {
-      expect(getByText(labelCheck)).toBeDisabled();
+      expect(getByText(labelForcedCheck)).toBeDisabled();
       expect(getByText(labelAcknowledge)).toBeDisabled();
       expect(getByText(labelSetDowntime)).toBeDisabled();
     });
@@ -750,7 +793,7 @@ describe(Actions, () => {
 
     expect(getByText(labelDisacknowledge)).toHaveAttribute(
       'aria-disabled',
-      'true',
+      'true'
     );
     expect(getByText(labelAddComment)).toHaveAttribute('aria-disabled', 'true');
   });
@@ -760,9 +803,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
-        downtime: false,
-      },
-    },
+        downtime: false
+      }
+    }
   };
 
   const cannotAcknowledgeServicesAcl = {
@@ -770,9 +813,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
-        acknowledgement: false,
-      },
-    },
+        acknowledgement: false
+      }
+    }
   };
 
   const cannotDisacknowledgeServicesAcl = {
@@ -780,9 +823,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
-        disacknowledgement: false,
-      },
-    },
+        disacknowledgement: false
+      }
+    }
   };
 
   const cannotDowntimeHostsAcl = {
@@ -790,9 +833,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
-        downtime: false,
-      },
-    },
+        downtime: false
+      }
+    }
   };
 
   const cannotAcknowledgeHostsAcl = {
@@ -800,9 +843,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
-        acknowledgement: false,
-      },
-    },
+        acknowledgement: false
+      }
+    }
   };
 
   const cannotDisacknowledgeHostsAcl = {
@@ -810,9 +853,9 @@ describe(Actions, () => {
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
-        disacknowledgement: false,
-      },
-    },
+        disacknowledgement: false
+      }
+    }
   };
 
   it.each([
@@ -820,20 +863,20 @@ describe(Actions, () => {
       labelSetDowntime,
       labelSetDowntime,
       labelHostsDenied,
-      cannotDowntimeHostsAcl,
+      cannotDowntimeHostsAcl
     ],
     [
       labelAcknowledge,
       labelAcknowledge,
       labelHostsDenied,
-      cannotAcknowledgeHostsAcl,
+      cannotAcknowledgeHostsAcl
     ],
     [
       labelDisacknowledge,
       labelDisacknowledge,
       labelHostsDenied,
-      cannotDisacknowledgeHostsAcl,
-    ],
+      cannotDisacknowledgeHostsAcl
+    ]
   ])(
     'displays a warning message when trying to %p with limited ACL',
     async (_, labelAction, labelAclWarning, acl) => {
@@ -847,12 +890,12 @@ describe(Actions, () => {
 
       await waitFor(() => {
         expect(
-          getByLabelText(labelMoreActions).firstChild as HTMLElement,
+          getByLabelText(labelMoreActions).firstChild as HTMLElement
         ).toBeInTheDocument();
       });
 
       fireEvent.click(
-        getByLabelText(labelMoreActions).firstChild as HTMLElement,
+        getByLabelText(labelMoreActions).firstChild as HTMLElement
       );
 
       fireEvent.click(getByText(labelAction));
@@ -860,7 +903,7 @@ describe(Actions, () => {
       await waitFor(() => {
         expect(getByText(labelAclWarning)).toBeInTheDocument();
       });
-    },
+    }
   );
 
   it.each([
@@ -868,20 +911,20 @@ describe(Actions, () => {
       labelSetDowntime,
       labelSetDowntime,
       labelSetDowntimeOnServices,
-      cannotDowntimeServicesAcl,
+      cannotDowntimeServicesAcl
     ],
     [
       labelAcknowledge,
       labelAcknowledge,
       labelAcknowledgeServices,
-      cannotAcknowledgeServicesAcl,
+      cannotAcknowledgeServicesAcl
     ],
     [
       labelDisacknowledge,
       labelDisacknowledge,
       labelDisacknowledgeServices,
-      cannotDisacknowledgeServicesAcl,
-    ],
+      cannotDisacknowledgeServicesAcl
+    ]
   ])(
     'disables services propagation option when trying to %p on hosts when ACL on services are not sufficient',
     async (_, labelAction, labelAppliesOnServices, acl) => {
@@ -892,7 +935,7 @@ describe(Actions, () => {
       });
 
       fireEvent.click(
-        getByLabelText(labelMoreActions).firstChild as HTMLElement,
+        getByLabelText(labelMoreActions).firstChild as HTMLElement
       );
 
       fireEvent.click(getByText(labelAction));
@@ -900,11 +943,11 @@ describe(Actions, () => {
       await waitFor(() => {
         expect(
           getByText(labelAppliesOnServices).parentElement?.querySelector(
-            'input[type="checkbox"]',
-          ),
+            'input[type="checkbox"]'
+          )
         ).toBeDisabled();
       });
-    },
+    }
   );
 
   it('disables the submit status action when one of the following condition is met: ACL are not sufficient, more than one resource is selected, selected resource is not passive', async () => {
@@ -913,9 +956,9 @@ describe(Actions, () => {
         ...mockAcl.actions,
         host: {
           ...mockAcl.actions.host,
-          submit_status: false,
-        },
-      },
+          submit_status: false
+        }
+      }
     });
 
     act(() => {
@@ -927,7 +970,7 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(getByText(labelSubmitStatus)).toHaveAttribute(
         'aria-disabled',
-        'true',
+        'true'
       );
     });
 
@@ -938,7 +981,7 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(getByText(labelSubmitStatus)).toHaveAttribute(
         'aria-disabled',
-        'true',
+        'true'
       );
     });
 
@@ -957,7 +1000,7 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(getByText(labelSubmitStatus)).toHaveAttribute(
         'aria-disabled',
-        'true',
+        'true'
       );
     });
   });
@@ -968,9 +1011,9 @@ describe(Actions, () => {
         ...mockAcl.actions,
         host: {
           ...mockAcl.actions.host,
-          comment: false,
-        },
-      },
+          comment: false
+        }
+      }
     });
 
     act(() => {
@@ -982,7 +1025,7 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(getByText(labelAddComment)).toHaveAttribute(
         'aria-disabled',
-        'true',
+        'true'
       );
     });
 
@@ -993,7 +1036,7 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(getByText(labelAddComment)).toHaveAttribute(
         'aria-disabled',
-        'true',
+        'true'
       );
     });
 
@@ -1015,16 +1058,16 @@ describe(Actions, () => {
           ...host,
           status: {
             name: 'UP',
-            severity_code: SeverityCode.Ok,
-          },
+            severity_code: SeverityCode.OK
+          }
         },
         {
           ...service,
           status: {
             name: 'OK',
-            severity_code: SeverityCode.Ok,
-          },
-        },
+            severity_code: SeverityCode.OK
+          }
+        }
       ]);
     });
 

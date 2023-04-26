@@ -1,0 +1,86 @@
+on:
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      module_name:
+        required: true
+        type: string
+      specs_path:
+        required: true
+        type: string
+
+jobs:
+  cypress-component-test-list:
+    runs-on: ubuntu-22.04
+    outputs:
+      specs: ${{ steps.list-specs.outputs.specs }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: List of specs
+        id: list-specs
+        run: |
+          cd ${{ inputs.module_name }}
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  cypress-component-test-run:
+    needs: [cypress-component-test-list]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: true
+      matrix:
+        spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
+    name: ${{ matrix.spec }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Cypress component testing
+        uses: ./.github/actions/web-frontend-component-test
+        with:
+          module: centreon
+          spec_file_path: ${{matrix.spec}}
+
+      - name: Upload components tests Results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: centreon/cypress/results/*.json
+          retention-days: 1
+
+  cypress-component-test-report:
+    needs: [cypress-component-test-run]
+    if: failure()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: ${{ inputs.name }}-json-reports
+
+      - name: Merge reports
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        shell: bash
+
+      - name: Publish report
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: ${{ inputs.name }}-report
+          path: mochawesome.json
+          format: cypress
+          urlFilePrefix: centreon

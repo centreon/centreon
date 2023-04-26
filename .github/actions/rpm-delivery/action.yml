@@ -1,4 +1,4 @@
-name: "rpm-package"
+name: "rpm-delivery"
 description: "Package RPM Centreon"
 inputs:
   module_name:
@@ -7,17 +7,17 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
-    required: true
   version:
     description: "Centreon packaged version"
     required: true
   cache_key:
     description: "The cached package key"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
+  artifactory_token:
+    description: "Artifactory token"
     required: true
 
 runs:
@@ -28,55 +28,57 @@ runs:
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
 
-    - name: Publish RPMS to Nexus
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+    - name: Publish RPMs
       run: |
-        if [[ -z "$GITHUB_HEAD_REF" ]];
-        then
-          BRANCHNAME=$GITHUB_REF_NAME
-        else
-          BRANCHNAME=$GITHUB_HEAD_REF
+        FILES="*.rpm"
+
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
         fi
 
-        echo "[DEBUG] - Branch name: $BRANCHNAME"
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
 
-        case "$BRANCHNAME" in
-          develop)
-            REPO=unstable
-            ;;
-          release* | hotfix*)
-            REPO=testing
-            ;;
-          master | [0-9]{2}\.[0-9]{2}.)
-            REPO=stable
-            ;;
-          MON*)
-            echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
-            exit 0
-            ;;
-          *)
-            echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF
-            exit 1
-            ;;
-        esac
+        mkdir noarch x86_64
 
-        FILES="*.rpm";
-        echo "[DEBUG] - Repo: $REPO"
-        echo "[DEBUG] - Rpm FILES: $FILES"
-
-        for FILE in $FILES
-        do
+        for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
-          VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
 
-          echo "[DEBUG] - Version: $VERSION"
-          echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} --upload-file ./$FILE "http://nexus-svc.nexus.svc.cluster.local:8081/repository/standard/$VERSION/$DISTRIB/$REPO/$ARCH/${{ inputs.module_name }}/"
+          mv "$FILE" "$ARCH"
+        done
+
+        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
+          ROOT_REPO_PATH="installers"
+          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
+          exit 0
+        fi
+
+        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+          for ARCH in "noarch" "x86_64"; do
+            if [ "$(ls -A $ARCH)" ]; then
+              if [ "${{ inputs.stability }}" == "stable" ]; then
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
+              else
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+              fi
+            fi
+          done
         done
       shell: bash

@@ -152,7 +152,22 @@
             </td>
         </tr>
         {if !isset($isServiceTemplate)}
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="use_only_contacts_from_host"> {$form.service_use_only_contacts_from_host.label}</td><td class="FormRowValue">{$form.service_use_only_contacts_from_host.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_only_contacts_from_host">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.service_use_only_contacts_from_host.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.service_use_only_contacts_from_host.html}</td></tr>
         {/if}
         {if $o == "mc"}
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_cgs.label}</td><td class="FormRowValue">{$form.mc_mod_cgs.html}</td></tr>
@@ -331,7 +346,23 @@
           </td>
         </tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="retain_status_information"> {$form.service_retain_status_information.label}</td><td class="FormRowValue">{$form.service_retain_status_information.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="retain_nonstatus_information"> {$form.service_retain_nonstatus_information.label}</td><td class="FormRowValue">{$form.service_retain_nonstatus_information.html}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+
+
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="retain_nonstatus_information">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.service_retain_nonstatus_information.label}
+                        </p>
+
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.service_retain_nonstatus_information.html}</td></tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="stalking_options"> {$form.service_stalOpts.label}</td><td class="FormRowValue">{$form.service_stalOpts.html}</td></tr>
 
         <tr class="list_lvl_1">

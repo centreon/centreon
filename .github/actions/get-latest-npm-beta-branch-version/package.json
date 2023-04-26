@@ -1,0 +1,13 @@
+{
+  "name": "get-latest-npm-beta-branch-version",
+  "version": "1.0.0",
+  "description": "This module will get the latest version of a npm package from the beta branch.",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "centreon",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "node-fetch": "2"
+  }
+}

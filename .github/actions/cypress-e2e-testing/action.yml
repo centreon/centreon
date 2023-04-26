@@ -1,26 +1,102 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
-
 inputs:
+  name:
+    description: "test name"
+    required: true
   image:
     description: "image"
+    required: true
+  image_openid_version:
+    description: "Openid image version"
     required: true
   image_version:
     description: "image version"
     required: true
-  image_cypress_version:
-    description: "image cypress version"
-    required: true
   module:
     description: "module"
     required: true
+  feature_file_path:
+    description: "feature file"
+    required: true
+
 runs:
   using: "composite"
   steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.module }}/tests/e2e
+
+    - name: Install dependencies
+      run: |
+        pnpm install --frozen-lockfile
+        pnpm cypress install --force
+      working-directory: ${{ inputs.module }}/tests/e2e
+      shell: bash
+
+    - name: Format feature file path
+      id: formatFeatureFilePath
+      run:
+        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
-    - name: "Run Cypress"
-      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
+    - name: Cypress end-to-end testing
+      uses: cypress-io/github-action@v5
+      with:
+        browser: chrome
+        install: false
+        working-directory: ${{ inputs.module }}/tests/e2e
+        spec: cypress/e2e/**/${{ inputs.feature_file_path }}
+        publish-summary: false
+
+    - if: ${{ failure() }}
+      run: |
+        mkdir -p logs/${{ steps.formatFeatureFilePath.outputs.value }}
+        docker logs e2e-tests-${{ inputs.module }} > logs/${{ steps.formatFeatureFilePath.outputs.value }}/docker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/broker.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-engine/centengine.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/engine.log
+        docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-gorgone/gorgoned.log 2>/dev/null" > logs/${{ steps.formatFeatureFilePath.outputs.value }}/gorgoned.log
       shell: bash
+
+    - if: ${{ failure() }}
+      run: docker logs e2e-tests-${{ inputs.module }} >> docker-logs
+      shell: bash
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: docker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: docker-logs
+        retention-days: 1
+
+    - name: Archive videos
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: cypress-videos-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: ${{ inputs.module }}/tests/e2e/cypress/results/videos/
+        retention-days: 1
+
+    - name: Retrieve Broker logs
+      if: ${{ failure() }}
+      run: docker exec e2e-tests-${{ inputs.module }} bash -c "cat /var/log/centreon-broker/*.log 2>/dev/null" > broker.log
+      shell: bash
+
+    - name: Archive Broker logs
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: broker-logs-${{ steps.formatFeatureFilePath.outputs.value }}
+        path: broker.log
+        retention-days: 1

@@ -54,7 +54,7 @@ final class ServiceCategory extends AbstractObject
         $this->generate_filename = 'tags.cfg';
         $this->attributes_write =  [
             'id',
-            'name',
+            'tag_name',
             'type',
         ];
     }
@@ -102,7 +102,7 @@ final class ServiceCategory extends AbstractObject
     private function addServiceCategoryToList(int $serviceCategoryId): self
     {
         $stmt = $this->backend_instance->db->prepare(
-            "SELECT sc_id as id, sc_name as name
+            "SELECT sc_id as id, sc_name as tag_name
             FROM service_categories
             WHERE sc_id = :serviceCategoryId AND level IS NULL AND sc_activate = '1'"
         );

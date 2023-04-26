@@ -154,6 +154,8 @@ class CentreonImageManager extends centreonFileManager
         }
         // Create directory if not exist
         if ($img_info['dir_alias'] != $this->destinationDir) {
+            $img_info["img_path"] = basename($img_info["img_path"]);
+            $img_info["dir_alias"] = basename($img_info["dir_alias"]);
             $old = $this->mediaPath . $img_info['dir_alias'] . '/' . $img_info["img_path"];
             $new = $this->mediaPath . $this->destinationDir . '/' . $img_info["img_path"];
             $this->moveImage($old, $new);

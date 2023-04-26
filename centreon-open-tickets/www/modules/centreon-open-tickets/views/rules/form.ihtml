@@ -1,0 +1,138 @@
+<script type="text/javascript" src="include/common/javascript/changetab.js"></script>
+<div id="rule_error" style="color: red"></div>
+<form id="RuleForm" action="?p={$page}">
+<input type="hidden" id="rule_id" name="rule_id" value="{$rule_id}">
+<div class="headerTabContainer">
+    <ul id="mainnav">
+        <li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$sort1}</a></li>
+        <li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
+    </ul>
+    <div id="validFormTop">
+        <p class="oreonbutton">
+            <input id="OTSave" class="btc bt_success" type="button" value="Save" onClick="saveForm()" />
+        </p>
+    </div>
+</div>
+<div id="tab1" class="tab">
+    <table id="OTcontainer1" class="formTable table">
+         <tr class="ListHeader">
+             <td class="FormHeader" colspan="2">
+                 <h3>|{$header.title}</h3>
+             </td>
+         </tr>
+         <tr class="list_lvl_1">
+             <td class="ListColLvl1_name" colspan="2">
+                 <h4>{$header.general}</h4>
+             </td>
+         </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                {$form.rule_alias.label}
+            </td>
+            <td class="FormRowValue">
+                {$form.rule_alias.html}
+            </td>
+        </tr>
+        <tr id="OTFindcontainer1" class="list_two">
+            <td class="FormRowField">
+                {$form.rule_provider.label}
+            </td>
+            <td class="FormRowValue">
+                {$form.rule_provider.html}
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="tab2" class="tab">
+    <table class="formTable table">
+        <tr id="OTFindcontainer2" class="ListHeader">
+            <td class="FormHeader" colspan="2">
+                <h3>|{$header.title}</h3>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="validForm">
+    <p class="oreonbutton">
+        <input id="OTSave" class="btc bt_success" type="button" value="Save" onClick="saveForm()" />
+    </p>
+</div>
+
+</form>
+
+{literal}
+<script type="text/javascript">
+
+var $callback_OTLoadForm = function(res) {
+    //console.log("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#rule_error").html(data_ret['msg']);
+    } else {
+        jQuery("#OTFindcontainer1").after(data_ret['result']['container1_html']);
+        jQuery("#OTFindcontainer2").after(data_ret['result']['container2_html']);
+
+        // Load macros if there are some
+        if (data_ret['result']['clones'] !== undefined) {
+            for (var key in data_ret['result']['clones']) {
+                jQuery("#clone-count-" + key).data("clone-count-" + key, data_ret['result']['clones'][key]['clone_count']);
+                jQuery("#clone-values-" + key).data("clone-values-" + key, JSON.parse(data_ret['result']['clones'][key]['clone_values']));
+            }
+
+            init_sheepit();
+        }
+    }
+};
+
+var $callback_OTSaveForm = function(res) {
+    //jQuery("#rule_error").html("Full response: " + res);
+    var data_ret = JSON.parse(res);
+    if (data_ret['code'] == 1) {
+        jQuery("#rule_error").html(data_ret['msg']);
+    } else {
+        location.href = jQuery("#RuleForm").attr('action');
+    }
+};
+
+function OTLoadForm() {
+    jQuery("#rule_error").html('');
+
+    jQuery("#OTFindcontainer1").nextAll().empty();
+    jQuery("#OTFindcontainer2").nextAll().empty();
+    delete_sheepit();
+    if (jQuery("#provider_id").val() === undefined || jQuery("#provider_id").val().length == 0) {
+        return ;
+    }
+
+    var data = {
+        "action": "get-form-config",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val()
+    }
+
+    call_ajax_sync(data, $callback_OTLoadForm, './modules/centreon-open-tickets/views/rules/ajax/call.php');
+}
+
+function saveForm() {
+    jQuery("#rule_error").html('');
+
+    var data = {
+        "action": "save-form-config",
+        "rule_id": jQuery("#rule_id").val(),
+        "provider_id": jQuery("#provider_id").val(),
+        "form": jQuery("#RuleForm").serializeObject()
+    }
+
+    call_ajax_sync(data, $callback_OTSaveForm, './modules/centreon-open-tickets/views/rules/ajax/call.php');
+}
+
+jQuery(function() {
+    jQuery("#provider_id").attr('onChange', 'OTLoadForm();');
+
+    // Maybe need to init
+    OTLoadForm();
+});
+
+</script>
+{/literal}

@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add service severity",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias",
+        "level",
+        "icon_id"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "level": {
+            "type": "integer"
+        },
+        "icon_id": {
+            "type": "integer"
+        },
+        "is_activated": {
+            "type": "boolean"
+        }
+    }
+}

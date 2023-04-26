@@ -17,11 +17,13 @@
 {/literal}
 <div align=center>
     <form {$form.attributes}>
-        <table class="ListTableMedium">
-            <tr class="ListHeader">
-                <td class="FormHeader" colspan="2">{t}Add comment{/t}</td>
-            <tr>
+        <table class="formTable table">
 
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                    <h4>{t}Add comment{/t}</h4>
+                </td>
+            </tr>
             {if isset($service_description)}
             <tr class="list_one">
                 <td class="FormRowField">{t}Type{/t}</td>
@@ -34,15 +36,15 @@
             </tr>
             {else}
             <tr class="list_one">
-                <td class="ListColLeft">{$form.commentType.label}</td>
-                <td class="ListColLeft">{$form.commentType.html}</td>
+                <td class="FormRowField">{$form.commentType.label}</td>
+                <td class="FormRowValue">{$form.commentType.html}</td>
             </tr>
             {/if}
 
             <!-- Object choice -->
             <tr class="list_two" id="host_input">
-                <td class="ListColLeft">{$form.host_id.label}</td>
-                <td class="ListColLeft">{$form.host_id.html}</td>
+                <td class="FormRowField">{$form.host_id.label}</td>
+                <td class="FormRowValue">{$form.host_id.html}</td>
             </tr>
 
             {if isset($service_description)}
@@ -57,19 +59,19 @@
             </tr>
             {else}
             <tr class="list_two" id="service_input">
-                <td class="ListColLeft">{$form.service_id.label}</td>
-                <td class="ListColLeft">{$form.service_id.html}</td>
+                <td class="FormRowField">{$form.service_id.label}</td>
+                <td class="FormRowValue">{$form.service_id.html}</td>
             </tr>
             {/if}
 
             <!-- End Object Choice -->
             <tr class="list_one">
-                <td class="ListColLeft">{$form.persistant.label}</td>
-                <td class="ListColLeft">{$form.persistant.html}</td>
+                <td class="FormRowField">{$form.persistant.label}</td>
+                <td class="FormRowValue">{$form.persistant.html}</td>
             </tr>
             <tr class="list_two">
-                <td class="ListColLeft">{$form.comment.label}</td>
-                <td class="ListColLeft">{$form.comment.html}</td>
+                <td class="FormRowField">{$form.comment.label}</td>
+                <td class="FormRowValue">{$form.comment.html}</td>
             </tr>
         </table>
         <div id="validForm">

@@ -115,33 +115,6 @@ $queryValues = [];
 // Graphs Tables
 $graphs = [];
 
-// Get Service status
-$instance_filter = " ";
-if (!empty($instance) && $instance != -1) {
-    $instance_filter = " AND h.instance_id = :instance";
-    $queryValues['instance'] = [\PDO::PARAM_INT => $instance];
-}
-
-$searchHost = " ";
-if ($hostToSearch) {
-    $searchHost = " AND (h.name LIKE :hostToSearch
-        OR h.alias LIKE :hostToSearch
-        OR h.address LIKE :hostToSearch) ";
-    $queryValues['hostToSearch'] = [\PDO::PARAM_STR => '%' . $hostToSearch . '%'];
-}
-
-$searchService = " ";
-if ($serviceToSearch) {
-    $searchService = " AND (s.description LIKE :serviceToSearch OR s.display_name LIKE :serviceToSearch) ";
-    $queryValues['serviceToSearch'] = [\PDO::PARAM_STR => '%' . $serviceToSearch . '%'];
-}
-
-$searchOutput = " ";
-if ($outputToSearch) {
-    $searchOutput = " AND s.output LIKE :outputToSearch ";
-    $queryValues['outputToSearch'] = [\PDO::PARAM_STR => '%' . $outputToSearch . '%'];
-}
-
 $tabOrder = [];
 $tabOrder["criticality_id"] = " ORDER BY isnull " . $order . ", criticality " . $order . ", h.name, s.description ";
 $tabOrder["host_name"] = " ORDER BY h.name " . $order . ", s.description ";
@@ -154,7 +127,52 @@ $tabOrder["current_attempt"] = " ORDER BY s.check_attempt " . $order . ", h.name
 $tabOrder["output"] = " ORDER BY s.output " . $order . ", h.name, s.description";
 $tabOrder["default"] = $tabOrder['criticality_id'];
 
-$request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.host_id, s.description,
+/**
+ * Analyse if services have graphs by performing a single query.
+ *
+ * @param array $hostServiceIds
+ */
+function analyseGraphs(array $hostServiceIds): void
+{
+    if (empty($hostServiceIds)) {
+        return;
+    }
+    global $obj, $graphs;
+    $request = <<<SQL
+        SELECT DISTINCT index_data.host_id, index_data.service_id
+        FROM index_data
+        INNER JOIN metrics
+          ON metrics.index_id = index_data.id
+          AND index_data.hidden = '0'
+        WHERE
+        SQL;
+    $whereConditions = null;
+    $index = 0;
+    $valuesToBind = [];
+    foreach ($hostServiceIds as $hostServiceId) {
+        list ($hostId, $serviceId) = explode('_', $hostServiceId);
+        if (! empty($whereConditions)) {
+            $whereConditions .= ' OR ';
+        }
+        $whereConditions .= sprintf(' (host_id = :host_id_%d AND service_id = :service_id_%d)', $index, $index);
+        $valuesToBind[$index] = ['host_id' => $hostId, 'service_id' => $serviceId];
+        $index++;
+    }
+    $request .= $whereConditions;
+    $statement = $obj->DBC->prepare($request);
+    foreach ($valuesToBind as $index => $hostServiceId) {
+        $statement->bindValue(':host_id_' . $index, $hostServiceId['host_id'], PDO::PARAM_INT);
+        $statement->bindValue(':service_id_' . $index, $hostServiceId['service_id'], PDO::PARAM_INT);
+    }
+    $statement->execute();
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $hostServiceId = $result['host_id'] . '_' . $result['service_id'];
+        $graphs[$hostServiceId] = true;
+    }
+}
+
+$request = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.host_id, s.description,
     s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
     s.icon_image, s.display_name, s.state, s.output as plugin_output,
     s.state_type, s.check_attempt as current_attempt, s.last_update as status_update_time, s.last_state_change,
@@ -166,44 +184,106 @@ $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.ho
     h.notes_url AS h_notes_url, h.notes AS h_notes, h.address,
     h.passive_checks AS h_passive_checks, h.active_checks AS h_active_checks,
     i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull
-    FROM hosts h, instances i ";
-if (isset($hostgroups) && $hostgroups != 0) {
-    $request .= ", hosts_hostgroups hg, hostgroups hg2";
-}
-if (isset($servicegroups) && $servicegroups != 0) {
-    $request .= ", services_servicegroups ssg, servicegroups sg";
-}
-if ($criticalityId) {
-    $request .= ", customvariables cvs ";
-}
+    FROM hosts h
+    INNER JOIN instances i
+      ON h.instance_id = i.instance_id
+    INNER JOIN services s
+      ON s.host_id = h.host_id
+    SQL;
+
 if (!$obj->is_admin) {
-    $request .= ", centreon_acl ";
+    $request .= <<<SQL
+        
+        INNER JOIN centreon_acl
+            ON centreon_acl.host_id = h.host_id
+            AND centreon_acl.service_id = s.service_id
+            AND group_id IN ({$obj->grouplistStr})
+        SQL;
 }
-$request .= ", services s LEFT JOIN customvariables cv ON (s.service_id = cv.service_id
-    AND cv.host_id = s.host_id AND cv.name = 'CRITICALITY_LEVEL')
-    WHERE h.host_id = s.host_id
-    AND s.enabled = 1
-    AND h.enabled = 1
-    AND h.instance_id = i.instance_id ";
+
+if (isset($hostgroups) && $hostgroups != 0) {
+    $request .= <<<SQL
+        
+        INNER JOIN hosts_hostgroups hg
+            ON hg.host_id = h.host_id
+            AND hg.hostgroup_id = :hostGroupId
+        INNER JOIN hostgroups hg2
+            ON hg2.hostgroup_id = hg.hostgroup_id
+        SQL;
+
+    $queryValues['hostGroupId'] = [\PDO::PARAM_INT => $hostgroups];
+}
+
+if (isset($servicegroups) && $servicegroups != 0) {
+    $request .= <<<SQL
+        
+        INNER JOIN services_servicegroups ssg
+            ON ssg.service_id = s.service_id
+            AND ssg.servicegroup_id = :serviceGroupId
+        INNER JOIN servicegroups sg
+            ON sg.servicegroup_id = ssg.servicegroup_id
+        SQL;
+
+    $queryValues['serviceGroupId'] = [\PDO::PARAM_INT => $servicegroups];
+}
+
 if ($criticalityId) {
-    $request .= " AND s.service_id = cvs. service_id
-        AND cvs.host_id = h.host_id
-        AND cvs.name = 'CRITICALITY_ID'
-        AND cvs.value = :criticalityValue";
+    $request .= <<<SQL
+        
+        INNER JOIN customvariables cvs
+            ON cvs.service_id = s.service_id
+            AND cvs.host_id = h.host_id
+            AND cvs.name = 'CRITICALITY_ID'
+            AND cvs.value = :criticalityValue
+        SQL;
+
     // the variable bounded to criticalityValue must be an integer. But is inserted in a DB's varchar column
     $queryValues['criticalityValue'] = [\PDO::PARAM_STR => $criticalityId];
 }
-$request .= " AND h.name NOT LIKE '\_Module\_BAM%' "
-    . $searchHost
-    . $searchService
-    . $searchOutput
-    . $instance_filter;
+
+$request .= <<<SQL
+
+    LEFT JOIN customvariables cv
+        ON (
+            s.service_id = cv.service_id
+            AND cv.host_id = s.host_id
+            AND cv.name = 'CRITICALITY_LEVEL'
+        )
+    WHERE s.enabled = 1
+    AND h.enabled = 1
+    AND h.name NOT LIKE '\_Module\_BAM%'
+    SQL;
+
+if ($hostToSearch) {
+    $request .= <<<SQL
+        
+        AND (h.name LIKE :hostToSearch
+        OR h.alias LIKE :hostToSearch
+        OR h.address LIKE :hostToSearch)
+        SQL;
+    $queryValues['hostToSearch'] = [\PDO::PARAM_STR => '%' . $hostToSearch . '%'];
+}
+if ($serviceToSearch) {
+    $request .= " AND (s.description LIKE :serviceToSearch OR s.display_name LIKE :serviceToSearch) ";
+    $queryValues['serviceToSearch'] = [\PDO::PARAM_STR => '%' . $serviceToSearch . '%'];
+}
+if ($outputToSearch) {
+    $request .= " AND s.output LIKE :outputToSearch ";
+    $queryValues['outputToSearch'] = [\PDO::PARAM_STR => '%' . $outputToSearch . '%'];
+}
+if (!empty($instance) && $instance != -1) {
+    $request .= " AND h.instance_id = :instanceId";
+    $queryValues['instanceId'] = [\PDO::PARAM_INT => $instance];
+}
 
 if ($statusService == 'svc_unhandled') {
-    $request .= " AND s.state_type = 1
+    $request .= <<<SQL
+        
+        AND s.state_type = 1
         AND s.acknowledged = 0
         AND s.scheduled_downtime_depth = 0
-        AND h.acknowledged = 0 AND h.scheduled_downtime_depth = 0 ";
+        AND h.acknowledged = 0 AND h.scheduled_downtime_depth = 0
+        SQL;
 }
 
 if ($statusService === 'svc_unhandled' || $statusService === 'svcpb') {
@@ -238,26 +318,6 @@ if ($statusService === 'svc_unhandled' || $statusService === 'svcpb') {
             $request .= " AND s.state = 4 ";
             break;
     }
-}
-
-// HostGroup Filter
-if (isset($hostgroups) && $hostgroups != 0) {
-    $request .= " AND hg.hostgroup_id = hg2.hostgroup_id
-        AND hg.host_id = h.host_id AND hg.hostgroup_id = :hostGroup ";
-    $queryValues['hostGroup'] = [\PDO::PARAM_INT => $hostgroups];
-}
-
-// ServiceGroup Filter
-if (isset($servicegroups) && $servicegroups != 0) {
-    $request .= " AND ssg.servicegroup_id = sg.servicegroup_id
-        AND ssg.service_id = s.service_id AND ssg.servicegroup_id = :serviceGroup ";
-    $queryValues['serviceGroup'] = [\PDO::PARAM_INT => $servicegroups];
-}
-
-// ACL activation
-if (!$obj->is_admin) {
-    $request .= " AND h.host_id = centreon_acl.host_id
-        AND s.service_id = centreon_acl.service_id AND group_id IN (" . $obj->grouplistStr . ") ";
 }
 
 // Sort order by
@@ -336,7 +396,22 @@ $ct = 0;
 $flag = 0;
 
 if (!$sqlError) {
-    while ($data = $dbResult->fetch()) {
+    $allResults = [];
+    $hostServiceIdsToAnalyse = [];
+    // We get the host and service IDs to see if they have graphs or not
+    while ($result = $dbResult->fetch()) {
+        $hostId = (int) $result["host_id"];
+        $serviceId = (int) $result["service_id"];
+        $graphs[$hostId . '_' . $serviceId] = false;
+        $hostServiceIdsToAnalyse[] = $hostId . '_' . $serviceId;
+        $allResults[] = $result;
+    }
+
+    analyseGraphs($hostServiceIdsToAnalyse);
+
+    foreach ($allResults as $data) {
+        $hostId = (int) $data["host_id"];
+        $serviceId = (int) $data["service_id"];
         $passive = 0;
         $active = 1;
         $last_check = " ";
@@ -444,7 +519,7 @@ if (!$sqlError) {
             }
             $obj->XML->writeElement(
                 "hau",
-                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["name"], $hostActionUrl))
+                CentreonUtils::escapeSecure($obj->hostObj->replaceMacroInString($data["host_id"], $hostActionUrl))
             );
 
             $obj->XML->writeElement("hnn", CentreonUtils::escapeSecure($data["h_notes"]));
@@ -631,35 +706,8 @@ if (!$sqlError) {
         $obj->XML->writeElement("rd", (time() - $data["last_state_change"]));
         $obj->XML->writeElement("last_hard_state_change", $hard_duration);
 
-        /**
-         * Get Service Graph index
-         */
-        if (!isset($graphs[$data["host_id"]]) || !isset($graphs[$data["host_id"]][$data["service_id"]])) {
-            $request2 = "SELECT DISTINCT service_id, id
-                FROM index_data, metrics
-                WHERE metrics.index_id = index_data.id
-                AND host_id = :hostId
-                AND service_id = :serviceId
-                AND index_data.hidden = '0'";
-            $dbResult2 = $obj->DBC->prepare($request2);
-            $dbResult2->bindValue(':hostId', $data["host_id"], \PDO::PARAM_INT);
-            $dbResult2->bindValue(':serviceId', $data["service_id"], \PDO::PARAM_INT);
-            $dbResult2->execute();
-
-            while ($dataG = $dbResult2->fetch()) {
-                if (!isset($graphs[$data["host_id"]])) {
-                    $graphs[$data["host_id"]] = [];
-                }
-                $graphs[$data["host_id"]][$dataG["service_id"]] = $dataG["id"];
-            }
-            if (!isset($graphs[$data["host_id"]])) {
-                $graphs[$data["host_id"]] = [];
-            }
-        }
-        $obj->XML->writeElement(
-            "svc_index",
-            (isset($graphs[$data["host_id"]][$data["service_id"]]) ? $graphs[$data["host_id"]][$data["service_id"]] : 0)
-        );
+        // Get Service Graph index
+        $obj->XML->writeElement("hasGraph", $graphs[$hostId . '_' . $serviceId] ? '1' : '0');
         $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
         $obj->XML->endElement();
     }

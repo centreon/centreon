@@ -56,9 +56,10 @@
 		<tr class="list_one">
                     <td class="FormRowField"><img class="helpTooltip" name="host_name">{$form.esc_hosts.label}</td>
                     <td class="FormRowValue">
-                        <p style='margin-bottom : 6px;'>
+                        <div style='margin-bottom : 4px;'>
                             {$form.host_inheritance_to_services.html} {$form.host_inheritance_to_services.label}
-                        </p>
+
+                        </div>
                         {$form.esc_hosts.html}
                     </td>
                 </tr>
@@ -66,9 +67,9 @@
 		<tr class="list_one">
                     <td class="FormRowField"><img class="helpTooltip" name="hostgroup_name">{$form.esc_hgs.label}</td>
                     <td class="FormRowValue">
-                        <p style='margin-bottom : 6px;'>
+                        <div style='margin-bottom : 4px;'>
                             {$form.hostgroup_inheritance_to_services.html} {$form.hostgroup_inheritance_to_services.label}
-                        </p>
+                        </div>
                         {$form.esc_hgs.html}
                     </td>
                 </tr>

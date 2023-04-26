@@ -1,8 +1,7 @@
 import { lazy, Suspense } from 'react';
 
 import { isNil, not } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -17,7 +16,7 @@ const InitializationPage = (): JSX.Element => {
   const [areUserParametersLoaded] = useAtom(areUserParametersLoadedAtom);
   const user = useAtomValue(userAtom);
   const platformInstallationStatus = useAtomValue(
-    platformInstallationStatusAtom,
+    platformInstallationStatusAtom
   );
 
   const canDisplayApp =

@@ -139,19 +139,19 @@ if (!is_null($host_id)) {
     } else {
         // Get Hostgroup List
 
-        $DBRESULT = $pearDB->query(
-            "SELECT DISTINCT hostgroup_hg_id FROM hostgroup_relation " .
-            "WHERE host_host_id = '" . $host_id . "' " .
+        $hgrStatement = $pearDB->prepare("SELECT DISTINCT hostgroup_hg_id FROM hostgroup_relation " .
+            "WHERE host_host_id = :hostId " .
             $centreon->user->access->queryBuilder(
                 "AND",
                 "host_host_id",
                 $centreon->user->access->getHostsString("ID", $pearDBO)
-            )
-        );
-        for ($i = 0; $hg = $DBRESULT->fetchRow(); $i++) {
+            ));
+        $hgrStatement->bindValue(":hostId", (int) $host_id, \PDO::PARAM_INT);
+        $hgrStatement->execute();
+
+        for ($i = 0; $hg = $hgrStatement->fetch(\PDO::FETCH_ASSOC); $i++) {
             $hostGroups[] = getMyHostGroupName($hg["hostgroup_hg_id"]);
         }
-        $DBRESULT->closeCursor();
 
         if (isset($service_id) && $service_id) {
             $proc_warning = getMyServiceMacro($service_id, "PROC_WARNING");
@@ -164,19 +164,20 @@ if (!is_null($host_id)) {
         $contactGroups = $retrievedNotificationsInfos['contactGroups'];
         // Get servicegroups list
         if (isset($service_id) && isset($host_id)) {
-            $query = "SELECT DISTINCT sg.sg_name FROM servicegroup sg, servicegroup_relation sgr " .
-                "WHERE sgr.servicegroup_sg_id = sg.sg_id AND sgr.host_host_id = " . $host_id .
-                " AND sgr.service_service_id = " . $service_id . " " .
+            $sgStatement = $pearDB->prepare("SELECT DISTINCT sg.sg_name FROM servicegroup sg, servicegroup_relation sgr " .
+                "WHERE sgr.servicegroup_sg_id = sg.sg_id AND sgr.host_host_id = :hostId " .
+                " AND sgr.service_service_id = :serviceId " .
                 $centreon->user->access->queryBuilder(
                     "AND",
                     "sgr.host_host_id",
                     $centreon->user->access->getHostsString("ID", $pearDBO)
-                );
-            $DBRESULT = $pearDB->query($query);
-            while ($row = $DBRESULT->fetchRow()) {
+                ));
+            $sgStatement->bindValue(":hostId", (int) $host_id, \PDO::PARAM_INT);
+            $sgStatement->bindValue(":serviceId", (int) $service_id, \PDO::PARAM_INT);
+            $sgStatement->execute();
+            while ($row = $sgStatement->fetch(\PDO::FETCH_ASSOC)) {
                 $serviceGroups[] = $row['sg_name'];
             }
-            $DBRESULT->closeCursor();
         }
 
         // Get service category
@@ -232,14 +233,16 @@ if (!is_null($host_id)) {
             " i.name as instance_name " .
             " FROM services s, hosts h, instances i " .
             " WHERE h.host_id = s.host_id " .
-            " AND h.host_id LIKE '" . $pearDB->escape($host_id) . "'" .
-            " AND s.service_id LIKE '" . $pearDB->escape($service_id) . "'" .
-            " AND h.instance_id = i.instance_id " .
+            " AND h.host_id LIKE :hostId " .
+            " AND s.service_id LIKE :serviceId " .
+            " AND h.instance_id = i.instance_id" .
             " AND h.enabled = 1 " .
             " AND s.enabled = 1 ";
-        $DBRESULT = $pearDBO->query($rq);
-
-        $tab_status_service = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING");
+        $shiStatement = $pearDBO->prepare($rq);
+        $shiStatement->bindValue(":hostId", (int) $host_id, \PDO::PARAM_INT);
+        $shiStatement->bindValue(":serviceId", (int) $service_id, \PDO::PARAM_INT);
+        $shiStatement->execute();
+        $tab_status_service = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", 3 => "UNKNOWN", 4 => "PENDING");
         $tab_class_service = array(
             "ok" => 'service_ok',
             "warning" => 'service_warning',
@@ -297,19 +300,21 @@ if (!is_null($host_id)) {
             "duration" => ""
         ];
 
-        while ($data = $DBRESULT->fetchRow()) {
+        while ($data = $shiStatement->fetch(\PDO::FETCH_ASSOC)) {
             if (isset($data['performance_data'])) {
                 $data['performance_data'] = $data['performance_data'];
+            }
+            if ($data["current_state"] === null || !in_array($data["current_state"], array_keys($tab_status_service))) {
+                $data["current_state"] = 4; // default to PENDING
             }
             if ($data["service_description"] == $svc_description) {
                 $service_status = $data;
             }
-            if (!isset($tab_status[$data["current_state"]])) {
+            if (!isset($tab_status[$tab_status_service[$data["current_state"]]])) {
                 $tab_status[$tab_status_service[$data["current_state"]]] = 0;
             }
             $tab_status[$tab_status_service[$data["current_state"]]]++;
         }
-        $DBRESULT->closeCursor();
 
         if ($is_admin || isset($authorized_actions['service_display_command'])) {
             $commandLine = '';
@@ -329,25 +334,12 @@ if (!is_null($host_id)) {
             $service_status["current_state"] = $tab_status_service[$service_status["current_state"]];
         }
 
-        /*
-         * start ndo host detail
-         */
-        $tab_host_status[0] = "UP";
-        $tab_host_status[1] = "DOWN";
-        $tab_host_status[2] = "UNREACHABLE";
-
-        $rq2 = "SELECT state AS current_state FROM hosts WHERE name LIKE '" . $pearDBO->escape($host_name) . "'";
-        $DBRESULT = $pearDBO->query($rq2);
-
-        $ndo2 = $DBRESULT->fetchRow();
-        if ($ndo2 !== false && $ndo2["current_state"] <= 2) {
-            $host_status[$host_name] = $tab_host_status[$ndo2["current_state"]];
-        }
-
         // Get Host informations
-        $DBRESULT = $pearDB->query("SELECT * FROM host WHERE host_id = " . $pearDB->escape($host_id));
-        $host = $DBRESULT->fetchrow();
-        $DBRESULT->closeCursor();
+        $hStatement = $pearDB->prepare("SELECT * FROM host WHERE host_id = :hostId");
+        $hStatement->bindValue(":hostId", (int)$host_id, \PDO::PARAM_INT);
+        $hStatement->execute();
+        $host = $hStatement->fetch(\PDO::FETCH_ASSOC);
+
 
         if ($isMetaservice == 'true') {
             $metaParameters = $metaObj->getParameters($meta_id, array('max_check_attempts'));
@@ -748,9 +740,6 @@ if (!is_null($host_id)) {
         if (isset($host_id) && isset($service_id)) {
             $tpl->assign("flag_graph", $centreonGraph->statusGraphExists($host_id, $service_id));
         }
-        if (isset($host_status) && isset($host_status[$host_name])) {
-            $tpl->assign("host_data", $host_status[$host_name]);
-        }
         $tpl->assign("service_data", $service_status);
         $tpl->assign("host_display_name", CentreonUtils::escapeSecure($hostNameDisplay));
         $tpl->assign("host_name", CentreonUtils::escapeSecure($host_name));
@@ -970,7 +959,7 @@ if (!is_null($host_id)) {
         );
 
         function display_deprecated_banner() {
-            const url = "<?php echo $redirectionUrl; ?>";
+            const url = "<?php echo htmlspecialchars($redirectionUrl); ?>";
             const message = "<?php echo $deprecationMessage; ?>";
             const label = "<?php echo $resourcesStatusLabel; ?>";
             jQuery('.pathway').append(

@@ -23,7 +23,9 @@
     "email_bind_attribute",
     "fullname_bind_attribute",
     "authentication_conditions",
-    "groups_mapping"
+    "groups_mapping",
+    "roles_mapping",
+    "redirect_url"
   ],
   "properties": {
     "is_active": {
@@ -251,11 +253,17 @@
               },
               "access_group_id": {
                 "type": "integer"
+              },
+              "priority": {
+                "type": "integer"
               }
             }
           }
         }
       }
+    },
+    "redirect_url": {
+      "type": ["string", "null"]
     }
   }
 }

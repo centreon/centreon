@@ -1,0 +1,7 @@
+DeleteHostSeverity:
+  methods: DELETE
+  path: /configuration/hosts/severities/{hostSeverityId}
+  requirements:
+    hostSeverityId: '\d+'
+  controller: 'Core\HostSeverity\Infrastructure\API\DeleteHostSeverity\DeleteHostSeverityController'
+  condition: "request.attributes.get('version') >= 23.04"

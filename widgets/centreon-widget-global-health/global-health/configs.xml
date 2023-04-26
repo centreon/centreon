@@ -4,7 +4,7 @@
         <email>contact@centreon.com</email>
         <website>http://www.centreon.com</website>
         <description>This pie chart widget displays the resource distribution by status (percentage), also indicating the total number of resources by status or by acknowledged and downtime state. This widget is available for hosts or for services. It is also possible to filter for a subset of resources.</description>
-        <version>22.10.0</version>
+        <version>23.04.0</version>
         <keywords>centreon, widget, global, health</keywords>
         <screenshot></screenshot>
         <thumbnail>./widgets/global-health/resources/centreon-logo.png</thumbnail>

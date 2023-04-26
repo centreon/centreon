@@ -44,6 +44,7 @@ class UserController extends AbstractController
         $actions = [
             'host' => [
                 'check' => $this->getAuthorizationForRole(Contact::ROLE_HOST_CHECK),
+                'forced_check' => $this->getAuthorizationForRole(Contact::ROLE_HOST_FORCED_CHECK),
                 'acknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_HOST_ACKNOWLEDGEMENT),
                 'disacknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_HOST_DISACKNOWLEDGEMENT),
                 'downtime' => $this->getAuthorizationForRole(Contact::ROLE_ADD_HOST_DOWNTIME),
@@ -52,6 +53,7 @@ class UserController extends AbstractController
             ],
             'service' => [
                 'check' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_CHECK),
+                'forced_check' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_FORCED_CHECK),
                 'acknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT),
                 'disacknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT),
                 'downtime' => $this->getAuthorizationForRole(Contact::ROLE_ADD_SERVICE_DOWNTIME),
@@ -60,6 +62,7 @@ class UserController extends AbstractController
             ],
             'metaservice' => [
                 'check' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_CHECK),
+                'forced_check' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_FORCED_CHECK),
                 'acknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT),
                 'disacknowledgement' => $this->getAuthorizationForRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT),
                 'downtime' => $this->getAuthorizationForRole(Contact::ROLE_ADD_SERVICE_DOWNTIME),
@@ -95,6 +98,7 @@ class UserController extends AbstractController
             'use_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'is_export_button_enabled' => $this->getAuthorizationForRole(Contact::ROLE_GENERATE_CONFIGURATION),
             'theme' => $user->getTheme(),
+            'user_interface_density' => $user->getUserInterfaceDensity(),
             'default_page' => $user->getDefaultPage()?->getRedirectionUri()
         ]);
     }

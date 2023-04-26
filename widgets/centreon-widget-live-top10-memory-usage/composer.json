@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-live-top10-memory-usage",
   "description": "Widget to list hosts ordered by memory usage",
-  "version": "22.10.0",
+  "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {

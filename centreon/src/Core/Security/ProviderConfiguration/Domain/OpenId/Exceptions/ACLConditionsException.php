@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions;
 
-class ACLConditionsException extends OpenIdConfigurationException
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+
+class ACLConditionsException extends ConfigurationException
 {
     /**
      * @param array<string> $fields

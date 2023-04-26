@@ -1,6 +1,6 @@
 import { pick } from 'ramda';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import ChecksIcon from '../../ChecksIcon';
 

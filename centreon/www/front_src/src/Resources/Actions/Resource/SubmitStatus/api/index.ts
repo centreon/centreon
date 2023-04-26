@@ -19,25 +19,25 @@ const submitResourceStatus =
     resource,
     statusId,
     output,
-    performanceData,
+    performanceData
   }: ResourceWithSubmitStatusParams): Promise<Array<AxiosResponse>> => {
     return axios.post(
       submitStatusEndpoint,
       {
         resources: [
           {
-            id: equals(resource.type, ResourceType.anomalydetection)
+            id: equals(resource.type, ResourceType.anomalyDetection)
               ? resource.service_id
               : resource.id,
             output,
             parent: resource?.parent ? { id: resource.parent.id } : null,
             performance_data: performanceData,
             status: statusId,
-            type: ResourceCategory[resource.type],
-          },
-        ],
+            type: ResourceCategory[resource.type]
+          }
+        ]
       },
-      { cancelToken },
+      { cancelToken }
     );
   };
 

@@ -35,13 +35,11 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface,
     UpdateOpenIdConfigurationRequest
 };
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 beforeEach(function () {
     $this->repository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
@@ -207,7 +205,7 @@ it('should present an Error Response when auto import is enable and mandatory pa
         ->expects($this->once())
         ->method('setResponseStatus')
         ->with(new ErrorResponse(
-            OpenIdConfigurationException::missingAutoImportMandatoryParameters($missingParameters)->getMessage()
+            ConfigurationException::missingAutoImportMandatoryParameters($missingParameters)->getMessage()
         ));
 
     $useCase = new UpdateOpenIdConfiguration(
@@ -253,7 +251,7 @@ it('should present an Error Response when auto import is enable and the contact 
         ->expects($this->once())
         ->method('setResponseStatus')
         ->with(new ErrorResponse(
-            OpenIdConfigurationException::contactTemplateNotFound($request->contactTemplate['name'])->getMessage()
+            ConfigurationException::contactTemplateNotFound($request->contactTemplate['name'])->getMessage()
         ));
 
     $useCase = new UpdateOpenIdConfiguration(

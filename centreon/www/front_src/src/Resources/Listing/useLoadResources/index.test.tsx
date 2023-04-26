@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { render, act, waitFor, RenderResult } from '@testing-library/react';
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import {
+  ListingVariant,
+  refreshIntervalAtom,
+  userAtom
+} from '@centreon/ui-context';
 
 import useFilter from '../../testUtils/useFilter';
 import useListing from '../useListing';
@@ -13,9 +17,15 @@ import useLoadResources from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const mockUser = {
-  locale: 'en',
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
   timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 const mockRefreshInterval = 60;
 
@@ -35,7 +45,7 @@ const TestComponent = (): JSX.Element => {
   context = {
     ...filterState,
     ...listingState,
-    ...detailsState,
+    ...detailsState
   } as ResourceContext;
 
   return (
@@ -45,13 +55,12 @@ const TestComponent = (): JSX.Element => {
   );
 };
 
+const store = createStore();
+store.set(userAtom, retrievedUser);
+store.set(refreshIntervalAtom, mockRefreshInterval);
+
 const TestComponentWithJotai = (): JSX.Element => (
-  <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval],
-    ]}
-  >
+  <Provider store={store}>
     <TestComponent />
   </Provider>
 );
@@ -66,10 +75,10 @@ describe(useLoadResources, () => {
         meta: {
           limit: 30,
           page: 1,
-          total: 0,
+          total: 0
         },
-        result: [],
-      },
+        result: []
+      }
     });
   });
 
@@ -81,77 +90,77 @@ describe(useLoadResources, () => {
     [
       'sort',
       (): void => context.setCriteria?.({ name: 'sort', value: ['a', 'asc'] }),
-      2,
+      2
     ],
-    ['limit', (): void => context.setLimit?.(20), 2],
+    ['limit', (): void => context.setLimit?.(20), 3],
     [
       'search',
       (): void => context.setCriteria?.({ name: 'search', value: 'toto' }),
-      3,
+      3
     ],
     [
       'states',
       (): void =>
         context.setCriteria?.({
           name: 'states',
-          value: [{ id: 'unhandled', name: 'Unhandled problems' }],
+          value: [{ id: 'unhandled', name: 'Unhandled alerts' }]
         }),
-      3,
+      3
     ],
     [
       'statuses',
       (): void =>
         context.setCriteria?.({
           name: 'statuses',
-          value: [{ id: 'OK', name: 'Ok' }],
+          value: [{ id: 'OK', name: 'Ok' }]
         }),
-      3,
+      3
     ],
     [
       'resourceTypes',
       (): void =>
         context.setCriteria?.({
           name: 'resource_types',
-          value: [{ id: 'host', name: 'Host' }],
+          value: [{ id: 'host', name: 'Host' }]
         }),
-      3,
+      3
     ],
     [
       'hostGroups',
       (): void =>
         context.setCriteria?.({
           name: 'host_groups',
-          value: [{ id: 0, name: 'Linux-servers' }],
+          value: [{ id: 0, name: 'Linux-servers' }]
         }),
-      3,
+      3
     ],
     [
       'serviceGroups',
       (): void =>
         context.setCriteria?.({
           name: 'service_groups',
-          value: [{ id: 1, name: 'Web-services' }],
+          value: [{ id: 1, name: 'Web-services' }]
         }),
-      3,
+      3
     ],
     [
       'hostCategories',
       (): void =>
         context.setCriteria?.({
           name: 'host_categories',
-          value: [{ id: 0, name: 'Linux' }],
+          value: [{ id: 0, name: 'Linux' }]
         }),
-      3,
+      3
     ],
     [
       'serviceCategories',
       (): void =>
         context.setCriteria?.({
           name: 'service_categories',
-          value: [{ id: 1, name: 'Web-services' }],
+          value: [{ id: 1, name: 'Web-services' }]
         }),
-      3,
-    ],
+      3
+    ]
   ];
 
   it.each(testCases)(
@@ -180,6 +189,6 @@ describe(useLoadResources, () => {
         expect(context.page).toEqual(1);
         expect(mockedAxios.get).toHaveBeenCalled();
       });
-    },
+    }
   );
 });

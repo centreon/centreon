@@ -75,14 +75,18 @@ class GenerateAllConfigurations
         try {
             foreach ($monitoringServers as $monitoringServer) {
                 $lastMonitoringServerId = $monitoringServer->getId();
-                if ($lastMonitoringServerId !== null) {
-                    $this->info('Generate configuration files for monitoring server #' . $lastMonitoringServerId);
-                    $this->configurationRepository->generateConfiguration($lastMonitoringServerId);
-                    $this->info('Move configuration files for monitoring server #' . $lastMonitoringServerId);
-                    $this->configurationRepository->moveExportFiles($lastMonitoringServerId);
-                } else {
+                if ($lastMonitoringServerId === null) {
                     $this->error('Monitoring server id from repository is null');
+                    continue;
                 }
+                if ($monitoringServer->isActivate() === false) {
+                    $this->info('Monitoring server #' . $lastMonitoringServerId . ' is disabled');
+                    continue;
+                }
+                $this->info('Generate configuration files for monitoring server #' . $lastMonitoringServerId);
+                $this->configurationRepository->generateConfiguration($lastMonitoringServerId);
+                $this->info('Move configuration files for monitoring server #' . $lastMonitoringServerId);
+                $this->configurationRepository->moveExportFiles($lastMonitoringServerId);
             }
         } catch (TimeoutException $ex) {
             throw ConfigurationMonitoringServerException::timeout($lastMonitoringServerId, $ex->getMessage());

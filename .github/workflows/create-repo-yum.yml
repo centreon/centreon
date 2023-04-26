@@ -1,0 +1,62 @@
+name: create-repo-yum
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/create-repo-yum.yml"
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  create-repo-file-and-deliver:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install jfrog cli
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_URL: https://centreon.jfrog.io
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+
+      - name: Create repository structure
+        run: |
+          for STABILITY in "unstable" "testing" "stable"; do
+
+            for ARCH in "noarch" "x86_64"; do
+              curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm-standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY/$ARCH/"
+              curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm-standard?path=/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/$STABILITY/$ARCH&async=1"
+
+              curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X PUT "https://centreon.jfrog.io/artifactory/rpm-plugins/${{ matrix.distrib }}/$STABILITY/$ARCH/"
+              curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/rpm-plugins?path=/${{ matrix.distrib }}/$STABILITY/$ARCH&async=1"
+            done
+
+          done
+        shell: bash
+
+      - name: Create repo file
+        run: |
+          sed \
+            -e "s#@MAJOR_VERSION@#${{ needs.get-version.outputs.major_version }}#g" \
+            -e "s#@DISTRIB@#${{ matrix.distrib }}#g" \
+            ./.github/scripts/repo/centreon.repo.template > ./centreon-${{ needs.get-version.outputs.major_version }}.repo
+        shell: bash
+
+      - name: Upload repo file in jfrog
+        run: |
+          jf rt upload "centreon-${{ needs.get-version.outputs.major_version }}.repo" "rpm-standard/${{ needs.get-version.outputs.major_version }}/${{ matrix.distrib }}/"
+        shell: bash

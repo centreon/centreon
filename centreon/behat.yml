@@ -15,10 +15,6 @@ default:
       paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
       contexts: [ ConfigurationWarningsContext ]
 
-    generate_poller_features:
-      paths: [ "%paths.base%/features/GeneratePoller.feature" ]
-      contexts: [ GeneratePollerContext ]
-
     pagination_select2:
       paths: [ "%paths.base%/features/PaginationSelect2.feature" ]
       contexts: [ PaginationSelect2Context ]
@@ -31,17 +27,9 @@ default:
       paths: [ "%paths.base%/features/SelectAllSelect2.feature" ]
       contexts: [ SelectAllSelect2Context ]
 
-    empty_default_configuration:
-      paths: [ "%paths.base%/features/EmptyDefaultConfiguration.feature" ]
-      contexts: [ EmptyDefaultConfigurationContext ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
-
-    centreon_engine_restart:
-      paths: [ "%paths.base%/features/RestartCentreonEngine.feature" ]
-      contexts: [ RestartCentreonEngineContext ]
 
     acknowledgement:
       paths: [ "%paths.base%/features/Acknowledgement.feature" ]
@@ -63,17 +51,9 @@ default:
       paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
       contexts: [ DisableFieldsOnBlockedObjectsContext ]
 
-    backup:
-      paths: [ "%paths.base%/features/Backup.feature" ]
-      contexts: [ BackupContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
-
-    influxdb:
-      paths: [ "%paths.base%/features/Influxdb.feature" ]
-      contexts: [ InfluxdbContext ]
 
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
@@ -328,10 +308,6 @@ default:
     uri:
       paths: [ "%paths.base%/features/URI.feature" ]
       contexts: [ URIContext ]
-
-    topologyapi:
-      paths: [ "%paths.base%/features/TopologyAPI.feature" ]
-      contexts: [ TopologyAPIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

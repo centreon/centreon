@@ -1,5 +1,5 @@
 import { path } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { useRequest } from '@centreon/ui';
 
@@ -17,7 +17,7 @@ const limit = 30;
 const MetricsTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest<MetaServiceMetricListing>({
     decoder: metaServiceMetricListingDecoder,
-    request: listMetaServiceMetrics,
+    request: listMetaServiceMetrics
   });
 
   const details = useAtomValue(detailsAtom);
@@ -25,7 +25,7 @@ const MetricsTab = (): JSX.Element => {
   const endpoint = path(['links', 'endpoints', 'metrics'], details);
 
   const sendListingRequest = ({
-    atPage,
+    atPage
   }: {
     atPage?: number;
   }): Promise<MetaServiceMetricListing> => {
@@ -33,8 +33,8 @@ const MetricsTab = (): JSX.Element => {
       endpoint,
       parameters: {
         limit,
-        page: atPage,
-      },
+        page: atPage
+      }
     });
   };
 

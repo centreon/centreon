@@ -32,8 +32,8 @@ use Core\Contact\Infrastructure\Repository\DbContactTemplateFactory;
 use Core\Security\AccessGroup\Infrastructure\Repository\DbAccessGroupFactory;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface
     as ReadRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Throwable;
 
 class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implements ReadRepositoryInterface
@@ -125,7 +125,7 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
         $authorizationRules = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
             $accessGroup = DbAccessGroupFactory::createFromRecord($result);
-            $authorizationRules[] = new AuthorizationRule($result['claim_value'], $accessGroup);
+            $authorizationRules[] = new AuthorizationRule($result['claim_value'], $accessGroup, $result['priority']);
         }
         return $authorizationRules;
     }
