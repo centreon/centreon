@@ -152,9 +152,20 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 7
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: pnpm
+          cache-dependency-path: centreon
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
         working-directory: centreon
 
       - name: Unit test
@@ -253,6 +264,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
+      commit_hash: ${{ github.sha }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -260,7 +272,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
@@ -288,6 +300,7 @@ jobs:
         with:
           path: ./*.${{ matrix.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          fail-on-cache-miss: true
 
       - uses: docker/setup-buildx-action@v2
 
@@ -296,7 +309,22 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_fresh
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_fresh
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
@@ -305,9 +333,50 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
           target: web_standard
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          target: web_standard
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+      - name: Setup docker slim
+        run: |
+          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
+          tar -xf dist_linux.tar.gz
+          mv dist_linux/docker-slim /usr/local/bin/
+          mv dist_linux/slim-sensor /usr/local/bin/
+          mv dist_linux/slim /usr/local/bin/
+        shell: bash
+
+      - name: Build and push slim images
+        run: |
+          for IMAGE_SUFFIX in "" "-fresh"; do
+            slim build --show-clogs --show-blogs \
+              --include-shell \
+              --http-probe-off \
+              --exec-file .github/docker/slim-configuration/exec.txt \
+              --include-path-file .github/docker/slim-configuration/include-path.txt \
+              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
+              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
+              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          done
+        shell: bash
 
   api-integration-test:
     needs: [dockerize, changes]
@@ -347,6 +416,7 @@ jobs:
       module_name: centreon
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -370,7 +440,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
+          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
@@ -390,6 +460,40 @@ jobs:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
           retention-days: 1
+
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon
+          module_directory: centreon
+          module_name: centreon-web
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: centreon/www/index.html
+          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_directory: centreon/www/static
+          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_directory: centreon/vendor
+          translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+          translation_directory: centreon/www/locale
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
     runs-on: [self-hosted, common]

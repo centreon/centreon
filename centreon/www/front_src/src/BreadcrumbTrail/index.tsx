@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 

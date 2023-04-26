@@ -1,5 +1,4 @@
-import { useAtom, atom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtom, atom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
 import { useRequest, getData } from '@centreon/ui';
@@ -21,7 +20,7 @@ const useUser = (): (() => null | Promise<void>) => {
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
     areUserParametersLoadedAtom
   );
-  const setUser = useUpdateAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
 
   const loadUser = (): null | Promise<void> => {
     if (areUserParametersLoaded) {

@@ -14939,7 +14939,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent"
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
@@ -15997,7 +15997,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Check selected resources even outside configured check period"
 # msgstr ""
 
-# msgid "Forced check command sent"
+# msgid "Forced check command sent ! Please refresh the listing to update the data."
 # msgstr ""
 
 #  msgid "Icon #%d does not exist"
@@ -16126,7 +16126,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Centreon UI only"
 # msgstr ""
 
-# msgid "Both identity Provider and Centreon UI"
+# msgid "Both identity provider and Centreon UI"
 # msgstr ""
 
 # msgid "Define relation between roles and ACL access groups"
@@ -16134,4 +16134,19 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
 # msgid "B.Activities"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Full name attribute"
+# msgstr ""
+
+# msgid "Roles mapping"
+# msgstr ""
+
+# msgid "Groups mapping"
 # msgstr ""

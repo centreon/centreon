@@ -296,7 +296,7 @@ CREATE TABLE `severities` (
   `icon_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`severity_id`),
   UNIQUE KEY `severities_id_type_uindex` (`id`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources` (
   `resource_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -334,7 +334,7 @@ CREATE TABLE `resources` (
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tags` (
   `tag_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -343,7 +343,7 @@ CREATE TABLE `tags` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `tags_id_type_uindex` (`id`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources_tags` (
   `tag_id` bigint(20) unsigned NOT NULL,
@@ -353,7 +353,7 @@ CREATE TABLE `resources_tags` (
   KEY `resources_tags_tag_id_fk` (`tag_id`),
   CONSTRAINT `resources_tags_resources_resource_id_fk` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`resource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `resources_tags_tag_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
