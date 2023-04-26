@@ -11,6 +11,7 @@ import {
 
 const serviceInAcknowledgementName = 'service_test_ack';
 const hostInAcknowledgementName = 'test_host';
+const hostChildInAcknowledgementName = 'test_host_ack';
 
 beforeEach(() => {
   cy.intercept({
@@ -270,27 +271,28 @@ Given(
   'a resource of host is selected with {string}',
   (initial_status: string) => {
     submitCustomResultsViaClapi({
-      host: hostInAcknowledgementName,
-      output: `submit_${hostInAcknowledgementName}`,
+      host: hostChildInAcknowledgementName,
+      output: `submit_${hostChildInAcknowledgementName}`,
       status: initial_status
+    }).then(() => {
+      cy.contains(hostChildInAcknowledgementName)
+        .parent()
+        .parent()
+        .find('input[type="checkbox"]:first')
+        .click();
     });
-
-    cy.waitUntil(
-      () => {
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(hostInAcknowledgementName))
-          .parent()
-          .parent()
-          .get('[class^="css-"][class$="-statusColumn"]:first')
-          .contains(initial_status);
-      },
-      {
-        timeout: 15000
-      }
-    );
   }
 );
+
+When('"sticky" checkbox is checked in the form', () => {
+  cy.getByLabel({ label: 'Sticky' }).should('be.checked');
+});
+
+When('"persistent" checkbox is unchecked in the form', () => {
+  cy.getByLabel({ label: 'Persistent' }).uncheck();
+
+  cy.getByLabel({ label: 'Persistent' }).should('not.be.checked');
+});
 
 When('the resource is marked as acknowledged', () => {
   cy.getByLabel({ label: 'State filter' })
@@ -302,7 +304,7 @@ When('the resource is marked as acknowledged', () => {
     () => {
       return cy
         .refreshListing()
-        .then(() => cy.contains(hostInAcknowledgementName))
+        .then(() => cy.contains(hostChildInAcknowledgementName))
         .parent()
         .then((val) => {
           return (
@@ -317,7 +319,7 @@ When('the resource is marked as acknowledged', () => {
 });
 
 When('the resource status changes to {string}', (changed_status: string) => {
-  cy.contains(hostInAcknowledgementName)
+  cy.contains(hostChildInAcknowledgementName)
     .parent()
     .parent()
     .get('[class^="css-"][class$="-statusColumn"]:first')

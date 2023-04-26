@@ -24,13 +24,21 @@ Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
-  return cy.executeActionViaClapi({
-    bodyContent: {
-      action: 'DEL',
-      object: 'HOST',
-      values: 'test_host'
-    }
-  });
+  return cy
+    .executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host'
+      }
+    })
+    .executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host_ack'
+      }
+    });
 });
 
 Cypress.Commands.add(
