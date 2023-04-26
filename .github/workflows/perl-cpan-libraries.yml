@@ -121,7 +121,7 @@ jobs:
             image: packaging-bullseye
           - name: "BSON"
             build_deb: "false"
-            rpm_provides: "perl(BSON::Bytes) perl(BSON::Code) perl(BSON::DBRef) perl(BSON::OID) perl(BSON::Raw) perl(BSON::Regex) perl(BSON::Time) perl(BSON::Timestamp) perl(BSON::Types)"
+            rpm_provides: "perl(BSON::Bytes) perl(BSON::Code) perl(BSON::DBRef) perl(BSON::OID) perl(BSON::Raw) perl(BSON::Regex) perl(BSON::Time) perl(BSON::Timestamp) perl(BSON::Types) perl(BSON)"
           - name: "BSON::XS"
             build_deb: "false"
           - name: "Convert::Binary::C"
