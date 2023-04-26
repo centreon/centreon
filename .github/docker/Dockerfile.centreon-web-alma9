@@ -50,7 +50,7 @@ service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 
 # CLAPI config generation creates prod cache with root user
-chown -R apache.apache /var/cache/centreon/symfony/*
+chown -R apache:apache /var/cache/centreon/symfony/*
 
 EOF
 
