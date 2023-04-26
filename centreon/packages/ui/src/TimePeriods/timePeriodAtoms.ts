@@ -91,20 +91,20 @@ export const getDatesDerivedAtom = atom(
     }
 );
 
-// export const graphQueryParametersDerivedAtom = atom(
-//   (get) =>
-//     ({ timePeriod, startDate, endDate }: GraphQueryParametersProps): string => {
-//       const getDates = get(getDatesDerivedAtom);
+export const getGraphQueryParametersDerivedAtom = atom(
+  (get) =>
+    ({ timePeriod, startDate, endDate }: GraphQueryParametersProps): string => {
+      const getDates = get(getDatesDerivedAtom);
 
-//       if (pipe(isNil, not)(timePeriod)) {
-//         const [start, end] = getDates(timePeriod);
+      if (pipe(isNil, not)(timePeriod)) {
+        const [start, end] = getDates(timePeriod);
 
-//         return `?start=${start}&end=${end}`;
-//       }
+        return `?start=${start}&end=${end}`;
+      }
 
-//       return `?start=${startDate?.toISOString()}&end=${endDate?.toISOString()}`;
-//     }
-// );
+      return `?start=${startDate?.toISOString()}&end=${endDate?.toISOString()}`;
+    }
+);
 
 export const changeSelectedTimePeriodDerivedAtom = atom(
   null,

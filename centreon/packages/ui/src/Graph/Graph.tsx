@@ -45,7 +45,7 @@ const useStyles = makeStyles()((theme) => ({
 interface Props {
   anchorPoint?: AreaAnchorPoint;
   axis?: Axis;
-  graphData: GraphData | Data;
+  graphData: Data;
   grids?: GridsModel;
   height: number;
   shapeLines?: ShapeLines;
@@ -73,17 +73,7 @@ const Graph = ({
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const title =
-    'title' in graphData ? graphData.title : graphData?.global?.title;
-
-  const timeSeries =
-    'timeSeries' in graphData
-      ? graphData.timeSeries
-      : adjustGraphData(graphData).timeSeries;
-  const lines =
-    'lines' in graphData ? graphData.lines : adjustGraphData(graphData).lines;
-  const baseAxis =
-    'baseAxis' in graphData ? graphData.baseAxis : graphData.global?.base;
+  const { title, timeSeries, lines, baseAxis } = graphData;
 
   const xScale = useMemo(
     () =>

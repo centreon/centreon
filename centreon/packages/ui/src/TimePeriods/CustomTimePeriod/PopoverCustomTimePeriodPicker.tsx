@@ -10,7 +10,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
 
-import DateTimePickerInput from './DateTimePickerInput';
+import DateTimePickerInput from '../DateTimePickerInput';
 import {
   CustomStyle,
   CustomTimePeriodProperty,
@@ -20,9 +20,9 @@ import {
   PickersData,
   PopoverData,
   anchorReferenceEnum
-} from './models';
-import useDateTimePickerAdapter from './useDateTimePickerAdapter';
-import { labelEndDateGreaterThanStartDate } from './labels';
+} from '../models';
+import useDateTimePickerAdapter from '../useDateTimePickerAdapter';
+import { labelEndDateGreaterThanStartDate } from '../labels';
 
 const useStyles = makeStyles()((theme) => ({
   paper: {

@@ -1,19 +1,21 @@
+import { useEffect } from 'react';
+
 import { Responsive } from '@visx/visx';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { T, always, cond, equals, lt, lte, map, pick } from 'ramda';
+import { useAtomValue } from 'jotai/utils';
+import { lt } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
+import { Paper, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import CustomTimePeriodPickers from './CustomTimePeriodPickers';
-import { LabelTimePeriodPicker, LabelDay, timePeriods } from './models';
+import CustomTimePeriodPickers from './CustomTimePeriod/CustomTimePeriodPickers';
+import TimePeriodButtonGroup from './TimePeriodButton';
+import { LabelDay, LabelTimePeriodPicker } from './models';
 import {
-  changeCustomTimePeriodDerivedAtom,
-  changeSelectedTimePeriodDerivedAtom,
   customTimePeriodAtom,
+  getGraphQueryParametersDerivedAtom,
   selectedTimePeriodAtom
 } from './timePeriodAtoms';
 
@@ -22,14 +24,6 @@ interface StylesProps {
 }
 
 const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
-  button: {
-    fontSize: theme.typography.body2.fontSize,
-    pointerEvents: 'all'
-  },
-  buttonGroup: {
-    alignSelf: 'center',
-    height: '100%'
-  },
   header: {
     alignItems: 'center',
     backgroundColor: disablePaper ? 'transparent' : 'undefined',
@@ -48,59 +42,39 @@ interface Props {
   disableGraphOptions?: boolean;
   disablePaper?: boolean;
   disabled?: boolean;
+  getGraphParameters?: (data) => void;
   height?: number;
   labelButtonGroups?: Array<LabelDay>;
-  labelTimePeriodPicker: LabelTimePeriodPicker;
+  labelTimePeriodPicker?: LabelTimePeriodPicker;
 }
 
-const timePeriodOptions = map(pick(['id', 'name', 'largeName']), timePeriods);
-
-const TimePeriodButtonGroup = ({
-  disabled = false,
+const TimePeriod = ({
   disableGraphOptions = false,
   disablePaper = false,
   height = 100,
-  labelButtonGroups,
-  labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' }
+  labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' },
+  getGraphParameters
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disablePaper });
   const theme = useTheme();
 
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const { themeMode } = useAtomValue(userAtom);
+  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
+  const customTimePeriod = useAtomValue(customTimePeriodAtom);
 
-  const changeCustomTimePeriod = useUpdateAtom(
-    changeCustomTimePeriodDerivedAtom
-  );
-  const changeSelectedTimePeriod = useUpdateAtom(
-    changeSelectedTimePeriodDerivedAtom
-  );
-
-  const getLabel = ({ timePeriod, label, key }): string => {
-    return labelButtonGroups && equals(timePeriod.id, Object.keys(label)[0])
-      ? label[timePeriod.id][key]
-      : timePeriod[key];
-  };
-
-  const translatedTimePeriodOptions = timePeriodOptions.map(
-    (timePeriod, index) => ({
-      ...timePeriod,
-      largeName: getLabel({
-        key: 'largeName',
-        label: labelButtonGroups?.[index],
-        timePeriod
-      }),
-      name: getLabel({
-        key: 'name',
-        label: labelButtonGroups?.[index],
-        timePeriod
-      })
-    })
+  const getGraphQueryParameters = useAtomValue(
+    getGraphQueryParametersDerivedAtom
   );
 
-  const changeDate = ({ property, date }): void =>
-    changeCustomTimePeriod({ date, property });
+  const graphQueryParameters = getGraphQueryParameters({
+    endDate: customTimePeriod.end,
+    startDate: customTimePeriod.start,
+    timePeriod: selectedTimePeriod
+  });
+
+  useEffect(() => {
+    getGraphParameters?.(graphQueryParameters);
+  }, [selectedTimePeriod, customTimePeriod]);
 
   return useMemoComponent({
     Component: (
@@ -111,43 +85,8 @@ const TimePeriodButtonGroup = ({
 
             return (
               <Paper className={classes.header}>
-                <ButtonGroup
-                  className={classes.buttonGroup}
-                  color="primary"
-                  component="span"
-                  disabled={disabled}
-                  size="small"
-                >
-                  {map(
-                    ({ id, name, largeName }) => (
-                      <Tooltip key={name} placement="top" title={largeName}>
-                        <Button
-                          className={classes.button}
-                          component="span"
-                          data-testid={id}
-                          variant={
-                            selectedTimePeriod?.id === id
-                              ? 'contained'
-                              : 'outlined'
-                          }
-                          onClick={(): void => changeSelectedTimePeriod(id)}
-                        >
-                          {cond<number, string>([
-                            [
-                              lte(theme.breakpoints.values.md),
-                              always(largeName)
-                            ],
-                            [T, always(name)]
-                          ])(width)}
-                        </Button>
-                      </Tooltip>
-                    ),
-                    translatedTimePeriodOptions
-                  )}
-                </ButtonGroup>
+                <TimePeriodButtonGroup width={width} />
                 <CustomTimePeriodPickers
-                  acceptDate={changeDate}
-                  customTimePeriod={customTimePeriod}
                   isCompact={isCompact}
                   labelTimePeriodPicker={labelTimePeriodPicker}
                 />
@@ -159,14 +98,13 @@ const TimePeriodButtonGroup = ({
       </div>
     ),
     memoProps: [
-      customTimePeriod,
-      disabled,
       disableGraphOptions,
       disablePaper,
-      selectedTimePeriod?.id,
+      selectedTimePeriod,
+      customTimePeriod,
       themeMode
     ]
   });
 };
 
-export default TimePeriodButtonGroup;
+export default TimePeriod;

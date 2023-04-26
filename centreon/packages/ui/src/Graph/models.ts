@@ -12,6 +12,7 @@ export interface Data {
   baseAxis: number;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
+  title: string;
 }
 
 export interface AnchorPoint {

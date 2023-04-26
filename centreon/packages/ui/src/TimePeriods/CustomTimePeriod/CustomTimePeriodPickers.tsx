@@ -1,7 +1,8 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { makeStyles } from 'tss-react/mui';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -9,13 +10,14 @@ import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
+import { labelCompactTimePeriod } from '../labels';
+import { CustomTimePeriodProperty, LabelTimePeriodPicker } from '../models';
 import {
-  CustomTimePeriod,
-  CustomTimePeriodProperty,
-  LabelTimePeriodPicker
-} from './models';
-import { labelCompactTimePeriod } from './labels';
+  changeCustomTimePeriodDerivedAtom,
+  customTimePeriodAtom
+} from '../timePeriodAtoms';
+
+import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
 
 dayjs.extend(isSameOrAfter);
 
@@ -78,22 +80,29 @@ interface AcceptDateProps {
 }
 
 interface Props {
-  acceptDate: (props: AcceptDateProps) => void;
-  customTimePeriod: CustomTimePeriod;
+  getDate?: (date) => void;
   isCompact: boolean;
   labelTimePeriodPicker?: LabelTimePeriodPicker;
 }
 
 const CustomTimePeriodPickers = ({
-  customTimePeriod,
-  acceptDate,
   isCompact: isMinimalWidth,
-  labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' }
+  labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' },
+  getDate
 }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const { format } = useLocaleDateTimeFormat();
+
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
+
+  const customTimePeriod = useAtomValue(customTimePeriodAtom);
+
+  const changeCustomTimePeriod = useUpdateAtom(
+    changeCustomTimePeriodDerivedAtom
+  );
+
+  const displayPopover = Boolean(anchorEl);
 
   const openPopover = (event: MouseEvent): void => {
     setAnchorEl(event.currentTarget);
@@ -103,7 +112,12 @@ const CustomTimePeriodPickers = ({
     setAnchorEl(undefined);
   };
 
-  const displayPopover = Boolean(anchorEl);
+  const changeDate = ({ property, date }): void =>
+    changeCustomTimePeriod({ date, property });
+
+  useEffect(() => {
+    getDate?.(customTimePeriod);
+  }, [customTimePeriod]);
 
   return (
     <>
@@ -160,7 +174,7 @@ const CustomTimePeriodPickers = ({
         }}
         labelTimePeriodPicker={labelTimePeriodPicker}
         pickersData={{
-          acceptDate,
+          acceptDate: changeDate,
           customTimePeriod,
           maxDatePickerStartInput: customTimePeriod.end,
           minDatePickerEndInput: customTimePeriod.start
