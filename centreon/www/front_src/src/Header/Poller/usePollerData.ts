@@ -8,7 +8,6 @@ import { equals, isNil } from 'ramda';
 import { useFetchQuery } from '@centreon/ui';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
-import useNavigation from '../../Navigation/useNavigation';
 import { pollerListIssuesEndPoint } from '../api/endpoints';
 import { pollerIssuesDecoder } from '../api/decoders';
 
@@ -24,7 +23,6 @@ interface UsePollerDataResult {
 export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { allowedPages } = useNavigation();
   const [isAllowed, setIsAllowed] = useState<boolean>(true);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
   const refetchInterval = useAtomValue(refreshIntervalAtom);
@@ -48,7 +46,6 @@ export const usePollerData = (): UsePollerDataResult => {
     () => ({
       data: !isNil(data)
         ? getPollerPropsAdapter({
-            allowedPages,
             data,
             isExportButtonEnabled,
             navigate,
