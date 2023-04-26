@@ -159,8 +159,6 @@ export default async (on, config): Promise<void> => {
         return webContainers[0];
       }
 
-      await docker.pull(image);
-
       const container = await docker.createContainer({
         AttachStderr: true,
         AttachStdin: false,

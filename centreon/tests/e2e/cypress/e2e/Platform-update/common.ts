@@ -15,6 +15,13 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const installCentreonPackages = (version: string): Cypress.Chainable => {
+  return cy.execInContainer({
+    command: `bash -c "dnf config-manager --set-disabled 'centreon-*-unstable*' && dnf install -y centreon-web-${version}"`,
+    name: Cypress.env('dockerName')
+  });
+};
+
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy.exec(
     `docker exec -i ${Cypress.env(
@@ -48,6 +55,7 @@ const insertHost = (): Cypress.Chainable => {
 
 export {
   checkIfSystemUserRoot,
+  installCentreonPackages,
   updatePlatformPackages,
   checkPlatformVersion,
   dateBeforeLogin,

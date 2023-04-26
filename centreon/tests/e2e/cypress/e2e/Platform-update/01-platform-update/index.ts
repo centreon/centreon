@@ -5,6 +5,7 @@ import {
   checkPlatformVersion,
   dateBeforeLogin,
   insertHost,
+  installCentreonPackages,
   updatePlatformPackages
 } from '../common';
 
@@ -65,12 +66,11 @@ Given('a running platform in {string}', (version_from: string) => {
         source: 80
       }
     ]
-  }).execInContainer({
-    command: 'dnf install centreon',
-    name: Cypress.env('dockerName')
+  }).then(() => {
+    installCentreonPackages(version_from).then(() => {
+      checkPlatformVersion(version_from);
+    });
   });
-
-  checkPlatformVersion(version_from);
 
   cy.visit('/');
 });
@@ -152,4 +152,8 @@ When('administrator exports Poller configuration', () => {
 
 Then('Poller configuration should be fully generated', () => {
   checkIfConfigurationIsExported(dateBeforeLogin);
+});
+
+after(() => {
+  cy.stopContainer({ name: Cypress.env('dockerName') });
 });

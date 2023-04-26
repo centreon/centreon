@@ -192,7 +192,9 @@ interface ExecInContainerProps {
 Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
-    return cy.task('execInContainer', { command, name });
+    return cy.exec(`docker exec -i ${name} ${command}`);
+
+    return cy.task('execInContainer', { command, name }, { timeout: 60000 });
   }
 );
 
@@ -210,7 +212,9 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy.task('startContainer', { image, name, portBindings });
+    return cy
+      .exec(`docker image inspect ${image} || docker pull ${image}`)
+      .task('startContainer', { image, name, portBindings });
   }
 );
 
