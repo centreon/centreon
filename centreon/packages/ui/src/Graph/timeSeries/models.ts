@@ -55,11 +55,6 @@ export interface AdditionalDataProps<T> {
   additionalData?: T | null;
 }
 
-// export interface GetDisplayAdditionalLinesConditionProps {
-//   condition: (resource: Resource | ResourceDetails) => boolean;
-//   displayAdditionalLines: (args) => ReactNode;
-// }
-
 export interface Xscale {
   dataTime: Array<TimeValue>;
   valueWidth: number;
