@@ -36,7 +36,7 @@ import {
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
+import { useDateTimePickerAdapter } from '@centreon/ui/src';
 
 import { DowntimeFormValues } from '.';
 

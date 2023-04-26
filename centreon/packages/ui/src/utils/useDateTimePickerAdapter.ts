@@ -30,7 +30,7 @@ interface ToTimezonedDateProps {
   timeZone?: string;
 }
 
-const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
+export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   const { timezone, locale } = useAtomValue(userAtom);
   const { format } = useLocaleDateTimeFormat();
 
@@ -307,5 +307,3 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     Adapter
   };
 };
-
-export default useDateTimePickerAdapter;

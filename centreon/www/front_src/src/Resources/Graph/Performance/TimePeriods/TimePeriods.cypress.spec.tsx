@@ -14,7 +14,7 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
+import useDateTimePickerAdapter from '@centreon/ui/src/utils/useDateTimePickerAdapter';
 
 import DateTimePickerInput from './DateTimePickerInput';
 

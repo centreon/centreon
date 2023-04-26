@@ -19,7 +19,7 @@ import {
   labelStartDate,
   labelTo
 } from '../../../translatedLabels';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
+import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import DateTimePickerInput from './DateTimePickerInput';
 import {

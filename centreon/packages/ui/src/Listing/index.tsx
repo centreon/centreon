@@ -39,8 +39,7 @@ import {
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import useKeyObserver from '../utils/useKeyObserver';
-import useMemoComponent from '../utils/useMemoComponent';
+import { useKeyObserver, useMemoComponent } from '../utils';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';

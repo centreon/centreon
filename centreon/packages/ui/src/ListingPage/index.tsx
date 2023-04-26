@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 import WithPanel from '../Panel/WithPanel';
 
 import FilterSkeleton from './FilterSkeleton';
