@@ -224,7 +224,7 @@ sub get_log {
     $options{module}->{break_token} = undef;
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
-    if (defined($options{module}->{tokens}->{$token_log}) && defined($options{module}->{ $token_log }->{data})) {
+    if (defined($options{module}->{tokens}->{$token_log}) && defined($options{module}->{tokens}->{ $token_log }->{data})) {
         my $content;
         eval {
             $content = JSON::XS->new->decode($options{module}->{tokens}->{ $token_log }->{data});
