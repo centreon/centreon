@@ -163,6 +163,11 @@ export default async (on, config): Promise<void> => {
         AttachStderr: true,
         AttachStdin: false,
         AttachStdout: true,
+        ExposedPorts: portBindings.reduce((accumulator, currentValue) => {
+          accumulator[`${currentValue.source}/tcp`] = {};
+
+          return accumulator;
+        }, {}),
         HostConfig: {
           PortBindings: portBindings.reduce((accumulator, currentValue) => {
             accumulator[`${currentValue.source}/tcp`] = [

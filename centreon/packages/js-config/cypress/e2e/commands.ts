@@ -4,6 +4,17 @@ const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
+Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
+  return cy
+    .execInContainer({
+      command: `bash -c "rpm -qa | grep centreon-web | cut -d '-' -f3"`,
+      name: Cypress.env('dockerName')
+    })
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap);
+});
+
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
     .get('iframe#main-content')
@@ -129,11 +140,11 @@ Cypress.Commands.add(
   'visitEmptyPage',
   (): Cypress.Chainable =>
     cy
-      .intercept('/', {
+      .intercept('/waiting-page', {
         headers: { 'content-type': 'text/html' },
         statusCode: 200
       })
-      .visit('/')
+      .visit('/waiting-page')
 );
 
 interface ActionClapi {
@@ -193,8 +204,6 @@ Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
     return cy.exec(`docker exec -i ${name} ${command}`);
-
-    return cy.task('execInContainer', { command, name }, { timeout: 60000 });
   }
 );
 
@@ -245,13 +254,18 @@ Cypress.Commands.add(
       })
       .then(() => {
         const baseUrl = 'http://localhost:4000';
+
         Cypress.config('baseUrl', baseUrl);
 
         return cy.exec(
           `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
-      .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
+      .intercept('/waiting-page', {
+        headers: { 'content-type': 'text/html' },
+        statusCode: 200
+      })
+      .visit('/waiting-page') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
   }
 );
@@ -331,6 +345,7 @@ declare global {
       ) => Cypress.Chainable;
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',

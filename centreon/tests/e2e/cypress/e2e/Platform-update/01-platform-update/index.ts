@@ -4,8 +4,8 @@ import { checkIfConfigurationIsExported } from '../../Poller-configuration/commo
 import {
   checkPlatformVersion,
   dateBeforeLogin,
-  insertHost,
-  installCentreonPackages,
+  insertResources,
+  installCentreon,
   updatePlatformPackages
 } from '../common';
 
@@ -55,10 +55,12 @@ beforeEach(() => {
   }).as('generateAndReloadPollers');
 });
 
-Given('a running platform in {string}', (version_from: string) => {
+Given('a running platform in first minor version', () => {
+  const version_from = '22.10.0';
+
   cy.startContainer({
     // image: `docker.centreon.com/centreon/centreon-web-dependencies-alma8:${version_from}`,
-    image: 'docker.centreon.com/centreon/centreon-web-dependencies-alma9:23.04',
+    image: 'docker.centreon.com/centreon/centreon-web-dependencies-alma8:23.04',
     name: Cypress.env('dockerName'),
     portBindings: [
       {
@@ -66,16 +68,25 @@ Given('a running platform in {string}', (version_from: string) => {
         source: 80
       }
     ]
-  }).then(() => {
-    installCentreonPackages(version_from).then(() => {
-      checkPlatformVersion(version_from);
-    });
-  });
+  })
+    .then(() => {
+      Cypress.config('baseUrl', 'http://localhost:4000');
 
-  cy.visit('/');
+      return cy
+        .intercept('/waiting-page', {
+          headers: { 'content-type': 'text/html' },
+          statusCode: 200
+        })
+        .visit('/waiting-page');
+    })
+    .then(() => {
+      installCentreon(version_from).then(() => {
+        return checkPlatformVersion(version_from).then(() => cy.visit('/'));
+      });
+    });
 });
 
-When('administrator updates packages to {string}', () => {
+When('administrator updates packages to current version', () => {
   updatePlatformPackages();
 });
 
@@ -110,8 +121,10 @@ When('administrator runs the update procedure', () => {
 });
 
 Then(
-  'monitoring should be up and running after update procedure is complete to {string}',
-  (version_to: string) => {
+  'monitoring should be up and running after update procedure is complete to current version',
+  () => {
+    const version_to = '23.04.0';
+
     cy.setUserTokenApiV1('admin');
 
     checkPlatformVersion(version_to);
@@ -137,7 +150,7 @@ Given('a successfully updated platform', () => {
 });
 
 When('administrator exports Poller configuration', () => {
-  insertHost();
+  insertResources();
 
   cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
 
