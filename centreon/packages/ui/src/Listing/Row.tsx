@@ -180,6 +180,16 @@ const Row = memo<RowProps>(
       );
     }
 
+    if (not(nextIsInViewport) && lt(nextLimit, 60)) {
+      return (
+        equals(prevProps.isSelected, nextProps.isSelected) &&
+        equals(prevProps.row, nextProps.row) &&
+        equals(previousRowConditions, nextRowConditions) &&
+        equals(previousRowColors, nextRowColors) &&
+        equals(prevProps.className, nextProps.className)
+      );
+    }
+
     return (
       equals(prevProps.isSelected, nextProps.isSelected) &&
       equals(prevProps.row, nextProps.row) &&

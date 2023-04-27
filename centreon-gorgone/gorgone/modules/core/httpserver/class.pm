@@ -67,7 +67,9 @@ sub new {
         $connector->{allowed_hosts_enabled} = 0;
     }
 
-    $connector->set_signal_handlers;
+    $connector->{tokens} = {};
+
+    $connector->set_signal_handlers();
     return $connector;
 }
 
@@ -144,6 +146,34 @@ sub stop_ev {
     $connector->{loop}->break();
 }
 
+sub event {
+    my ($self, %options) = @_;
+
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        next if (!defined($message));
+
+        if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m ||
+            $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
+            my ($action, $token, $data) = ($1, $2, $3);
+            $self->{tokens}->{$token} = {
+                action => $action,
+                token => $token,
+                data => $data
+            };
+            if ((my $method = $self->can('action_' . lc($action)))) {
+                my ($rv, $decoded) = $self->json_decode(argument => $data, token => $token);
+                next if ($rv);
+                $method->($self, token => $token, data => $decoded);
+            }
+        }
+    }
+
+    if (defined($self->{break_token}) && defined($self->{tokens}->{ $self->{break_token} })) {
+        $self->{loop}->break();
+    }
+}
+
 sub run {
     my ($self, %options) = @_;
 
@@ -166,7 +196,7 @@ sub run {
     gorgone::standard::api::set_module($self);
 
     my $watcher_timer = $self->{loop}->timer(4, 0, \&stop_ev);
-    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, \&gorgone::standard::api::event);
+    my $watcher_io = $self->{loop}->io($connector->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() });
     $self->{loop}->run();
 
     $self->init_dispatch();
@@ -208,7 +238,7 @@ sub run {
         }
 
         if (!defined($connection)) {
-            gorgone::standard::api::event(httpserver => $self);
+            $self->event();
             next;
         }
 
