@@ -123,6 +123,14 @@ const PopoverCustomTimePeriodPickers = ({
   };
 
   useEffect(() => {
+    if (
+      and(
+        dayjs(customTimePeriod.start).isSame(dayjs(start), 'minute'),
+        dayjs(customTimePeriod.end).isSame(dayjs(end), 'minute')
+      )
+    ) {
+      return;
+    }
     setStart(customTimePeriod.start);
     setEnd(customTimePeriod.end);
   }, [customTimePeriod.start, customTimePeriod.end]);

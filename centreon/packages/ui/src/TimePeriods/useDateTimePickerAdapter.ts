@@ -6,8 +6,9 @@ import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai/utils';
 import { equals, isNil, not, pipe } from 'ramda';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import useLocaleDateTimeFormat from '../utils/useLocaleDateTimeFormat';
 
 interface UseDateTimePickerAdapterProps {
   Adapter;
@@ -192,7 +193,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         return date.tz(timezone).utc();
       }
 
-      return date.tz(timezone);
+      return date;
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
