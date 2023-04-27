@@ -57,17 +57,26 @@ const initializeResourceData = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
+const initializeAckChildRessources = (): Cypress.Chainable => {
+  const files = [
+    'resources/clapi/host2/01-add.json',
+    'resources/clapi/host2/02-enable-passive-check.json',
+    'resources/clapi/host2/03-disable-active-check.json',
+    'resources/clapi/host2/04-set-max-check.json',
+    'resources/clapi/host2/05-add-parent.json',
+    'resources/clapi/host2/06-add-check-command.json',
+    'resources/clapi/host2/07-enable-notification.json'
+  ];
+
+  return cy.wrap(Promise.all(files.map(insertFixture)));
+};
+
 const initializeAckRessources = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host1/01-add.json',
     'resources/clapi/host1/02-enable-passive-check.json',
     'resources/clapi/host1/03-disable-active-check.json',
     'resources/clapi/host1/04-set-max-check.json',
-    'resources/clapi/host2/01-add.json',
-    'resources/clapi/host2/02-enable-passive-check.json',
-    'resources/clapi/host2/03-disable-active-check.json',
-    'resources/clapi/host2/04-set-max-check.json',
-    'resources/clapi/host2/05-add-parent.json',
     'resources/clapi/service1/01-add.json',
     'resources/clapi/service1/02-set-max-check.json',
     'resources/clapi/service1/03-disable-active-check.json',
@@ -94,6 +103,8 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
   return cy
     .setUserTokenApiV1()
     .then(initializeAckRessources)
+    .then(applyConfigurationViaClapi)
+    .then(initializeAckChildRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(submitResultsViaClapi)

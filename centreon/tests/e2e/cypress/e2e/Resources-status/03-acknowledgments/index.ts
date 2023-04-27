@@ -265,7 +265,7 @@ Given('criteria is "type: host"', () => {
 
   cy.get('@searchInput').type(searchValue);
 
-  cy.get('@searchInput').type('{enter}');
+  cy.get('@searchInput').type('{esc}{enter}');
 });
 
 Given(
@@ -278,6 +278,8 @@ Given(
     });
 
     checkThatFixtureHostsExistInDatabase();
+
+    cy.refreshListing();
 
     cy.contains(hostChildInAcknowledgementName)
       .parent()
@@ -305,7 +307,8 @@ When('the resource is marked as acknowledged', () => {
 
   cy.waitUntil(
     () => {
-      cy.refreshListing()
+      return cy
+        .refreshListing()
         .then(() => cy.contains(hostChildInAcknowledgementName))
         .parent()
         .then((val) => {
