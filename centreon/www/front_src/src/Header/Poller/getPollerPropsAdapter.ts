@@ -49,7 +49,6 @@ const getIssueSeverityCode = ({
 export const pollerConfigurationPageNumber = '60901';
 
 interface GetPollerPropsAdapterProps {
-  allowedPages: Array<string | Array<string>> | undefined;
   data: PollersIssuesList;
   isExportButtonEnabled: boolean;
   navigate: NavigateFunction;
@@ -65,7 +64,6 @@ export interface GetPollerPropsAdapterResult {
 export const getPollerPropsAdapter = ({
   data,
   t,
-  allowedPages,
   navigate,
   isExportButtonEnabled
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
@@ -112,7 +110,6 @@ export const getPollerPropsAdapter = ({
       },
       issues: formatedIssues,
       pollerConfig: {
-        isAllowed: !!allowedPages?.includes(pollerConfigurationPageNumber),
         label: t(labelConfigurePollers),
         redirect: (): void =>
           navigate(`/main.php?p=${pollerConfigurationPageNumber}`),

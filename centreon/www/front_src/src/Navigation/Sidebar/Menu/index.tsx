@@ -58,6 +58,9 @@ const NavigationMenu = ({
     number | undefined
   >(undefined);
   const [isDoubleClickedFromRoot, setIsDoubleClickedFromRoot] = useState(false);
+
+  const [isOverMenu, setIsOverMenu] = useState(false);
+
   const timeoutRef = useRef<null | NodeJS.Timeout>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const [selectedNavigationItems, setSelectedNavigationItems] = useAtom(
@@ -239,12 +242,18 @@ const NavigationMenu = ({
     });
   };
 
-  const closeMenu = (event): void => {
+  const moveMouse = (event): void => {
     const mouseOver = menuRef?.current?.contains(event.target);
-    if (!mouseOver) {
-      handleLeave();
-    }
+    setIsOverMenu(Boolean(mouseOver));
   };
+
+  useEffect(() => {
+    if (isOverMenu) {
+      return;
+    }
+
+    handleLeave();
+  }, [isOverMenu]);
 
   const visibilitychange = (): void => {
     if (equals(document.visibilityState, 'visible')) {
@@ -270,11 +279,11 @@ const NavigationMenu = ({
       iframe.addEventListener('load', () => {
         iframe.contentWindow?.document?.addEventListener(
           'mousemove',
-          closeMenu
+          moveMouse
         );
       });
     } else {
-      window.addEventListener('mousemove', closeMenu);
+      window.addEventListener('mousemove', moveMouse);
     }
   }, [pathname, search]);
 
