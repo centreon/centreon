@@ -13,7 +13,6 @@ import {
   StatusChip,
   useStyleTable
 } from '@centreon/ui';
-import type { ComponentColumnProps } from '@centreon/ui';
 
 import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
@@ -25,7 +24,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
-import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 
 import { ColumnProps } from '.';
 

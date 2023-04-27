@@ -73,8 +73,6 @@ const useApp = (): UseAppState => {
 
   const setPlaformName = useSetAtom(platformNameAtom);
 
-  const setPlaformName = useSetAtom(platformNameAtom);
-
   const { getNavigation } = useNavigation();
 
   const logout = (): void => {
