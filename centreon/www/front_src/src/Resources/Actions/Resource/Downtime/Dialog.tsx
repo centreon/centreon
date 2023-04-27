@@ -32,7 +32,8 @@ import {
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelTo,
-  labelStartTime
+  labelUnit,
+  labelFrom
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
@@ -54,25 +55,6 @@ interface Props extends Pick<FormikHandlers, 'handleChange'> {
   values: FormikValues;
 }
 
-const renderDateTimePickerEndAdornment = (InputProps) => (): JSX.Element =>
-  <div>{InputProps?.endAdornment}</div>;
-
-const renderDateTimePickerTextField =
-  (ariaLabel: string) =>
-  ({ inputRef, inputProps, InputProps }: TextFieldProps): JSX.Element => {
-    return (
-      <TextField
-        EndAdornment={renderDateTimePickerEndAdornment(InputProps)}
-        inputProps={{
-          ...inputProps,
-          'aria-label': ariaLabel,
-          ref: inputRef,
-          style: { padding: 8 }
-        }}
-      />
-    );
-  };
-
 const DialogDowntime = ({
   resources,
   canConfirm,
@@ -87,12 +69,12 @@ const DialogDowntime = ({
   const { t } = useTranslation();
 
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
-  const [isPickerOpened, setIsPickerOpened] = useState(false);
 
-  const { locale, timezone } = useAtomValue(userAtom);
+  const { locale } = useAtomValue(userAtom);
 
   const {
     Adapter,
+    desktopPickerMediaQuery
   } = useDateTimePickerAdapter();
 
   const open = resources.length > 0;
@@ -143,11 +125,23 @@ const DialogDowntime = ({
               maxDate={dayjs(maxEndDate)}
               value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
+              desktopModeMediaQuery={desktopPickerMediaQuery}
+              slotProps={{
+                textField: {
+                  "aria-label": t(labelFrom) as string,
+                }
+              }}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
             <DateTimePicker<dayjs.Dayjs>
               value={dayjs(values.endTime)}
               onChange={changeTime('endTime')}
+              desktopModeMediaQuery={desktopPickerMediaQuery}
+              slotProps={{
+                textField: {
+                  "aria-label": t(labelTo) as string,
+                }
+              }}
             />
             {isNil(errors?.startTime) ? (
               <div />
@@ -169,7 +163,8 @@ const DialogDowntime = ({
 
             <Stack alignItems="center" direction="row" spacing={1}>
               <TextField
-                ariaLabel={t(labelDuration)}
+                dataTestId={labelDuration}
+                ariaLabel={t(labelDuration) as string}
                 disabled={values.fixed}
                 error={errors?.duration?.value}
                 type="number"
@@ -177,6 +172,7 @@ const DialogDowntime = ({
                 onChange={handleChange('duration.value')}
               />
               <SelectField
+                dataTestId={labelUnit}
                 disabled={values.fixed}
                 options={[
                   {
@@ -200,7 +196,7 @@ const DialogDowntime = ({
                   <Checkbox
                     checked={values.fixed}
                     color="primary"
-                    inputProps={{ 'aria-label': t(labelFixed) }}
+                    inputProps={{ 'aria-label': t(labelFixed) as string }}
                     size="small"
                     onChange={handleChange('fixed')}
                   />
@@ -210,6 +206,7 @@ const DialogDowntime = ({
             </Stack>
           </Stack>
           <TextField
+            dataTestId={labelComment}
             fullWidth
             multiline
             error={errors?.comment}

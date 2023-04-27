@@ -17,6 +17,7 @@ interface GetDestinationAndConfiguredTimezoneOffsetProps {
 
 interface UseDateTimePickerAdapterProps {
   Adapter;
+  desktopPickerMediaQuery: string;
 }
 
 enum DSTState {
@@ -30,11 +31,18 @@ interface ToTimezonedDateProps {
   timeZone?: string;
 }
 
+interface GetDSTStateProps {
+  date: dayjs.Dayjs;
+  timezoneToUse?: string;
+}
+
 export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   const { timezone, locale } = useAtomValue(userAtom);
   const { format } = useLocaleDateTimeFormat();
 
   const normalizedLocale = locale.substring(0, 2);
+
+  const desktopPickerMediaQuery = "@media (pointer: fine) or (min-width: 1024px)";
 
   const toTimezonedDate = ({
     date,
@@ -70,39 +78,28 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   };
 
   const getDSTState = useCallback(
-    (date: dayjs.Dayjs): DSTState => {
+    ({ date, timezoneToUse }: GetDSTStateProps): DSTState => {
+      const hasNoTimezone = isNil(timezoneToUse);
       const currentYear = toTimezonedDate({
         date: new Date(),
-        timeZone: timezone
+        timeZone: timezoneToUse
       }).getFullYear();
 
-      const january = dayjs(new Date(currentYear, 0, 1))
-        .tz(timezone)
-        .utcOffset();
-      const july = dayjs(new Date(currentYear, 6, 1)).tz(timezone).utcOffset();
-
-      if (equals(january, july)) {
-        return DSTState.NODST;
-      }
-
-      return july === date.utcOffset() ? DSTState.SUMMER : DSTState.WINTER;
-    },
-    [timezone]
-  );
-
-  const getDSTStateForCurrentTimezone = useCallback(
-    (date: dayjs.Dayjs): DSTState => {
-      const currentYear = new Date().getFullYear();
-
-      const january = dayjs(new Date(currentYear, 0, 1))
-        .utcOffset();
-      const july = dayjs(new Date(currentYear, 6, 1)).utcOffset();
+      const january = hasNoTimezone ? dayjs(new Date(currentYear, 0, 1)).utcOffset() : dayjs(new Date(currentYear, 0, 1)).tz(timezoneToUse).utcOffset();
+      const july = hasNoTimezone ? dayjs(new Date(currentYear, 6, 1)).utcOffset() : dayjs(new Date(currentYear, 6, 1)).tz(timezoneToUse).utcOffset();
 
       if (equals(january, july)) {
         return DSTState.NODST;
       }
 
       return july === date.tz().utcOffset() ? DSTState.SUMMER : DSTState.WINTER;
+    },
+    [timezone]
+  );
+
+  const getDSTStateForCurrentTimezone = useCallback(
+    (date: dayjs.Dayjs): DSTState => {
+      return getDSTState({ date });
     },
     []
   );
@@ -182,7 +179,7 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.endOf('month') as dayjs.Dayjs;
+      return date.tz(timezone).endOf('month') as dayjs.Dayjs;
     };
 
     public isSameMonth = (
@@ -193,7 +190,7 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getMonth = (date: dayjs.Dayjs): number => {
-      return date.month();
+      return date.tz(timezone).month();
     };
 
     public isAfter = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
@@ -228,16 +225,16 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
       const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
-      const startOfWeek = date.startOf('month').startOf('week');
-      const endOfWeek = date.endOf('month').endOf('week');
-      const start = startOfWeek.endOf('day');
+      const startOfWeek = date.tz(timezone).startOf('month').startOf('week');
+      const endOfWeek = date.tz(timezone).endOf('month').endOf('week');
+      const start = startOfWeek.startOf('day');
       const end = endOfWeek.endOf('day');
       const customStart = isMorning
         ? startOfWeek.startOf('day')
-        : startOfWeek.endOf('day');
+        : startOfWeek.startOf('day');
       const customEnd = isMorning
         ? endOfWeek.startOf('day')
-        : endOfWeek.endOf('day');
+        : endOfWeek.startOf('day');
       const currentStart = start.isUTC()
         ? start.tz(timezone, true)
         : customStart;
@@ -270,6 +267,8 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         size: 7
       });
 
+      console.log(weeksArray);
+
       return weeksArray as Array<Array<dayjs.Dayjs>>;
     };
 
@@ -279,7 +278,7 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     ): dayjs.Dayjs => {
       const dateWithTimezone = date.tz(timezone).startOf('day');
       const timeWithTimezone = time.tz(timezone);
-      const dateDSTState = getDSTState(dateWithTimezone);
+      const dateDSTState = getDSTState({ date: dateWithTimezone, timezoneToUse: timezone });
       const dateDSTStateWithCurrentTimezone = getDSTStateForCurrentTimezone(date);
 
       if (equals(dateDSTStateWithCurrentTimezone, DSTState.WINTER)) {
@@ -304,6 +303,7 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   }
 
   return {
-    Adapter
+    Adapter,
+    desktopPickerMediaQuery
   };
 };

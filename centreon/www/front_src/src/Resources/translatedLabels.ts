@@ -286,3 +286,4 @@ export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
 export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
+export const labelUnit = 'Unit';

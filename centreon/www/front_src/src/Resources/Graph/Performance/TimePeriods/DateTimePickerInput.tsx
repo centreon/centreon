@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
+import { useDateTimePickerAdapter } from '@centreon/ui';
 
 interface Props {
   changeDate: (props) => void;
@@ -22,6 +23,8 @@ const DateTimePickerInput = ({
   changeDate,
   disabled = false
 }: Props): JSX.Element => {
+  const { desktopPickerMediaQuery } = useDateTimePickerAdapter();
+
   const changeTime = (
     newValue: dayjs.Dayjs | null): void => {
       changeDate({ date: dayjs(newValue).toDate(), property });
@@ -34,6 +37,7 @@ const DateTimePickerInput = ({
       minDate={minDate && dayjs(minDate)}
       value={dayjs(date)}
       onChange={changeTime}
+      desktopModeMediaQuery={desktopPickerMediaQuery}
     />
   );
 };
