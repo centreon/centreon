@@ -16,7 +16,11 @@ import {
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import { useDebounce, useIntersectionObserver, useDeepCompare } from '../../../../utils';
+import {
+  useDebounce,
+  useIntersectionObserver,
+  useDeepCompare
+} from '../../../../utils';
 import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 import {

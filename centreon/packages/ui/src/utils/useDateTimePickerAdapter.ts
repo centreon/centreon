@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { equals, isNil, not, pipe } from 'ramda';
+import { equals, isNil, not } from 'ramda';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
@@ -39,8 +39,6 @@ interface GetDSTStateProps {
 export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   const { timezone, locale } = useAtomValue(userAtom);
   const { format } = useLocaleDateTimeFormat();
-
-  const normalizedLocale = locale.substring(0, 2);
 
   const desktopPickerMediaQuery =
     '@media (pointer: fine) or (min-width: 1024px)';
@@ -108,18 +106,6 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     },
     []
   );
-
-  const formatKeyboardValue = (value?: string): string | undefined => {
-    if (equals(normalizedLocale, 'en') || isNil(value)) {
-      return value;
-    }
-    const month = value.substring(0, 2);
-    const day = value.substring(3, 5);
-
-    const newValue = `${day}/${month}/${value.substring(6, 16)}`;
-
-    return newValue;
-  };
 
   interface Chunk {
     array: Array<unknown>;

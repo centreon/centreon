@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { closestCenter, DraggableSyntheticListeners,  } from '@dnd-kit/core';
+import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
 import { makeStyles, withStyles } from 'tss-react/mui';
