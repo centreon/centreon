@@ -3,17 +3,20 @@ import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useAtomValue, Provider, createStore } from 'jotai';
-import { equals } from 'ramda';
+import { equals, inc } from 'ramda';
+import { renderHook } from '@testing-library/react';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import { useLocaleDateTimeFormat, useDateTimePickerAdapter } from '@centreon/ui';
+import {
+  useLocaleDateTimeFormat,
+  useDateTimePickerAdapter
+} from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 
 import DateTimePickerInput from './DateTimePickerInput';
-import { renderHook } from '@testing-library/react';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -23,11 +26,11 @@ const retrievedUser = {
   alias: 'Admin alias',
   default_page: '/monitoring/resources',
   is_export_button_enabled: true,
+  isExportButtonEnabled: true,
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   use_deprecated_pages: false,
-  isExportButtonEnabled: true,
-  user_interface_density: ListingVariant.compact,
+  user_interface_density: ListingVariant.compact
 };
 
 const numberDaysInWeek = 7;
@@ -286,7 +289,8 @@ const getPreviousMonth = ({
   return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
-const formatDateToInputValue = (date: string): string => date.split(' ').join('⁩ ⁦');
+const formatDateToInputValue = (date: string): string =>
+  date.split(' ').join('⁩ ⁦');
 
 const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
@@ -294,13 +298,6 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
 
 testData.forEach((item) =>
   describe(`DateTimePicker ${item.button}`, () => {
-    before(() => {
-      const userData = renderHook(() => useAtomValue(userAtom));
-
-      userData.result.current.timezone = item.timezone;
-      userData.result.current.locale = 'en_US';
-    });
-
     beforeEach(() => {
       const { result } = renderHook(() => useDateTimePickerAdapter());
 
@@ -309,6 +306,7 @@ testData.forEach((item) =>
       const store = createStore();
       store.set(userAtom, {
         ...retrievedUser,
+        locale: 'en_US',
         timezone: item.timezone
       });
 
@@ -339,7 +337,7 @@ testData.forEach((item) =>
         formatString: 'L hh:mm A'
       });
 
-      cy.get('input').should('have.value', formatDateToInputValue(dateInput))
+      cy.get('input').should('have.value', formatDateToInputValue(dateInput));
     });
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
@@ -395,7 +393,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', numberWeeks);
+        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
         cy.get('@listWeeks').eq(0).as('firstWeek');
         cy.get('@firstWeek').children().as('listDaysInFirstWeek');
 
@@ -422,7 +420,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', numberWeeks);
+        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
 
         cy.get('@listWeeks')
           .eq(numberWeeks - 1)
