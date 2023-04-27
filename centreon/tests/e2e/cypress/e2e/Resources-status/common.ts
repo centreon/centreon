@@ -159,8 +159,8 @@ const submitCustomResultsViaClapi = (
 ): Cypress.Chainable => {
   const timestampNow = Math.floor(Date.now() / 1000) - 15;
   const statusIds = {
-    down: 1,
-    unreachable: 2
+    down: '1',
+    unreachable: '2'
   };
 
   return cy.request({

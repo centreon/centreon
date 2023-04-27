@@ -1,5 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
+import { submitCustomResultsViaClapi } from './e2e/Resources-status/common';
+
 interface ActionClapi {
   action: string;
   object?: string;
@@ -21,6 +23,7 @@ const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
 let servicesFoundStepCount = 0;
+let hostsFoundStepCount = 0;
 
 const checkThatFixtureServicesExistInDatabase = (): void => {
   cy.log('Checking services in database');
@@ -50,6 +53,39 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
         .wrap(null)
         .then(() => submitResultsViaClapi())
         .then(() => checkThatFixtureServicesExistInDatabase());
+    }
+
+    throw new Error(
+      `No service found in the database after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
+const checkThatFixtureHostsExistInDatabase = (): void => {
+  cy.log('Checking hosts in database');
+
+  const query = `SELECT COUNT(h.host_id) as count_hosts from hosts as h WHERE h.alias LIKE '%Test_host_ack%' AND h.output LIKE '%submit_test_host_ack%' AND h.enabled=1;`;
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
+
+  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+    hostsFoundStepCount += 1;
+
+    const output = stdout || '0';
+    const foundServiceCount = parseInt(output.split('\n')[1], 10);
+
+    cy.log('Host count in database', foundServiceCount);
+    cy.log('Host database check step count', hostsFoundStepCount);
+
+    if (foundServiceCount > 0) {
+      return null;
+    }
+
+    if (hostsFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy.wrap(null).then(() => checkThatFixtureHostsExistInDatabase());
     }
 
     throw new Error(
@@ -155,6 +191,7 @@ export {
   ActionClapi,
   checkThatConfigurationIsExported,
   checkThatFixtureServicesExistInDatabase,
+  checkThatFixtureHostsExistInDatabase,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,

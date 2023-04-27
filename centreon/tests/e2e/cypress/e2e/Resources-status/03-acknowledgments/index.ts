@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { checkThatFixtureHostsExistInDatabase } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
@@ -274,13 +275,15 @@ Given(
       host: hostChildInAcknowledgementName,
       output: `submit_${hostChildInAcknowledgementName}`,
       status: initial_status
-    }).then(() => {
-      cy.contains(hostChildInAcknowledgementName)
-        .parent()
-        .parent()
-        .find('input[type="checkbox"]:first')
-        .click();
     });
+
+    checkThatFixtureHostsExistInDatabase();
+
+    cy.contains(hostChildInAcknowledgementName)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .click();
   }
 );
 
@@ -302,8 +305,7 @@ When('the resource is marked as acknowledged', () => {
 
   cy.waitUntil(
     () => {
-      return cy
-        .refreshListing()
+      cy.refreshListing()
         .then(() => cy.contains(hostChildInAcknowledgementName))
         .parent()
         .then((val) => {

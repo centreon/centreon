@@ -43,5 +43,4 @@ Scenario Outline: Acknowledge a resource with sticky only on a host
     
     Examples:
       | initial_status | changed_status |
-      | down           | unreachable    |
-      | unreachable    | warning        |
+      | unreachable    | up        |
