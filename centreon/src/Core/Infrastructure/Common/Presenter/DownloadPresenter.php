@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Symfony\Component\HttpFoundation\Response;
 
 class DownloadPresenter implements PresenterFormatterInterface
 {
