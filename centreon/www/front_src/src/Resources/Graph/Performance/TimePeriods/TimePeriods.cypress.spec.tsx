@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue, Provider, createStore } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { equals, inc } from 'ramda';
 import { renderHook } from '@testing-library/react';
 

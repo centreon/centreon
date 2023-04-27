@@ -1,23 +1,25 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
 import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
   Alert,
-  TextFieldProps,
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
 
-import { Dialog, TextField, SelectField } from '@centreon/ui';
+import {
+  Dialog,
+  TextField,
+  SelectField,
+  useDateTimePickerAdapter
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
@@ -33,11 +35,11 @@ import {
   labelSetDowntimeOnServices,
   labelTo,
   labelUnit,
-  labelFrom
+  labelStartTime,
+  labelEndTime
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
-import { useDateTimePickerAdapter } from '@centreon/ui/src';
 
 import { DowntimeFormValues } from '.';
 
@@ -72,10 +74,7 @@ const DialogDowntime = ({
 
   const { locale } = useAtomValue(userAtom);
 
-  const {
-    Adapter,
-    desktopPickerMediaQuery
-  } = useDateTimePickerAdapter();
+  const { Adapter } = useDateTimePickerAdapter();
 
   const open = resources.length > 0;
 
@@ -121,27 +120,25 @@ const DialogDowntime = ({
             gap={1}
             gridTemplateColumns="1fr auto 1fr"
           >
-            <DateTimePicker<dayjs.Dayjs>
+            <DesktopDatePicker<dayjs.Dayjs>
               maxDate={dayjs(maxEndDate)}
+              slotProps={{
+                textField: {
+                  'aria-label': t(labelStartTime) as string
+                }
+              }}
               value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
-              desktopModeMediaQuery={desktopPickerMediaQuery}
-              slotProps={{
-                textField: {
-                  "aria-label": t(labelFrom) as string,
-                }
-              }}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
-            <DateTimePicker<dayjs.Dayjs>
-              value={dayjs(values.endTime)}
-              onChange={changeTime('endTime')}
-              desktopModeMediaQuery={desktopPickerMediaQuery}
+            <DesktopDatePicker<dayjs.Dayjs>
               slotProps={{
                 textField: {
-                  "aria-label": t(labelTo) as string,
+                  'aria-label': t(labelEndTime) as string
                 }
               }}
+              value={dayjs(values.endTime)}
+              onChange={changeTime('endTime')}
             />
             {isNil(errors?.startTime) ? (
               <div />
@@ -163,8 +160,8 @@ const DialogDowntime = ({
 
             <Stack alignItems="center" direction="row" spacing={1}>
               <TextField
-                dataTestId={labelDuration}
                 ariaLabel={t(labelDuration) as string}
+                dataTestId={labelDuration}
                 disabled={values.fixed}
                 error={errors?.duration?.value}
                 type="number"
@@ -206,9 +203,9 @@ const DialogDowntime = ({
             </Stack>
           </Stack>
           <TextField
-            dataTestId={labelComment}
             fullWidth
             multiline
+            dataTestId={labelComment}
             error={errors?.comment}
             label={t(labelComment)}
             rows={3}

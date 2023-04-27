@@ -4,11 +4,13 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import {
   CustomTimePeriod,
@@ -21,8 +23,6 @@ import {
 } from '../../../translatedLabels';
 
 import PopoverCustomTimePeriodPickers from './PopoverCustomTimePeriodPicker';
-import { useAtomValue } from 'jotai';
-import { userAtom } from '@centreon/ui-context';
 
 interface AcceptDateProps {
   date: Date;
