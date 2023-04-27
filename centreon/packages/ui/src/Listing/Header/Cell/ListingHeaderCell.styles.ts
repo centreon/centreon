@@ -13,15 +13,12 @@ interface StylesProps {
 const useStyles = makeStyles<StylesProps>()(
   (theme, { isDragging, isInDragOverlay, viewMode }) => ({
     active: {
+      '&, &:hover, &:focus': {
+        color: theme.palette.common.white
+      },
       '&.Mui-active': {
         '& .MuiTableSortLabel-icon': {
           color: theme.palette.common.white
-        },
-        color: theme.palette.common.white
-      },
-      '&:hover': {
-        '& .MuiTableSortLabel-icon': {
-          opacity: 1
         },
         color: theme.palette.common.white
       }
@@ -47,7 +44,8 @@ const useStyles = makeStyles<StylesProps>()(
     simpleHeaderCellContent: {
       alignItems: 'center',
       display: 'inline-flex',
-      marginRight: theme.spacing(2)
+      marginRight: theme.spacing(2),
+      userSelect: 'none'
     },
     tableCell: {
       backgroundColor: isInDragOverlay
@@ -64,7 +62,7 @@ const useStyles = makeStyles<StylesProps>()(
       },
       '&[data-isindragoverlay=true]': {
         display: 'block',
-        opacity: .7,
+        opacity: 0.7
       }
     }
   })

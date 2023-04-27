@@ -140,6 +140,7 @@ const columnMemoProps = [
   'label',
   'rowMemoProps',
   'sortField',
+  'sortOrder',
   'sortable',
   'type'
 ];

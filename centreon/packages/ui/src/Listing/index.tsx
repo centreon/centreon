@@ -107,7 +107,7 @@ export interface Props<TRow> {
   onRowClick?: (row: TRow) => void;
   onSelectColumns?: (selectedColumnIds: Array<string>) => void;
   onSelectRows?: (rows: Array<TRow>) => void;
-  onSort?: (sortParams) => void;
+  onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
   predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
