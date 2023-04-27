@@ -13,8 +13,13 @@ export interface Axis {
 export interface AxisYRight extends Axis {
   display?: boolean;
 }
+
+export interface AxisX {
+  [x: string]: unknown;
+  xAxisTickFormat: string;
+}
 export interface Data {
-  axisX?: Record<string, unknown>;
+  axisX?: AxisX;
   axisYLeft?: Axis;
   axisYRight?: AxisYRight;
   baseAxis: number;

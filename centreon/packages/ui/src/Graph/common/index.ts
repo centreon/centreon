@@ -19,4 +19,15 @@ const getFillColor = ({
 }: FillColor): string | undefined =>
   transparency ? alpha(areaColor, 1 - transparency * 0.01) : undefined;
 
-export { commonTickLabelProps, margin, getFillColor };
+const dateFormat = 'L';
+const timeFormat = 'LT';
+const dateTimeFormat = `${dateFormat} ${timeFormat}`;
+
+export {
+  commonTickLabelProps,
+  margin,
+  getFillColor,
+  dateFormat,
+  timeFormat,
+  dateTimeFormat
+};

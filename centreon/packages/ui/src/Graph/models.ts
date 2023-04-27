@@ -1,5 +1,5 @@
 import { Line, Metric, TimeValue } from './timeSeries/models';
-import { Axis as AxisYLeft, AxisYRight } from './Axes/models';
+import { AxisX, Axis as AxisYLeft, AxisYRight } from './Axes/models';
 import { AreaRegularLines, AreaStackedLinesData } from './Lines/models';
 
 export interface GraphData {
@@ -8,11 +8,22 @@ export interface GraphData {
   times: Array<string>;
 }
 
+export interface GraphEndpoint {
+  baseUrl: string;
+  queryParameters: GraphParameters;
+}
+
 export interface Data {
   baseAxis: number;
+  graphEndpoint: GraphEndpoint;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   title: string;
+}
+
+export interface GraphParameters {
+  end: Date;
+  start: Date;
 }
 
 export interface AnchorPoint {
@@ -31,7 +42,7 @@ export interface ShapeLines {
 }
 
 export interface Axis {
-  axisX?: Record<string, unknown>;
+  axisX?: AxisX;
   axisYLeft?: AxisYLeft;
   axisYRight?: AxisYRight;
 }

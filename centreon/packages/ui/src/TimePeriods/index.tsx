@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { Responsive } from '@visx/visx';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { lt } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -14,8 +14,10 @@ import CustomTimePeriodPickers from './CustomTimePeriod/CustomTimePeriodPickers'
 import TimePeriodButtonGroup from './TimePeriodButton';
 import { LabelDay, LabelTimePeriodPicker } from './models';
 import {
+  adjustTimePeriodDerivedAtom,
   customTimePeriodAtom,
-  getGraphQueryParametersDerivedAtom,
+  getDatesDerivedAtom,
+  getTimePeriodParametersDerivedAtom,
   selectedTimePeriodAtom
 } from './timePeriodAtoms';
 
@@ -39,21 +41,24 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
 }));
 
 interface Props {
-  disableGraphOptions?: boolean;
+  // disableGraphOptions?: boolean;
   disablePaper?: boolean;
-  disabled?: boolean;
-  getGraphParameters?: (data) => void;
+  getDates?: (data) => void;
+  getTimePeriodParameters?: (data) => void;
   height?: number;
   labelButtonGroups?: Array<LabelDay>;
   labelTimePeriodPicker?: LabelTimePeriodPicker;
+  setTimePeriod?: any;
 }
 
 const TimePeriod = ({
-  disableGraphOptions = false,
+  // disableGraphOptions = false,
   disablePaper = false,
   height = 100,
   labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' },
-  getGraphParameters
+  getTimePeriodParameters,
+  getDates,
+  setTimePeriod
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disablePaper });
   const theme = useTheme();
@@ -61,19 +66,22 @@ const TimePeriod = ({
   const { themeMode } = useAtomValue(userAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
+  const getDatesTimePeriod = useAtomValue(getDatesDerivedAtom);
+  const timePeriodParameters = useAtomValue(getTimePeriodParametersDerivedAtom);
 
-  const getGraphQueryParameters = useAtomValue(
-    getGraphQueryParametersDerivedAtom
-  );
+  const adjustTimePeriod = useUpdateAtom(adjustTimePeriodDerivedAtom);
 
-  const graphQueryParameters = getGraphQueryParameters({
+  const parameters = timePeriodParameters({
     endDate: customTimePeriod.end,
     startDate: customTimePeriod.start,
     timePeriod: selectedTimePeriod
   });
 
+  setTimePeriod?.(adjustTimePeriod);
+
   useEffect(() => {
-    getGraphParameters?.(graphQueryParameters);
+    getTimePeriodParameters?.(parameters);
+    getDates?.(getDatesTimePeriod(selectedTimePeriod));
   }, [selectedTimePeriod, customTimePeriod]);
 
   return useMemoComponent({
@@ -97,13 +105,7 @@ const TimePeriod = ({
         </Responsive.ParentSize>
       </div>
     ),
-    memoProps: [
-      disableGraphOptions,
-      disablePaper,
-      selectedTimePeriod,
-      customTimePeriod,
-      themeMode
-    ]
+    memoProps: [disablePaper, selectedTimePeriod, customTimePeriod, themeMode]
   });
 };
 

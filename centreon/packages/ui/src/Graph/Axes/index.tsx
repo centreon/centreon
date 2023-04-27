@@ -32,7 +32,7 @@ const Axes = ({
 
   const [firstUnit, secondUnit] = getUnits(lines);
 
-  const xAxisTickFormat = 'LT';
+  const { xAxisTickFormat } = data?.axisX || { xAxisTickFormat: 'LT' };
   const xTickCount = Math.ceil(width / 82);
 
   const formatAxisTick = (tick): string =>

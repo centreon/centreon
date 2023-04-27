@@ -1,18 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 
 import { Group } from '@visx/visx';
-import { difference } from 'ramda';
+import dayjs from 'dayjs';
+import { useUpdateAtom } from 'jotai/utils';
+import { difference, equals, gte } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { alpha, useTheme } from '@mui/system';
 
-import {
-  getLeftScale,
-  getRightScale,
-  getSortedStackedLines,
-  getXScale
-} from './timeSeries';
-import { Line } from './timeSeries/models';
 import Axes from './Axes';
 import Grids from './Grids';
 import Header from './Header';
@@ -23,18 +18,18 @@ import StackedAnchorPoint, {
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
 import ZoomPreview from './InteractionWithGraph/ZoomPreview';
 import useZoomPreview from './InteractionWithGraph/ZoomPreview/useZoomPreview';
+import { ZoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import Lines from './Lines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
-import { margin } from './common';
-import { adjustGraphData } from './helpers';
+import { dateFormat, margin, timeFormat } from './common';
+import { AreaAnchorPoint, Axis, Data, GridsModel, ShapeLines } from './models';
 import {
-  AreaAnchorPoint,
-  Axis,
-  Data,
-  GraphData,
-  GridsModel,
-  ShapeLines
-} from './models';
+  getLeftScale,
+  getRightScale,
+  getSortedStackedLines,
+  getXScale
+} from './timeSeries';
+import { Line } from './timeSeries/models';
 
 const useStyles = makeStyles()((theme) => ({
   overlay: {
@@ -65,6 +60,7 @@ const Graph = ({
 
   const [eventMouseMoving, setEventMouseMoving] = useState<null | any>(null);
   const [eventMouseDown, setEventMouseDown] = useState<null | any>(null);
+  const setZoomParameters = useUpdateAtom(ZoomParametersAtom);
 
   const theme = useTheme();
 
@@ -73,7 +69,7 @@ const Graph = ({
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const { title, timeSeries, lines, baseAxis } = graphData;
+  const { title, timeSeries, lines, baseAxis, endpoint } = graphData;
 
   const xScale = useMemo(
     () =>
@@ -169,8 +165,28 @@ const Graph = ({
     setEventMouseDown(null);
   };
 
+  const applyZoom = (): void => {
+    if (equals(zoomBoundaries?.start, zoomBoundaries?.end)) {
+      return;
+    }
+    setZoomParameters({
+      end: xScale.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
+      start: xScale.invert(zoomBoundaries?.start || 0)?.toISOString()
+    });
+  };
+
   const mouseUp = (): void => {
     setEventMouseDown(null);
+    applyZoom();
+  };
+
+  const getXAxisTickFormat = (): string => {
+    const { queryParameters } = endpoint;
+    const numberDays = dayjs
+      .duration(dayjs(queryParameters.end).diff(dayjs(queryParameters.start)))
+      .asDays();
+
+    return gte(numberDays, 2) ? dateFormat : timeFormat;
   };
 
   return (
@@ -200,6 +216,7 @@ const Graph = ({
           />
           <Axes
             data={{
+              axisX: { xAxisTickFormat: getXAxisTickFormat() },
               baseAxis,
               lines,
               timeSeries,

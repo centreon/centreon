@@ -5,7 +5,14 @@ import { gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
 
-const useZoomPreview = ({ eventMouseDown, movingMouseX }: any): any => {
+import { ZoomBoundaries } from './models';
+
+interface ZoomPreview {
+  zoomBarWidth: number;
+  zoomBoundaries: ZoomBoundaries;
+}
+
+const useZoomPreview = ({ eventMouseDown, movingMouseX }: any): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<any | null>(null);
   const mousePoint = Event.localPoint(eventMouseDown);
 
