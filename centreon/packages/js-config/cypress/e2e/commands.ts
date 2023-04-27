@@ -251,7 +251,7 @@ Cypress.Commands.add(
     const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
 
     return cy
-      .task('startContainer', {
+      .startContainer({
         image,
         name,
         portBindings: [{ destination: 4000, source: 80 }]
