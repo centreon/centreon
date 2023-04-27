@@ -413,6 +413,8 @@ jobs:
       image_name: centreon-web
       features_path: tests/e2e/cypress/e2e
       major_version: ${{ needs.get-version.outputs.major_version }}
+      package_cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-el9
+      package_directory: tests/e2e/cypress/fixtures
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}

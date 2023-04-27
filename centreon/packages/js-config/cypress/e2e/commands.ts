@@ -6,13 +6,17 @@ const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return cy
-    .execInContainer({
-      command: `bash -c "rpm -qa | grep centreon-web | cut -d '-' -f3"`,
-      name: Cypress.env('dockerName')
-    })
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap);
+    .exec(
+      `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
+    )
+    .then(({ stdout }) => {
+      const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
+      if (found) {
+        return cy.wrap({ major_version: found[1], minor_version: found[2] });
+      }
+
+      throw new Error('Current web version cannot be parsed.');
+    });
 });
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {

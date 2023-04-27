@@ -88,13 +88,25 @@ EOF`,
 };
 
 const updatePlatformPackages = (): Cypress.Chainable => {
-  return cy.execInContainer({
-    command: `bash -e <<EOF
-      dnf clean all --enablerepo=*
-      dnf --nogpgcheck -y update centreon\\*
-EOF`,
-    name: Cypress.env('dockerName')
-  });
+  return cy
+    .execInContainer({
+      command: `mkdir /tmp/rpms-update-centreon`,
+      name: Cypress.env('dockerName')
+    })
+    .copyOntoContainer({
+      destPath: '/tmp/rpms-update-centreon/',
+      srcPath: './cypress/fixtures/*.rpm'
+    })
+    .getWebVersion()
+    .then(({ major_version }) => {
+      return cy.execInContainer({
+        command: `bash -e <<EOF
+        rm -f /tmp/rpms-update-centreon/centreon-${major_version}*.rpm /tmp/rpms-update-centreon/centreon-central-${major_version}*.rpm
+        dnf install -y /tmp/rpms-update-centreon/*.rpm
+  EOF`,
+        name: Cypress.env('dockerName')
+      });
+    });
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {

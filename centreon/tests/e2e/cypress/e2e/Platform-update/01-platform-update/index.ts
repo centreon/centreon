@@ -9,6 +9,40 @@ import {
   updatePlatformPackages
 } from '../common';
 
+before(() => {
+  cy.getWebVersion().then(({ major_version, minor_version }) => {
+    if (minor_version === '0') {
+      cy.log(
+        `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
+      );
+
+      return Cypress.runner.stop();
+    }
+
+    return cy
+      .startContainer({
+        image: `docker.centreon.com/centreon/centreon-web-dependencies-alma8:${major_version}`,
+        name: Cypress.env('dockerName'),
+        portBindings: [
+          {
+            destination: 4000,
+            source: 80
+          }
+        ]
+      })
+      .then(() => {
+        Cypress.config('baseUrl', 'http://localhost:4000');
+
+        return cy
+          .intercept('/waiting-page', {
+            headers: { 'content-type': 'text/html' },
+            statusCode: 200
+          })
+          .visit('/waiting-page');
+      });
+  });
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -56,34 +90,13 @@ beforeEach(() => {
 });
 
 Given('a running platform in first minor version', () => {
-  const version_from = '22.10.0';
-
-  cy.startContainer({
-    // image: `docker.centreon.com/centreon/centreon-web-dependencies-alma8:${version_from}`,
-    image: 'docker.centreon.com/centreon/centreon-web-dependencies-alma8:23.04',
-    name: Cypress.env('dockerName'),
-    portBindings: [
-      {
-        destination: 4000,
-        source: 80
-      }
-    ]
-  })
-    .then(() => {
-      Cypress.config('baseUrl', 'http://localhost:4000');
-
-      return cy
-        .intercept('/waiting-page', {
-          headers: { 'content-type': 'text/html' },
-          statusCode: 200
-        })
-        .visit('/waiting-page');
-    })
-    .then(() => {
-      installCentreon(version_from).then(() => {
-        return checkPlatformVersion(version_from).then(() => cy.visit('/'));
-      });
+  cy.getWebVersion().then(({ major_version }) => {
+    installCentreon(`${major_version}.0`).then(() => {
+      return checkPlatformVersion(`${major_version}.0`).then(() =>
+        cy.visit('/')
+      );
     });
+  });
 });
 
 When('administrator updates packages to current version', () => {

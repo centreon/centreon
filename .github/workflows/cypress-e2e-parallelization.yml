@@ -16,6 +16,12 @@ on:
       major_version:
         required: true
         type: string
+      package_cache_key:
+        required: false
+        type: string
+      package_directory:
+        required: false
+        type: string
     secrets:
       registry_username:
         required: true
@@ -50,6 +56,20 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+
+      - name: Restore packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: ${{ inputs.package_cache_key }}
+          fail-on-cache-miss: true
+
+      - name: Move packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        run: |
+          mv ./*.rpm ${{ inputs.package_directory }}
+        shell: bash
 
       - name: Login to Registry
         uses: docker/login-action@v2
