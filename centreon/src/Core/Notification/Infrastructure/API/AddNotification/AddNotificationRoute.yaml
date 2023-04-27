@@ -1,0 +1,5 @@
+AddNotification:
+  methods: POST
+  path: /configuration/notifications
+  controller: 'Core\Notification\Infrastructure\API\AddNotification\AddNotificationController'
+  condition: "request.attributes.get('version') >= 23.04"

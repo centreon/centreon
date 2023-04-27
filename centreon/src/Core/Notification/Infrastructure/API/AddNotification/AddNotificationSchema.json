@@ -1,0 +1,69 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add notification",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "timeperiod",
+        "resources",
+        "users"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "timeperiod": {
+            "type": "integer"
+        },
+        "users": {
+            "type": "array"
+        },
+        "messages": {
+            "type": "array",
+            "required": [
+                "channel",
+                "subject",
+                "message"
+            ],
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "resources": {
+            "type": "array",
+            "required": [
+                "type",
+                "ids",
+                "events"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "ids": {
+                    "type": "array"
+                },
+                "events": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "event_services": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "is_activated": {
+            "type": "boolean"
+        }
+    }
+}

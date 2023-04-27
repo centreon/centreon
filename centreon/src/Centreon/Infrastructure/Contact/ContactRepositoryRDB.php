@@ -231,6 +231,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         foreach($userIds as $key => $userId) {
             $bind[":user_$key"] = $userId;
         }
+        if ($bind === []) {
+            return [];
+        }
         $request = $this->translateDbName(
            'SELECT contact_id FROM `:db`.contact
             WHERE contact_id IN ( ' . implode(', ', array_keys($bind)) . ')'
