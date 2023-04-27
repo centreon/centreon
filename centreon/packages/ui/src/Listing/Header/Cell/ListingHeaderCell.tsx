@@ -74,8 +74,8 @@ const ListingHeaderCell = ({
     <TableCell
       className={classes.tableCell}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
-      data-isDragging={isDragging}
-      data-isInDragOverlay={isInDragOverlay}
+      data-isdragging={isDragging}
+      data-isindragoverlay={isInDragOverlay}
       ref={itemRef}
       style={style}
     >

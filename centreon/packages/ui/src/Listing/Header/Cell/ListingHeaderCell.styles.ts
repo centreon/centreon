@@ -57,13 +57,14 @@ const useStyles = makeStyles<StylesProps>()(
       height: 'inherit',
       padding: theme.spacing(0, 1),
       ...getTextStyleByViewMode({ theme, viewMode }),
-      '&:hover, &:focus, &:focus-within, &[data-isDragging=true]': {
+      '&:hover, &:focus-within, &[data-isdragging=true]': {
         '& .dragHandle': {
           opacity: 1
         }
       },
-      '&[data-isInDragOverlay=true]': {
-        display: 'block'
+      '&[data-isindragoverlay=true]': {
+        display: 'block',
+        opacity: .7,
       }
     }
   })
