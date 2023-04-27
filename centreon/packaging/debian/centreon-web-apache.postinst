@@ -20,16 +20,19 @@ if [ "$1" = "configure" ] ; then
   fi
 
   if [ "$(getent passwd www-data)" ]; then
+    echo "Updating centreon and www-data group membership."
     usermod -a -G centreon www-data
     usermod -a -G www-data centreon
   fi
 
   if [ "$(getent passwd centreon-gorgone)" ]; then
+    echo "Updating centreon-gorgone and www-data group membership."
     usermod -a -G centreon-gorgone www-data
     usermod -a -G www-data centreon-gorgone
   fi
 
   if [ "$(getent passwd centreon-broker)" ]; then
+    echo "Updating centreon-broker and www-data group membership."
     usermod -a -G centreon-broker www-data
     usermod -a -G www-data centreon-broker
   fi
