@@ -79,7 +79,8 @@ final class AddNotification
         try {
             // TODO topology role created in front code,
             // TODO how to handle feature flag in role const definition ?
-            if (false /* ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATION_READ_WRITE */) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATION_READ_WRITE))
+            {
                 $this->error(
                     "User doesn't have sufficient rights to add notifications",
                     ['user_id' => $this->user->getId()]
@@ -119,7 +120,6 @@ final class AddNotification
 
             $notification = $this->readNotificationRepository->findById($newNotificationId)
                 ?? throw NotificationException::errorWhileRetrievingObject();
-            $notification->getTimePeriod();
             $messages = $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId);
             $users = $this->readNotificationRepository->findUsersByNotificationId($newNotificationId);
             $resources = $this->findResourcesByNotificationId($newNotificationId);
@@ -412,7 +412,8 @@ final class AddNotification
                     $resource->getResources()
                 ),
             ];
-            if (method_exists($resource,'getServiceEvents')){
+            if ($resource->getServiceEvents() !== 0)
+            {
                 $responseResource['extra'] = [
                     'event_services' => NotificationServiceEvent::toBitmask($resource->getServiceEvents())
                 ];
