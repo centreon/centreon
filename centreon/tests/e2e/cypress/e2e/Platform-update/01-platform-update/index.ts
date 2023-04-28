@@ -31,7 +31,7 @@ before(() => {
         ]
       })
       .then(() => {
-        Cypress.config('baseUrl', 'http://localhost:4000');
+        Cypress.config('baseUrl', 'http://0.0.0.0:4000');
 
         return cy
           .intercept('/waiting-page', {
