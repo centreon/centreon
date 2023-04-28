@@ -265,11 +265,7 @@ Cypress.Commands.add(
           `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
-      .intercept('/waiting-page', {
-        headers: { 'content-type': 'text/html' },
-        statusCode: 200
-      })
-      .visit('/waiting-page') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
+      .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
   }
 );
