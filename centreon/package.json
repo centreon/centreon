@@ -36,6 +36,7 @@
     "@types/d3-array": "^3.0.3",
     "@types/ramda": "^0.28.20",
     "@types/react": "^18.0.26",
+    "@types/testing-library__cypress": "^5.0.9",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "clean-webpack-plugin": "^4.0.0",
