@@ -94,8 +94,8 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       name: Cypress.env('dockerName')
     })
     .copyOntoContainer({
-      destPath: '/tmp/rpms-update-centreon/',
-      srcPath: './cypress/fixtures/*.rpm'
+      destPath: '/tmp/rpms-update-centreon',
+      srcPath: './cypress/fixtures'
     })
     .getWebVersion()
     .then(({ major_version }) => {

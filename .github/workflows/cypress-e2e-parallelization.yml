@@ -69,6 +69,7 @@ jobs:
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
         run: |
+          mkdir -p ${{ inputs.package_directory }}
           mv ./*.rpm ${{ inputs.package_directory }}
         shell: bash
 
