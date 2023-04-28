@@ -148,7 +148,6 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
 };
 
 const insertResources = (): Cypress.Chainable => {
-  // return insertFixture('resources/clapi/host2/01-add.json');
   const files = [
     'resources/clapi/host1/01-add.json',
     'resources/clapi/service1/01-add.json',
