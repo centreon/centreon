@@ -15,7 +15,7 @@ export interface GraphEndpoint {
 
 export interface Data {
   baseAxis: number;
-  graphEndpoint: GraphEndpoint;
+  endpoint: GraphEndpoint;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   title: string;

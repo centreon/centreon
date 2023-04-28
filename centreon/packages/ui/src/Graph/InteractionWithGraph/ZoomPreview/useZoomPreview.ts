@@ -1,25 +1,45 @@
 import { useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
-import { gte, isNil, lt } from 'ramda';
+import { useUpdateAtom } from 'jotai/utils';
+import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
 
 import { ZoomBoundaries } from './models';
+import { ZoomParametersAtom } from './zoomPreviewAtoms';
 
 interface ZoomPreview {
   zoomBarWidth: number;
   zoomBoundaries: ZoomBoundaries;
 }
 
-const useZoomPreview = ({ eventMouseDown, movingMouseX }: any): ZoomPreview => {
+const useZoomPreview = ({
+  eventMouseDown,
+  movingMouseX,
+  xScale,
+  graphWidth
+}: any): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<any | null>(null);
+  const setZoomParameters = useUpdateAtom(ZoomParametersAtom);
+
   const mousePoint = Event.localPoint(eventMouseDown);
 
   const mouseDownX = mousePoint ? mousePoint.x - margin.left : null;
 
+  const applyZoom = (): void => {
+    if (equals(zoomBoundaries?.start, zoomBoundaries?.end)) {
+      return;
+    }
+    setZoomParameters({
+      end: xScale?.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
+      start: xScale?.invert(zoomBoundaries?.start || 0)?.toISOString()
+    });
+  };
+
   useEffect(() => {
     if (isNil(eventMouseDown)) {
+      applyZoom();
       setZoomBoundaries(null);
 
       return;

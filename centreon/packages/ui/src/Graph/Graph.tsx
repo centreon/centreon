@@ -2,23 +2,18 @@ import { useMemo, useRef, useState } from 'react';
 
 import { Group } from '@visx/visx';
 import dayjs from 'dayjs';
-import { useUpdateAtom } from 'jotai/utils';
-import { difference, equals, gte } from 'ramda';
+import { difference, gte } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { alpha, useTheme } from '@mui/system';
 
 import Axes from './Axes';
 import Grids from './Grids';
 import Header from './Header';
+import InteractionWithGraph from './InteractionWithGraph';
 import RegularAnchorPoint from './InteractionWithGraph/AnchorPoint/RegularAnchorPoint';
 import StackedAnchorPoint, {
   StackValue
 } from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
-import ZoomPreview from './InteractionWithGraph/ZoomPreview';
-import useZoomPreview from './InteractionWithGraph/ZoomPreview/useZoomPreview';
-import { ZoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import Lines from './Lines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { dateFormat, margin, timeFormat } from './common';
@@ -31,7 +26,7 @@ import {
 } from './timeSeries';
 import { Line } from './timeSeries/models';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   overlay: {
     cursor: 'crosshair'
   }
@@ -60,9 +55,6 @@ const Graph = ({
 
   const [eventMouseMoving, setEventMouseMoving] = useState<null | any>(null);
   const [eventMouseDown, setEventMouseDown] = useState<null | any>(null);
-  const setZoomParameters = useUpdateAtom(ZoomParametersAtom);
-
-  const theme = useTheme();
 
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -110,11 +102,6 @@ const Graph = ({
   const { regularStackedLines, invertedStackedLines } = useStackedLines({
     lines,
     timeSeries
-  });
-
-  const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
-    eventMouseDown,
-    movingMouseX: positionX
   });
 
   const regularLines = (): Array<Line> => {
@@ -165,19 +152,8 @@ const Graph = ({
     setEventMouseDown(null);
   };
 
-  const applyZoom = (): void => {
-    if (equals(zoomBoundaries?.start, zoomBoundaries?.end)) {
-      return;
-    }
-    setZoomParameters({
-      end: xScale.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
-      start: xScale.invert(zoomBoundaries?.start || 0)?.toISOString()
-    });
-  };
-
   const mouseUp = (): void => {
     setEventMouseDown(null);
-    applyZoom();
   };
 
   const getXAxisTickFormat = (): string => {
@@ -228,15 +204,14 @@ const Graph = ({
             width={graphWidth}
             xScale={xScale}
           />
-
-          <ZoomPreview
-            open
-            fill={alpha(theme.palette.primary.main, 0.2)}
-            height={graphHeight}
-            stroke={alpha(theme.palette.primary.main, 0.5)}
-            width={zoomBarWidth}
-            x={zoomBoundaries?.start || 0}
-            y={0}
+          <InteractionWithGraph
+            zoomPreviewData={{
+              eventMouseDown,
+              graphHeight,
+              graphWidth,
+              positionX,
+              xScale
+            }}
           />
           <Lines
             anchorPoint={{
