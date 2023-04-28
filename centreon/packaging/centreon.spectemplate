@@ -1,8 +1,8 @@
 %define name centreon
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
-%define thismajor 23.04.0
-%define nextmajor 23.05.0
+%define thismajor 23.10.0
+%define nextmajor 23.11.0
 
 #%define selinuxdevel %{_datadir}/selinux/devel
 
