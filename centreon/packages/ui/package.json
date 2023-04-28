@@ -73,7 +73,7 @@
     "axios": "0.x",
     "dayjs": "1.x",
     "formik": "2.x",
-    "jotai": "1.x",
+    "jotai": "2.x",
     "numeral": "2.x",
     "ramda": "0.x",
     "react": "18.x",

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { Provider } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, head, last, map, pick } from 'ramda';
 
@@ -199,16 +199,15 @@ const ActionsWithContext = (): JSX.Element => {
 };
 
 const renderActions = (aclAtions = mockAcl): RenderResult => {
+  const store = createStore();
+  store.set(userAtom, mockUser);
+  store.set(refreshIntervalAtom, mockRefreshInterval);
+  store.set(downtimeAtom, mockDowntime);
+  store.set(aclAtom, aclAtions);
+  store.set(acknowledgementAtom, mockAcknowledgement);
+
   return render(
-    <Provider
-      initialValues={[
-        [userAtom, mockUser],
-        [refreshIntervalAtom, mockRefreshInterval],
-        [downtimeAtom, mockDowntime],
-        [aclAtom, aclAtions],
-        [acknowledgementAtom, mockAcknowledgement]
-      ]}
-    >
+    <Provider store={store}>
       <ActionsWithContext />
     </Provider>
   );
@@ -1059,14 +1058,14 @@ describe(Actions, () => {
           ...host,
           status: {
             name: 'UP',
-            severity_code: SeverityCode.Ok
+            severity_code: SeverityCode.OK
           }
         },
         {
           ...service,
           status: {
             name: 'OK',
-            severity_code: SeverityCode.Ok
+            severity_code: SeverityCode.OK
           }
         }
       ]);

@@ -27,6 +27,8 @@ use PDO;
 
 class NagiosServer implements Mapping\MetadataInterface
 {
+    public const TABLE = 'nagios_server';
+    public const ENTITY_IDENTIFICATOR_COLUMN = 'id';
     public const SERIALIZER_GROUP_REMOTE_LIST = 'nagios-server-remote-list';
     public const SERIALIZER_GROUP_LIST = 'nagios-server-list';
 

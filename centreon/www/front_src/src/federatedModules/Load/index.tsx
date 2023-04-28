@@ -7,7 +7,7 @@ import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import NotFoundPage from '../../FallbackPages/NotFoundPage';
 import { StyleMenuSkeleton } from '../models';
-import { formatWidgetName } from '../useFederatedWidgets';
+import { store } from '../../Main/Provider';
 
 import loadComponent from './loadComponent';
 
@@ -130,7 +130,7 @@ const LoadComponent = ({
           )
         }
       >
-        <Component {...componentProps} />
+        <Component {...componentProps} store={store} />
       </Suspense>
     );
   }
@@ -139,7 +139,7 @@ const LoadComponent = ({
     <Suspense
       fallback={isFederatedModule ? <MenuSkeleton /> : <PageSkeleton />}
     >
-      <Component {...componentProps} />
+      <Component {...componentProps} store={store} />
     </Suspense>
   );
 };
