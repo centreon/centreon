@@ -7,7 +7,7 @@ COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
+rm -f /tmp/rpms-centreon/centreon-23.10*.rpm /tmp/rpms-centreon/centreon-central-23.10*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
