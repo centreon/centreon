@@ -90,7 +90,7 @@ Cypress.Commands.add(
   'copyFromContainer',
   ({ source, destination }: CopyFromContainerProps) => {
     return cy.exec(
-      `docker cp ${Cypress.env('dockerName')}:${source} ${destination}`
+      `docker cp ${Cypress.env('dockerName')}:${source} "${destination}"`
     );
   }
 );
