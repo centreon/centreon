@@ -48,7 +48,7 @@ const initialize = (): void => {
     alias: 'requestWithSearchQuery',
     method: Method.GET,
     path: requestEndpointSearch,
-    response: getListingResponse()
+    response: getListingResponse({})
   });
 
   cy.render(FilterWithQueryProvider);
