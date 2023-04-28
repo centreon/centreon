@@ -63,6 +63,8 @@ jobs:
   delivery-rpm:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -94,6 +96,8 @@ jobs:
   delivery-deb:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]
