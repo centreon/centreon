@@ -210,6 +210,24 @@ class Host extends AbstractHost
     }
 
     /**
+     * @return array<int>
+     */
+    private function getMapImageIds(): array
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            <<<'SQL'
+                SELECT img_img_id 
+                FROM view_img_dir_relation AS vidr 
+                JOIN view_img_dir AS vid ON vidr.dir_dir_parent_id = vid.dir_id
+                WHERE vid.dir_name="centreon-map"
+                SQL
+        );
+        $stmt->execute();
+
+        return array_keys($stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC) ?: []);
+    }
+
+    /**
      * Generate from poller id
      *
      * @param integer $pollerId
@@ -228,6 +246,13 @@ class Host extends AbstractHost
             $this->hostsByName[$host['host_name']] = $hostId;
             $host['host_id'] = $hostId;
             $this->generateFromHostId($host);
+        }
+
+        // Forces the recreation of centreon-map images not linked to any resource,
+        // which are deleted by the export. Not the best fix, but an easy workaround.
+        foreach ($this->getMapImageIds() as $mapImageId) {
+            $media = Media::getInstance($this->dependencyInjector);
+            $media->getMediaPathFromId($mapImageId);
         }
 
         if ($localhost == 1) {
