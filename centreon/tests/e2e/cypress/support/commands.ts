@@ -60,8 +60,10 @@ Cypress.Commands.add(
   'loginKeycloack',
   (jsonName: string): Cypress.Chainable => {
     cy.fixture(`users/${jsonName}.json`).then((credential) => {
-      cy.get('#username').clear().type(credential.login);
-      cy.get('#password').clear().type(credential.password);
+      cy.get('#username').clear();
+      cy.get('#username').type(credential.login);
+      cy.get('#password').clear();
+      cy.get('#password').type(credential.password);
     });
 
     return cy.get('#kc-login').click();

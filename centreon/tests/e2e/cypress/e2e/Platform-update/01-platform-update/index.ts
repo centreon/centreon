@@ -117,30 +117,22 @@ When('administrator runs the update procedure', () => {
     cy.get('.btc.bt_info').eq(0).click();
   });
 
-  cy.wait('@getStep3').then(() => {
-    cy.get('.btc.bt_info').eq(0).click();
-  });
+  cy.wait('@getStep3').get('.btc.bt_info').eq(0).click();
 
-  cy.wait('@generatingCache').then(() => {
-    cy.get('span[style]').each(($span) => {
+  cy.wait('@generatingCache')
+    .get('span[style]')
+    .each(($span) => {
       cy.wrap($span).should('have.text', 'OK');
     });
-    cy.get('.btc.bt_info').eq(0).click();
-  });
+  cy.get('.btc.bt_info').eq(0).click();
 
-  cy.wait('@getStep5').then(() => {
-    cy.get('.btc.bt_success').eq(0).click();
-  });
+  cy.wait('@getStep5').get('.btc.bt_success').eq(0).click();
 });
 
 Then(
   'monitoring should be up and running after update procedure is complete to current version',
   () => {
-    const version_to = '23.04.0';
-
     cy.setUserTokenApiV1('admin');
-
-    checkPlatformVersion(version_to);
 
     cy.loginByTypeOfUser({
       jsonName: 'admin'

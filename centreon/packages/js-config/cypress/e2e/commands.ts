@@ -81,16 +81,30 @@ Cypress.Commands.add(
   }
 );
 
-interface CopyOntoContainerProps {
-  destPath: string;
-  srcPath: string;
+interface CopyFromContainerProps {
+  destination: string;
+  source: string;
 }
 
 Cypress.Commands.add(
-  'copyOntoContainer',
-  ({ srcPath, destPath }: CopyOntoContainerProps) => {
+  'copyFromContainer',
+  ({ source, destination }: CopyFromContainerProps) => {
     return cy.exec(
-      `docker cp ${srcPath} ${Cypress.env('dockerName')}:${destPath}`
+      `docker cp ${Cypress.env('dockerName')}:${source} ${destination}`
+    );
+  }
+);
+
+interface CopyToContainerProps {
+  destination: string;
+  source: string;
+}
+
+Cypress.Commands.add(
+  'copyToContainer',
+  ({ source, destination }: CopyToContainerProps) => {
+    return cy.exec(
+      `docker cp ${source} ${Cypress.env('dockerName')}:${destination}`
     );
   }
 );
@@ -285,25 +299,17 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .task('copyContainerLogFileContent', {
-        destination: `${logDirectory}/broker.log`,
-        name,
-        source: '/var/log/centreon-broker/*.log'
+      .copyFromContainer({
+        destination: `${logDirectory}/broker`,
+        source: '/var/log/centreon-broker'
       })
-      .task('copyContainerLogFileContent', {
-        destination: `${logDirectory}/engine.log`,
-        name,
-        source: '/var/log/centreon-engine/*.log'
+      .copyFromContainer({
+        destination: `${logDirectory}/engine`,
+        source: '/var/log/centreon-engine'
       })
-      .task('copyContainerLogFileContent', {
-        destination: `${logDirectory}/web_app.log`,
-        name,
-        source: '/var/log/centreon/centreon-web.log'
-      })
-      .task('copyContainerLogFileContent', {
-        destination: `${logDirectory}/sql_error.log`,
-        name,
-        source: '/var/log/centreon/sql-error.log'
+      .copyFromContainer({
+        destination: `${logDirectory}/centreon`,
+        source: '/var/log/centreon'
       })
       .stopContainer({ name });
   }
@@ -335,7 +341,8 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
-      copyOntoContainer: (props: CopyOntoContainerProps) => Cypress.Chainable;
+      copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
+      copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
       execInContainer: ({
         command,
         name

@@ -40,45 +40,68 @@ EOF`,
     url: '/centreon/install/steps/process/generationCache.php'
   }).as('cacheGeneration');
 
+  // Step 1
   cy.visit('/centreon/install/install.php')
     .get('th.step-wrapper span')
     .contains(1);
   cy.get('#next').click();
+
+  // Step 2
   cy.get('th.step-wrapper span').contains(2);
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 3
   cy.get('th.step-wrapper span').contains(3);
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 4
   cy.get('th.step-wrapper span').contains(4);
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 5
   cy.get('th.step-wrapper span').contains(5);
-  cy.get('input[name="admin_password"]').clear().type('Centreon!2021');
-  cy.get('input[name="confirm_password"]').clear().type('Centreon!2021');
-  cy.get('input[name="firstname"]').clear().type('centreon');
-  cy.get('input[name="lastname"]').clear().type('centreon');
-  cy.get('input[name="email"]').clear().type('centreon@localhost');
+  cy.get('input[name="admin_password"]').clear();
+  cy.get('input[name="admin_password"]').type('Centreon!2021');
+  cy.get('input[name="confirm_password"]').clear();
+  cy.get('input[name="confirm_password"]').type('Centreon!2021');
+  cy.get('input[name="firstname"]').clear();
+  cy.get('input[name="firstname"]').type('centreon');
+  cy.get('input[name="lastname"]').clear();
+  cy.get('input[name="lastname"]').type('centreon');
+  cy.get('input[name="email"]').clear();
+  cy.get('input[name="email"]').type('centreon@localhost');
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 6
   cy.get('th.step-wrapper span').contains(6);
-  cy.get('input[name="root_password"]').clear().type('centreon');
-  cy.get('input[name="db_password"]').clear().type('centreon');
-  cy.get('input[name="db_password_confirm"]').clear().type('centreon');
+  cy.get('input[name="root_password"]').clear();
+  cy.get('input[name="root_password"]').type('centreon');
+  cy.get('input[name="db_password"]').clear();
+  cy.get('input[name="db_password"]').type('centreon');
+  cy.get('input[name="db_password_confirm"]').clear();
+  cy.get('input[name="db_password_confirm"]').type('centreon');
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 7
   cy.get('th.step-wrapper span').contains(7);
   cy.wait('@cacheGeneration', { timeout: 30000 })
     .get('tbody#step_contents span:contains("OK")')
     .should('have.length', 7);
   cy.wait('@nextStep').get('#next').click();
+
+  // Step 8
   cy.get('th.step-wrapper span').contains(8);
   cy.wait('@nextStep').get('#next').click();
-  cy.get('th.step-wrapper span').contains(9);
 
+  // Step 9
+  cy.get('th.step-wrapper span').contains(9);
   cy.wait('@nextStep').get('#finish').click();
 
   return cy
-    .exec(
-      `docker cp ../../../.github/docker/sql/standard.sql ${Cypress.env(
-        'dockerName'
-      )}:/tmp/standard.sql`
-    )
+    .copyToContainer({
+      destination: '/tmp/standard.sql',
+      source: '../../../.github/docker/sql/standard.sql'
+    })
     .execInContainer({
       command: `bash -e <<EOF
       mysql -pcentreon centreon < /tmp/standard.sql
@@ -93,9 +116,9 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       command: `mkdir /tmp/rpms-update-centreon`,
       name: Cypress.env('dockerName')
     })
-    .copyOntoContainer({
-      destPath: '/tmp/rpms-update-centreon',
-      srcPath: './cypress/fixtures'
+    .copyToContainer({
+      destination: '/tmp/rpms-update-centreon',
+      source: './cypress/fixtures'
     })
     .getWebVersion()
     .then(({ major_version }) => {

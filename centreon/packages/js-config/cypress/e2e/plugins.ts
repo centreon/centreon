@@ -3,9 +3,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
 
-import fs from 'fs';
-import path from 'path';
-
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
 import webpackPreprocessor from '@cypress/webpack-preprocessor';
@@ -63,17 +60,6 @@ export default async (on, config): Promise<void> => {
     return launchOptions;
   });
 
-  interface CopyContainerLogFileContentProps {
-    destination: string;
-    name: string;
-    source: string;
-  }
-
-  interface ExecInContainerProps {
-    command: string;
-    name: string;
-  }
-
   interface PortBinding {
     destination: number;
     source: number;
@@ -90,62 +76,6 @@ export default async (on, config): Promise<void> => {
   }
 
   on('task', {
-    copyContainerLogFileContent: async ({
-      destination,
-      name,
-      source
-    }: CopyContainerLogFileContentProps) => {
-      const container = await docker.getContainer(name);
-
-      const exec = await container.exec({
-        AttachStderr: true,
-        AttachStdout: true,
-        Cmd: ['bash', '-c', `tail -n +1 ${source}`]
-      });
-
-      await new Promise((resolve, reject) => {
-        exec.start({}, (err, stream) => {
-          if (err) {
-            reject(err);
-          }
-
-          if (stream) {
-            stream.setEncoding('utf-8');
-            stream.on('data', (data) => {
-              fs.mkdirSync(path.dirname(destination), { recursive: true });
-              fs.writeFileSync(destination, data);
-              resolve(data);
-            });
-          }
-        });
-      });
-
-      return null;
-    },
-    execInContainer: async ({ command, name }: ExecInContainerProps) => {
-      const container = await docker.getContainer(name);
-
-      const exec = await container.exec({
-        AttachStderr: true,
-        AttachStdout: true,
-        Cmd: ['bash', '-c', command]
-      });
-
-      await new Promise((resolve, reject) => {
-        exec.start({}, (err, stream) => {
-          if (err) {
-            reject(err);
-          }
-
-          if (stream) {
-            stream.setEncoding('utf-8');
-            stream.on('end', resolve);
-          }
-        });
-      });
-
-      return null;
-    },
     startContainer: async ({
       image,
       name,
