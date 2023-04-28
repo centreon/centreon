@@ -112,13 +112,9 @@ EOF`,
 
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
-    .execInContainer({
-      command: `mkdir /tmp/rpms-update-centreon`,
-      name: Cypress.env('dockerName')
-    })
     .copyToContainer({
       destination: '/tmp/rpms-update-centreon',
-      source: './cypress/fixtures'
+      source: './cypress/fixtures/rpms'
     })
     .getWebVersion()
     .then(({ major_version }) => {

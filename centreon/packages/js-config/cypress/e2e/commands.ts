@@ -299,6 +299,7 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
+      .exec(`mkdir -p ${logDirectory}`)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         source: '/var/log/centreon-broker'
