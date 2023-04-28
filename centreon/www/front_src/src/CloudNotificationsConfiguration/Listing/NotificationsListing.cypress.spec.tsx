@@ -7,7 +7,7 @@ import useLoadingNotifications from './useLoadNotifications';
 import {
   defaultQueryParams,
   getListingColumns,
-  listingResponse as response
+  getListingResponse
 } from './testUtils';
 
 import Listing from '.';
@@ -30,7 +30,7 @@ const initialize = (): void => {
     alias: 'defaultRequest',
     method: Method.GET,
     path: buildNotificationsEndpoint(defaultQueryParams),
-    response
+    response: getListingResponse({})
   });
 
   cy.interceptAPIRequest({
@@ -41,7 +41,7 @@ const initialize = (): void => {
       page: 2
     }),
     query: { name: 'page', value: '2' },
-    response
+    response: getListingResponse({ page: 2 })
   });
 
   cy.interceptAPIRequest({
@@ -52,7 +52,7 @@ const initialize = (): void => {
       page: 6
     }),
     query: { name: 'page', value: '6' },
-    response
+    response: getListingResponse({ page: 6 })
   });
 
   cy.interceptAPIRequest({
@@ -63,7 +63,7 @@ const initialize = (): void => {
       limit: 20
     }),
     query: { name: 'limit', value: '20' },
-    response
+    response: getListingResponse({ limit: 20 })
   });
 
   cy.render(ListingWithQueryProvider);
@@ -78,7 +78,7 @@ const initializeSorting = (): void => {
     alias: 'defaultRequest',
     method: Method.GET,
     path: buildNotificationsEndpoint(defaultQueryParams),
-    response
+    response: getListingResponse({})
   });
 
   columnToSort.forEach(({ id, label, sortField }) => {
@@ -95,7 +95,7 @@ const initializeSorting = (): void => {
       alias: `dataToListingTableDesc${label}`,
       method: Method.GET,
       path: requestEndpointDesc,
-      response
+      response: getListingResponse({})
     });
 
     const requestEndpointAsc = buildNotificationsEndpoint({
@@ -109,7 +109,7 @@ const initializeSorting = (): void => {
       alias: `dataToListingTableAsc${label}`,
       method: Method.GET,
       path: requestEndpointAsc,
-      response
+      response: getListingResponse({})
     });
   });
 
@@ -136,6 +136,14 @@ describe('Notifications Listing', () => {
     cy.waitForRequestAndVerifyQueries({
       queries: [{ key: 'limit', value: '20' }],
       requestAlias: 'ListingWithLimit'
+    });
+
+    cy.get('#Rows\\ per\\ page').click();
+    cy.contains(/^10$/).click();
+
+    cy.waitForRequestAndVerifyQueries({
+      queries: [{ key: 'limit', value: '10' }],
+      requestAlias: 'defaultRequest'
     });
 
     cy.matchImageSnapshot();

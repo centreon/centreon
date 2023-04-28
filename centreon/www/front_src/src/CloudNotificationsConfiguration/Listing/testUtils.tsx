@@ -38,15 +38,23 @@ export const fillNotifications = (numberOfRows: number): unknown => {
   }));
 };
 
-export const listingResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: 1
-  },
-  result: fillNotifications(56)
+export const getListingResponse = ({
+  page = 1,
+  limit = 10
+}: {
+  limit?: number;
+  page?: number;
+}): object => {
+  return {
+    meta: {
+      limit,
+      page,
+      search: {},
+      sort_by: {},
+      total: 1
+    },
+    result: fillNotifications(56)
+  };
 };
 
 export const getListingColumns = (): Array<Column> => [

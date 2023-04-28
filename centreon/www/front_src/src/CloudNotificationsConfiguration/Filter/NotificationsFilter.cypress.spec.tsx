@@ -3,10 +3,7 @@ import { TestQueryProvider, Method } from '@centreon/ui';
 import { buildNotificationsEndpoint } from '../Listing/api/endpoints';
 import { labelSearch } from '../translatedLabels';
 import useLoadingNotifications from '../Listing/useLoadNotifications';
-import {
-  defaultQueryParams,
-  listingResponse as response
-} from '../Listing/testUtils';
+import { defaultQueryParams, getListingResponse } from '../Listing/testUtils';
 
 import Filter from '.';
 
@@ -30,7 +27,7 @@ const initialize = (): void => {
     alias: 'defaultRequest',
     method: Method.GET,
     path: defaultendpoint,
-    response
+    response: getListingResponse({})
   });
 
   const searchValue = 'foobar';
@@ -51,7 +48,7 @@ const initialize = (): void => {
     alias: 'requestWithSearchQuery',
     method: Method.GET,
     path: requestEndpointSearch,
-    response
+    response: getListingResponse()
   });
 
   cy.render(FilterWithQueryProvider);
