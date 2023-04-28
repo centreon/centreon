@@ -40,7 +40,9 @@ Scenario Outline: Acknowledge a resource with sticky only on a host
     And the user applies the acknowledgement
     And the resource is marked as acknowledged
     When the resource status changes to '<changed_status>'
+    Then no notification are sent to the users
     
     Examples:
       | initial_status | changed_status |
+      | down           | unreachable    |
       | unreachable    | up        |

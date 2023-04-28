@@ -171,7 +171,8 @@ const submitCustomResultsViaClapi = (
   const timestampNow = Math.floor(Date.now() / 1000) - 15;
   const statusIds = {
     down: '1',
-    unreachable: '2'
+    unreachable: '2',
+    up: '0'
   };
 
   return cy.request({

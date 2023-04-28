@@ -273,11 +273,14 @@ Given(
   (initial_status: string) => {
     submitCustomResultsViaClapi({
       host: hostChildInAcknowledgementName,
-      output: `submit_${hostChildInAcknowledgementName}`,
+      output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
       status: initial_status
     });
 
-    checkThatFixtureHostsExistInDatabase();
+    checkThatFixtureHostsExistInDatabase(
+      hostChildInAcknowledgementName,
+      `submit_${hostChildInAcknowledgementName}_${initial_status}`
+    );
 
     cy.refreshListing();
 
@@ -324,11 +327,20 @@ When('the resource is marked as acknowledged', () => {
 });
 
 When('the resource status changes to {string}', (changed_status: string) => {
-  cy.contains(hostChildInAcknowledgementName)
-    .parent()
-    .parent()
-    .get('[class^="css-"][class$="-statusColumn"]:first')
-    .contains(changed_status);
+  submitCustomResultsViaClapi({
+    host: hostChildInAcknowledgementName,
+    output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
+    status: changed_status
+  });
+
+  checkThatFixtureHostsExistInDatabase(
+    hostChildInAcknowledgementName,
+    `submit_${hostChildInAcknowledgementName}_${changed_status}`
+  );
+});
+
+Then('no notification are sent to the users', () => {
+  tearDownResource().then(() => cy.reload());
 });
 
 after(() => {

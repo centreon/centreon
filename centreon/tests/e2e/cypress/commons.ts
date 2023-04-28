@@ -61,10 +61,13 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
   });
 };
 
-const checkThatFixtureHostsExistInDatabase = (): void => {
+const checkThatFixtureHostsExistInDatabase = (
+  hostAlias: string,
+  submitOutput: string
+): void => {
   cy.log('Checking hosts in database');
 
-  const query = `SELECT COUNT(h.host_id) as count_hosts from hosts as h WHERE h.alias LIKE '%Test_host_ack%' AND h.output LIKE '%submit_test_host_ack%' AND h.enabled=1;`;
+  const query = `SELECT COUNT(h.host_id) as count_hosts from hosts as h WHERE h.name LIKE '%${hostAlias}%' AND h.output LIKE '%${submitOutput}%' AND h.enabled=1;`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
@@ -85,7 +88,11 @@ const checkThatFixtureHostsExistInDatabase = (): void => {
     if (hostsFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
 
-      return cy.wrap(null).then(() => checkThatFixtureHostsExistInDatabase());
+      return cy
+        .wrap(null)
+        .then(() =>
+          checkThatFixtureHostsExistInDatabase(hostAlias, submitOutput)
+        );
     }
 
     throw new Error(
