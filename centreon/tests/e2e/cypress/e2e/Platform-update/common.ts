@@ -122,7 +122,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
         command: `bash -e <<EOF
         rm -f /tmp/rpms-update-centreon/centreon-${major_version}*.rpm /tmp/rpms-update-centreon/centreon-central-${major_version}*.rpm
         dnf install -y /tmp/rpms-update-centreon/*.rpm
-  EOF`,
+EOF`,
         name: Cypress.env('dockerName')
       });
     });
