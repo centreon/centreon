@@ -43,7 +43,6 @@ jobs:
         run: |
           cd ${{ inputs.module_name }}
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          #echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -not -name "*platform-update.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
