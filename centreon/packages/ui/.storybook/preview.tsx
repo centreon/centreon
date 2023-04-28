@@ -1,5 +1,3 @@
-import { addDecorator } from '@storybook/react';
-
 import { useDarkMode } from 'storybook-dark-mode';
 
 import { ThemeMode } from '@centreon/ui-context';
@@ -18,4 +16,6 @@ const withThemeProvider = (story): JSX.Element => (
   </StoryBookThemeProvider>
 );
 
-addDecorator(withThemeProvider);
+export const decorators = [
+  withThemeProvider
+]
