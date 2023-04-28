@@ -28,7 +28,7 @@ COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.d/* /u
 COPY --chmod=755 ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
 
-RUN bash -e <<EOF
+RUN <<EOF
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
