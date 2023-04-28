@@ -1,7 +1,10 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 
 import { Responsive } from '@visx/visx';
-import GridLayout, { WidthProvider } from 'react-grid-layout';
+import {
+  WidthProvider,
+  Responsive as ResponsiveGridLayout
+} from 'react-grid-layout';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, find, map, propEq } from 'ramda';
 
@@ -9,65 +12,38 @@ import { Responsive as ResponsiveHeight } from '@centreon/ui';
 
 import {
   breakpointAtom,
-  changeLayoutDerivedAtom,
-  columnsAtom,
-  getBreakpoint,
+  dashboardAtom,
   isEditingAtom,
   layoutByBreakpointDerivedAtom
 } from '../atoms';
 
 import 'react-grid-layout/css/styles.css';
 
+import { Breakpoint } from '../models';
+
 import EditionGrid from './EditionGrid';
 import Widget from './Widget';
 import useDashboardStyles from './useDashboardStyles';
 
-const ReactGridLayout = WidthProvider(GridLayout);
+const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
 
 const Layout: FC = () => {
   const { classes } = useDashboardStyles();
 
-  const [layout, setLayout] = useAtom(layoutByBreakpointDerivedAtom);
-  const columns = useAtomValue(columnsAtom);
-  const breakpoint = useAtomValue(breakpointAtom);
+  const [dashboard, setDashboard] = useAtom(dashboardAtom);
+  const layout = useAtomValue(layoutByBreakpointDerivedAtom);
   const isEditing = useAtomValue(isEditingAtom);
-  const changeWidgetsLayout = useSetAtom(changeLayoutDerivedAtom);
+  const setBreakpoint = useSetAtom(breakpointAtom);
 
-  const changeLayout = (newLayout): void => {
-    setLayout(
-      map(({ i, ...other }) => {
-        const widget = find(propEq('i', i), layout);
-
-        return {
-          ...other,
-          i,
-          widgetConfiguration: widget?.widgetConfiguration
-        };
-      }, newLayout)
-    );
+  const changeLayout = (_, newLayouts): void => {
+    // console.log(newLayouts);
+    setDashboard((currentDashboard) => ({
+      layouts: newLayouts,
+      settings: currentDashboard.settings
+    }));
   };
 
-  const resize = (): void => {
-    const newBreakpoint = getBreakpoint(window.innerWidth);
-
-    if (equals(breakpoint, newBreakpoint)) {
-      return;
-    }
-
-    changeWidgetsLayout({ breakpoint: newBreakpoint });
-  };
-
-  useEffect(() => {
-    resize();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('resize', resize);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, [breakpoint]);
+  console.log(dashboard);
 
   return (
     <ResponsiveHeight>
@@ -76,18 +52,22 @@ const Layout: FC = () => {
           <div className={classes.container}>
             {isEditing && <EditionGrid height={height} width={width} />}
             <ReactGridLayout
-              cols={columns}
+              breakpoints={{ lg: 1800, md: 1024, sm: 768 }}
+              cols={{ lg: 8, md: 4, sm: 2 }}
               containerPadding={[4, 0]}
-              layout={layout}
+              layouts={dashboard.layouts}
               resizeHandles={['s', 'e', 'se']}
               rowHeight={30}
               width={width}
+              onBreakpointChange={(newBreakpoint: Breakpoint): void =>
+                setBreakpoint(newBreakpoint)
+              }
               onLayoutChange={changeLayout}
             >
-              {layout.map(({ i, widgetConfiguration }) => {
+              {layout.map(({ i }) => {
                 return (
                   <div key={i}>
-                    <Widget key={i} path={widgetConfiguration.path} title={i} />
+                    <Widget key={i} title={i} />
                   </div>
                 );
               })}

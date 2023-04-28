@@ -1,7 +1,6 @@
 import ReactGridLayout from 'react-grid-layout';
 
 export interface WidgetConfiguration {
-  options?: object;
   path: string;
   widgetMinHeight?: number;
   widgetMinWidth?: number;
@@ -14,15 +13,25 @@ export enum Breakpoint {
 }
 
 export enum ColumnByBreakpoint {
-  lg = 12,
-  md = 6,
-  sm = 3
+  lg = 8,
+  md = 4,
+  sm = 2
 }
 
-export interface WidgetLayout extends ReactGridLayout.Layout {
-  widgetConfiguration: WidgetConfiguration;
+export type ResponsiveLayouts = Record<
+  Breakpoint,
+  Array<ReactGridLayout.Layout>
+>;
+
+export interface Dashboard {
+  layouts: ResponsiveLayouts;
+  settings: Array<{
+    i: string;
+    options?: object;
+    widgetConfiguration: WidgetConfiguration;
+  }>;
 }
 
-export type ResponsiveWidgetLayout = {
-  [key in Breakpoint]?: Array<WidgetLayout>;
-};
+export interface WidgetLayoutWithSetting extends ReactGridLayout.Layout {
+  options?: object;
+}

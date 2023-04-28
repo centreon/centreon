@@ -50,12 +50,14 @@ const AddWidgetDialog: FC = () => {
     }
 
     addWidget({
-      moduleName: selectedWidget?.moduleName,
-      path: selectedWidget?.federatedComponentsConfiguration.path,
-      widgetMinHeight:
-        selectedWidget?.federatedComponentsConfiguration.widgetMinHeight,
-      widgetMinWidth:
-        selectedWidget?.federatedComponentsConfiguration.widgetMinWidth
+      options: undefined,
+      widgetConfiguration: {
+        path: selectedWidget?.federatedComponentsConfiguration.path,
+        widgetMinHeight:
+          selectedWidget?.federatedComponentsConfiguration.widgetMinHeight,
+        widgetMinWidth:
+          selectedWidget?.federatedComponentsConfiguration.widgetMinWidth
+      }
     });
     close();
   };

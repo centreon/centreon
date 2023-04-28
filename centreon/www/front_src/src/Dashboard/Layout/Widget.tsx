@@ -11,6 +11,7 @@ import { IconButton, useMemoComponent } from '@centreon/ui';
 
 import {
   duplicateWidgetDerivedAtom,
+  getWidgetConfigurationsDerivedAtom,
   getWidgetOptionsDerivedAtom,
   isEditingAtom,
   removeWidgetDerivedAtom,
@@ -19,7 +20,6 @@ import {
 import FederatedComponent from '../../components/FederatedComponents';
 
 interface Props {
-  path: string;
   title: string;
 }
 
@@ -41,11 +41,14 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Widget: FC<Props> = ({ title, path }) => {
+const Widget: FC<Props> = ({ title }) => {
   const { classes } = useStyles();
 
   const isEditing = useAtomValue(isEditingAtom);
   const getWidgetOptions = useAtomValue(getWidgetOptionsDerivedAtom);
+  const getWidgetConfigurations = useAtomValue(
+    getWidgetConfigurationsDerivedAtom
+  );
   const removeWidget = useSetAtom(removeWidgetDerivedAtom);
   const duplicateWidget = useSetAtom(duplicateWidgetDerivedAtom);
   const setWidgetOptions = useSetAtom(setWidgetOptionsDerivedAtom);
@@ -63,6 +66,8 @@ const Widget: FC<Props> = ({ title, path }) => {
   };
 
   const widgetOptions = getWidgetOptions(title);
+
+  const widgetConfigurations = getWidgetConfigurations(title);
 
   const changeWidgetOptions = (newWidgetOptions): void => {
     setWidgetOptions({ options: newWidgetOptions, title });
@@ -90,7 +95,7 @@ const Widget: FC<Props> = ({ title, path }) => {
           <FederatedComponent
             isFederatedWidget
             memoProps={[widgetOptions, title]}
-            path={path}
+            path={widgetConfigurations.path}
             setWidgetOptions={changeWidgetOptions}
             title={title}
             widgetOptions={widgetOptions}
