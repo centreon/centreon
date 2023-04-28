@@ -37,7 +37,6 @@ const useStyles = makeStyles<StylesProps>()(
     table: {
       '.listingHeader': {
         backgroundColor: theme.palette.background.listingHeader,
-        boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
         padding: theme.spacing(0, 1)
       },
       '.listingHeader > div > div': {

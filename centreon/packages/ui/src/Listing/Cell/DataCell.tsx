@@ -40,7 +40,7 @@ const DataCell = ({
   viewMode,
   getHighlightRowCondition
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
   const { dataStyle } = useStyleTable({ viewMode });
 
   const commonCellProps = {
@@ -73,7 +73,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={cx(classes.cell)}
+          className={classes.cell}
           isRowHighlighted={isRowHighlighted}
           style={{
             gridColumn
@@ -102,7 +102,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={cx(classes.cell)}
+          className={classes.cell}
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {

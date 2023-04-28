@@ -8,7 +8,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Checkbox from '../../Checkbox';
 import PopoverMenu from '../../../PopoverMenu';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
-import PredefinedSelectionList from '../_atoms/PredefinedSelectionList';
+import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 import { PredefinedRowSelection } from '../../models';
 
 import { useStyles } from './SelectActionListingHeaderCell.styles';

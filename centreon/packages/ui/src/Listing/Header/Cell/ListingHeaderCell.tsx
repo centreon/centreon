@@ -11,8 +11,8 @@ import {
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
-import HeaderLabel from '../_atoms/Label';
-import { DraggableIconButton } from '../_atoms/DraggableIconButton';
+import HeaderLabel from '../_internals/Label';
+import { DraggableIconButton } from '../_internals/DraggableIconButton';
 
 import { StylesProps, useStyles } from './ListingHeaderCell.styles';
 
