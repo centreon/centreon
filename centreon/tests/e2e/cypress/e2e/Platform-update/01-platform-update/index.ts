@@ -173,5 +173,5 @@ Then('Poller configuration should be fully generated', () => {
 });
 
 after(() => {
-  cy.stopContainer({ name: Cypress.env('dockerName') });
+  cy.stopWebContainer();
 });
