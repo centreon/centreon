@@ -15,6 +15,7 @@ export const labelPeriod = 'Period';
 export const labelActions = 'Actions';
 export const labelStatus = 'Status';
 export const labelSearch = 'Search';
+export const labelSave = 'Save';
 
 export const labelSelectResourcesAndEvents = 'Select resources and events';
 export const labelSelectUsers = 'Select users';
@@ -24,3 +25,6 @@ export const labelDuplicateNotification =
   'How many times would you like to duplicate selected Notification?';
 export const labelDeleteNotification = 'Delete Notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
+
+export const labelReduceInformationPanel = 'Reduce information panel';
+export const labelExpandInformationPanel = 'Expand information panel';

@@ -7,7 +7,7 @@ import { Panel } from '@centreon/ui';
 
 import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 
-import { Header } from './Header';
+import Form from './Form';
 
 const useStyle = makeStyles()((theme) => ({
   pannel: {
@@ -27,8 +27,7 @@ const EditPanel = (): JSX.Element => {
   return (
     <Box className={classes.pannel}>
       <Panel
-        header={<Header />}
-        selectedTab={<div />}
+        selectedTab={<Form />}
         width={panelWidth}
         onClose={handleClose}
         onResize={setPanelWidth}

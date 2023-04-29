@@ -6,12 +6,18 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { labelAdd } from '../translatedLabels';
 import { isPanelOpenAtom } from '../atom';
+import { notificationNameAtom, panelModeAtom } from '../EditPanel/atom';
+import { PanelMode } from '../EditPanel/models';
 
 const AddAction = (): JSX.Element => {
   const { t } = useTranslation();
   const setIsPannelOpen = useSetAtom(isPanelOpenAtom);
+  const setNotificationName = useSetAtom(notificationNameAtom);
+  const setPanelMode = useSetAtom(panelModeAtom);
 
   const handleClick = (): void => {
+    setNotificationName('Notification #1');
+    setPanelMode(PanelMode.Create);
     setIsPannelOpen(true);
   };
 

@@ -37,7 +37,7 @@ const DeleteDialog = ({
 
   return (
     <ConfirmDialog
-      dialogConfirmBtnClassName={classes.confirmButtons}
+      dialogConfirmButtonClassName={classes.confirmButtons}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
