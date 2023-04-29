@@ -16,13 +16,17 @@ export enum InputType {
   MultiConnectedAutocomplete,
   FieldsTable,
   Grid,
-  Custom
+  Custom,
+  Checkbox,
+  MultiCheckbox
 }
 
 interface FieldsTableGetRequiredProps {
   index: number;
   values: FormikValues;
 }
+
+export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
 export interface InputProps {
   additionalLabel?: string;
@@ -32,6 +36,11 @@ export interface InputProps {
     options: Array<SelectEntry>;
   };
   change?: ({ setFieldValue, value }) => void;
+  checkbox?: {
+    labelPlacement?: LabelPlacement;
+    options?: Array<string>;
+    row?: boolean;
+  };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     endpoint?: string;

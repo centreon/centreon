@@ -12,6 +12,7 @@ export enum GroupDirection {
 
 interface Props<T> {
   Buttons?: React.ComponentType;
+  children?: string | JSX.Element | Array<JSX.Element> | (() => JSX.Element);
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
   initialValues: T;
@@ -33,7 +34,8 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
-  groupDirection = GroupDirection.Vertical
+  groupDirection = GroupDirection.Vertical,
+  children
 }: Props<T>): JSX.Element => {
   if (isLoading) {
     return (
@@ -57,6 +59,8 @@ const Form = <T extends object>({
       onSubmit={submit}
     >
       <div>
+        {children || ''}
+
         <Inputs
           groupDirection={groupDirection}
           groups={groups}
