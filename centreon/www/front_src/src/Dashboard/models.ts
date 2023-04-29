@@ -6,32 +6,13 @@ export interface WidgetConfiguration {
   widgetMinWidth?: number;
 }
 
-export enum Breakpoint {
-  lg = 'lg',
-  md = 'md',
-  sm = 'sm'
-}
+export type Layout = Array<ReactGridLayout.Layout>;
 
-export enum ColumnByBreakpoint {
-  lg = 8,
-  md = 4,
-  sm = 2
+export interface Widget extends ReactGridLayout.Layout {
+  options?: object;
+  widgetConfiguration: WidgetConfiguration;
 }
-
-export type ResponsiveLayouts = Record<
-  Breakpoint,
-  Array<ReactGridLayout.Layout>
->;
 
 export interface Dashboard {
-  layouts: ResponsiveLayouts;
-  settings: Array<{
-    i: string;
-    options?: object;
-    widgetConfiguration: WidgetConfiguration;
-  }>;
-}
-
-export interface WidgetLayoutWithSetting extends ReactGridLayout.Layout {
-  options?: object;
+  layout: Array<Widget>;
 }

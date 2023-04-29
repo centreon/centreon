@@ -1,98 +1,95 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import 'react-grid-layout/css/styles.css';
 
 import { Responsive } from '@visx/visx';
-import {
-  WidthProvider,
-  Responsive as ResponsiveGridLayout,
-  Layout
-} from 'react-grid-layout';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, keys, map, reduce } from 'ramda';
+import GridLayout, { WidthProvider, Layout } from 'react-grid-layout';
+import { useAtom, useAtomValue } from 'jotai';
+import { equals, map, propEq } from 'ramda';
 
 import { Responsive as ResponsiveHeight } from '@centreon/ui';
 
-import {
-  breakpointAtom,
-  dashboardAtom,
-  getMaxColumnsByBreakpoint,
-  isEditingAtom,
-  layoutByBreakpointDerivedAtom
-} from '../atoms';
-import { Breakpoint, ResponsiveLayouts } from '../models';
+import { columnsAtom, dashboardAtom, isEditingAtom } from '../atoms';
+import { Widget } from '../models';
 
+import DashboardWidget from './Widget';
 import EditionGrid from './EditionGrid';
-import Widget from './Widget';
 import useDashboardStyles from './useDashboardStyles';
 
-const ReactGridLayout = WidthProvider(ResponsiveGridLayout);
+const ReactGridLayout = WidthProvider(GridLayout);
 
 const Layout: FC = () => {
   const { classes } = useDashboardStyles();
 
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
-  const layout = useAtomValue(layoutByBreakpointDerivedAtom);
+  const [columns, setColumns] = useAtom(columnsAtom);
   const isEditing = useAtomValue(isEditingAtom);
-  const setBreakpoint = useSetAtom(breakpointAtom);
 
-  const changeLayout = (
-    newLayout: Array<Layout>,
-    newLayouts: ResponsiveLayouts
-  ): void => {
-    const currentSortedLayout = map(
-      ({ i, w, h, y, x }) => ({ h, i, w, x, y }),
-      newLayout
-    ).sort((a, b) => a.x + a.y - (b.x + b.y));
+  const changeLayout = (layout: Array<Layout>): void => {
+    if (columns === 1) {
+      return;
+    }
 
-    const responsiveLayouts = reduce(
-      (acc, key) => {
-        return {
-          ...acc,
-          [key]: currentSortedLayout.map((widget) => ({
-            ...newLayouts[key].find(({ i }) => equals(i, widget.i)),
-            h: currentSortedLayout.find(({ i }) => equals(i, widget.i))
-              ?.h as number,
-            w: Math.min(
-              currentSortedLayout.find(({ i }) => equals(i, widget.i))
-                ?.w as number,
-              getMaxColumnsByBreakpoint(key)
-            )
-          }))
-        };
-      },
-      {},
-      keys(newLayouts)
-    ) as ResponsiveLayouts;
+    const newLayout = map<Layout, Widget>((widget) => {
+      const currentWidget = dashboard.layout.find(propEq('i', widget.i));
 
-    setDashboard((currentDashboard) => ({
-      layouts: responsiveLayouts,
-      settings: currentDashboard.settings
-    }));
+      return {
+        ...widget,
+        options: currentWidget?.options,
+        widgetConfiguration: currentWidget?.widgetConfiguration
+      };
+    }, layout);
+
+    setDashboard({
+      layout: newLayout
+    });
   };
 
+  const getLayout = (): Array<Widget> => {
+    if (equals(columns, 25)) {
+      return dashboard.layout;
+    }
+
+    return dashboard.layout
+      .sort((a, b) => a.x + a.y - (b.x + b.y))
+      .map((widget) => ({
+        ...widget,
+        w: 1
+      }));
+  };
+
+  const resize = (): void => {
+    setColumns(window.innerWidth > 768 ? 25 : 1);
+  };
+
+  useEffect(() => {
+    resize();
+
+    window.addEventListener('resize', resize);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
   return (
-    <ResponsiveHeight>
+    <ResponsiveHeight margin={100}>
       <Responsive.ParentSize>
         {({ width, height }): JSX.Element => (
           <div className={classes.container}>
             {isEditing && <EditionGrid height={height} width={width} />}
             <ReactGridLayout
-              breakpoints={{ lg: 1800, md: 1024, sm: 768 }}
-              cols={{ lg: 8, md: 4, sm: 2 }}
+              cols={columns}
               containerPadding={[4, 0]}
-              layouts={dashboard.layouts}
+              layout={getLayout()}
               resizeHandles={['s', 'e', 'se']}
               rowHeight={30}
               width={width}
-              onBreakpointChange={(newBreakpoint: Breakpoint): void =>
-                setBreakpoint(newBreakpoint)
-              }
               onLayoutChange={changeLayout}
             >
-              {layout.map(({ i }) => {
+              {dashboard.layout.map(({ i }) => {
                 return (
                   <div key={i}>
-                    <Widget key={i} title={i} />
+                    <DashboardWidget key={i} title={i} />
                   </div>
                 );
               })}

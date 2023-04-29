@@ -149,6 +149,7 @@
     "react-resizable": "^3.0.5",
     "react-router": "^6.4.3",
     "react-router-dom": "^6.4.3",
+    "react-scale-text": "^1.2.2",
     "react-select": "^5.6.0",
     "react-spring": "^9.5.5",
     "string-argv": "^0.3.1",

@@ -34,6 +34,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   widgetContent: {
+    height: '100%',
     padding: theme.spacing(1, 2)
   },
   widgetHeader: {
