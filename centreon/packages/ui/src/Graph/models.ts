@@ -1,6 +1,6 @@
 import { Line, Metric, TimeValue } from './timeSeries/models';
 import { AxisX, Axis as AxisYLeft, AxisYRight } from './Axes/models';
-import { AreaRegularLines, AreaStackedLinesData } from './Lines/models';
+import { AreaRegularLines, AreaStackedLines } from './Lines/models';
 
 export interface GraphData {
   global;
@@ -37,8 +37,8 @@ export interface AreaAnchorPoint {
 }
 
 export interface ShapeLines {
-  areaRegularLinesData?: AreaRegularLines;
-  areaStackedLinesData?: AreaStackedLinesData;
+  areaRegularLines?: AreaRegularLines;
+  areaStackedLines?: AreaStackedLines;
 }
 
 export interface Axis {

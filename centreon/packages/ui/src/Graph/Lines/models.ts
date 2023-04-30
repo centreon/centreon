@@ -16,9 +16,9 @@ export interface LinesData {
   timeSeries: Array<TimeValue>;
 }
 
-export interface AreaStackedLinesData extends ShapeGraphData {
+export interface AreaStackedLines extends ShapeGraphData {
   invertedStackedLinesData: LinesData;
-  regularStackedLinesData: LinesData;
+  stackedLinesData: LinesData;
 }
 
 export interface AreaRegularLines extends ShapeGraphData {
@@ -28,5 +28,5 @@ export interface AreaRegularLines extends ShapeGraphData {
 
 export interface Shape {
   areaRegularLines: AreaRegularLines;
-  areaStackedLines: AreaStackedLinesData;
+  areaStackedLines: AreaStackedLines;
 }

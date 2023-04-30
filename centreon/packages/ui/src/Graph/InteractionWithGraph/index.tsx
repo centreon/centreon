@@ -1,9 +1,14 @@
 import ZoomPreview from './ZoomPreview';
 
+interface Props {
+  renderAreaToInteractWith: JSX.Element;
+  zoomPreviewData: any;
+}
+
 const InteractionWithGraph = ({
   zoomPreviewData,
   renderAreaToInteractWith
-}: any): JSX.Element => {
+}: Props): JSX.Element => {
   return (
     <g>
       <ZoomPreview data={zoomPreviewData} />

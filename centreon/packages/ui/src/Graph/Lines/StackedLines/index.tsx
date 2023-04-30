@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { map, nth, pipe, path, all, not, isNil, prop } from 'ramda';
 import { Shape, Curve } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -5,10 +7,11 @@ import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { Line, TimeValue } from '../../timeSeries/models';
 import { getTime } from '../../timeSeries';
 import { getFillColor } from '../../common';
+import { StackedAnchorPoint } from '../../InteractionWithGraph/AnchorPoint/models';
 
 interface Props {
   lines: Array<Line>;
-  renderStackedAnchorPoint: any;
+  renderStackedAnchorPoint: (args: StackedAnchorPoint) => ReactNode;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;

@@ -6,8 +6,8 @@ import {
 import { LinesData } from '../models';
 
 interface StackedLines {
-  invertedStackedLines: LinesData;
-  regularStackedLines: LinesData;
+  invertedStackedLinesData: LinesData;
+  stackedLinesData: LinesData;
 }
 
 const useStackedLines = ({ lines, timeSeries }): StackedLines => {
@@ -25,11 +25,11 @@ const useStackedLines = ({ lines, timeSeries }): StackedLines => {
   });
 
   return {
-    invertedStackedLines: {
+    invertedStackedLinesData: {
       lines: invertedStackedLines,
       timeSeries: invertedStackedTimeSeries
     },
-    regularStackedLines: {
+    stackedLinesData: {
       lines: regularStackedLines,
       timeSeries: regularStackedTimeSeries
     }

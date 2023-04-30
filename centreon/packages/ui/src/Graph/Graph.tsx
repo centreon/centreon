@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import { Group } from '@visx/visx';
 import dayjs from 'dayjs';
-import { difference, gte } from 'ramda';
+import { gte } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import Axes from './Axes';
@@ -10,22 +10,20 @@ import Grids from './Grids';
 import Header from './Header';
 import InteractionWithGraph from './InteractionWithGraph';
 import RegularAnchorPoint from './InteractionWithGraph/AnchorPoint/RegularAnchorPoint';
-import StackedAnchorPoint, {
-  StackValue
-} from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
+import StackedAnchorPoint from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
 import Bar from './InteractionWithGraph/Bar';
 import Lines from './Lines';
+import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { dateFormat, margin, timeFormat } from './common';
 import { AreaAnchorPoint, Axis, Data, GridsModel, ShapeLines } from './models';
+import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import {
-  getLeftScale,
-  getRightScale,
-  getSortedStackedLines,
-  getXScale
-} from './timeSeries';
-import { Line } from './timeSeries/models';
+  RegularLinesAnchorPoint,
+  StackValue,
+  StackedAnchorPoint as StackedAnchorPointModel
+} from './InteractionWithGraph/AnchorPoint/models';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -54,8 +52,10 @@ const Graph = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const [eventMouseMoving, setEventMouseMoving] = useState<null | any>(null);
-  const [eventMouseDown, setEventMouseDown] = useState<null | any>(null);
+  const [eventMouseMoving, setEventMouseMoving] = useState<null | MouseEvent>(
+    null
+  );
+  const [eventMouseDown, setEventMouseDown] = useState<null | MouseEvent>(null);
 
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -100,16 +100,12 @@ const Graph = ({
     xScale
   });
 
-  const { regularStackedLines, invertedStackedLines } = useStackedLines({
+  const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines,
     timeSeries
   });
 
-  const regularLines = (): Array<Line> => {
-    const stackedLines = getSortedStackedLines(lines);
-
-    return difference(lines, stackedLines);
-  };
+  const { regularLines } = useRegularLines({ lines });
 
   const commonLinesProps = {
     display: true,
@@ -119,25 +115,24 @@ const Graph = ({
   };
 
   const areaRegularLines = {
-    lines: regularLines(),
+    lines: regularLines,
     timeSeries,
     ...commonLinesProps,
-    ...shapeLines?.areaRegularLinesData
+    ...shapeLines?.areaRegularLines
   };
 
-  const regularStackedLinesData = {
-    lines: regularStackedLines.lines,
-    timeSeries: regularStackedLines.timeSeries
+  const areaStackedLines = {
+    invertedStackedLinesData,
+    stackedLinesData,
+    ...commonLinesProps,
+    ...shapeLines?.areaStackedLines
   };
 
-  const invertedStackedLinesData = {
-    lines: invertedStackedLines.lines,
-    timeSeries: invertedStackedLines.timeSeries
-  };
-  const displayStackedAnchorPoint =
-    anchorPoint?.areaStackedLinesAnchorPoint?.display ?? true;
   const displayRegularLinesAnchorPoint =
     anchorPoint?.areaRegularLinesAnchorPoint?.display ?? true;
+
+  const displayStackedAnchorPoint =
+    anchorPoint?.areaStackedLinesAnchorPoint?.display ?? true;
 
   const commonAnchorPoint = {
     displayTimeValues: true,
@@ -157,6 +152,15 @@ const Graph = ({
     setEventMouseDown(null);
   };
 
+  const mouseMove = (event): void => {
+    setEventMouseMoving(event);
+  };
+
+  const mouseDown = (event): void => {
+    setEventMouseDown(event);
+  };
+
+  // a deplacer
   const getXAxisTickFormat = (): string => {
     const { queryParameters } = endpoint;
     const numberDays = dayjs
@@ -200,11 +204,11 @@ const Graph = ({
                 areaColor,
                 lineColor,
                 metric,
-                regularLinesTimeSeries,
+                timeSeries: regularLinesTimeSeries,
                 transparency,
-                xScaleRegularLines,
+                xScale: xScaleRegularLines,
                 yScale
-              }: any): JSX.Element => (
+              }: RegularLinesAnchorPoint): JSX.Element => (
                 <g>
                   {displayRegularLinesAnchorPoint && (
                     <RegularAnchorPoint
@@ -228,7 +232,7 @@ const Graph = ({
                 stack,
                 xScale: x,
                 yScale: y
-              }: any): JSX.Element => (
+              }: StackedAnchorPointModel): JSX.Element => (
                 <g>
                   {displayStackedAnchorPoint && (
                     <StackedAnchorPoint
@@ -246,15 +250,7 @@ const Graph = ({
               )
             }}
             height={graphHeight}
-            shape={{
-              areaRegularLines,
-              areaStackedLines: {
-                ...commonLinesProps,
-                invertedStackedLinesData,
-                regularStackedLinesData,
-                ...shapeLines?.areaStackedLinesData
-              }
-            }}
+            shape={{ areaRegularLines, areaStackedLines }}
           />
 
           <InteractionWithGraph
@@ -266,9 +262,9 @@ const Graph = ({
                 width={graphWidth}
                 x={0}
                 y={0}
-                onMouseDown={setEventMouseDown}
+                onMouseDown={mouseDown}
                 onMouseLeave={mouseLeave}
-                onMouseMove={setEventMouseMoving}
+                onMouseMove={mouseMove}
                 onMouseUp={mouseUp}
               />
             }

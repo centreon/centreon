@@ -1,18 +1,13 @@
 import { memo } from 'react';
 
-import { equals, isNil, map, pipe, not } from 'ramda';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { equals, isNil, map, not, pipe } from 'ramda';
 
 import { bisectDate } from '../../timeSeries';
-import { TimeValue } from '../../timeSeries/models';
+
+import { StackValue } from './models';
 
 import AnchorPoint from '.';
-
-interface StackData {
-  data: TimeValue;
-}
-
-export type StackValue = [number, number, StackData];
 
 interface Props {
   areaColor: string;
@@ -34,9 +29,7 @@ const key = 'data';
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
   const toTimeTick = (stackValue: StackValue): string => {
-    return key in stackValue
-      ? (stackValue as StackData) && stackValue[key].timeTick
-      : '';
+    return key in stackValue ? stackValue[key].timeTick : '';
   };
   const toDate = (tick: string): Date => new Date(tick);
 

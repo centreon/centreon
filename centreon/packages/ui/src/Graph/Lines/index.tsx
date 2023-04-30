@@ -1,15 +1,21 @@
+import { ReactNode } from 'react';
+
 import { isEmpty, isNil } from 'ramda';
 
 import { getStackedYScale, getUnits, getYScale } from '../timeSeries';
 import { Line } from '../timeSeries/models';
+import {
+  RegularLinesAnchorPoint,
+  StackedAnchorPoint
+} from '../InteractionWithGraph/AnchorPoint/models';
 
 import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';
 import { Shape } from './models';
 
 interface AnchorPoint {
-  renderRegularLinesAnchorPoint: any;
-  renderStackedAnchorPoint: any;
+  renderRegularLinesAnchorPoint: (args: RegularLinesAnchorPoint) => ReactNode;
+  renderStackedAnchorPoint: (args: StackedAnchorPoint) => ReactNode;
 }
 
 interface Props {
@@ -20,10 +26,9 @@ interface Props {
 
 const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const { areaRegularLines, areaStackedLines } = shape;
+
   const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
     anchorPoint;
-  const { regularStackedLinesData, invertedStackedLinesData } =
-    areaStackedLines;
 
   const { lines: regularLines, timeSeries: regularLinesTimeSeries } =
     areaRegularLines;
@@ -31,12 +36,12 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const {
     lines: regularStackedLines,
     timeSeries: regularStackedLinesTimeSeries
-  } = regularStackedLinesData;
+  } = areaStackedLines.stackedLinesData;
 
   const {
     lines: invertedStackedLines,
     timeSeries: invertedStackedLinesTimeSeries
-  } = invertedStackedLinesData;
+  } = areaStackedLines.invertedStackedLinesData;
 
   const displayArea = (data: unknown): boolean =>
     !isEmpty(data) && !isNil(data);
@@ -47,7 +52,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const displayAreaInvertedStackedLines =
     areaStackedLines.display && displayArea(invertedStackedLines);
 
-  const displayRegularLines =
+  const displayAreaRegularLines =
     areaRegularLines.display && displayArea(regularLines);
 
   const stackedYScale = getStackedYScale({
@@ -83,7 +88,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
         />
       )}
 
-      {displayRegularLines
+      {displayAreaRegularLines
         ? regularLines.map(
             ({
               metric,
@@ -113,9 +118,9 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
                     areaColor,
                     lineColor,
                     metric,
-                    regularLinesTimeSeries,
+                    timeSeries: regularLinesTimeSeries,
                     transparency,
-                    xScaleRegularLines,
+                    xScale: xScaleRegularLines,
                     yScale
                   })}
                   <RegularLine
