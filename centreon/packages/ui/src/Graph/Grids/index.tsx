@@ -18,7 +18,7 @@ const Grids = ({
   ...rest
 }: Props & GridsModel): JSX.Element => {
   return (
-    <>
+    <g>
       <Grid.GridRows
         height={height}
         scale={leftScale}
@@ -31,7 +31,7 @@ const Grids = ({
         width={width}
         {...rest?.column}
       />
-    </>
+    </g>
   );
 };
 

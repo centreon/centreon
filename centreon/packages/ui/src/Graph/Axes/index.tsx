@@ -39,7 +39,7 @@ const Axes = ({
     format({ date: new Date(tick), formatString: xAxisTickFormat });
 
   return (
-    <>
+    <g>
       <Axis.AxisBottom
         numTicks={xTickCount}
         scale={xScale}
@@ -73,7 +73,7 @@ const Axes = ({
         />
       )}
       {axisRight.displayUnit && <UnitLabel unit={secondUnit} x={width} />}
-    </>
+    </g>
   );
 };
 

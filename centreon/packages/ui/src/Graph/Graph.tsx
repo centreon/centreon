@@ -14,6 +14,7 @@ import StackedAnchorPoint, {
   StackValue
 } from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
+import Bar from './InteractionWithGraph/Bar';
 import Lines from './Lines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { dateFormat, margin, timeFormat } from './common';
@@ -168,21 +169,8 @@ const Graph = ({
   return (
     <>
       <Header timeTick={timeTick} title={title} />
-      <svg
-        className={classes.overlay}
-        height={height}
-        ref={graphSvgRef}
-        width="100%"
-        onMouseDown={setEventMouseDown}
-        onMouseLeave={mouseLeave}
-        onMouseMove={setEventMouseMoving}
-        onMouseUp={mouseUp}
-      >
-        <Group.Group
-          className={classes.overlay}
-          left={margin.left}
-          top={margin.top}
-        >
+      <svg height={height} ref={graphSvgRef} width="100%">
+        <Group.Group left={margin.left} top={margin.top}>
           <Grids
             height={graphHeight}
             leftScale={leftScale}
@@ -190,6 +178,7 @@ const Graph = ({
             xScale={xScale}
             {...grids}
           />
+
           <Axes
             data={{
               axisX: { xAxisTickFormat: getXAxisTickFormat() },
@@ -204,15 +193,7 @@ const Graph = ({
             width={graphWidth}
             xScale={xScale}
           />
-          <InteractionWithGraph
-            zoomPreviewData={{
-              eventMouseDown,
-              graphHeight,
-              graphWidth,
-              positionX,
-              xScale
-            }}
-          />
+
           <Lines
             anchorPoint={{
               renderRegularLinesAnchorPoint: ({
@@ -273,6 +254,30 @@ const Graph = ({
                 regularStackedLinesData,
                 ...shapeLines?.areaStackedLinesData
               }
+            }}
+          />
+
+          <InteractionWithGraph
+            renderAreaToInteractWith={
+              <Bar
+                className={classes.overlay}
+                fill="transparent"
+                height={graphHeight}
+                width={graphWidth}
+                x={0}
+                y={0}
+                onMouseDown={setEventMouseDown}
+                onMouseLeave={mouseLeave}
+                onMouseMove={setEventMouseMoving}
+                onMouseUp={mouseUp}
+              />
+            }
+            zoomPreviewData={{
+              eventMouseDown,
+              graphHeight,
+              graphWidth,
+              positionX,
+              xScale
             }}
           />
         </Group.Group>

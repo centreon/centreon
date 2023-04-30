@@ -28,7 +28,7 @@ const useAnchorPoint = ({
   );
 
   const mousePoint = Event.localPoint(
-    graphSvgRef.current as SVGSVGElement,
+    graphSvgRef?.current as SVGSVGElement,
     event
   );
 

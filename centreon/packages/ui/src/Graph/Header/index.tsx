@@ -1,6 +1,6 @@
 import Typography from '@mui/material/Typography';
 
-import useLocaleDateTimeFormat from '../utils/useLocaleDateTimeFormat';
+import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 
 const Header = ({ title, timeTick }: any): JSX.Element => {
   const { toDateTime } = useLocaleDateTimeFormat();
