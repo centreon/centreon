@@ -1,7 +1,4 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-
-import { submitCustomResultsViaClapi } from './e2e/Resources-status/common';
-
 interface ActionClapi {
   action: string;
   object?: string;
@@ -25,10 +22,13 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
 
-const checkThatFixtureServicesExistInDatabase = (): void => {
+const checkThatFixtureServicesExistInDatabase = (
+  serviceDesc: string,
+  outputText: string
+): void => {
   cy.log('Checking services in database');
 
-  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%service_test_ack%' AND s.output LIKE '%submit_status_2%' AND s.enabled=1;`;
+  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%${serviceDesc}%' AND s.output LIKE '%${outputText}%' AND s.enabled=1;`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
@@ -52,7 +52,9 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
       return cy
         .wrap(null)
         .then(() => submitResultsViaClapi())
-        .then(() => checkThatFixtureServicesExistInDatabase());
+        .then(() =>
+          checkThatFixtureServicesExistInDatabase(serviceDesc, outputText)
+        );
     }
 
     throw new Error(

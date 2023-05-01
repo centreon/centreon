@@ -1,18 +1,22 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkThatFixtureHostsExistInDatabase } from '../../../commons';
+import {
+  checkThatFixtureHostsExistInDatabase,
+  checkThatFixtureServicesExistInDatabase
+} from '../../../commons';
 import {
   actionBackgroundColors,
+  checkIfNotificationsAreNotBeingSent,
   checkIfUserNotificationsAreEnabled,
+  clearCentengineLogs,
+  hostChildInAcknowledgementName,
+  hostInAcknowledgementName,
   insertAckResourceFixtures,
   searchInput,
+  serviceInAcknowledgementName,
   submitCustomResultsViaClapi,
   tearDownResource
 } from '../common';
-
-const serviceInAcknowledgementName = 'service_test_ack';
-const hostInAcknowledgementName = 'test_host';
-const hostChildInAcknowledgementName = 'test_host_ack';
 
 beforeEach(() => {
   cy.intercept({
@@ -106,10 +110,10 @@ Then(
 Then(
   'the previously selected resource is marked as acknowledged in the listing with the corresponding colour',
   () => {
-    cy.getByLabel({ label: 'State filter' })
-      .click()
-      .get('[data-value="all"]')
-      .click();
+    cy.getByLabel({ label: 'State filter' }).click();
+
+    cy.get('[data-value="all"]').click();
+
     cy.waitUntil(
       () => {
         return cy
@@ -181,10 +185,10 @@ Given(
 Then(
   'the previously selected resources are marked as acknowledged in the listing with the corresponidng colour',
   () => {
-    cy.getByLabel({ label: 'State filter' })
-      .click()
-      .get('[data-value="all"]')
-      .click();
+    cy.getByLabel({ label: 'State filter' }).click();
+
+    cy.get('[data-value="all"]').click();
+
     cy.waitUntil(
       () => {
         cy.refreshListing()
@@ -256,14 +260,12 @@ Given('the "Resource Problems" filter enabled', () => {
   cy.contains('Unhandled alerts');
 });
 
-Given('criteria is "type: host"', () => {
-  const searchValue = `type:host`;
-
+Given('criteria is {string}', (criteria: string) => {
   cy.get(searchInput).as('searchInput');
 
   cy.get('@searchInput').clear();
 
-  cy.get('@searchInput').type(searchValue);
+  cy.get('@searchInput').type(criteria);
 
   cy.get('@searchInput').type('{esc}{enter}');
 });
@@ -292,6 +294,31 @@ Given(
   }
 );
 
+Given(
+  'a resource of service is selected with {string}',
+  (initial_status: string) => {
+    submitCustomResultsViaClapi({
+      host: hostInAcknowledgementName,
+      output: `submit_${serviceInAcknowledgementName}_${initial_status}`,
+      service: serviceInAcknowledgementName,
+      status: initial_status
+    });
+
+    checkThatFixtureServicesExistInDatabase(
+      serviceInAcknowledgementName,
+      `submit_${serviceInAcknowledgementName}_${initial_status}`
+    );
+
+    cy.refreshListing();
+
+    cy.contains(serviceInAcknowledgementName)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .click();
+  }
+);
+
 When('"sticky" checkbox is checked in the form', () => {
   cy.getByLabel({ label: 'Sticky' }).should('be.checked');
 });
@@ -302,17 +329,27 @@ When('"persistent" checkbox is unchecked in the form', () => {
   cy.getByLabel({ label: 'Persistent' }).should('not.be.checked');
 });
 
-When('the resource is marked as acknowledged', () => {
-  cy.getByLabel({ label: 'State filter' })
-    .click()
-    .get('[data-value="all"]')
-    .click();
+When('the {string} resource is marked as acknowledged', (resource: string) => {
+  let resourceName = '';
+
+  switch (resource) {
+    case 'service':
+      resourceName = serviceInAcknowledgementName;
+      break;
+    default:
+      resourceName = hostChildInAcknowledgementName;
+      break;
+  }
+
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
 
   cy.waitUntil(
     () => {
       return cy
         .refreshListing()
-        .then(() => cy.contains(hostChildInAcknowledgementName))
+        .then(() => cy.contains(resourceName))
         .parent()
         .then((val) => {
           return (
@@ -326,23 +363,42 @@ When('the resource is marked as acknowledged', () => {
   );
 });
 
-When('the resource status changes to {string}', (changed_status: string) => {
-  submitCustomResultsViaClapi({
-    host: hostChildInAcknowledgementName,
-    output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
-    status: changed_status
-  });
+When(
+  'the {string} status changes to {string}',
+  (resource: string, changed_status: string) => {
+    clearCentengineLogs();
 
-  checkThatFixtureHostsExistInDatabase(
-    hostChildInAcknowledgementName,
-    `submit_${hostChildInAcknowledgementName}_${changed_status}`
-  );
-});
+    switch (resource) {
+      case 'service':
+        submitCustomResultsViaClapi({
+          host: hostInAcknowledgementName,
+          output: `submit_${serviceInAcknowledgementName}_${changed_status}`,
+          service: serviceInAcknowledgementName,
+          status: changed_status
+        });
+
+        checkThatFixtureServicesExistInDatabase(
+          serviceInAcknowledgementName,
+          `submit_${serviceInAcknowledgementName}_${changed_status}`
+        );
+        break;
+      default:
+        submitCustomResultsViaClapi({
+          host: hostChildInAcknowledgementName,
+          output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
+          status: changed_status
+        });
+
+        checkThatFixtureHostsExistInDatabase(
+          hostChildInAcknowledgementName,
+          `submit_${hostChildInAcknowledgementName}_${changed_status}`
+        );
+        break;
+    }
+  }
+);
 
 Then('no notification are sent to the users', () => {
-  tearDownResource().then(() => cy.reload());
-});
-
-after(() => {
+  checkIfNotificationsAreNotBeingSent();
   tearDownResource().then(() => cy.reload());
 });

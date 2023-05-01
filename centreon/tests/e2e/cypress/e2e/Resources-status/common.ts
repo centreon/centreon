@@ -30,6 +30,9 @@ interface SubmitResult {
   status: string;
 }
 
+const serviceInAcknowledgementName = 'service_test_ack';
+const hostInAcknowledgementName = 'test_host';
+const hostChildInAcknowledgementName = 'test_host_ack';
 const stateFilterContainer = '[aria-label="State filter"]';
 const searchInput = 'input[placeholder="Search"]';
 const refreshButton = '[aria-label="Refresh"]';
@@ -94,7 +97,12 @@ const insertResourceFixtures = (): Cypress.Chainable => {
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(submitResultsViaClapi)
-    .then(checkThatFixtureServicesExistInDatabase);
+    .then(() =>
+      checkThatFixtureServicesExistInDatabase(
+        serviceInAcknowledgementName,
+        'submit_status_2'
+      )
+    );
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -108,7 +116,12 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(submitResultsViaClapi)
-    .then(checkThatFixtureServicesExistInDatabase);
+    .then(() =>
+      checkThatFixtureServicesExistInDatabase(
+        serviceInAcknowledgementName,
+        'submit_status_2'
+      )
+    );
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -170,9 +183,12 @@ const submitCustomResultsViaClapi = (
 ): Cypress.Chainable => {
   const timestampNow = Math.floor(Date.now() / 1000) - 15;
   const statusIds = {
+    critical: '2',
     down: '1',
+    unknown: '3',
     unreachable: '2',
-    up: '0'
+    up: '0',
+    warning: '1'
   };
 
   return cy.request({
@@ -194,6 +210,32 @@ const submitCustomResultsViaClapi = (
   });
 };
 
+const clearCentengineLogs = (): Cypress.Chainable => {
+  return cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} truncate -s 0 /var/log/centreon-engine/centengine.log`
+  );
+};
+
+const checkIfNotificationsAreNotBeingSent = (): void => {
+  cy.log('Checking that if the notifications are being sent.');
+
+  const logToSearch = '[notifications] [info]';
+
+  cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} sh -c "grep '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1"`
+  ).then(({ stdout }): Cypress.Chainable<null> | null => {
+    if (!stdout) {
+      return null;
+    }
+
+    throw new Error(`Notifications are being sent to contacts.`);
+  });
+};
+
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
   inDowntime: 'rgb(240, 233, 248)'
@@ -212,11 +254,16 @@ export {
   resourceMonitoringApi,
   actionBackgroundColors,
   actions,
+  serviceInAcknowledgementName,
+  hostInAcknowledgementName,
+  hostChildInAcknowledgementName,
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
   tearDownResource,
   checkIfUserNotificationsAreEnabled,
   insertAckResourceFixtures,
-  submitCustomResultsViaClapi
+  submitCustomResultsViaClapi,
+  checkIfNotificationsAreNotBeingSent,
+  clearCentengineLogs
 };

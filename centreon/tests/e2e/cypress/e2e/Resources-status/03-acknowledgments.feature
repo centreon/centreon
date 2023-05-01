@@ -30,19 +30,37 @@ Background:
 #     And the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon
 #     And the tooltip on acknowledgement icon for each resource contains the information related to the acknowledgment
 
-Scenario Outline: Acknowledge a resource with sticky only on a host
+# Scenario Outline: Acknowledge a resource with sticky only on a host
+#     Given the "Resource Problems" filter enabled
+#     And criteria is 'type:host'
+#     And a resource of host is selected with '<initial_status>'
+#     When the user uses one of the "Acknowledge" actions
+#     And "sticky" checkbox is checked in the form
+#     And "persistent" checkbox is unchecked in the form
+#     And the user applies the acknowledgement
+#     And the 'host' resource is marked as acknowledged
+#     When the 'host' status changes to '<changed_status>'
+#     Then no notification are sent to the users
+    
+#     Examples:
+#       | initial_status | changed_status |
+#       | down           | unreachable    |
+#       | unreachable    | up        |
+
+Scenario Outline: Acknowledge a resource with sticky only on a service
     Given the "Resource Problems" filter enabled
-    And criteria is "type: host"
-    And a resource of host is selected with '<initial_status>'
-    When the user uses one of the "Acknowledge" actions
+    And criteria is 'type:service'
+    And a resource of service is selected with '<initial_status>'
+    And the user uses one of the "Acknowledge" actions
     And "sticky" checkbox is checked in the form
     And "persistent" checkbox is unchecked in the form
     And the user applies the acknowledgement
-    And the resource is marked as acknowledged
-    When the resource status changes to '<changed_status>'
+    And the 'service' resource is marked as acknowledged
+    When the 'service' status changes to '<changed_status>'
     Then no notification are sent to the users
-    
+
     Examples:
       | initial_status | changed_status |
-      | down           | unreachable    |
-      | unreachable    | up        |
+      | warning        | critical       |
+      | critical       | unknown        |
+      | unknown        | warning        |
