@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/react-webpack5';
+import type { StorybookConfig } from '@storybook/react-vite';
 
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
@@ -10,7 +10,7 @@ const excludeNodeModulesExceptCentreonUi = /node_modules(\\|\/)(?!(centreon-fron
 const config: StorybookConfig = {
   stories: [
     '../src/*.stories.mdx',
-    '../src/**/*.stories.@(jsx|tsx)'
+    '../src/**/*.stories.@(js|jsx|ts|tsx)'
   ],
   addons: [
     // 'storybook-addon-mock/register',
@@ -23,22 +23,22 @@ const config: StorybookConfig = {
       }
     },
     '@storybook/addon-mdx-gfm',
-    {
-      name: 'storybook-addon-swc',
-      options: {
-        enable: true,
-        enableSwcLoader: true,
-        enableSwcMinify: true,
-        swcLoaderOptions: {},
-        swcMinifyOptions: {},
-      },
-    },
+    // {
+    //   name: 'storybook-addon-swc',
+    //   options: {
+    //     enable: true,
+    //     enableSwcLoader: true,
+    //     enableSwcMinify: true,
+    //     swcLoaderOptions: {},
+    //     swcMinifyOptions: {},
+    //   },
+    // },
   ],
   features: {
     // previewMdx2: true
   },
   framework: {
-    name: '@storybook/react-webpack5',
+    name: '@storybook/react-vite',
     options: {}
   },
   // core: {
@@ -56,10 +56,10 @@ const config: StorybookConfig = {
   docs: {
     autodocs: true
   },
-  webpackFinal: async (config) => {
-    config.plugins.push(new SpeedMeasurePlugin());
-    return config;
-  }
+  // webpackFinal: async (config) => {
+  //   config.plugins.push(new SpeedMeasurePlugin());
+  //   return config;
+  // }
   // TODO
   // webpackFinal: async (config, { configType }) => {
   //   delete config.resolve.alias['emotion-theming'];
