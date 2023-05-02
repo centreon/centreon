@@ -6,7 +6,9 @@ import {
   loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
-  insertFixture
+  insertFixture,
+  SubmitResult,
+  updateFixturesResult
 } from '../../commons';
 
 const apiActionV1Url = `${Cypress.config().baseUrl}/centreon/api/index.php`;
@@ -21,13 +23,6 @@ interface Criteria {
 interface Filter {
   criterias: Array<Criteria>;
   name: string;
-}
-
-interface SubmitResult {
-  host: string;
-  output: string;
-  service?: string;
-  status: string;
 }
 
 const serviceInAcknowledgementName = 'service_test_ack';
@@ -91,22 +86,32 @@ const initializeAckRessources = (): Cypress.Chainable => {
 
 const insertResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
+  let results;
+  updateFixturesResult().then((submitResult) => {
+    results = submitResult;
+  });
 
   return loginAsAdminViaApiV2()
     .then(initializeResourceData)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+    .then(() => submitResultsViaClapi(results))
     .then(submitResultsViaClapi)
     .then(() =>
       checkThatFixtureServicesExistInDatabase(
         serviceInAcknowledgementName,
-        'submit_status_2'
+        'submit_status_2',
+        results
       )
     );
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
+  let results;
+  updateFixturesResult().then((submitResult) => {
+    results = submitResult;
+  });
 
   return cy
     .setUserTokenApiV1()
@@ -115,11 +120,12 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(initializeAckChildRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(submitResultsViaClapi)
+    .then(() => submitResultsViaClapi(results))
     .then(() =>
       checkThatFixtureServicesExistInDatabase(
         serviceInAcknowledgementName,
-        'submit_status_2'
+        'submit_status_2',
+        results
       )
     );
 };

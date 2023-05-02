@@ -9,6 +9,13 @@ interface DateBeforeLoginProps {
   dateBeforeLogin: Date;
 }
 
+interface SubmitResult {
+  host: string;
+  output: string;
+  service?: string;
+  status: string;
+}
+
 const stepWaitingTime = 250;
 const pollingCheckTimeout = 100000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
@@ -24,7 +31,8 @@ let hostsFoundStepCount = 0;
 
 const checkThatFixtureServicesExistInDatabase = (
   serviceDesc: string,
-  outputText: string
+  outputText: string,
+  results: SubmitResult
 ): void => {
   cy.log('Checking services in database');
 
@@ -51,9 +59,13 @@ const checkThatFixtureServicesExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi())
+        .then(() => submitResultsViaClapi(results))
         .then(() =>
-          checkThatFixtureServicesExistInDatabase(serviceDesc, outputText)
+          checkThatFixtureServicesExistInDatabase(
+            serviceDesc,
+            outputText,
+            results
+          )
         );
     }
 
@@ -65,7 +77,8 @@ const checkThatFixtureServicesExistInDatabase = (
 
 const checkThatFixtureHostsExistInDatabase = (
   hostAlias: string,
-  submitOutput: string
+  submitOutput: string,
+  results: SubmitResult
 ): void => {
   cy.log('Checking hosts in database');
 
@@ -92,8 +105,9 @@ const checkThatFixtureHostsExistInDatabase = (
 
       return cy
         .wrap(null)
+        .then(() => submitResultsViaClapi(results))
         .then(() =>
-          checkThatFixtureHostsExistInDatabase(hostAlias, submitOutput)
+          checkThatFixtureHostsExistInDatabase(hostAlias, submitOutput, results)
         );
     }
 
@@ -161,17 +175,17 @@ const updateFixturesResult = (): Cypress.Chainable => {
     });
 };
 
-const submitResultsViaClapi = (): Cypress.Chainable => {
-  return updateFixturesResult().then((submitResults) => {
-    return cy.request({
-      body: { results: submitResults },
-      headers: {
-        'Content-Type': 'application/json',
-        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-      },
-      method: 'POST',
-      url: `${apiActionV1}?action=submit&object=centreon_submit_results`
-    });
+const submitResultsViaClapi = (
+  submitResult: SubmitResult
+): Cypress.Chainable => {
+  return cy.request({
+    body: { submitResult },
+    headers: {
+      'Content-Type': 'application/json',
+      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
+    },
+    method: 'POST',
+    url: `${apiActionV1}?action=submit&object=centreon_submit_results`
   });
 };
 
@@ -198,6 +212,7 @@ const logout = (): Cypress.Chainable => cy.visit(apiLogout);
 
 export {
   ActionClapi,
+  SubmitResult,
   checkThatConfigurationIsExported,
   checkThatFixtureServicesExistInDatabase,
   checkThatFixtureHostsExistInDatabase,
