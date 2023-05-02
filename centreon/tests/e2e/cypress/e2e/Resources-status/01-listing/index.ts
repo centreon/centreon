@@ -4,13 +4,13 @@ import {
   insertResourceFixtures,
   searchInput,
   stateFilterContainer,
-  setUserFilter,
-  deleteUserFilter,
-  tearDownResource
+  setUserFilter
 } from '../common';
 import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
 
 before(() => {
+  cy.startWebContainer();
+
   insertResourceFixtures()
     .then(submitResultsViaClapi)
     .then(loginAsAdminViaApiV2)
@@ -37,7 +37,7 @@ beforeEach(() => {
 });
 
 Then('the unhandled problems filter is selected', (): void => {
-  cy.visit(`${Cypress.config().baseUrl}`);
+  cy.visit('/');
   cy.contains('Unhandled alerts');
 });
 
@@ -52,7 +52,7 @@ Then('only non-ok resources are displayed', () => {
 When('I put in some criterias', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    preserveToken: true
+    loginViaApi: true
   });
   const searchValue = `type:service s.description:(ok|dt)$`;
 
@@ -93,7 +93,5 @@ Then(
 );
 
 after(() => {
-  deleteUserFilter()
-    .then(tearDownResource)
-    .then(() => cy.reload());
+  cy.stopWebContainer();
 });

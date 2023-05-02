@@ -7,9 +7,11 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -31,47 +33,47 @@ beforeEach(() => {
   }).as('postLocalAuthentification');
 });
 
-Given('an administrator is relogged on the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' })
-    .wait('@postLocalAuthentification')
-    .its('response.statusCode')
-    .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
-    .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+Given('an administrator is logged on the platform', () => {
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.getByLabel({
-      label: 'Enable OpenID Connect authentication',
-      tag: 'input'
+    cy.navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
     })
+      .get('div[role="tablist"] button:nth-child(2)')
+      .click();
+
+    cy.wait('@getOIDCProvider')
+      .getByLabel({
+        label: 'Enable OpenID Connect authentication',
+        tag: 'input'
+      })
       .check()
       .getByLabel({
         label: 'OpenID Connect only',
         tag: 'input'
       })
-      .check();
-    cy.getByLabel({ label: 'Identity provider' })
+      .check()
+      .getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
       .click({ force: true });
+
     configureOpenIDConnect();
+
     cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
+      .click({ force: true })
       .wait('@updateOIDCProvider')
       .its('response.statusCode')
-      .should('eq', 204);
-    cy.getByLabel({
-      label: 'OpenID Connect only',
-      tag: 'input'
-    })
+      .should('eq', 204)
+      .getByLabel({
+        label: 'OpenID Connect only',
+        tag: 'input'
+      })
       .should('be.checked')
       .and('have.value', 'true')
       .logout();
@@ -81,20 +83,22 @@ When(
 Then(
   'only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+    const username = 'user-non-admin-for-OIDC-authentication';
+
+    cy.session(`wrong_${username}`, () => {
+      cy.visit('/');
+
       cy.loginKeycloack('admin')
         .get('#input-error')
         .should('be.visible')
         .and('include.text', 'Invalid username or password.')
-        .loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .url()
-        .should('include', '/monitoring/resources');
+        .loginKeycloack(username);
+
+      cy.url().should('include', '/monitoring/resources');
     });
   }
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });
