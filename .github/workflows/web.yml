@@ -437,7 +437,7 @@ jobs:
         e2e-test,
         performances-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
