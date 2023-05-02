@@ -5549,9 +5549,9 @@ packages:
       '@storybook/preview-web': 6.5.16_react@18.2.0
       '@storybook/router': 6.5.16_react@18.2.0
       '@storybook/semver': 7.3.2
-      '@storybook/store': 6.5.16
-      '@storybook/theming': 6.5.16
-      '@storybook/ui': 6.5.16
+      '@storybook/store': 6.5.16_react@18.2.0
+      '@storybook/theming': 6.5.16_react@18.2.0
+      '@storybook/ui': 6.5.16_react@18.2.0
       '@types/node': 14.18.42
       '@types/webpack': 4.41.33
       autoprefixer: 9.8.8
@@ -5942,8 +5942,8 @@ packages:
       '@storybook/manager-webpack5': 6.5.16_react@18.2.0
       '@storybook/node-logger': 6.5.16
       '@storybook/semver': 7.3.2
-      '@storybook/store': 6.5.16
-      '@storybook/telemetry': 6.5.16
+      '@storybook/store': 6.5.16_react@18.2.0
+      '@storybook/telemetry': 6.5.16_react@18.2.0
       '@types/node': 14.18.42
       '@types/node-fetch': 2.6.3
       '@types/pretty-hrtime': 1.0.1
@@ -6128,8 +6128,8 @@ packages:
       '@storybook/core-client': 6.5.16_q43aqc3uyvrd3t7ahqsaa6xgiq
       '@storybook/core-common': 6.5.16_react@18.2.0
       '@storybook/node-logger': 6.5.16
-      '@storybook/theming': 6.5.16
-      '@storybook/ui': 6.5.16
+      '@storybook/theming': 6.5.16_react@18.2.0
+      '@storybook/ui': 6.5.16_react@18.2.0
       '@types/node': 14.18.42
       '@types/webpack': 4.41.33
       babel-loader: 8.3.0_y3c3uzyfhmxjbwhc6k6hyxg3aa
@@ -12177,7 +12177,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.37.0
-      eslint-plugin-import: 2.27.5_eslint@8.37.0
+      eslint-plugin-import: 2.27.5_2niwd2uqke2jpnohndnwvllrkm
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.0
@@ -12238,7 +12238,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_eslint@8.37.0
+      eslint-plugin-import: 2.27.5_2niwd2uqke2jpnohndnwvllrkm
     dev: true
 
   /eslint-import-resolver-node/0.3.7:
@@ -14382,7 +14382,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.77.0
+      webpack: 5.77.0_nl3jfu7mwj7uwachqx6dmj7y3q
     dev: true
 
   /htmlparser2/6.1.0:
