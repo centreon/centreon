@@ -4,8 +4,7 @@ import {
   stateFilterContainer,
   actionBackgroundColors,
   actions,
-  insertResourceFixtures,
-  tearDownResource
+  insertResourceFixtures
 } from '../common';
 import { submitResultsViaClapi } from '../../../commons';
 
@@ -13,6 +12,7 @@ const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDowntimeName = 'service_test_dt';
 
 before(() => {
+  cy.startWebContainer();
   insertResourceFixtures().then(submitResultsViaClapi);
 });
 
@@ -24,7 +24,7 @@ beforeEach(() => {
 
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    preserveToken: true
+    loginViaApi: true
   });
 
   cy.get('[aria-label="Add columns"]').click();
@@ -49,19 +49,22 @@ When('I select the acknowledge action on a problematic Resource', () => {
 
 Then('the problematic Resource is displayed as acknowledged', () => {
   cy.get(stateFilterContainer).click().get('[data-value="all"]').click();
-  cy.waitUntil(() => {
-    return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInAcknowledgementName))
-      .parent()
-      .then((val) => {
-        return (
-          val.css('background-color') === actionBackgroundColors.acknowledge
-        );
-      });
-  }, {
-    timeout: 15000
-  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInAcknowledgementName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
 });
 
 When('I select the downtime action on a problematic Resource', () => {
@@ -81,21 +84,24 @@ Then('the problematic Resource is displayed as in downtime', () => {
   cy.get(stateFilterContainer).click();
   cy.get('li[data-value="all"]').click({ force: true });
 
-  cy.waitUntil(() => {
-    return cy
-      .refreshListing()
-      .then(() => cy.contains(serviceInDowntimeName))
-      .parent()
-      .then((val) => {
-        return (
-          val.css('background-color') === actionBackgroundColors.inDowntime
-        );
-      });
-  }, {
-    timeout: 60000
-  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDowntimeName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 60000
+    }
+  );
 });
 
 after(() => {
-  tearDownResource().then(() => cy.reload());
+  cy.stopWebContainer();
 });

@@ -3,14 +3,15 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureOpenIDConnect,
   getAccessGroupId,
-  initializeOIDCUserAndGetLoginPage,
-  removeContact
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -119,7 +120,7 @@ Then(
   'the users from the 3rd party authentication service are affected to ACL groups',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.visit('/');
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
@@ -145,6 +146,5 @@ Then(
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });

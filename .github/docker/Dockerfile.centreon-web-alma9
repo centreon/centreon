@@ -7,7 +7,7 @@ COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-23.04*.rpm /tmp/rpms-centreon/centreon-central-23.04*.rpm
+rm -f /tmp/rpms-centreon/centreon-23.10*.rpm /tmp/rpms-centreon/centreon-central-23.10*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
@@ -28,7 +28,7 @@ COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.d/* /u
 COPY --chmod=755 ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
 
-RUN bash -e <<EOF
+RUN <<EOF
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
@@ -48,6 +48,9 @@ mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPT
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+
+# CLAPI config generation creates prod cache with root user
+chown -R apache:apache /var/cache/centreon/symfony/*
 
 EOF
 

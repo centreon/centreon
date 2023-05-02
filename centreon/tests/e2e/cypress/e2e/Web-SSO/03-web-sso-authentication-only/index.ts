@@ -1,11 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeWebSSOUserAndGetLoginPage,
-  removeWebSSOContact
-} from '../common';
+import { initializeWebSSOUserAndGetLoginPage } from '../common';
 
 before(() => {
+  cy.startWebContainer();
+
   initializeWebSSOUserAndGetLoginPage();
 });
 
@@ -72,5 +71,5 @@ Then('users and local admin user must not be able to authenticate', () => {
 });
 
 after(() => {
-  removeWebSSOContact();
+  cy.stopWebContainer();
 });

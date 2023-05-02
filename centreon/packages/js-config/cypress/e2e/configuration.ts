@@ -1,6 +1,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
+import { execSync } from 'child_process';
+
 import { defineConfig } from 'cypress';
 
 import setupNodeEvents from './plugins';
@@ -24,20 +26,22 @@ export default ({
     isDevelopment ? '/dev' : ''
   }`;
 
-  const baseUrlIPAddress = isDevelopment ? '0.0.0.0' : 'localhost';
+  const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
+    .toString('utf8')
+    .replace(/[\n\r\s]+$/, '');
 
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 6000,
     e2e: {
-      baseUrl: `http://${baseUrlIPAddress}:4000`,
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
-      experimentalSessionAndOrigin: true,
       setupNodeEvents,
       specPattern
     },
     env: {
       ...env,
+      OPENID_IMAGE_VERSION: '23.04',
+      WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
