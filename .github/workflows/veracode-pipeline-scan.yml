@@ -77,6 +77,9 @@ jobs:
       - name: set rights
         run: chmod 777 ${{ env.ZIP_NAME }}.zip
 
+      - name: set rights
+          run: unzip ${{ env.ZIP_NAME }}.zip
+
       - name: DEBUG - Check rights
         run: ls -la ${{ env.ZIP_NAME }}.zip
 
@@ -97,7 +100,7 @@ jobs:
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
-          file: ${{ env.ZIP_NAME }}.zip
+          file: result.zip
 #          request_policy: "test POV"
           fail_build: false
           store_baseline_file: true
