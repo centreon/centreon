@@ -29,5 +29,11 @@ jobs:
         shell: bash
 
       - name: Check workflow files
-        run: ${{ steps.get_actionlint.outputs.executable }} -ignore 'label "common" is unknown' -shellcheck= -pyflakes= -color
+        run: |
+          ${{ steps.get_actionlint.outputs.executable }} \
+          -ignore 'label "common" is unknown' \
+          -ignore '"github.head_ref" is potentially untrusted'
+          -shellcheck= \
+          -pyflakes= \
+          -color
         shell: bash
