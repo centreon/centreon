@@ -2,14 +2,14 @@ import { ComponentMeta } from '@storybook/react';
 
 import { Box } from '@mui/material';
 
-import AdaptativeTypography, { AdaptativeTypographyProps } from '.';
+import FluidTypography, { FluidTypographyProps } from '.';
 
-interface Props extends AdaptativeTypographyProps {
+interface Props extends FluidTypographyProps {
   height?: string | number;
   width?: string | number;
 }
 
-const AdaptativeTypographyTemplate = ({
+const FluidTypographyTemplate = ({
   width = '100%',
   height = '100%',
   text,
@@ -17,7 +17,7 @@ const AdaptativeTypographyTemplate = ({
 }: Props): JSX.Element => {
   return (
     <Box sx={{ height, width }}>
-      <AdaptativeTypography text={text} variant={variant} />
+      <FluidTypography text={text} variant={variant} />
     </Box>
   );
 };
@@ -29,33 +29,33 @@ export default {
     variant: { control: 'text' },
     width: { control: 'text' }
   },
-  component: AdaptativeTypographyTemplate,
-  title: 'Adaptative Typography'
-} as ComponentMeta<typeof AdaptativeTypographyTemplate>;
+  component: FluidTypographyTemplate,
+  title: 'Fluid Typography'
+} as ComponentMeta<typeof FluidTypographyTemplate>;
 
-export const basic = AdaptativeTypographyTemplate.bind({});
+export const basic = FluidTypographyTemplate.bind({});
 basic.args = {
   text: 'Hello world'
 };
 
-export const with200pxWidth = AdaptativeTypographyTemplate.bind({});
+export const with200pxWidth = FluidTypographyTemplate.bind({});
 with200pxWidth.args = {
   text: 'Hello world',
   width: '200px'
 };
 
-export const with20pxHeight = AdaptativeTypographyTemplate.bind({});
+export const with20pxHeight = FluidTypographyTemplate.bind({});
 with20pxHeight.args = {
   text: 'Hello world',
   width: '20px'
 };
 
-export const withLongText = AdaptativeTypographyTemplate.bind({});
+export const withLongText = FluidTypographyTemplate.bind({});
 withLongText.args = {
   text: 'This is a very long text becaaaaaaause it has a lot to sayyyyy !!!!!!!!'
 };
 
-export const withH5Variant = AdaptativeTypographyTemplate.bind({});
+export const withH5Variant = FluidTypographyTemplate.bind({});
 withH5Variant.args = {
   text: 'Hello world',
   variant: 'h5'

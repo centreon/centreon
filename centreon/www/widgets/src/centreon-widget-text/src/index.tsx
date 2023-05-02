@@ -1,4 +1,4 @@
-import AdaptativeTypography from './AdaptativeTypography';
+import { FluidTypography } from '@centreon/ui';
 
 const Text = (): JSX.Element => {
   return (
@@ -8,8 +8,8 @@ const Text = (): JSX.Element => {
         gridTemplateColumns: '1fr 1fr'
       }}
     >
-      <AdaptativeTypography text="Hello world" />
-      <AdaptativeTypography text="Hello world heyy" variant="h2" />
+      <FluidTypography text="Hello world" />
+      <FluidTypography text="Hello world heyy" variant="h2" />
     </div>
   );
 };

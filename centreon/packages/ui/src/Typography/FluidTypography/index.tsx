@@ -5,23 +5,23 @@ import { makeStyles } from 'tss-react/mui';
 
 import { TypographyProps } from '@mui/material';
 
-type CustomTypographyProps = Required<Pick<TypographyProps, 'variant'>>;
-export interface AdaptativeTypographyProps extends CustomTypographyProps {
-  className: string;
+type CustomTypographyProps = Pick<TypographyProps, 'variant'>;
+export interface FluidTypographyProps extends CustomTypographyProps {
+  className?: string;
   text: string;
 }
 
 const useStyles = makeStyles<CustomTypographyProps>()((theme, { variant }) => ({
   container: {
-    ...omit(['fontSize'], theme.typography[variant])
+    ...omit(['fontSize'], theme.typography[variant || 'body1'])
   }
 }));
 
-const AdaptativeTypography = ({
+const FluidTypography = ({
   text,
   variant = 'body1',
   className
-}: AdaptativeTypographyProps): JSX.Element => {
+}: FluidTypographyProps): JSX.Element => {
   const { classes, cx } = useStyles({ variant });
 
   return (
@@ -37,4 +37,4 @@ const AdaptativeTypography = ({
   );
 };
 
-export default AdaptativeTypography;
+export default FluidTypography;
