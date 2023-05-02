@@ -71,6 +71,15 @@ jobs:
         with:
           name: ${{ env.ZIP_NAME }}.zip
 
+      - name: DEBUG - Check rights
+        run: ls -la ${{ env.ZIP_NAME }}.zip
+
+      - name: set rights
+        run: chmod 777 ${{ env.ZIP_NAME }}.zip
+
+      - name: DEBUG - Check rights
+        run: ls -la ${{ env.ZIP_NAME }}.zip
+
 #      - name: Check if the report exist
 #        run: |
 #          if [ ! -f ${{ env.REPORT_FILENAME }} ]
