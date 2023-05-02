@@ -43,7 +43,7 @@ jobs:
         uses: ./.github/actions/web-frontend-component-test
         with:
           module: ${{ inputs.module_name }}
-          spec_file_path: ${{ inputs.specs_path }}${{matrix.spec}}
+          spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
 
       - name: Upload components tests Results
         if: failure()
