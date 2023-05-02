@@ -75,6 +75,7 @@ const initializeAckRessources = (): Cypress.Chainable => {
     'resources/clapi/host1/02-enable-passive-check.json',
     'resources/clapi/host1/03-disable-active-check.json',
     'resources/clapi/host1/04-set-max-check.json',
+    'resources/clapi/host1/05-add-check-command.json',
     'resources/clapi/service1/01-add.json',
     'resources/clapi/service1/02-set-max-check.json',
     'resources/clapi/service1/03-disable-active-check.json',
@@ -232,7 +233,7 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
   cy.exec(
     `docker exec -i ${Cypress.env(
       'dockerName'
-    )} sh -c "grep '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1"`
+    )} sh -c "grep -iw '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1"`
   ).then(({ stdout }): Cypress.Chainable<null> | null => {
     if (!stdout) {
       return null;

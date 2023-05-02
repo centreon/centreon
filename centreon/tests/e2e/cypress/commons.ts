@@ -19,6 +19,7 @@ interface SubmitResult {
 const stepWaitingTime = 250;
 const pollingCheckTimeout = 100000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
+const waitToExport = 3000;
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -32,7 +33,7 @@ let hostsFoundStepCount = 0;
 const checkThatFixtureServicesExistInDatabase = (
   serviceDesc: string,
   outputText: string,
-  results: SubmitResult
+  submitResults: SubmitResult
 ): void => {
   cy.log('Checking services in database');
 
@@ -59,12 +60,12 @@ const checkThatFixtureServicesExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi(results))
+        .then(() => submitResultsViaClapi(submitResults))
         .then(() =>
           checkThatFixtureServicesExistInDatabase(
             serviceDesc,
             outputText,
-            results
+            submitResults
           )
         );
     }
@@ -78,7 +79,7 @@ const checkThatFixtureServicesExistInDatabase = (
 const checkThatFixtureHostsExistInDatabase = (
   hostAlias: string,
   submitOutput: string,
-  results: SubmitResult
+  submitResults: SubmitResult
 ): void => {
   cy.log('Checking hosts in database');
 
@@ -105,9 +106,13 @@ const checkThatFixtureHostsExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi(results))
+        .then(() => submitResultsViaClapi(submitResults))
         .then(() =>
-          checkThatFixtureHostsExistInDatabase(hostAlias, submitOutput, results)
+          checkThatFixtureHostsExistInDatabase(
+            hostAlias,
+            submitOutput,
+            submitResults
+          )
         );
     }
 
@@ -179,7 +184,7 @@ const submitResultsViaClapi = (
   submitResult: SubmitResult
 ): Cypress.Chainable => {
   return cy.request({
-    body: { submitResult },
+    body: { results: submitResult },
     headers: {
       'Content-Type': 'application/json',
       'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
@@ -210,6 +215,48 @@ const insertFixture = (file: string): Cypress.Chainable => {
 
 const logout = (): Cypress.Chainable => cy.visit(apiLogout);
 
+const checkExportedFileContent = (
+  testHostName: string
+): Cypress.Chainable<boolean> => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
+    )
+    .then(({ stdout }): boolean => {
+      if (stdout) {
+        return true;
+      }
+
+      return false;
+    });
+};
+
+const checkIfConfigurationIsExported = (
+  dateBeforeLogin: Date,
+  hostName: string
+): void => {
+  cy.log('Checking that configuration is exported');
+  const now = dateBeforeLogin.getTime();
+
+  cy.wait(waitToExport);
+
+  cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} date -r /etc/centreon-engine/hosts.cfg`
+  ).then(({ stdout }): Cypress.Chainable<null> | null => {
+    const configurationExported = now < new Date(stdout).getTime();
+
+    if (configurationExported && checkExportedFileContent(hostName)) {
+      return null;
+    }
+
+    throw new Error(`No configuration has been exported`);
+  });
+};
+
 export {
   ActionClapi,
   SubmitResult,
@@ -224,5 +271,6 @@ export {
   versionApi,
   loginAsAdminViaApiV2,
   insertFixture,
-  logout
+  logout,
+  checkIfConfigurationIsExported
 };

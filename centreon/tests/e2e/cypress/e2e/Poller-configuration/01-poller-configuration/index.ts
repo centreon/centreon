@@ -2,17 +2,19 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   breakSomePollers,
-  checkIfConfigurationIsExported,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
-  dateBeforeLogin,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
   removeFixtures,
+  testHostName,
   waitPollerListToLoad
 } from '../common';
+import { checkIfConfigurationIsExported } from '../../../commons';
+
+let dateBeforeLogin: Date;
 
 before(() => {
   cy.startWebContainer();
@@ -40,6 +42,8 @@ beforeEach(() => {
 Given(
   'I am granted the rights to access the poller page and export the configuration',
   () => {
+    dateBeforeLogin = new Date();
+    
     clearCentengineLogs().then(() => {
       insertPollerConfigUserAcl();
     });
@@ -173,7 +177,7 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
-  checkIfConfigurationIsExported(dateBeforeLogin);
+  checkIfConfigurationIsExported(dateBeforeLogin, testHostName);
 });
 
 Then('the selected pollers are {string}', (poller_action: string) => {
@@ -225,7 +229,7 @@ Then('a success message is displayed', () => {
 });
 
 Then('the configuration is generated on all pollers', () => {
-  checkIfConfigurationIsExported(dateBeforeLogin);
+  checkIfConfigurationIsExported(dateBeforeLogin, testHostName);
 
   cy.logout();
 

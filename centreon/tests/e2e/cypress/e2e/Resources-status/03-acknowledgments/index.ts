@@ -27,6 +27,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
 });
 
 Given('the user have the necessary rights to page Ressource Status', () => {
@@ -159,7 +163,7 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    tearDownResource();
+    tearDownResource().then(() => cy.reload());
   }
 );
 
@@ -273,15 +277,18 @@ Given('criteria is {string}', (criteria: string) => {
 Given(
   'a resource of host is selected with {string}',
   (initial_status: string) => {
-    submitCustomResultsViaClapi({
+    const hostStatus = {
       host: hostChildInAcknowledgementName,
       output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
       status: initial_status
-    });
+    };
+
+    submitCustomResultsViaClapi(hostStatus);
 
     checkThatFixtureHostsExistInDatabase(
       hostChildInAcknowledgementName,
-      `submit_${hostChildInAcknowledgementName}_${initial_status}`
+      `submit_${hostChildInAcknowledgementName}_${initial_status}`,
+      hostStatus
     );
 
     cy.refreshListing();
@@ -297,16 +304,19 @@ Given(
 Given(
   'a resource of service is selected with {string}',
   (initial_status: string) => {
-    submitCustomResultsViaClapi({
+    const serviceStatus = {
       host: hostInAcknowledgementName,
       output: `submit_${serviceInAcknowledgementName}_${initial_status}`,
       service: serviceInAcknowledgementName,
       status: initial_status
-    });
+    };
+
+    submitCustomResultsViaClapi(serviceStatus);
 
     checkThatFixtureServicesExistInDatabase(
       serviceInAcknowledgementName,
-      `submit_${serviceInAcknowledgementName}_${initial_status}`
+      `submit_${serviceInAcknowledgementName}_${initial_status}`,
+      serviceStatus
     );
 
     cy.refreshListing();
@@ -319,14 +329,32 @@ Given(
   }
 );
 
-When('"sticky" checkbox is checked in the form', () => {
-  cy.getByLabel({ label: 'Sticky' }).should('be.checked');
+When('"sticky" checkbox is {string} in the form', (check: string) => {
+  switch (check) {
+    case 'unchecked':
+      cy.getByLabel({ label: 'Sticky' }).uncheck();
+      cy.getByLabel({ label: 'Sticky' }).should('not.be.checked');
+      break;
+    default:
+      cy.getByLabel({ label: 'Sticky' }).check();
+      cy.getByLabel({ label: 'Sticky' }).should('be.checked');
+      break;
+  }
 });
 
-When('"persistent" checkbox is unchecked in the form', () => {
-  cy.getByLabel({ label: 'Persistent' }).uncheck();
+When('"persistent" checkbox is {string} in the form', (check: string) => {
+  switch (check) {
+    case 'unchecked':
+      cy.getByLabel({ label: 'Persistent' }).uncheck();
 
-  cy.getByLabel({ label: 'Persistent' }).should('not.be.checked');
+      cy.getByLabel({ label: 'Persistent' }).should('not.be.checked');
+      break;
+    default:
+      cy.getByLabel({ label: 'Persistent' }).check();
+
+      cy.getByLabel({ label: 'Persistent' }).should('be.checked');
+      break;
+  }
 });
 
 When('the {string} resource is marked as acknowledged', (resource: string) => {
@@ -367,31 +395,37 @@ When(
   'the {string} status changes to {string}',
   (resource: string, changed_status: string) => {
     clearCentengineLogs();
+    let status;
 
     switch (resource) {
       case 'service':
-        submitCustomResultsViaClapi({
+        status = {
           host: hostInAcknowledgementName,
           output: `submit_${serviceInAcknowledgementName}_${changed_status}`,
           service: serviceInAcknowledgementName,
           status: changed_status
-        });
+        };
+        submitCustomResultsViaClapi(status);
 
         checkThatFixtureServicesExistInDatabase(
           serviceInAcknowledgementName,
-          `submit_${serviceInAcknowledgementName}_${changed_status}`
+          `submit_${serviceInAcknowledgementName}_${changed_status}`,
+          status
         );
         break;
       default:
-        submitCustomResultsViaClapi({
+        status = {
           host: hostChildInAcknowledgementName,
           output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
           status: changed_status
-        });
+        };
+
+        submitCustomResultsViaClapi(status);
 
         checkThatFixtureHostsExistInDatabase(
           hostChildInAcknowledgementName,
-          `submit_${hostChildInAcknowledgementName}_${changed_status}`
+          `submit_${hostChildInAcknowledgementName}_${changed_status}`,
+          status
         );
         break;
     }
@@ -401,4 +435,140 @@ When(
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
   tearDownResource().then(() => cy.reload());
+});
+
+Given('a resource is selected', () => {
+  cy.contains(/^test_host$/)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+});
+
+When('the resource is marked as acknowledged', () => {
+  cy.get(searchInput).as('searchInput');
+
+  cy.get('@searchInput').clear();
+
+  cy.get('@searchInput').type('type:host');
+
+  cy.get('@searchInput').type('{esc}{enter}');
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(/^test_host$/))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+When('engine service is restarted', () => {
+  cy.visit(`/centreon/main.php?p=60901`);
+
+  cy.wait('@getTimeZone');
+
+  cy.getIframeBody()
+    .find('form input[name="select[1]"]')
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form .list_one>td')
+    .eq(1)
+    .invoke('text')
+    .as('pollerName');
+
+  cy.getIframeBody()
+    .find('form button[name="apply_configuration"]')
+    .contains('Export configuration')
+    .click();
+
+  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+
+  cy.get<string>('@pollerName').then((pollerName) => {
+    cy.getIframeBody()
+      .find('form span[class="selection"]')
+      .eq(0)
+      .contains(pollerName);
+  });
+
+  cy.getIframeBody()
+    .find('form input[name="gen"]')
+    .eq(0)
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form input[name="debug"]')
+    .eq(0)
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form input[name="move"]')
+    .eq(0)
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form input[name="restart"]')
+    .eq(0)
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form input[name="postcmd"]')
+    .eq(0)
+    .check({ force: true });
+
+  cy.getIframeBody()
+    .find('form select[name="restart_mode"]')
+    .eq(0)
+    .select('restart');
+
+  clearCentengineLogs()
+    .getIframeBody()
+    .find('form input[name="submit"]')
+    .eq(0)
+    .click();
+});
+
+Then(
+  'resource is still marked as acknowledged after listing is refreshed',
+  () => {
+    cy.navigateTo({
+      page: 'Resources Status',
+      rootItemNumber: 1
+    });
+
+    cy.wait('@getNavigationList');
+
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(/^test_host$/))
+          .parent()
+          .then((val) => {
+            return (
+              val.css('background-color') === actionBackgroundColors.acknowledge
+            );
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+
+    tearDownResource().then(() => cy.reload());
+  }
+);
+
+after(() => {
+  tearDownResource();
 });
