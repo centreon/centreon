@@ -1,6 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-const waitOnOpenIdProviderToStart = 250;
 const oidcConfigValues = {
   authEndpoint: '/auth',
   baseUrl: 'http://172.17.0.3:8080/realms/Centreon_SSO/protocol/openid-connect',
@@ -11,22 +10,10 @@ const oidcConfigValues = {
   tokenEndpoint: '/token'
 };
 
-const initializeOIDCUserAndGetLoginPage = (): void => {
-  cy.exec(`docker logs e2e-tests-openid-centreon --tail 1`).then(
-    ({ stdout }) => {
-      if (!stdout.includes('Running the server in development mode')) {
-        cy.log(stdout);
-        cy.wait(waitOnOpenIdProviderToStart);
-        initializeOIDCUserAndGetLoginPage();
-
-        return null;
-      }
-
-      return cy
-        .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
-        .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
-    }
-  );
+const initializeOIDCUserAndGetLoginPage = (): Cypress.Chainable => {
+  return cy
+    .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
+    .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
 };
 
 const removeContact = (): Cypress.Chainable => {

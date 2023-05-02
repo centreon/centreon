@@ -5,5 +5,5 @@ Feature: OpenID Connect authentication
 
 Scenario: Define a list of clients who can access the Centreon interface
     Given an administrator is logged on the platform
-    When the adminstrator sets valid settings in the Authentication conditions and saves
+    When the administrator sets valid settings in the Authentication conditions and saves
     Then only users with the valid authentication conditions can access the platform
