@@ -4,9 +4,6 @@ inputs:
   module:
     description: "Module on which the test will be run"
     required: true
-  prepath:
-    description: "Path preceding the spec_file_path"
-    required: true
   spec_file_path:
     description: "Path of spec file."
     required: true
@@ -35,7 +32,7 @@ runs:
     - name: Format feature file path
       id: formatSpecFilePath
       run:
-        echo "value=$(echo '${{ inputs.spec_file_path }}' | sed -e 's#.cypress.spec.tsx##g')" >> $GITHUB_OUTPUT
+        echo "value=$(find ${{ inputs.spec_file_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sed -e 's#.cypress.spec.tsx##g')" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Cypress web component testing
@@ -45,7 +42,7 @@ runs:
         component: true
         install: false
         working-directory: ${{ inputs.module }}
-        spec: ${{ inputs.prepath }}${{ inputs.spec_file_path }}
+        spec: ${{ inputs.spec_file_path }}
         publish-summary: false
 
     - name: Archive videos

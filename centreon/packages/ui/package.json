@@ -97,6 +97,6 @@
   },
   "jest-junit": {
     "suiteName": "jest tests",
-    "output": "./junit.,xml"
+    "output": "./junit.xml"
   }
 }
