@@ -39,7 +39,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-        
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
