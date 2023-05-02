@@ -16,7 +16,7 @@ export interface AxisYRight extends Axis {
 
 export interface AxisX {
   [x: string]: unknown;
-  xAxisTickFormat: string;
+  xAxisTickFormat?: string;
 }
 export interface Data {
   axisX?: AxisX;

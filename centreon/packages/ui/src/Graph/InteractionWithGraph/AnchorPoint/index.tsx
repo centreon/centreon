@@ -7,8 +7,8 @@ interface Props {
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
-  positionX: number;
-  positionY: number;
+  positionX?: number;
+  positionY?: number;
   transparency: number;
   x: number;
   y: number;

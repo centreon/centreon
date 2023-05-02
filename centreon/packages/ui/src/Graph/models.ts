@@ -48,6 +48,6 @@ export interface Axis {
 }
 
 export interface GridsModel {
-  column: Record<string, unknown>;
-  row: Record<string, unknown>;
+  column?: Record<string, unknown>;
+  row?: Record<string, unknown>;
 }

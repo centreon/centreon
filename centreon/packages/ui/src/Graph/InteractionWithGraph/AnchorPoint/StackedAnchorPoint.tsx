@@ -4,6 +4,7 @@ import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, map, not, pipe } from 'ramda';
 
 import { bisectDate } from '../../timeSeries';
+import { MousePosition } from '../mouseTimeValueAtoms';
 
 import { StackValue } from './models';
 
@@ -15,11 +16,11 @@ interface Props {
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
-  position: any;
-  positionX: number;
-  positionY: number;
+  position: MousePosition;
+  positionX?: number;
+  positionY?: number;
   stackValues: Array<StackValue>;
-  timeTick: Date | null;
+  timeTick?: Date;
   transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;

@@ -3,13 +3,14 @@ import { alpha, useTheme } from '@mui/system';
 import Bar from '../Bar';
 
 import useZoomPreview from './useZoomPreview';
+import { ZoomPreviewData } from './models';
 
-const ZoomPreview = ({ data }: any): JSX.Element => {
+const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
 
   const { eventMouseDown, positionX, graphHeight, xScale, graphWidth } = data;
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
-    eventMouseDown,
+    eventMouseDown: eventMouseDown ?? undefined,
     graphWidth,
     movingMouseX: positionX,
     xScale

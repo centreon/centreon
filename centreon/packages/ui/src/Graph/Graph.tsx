@@ -1,8 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 
 import { Group } from '@visx/visx';
-import dayjs from 'dayjs';
-import { gte } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import Axes from './Axes';
@@ -11,19 +9,19 @@ import Header from './Header';
 import InteractionWithGraph from './InteractionWithGraph';
 import RegularAnchorPoint from './InteractionWithGraph/AnchorPoint/RegularAnchorPoint';
 import StackedAnchorPoint from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
-import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
-import Bar from './InteractionWithGraph/Bar';
-import Lines from './Lines';
-import useRegularLines from './Lines/RegularLines/useRegularLines';
-import useStackedLines from './Lines/StackedLines/useStackedLines';
-import { dateFormat, margin, timeFormat } from './common';
-import { AreaAnchorPoint, Axis, Data, GridsModel, ShapeLines } from './models';
-import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import {
   RegularLinesAnchorPoint,
   StackValue,
   StackedAnchorPoint as StackedAnchorPointModel
 } from './InteractionWithGraph/AnchorPoint/models';
+import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
+import Bar from './InteractionWithGraph/Bar';
+import Lines from './Lines';
+import useRegularLines from './Lines/RegularLines/useRegularLines';
+import useStackedLines from './Lines/StackedLines/useStackedLines';
+import { margin } from './common';
+import { AreaAnchorPoint, Axis, Data, GridsModel, ShapeLines } from './models';
+import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -94,7 +92,7 @@ const Graph = ({
   );
 
   const { position, timeTick, positionX, positionY } = useAnchorPoint({
-    event: eventMouseMoving,
+    event: eventMouseMoving ?? undefined,
     graphSvgRef,
     timeSeries,
     xScale
@@ -160,16 +158,6 @@ const Graph = ({
     setEventMouseDown(event);
   };
 
-  // a deplacer
-  const getXAxisTickFormat = (): string => {
-    const { queryParameters } = endpoint;
-    const numberDays = dayjs
-      .duration(dayjs(queryParameters.end).diff(dayjs(queryParameters.start)))
-      .asDays();
-
-    return gte(numberDays, 2) ? dateFormat : timeFormat;
-  };
-
   return (
     <>
       <Header timeTick={timeTick} title={title} />
@@ -185,12 +173,12 @@ const Graph = ({
 
           <Axes
             data={{
-              axisX: { xAxisTickFormat: getXAxisTickFormat() },
               baseAxis,
               lines,
               timeSeries,
               ...axis
             }}
+            graphEndpoint={endpoint}
             height={graphHeight}
             leftScale={leftScale}
             rightScale={rightScale}

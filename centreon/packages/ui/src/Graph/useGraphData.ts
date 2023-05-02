@@ -7,10 +7,26 @@ import { getData, useRequest } from '@centreon/ui';
 
 import { ZoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import { adjustGraphData } from './helpers';
-import { GraphData } from './models';
+import { GraphData, GraphEndpoint, GraphParameters } from './models';
+import { Line, TimeValue } from './timeSeries/models';
 
-const useGraphData = ({ graphEndpoint }: any): any => {
-  const [data, setData] = useState<any>();
+interface Data {
+  baseAxis: number;
+  endpoint: GraphEndpoint;
+  lines: Array<Line>;
+  timeSeries: Array<TimeValue>;
+  title: string;
+}
+
+interface GraphDataResult {
+  data?: Data;
+}
+interface Props {
+  graphEndpoint: GraphEndpoint;
+}
+
+const useGraphData = ({ graphEndpoint }: Props): GraphDataResult => {
+  const [data, setData] = useState<Data>();
   const { baseUrl, queryParameters } = graphEndpoint;
 
   const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
@@ -25,7 +41,7 @@ const useGraphData = ({ graphEndpoint }: any): any => {
     const { title } = resp.global;
     const endpoint = {
       baseUrl,
-      queryParameters: zoomParameters ?? queryParameters
+      queryParameters: (zoomParameters ?? queryParameters) as GraphParameters
     };
 
     const newLineData = adjustGraphData(resp).lines;

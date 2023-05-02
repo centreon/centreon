@@ -1,17 +1,28 @@
 import { useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
+import { ScaleTime } from 'd3-scale';
 import { useUpdateAtom } from 'jotai/utils';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
 
-import { ZoomBoundaries } from './models';
 import { ZoomParametersAtom } from './zoomPreviewAtoms';
 
+interface Boundaries {
+  end: number;
+  start: number;
+}
 interface ZoomPreview {
   zoomBarWidth: number;
-  zoomBoundaries: ZoomBoundaries;
+  zoomBoundaries: Boundaries | null;
+}
+
+interface Props {
+  eventMouseDown?: MouseEvent;
+  graphWidth: number;
+  movingMouseX?: number;
+  xScale: ScaleTime<number, number>;
 }
 
 const useZoomPreview = ({
@@ -19,11 +30,11 @@ const useZoomPreview = ({
   movingMouseX,
   xScale,
   graphWidth
-}: any): ZoomPreview => {
-  const [zoomBoundaries, setZoomBoundaries] = useState<any | null>(null);
+}: Props): ZoomPreview => {
+  const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
   const setZoomParameters = useUpdateAtom(ZoomParametersAtom);
 
-  const mousePoint = Event.localPoint(eventMouseDown);
+  const mousePoint = eventMouseDown ? Event.localPoint(eventMouseDown) : null;
 
   const mouseDownX = mousePoint ? mousePoint.x - margin.left : null;
 
@@ -44,9 +55,10 @@ const useZoomPreview = ({
 
       return;
     }
-    if (!isNil(movingMouseX)) {
+    if (!isNil(movingMouseX) || isNil(mouseDownX)) {
       return;
     }
+
     setZoomBoundaries({
       end: mouseDownX,
       start: mouseDownX

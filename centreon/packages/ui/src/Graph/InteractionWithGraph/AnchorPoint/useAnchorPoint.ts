@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { MutableRefObject, useEffect } from 'react';
 
+import { ScaleLinear } from 'd3-scale';
 import { Event } from '@visx/visx';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { equals, isEmpty, isNil, not } from 'ramda';
@@ -12,14 +13,28 @@ import {
   changeMousePositionAndTimeValueDerivedAtom,
   mousePositionAtom,
   timeValueAtom
-} from '../../mouseTimeValueAtoms';
+} from '../mouseTimeValueAtoms';
+
+interface AnchorPointResult {
+  position: MousePosition;
+  positionX?: number;
+  positionY?: number;
+  timeTick?: Date;
+}
+
+interface Props {
+  event?: MouseEvent;
+  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleLinear<number, number>;
+}
 
 const useAnchorPoint = ({
   event,
   graphSvgRef,
   timeSeries,
   xScale
-}: any): any => {
+}: Props): AnchorPointResult => {
   const mousePosition = useAtomValue(mousePositionAtom);
   const timeValueData = useAtomValue(timeValueAtom);
 
@@ -68,10 +83,12 @@ const useAnchorPoint = ({
   const mousePositionTimeTick = position
     ? getTimeValue({ timeSeries, x: position[0], xScale }).timeTick
     : 0;
-  const timeTick = containsMetrics ? new Date(mousePositionTimeTick) : null;
+  const timeTick = containsMetrics
+    ? new Date(mousePositionTimeTick)
+    : undefined;
 
-  const positionX = position ? position[0] - margin.left : null;
-  const positionY = position ? position[1] - margin.top : null;
+  const positionX = position ? position[0] - margin.left : undefined;
+  const positionY = position ? position[1] - margin.top : undefined;
 
   return {
     position: mousePosition,

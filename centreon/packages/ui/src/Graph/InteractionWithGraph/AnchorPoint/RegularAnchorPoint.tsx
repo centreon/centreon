@@ -5,6 +5,7 @@ import { ScaleLinear, ScaleTime } from 'd3-scale';
 
 import { getDates, bisectDate } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
+import { MousePosition } from '../mouseTimeValueAtoms';
 
 import AnchorPoint from '.';
 
@@ -15,11 +16,11 @@ interface Props {
   graphWidth: number;
   lineColor: string;
   metric: string;
-  position: any;
-  positionX: number;
-  positionY: number;
+  position: MousePosition;
+  positionX?: number;
+  positionY?: number;
   timeSeries: Array<TimeValue>;
-  timeTick: Date | null;
+  timeTick?: Date;
   transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;

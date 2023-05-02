@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { not, isNil } from 'ramda';
 
-import { TimeValue } from './timeSeries/models';
+import { TimeValue } from '../timeSeries/models';
 
 export type MousePosition = [number, number] | null;
 
