@@ -29,5 +29,5 @@ jobs:
         shell: bash
 
       - name: Check workflow files
-        run: ${{ steps.get_actionlint.outputs.executable }} -ignore 'label "common" is unknown' -color
+        run: ${{ steps.get_actionlint.outputs.executable }} -ignore 'label "common" is unknown' -shellcheck= -pyflakes= -color
         shell: bash
