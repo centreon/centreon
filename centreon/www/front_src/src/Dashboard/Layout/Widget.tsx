@@ -20,7 +20,7 @@ import {
 import FederatedComponent from '../../components/FederatedComponents';
 
 interface Props {
-  title: string;
+  id: string;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -42,7 +42,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Widget: FC<Props> = ({ title }) => {
+const Widget: FC<Props> = ({ id }) => {
   const { classes } = useStyles();
 
   const isEditing = useAtomValue(isEditingAtom);
@@ -57,21 +57,21 @@ const Widget: FC<Props> = ({ title }) => {
   const remove = (event): void => {
     event.preventDefault();
 
-    removeWidget(title);
+    removeWidget(id);
   };
 
   const duplicate = (event): void => {
     event.preventDefault();
 
-    duplicateWidget(title);
+    duplicateWidget(id);
   };
 
-  const widgetOptions = getWidgetOptions(title);
+  const widgetOptions = getWidgetOptions(id);
 
-  const widgetConfigurations = getWidgetConfigurations(title);
+  const widgetConfigurations = getWidgetConfigurations(id);
 
   const changeWidgetOptions = (newWidgetOptions): void => {
-    setWidgetOptions({ options: newWidgetOptions, title });
+    setWidgetOptions({ id, options: newWidgetOptions });
   };
 
   return useMemoComponent({
@@ -95,16 +95,16 @@ const Widget: FC<Props> = ({ title }) => {
         <div className={classes.widgetContent}>
           <FederatedComponent
             isFederatedWidget
-            memoProps={[widgetOptions, title]}
+            id={id}
+            memoProps={[widgetOptions, id]}
             path={widgetConfigurations.path}
             setWidgetOptions={changeWidgetOptions}
-            title={title}
             widgetOptions={widgetOptions}
           />
         </div>
       </Card>
     ),
-    memoProps: [isEditing, title, widgetOptions]
+    memoProps: [isEditing, id, widgetOptions]
   });
 };
 

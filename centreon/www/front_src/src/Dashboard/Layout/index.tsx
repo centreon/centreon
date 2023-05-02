@@ -25,7 +25,8 @@ const Layout: FC = () => {
   const isEditing = useAtomValue(isEditingAtom);
 
   const changeLayout = (layout: Array<Layout>): void => {
-    if (columns === 1) {
+    const isOneColumnDisplay = equals(columns, 1);
+    if (isOneColumnDisplay) {
       return;
     }
 
@@ -72,7 +73,7 @@ const Layout: FC = () => {
   }, []);
 
   return (
-    <ResponsiveHeight margin={100}>
+    <ResponsiveHeight>
       <Responsive.ParentSize>
         {({ width, height }): JSX.Element => (
           <div className={classes.container}>
@@ -89,7 +90,7 @@ const Layout: FC = () => {
               {dashboard.layout.map(({ i }) => {
                 return (
                   <div key={i}>
-                    <DashboardWidget key={i} title={i} />
+                    <DashboardWidget id={i} key={i} />
                   </div>
                 );
               })}

@@ -80,6 +80,7 @@
     "react-dom": "18.x",
     "react-i18next": "12.x",
     "react-router-dom": "6.x",
+    "react-scale-text": "1.x",
     "resize-observer-polyfill": "1.x",
     "ts.data.json": "2.x",
     "tss-react": "4.x"

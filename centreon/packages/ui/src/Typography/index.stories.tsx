@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
-import TypographtStory from '.';
+import TypographtStory from './story.utils';
 
 export default {
   argTypes: {},

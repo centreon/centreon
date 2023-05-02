@@ -50,18 +50,28 @@ interface AddWidgetDerivedAtom {
   widgetConfiguration: WidgetConfiguration;
 }
 
+interface GetWidgetProps {
+  id: string;
+  layout: Array<Widget>;
+}
+
+const getWidget = ({ id, layout }: GetWidgetProps) =>
+  find(propEq('i', id), layout);
+const getWidgetIndex = ({ id, layout }: GetWidgetProps) =>
+  findIndex(propEq('i', id), layout);
+
 export const addWidgetDerivedAtom = atom(
   null,
   (get, setAtom, { widgetConfiguration, options }: AddWidgetDerivedAtom) => {
     const dashboard = get(dashboardAtom);
 
-    const title = `Widget ${length(dashboard.layout)}`;
+    const id = `widget_${widgetConfiguration.path}_${length(dashboard.layout)}`;
 
     const widgetMinWith = widgetConfiguration?.widgetMinWidth || 25;
 
     const baseWidgetLayout = {
       h: widgetConfiguration?.widgetMinHeight || 4,
-      i: title,
+      i: id,
       minH: widgetConfiguration?.widgetMinHeight || 4,
       minW: widgetConfiguration?.widgetMinWidth || 1,
       options,
@@ -138,9 +148,12 @@ export const removeWidgetDerivedAtom = atom(
 
 export const getWidgetOptionsDerivedAtom = atom(
   (get) =>
-    (title: string): object | undefined => {
+    (id: string): object | undefined => {
       const dashboard = get(dashboardAtom);
-      const widgetOptions = find(propEq('i', title), dashboard.layout)?.options;
+      const widgetOptions = getWidget({
+        id,
+        layout: dashboard.layout
+      })?.options;
 
       return widgetOptions;
     }
@@ -148,30 +161,29 @@ export const getWidgetOptionsDerivedAtom = atom(
 
 export const getWidgetConfigurationsDerivedAtom = atom(
   (get) =>
-    (title: string): WidgetConfiguration => {
+    (id: string): WidgetConfiguration => {
       const dashboard = get(dashboardAtom);
-      const widgetOptions = dashboard.layout.find(propEq('i', title))
-        ?.widgetConfiguration as WidgetConfiguration;
 
-      return widgetOptions;
+      return getWidget({ id, layout: dashboard.layout })
+        ?.widgetConfiguration as WidgetConfiguration;
     }
 );
 
 interface SetWidgetOptionsProps {
+  id: string;
   options: object;
-  title: string;
 }
 
 export const setWidgetOptionsDerivedAtom = atom(
   null,
-  (_, setAtom, { title, options }: SetWidgetOptionsProps) => {
+  (_, setAtom, { id, options }: SetWidgetOptionsProps) => {
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
-      const widgetIndex = findIndex(
-        ({ i }) => equals(i, title),
-        currentDashboard.layout
-      );
+      const widgetIndex = getWidgetIndex({
+        id,
+        layout: currentDashboard.layout
+      });
 
-      const widget = find(({ i }) => equals(i, title), currentDashboard.layout);
+      const widget = getWidget({ id, layout: currentDashboard.layout });
 
       const newLayout = set(
         lensIndex(widgetIndex),
