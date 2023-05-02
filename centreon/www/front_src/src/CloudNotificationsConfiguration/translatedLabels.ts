@@ -28,3 +28,6 @@ export const labelDeleteNotificationWarning = 'This action cannot be undone';
 
 export const labelReduceInformationPanel = 'Reduce information panel';
 export const labelExpandInformationPanel = 'Expand information panel';
+
+export const labelTypeYourTextHere = 'Type your text here';
+export const labelPreviewZone = 'Preview Zone';

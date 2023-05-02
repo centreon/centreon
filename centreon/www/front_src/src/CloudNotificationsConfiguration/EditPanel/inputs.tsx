@@ -2,6 +2,15 @@ import { cond, gt, always, T } from 'ramda';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
 
+import {
+  hostsGroupsEndpoint,
+  serviceGroupsEndpoint,
+  businessViewsEndpoint,
+  usersEndpoint
+} from './api/endpoints';
+import EmailBody from './Channel/EmailBody';
+import EmailPreview from './Channel/EmailPreview';
+
 const hostGroupEvents = ['up', 'down', 'unreachable'];
 
 const servicesEvents = ['ok', 'warning', 'crtitical', 'unkown'];
@@ -24,12 +33,13 @@ export const getInputs = ({
       grid: {
         columns: [
           {
-            autocomplete: {
-              options: []
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: hostsGroupsEndpoint
             },
             fieldName: 'hostGroups.ids',
             label: 'Search host groups',
-            type: InputType.MultiAutocomplete
+            type: InputType.MultiConnectedAutocomplete
           },
           {
             checkbox: {
@@ -69,12 +79,13 @@ export const getInputs = ({
       grid: {
         columns: [
           {
-            autocomplete: {
-              options: []
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: serviceGroupsEndpoint
             },
             fieldName: 'serviceGroups.ids',
             label: 'Search Service groups',
-            type: InputType.MultiAutocomplete
+            type: InputType.MultiConnectedAutocomplete
           },
           {
             checkbox: {
@@ -99,12 +110,13 @@ export const getInputs = ({
       grid: {
         columns: [
           {
-            autocomplete: {
-              options: []
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: businessViewsEndpoint
             },
             fieldName: 'businessViews.ids',
             label: 'Search Business Views',
-            type: InputType.MultiAutocomplete
+            type: InputType.MultiConnectedAutocomplete
           },
           {
             checkbox: {
@@ -124,35 +136,73 @@ export const getInputs = ({
       type: InputType.Grid
     },
     {
-      // additionalLabel: 'Time period',
-      fieldName: 'timeperiod',
-      group: 'Select time period/ channels of notifications / preview',
-      label: 'Time period',
-      type: InputType.Checkbox
-    },
-    {
-      checkbox: {
-        row: true
-      },
-      fieldName: 'messages.channel',
-      group: 'Select time period/ channels of notifications / preview',
-      label: 'Channel',
-      type: InputType.Checkbox
-    },
-    {
-      fieldName: 'messages.subject',
-      group: 'Select time period/ channels of notifications / preview',
-      label: 'Subject',
-      type: InputType.Text
-    },
-    {
-      autocomplete: {
-        options: []
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: usersEndpoint
       },
       fieldName: 'users',
       group: 'Select users',
       label: 'Search users',
-      type: InputType.MultiAutocomplete
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      fieldName: '',
+      grid: {
+        columns: [
+          {
+            fieldName: '',
+            grid: {
+              columns: [
+                {
+                  // additionalLabel: 'Time period',
+                  fieldName: 'timeperiod',
+
+                  label: 'Time period',
+                  type: InputType.Checkbox
+                },
+                {
+                  checkbox: {
+                    row: true
+                  },
+                  fieldName: 'messages.channel',
+                  label: 'Notification channels',
+                  type: InputType.Checkbox
+                },
+
+                {
+                  fieldName: 'messages.subject',
+
+                  label: 'Subject',
+                  type: InputType.Text
+                },
+                {
+                  custom: {
+                    Component: EmailBody
+                  },
+                  fieldName: 'messages.message',
+                  label: 'Content',
+                  type: InputType.Custom
+                }
+              ],
+
+              gridTemplateColumns: 'repeat(1, 1fr)'
+            },
+            label: '',
+            type: InputType.Grid
+          },
+          {
+            custom: {
+              Component: EmailPreview
+            },
+            fieldName: 'preview',
+            label: 'Preview',
+            type: InputType.Custom
+          }
+        ]
+      },
+      group: 'Select time period/ channels of notifications / preview',
+      label: '',
+      type: InputType.Grid
     }
   ];
 };

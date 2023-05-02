@@ -55,7 +55,7 @@ export const getInitialValues = ({
   timeperiod,
   messages,
   resources
-}: NotificationType): any => ({
+}: NotificationType): unknown => ({
   businessViews: formatResource({
     resourceType: ResourcesTypeEnum.BV,
     resources
@@ -94,7 +94,8 @@ export const emptyInitialValues = {
   isActivated: false,
   messages: {
     channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Mail },
-    message: '',
+    message:
+      '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
     subject: ''
   },
   name: '',
@@ -104,9 +105,5 @@ export const emptyInitialValues = {
     type: 'Service groups'
   },
   timeperiod: { checked: true, label: '24h/24 - 7/7 days' },
-  users: [
-    // { checked: false, label: 'Sir Kenny' },
-    // { checked: false, label: 'Stevie G' },
-    // { checked: false, label: 'Big Sammy' }
-  ]
+  users: []
 };

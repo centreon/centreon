@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-import { baseEndpoint } from '../../../../../api';
+import { baseEndpoint } from '../../../api/endpoint';
 
 // export const endpoint = `${baseEndpoint}/notifications`;
 
@@ -16,3 +16,8 @@ export const notificationtEndpoint = ({ id }: Props): string => {
 
   return `${notificationListingEndpoint}/${id}`;
 };
+
+export const hostsGroupsEndpoint = `${baseEndpoint}/configuration/hosts/groups`;
+export const serviceGroupsEndpoint = `${baseEndpoint}/configuration/services/groups`;
+export const businessViewsEndpoint = `${baseEndpoint}/bam/configuration/business-views`;
+export const usersEndpoint = `${baseEndpoint}/configuration/users`;
