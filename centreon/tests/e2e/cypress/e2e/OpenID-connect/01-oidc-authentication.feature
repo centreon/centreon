@@ -14,6 +14,6 @@ Scenario: Default authentication mode Mixed
     Then default authentication mode must be Mixed and users created locally to centreon platform must be able to authenticate
 
 Scenario: Enable OpenID Connect authentication
-    Given an administrator is relogged on the platform
+    Given an administrator is logged on the platform
     When the administrator activates OpenID Connect authentication on the platform
     Then any user can authenticate using the authentication provider that is configured

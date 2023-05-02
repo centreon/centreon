@@ -14,7 +14,7 @@ const stepWaitingTime = 250;
 const pollingCheckTimeout = 100000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
@@ -131,23 +131,16 @@ const submitResultsViaClapi = (): Cypress.Chainable => {
 };
 
 const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
-  return cy
-    .fixture('users/admin.json')
-    .then((userAdmin) => {
-      return cy.request({
-        body: {
-          login: userAdmin.login,
-          password: userAdmin.password
-        },
-        method: 'POST',
-        url: apiLoginV2
-      });
-    })
-    .then(() => {
-      Cypress.Cookies.defaults({
-        preserve: 'PHPSESSID'
-      });
+  return cy.fixture('users/admin.json').then((userAdmin) => {
+    return cy.request({
+      body: {
+        login: userAdmin.login,
+        password: userAdmin.password
+      },
+      method: 'POST',
+      url: apiLoginV2
     });
+  });
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {

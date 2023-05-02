@@ -5,8 +5,6 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
 
-const apiLogout = '/centreon/api/latest/authentication/logout';
-
 Cypress.Commands.add(
   'getByLabel',
   ({ tag = '', label }: GetByLabelProps): Cypress.Chainable => {
@@ -35,37 +33,40 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
-  return cy.fixture('users/admin.json').then((userAdmin) => {
-    return cy
-      .request({
-        body: {
-          password: userAdmin.password,
-          username: userAdmin.login
-        },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        method: 'POST',
-        url: `${apiActionV1}?action=authenticate`
-      })
-      .then(({ body }) =>
-        window.localStorage.setItem('userTokenApiV1', body.authToken)
-      );
-  });
-});
+Cypress.Commands.add(
+  'setUserTokenApiV1',
+  (fixtureFile = 'admin'): Cypress.Chainable => {
+    return cy.fixture(`users/${fixtureFile}.json`).then((userAdmin) => {
+      return cy
+        .request({
+          body: {
+            password: userAdmin.password,
+            username: userAdmin.login
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          method: 'POST',
+          url: `${apiActionV1}?action=authenticate`
+        })
+        .then(({ body }) =>
+          window.localStorage.setItem('userTokenApiV1', body.authToken)
+        );
+    });
+  }
+);
 
 Cypress.Commands.add(
   'loginKeycloack',
   (jsonName: string): Cypress.Chainable => {
-    return cy
-      .fixture(`users/${jsonName}.json`)
-      .then((credential) => {
-        cy.get('#username').clear().type(credential.login);
-        cy.get('#password').clear().type(credential.password);
-      })
-      .get('#kc-login')
-      .click();
+    cy.fixture(`users/${jsonName}.json`).then((credential) => {
+      cy.get('#username').clear();
+      cy.get('#username').type(credential.login);
+      cy.get('#password').clear();
+      cy.get('#password').type(credential.password);
+    });
+
+    return cy.get('#kc-login').click();
   }
 );
 
@@ -94,12 +95,9 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
-    return cy
-      .get('header')
-      .get('svg[aria-label="Profile"]')
-      .click()
-      .get('div[role="tooltip"]')
-      .contains(targetedMenu);
+    cy.get('header svg[aria-label="Profile"]').click();
+
+    return cy.get('div[role="tooltip"]').contains(targetedMenu);
   }
 );
 
@@ -129,15 +127,26 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy.exec(
-    'docker run -p 8080:8080 -d --name e2e-tests-openid-centreon docker.centreon.com/centreon/openid:23.04'
-  );
+  return cy
+    .startContainer({
+      image: `docker.centreon.com/centreon/openid:${Cypress.env(
+        'OPENID_IMAGE_VERSION'
+      )}`,
+      name: 'e2e-tests-openid-centreon',
+      portBindings: [
+        {
+          destination: 8080,
+          source: 8080
+        }
+      ]
+    })
+    .then(() => {
+      return cy.exec('npx wait-on http://0.0.0.0:8080/health/ready');
+    });
 });
 
 Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy.exec(
-    'docker stop e2e-tests-openid-centreon && docker rm e2e-tests-openid-centreon'
-  );
+  return cy.stopContainer({ name: 'e2e-tests-openid-centreon' });
 });
 
 Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
@@ -179,7 +188,7 @@ declare global {
         database,
         query
       }: requestOnDatabaseProps) => Cypress.Chainable;
-      setUserTokenApiV1: () => Cypress.Chainable;
+      setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
