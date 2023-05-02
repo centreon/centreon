@@ -3,15 +3,10 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    + Added vault configuration endpoints
-    + Added time period configuration endpoints
-    + Added host groups endpoints (DELETE, POST)
-    + Added host categories endpoints (DELETE, POST)
-    + Added host severities endpoints (DELETE)
+    + Added host severities endpoints (GET, PUT)
+    +
     # Updated features
-    + Updated host groups endpoint (GET)
-    + Updated host categories endpoint (GET)
-    + Updated host severities endpoint (GET)
+    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -26,7 +21,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "23.04"
+  version: "23.10"
 externalDocs:
   description: You can contact us on our community Slack
   url: 'https://centreon.slack.com/messages/CCRGLQSE5'
@@ -46,7 +41,7 @@ servers:
         default: '80'
         description: "Port used by HTTP server"
       version:
-        default: v23.04
+        default: v23.10
         description: "Version of the API"
 tags:
   - name: Acknowledgement

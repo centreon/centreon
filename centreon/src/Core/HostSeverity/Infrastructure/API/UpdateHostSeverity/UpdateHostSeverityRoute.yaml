@@ -4,4 +4,4 @@ UpdateHostSeverity:
   requirements:
     hostSeverityId: '\d+'
   controller: 'Core\HostSeverity\Infrastructure\API\UpdateHostSeverity\UpdateHostSeverityController'
-  condition: "request.attributes.get('version') >= 23.04"
+  condition: "request.attributes.get('version') >= 23.10"

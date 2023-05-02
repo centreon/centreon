@@ -4,4 +4,4 @@ FindHostSeverity:
   requirements:
     hostSeverityId: '\d+'
   controller: 'Core\HostSeverity\Infrastructure\API\FindHostSeverity\FindHostSeverityController'
-  condition: "request.attributes.get('version') >= 23.04"
+  condition: "request.attributes.get('version') >= 23.10"
