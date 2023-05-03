@@ -43,7 +43,7 @@ class NewServiceSeverity
      * @param string $name
      * @param string $alias
      * @param int $level
-     * @param positive-int $iconId FK
+     * @param int $iconId FK
      *
      * @throws AssertionFailedException
      */
