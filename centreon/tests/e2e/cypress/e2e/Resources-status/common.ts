@@ -11,8 +11,6 @@ import {
   updateFixturesResult
 } from '../../commons';
 
-const apiActionV1Url = `${Cypress.config().baseUrl}/centreon/api/index.php`;
-
 interface Criteria {
   name: string;
   object_type: string | null;
@@ -208,23 +206,13 @@ const submitCustomResultsViaClapi = (
     warning: '1'
   };
 
-  return cy.request({
-    body: {
-      results: [
-        {
-          ...submitResults,
-          status: statusIds[submitResults.status],
-          updatetime: timestampNow.toString()
-        }
-      ]
-    },
-    headers: {
-      'Content-Type': 'application/json',
-      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-    },
-    method: 'POST',
-    url: `${apiActionV1Url}?action=submit&object=centreon_submit_results`
-  });
+  return submitResultsViaClapi([
+    {
+      ...submitResults,
+      status: statusIds[submitResults.status],
+      updatetime: timestampNow.toString()
+    }
+  ]);
 };
 
 const clearCentengineLogs = (): Cypress.Chainable => {

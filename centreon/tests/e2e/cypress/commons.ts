@@ -14,6 +14,7 @@ interface SubmitResult {
   output: string;
   service?: string;
   status: string;
+  updatetime: string;
 }
 
 const stepWaitingTime = 250;
@@ -181,7 +182,7 @@ const updateFixturesResult = (): Cypress.Chainable => {
 };
 
 const submitResultsViaClapi = (
-  submitResult: Array<SubmitResult> | SubmitResult
+  submitResult: Array<SubmitResult>
 ): Cypress.Chainable => {
   return cy.request({
     body: { results: submitResult },
