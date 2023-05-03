@@ -67,7 +67,7 @@ final class AddHostSeverity
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed())
                 );
             } elseif ($this->readHostSeverityRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error(

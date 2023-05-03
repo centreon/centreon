@@ -68,7 +68,7 @@ final class UpdateHostSeverity
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed())
                 );
 
                 return;
