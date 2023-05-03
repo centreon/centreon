@@ -20,6 +20,10 @@ import {
   typeToSearchInput
 } from '../common';
 
+before(() => {
+  cy.startWebContainer();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'POST',
@@ -38,7 +42,7 @@ beforeEach(() => {
 Given('the user have the necessary rights to page Ressource Status', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    preserveToken: true
+    loginViaApi: true
   });
 
   cy.get(searchInput).should('exist');
@@ -648,4 +652,6 @@ Then(
 
 after(() => {
   tearDownResource().then(() => tearDownAckResource());
+
+  cy.stopWebContainer();
 });

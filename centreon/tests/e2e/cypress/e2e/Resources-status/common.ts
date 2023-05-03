@@ -57,13 +57,13 @@ const initializeResourceData = (): Cypress.Chainable => {
 
 const initializeAckChildRessources = (): Cypress.Chainable => {
   const files = [
-    'resources/clapi/host2/01-add.json',
-    'resources/clapi/host2/02-enable-passive-check.json',
-    'resources/clapi/host2/03-disable-active-check.json',
-    'resources/clapi/host2/04-set-max-check.json',
-    'resources/clapi/host2/05-add-parent.json',
-    'resources/clapi/host2/06-add-check-command.json',
-    'resources/clapi/host2/07-enable-notification.json'
+    'resources/clapi/host3/01-add.json',
+    'resources/clapi/host3/02-enable-passive-check.json',
+    'resources/clapi/host3/03-disable-active-check.json',
+    'resources/clapi/host3/04-set-max-check.json',
+    'resources/clapi/host3/05-add-parent.json',
+    'resources/clapi/host3/06-add-check-command.json',
+    'resources/clapi/host3/07-enable-notification.json'
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
