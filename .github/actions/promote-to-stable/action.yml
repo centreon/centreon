@@ -36,6 +36,8 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
+        SRC_PATHS=""
+
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS+=$(jf rt s --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
