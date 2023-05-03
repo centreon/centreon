@@ -27,11 +27,11 @@ const PageContainer = styled('div')(() => ({
 }));
 
 interface IsAllowedPageProps {
-  path: string;
   allowedPages: Array<string | Array<string>>;
+  path: string;
 }
 
-const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean => 
+const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
   flatten(allowedPages).some((allowedPage) => path.includes(allowedPage));
 
 const getExternalPageRoutes = ({
@@ -41,7 +41,7 @@ const getExternalPageRoutes = ({
   return federatedModules?.map(
     ({ federatedPages, remoteEntry, moduleFederationName, moduleName }) => {
       return federatedPages?.map(({ component, route }) => {
-        if (not(isAllowedPage({ path: route, allowedPages }))) {
+        if (not(isAllowedPage({ allowedPages, path: route }))) {
           return null;
         }
 
@@ -88,7 +88,7 @@ const ReactRouterContent = ({
             const isAllowed =
               isLogoutPage ||
               isNil(allowedPages) ||
-              isAllowedPage({ path, allowedPages })
+              isAllowedPage({ allowedPages, path });
 
             return (
               <Route
