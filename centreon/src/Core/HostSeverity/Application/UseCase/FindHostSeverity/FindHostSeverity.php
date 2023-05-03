@@ -112,9 +112,8 @@ final class FindHostSeverity
      *
      * @return FindHostSeverityResponse
      */
-    private function createResponse(
-        HostSeverity $hostSeverity
-    ): FindHostSeverityResponse {
+    private function createResponse(HostSeverity $hostSeverity): FindHostSeverityResponse
+    {
         $response = new FindHostSeverityResponse();
         $response->id = $hostSeverity->getId();
         $response->name = $hostSeverity->getName();
