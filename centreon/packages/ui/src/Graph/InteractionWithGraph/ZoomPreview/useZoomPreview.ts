@@ -7,7 +7,7 @@ import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
 
-import { ZoomParametersAtom } from './zoomPreviewAtoms';
+import { zoomParametersAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
   end: number;
@@ -32,7 +32,7 @@ const useZoomPreview = ({
   graphWidth
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
-  const setZoomParameters = useUpdateAtom(ZoomParametersAtom);
+  const setZoomParameters = useUpdateAtom(zoomParametersAtom);
 
   const mousePoint = eventMouseDown ? Event.localPoint(eventMouseDown) : null;
 

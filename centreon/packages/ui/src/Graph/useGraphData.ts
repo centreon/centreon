@@ -5,7 +5,7 @@ import { find, propEq } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
 
-import { ZoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
+import { zoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import { adjustGraphData } from './helpers';
 import { GraphData, GraphEndpoint, GraphParameters } from './models';
 import { Line, TimeValue } from './timeSeries/models';
@@ -37,7 +37,7 @@ const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
     request: getData
   });
 
-  const [zoomParameters, setZoomParameters] = useAtom(ZoomParametersAtom);
+  const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
 
   const prepareData = (resp): void => {
     const { timeSeries } = adjustGraphData(resp);
