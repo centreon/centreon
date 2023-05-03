@@ -1547,18 +1547,47 @@ function reset_search_page($url)
     }
 }
 
+/**
+ * Return an array of flag names which are enabled (active).
+ *
+ * @return array<string>
+ *
+ * @see \Core\Common\Infrastructure\FeatureFlags::getEnabled()
+ */
+function get_enabled_feature_flags(): array
+{
+    static $enabledFlags;
+    if (isset($enabledFlags)) {
+        return $enabledFlags;
+    }
+
+    $service = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+    return $enabledFlags = ($service instanceof Core\Common\Infrastructure\FeatureFlags ? $service->getEnabled() : []);
+}
+
+/**
+ * We consider an empty feature **in the legacy code** as enabled.
+ * We tolerate this nonsense for the legacy : KISS.
+ */
+function is_enabled_feature_flag(?string $feature): bool
+{
+    return null === $feature || '' === $feature
+        || in_array($feature, get_enabled_feature_flags(), true);
+}
+
 function get_child($id_page, $lcaTStr)
 {
     global $pearDB;
 
     if ($lcaTStr != "") {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react
+        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react, topology_feature_flag
                 FROM topology
                 WHERE topology_page IN ($lcaTStr)
                 AND topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
                 ORDER BY topology_order, topology_group ";
     } else {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react
+        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react, topology_feature_flag
                 FROM topology
                 WHERE topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
                 ORDER BY topology_order, topology_group ";
@@ -1566,6 +1595,10 @@ function get_child($id_page, $lcaTStr)
 
     $DBRESULT = $pearDB->query($rq);
     $redirect = $DBRESULT->fetch();
+    if (! is_enabled_feature_flag($redirect['topology_feature_flag'] ?? null)) {
+        return false;
+    }
+
     return $redirect;
 }
 
