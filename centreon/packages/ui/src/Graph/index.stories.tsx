@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { equals, isEmpty, isNil } from 'ramda';
+import dayjs from 'dayjs';
 
 import TimePeriod from '../TimePeriods';
 
 // import graphData from './data.json';
-import { GraphEndpoint } from './models';
 
 import Graph from './index';
 
@@ -17,6 +17,9 @@ export default {
 
 const Template: ComponentStory<typeof Graph> = (args) => {
   const { baseUrl, start, end, height } = args;
+
+  const startTime = start ? new Date(start).toISOString() : '';
+  const endTime = end ? new Date(end).toISOString() : '';
 
   // const [endpoint, setEndpoint] = useState<GraphEndpoint | null>();
 
@@ -41,9 +44,9 @@ const Template: ComponentStory<typeof Graph> = (args) => {
       <Graph
         {...args}
         baseUrl={baseUrl}
-        end={end}
+        end={endTime}
         height={height}
-        start={start}
+        start={startTime}
       />
     </>
   );
@@ -223,6 +226,8 @@ Playground.argTypes = {
     control: {
       type: 'text'
     },
+    defaultValue:
+      'http://localhost:3000/centreon/api/latest/monitoring/hosts/151/services/1160/metrics/performance',
     description: 'base url to get graph data',
     name: 'baseUrl',
     table: {
@@ -233,6 +238,7 @@ Playground.argTypes = {
   },
   end: {
     control: 'date',
+    defaultValue: Date.now(),
     description: 'the end of the interval of time to get graph data',
     table: {
       category: 'Graph data',
@@ -279,16 +285,15 @@ Playground.argTypes = {
       type: { detail: 'control the grid lines of the graph', summary: 'object' }
     }
   },
-
   height: {
     control: 'number',
+    defaultValue: 500,
     description: 'the height of the graph',
     table: {
       category: 'Sizes',
       type: { summary: 'number' }
     }
   },
-
   shapeLines: {
     control: 'object',
     defaultValue: {
@@ -358,6 +363,7 @@ Playground.argTypes = {
   },
   start: {
     control: 'date',
+    defaultValue: dayjs(Date.now()).subtract(24, 'hour').toDate().getTime(),
     description: 'the beginning of the interval of time to get graph data',
     table: {
       category: 'Graph data',
@@ -383,10 +389,4 @@ Playground.argTypes = {
   }
 };
 
-Playground.args = {
-  baseUrl:
-    'http://localhost:3000/centreon/api/latest/monitoring/hosts/151/services/1160/metrics/performance',
-  end: undefined,
-  height: 500,
-  start: undefined
-};
+Playground.args = {};

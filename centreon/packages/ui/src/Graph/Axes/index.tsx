@@ -1,14 +1,14 @@
-import dayjs from 'dayjs';
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
+import dayjs from 'dayjs';
 import { gte } from 'ramda';
 
-import { getUnits } from '../timeSeries';
 import useLocaleDateTimeFormat, {
   dateFormat,
   timeFormat
 } from '../../utils/useLocaleDateTimeFormat';
-import { GraphEndpoint } from '../models';
+import { GraphParameters } from '../models';
+import { getUnits } from '../timeSeries';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -16,9 +16,9 @@ import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
-  graphEndpoint?: GraphEndpoint;
   height: number;
   leftScale: ScaleLinear<number, number>;
+  queryParameters?: GraphParameters;
   rightScale: ScaleLinear<number, number>;
   width: number;
   xScale: ScaleLinear<number, number>;
@@ -31,7 +31,7 @@ const Axes = ({
   rightScale,
   leftScale,
   xScale,
-  graphEndpoint
+  queryParameters
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines } = data;
@@ -43,7 +43,7 @@ const Axes = ({
   const xTickCount = Math.ceil(width / 82);
 
   const getXAxisTickFormat = (): string => {
-    const parameters = graphEndpoint?.queryParameters;
+    const parameters = queryParameters;
     if (!parameters) {
       return timeFormat;
     }

@@ -7,60 +7,49 @@ import { getData, useRequest } from '@centreon/ui';
 
 import { zoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import { adjustGraphData } from './helpers';
-import { GraphData, GraphEndpoint, GraphParameters } from './models';
-import { Line, TimeValue } from './timeSeries/models';
+import { Data, GraphData, GraphParameters } from './models';
 
-interface Data {
-  baseAxis: number;
-  endpoint: GraphEndpoint;
-  lines: Array<Line>;
-  timeSeries: Array<TimeValue>;
-  title: string;
+interface QueryParameter {
+  endTime: string;
+  startTime: string;
 }
 
 interface GraphDataResult {
   data?: Data;
+  loading: boolean;
 }
-interface Props {
+interface Props extends GraphParameters {
   baseUrl: string;
-  end: any;
-  start: any;
 }
 
 const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
   const [data, setData] = useState<Data>();
-  const [graphEndpoint, setGraphEndpoint] = useState<GraphEndpoint | null>(
-    null
-  );
 
-  const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
-    request: getData
-  });
+  const { sendRequest: sendGetGraphDataRequest, sending: loading } =
+    useRequest<GraphData>({
+      request: getData
+    });
 
   const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
 
-  const prepareData = (resp): void => {
-    const { timeSeries } = adjustGraphData(resp);
-    const baseAxis = resp.global.base;
-    const { title } = resp.global;
-    const endpoint = {
-      baseUrl,
-      queryParameters: (zoomParameters ??
-        graphEndpoint?.queryParameters) as GraphParameters
-    };
+  const prepareData = ({ response, queryParameters }: any): void => {
+    const { timeSeries } = adjustGraphData(response);
+    const baseAxis = response.global.base;
+    const { title } = response.global;
 
-    const newLineData = adjustGraphData(resp).lines;
+    const newLineData = adjustGraphData(response).lines;
 
-    if (data?.lines) {
+    if (response?.lines) {
       const newLines = newLineData.map((line) => ({
         ...line,
-        display: find(propEq('name', line.name), data.lines)?.display ?? true
+        display:
+          find(propEq('name', line.name), response.lines)?.display ?? true
       }));
 
       setData({
         baseAxis,
-        endpoint,
         lines: newLines,
+        queryParameters,
         timeSeries,
         title
       });
@@ -70,73 +59,39 @@ const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
 
     setData({
       baseAxis,
-      endpoint,
       lines: newLineData,
+      queryParameters,
       timeSeries,
       title
     });
   };
 
-  const getEndpoint = (): string => {
-    const { queryParameters } = graphEndpoint as GraphEndpoint;
-
-    return `${baseUrl}?start=${queryParameters.start}&end=${queryParameters.end}`;
-  };
-
-  const updateEndpoint = (): string => {
-    if (!zoomParameters || !graphEndpoint) {
-      return '';
-    }
-    const { start: startDate, end: endDate } = zoomParameters;
-    const parameters = `?start=${startDate}&end=${endDate}`;
-
-    return `${baseUrl}${parameters}`;
-  };
+  const getQueryParameters = ({ startTime, endTime }: QueryParameter): string =>
+    `?start=${startTime}&end=${endTime}`;
 
   useEffect(() => {
     if (!end || !start || !baseUrl) {
       return;
     }
-    setGraphEndpoint({
-      baseUrl,
-      queryParameters: {
-        end: new Date(end).toISOString(),
-        start: new Date(start).toISOString()
-      }
-    });
-  }, [baseUrl, start, end]);
 
-  useEffect(() => {
-    if (!graphEndpoint) {
-      return;
-    }
+    const queryParameters = zoomParameters
+      ? getQueryParameters({
+          endTime: zoomParameters.end,
+          startTime: zoomParameters.start
+        })
+      : getQueryParameters({ endTime: end, startTime: start });
 
-    sendGetGraphDataRequest({
-      endpoint: getEndpoint()
-    })
-      .then((resp) => {
-        prepareData(resp);
-      })
-      .catch(() => undefined);
-  }, [graphEndpoint]);
-
-  useEffect(() => {
-    const endpoint = updateEndpoint();
-    if (!zoomParameters || !endpoint) {
-      return;
-    }
+    const endpoint = `${baseUrl}${queryParameters}`;
 
     sendGetGraphDataRequest({
       endpoint
-    })
-      .then((resp) => {
-        prepareData(resp);
-        setZoomParameters(null);
-      })
-      .catch(() => undefined);
-  }, [zoomParameters]);
+    }).then((response) => {
+      prepareData({ queryParameters, response });
+      setZoomParameters(null);
+    });
+  }, [baseUrl, start, end, zoomParameters]);
 
-  return { data };
+  return { data, loading };
 };
 
 export default useGraphData;

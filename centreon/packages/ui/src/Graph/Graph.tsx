@@ -22,9 +22,11 @@ import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
+import LoadingProgress from './LoadingProgress';
 
 interface Props extends GraphProps {
   graphData: Data;
+  loading: boolean;
   shapeLines: GlobalAreaLines;
 }
 
@@ -35,7 +37,8 @@ const Graph = ({
   shapeLines,
   axis,
   grids,
-  anchorPoint
+  anchorPoint,
+  loading
 }: Props): JSX.Element => {
   const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
 
@@ -44,7 +47,7 @@ const Graph = ({
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const { title, timeSeries, lines, baseAxis, endpoint } = graphData;
+  const { title, timeSeries, lines, baseAxis, queryParameters } = graphData;
 
   const xScale = useMemo(
     () =>
@@ -179,7 +182,7 @@ const Graph = ({
   return (
     <>
       <Header timeTick={timeTick} title={title} />
-
+      <LoadingProgress display={loading} height={height} width={width} />
       <svg height={height} ref={graphSvgRef} width="100%">
         <Group.Group left={margin.left} top={margin.top}>
           <Grids
@@ -197,9 +200,9 @@ const Graph = ({
               timeSeries,
               ...axis
             }}
-            graphEndpoint={endpoint}
             height={graphHeight}
             leftScale={leftScale}
+            queryParameters={queryParameters}
             rightScale={rightScale}
             width={graphWidth}
             xScale={xScale}

@@ -32,6 +32,7 @@ const useZoomPreview = ({
   graphWidth
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
+
   const setZoomParameters = useUpdateAtom(zoomParametersAtom);
 
   const mousePoint = eventMouseDown ? Event.localPoint(eventMouseDown) : null;

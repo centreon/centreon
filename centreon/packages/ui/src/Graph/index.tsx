@@ -21,9 +21,9 @@ rootElement.style.height = '80%';
 
 interface Props extends GraphProps {
   baseUrl: string;
-  end: Date | string;
+  end: string;
   shapeLines: GlobalAreaLines;
-  start: Date | string;
+  start: string;
 }
 
 const WrapperGraph = ({
@@ -37,7 +37,7 @@ const WrapperGraph = ({
   grids,
   anchorPoint
 }: Props): JSX.Element | null => {
-  const { data } = useGraphData({ baseUrl, end, start });
+  const { data, loading } = useGraphData({ baseUrl, end, start });
 
   if (!data) {
     return null;
@@ -56,6 +56,7 @@ const WrapperGraph = ({
             graphData={data}
             grids={grids}
             height={height ?? responsiveHeight}
+            loading={loading}
             shapeLines={shapeLines}
             width={width ?? responsiveWidth}
           />

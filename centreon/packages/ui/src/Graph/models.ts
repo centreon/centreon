@@ -12,11 +12,10 @@ export interface GraphEndpoint {
   baseUrl: string;
   queryParameters: GraphParameters;
 }
-
 export interface Data {
   baseAxis: number;
-  endpoint: GraphEndpoint;
   lines: Array<Line>;
+  queryParameters: GraphParameters;
   timeSeries: Array<TimeValue>;
   title: string;
 }
