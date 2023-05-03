@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { React, useState } from 'react';
+import { useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { equals, prop } from 'ramda';
@@ -189,6 +189,10 @@ export const loadingWithNoData = (): JSX.Element => {
 
 export const loadingWithData = (): JSX.Element => {
   return <Story loading />;
+};
+
+export const asEmptyState = (): JSX.Element => {
+  return <Story rows={[]} />;
 };
 
 const actions = (
