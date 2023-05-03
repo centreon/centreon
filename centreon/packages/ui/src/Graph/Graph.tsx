@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
-import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai/utils';
 
 import Axes from './Axes';
 import Grids from './Grids';
@@ -15,19 +15,13 @@ import {
   StackedAnchorPoint as StackedAnchorPointModel
 } from './InteractionWithGraph/AnchorPoint/models';
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
-import Bar from './InteractionWithGraph/Bar';
+import { eventMouseMovingAtom } from './InteractionWithGraph/interactionWithGraphAtoms';
 import Lines from './Lines';
 import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
-
-const useStyles = makeStyles()(() => ({
-  overlay: {
-    cursor: 'crosshair'
-  }
-}));
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -43,12 +37,7 @@ const Graph = ({
   grids,
   anchorPoint
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
-
-  const [eventMouseMoving, setEventMouseMoving] = useState<null | MouseEvent>(
-    null
-  );
-  const [eventMouseDown, setEventMouseDown] = useState<null | MouseEvent>(null);
+  const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
 
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -136,22 +125,6 @@ const Graph = ({
     positionY,
     timeTick
   };
-  const mouseLeave = (): void => {
-    setEventMouseMoving(null);
-    setEventMouseDown(null);
-  };
-
-  const mouseUp = (): void => {
-    setEventMouseDown(null);
-  };
-
-  const mouseMove = (event): void => {
-    setEventMouseMoving(event);
-  };
-
-  const mouseDown = (event): void => {
-    setEventMouseDown(event);
-  };
 
   const renderRegularLinesAnchorPoint = ({
     areaColor,
@@ -206,6 +179,7 @@ const Graph = ({
   return (
     <>
       <Header timeTick={timeTick} title={title} />
+
       <svg height={height} ref={graphSvgRef} width="100%">
         <Group.Group left={margin.left} top={margin.top}>
           <Grids
@@ -241,24 +215,8 @@ const Graph = ({
           />
 
           <InteractionWithGraph
-            renderAreaToInteractWith={
-              <Bar
-                className={classes.overlay}
-                fill="transparent"
-                height={graphHeight}
-                width={graphWidth}
-                x={0}
-                y={0}
-                onMouseDown={mouseDown}
-                onMouseLeave={mouseLeave}
-                onMouseMove={mouseMove}
-                onMouseUp={mouseUp}
-              />
-            }
-            zoomPreviewData={{
-              eventMouseDown,
-              graphHeight,
-              graphWidth,
+            commonData={{ graphHeight, graphWidth }}
+            zoomData={{
               positionX,
               xScale
             }}
