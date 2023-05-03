@@ -153,6 +153,56 @@ const Graph = ({
     setEventMouseDown(event);
   };
 
+  const renderRegularLinesAnchorPoint = ({
+    areaColor,
+    lineColor,
+    metric,
+    timeSeries: regularLinesTimeSeries,
+    transparency,
+    xScale: xScaleRegularLines,
+    yScale
+  }: RegularLinesAnchorPoint): JSX.Element => (
+    <g>
+      {displayRegularLinesAnchorPoint && (
+        <RegularAnchorPoint
+          areaColor={areaColor}
+          lineColor={lineColor}
+          metric={metric}
+          timeSeries={regularLinesTimeSeries}
+          transparency={transparency}
+          xScale={xScaleRegularLines}
+          yScale={yScale}
+          {...commonAnchorPoint}
+          {...anchorPoint?.areaRegularLinesAnchorPoint}
+        />
+      )}
+    </g>
+  );
+
+  const renderStackedAnchorPoint = ({
+    areaColor,
+    transparency,
+    lineColor,
+    stack,
+    xScale: x,
+    yScale: y
+  }: StackedAnchorPointModel): JSX.Element => (
+    <g>
+      {displayStackedAnchorPoint && (
+        <StackedAnchorPoint
+          areaColor={areaColor}
+          lineColor={lineColor}
+          stackValues={stack as unknown as Array<StackValue>}
+          transparency={transparency}
+          xScale={x}
+          yScale={y}
+          {...commonAnchorPoint}
+          {...anchorPoint?.areaStackedLinesAnchorPoint}
+        />
+      )}
+    </g>
+  );
+
   return (
     <>
       <Header timeTick={timeTick} title={title} />
@@ -183,54 +233,8 @@ const Graph = ({
 
           <Lines
             anchorPoint={{
-              renderRegularLinesAnchorPoint: ({
-                areaColor,
-                lineColor,
-                metric,
-                timeSeries: regularLinesTimeSeries,
-                transparency,
-                xScale: xScaleRegularLines,
-                yScale
-              }: RegularLinesAnchorPoint): JSX.Element => (
-                <g>
-                  {displayRegularLinesAnchorPoint && (
-                    <RegularAnchorPoint
-                      areaColor={areaColor}
-                      lineColor={lineColor}
-                      metric={metric}
-                      timeSeries={regularLinesTimeSeries}
-                      transparency={transparency}
-                      xScale={xScaleRegularLines}
-                      yScale={yScale}
-                      {...commonAnchorPoint}
-                      {...anchorPoint?.areaRegularLinesAnchorPoint}
-                    />
-                  )}
-                </g>
-              ),
-              renderStackedAnchorPoint: ({
-                areaColor,
-                transparency,
-                lineColor,
-                stack,
-                xScale: x,
-                yScale: y
-              }: StackedAnchorPointModel): JSX.Element => (
-                <g>
-                  {displayStackedAnchorPoint && (
-                    <StackedAnchorPoint
-                      areaColor={areaColor}
-                      lineColor={lineColor}
-                      stackValues={stack as unknown as Array<StackValue>}
-                      transparency={transparency}
-                      xScale={x}
-                      yScale={y}
-                      {...commonAnchorPoint}
-                      {...anchorPoint?.areaStackedLinesAnchorPoint}
-                    />
-                  )}
-                </g>
-              )
+              renderRegularLinesAnchorPoint,
+              renderStackedAnchorPoint
             }}
             height={graphHeight}
             shape={{ areaRegularLines, areaStackedLines }}
