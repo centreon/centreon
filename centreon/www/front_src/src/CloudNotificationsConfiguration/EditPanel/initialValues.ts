@@ -34,7 +34,7 @@ const formatMessages = ({
   };
 };
 
-const formatResource = ({ resources, resourceType }) => {
+const formatResource = ({ resources, resourceType }): object => {
   const resource = resources.find((elm) => equals(elm.type, resourceType));
 
   if (!isNil(resource?.extra)) {

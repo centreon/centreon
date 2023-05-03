@@ -24,13 +24,13 @@ import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
 
 const useStyles = makeStyles()((theme) => ({
-  container: {
-    boxSizing: 'border-box',
+  form: {
     padding: theme.spacing(0, 2, 2)
   },
   reducePanel: {
     display: 'flex',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    padding: theme.spacing(1, 2)
   }
 }));
 
@@ -73,9 +73,10 @@ const Form = (): JSX.Element => {
   // console.log(getInitialValues(data));
 
   return (
-    <Box className={classes.container}>
+    <Box>
       <FormComponent
         Buttons={Box}
+        className={classes.form}
         groups={basicFormGroups}
         initialValues={formInitialValues}
         inputs={getInputs({ panelWidth })}
