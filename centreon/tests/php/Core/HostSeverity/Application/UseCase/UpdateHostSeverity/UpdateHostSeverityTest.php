@@ -233,7 +233,7 @@ it('should present an InvalidArgumentResponse when an assertion fails', function
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
-it('should return NoContentResponse on success', function () {
+it('should return a NoContentResponse on success', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
