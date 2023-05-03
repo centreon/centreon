@@ -477,24 +477,16 @@ When('engine service is restarted', () => {
     .check({ force: true });
 
   cy.getIframeBody()
-    .find('form .list_one>td')
-    .eq(1)
-    .invoke('text')
-    .as('pollerName');
-
-  cy.getIframeBody()
     .find('form button[name="apply_configuration"]')
     .contains('Export configuration')
     .click();
 
   cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
 
-  cy.get<string>('@pollerName').then((pollerName) => {
-    cy.getIframeBody()
-      .find('form span[class="selection"]')
-      .eq(0)
-      .contains(pollerName);
-  });
+  cy.getIframeBody()
+    .find('form span[class="selection"]')
+    .eq(0)
+    .contains('Central');
 
   cy.getIframeBody()
     .find('form input[name="gen"]')

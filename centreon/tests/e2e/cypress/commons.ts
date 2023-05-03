@@ -14,7 +14,6 @@ interface SubmitResult {
   output: string;
   service?: string;
   status: string;
-  updatetime: string;
 }
 
 const stepWaitingTime = 250;
@@ -34,7 +33,7 @@ let hostsFoundStepCount = 0;
 const checkThatFixtureServicesExistInDatabase = (
   serviceDesc: string,
   outputText: string,
-  submitResults: Array<SubmitResult> | SubmitResult
+  submitResults: SubmitResult
 ): void => {
   cy.log('Checking services in database');
 
@@ -61,7 +60,7 @@ const checkThatFixtureServicesExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi(submitResults))
+        .then(() => submitResultsViaClapi([submitResults]))
         .then(() =>
           checkThatFixtureServicesExistInDatabase(
             serviceDesc,
@@ -107,7 +106,7 @@ const checkThatFixtureHostsExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi(submitResults))
+        .then(() => submitResultsViaClapi([submitResults]))
         .then(() =>
           checkThatFixtureHostsExistInDatabase(
             hostAlias,
