@@ -1,13 +1,13 @@
-import { Typography } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { labelDashboards } from "./translatedLabels";
+import { useTranslation } from 'react-i18next';
 
-const Dashboards = () => {
+import { Typography } from '@mui/material';
+
+import { labelDashboards } from './translatedLabels';
+
+const Dashboards = (): JSX.Element => {
   const { t } = useTranslation();
 
-  return (
-    <Typography>{t(labelDashboards)}</Typography>
-  )
-}
+  return <Typography>{t(labelDashboards)}</Typography>;
+};
 
 export default Dashboards;

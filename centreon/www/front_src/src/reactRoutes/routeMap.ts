@@ -2,6 +2,8 @@ const routeMap = {
   about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
+  dashboard: '/home/dashboard/:dashboardId',
+  dashboards: '/home/dashboards',
   extensionsManagerPage: '/administration/extensions/manager',
   install: '/install/install.php',
   login: '/login',
@@ -11,9 +13,7 @@ const routeMap = {
   pollerWizard: '/poller-wizard/1',
   resetPassword: '/reset-password',
   resources: '/monitoring/resources',
-  upgrade: '/install/upgrade.php',
-  dashboards: '/home/dashboards',
-  dashboard: '/home/dashboard/:dashboardId'
+  upgrade: '/install/upgrade.php'
 };
 
 export default routeMap;

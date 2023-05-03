@@ -1,15 +1,15 @@
-import { Typography } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { labelDashboard } from "../translatedLabels";
-import { useParams } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 
-const Dashboard = () => {
+import { Typography } from '@mui/material';
+
+import { labelDashboard } from '../translatedLabels';
+
+const Dashboard = (): JSX.Element => {
   const { t } = useTranslation();
   const { dashboardId } = useParams();
 
-  return (
-    <Typography>{`${t(labelDashboard)} ${dashboardId}`}</Typography>
-  )
-}
+  return <Typography>{`${t(labelDashboard)} ${dashboardId}`}</Typography>;
+};
 
 export default Dashboard;
