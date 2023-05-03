@@ -80,7 +80,7 @@ final class AddHostGroupController extends AbstractController
             /** @var array{
              *     name: string,
              *     alias?: ?string,
-             *     icon_id?: ?positive-int,
+             *     icon_id?: ?int,
              *     geo_coords?: ?string,
              *     is_activated?: bool
              * } $dataSent
@@ -125,8 +125,8 @@ final class AddHostGroupController extends AbstractController
              *     notes?: ?string,
              *     notes_url?: ?string,
              *     action_url?: ?string,
-             *     icon_id?: ?positive-int,
-             *     icon_map_id?: ?positive-int,
+             *     icon_id?: ?int,
+             *     icon_map_id?: ?int,
              *     rrd?: ?int,
              *     geo_coords?: ?string,
              *     comment?: ?string,
