@@ -22,7 +22,7 @@ import DeleteDialog from '../../Listing/Dialogs/DeleteDialog';
 import { labelSave } from '../../translatedLabels';
 import { notificationtEndpoint } from '../api/endpoints';
 import { PanelMode } from '../models';
-import { adaptNotification } from '../api/adapters';
+import { adaptNotifications } from '../api/adapters';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -61,8 +61,8 @@ const SaveAction = (): JSX.Element => {
   };
 
   const onSaveActionConfirm = (): void => {
-    // console.log('adapter :', adaptNotification(values));
-    mutateAsync(adaptNotification(values)).then(() => {
+    console.log('adapter :', adaptNotifications(values));
+    mutateAsync(adaptNotifications(values)).then(() => {
       setOpenSaveDialog(false);
       setPanelOpen(false);
     });

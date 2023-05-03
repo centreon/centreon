@@ -1,12 +1,14 @@
 import { makeStyles } from 'tss-react/mui';
 
 import { SvgIconComponent } from '@mui/icons-material';
-import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
+import {
+  FormControlLabel,
+  Checkbox as MuiCheckbox,
+  Box,
+  Typography
+} from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
-  checkbox: {
-    padding: theme.spacing(0.25)
-  },
   container: {
     alignItems: 'center',
     display: 'flex',
@@ -14,7 +16,9 @@ const useStyles = makeStyles()((theme) => ({
     width: 'fit-content'
   },
   icon: {
-    fontSize: theme.spacing(12)
+    color: 'black',
+    fontSize: theme.spacing(12),
+    fontWeight: '400'
   }
 }));
 
@@ -44,7 +48,6 @@ const SingleCheckbox = ({
         control={
           <MuiCheckbox
             checked={checked}
-            className={classes.checkbox}
             color="primary"
             id={label}
             size="small"
@@ -52,7 +55,7 @@ const SingleCheckbox = ({
           />
         }
         key={label}
-        label={label}
+        label={<Typography variant="body2">{label}</Typography>}
         labelPlacement={labelPlacement}
       />
     </Box>

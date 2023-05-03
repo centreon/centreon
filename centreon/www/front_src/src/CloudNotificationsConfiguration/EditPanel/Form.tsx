@@ -22,7 +22,6 @@ import { panelModeAtom } from './atom';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
-import { data as dumyData } from './api/dummyData';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

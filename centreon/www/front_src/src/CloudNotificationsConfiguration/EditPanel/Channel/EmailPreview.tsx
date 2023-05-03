@@ -1,12 +1,14 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
 import { RichTextEditor } from '@centreon/ui';
 
 import { labelPreviewZone } from '../../translatedLabels';
+import { emptyEmail } from '../initialValues';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -18,11 +20,11 @@ const useStyles = makeStyles()((theme) => ({
   preview: {
     background: theme.palette.background.paper,
     height: '90%',
-    padding: theme.spacing(4, 2)
+    padding: theme.spacing(4, 1)
   },
   title: {
     background: theme.palette.background.paper,
-    padding: theme.spacing(0.8)
+    padding: theme.spacing(1, 2)
   }
 }));
 
@@ -35,12 +37,15 @@ const EmailPreview = (): JSX.Element => {
     <Box className={classes.container}>
       <Typography className={classes.title}>Preview Email</Typography>
       <Box className={classes.preview}>
-        <RichTextEditor
-          editable={false}
-          editorState={values?.messages.message}
-          namespace="Preview"
-          placeholder={t(labelPreviewZone)}
-        />
+        {equals(values?.messages.message, emptyEmail) ? (
+          <Typography>{t(labelPreviewZone)}</Typography>
+        ) : (
+          <RichTextEditor
+            editable={false}
+            editorState={values?.messages.message}
+            namespace="Preview"
+          />
+        )}
       </Box>
     </Box>
   );

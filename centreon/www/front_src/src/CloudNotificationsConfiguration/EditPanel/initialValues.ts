@@ -6,8 +6,10 @@ import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
 
 import { MessageType, NotificationType } from './models';
 
+export const emptyEmail =
+  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
+
 export const formatEntityNamed = ({
-  id,
   name
 }: TimeperiodType): { checked: boolean; label: string } => {
   return {
@@ -16,7 +18,11 @@ export const formatEntityNamed = ({
   };
 };
 
-const formatMessages = ({ channel, message, subject }: MessageType): any => {
+const formatMessages = ({
+  channel,
+  message,
+  subject
+}: MessageType): unknown => {
   return {
     channel: {
       Icon: MailIcon,
@@ -56,10 +62,10 @@ export const getInitialValues = ({
   messages,
   resources
 }: NotificationType): unknown => ({
-  businessViews: formatResource({
-    resourceType: ResourcesTypeEnum.BV,
-    resources
-  }),
+  // businessViews: formatResource({
+  //   resourceType: ResourcesTypeEnum.BV,
+  //   resources
+  // }),
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
   id,
   isActivated,
@@ -74,11 +80,11 @@ export const getInitialValues = ({
 });
 
 export const emptyInitialValues = {
-  businessViews: {
-    events: [],
-    ids: [],
-    type: 'Business views'
-  },
+  // businessViews: {
+  //   events: [],
+  //   ids: [],
+  //   type: 'Business views'
+  // },
   hostGroups: {
     events: [],
     extra: {
@@ -94,8 +100,7 @@ export const emptyInitialValues = {
   isActivated: false,
   messages: {
     channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Mail },
-    message:
-      '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
+    message: emptyEmail,
     subject: ''
   },
   name: '',

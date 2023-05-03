@@ -80,7 +80,7 @@ interface StylesProps {
 
 const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   additionalLabel: {
-    marginBottom: theme.spacing(0.5)
+    marginBottom: theme.spacing(1)
   },
   buttons: {
     columnGap: theme.spacing(2),

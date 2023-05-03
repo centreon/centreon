@@ -31,6 +31,7 @@ export const getInputs = ({
       additionalLabel: 'Host groups',
       fieldName: 'hostGroups',
       grid: {
+        alignItems: 'center',
         columns: [
           {
             connectedAutocomplete: {
@@ -77,6 +78,7 @@ export const getInputs = ({
       additionalLabel: 'Service groups',
       fieldName: '',
       grid: {
+        alignItems: 'center',
         columns: [
           {
             connectedAutocomplete: {
@@ -104,37 +106,38 @@ export const getInputs = ({
       label: 'Resources and events',
       type: InputType.Grid
     },
-    {
-      additionalLabel: 'Business views',
-      fieldName: '',
-      grid: {
-        columns: [
-          {
-            connectedAutocomplete: {
-              additionalConditionParameters: [],
-              endpoint: businessViewsEndpoint
-            },
-            fieldName: 'businessViews.ids',
-            label: 'Search Business Views',
-            type: InputType.MultiConnectedAutocomplete
-          },
-          {
-            checkbox: {
-              labelPlacement: 'top',
-              options: servicesEvents,
-              row: true
-            },
-            fieldName: 'businessViews.events',
-            label: 'Events',
-            type: InputType.MultiCheckbox
-          }
-        ],
-        gridTemplateColumns: handleGridTemplate(panelWidth)
-      },
-      group: 'Select resources and events',
-      label: 'Resources and events',
-      type: InputType.Grid
-    },
+    // {
+    //   additionalLabel: 'Business views',
+    //   fieldName: '',
+    //   grid: {
+    //     alignItems: 'center',
+    //     columns: [
+    //       {
+    //         connectedAutocomplete: {
+    //           additionalConditionParameters: [],
+    //           endpoint: businessViewsEndpoint
+    //         },
+    //         fieldName: 'businessViews.ids',
+    //         label: 'Search Business Views',
+    //         type: InputType.MultiConnectedAutocomplete
+    //       },
+    //       {
+    //         checkbox: {
+    //           labelPlacement: 'top',
+    //           options: servicesEvents,
+    //           row: true
+    //         },
+    //         fieldName: 'businessViews.events',
+    //         label: 'Events',
+    //         type: InputType.MultiCheckbox
+    //       }
+    //     ],
+    //     gridTemplateColumns: handleGridTemplate(panelWidth)
+    //   },
+    //   group: 'Select resources and events',
+    //   label: 'Resources and events',
+    //   type: InputType.Grid
+    // },
     {
       connectedAutocomplete: {
         additionalConditionParameters: [],
@@ -154,21 +157,45 @@ export const getInputs = ({
             grid: {
               columns: [
                 {
-                  // additionalLabel: 'Time period',
+                  additionalLabel: 'Time period',
                   fieldName: 'timeperiod',
-
                   label: 'Time period',
                   type: InputType.Checkbox
                 },
                 {
-                  checkbox: {
-                    row: true
+                  additionalLabel: 'Notification Channels',
+                  fieldName: '',
+                  grid: {
+                    columns: [
+                      {
+                        checkbox: {
+                          row: true
+                        },
+                        fieldName: 'messages.channel',
+                        label: 'Email',
+                        type: InputType.Checkbox
+                      },
+                      {
+                        checkbox: {
+                          row: true
+                        },
+                        fieldName: 'messages.channel',
+                        label: 'SMS',
+                        type: InputType.Checkbox
+                      },
+                      {
+                        checkbox: {
+                          row: true
+                        },
+                        fieldName: 'messages.channel',
+                        label: 'Slack',
+                        type: InputType.Checkbox
+                      }
+                    ]
                   },
-                  fieldName: 'messages.channel',
-                  label: 'Notification channels',
-                  type: InputType.Checkbox
+                  label: 'Notification Channels',
+                  type: InputType.Grid
                 },
-
                 {
                   fieldName: 'messages.subject',
 
@@ -184,7 +211,6 @@ export const getInputs = ({
                   type: InputType.Custom
                 }
               ],
-
               gridTemplateColumns: 'repeat(1, 1fr)'
             },
             label: '',
@@ -198,7 +224,10 @@ export const getInputs = ({
             label: 'Preview',
             type: InputType.Custom
           }
-        ]
+        ],
+        gridTemplateColumns: gt(650)(panelWidth)
+          ? 'repeat(1, 1fr)'
+          : 'repeat(2, 1fr)'
       },
       group: 'Select time period/ channels of notifications / preview',
       label: '',

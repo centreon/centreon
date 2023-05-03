@@ -3,6 +3,8 @@ import { ChangeEvent } from 'react';
 import { FormikValues, useFormikContext } from 'formik';
 import { path, split } from 'ramda';
 
+import { Box, Typography } from '@mui/material';
+
 import { Checkbox as CheckboxComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
 
@@ -10,7 +12,8 @@ import { InputPropsWithoutGroup } from './models';
 
 const Checkbox = ({
   checkbox,
-  fieldName
+  fieldName,
+  additionalLabel
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
@@ -30,13 +33,16 @@ const Checkbox = ({
 
   return useMemoComponent({
     Component: (
-      <CheckboxComponent
-        Icon={value?.Icon}
-        checked={value?.checked}
-        label={value?.label}
-        labelPlacement={checkbox?.labelPlacement || 'end'}
-        onChange={handleChange}
-      />
+      <Box>
+        {additionalLabel && <Typography>{additionalLabel}</Typography>}
+        <CheckboxComponent
+          Icon={value?.Icon}
+          checked={value?.checked}
+          label={value?.label}
+          labelPlacement={checkbox?.labelPlacement || 'end'}
+          onChange={handleChange}
+        />
+      </Box>
     ),
     memoProps: [value]
   });

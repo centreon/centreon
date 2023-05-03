@@ -1,14 +1,14 @@
 import { map } from 'ramda';
 
-export const adaptNotification = ({
-  businessViews,
+// import { NotificationType } from '../models';
+
+export const adaptNotifications = ({
+  // businessViews,
   hostGroups,
-  id,
   isActivated,
   messages,
   name,
   serviceGroups,
-  timeperiod,
   users
 }: any): any => ({
   isActivated,
@@ -19,25 +19,25 @@ export const adaptNotification = ({
   },
   name,
   resources: [
-    {
-      events: businessViews.events,
-      ids: map((elm) => elm.id)(businessViews.ids),
-      type: businessViews.type
-    },
+    // {
+    //   events: businessViews.events,
+    //   ids: map(({ id }) => id)(businessViews.ids),
+    //   type: businessViews.type
+    // },
     {
       events: hostGroups.events,
       extra: {
         eventsServices: hostGroups?.extra?.eventsServices
       },
-      ids: map((elm) => elm.id)(hostGroups.ids),
+      ids: map(({ id }) => id)(hostGroups.ids),
       type: hostGroups.type
     },
     {
       events: serviceGroups.events,
-      ids: map((elm) => elm.id)(hostGroups.ids),
+      ids: map(({ id }) => id)(hostGroups.ids),
       type: serviceGroups.type
     }
   ],
   timeperiod: 1,
-  users: map((elm) => elm.id)(users)
+  users: map(({ id }) => id)(users)
 });

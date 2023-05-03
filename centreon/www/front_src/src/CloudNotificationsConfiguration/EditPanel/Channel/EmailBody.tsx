@@ -27,6 +27,7 @@ const EmailBody = (): JSX.Element => {
           minInputHeight={120}
           namespace="Email body"
           placeholder={t(labelTypeYourTextHere)}
+          toolbarPositions="end"
         />
       </div>
     ),
