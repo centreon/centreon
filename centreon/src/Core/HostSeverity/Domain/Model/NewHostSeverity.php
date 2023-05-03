@@ -123,6 +123,8 @@ class NewHostSeverity
 
     /**
      * @param string|null $comment
+     *
+     * @throws AssertionFailedException
      */
     public function setComment(?string $comment): void
     {

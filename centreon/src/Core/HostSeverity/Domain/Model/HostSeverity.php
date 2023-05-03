@@ -57,6 +57,8 @@ class HostSeverity extends NewHostSeverity
 
     /**
      * @param string $name
+     *
+     * @throws AssertionFailedException
      */
     public function setName(string $name): void
     {
@@ -70,6 +72,8 @@ class HostSeverity extends NewHostSeverity
 
     /**
      * @param string $alias
+     *
+     * @throws AssertionFailedException
      */
     public function setAlias(string $alias): void
     {
@@ -81,6 +85,11 @@ class HostSeverity extends NewHostSeverity
         $this->alias = $alias;
     }
 
+    /**
+     * @param int $iconId
+     *
+     * @throws AssertionFailedException
+     */
     public function setIconId(int $iconId): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -89,6 +98,11 @@ class HostSeverity extends NewHostSeverity
         $this->iconId = $iconId;
     }
 
+    /**
+     * @param int $level
+     *
+     * @throws AssertionFailedException
+     */
     public function setLevel(int $level): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
