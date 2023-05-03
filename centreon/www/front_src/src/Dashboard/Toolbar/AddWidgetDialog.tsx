@@ -17,7 +17,7 @@ import {
 } from '../translatedLabels';
 import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
 import { FederatedModule } from '../../federatedModules/models';
-import { addWidgetDerivedAtom } from '../atoms';
+import { addPanelDerivedAtom } from '../atoms';
 
 const useStyles = makeStyles()((theme) => ({
   selectField: {
@@ -29,11 +29,11 @@ const AddWidgetDialog: FC = () => {
   const { classes } = useStyles();
 
   const [addWidgetDialogOpened, setAddWidgetDialogOpened] = useState(false);
-  const [selectedWidget, setSelectedWidget] = useState<FederatedModule | null>(
+  const [selectedPanel, setSelectedPanel] = useState<FederatedModule | null>(
     null
   );
 
-  const addWidget = useSetAtom(addWidgetDerivedAtom);
+  const addPanel = useSetAtom(addPanelDerivedAtom);
 
   const { federatedWidgets } = useFederatedWidgets();
 
@@ -41,36 +41,36 @@ const AddWidgetDialog: FC = () => {
 
   const close = (): void => {
     setAddWidgetDialogOpened(false);
-    setSelectedWidget(null);
+    setSelectedPanel(null);
   };
 
   const confirm = (): void => {
-    if (isNil(selectedWidget)) {
+    if (isNil(selectedPanel)) {
       return;
     }
 
-    addWidget({
+    addPanel({
       options: undefined,
-      widgetConfiguration: {
-        path: selectedWidget?.federatedComponentsConfiguration.path,
-        widgetMinHeight:
-          selectedWidget?.federatedComponentsConfiguration.widgetMinHeight,
-        widgetMinWidth:
-          selectedWidget?.federatedComponentsConfiguration.widgetMinWidth
+      panelConfiguration: {
+        panelMinHeight:
+          selectedPanel?.federatedComponentsConfiguration.panelMinHeight,
+        panelMinWidth:
+          selectedPanel?.federatedComponentsConfiguration.panelMinWidth,
+        path: selectedPanel?.federatedComponentsConfiguration.path
       }
     });
     close();
   };
 
-  const selectWidget = (event): void => {
+  const selectPanel = (event): void => {
     const value = path(['target', 'value'], event);
 
-    const widget = find(
+    const panel = find(
       pathEq(['federatedComponentsConfiguration', 'path'], value),
       federatedWidgets || []
     );
 
-    setSelectedWidget(widget || null);
+    setSelectedPanel(panel || null);
   };
 
   const widgetsAvailable = map(
@@ -87,7 +87,7 @@ const AddWidgetDialog: FC = () => {
         {labelAddWidget}
       </Button>
       <Dialog
-        confirmDisabled={isNil(selectWidget)}
+        confirmDisabled={isNil(selectPanel)}
         labelCancel={labelCancel}
         labelConfirm={labelAdd}
         labelTitle={labelAddAWidget}
@@ -99,11 +99,12 @@ const AddWidgetDialog: FC = () => {
         <SelectField
           ariaLabel={labelAddAWidget}
           className={classes.selectField}
+          dataTestId={labelAddAWidget}
           options={widgetsAvailable}
           selectedOptionId={
-            selectedWidget?.federatedComponentsConfiguration?.path || ''
+            selectedPanel?.federatedComponentsConfiguration?.path || ''
           }
-          onChange={selectWidget}
+          onChange={selectPanel}
         />
       </Dialog>
     </>

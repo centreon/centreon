@@ -4,8 +4,8 @@
     "federatedComponents": [
       "./text2"
     ],
-    "widgetMinHeight": 8,
-    "widgetMinWidth": 5
+    "panelMinHeight": 8,
+    "panelMinWidth": 5
   },
   "moduleFederationName": "widgettext2",
   "moduleName": "centreon-widget-text2"

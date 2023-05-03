@@ -1,5 +1,5 @@
 import { Responsive } from '@visx/visx';
-import { omit } from 'ramda';
+import { omit, replace } from 'ramda';
 import ScaleText from 'react-scale-text';
 import { makeStyles } from 'tss-react/mui';
 
@@ -24,12 +24,14 @@ const FluidTypography = ({
 }: FluidTypographyProps): JSX.Element => {
   const { classes, cx } = useStyles({ variant });
 
+  const formattedText = replace(/ /g, '\u00A0', text);
+
   return (
     <Responsive.ParentSize>
       {(): JSX.Element => {
         return (
           <span className={cx(classes.container, className)}>
-            <ScaleText>{text}</ScaleText>
+            <ScaleText>{formattedText}</ScaleText>
           </span>
         );
       }}

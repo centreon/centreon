@@ -4,19 +4,19 @@ interface Options {
   input: string;
 }
 interface Props {
-  setWidgetOptions: (options: Options) => void;
-  widgetOptions?: Options;
+  panelOptions?: Options;
+  setPanelOptions: (options: Options) => void;
 }
 
-const Text = ({ widgetOptions, setWidgetOptions }: Props): JSX.Element => {
+const Text = ({ panelOptions, setPanelOptions }: Props): JSX.Element => {
   const changeInput = (event): void => {
-    setWidgetOptions({ input: event.target.value });
+    setPanelOptions({ input: event.target.value });
   };
 
   return (
     <Box>
-      <TextField value={widgetOptions?.input} onChange={changeInput} />
-      <Typography>{widgetOptions?.input}</Typography>
+      <TextField value={panelOptions?.input} onChange={changeInput} />
+      <Typography>{panelOptions?.input}</Typography>
     </Box>
   );
 };

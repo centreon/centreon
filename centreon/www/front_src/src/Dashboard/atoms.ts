@@ -4,7 +4,6 @@ import {
   equals,
   find,
   findIndex,
-  gt,
   length,
   lensIndex,
   lensProp,
@@ -17,15 +16,15 @@ import {
   set
 } from 'ramda';
 
-import { Widget, Dashboard, WidgetConfiguration } from './models';
+import { getColumnsFromScreenSize } from '@centreon/ui';
+
+import { Panel, Dashboard, PanelConfiguration } from './models';
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
 });
 
 export const isEditingAtom = atom(false);
-
-export const columnsAtom = atom(25);
 
 export const setLayoutModeDerivedAtom = atom(
   null,
@@ -34,7 +33,7 @@ export const setLayoutModeDerivedAtom = atom(
 
     const dashboard = get(dashboardAtom);
 
-    const newLayout = map<Widget, Widget>(
+    const newLayout = map<Panel, Panel>(
       set(lensProp('static'), !isEditing),
       dashboard.layout
     );
@@ -45,70 +44,70 @@ export const setLayoutModeDerivedAtom = atom(
   }
 );
 
-interface AddWidgetDerivedAtom {
+interface AddPanelDerivedAtom {
   options?: object;
-  widgetConfiguration: WidgetConfiguration;
+  panelConfiguration: PanelConfiguration;
 }
 
-interface GetWidgetProps {
+interface GetPanelProps {
   id: string;
-  layout: Array<Widget>;
+  layout: Array<Panel>;
 }
 
-const getWidget = ({ id, layout }: GetWidgetProps) =>
-  find(propEq('i', id), layout);
-const getWidgetIndex = ({ id, layout }: GetWidgetProps) =>
-  findIndex(propEq('i', id), layout);
+const getPanel = ({ id, layout }: GetPanelProps): Panel =>
+  find(propEq('i', id), layout) as Panel;
+const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
+  findIndex(propEq('i', id), layout) as number;
 
-export const addWidgetDerivedAtom = atom(
+export const addPanelDerivedAtom = atom(
   null,
-  (get, setAtom, { widgetConfiguration, options }: AddWidgetDerivedAtom) => {
+  (get, setAtom, { panelConfiguration, options }: AddPanelDerivedAtom) => {
     const dashboard = get(dashboardAtom);
 
-    const id = `widget_${widgetConfiguration.path}_${length(dashboard.layout)}`;
+    const id = `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
 
-    const widgetMinWith = widgetConfiguration?.widgetMinWidth || 25;
+    const columnsFromScreenSize = getColumnsFromScreenSize();
+    const maxColumns = equals(columnsFromScreenSize, 1)
+      ? 3
+      : columnsFromScreenSize;
 
-    const baseWidgetLayout = {
-      h: widgetConfiguration?.widgetMinHeight || 4,
+    const panelWidth = panelConfiguration?.panelMinWidth || maxColumns;
+
+    const basePanelLayout = {
+      h: panelConfiguration?.panelMinHeight || 4,
       i: id,
-      minH: widgetConfiguration?.widgetMinHeight || 4,
-      minW: widgetConfiguration?.widgetMinWidth || 1,
+      minH: panelConfiguration?.panelMinHeight || 4,
+      minW: panelConfiguration?.panelMinWidth || 3,
       options,
-      static: false,
-      widgetConfiguration
+      panelConfiguration,
+      static: false
     };
 
-    const maxColumns = 25;
-    const widgetWidth = gt(widgetMinWith, maxColumns)
-      ? maxColumns
-      : widgetMinWith;
+    const collectPanelsByLine = collectBy(prop('y'), dashboard.layout);
 
-    const collectWidgetsByLine = collectBy(prop('y'), dashboard.layout);
-
-    const lineWithEngouhSpaceToReceiveWidget = collectWidgetsByLine.findIndex(
-      (widgets) => {
+    const lineWithEngouhSpaceToReceivePanel = collectPanelsByLine.findIndex(
+      (panels) => {
         const widthsCumulated = reduce(
           (widthAccumulator, { w }) => widthAccumulator + w,
           0,
-          widgets
+          panels
         );
 
-        return lte(widthsCumulated + widgetWidth, maxColumns);
+        return lte(widthsCumulated + panelWidth, maxColumns);
       }
     );
 
-    const shouldAddWidgetAtTheBottom = equals(
-      lineWithEngouhSpaceToReceiveWidget,
+    const shouldAddPanelAtTheBottom = equals(
+      lineWithEngouhSpaceToReceivePanel,
       -1
     );
 
-    const x = shouldAddWidgetAtTheBottom
+    const x = shouldAddPanelAtTheBottom
       ? 0
       : reduce(
           (widthAccumulator, { w }) => widthAccumulator + w,
           0,
-          collectWidgetsByLine[lineWithEngouhSpaceToReceiveWidget]
+          collectPanelsByLine[lineWithEngouhSpaceToReceivePanel]
         );
 
     const maxHeight = reduce(
@@ -120,12 +119,12 @@ export const addWidgetDerivedAtom = atom(
     const newLayout = [
       ...dashboard.layout,
       {
-        ...baseWidgetLayout,
-        w: widgetWidth,
+        ...basePanelLayout,
+        w: panelWidth,
         x,
-        y: shouldAddWidgetAtTheBottom
+        y: shouldAddPanelAtTheBottom
           ? maxHeight
-          : lineWithEngouhSpaceToReceiveWidget
+          : lineWithEngouhSpaceToReceivePanel
       }
     ];
 
@@ -135,64 +134,63 @@ export const addWidgetDerivedAtom = atom(
   }
 );
 
-export const removeWidgetDerivedAtom = atom(
+export const removePanelDerivedAtom = atom(
   null,
-  (get, setAtom, widgetKey: string) => {
+  (get, setAtom, panelKey: string) => {
     const dashboard = get(dashboardAtom);
 
-    const newLayout = reject(propEq('i', widgetKey), dashboard.layout);
+    const newLayout = reject(propEq('i', panelKey), dashboard.layout);
 
     setAtom(dashboardAtom, { layout: newLayout });
   }
 );
 
-export const getWidgetOptionsDerivedAtom = atom(
-  (get) =>
-    (id: string): object | undefined => {
-      const dashboard = get(dashboardAtom);
-      const widgetOptions = getWidget({
-        id,
-        layout: dashboard.layout
-      })?.options;
+export const getPanelOptionsDerivedAtom = atom((get) => {
+  const dashboard = get(dashboardAtom);
 
-      return widgetOptions;
-    }
-);
+  return (id: string): object | undefined => {
+    const panelOptions = getPanel({
+      id,
+      layout: dashboard.layout
+    })?.options;
 
-export const getWidgetConfigurationsDerivedAtom = atom(
-  (get) =>
-    (id: string): WidgetConfiguration => {
-      const dashboard = get(dashboardAtom);
+    return panelOptions;
+  };
+});
 
-      return getWidget({ id, layout: dashboard.layout })
-        ?.widgetConfiguration as WidgetConfiguration;
-    }
-);
+export const getPanelConfigurationsDerivedAtom = atom((get) => {
+  const dashboard = get(dashboardAtom);
 
-interface SetWidgetOptionsProps {
+  return (id: string): PanelConfiguration => {
+    return getPanel({ id, layout: dashboard.layout })
+      ?.panelConfiguration as PanelConfiguration;
+  };
+});
+
+interface SetPanelOptionsProps {
   id: string;
   options: object;
 }
 
-export const setWidgetOptionsDerivedAtom = atom(
+export const setPanelOptionsDerivedAtom = atom(
   null,
-  (_, setAtom, { id, options }: SetWidgetOptionsProps) => {
+  (_, setAtom, { id, options }: SetPanelOptionsProps) => {
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
-      const widgetIndex = getWidgetIndex({
+      const panelIndex = getPanelIndex({
         id,
         layout: currentDashboard.layout
       });
 
-      const widget = getWidget({ id, layout: currentDashboard.layout });
+      const panel = getPanel({ id, layout: currentDashboard.layout });
 
       const newLayout = set(
-        lensIndex(widgetIndex),
+        lensIndex(panelIndex),
         {
-          ...widget,
+          ...panel,
           options
         },
         currentDashboard.layout
-      ) as Array<Widget>;
+      ) as Array<Panel>;
 
       return {
         layout: newLayout
@@ -201,15 +199,15 @@ export const setWidgetOptionsDerivedAtom = atom(
   }
 );
 
-export const duplicateWidgetDerivedAtom = atom(
+export const duplicatePanelDerivedAtom = atom(
   null,
   (get, setAtom, title: string) => {
     const dashboard = get(dashboardAtom);
-    const widget = find(propEq('i', title), dashboard.layout);
+    const panel = find(propEq('i', title), dashboard.layout);
 
-    setAtom(addWidgetDerivedAtom, {
-      options: widget?.options,
-      widgetConfiguration: widget?.widgetConfiguration as WidgetConfiguration
+    setAtom(addPanelDerivedAtom, {
+      options: panel?.options,
+      panelConfiguration: panel?.panelConfiguration as PanelConfiguration
     });
   }
 );

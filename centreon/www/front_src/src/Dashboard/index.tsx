@@ -1,7 +1,5 @@
 import { FC } from 'react';
 
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 import { makeStyles } from 'tss-react/mui';
 
 import Layout from './Layout';
@@ -11,6 +9,7 @@ const useStyles = makeStyles()((theme) => ({
   toolbarContainer: {
     display: 'flex',
     flexDirection: 'column',
+    height: '90vh',
     padding: theme.spacing(0, 3),
     rowGap: theme.spacing(2)
   }

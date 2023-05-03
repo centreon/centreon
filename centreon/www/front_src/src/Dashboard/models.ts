@@ -1,18 +1,18 @@
 import ReactGridLayout from 'react-grid-layout';
 
-export interface WidgetConfiguration {
+export interface PanelConfiguration {
   path: string;
-  widgetMinHeight?: number;
-  widgetMinWidth?: number;
+  panelMinHeight?: number;
+  panelMinWidth?: number;
 }
 
 export type Layout = Array<ReactGridLayout.Layout>;
 
-export interface Widget extends ReactGridLayout.Layout {
+export interface Panel extends ReactGridLayout.Layout {
   options?: object;
-  widgetConfiguration: WidgetConfiguration;
+  panelConfiguration: PanelConfiguration;
 }
 
 export interface Dashboard {
-  layout: Array<Widget>;
+  layout: Array<Panel>;
 }

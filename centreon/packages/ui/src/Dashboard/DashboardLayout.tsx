@@ -71,7 +71,7 @@ const DashboardLayout = <T extends Layout>({
         </Responsive.ParentSize>
       </ResponsiveHeight>
     ),
-    memoProps: [columns, layout]
+    memoProps: [columns, layout, displayGrid]
   });
 };
 

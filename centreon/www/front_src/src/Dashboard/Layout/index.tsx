@@ -1,43 +1,36 @@
-import { FC, useEffect } from 'react';
-import 'react-grid-layout/css/styles.css';
-
-import { Responsive } from '@visx/visx';
-import GridLayout, { WidthProvider, Layout } from 'react-grid-layout';
+import { Layout } from 'react-grid-layout';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, map, propEq } from 'ramda';
 
-import { Responsive as ResponsiveHeight } from '@centreon/ui';
+import {
+  DashboardLayout,
+  DashboardItem,
+  getColumnsFromScreenSize
+} from '@centreon/ui';
 
-import { columnsAtom, dashboardAtom, isEditingAtom } from '../atoms';
-import { Widget } from '../models';
+import { dashboardAtom, isEditingAtom } from '../atoms';
+import { Panel } from '../models';
 
-import DashboardWidget from './Widget';
-import EditionGrid from './EditionGrid';
-import useDashboardStyles from './useDashboardStyles';
+import DashboardPanel from './Panel/Panel';
 
-const ReactGridLayout = WidthProvider(GridLayout);
-
-const Layout: FC = () => {
-  const { classes } = useDashboardStyles();
-
+const Layout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
-  const [columns, setColumns] = useAtom(columnsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
   const changeLayout = (layout: Array<Layout>): void => {
-    const isOneColumnDisplay = equals(columns, 1);
+    const isOneColumnDisplay = equals(getColumnsFromScreenSize(), 1);
     if (isOneColumnDisplay) {
       return;
     }
 
-    const newLayout = map<Layout, Widget>((widget) => {
-      const currentWidget = dashboard.layout.find(propEq('i', widget.i));
+    const newLayout = map<Layout, Panel>((panel) => {
+      const currentWidget = dashboard.layout.find(propEq('i', panel.i));
 
       return {
-        ...widget,
+        ...panel,
         options: currentWidget?.options,
-        widgetConfiguration: currentWidget?.widgetConfiguration
-      };
+        panelConfiguration: currentWidget?.panelConfiguration
+      } as Panel;
     }, layout);
 
     setDashboard({
@@ -45,60 +38,20 @@ const Layout: FC = () => {
     });
   };
 
-  const getLayout = (): Array<Widget> => {
-    if (equals(columns, 25)) {
-      return dashboard.layout;
-    }
-
-    return dashboard.layout
-      .sort((a, b) => a.x + a.y - (b.x + b.y))
-      .map((widget) => ({
-        ...widget,
-        w: 1
-      }));
-  };
-
-  const resize = (): void => {
-    setColumns(window.innerWidth > 768 ? 25 : 1);
-  };
-
-  useEffect(() => {
-    resize();
-
-    window.addEventListener('resize', resize);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
   return (
-    <ResponsiveHeight>
-      <Responsive.ParentSize>
-        {({ width, height }): JSX.Element => (
-          <div className={classes.container}>
-            {isEditing && <EditionGrid height={height} width={width} />}
-            <ReactGridLayout
-              cols={columns}
-              containerPadding={[4, 0]}
-              layout={getLayout()}
-              resizeHandles={['s', 'e', 'se']}
-              rowHeight={30}
-              width={width}
-              onLayoutChange={changeLayout}
-            >
-              {dashboard.layout.map(({ i }) => {
-                return (
-                  <div key={i}>
-                    <DashboardWidget id={i} key={i} />
-                  </div>
-                );
-              })}
-            </ReactGridLayout>
-          </div>
-        )}
-      </Responsive.ParentSize>
-    </ResponsiveHeight>
+    <DashboardLayout
+      changeLayout={changeLayout}
+      displayGrid={isEditing}
+      layout={dashboard.layout}
+    >
+      {dashboard.layout.map(({ i }) => {
+        return (
+          <DashboardItem key={i}>
+            <DashboardPanel id={i} />
+          </DashboardItem>
+        );
+      })}
+    </DashboardLayout>
   );
 };
 

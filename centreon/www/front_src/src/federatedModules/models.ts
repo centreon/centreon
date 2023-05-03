@@ -1,9 +1,9 @@
 export interface FederatedModule {
   federatedComponentsConfiguration: {
     federatedComponents: Array<string>;
+    panelMinHeight?: number;
+    panelMinWidth?: number;
     path: string;
-    widgetMinHeight?: number;
-    widgetMinWidth?: number;
   };
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
