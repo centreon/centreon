@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import dayjs from 'dayjs';
 import { gte } from 'ramda';
 
 import { getUnits } from '../timeSeries';

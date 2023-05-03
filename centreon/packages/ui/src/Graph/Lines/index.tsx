@@ -30,18 +30,28 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
     anchorPoint;
 
-  const { lines: regularLines, timeSeries: regularLinesTimeSeries } =
-    areaRegularLines;
+  const {
+    lines: regularLines,
+    timeSeries: regularLinesTimeSeries,
+    display: displayAreaRegular,
+    ...restAreaRegularLines
+  } = areaRegularLines;
+
+  const {
+    stackedLinesData,
+    invertedStackedLinesData,
+    ...restAreaStackedLines
+  } = areaStackedLines;
 
   const {
     lines: regularStackedLines,
     timeSeries: regularStackedLinesTimeSeries
-  } = areaStackedLines.stackedLinesData;
+  } = stackedLinesData;
 
   const {
     lines: invertedStackedLines,
     timeSeries: invertedStackedLinesTimeSeries
-  } = areaStackedLines.invertedStackedLinesData;
+  } = invertedStackedLinesData;
 
   const displayArea = (data: unknown): boolean =>
     !isEmpty(data) && !isNil(data);
@@ -53,7 +63,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
     areaStackedLines.display && displayArea(invertedStackedLines);
 
   const displayAreaRegularLines =
-    areaRegularLines.display && displayArea(regularLines);
+    displayAreaRegular && displayArea(regularLines);
 
   const stackedYScale = getStackedYScale({
     leftScale: areaStackedLines?.leftScale,
@@ -77,6 +87,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
           renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={regularStackedLinesTimeSeries}
           {...commonStackedLinesProps}
+          {...restAreaStackedLines}
         />
       )}
       {displayAreaInvertedStackedLines && (
@@ -85,6 +96,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
           renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={invertedStackedLinesTimeSeries}
           {...commonStackedLinesProps}
+          {...restAreaStackedLines}
         />
       )}
 
@@ -135,6 +147,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
                     unit={unit}
                     xScale={xScaleRegularLines}
                     yScale={yScale}
+                    {...restAreaRegularLines}
                   />
                 </g>
               );

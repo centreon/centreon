@@ -9,7 +9,7 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import Graph from './Graph';
-import { GraphEndpoint } from './models';
+import { GlobalAreaLines, GraphProps } from './models';
 import useGraphData from './useGraphData';
 
 dayjs.extend(localizedFormat);
@@ -19,12 +19,25 @@ dayjs.extend(timezonePlugin);
 const rootElement = document.getElementById('root');
 rootElement.style.height = '80%';
 
-interface Props {
-  graphEndpoint: GraphEndpoint;
+interface Props extends GraphProps {
+  baseUrl: string;
+  end: Date | string;
+  shapeLines: GlobalAreaLines;
+  start: Date | string;
 }
 
-const WrapperGraph = ({ graphEndpoint }: Props): JSX.Element | null => {
-  const { data } = useGraphData({ graphEndpoint });
+const WrapperGraph = ({
+  baseUrl,
+  end,
+  start,
+  height,
+  width,
+  shapeLines,
+  axis,
+  grids,
+  anchorPoint
+}: Props): JSX.Element | null => {
+  const { data } = useGraphData({ baseUrl, end, start });
 
   if (!data) {
     return null;
@@ -33,8 +46,19 @@ const WrapperGraph = ({ graphEndpoint }: Props): JSX.Element | null => {
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <Responsive.ParentSize>
-        {({ height, width }): JSX.Element => (
-          <Graph graphData={data} height={height} width={width} />
+        {({
+          height: responsiveHeight,
+          width: responsiveWidth
+        }): JSX.Element => (
+          <Graph
+            anchorPoint={anchorPoint}
+            axis={axis}
+            graphData={data}
+            grids={grids}
+            height={height ?? responsiveHeight}
+            shapeLines={shapeLines}
+            width={width ?? responsiveWidth}
+          />
         )}
       </Responsive.ParentSize>
     </div>

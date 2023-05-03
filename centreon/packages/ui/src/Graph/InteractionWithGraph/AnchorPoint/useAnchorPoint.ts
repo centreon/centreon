@@ -1,13 +1,13 @@
 import { MutableRefObject, useEffect } from 'react';
 
-import { ScaleLinear } from 'd3-scale';
 import { Event } from '@visx/visx';
+import { ScaleLinear } from 'd3-scale';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { equals, isEmpty, isNil, not } from 'ramda';
 
+import { margin } from '../../common';
 import { getMetrics, getTimeValue } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
-import { margin } from '../../common';
 import {
   MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,

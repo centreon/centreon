@@ -39,6 +39,7 @@ const StackLines = ({
       x={(d): number => xScale(getTime(d.data)) ?? 0}
       y0={(d): number => yScale(d[0]) ?? 0}
       y1={(d): number => yScale(d[1]) ?? 0}
+      {...rest}
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {

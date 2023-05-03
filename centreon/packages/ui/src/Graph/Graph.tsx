@@ -20,7 +20,7 @@ import Lines from './Lines';
 import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import { margin } from './common';
-import { AreaAnchorPoint, Axis, Data, GridsModel, ShapeLines } from './models';
+import { Data, GlobalAreaLines, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
 const useStyles = makeStyles()(() => ({
@@ -29,14 +29,9 @@ const useStyles = makeStyles()(() => ({
   }
 }));
 
-interface Props {
-  anchorPoint?: AreaAnchorPoint;
-  axis?: Axis;
+interface Props extends GraphProps {
   graphData: Data;
-  grids?: GridsModel;
-  height: number;
-  shapeLines?: ShapeLines;
-  width: number;
+  shapeLines: GlobalAreaLines;
 }
 
 const Graph = ({

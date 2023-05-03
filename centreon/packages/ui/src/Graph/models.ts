@@ -22,8 +22,8 @@ export interface Data {
 }
 
 export interface GraphParameters {
-  end: Date;
-  start: Date;
+  end: string;
+  start: string;
 }
 
 export interface AnchorPoint {
@@ -50,4 +50,30 @@ export interface Axis {
 export interface GridsModel {
   column?: Record<string, unknown>;
   row?: Record<string, unknown>;
+}
+
+export interface GraphProps {
+  anchorPoint?: AreaAnchorPoint;
+  axis?: Axis;
+  grids?: GridsModel;
+  height: number;
+  width: number;
+}
+
+interface Area {
+  [x: string]: unknown;
+}
+
+export interface GlobalAreaRegularLines {
+  display: boolean;
+  shapeAreaClosed: Area;
+  shapeLinePath: Area;
+}
+export interface GlobalAreaStackedLines extends Area {
+  display: boolean;
+}
+
+export interface GlobalAreaLines {
+  areaRegularLines: GlobalAreaRegularLines;
+  areaStackedLines: GlobalAreaStackedLines;
 }

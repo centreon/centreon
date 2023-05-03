@@ -15,6 +15,8 @@ interface Props {
   highlight?: boolean;
   lineColor: string;
   metric: string;
+  shapeAreaClosed?: Record<string, unknown>;
+  shapeLinePath?: Record<string, unknown>;
   timeSeries: Array<TimeValue>;
   transparency: number;
   unit: string;
@@ -38,6 +40,9 @@ const RegularLine = ({
 }: Props): JSX.Element => {
   const isHighlighted = highlight ? 2 : 0.8;
 
+  const shapeAreaClosed = rest?.shapeAreaClosed;
+  const shapeLinePath = rest?.shapeLinePath;
+
   const props = {
     curve: Curve.curveLinear,
     data: timeSeries,
@@ -47,8 +52,7 @@ const RegularLine = ({
     strokeWidth: isHighlighted,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
-    y: (timeValue): number => yScale(prop(metric, timeValue)) ?? null,
-    ...rest
+    y: (timeValue): number => yScale(prop(metric, timeValue)) ?? null
   };
 
   if (filled) {
@@ -60,11 +64,12 @@ const RegularLine = ({
         y0={Math.min(yScale(0), graphHeight)}
         yScale={yScale}
         {...props}
+        {...shapeAreaClosed}
       />
     );
   }
 
-  return <Shape.LinePath<TimeValue> {...props} />;
+  return <Shape.LinePath<TimeValue> {...props} {...shapeLinePath} />;
 };
 
 export default memo(RegularLine, (prevProps, nextProps) => {
@@ -72,13 +77,17 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     timeSeries: prevTimeSeries,
     graphHeight: prevGraphHeight,
     highlight: prevHighlight,
-    xScale: prevXScale
+    xScale: prevXScale,
+    shapeLinePath: prevShapeLinePath,
+    shapeAreaClosed: prevShapeAreaClosed
   } = prevProps;
   const {
     timeSeries: nextTimeSeries,
     graphHeight: nextGraphHeight,
     highlight: nextHighlight,
-    xScale: nextXScale
+    xScale: nextXScale,
+    shapeLinePath: nextShapeLinePath,
+    shapeAreaClosed: nextShapeAreaClosed
   } = nextProps;
 
   const prevXScaleRange = prevXScale.range();
@@ -88,6 +97,8 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     equals(prevTimeSeries, nextTimeSeries) &&
     equals(prevGraphHeight, nextGraphHeight) &&
     equals(prevHighlight, nextHighlight) &&
-    equals(prevXScaleRange, nextXScaleRange)
+    equals(prevXScaleRange, nextXScaleRange) &&
+    equals(prevShapeAreaClosed, nextShapeAreaClosed) &&
+    equals(prevShapeLinePath, nextShapeLinePath)
   );
 });

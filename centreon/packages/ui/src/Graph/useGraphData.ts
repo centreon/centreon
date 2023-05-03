@@ -22,12 +22,16 @@ interface GraphDataResult {
   data?: Data;
 }
 interface Props {
-  graphEndpoint: GraphEndpoint;
+  baseUrl: string;
+  end: any;
+  start: any;
 }
 
-const useGraphData = ({ graphEndpoint }: Props): GraphDataResult => {
+const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
   const [data, setData] = useState<Data>();
-  const { baseUrl, queryParameters } = graphEndpoint;
+  const [graphEndpoint, setGraphEndpoint] = useState<GraphEndpoint | null>(
+    null
+  );
 
   const { sendRequest: sendGetGraphDataRequest } = useRequest<GraphData>({
     request: getData
@@ -41,7 +45,8 @@ const useGraphData = ({ graphEndpoint }: Props): GraphDataResult => {
     const { title } = resp.global;
     const endpoint = {
       baseUrl,
-      queryParameters: (zoomParameters ?? queryParameters) as GraphParameters
+      queryParameters: (zoomParameters ??
+        graphEndpoint?.queryParameters) as GraphParameters
     };
 
     const newLineData = adjustGraphData(resp).lines;
@@ -73,9 +78,9 @@ const useGraphData = ({ graphEndpoint }: Props): GraphDataResult => {
   };
 
   const getEndpoint = (): string => {
-    const { start, end } = queryParameters;
+    const { queryParameters } = graphEndpoint as GraphEndpoint;
 
-    return `${baseUrl}?start=${start}&end=${end}}`;
+    return `${baseUrl}?start=${queryParameters.start}&end=${queryParameters.end}`;
   };
 
   const updateEndpoint = (): string => {
@@ -87,6 +92,19 @@ const useGraphData = ({ graphEndpoint }: Props): GraphDataResult => {
 
     return `${baseUrl}${parameters}`;
   };
+
+  useEffect(() => {
+    if (!end || !start || !baseUrl) {
+      return;
+    }
+    setGraphEndpoint({
+      baseUrl,
+      queryParameters: {
+        end: new Date(end).toISOString(),
+        start: new Date(start).toISOString()
+      }
+    });
+  }, [baseUrl, start, end]);
 
   useEffect(() => {
     if (!graphEndpoint) {
