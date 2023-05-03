@@ -33,7 +33,7 @@ let hostsFoundStepCount = 0;
 const checkThatFixtureServicesExistInDatabase = (
   serviceDesc: string,
   outputText: string,
-  submitResults: SubmitResult
+  submitResults: Array<SubmitResult> | SubmitResult
 ): void => {
   cy.log('Checking services in database');
 
@@ -181,7 +181,7 @@ const updateFixturesResult = (): Cypress.Chainable => {
 };
 
 const submitResultsViaClapi = (
-  submitResult: SubmitResult
+  submitResult: Array<SubmitResult> | SubmitResult
 ): Cypress.Chainable => {
   return cy.request({
     body: { results: submitResult },

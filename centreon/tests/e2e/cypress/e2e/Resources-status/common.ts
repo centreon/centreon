@@ -87,24 +87,21 @@ const initializeAckRessources = (): Cypress.Chainable => {
 
 const insertResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
-  let results;
-  updateFixturesResult().then((submitResult) => {
-    results = submitResult;
-  });
 
-  return loginAsAdminViaApiV2()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => submitResultsViaClapi(results))
-    .then(submitResultsViaClapi)
-    .then(() =>
-      checkThatFixtureServicesExistInDatabase(
-        serviceInAcknowledgementName,
-        'submit_status_2',
-        results
-      )
-    );
+  return updateFixturesResult().then((submitResults) => {
+    loginAsAdminViaApiV2()
+      .then(initializeResourceData)
+      .then(applyConfigurationViaClapi)
+      .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+      .then(() => submitResultsViaClapi(submitResults))
+      .then(() =>
+        checkThatFixtureServicesExistInDatabase(
+          serviceInAcknowledgementName,
+          'submit_status_2',
+          submitResults
+        )
+      );
+  });
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -164,6 +161,19 @@ const tearDownResource = (): Cypress.Chainable => {
   return cy
     .setUserTokenApiV1()
     .then(() => cy.removeResourceData())
+    .then(applyConfigurationViaClapi);
+};
+
+const tearDownAckResource = (): Cypress.Chainable => {
+  return cy
+    .setUserTokenApiV1()
+    .executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host_ack'
+      }
+    })
     .then(applyConfigurationViaClapi);
 };
 
@@ -243,9 +253,20 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
   });
 };
 
+const typeToSearchInput = (searchText: string): void => {
+  cy.get(searchInput).as('searchInput');
+
+  cy.get('@searchInput').clear();
+
+  cy.get('@searchInput').type(searchText);
+
+  cy.get('@searchInput').type('{esc}{enter}');
+};
+
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
-  inDowntime: 'rgb(240, 233, 248)'
+  inDowntime: 'rgb(240, 233, 248)',
+  normal: 'rgba(0, 0, 0, 0)'
 };
 const actions = {
   acknowledge: 'Acknowledge',
@@ -272,5 +293,7 @@ export {
   insertAckResourceFixtures,
   submitCustomResultsViaClapi,
   checkIfNotificationsAreNotBeingSent,
-  clearCentengineLogs
+  clearCentengineLogs,
+  tearDownAckResource,
+  typeToSearchInput
 };

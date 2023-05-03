@@ -15,7 +15,9 @@ import {
   searchInput,
   serviceInAcknowledgementName,
   submitCustomResultsViaClapi,
-  tearDownResource
+  tearDownAckResource,
+  tearDownResource,
+  typeToSearchInput
 } from '../common';
 
 beforeEach(() => {
@@ -163,7 +165,7 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    tearDownResource().then(() => cy.reload());
+    tearDownResource().then(() => tearDownAckResource());
   }
 );
 
@@ -207,7 +209,6 @@ Then(
         return cy
           .refreshListing()
           .then(() => cy.contains(serviceInAcknowledgementName))
-          .parent()
           .parent()
           .then((val) => {
             return (
@@ -257,6 +258,8 @@ Then(
       .trigger('mouseover');
 
     cy.get('div[role="tooltip"]').should('be.visible');
+
+    tearDownResource().then(() => tearDownAckResource());
   }
 );
 
@@ -265,13 +268,7 @@ Given('the "Resource Problems" filter enabled', () => {
 });
 
 Given('criteria is {string}', (criteria: string) => {
-  cy.get(searchInput).as('searchInput');
-
-  cy.get('@searchInput').clear();
-
-  cy.get('@searchInput').type(criteria);
-
-  cy.get('@searchInput').type('{esc}{enter}');
+  typeToSearchInput(criteria);
 });
 
 Given(
@@ -434,7 +431,7 @@ When(
 
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
-  tearDownResource().then(() => cy.reload());
+  tearDownResource().then(() => tearDownAckResource());
 });
 
 Given('a resource is selected', () => {
@@ -446,13 +443,7 @@ Given('a resource is selected', () => {
 });
 
 When('the resource is marked as acknowledged', () => {
-  cy.get(searchInput).as('searchInput');
-
-  cy.get('@searchInput').clear();
-
-  cy.get('@searchInput').type('type:host');
-
-  cy.get('@searchInput').type('{esc}{enter}');
+  typeToSearchInput('type:host');
 
   cy.waitUntil(
     () => {
@@ -522,14 +513,9 @@ When('engine service is restarted', () => {
     .check({ force: true });
 
   cy.getIframeBody()
-    .find('form input[name="postcmd"]')
-    .eq(0)
-    .check({ force: true });
-
-  cy.getIframeBody()
     .find('form select[name="restart_mode"]')
     .eq(0)
-    .select('restart');
+    .select('Restart');
 
   clearCentengineLogs()
     .getIframeBody()
@@ -565,10 +551,101 @@ Then(
       }
     );
 
-    tearDownResource().then(() => cy.reload());
+    tearDownResource().then(() => tearDownAckResource());
+  }
+);
+
+Given(
+  'a single resource selected on Resources Status with the criteria "state: acknowledged"',
+  () => {
+    cy.contains(/^test_host$/)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .click();
+
+    cy.getByLabel({ label: 'Acknowledge' }).last().click();
+
+    cy.get('button').contains('Acknowledge').click();
+
+    cy.wait('@postAcknowledgments').then(() => {
+      cy.contains('Acknowledge command sent').should('have.length', 1);
+    });
+
+    typeToSearchInput('type:host');
+
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(/^test_host$/))
+          .parent()
+          .then((val) => {
+            return (
+              val.css('background-color') === actionBackgroundColors.acknowledge
+            );
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+
+    typeToSearchInput('state:acknowledged');
+  }
+);
+
+Given('a resource marked as acknowledged is selected', () => {
+  cy.contains(/^test_host$/)
+    .parent()
+    .should('have.css', 'background-color', actionBackgroundColors.acknowledge)
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+});
+
+Given(
+  'the uses uses the "Disacknowledge" action for this resource in the "More actions" menu',
+  () => {
+    cy.getByLabel({ label: 'More actions' }).click();
+
+    cy.getByTestId({ tag: 'li', testId: 'Multiple Disacknowledge' }).click({
+      force: true
+    });
+
+    cy.getByLabel({ label: 'Disacknowledge' }).click();
+  }
+);
+
+Then('the acknowledgement is removed', () => {
+  typeToSearchInput('type:host');
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(/^test_host$/))
+        .parent()
+        .then((val) => {
+          return val.css('background-color') === actionBackgroundColors.normal;
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+Then(
+  'the resource is not marked as acknowledged after listing is refreshed with the criteria "state: acknowledged"',
+  () => {
+    typeToSearchInput('state:acknowledged');
+
+    cy.refreshListing();
+
+    cy.should('not.contain', /^test_host$/);
   }
 );
 
 after(() => {
-  tearDownResource();
+  tearDownResource().then(() => tearDownAckResource());
 });
