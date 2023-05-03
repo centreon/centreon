@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 
 import { Routes, Route } from 'react-router-dom';
-import { isNil, not } from 'ramda';
+import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { styled } from '@mui/material';
@@ -26,17 +26,22 @@ const PageContainer = styled('div')(() => ({
   overflow: 'auto'
 }));
 
+interface IsAllowedPageProps {
+  path: string;
+  allowedPages: Array<string | Array<string>>;
+}
+
+const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean => 
+  flatten(allowedPages).some((allowedPage) => path.includes(allowedPage));
+
 const getExternalPageRoutes = ({
   allowedPages,
   federatedModules
 }): Array<JSX.Element> => {
-  const isAllowedPage = (path): boolean =>
-    allowedPages?.find((allowedPage) => path.includes(allowedPage));
-
   return federatedModules?.map(
     ({ federatedPages, remoteEntry, moduleFederationName, moduleName }) => {
       return federatedPages?.map(({ component, route }) => {
-        if (not(isAllowedPage(route))) {
+        if (not(isAllowedPage({ path: route, allowedPages }))) {
           return null;
         }
 
@@ -80,15 +85,15 @@ const ReactRouterContent = ({
         <Routes>
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
-            const isAllowedPage =
+            const isAllowed =
               isLogoutPage ||
               isNil(allowedPages) ||
-              allowedPages.includes(path);
+              isAllowedPage({ path, allowedPages })
 
             return (
               <Route
                 element={
-                  isAllowedPage ? (
+                  isAllowed ? (
                     <PageContainer>
                       <BreadcrumbTrail path={path} />
                       <Comp />
