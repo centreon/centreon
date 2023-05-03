@@ -85,6 +85,7 @@ jobs:
         with:
           working-directory: ${{ inputs.module_name }}
           composer-options: "--optimize-autoloader"
+          ignore-cache: "yes"
 
       - name: Behat acceptance testing
         run: |

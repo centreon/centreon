@@ -942,11 +942,11 @@ class CentreonServiceTemplate extends CentreonObject
 
                         $relationTable[] = $tab[0];
                     }
-                    if ($matches[1] == "set") {
+                    if ($matches[1] === "set" || $matches[1] === "add") {
                         $relobj->delete(null, $serviceId);
                     }
 
-                    if ((strtolower($matches[2]) === 'hosttemplate') && (strtolower($matches[1]) === 'add')) {
+                    if ($matches[2] === 'hosttemplate' && $matches[1] === 'add') {
                         $existingRelationIds = $relobj->getTargetIdFromSourceId(
                             $relobj->getSecondKey(),
                             $relobj->getFirstKey(),

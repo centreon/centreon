@@ -39,12 +39,11 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
-          module: centreon
-          spec_file_path: ${{matrix.spec}}
+          module: ${{ inputs.module_name }}
+          spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
 
       - name: Upload components tests Results
         if: failure()

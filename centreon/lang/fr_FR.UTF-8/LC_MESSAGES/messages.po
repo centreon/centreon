@@ -2494,7 +2494,6 @@ msgstr "Statut détaillé"
 #: centreon-web/www/install/smarty_translate.php:873
 #: centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2507,7 +2506,6 @@ msgid "Host Name"
 msgstr "Nom de l'hôte"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Description du service"
@@ -6331,21 +6329,17 @@ msgstr "Gestion des hôtes"
 msgid "Services Resources"
 msgstr "Gestion des services"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Utilisateurs Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "L'utilisateur sélectionné ne voit aucune ressource"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."

@@ -11,8 +11,8 @@ Name:           centreon-dsm
 Version:        %{version}
 Release:        %{release}
 Summary:        Centreon-dsm add-on for Centreon
-%define thismajor 23.04.0
-%define nextmajor 23.05.0
+%define thismajor 23.10.0
+%define nextmajor 23.11.0
 
 Group:          System Environment/Base
 License:        Apache-2.0
