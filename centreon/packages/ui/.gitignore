@@ -9,6 +9,9 @@ node_modules/
 /coverage
 /src/__image_snapshots__/__diff_output__/*
 
+# cypress
+cypress/results
+
 # production
 /build
 /lib
