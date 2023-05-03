@@ -25,7 +25,7 @@ const FluidTypography = ({
   const { classes, cx } = useStyles({ variant });
 
   return (
-    <Responsive.ParentSizeModern>
+    <Responsive.ParentSize>
       {(): JSX.Element => {
         return (
           <span className={cx(classes.container, className)}>
@@ -33,7 +33,7 @@ const FluidTypography = ({
           </span>
         );
       }}
-    </Responsive.ParentSizeModern>
+    </Responsive.ParentSize>
   );
 };
 

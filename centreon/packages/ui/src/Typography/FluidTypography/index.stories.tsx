@@ -55,8 +55,8 @@ withLongText.args = {
   text: 'This is a very long text becaaaaaaause it has a lot to sayyyyy !!!!!!!!'
 };
 
-export const withH5Variant = FluidTypographyTemplate.bind({});
-withH5Variant.args = {
+export const withHeading5Variant = FluidTypographyTemplate.bind({});
+withHeading5Variant.args = {
   text: 'Hello world',
   variant: 'h5'
 };
