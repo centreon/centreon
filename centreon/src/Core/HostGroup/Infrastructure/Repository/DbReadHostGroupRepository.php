@@ -39,14 +39,14 @@ use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type HostGroupResultSet array{
- *     hg_id: positive-int,
+ *     hg_id: int,
  *     hg_name: string,
  *     hg_alias: ?string,
  *     hg_notes: ?string,
  *     hg_notes_url: ?string,
  *     hg_action_url: ?string,
- *     hg_icon_image: ?positive-int,
- *     hg_map_icon_image: ?positive-int,
+ *     hg_icon_image: ?int,
+ *     hg_map_icon_image: ?int,
  *     hg_rrd_retention: ?int,
  *     geo_coords: ?string,
  *     hg_comment: ?string,
