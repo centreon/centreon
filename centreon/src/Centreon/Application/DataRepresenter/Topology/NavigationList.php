@@ -1,70 +1,60 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
- *
  */
+
+declare(strict_types=1);
 
 namespace Centreon\Application\DataRepresenter\Topology;
 
+use Centreon\Domain\Entity\Topology;
 use JsonSerializable;
 
 class NavigationList implements JsonSerializable
 {
-    /**
-     * @var array
-     */
-    private $entities;
+    /** @var array<Topology> */
+    private array $entities;
 
     /**
-     * Configurations from navigation.yml
+     * Configurations from navigation.yml.
      *
-     * @var array<mixed>
+     * @var array<array{name: string, color: string, icon: string}>
      */
-    private $navConfig;
+    private array $navConfig;
+
+    /** @var array<string> */
+    private array $enabledFeatureFlags;
 
     /**
-     * @param array<mixed> $entities
-     * @param array<mixed> $navConfig
+     * @param array<Topology> $entities
+     * @param array<array{name: string, color: string, icon: string}> $navConfig
+     * @param array<string> $enabledFeatureFlags
      */
-    public function __construct(array $entities, array $navConfig = [])
+    public function __construct(array $entities, array $navConfig = [], array $enabledFeatureFlags = [])
     {
         $this->navConfig = $navConfig;
         $this->entities = $entities;
+        $this->enabledFeatureFlags = $enabledFeatureFlags;
     }
 
     /**
-     * @return array<mixed>
+     * @return array<array{name: string, color: string, icon: string}>
      */
     public function getNavConfig(): array
     {
@@ -72,182 +62,197 @@ class NavigationList implements JsonSerializable
     }
 
     /**
-     * JSON serialization of entity
+     * JSON serialization of entity.
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         $groups = $this->extractGroups($this->entities);
-        $naviList = $this->generateLevels($this->entities, $groups);
+        $tree = $this->generateTreeLevels($this->entities, $groups);
 
-        $navArray = $this->removeKeysFromArray($naviList);
-
-        return $navArray;
+        return $this->removeKeysFromArray($tree);
     }
 
     /**
-     * Get navigation items color for page
+     * Get navigation items color for page.
      *
-     * @param  int $pageId The page id
+     * @param int|string $pageId The page id
+     *
      * @return string color
      */
-    protected function getColor($pageId)
+    protected function getColor(int|string $pageId): string
     {
-        return (!empty($this->getNavConfig()[$pageId]['color']))
-            ? $this->getNavConfig()[$pageId]['color']
-            : $this->getNavConfig()['default']['color'];
+        return $this->getNavConfig()[$pageId]['color']
+            ?? $this->getNavConfig()['default']['color'];
     }
 
     /**
-     * Get navigation items icons per page
+     * Get navigation items icons per page.
      *
-     * @param  int $pageId The page id
+     * @param int|string $pageId The page id
+     *
      * @return string icon name
      */
-    protected function getIcon($pageId)
+    protected function getIcon(int|string $pageId): string
     {
-        return (!empty($this->getNavConfig()[$pageId]['icon']))
-            ? $this->getNavConfig()[$pageId]['icon']
-            : $this->getNavConfig()['default']['icon'];
+        return $this->getNavConfig()[$pageId]['icon']
+            ?? $this->getNavConfig()['default']['icon'];
     }
 
     /**
-     * Extract groups from full array of topologies
+     * Extract groups from full array of topologies.
      *
-     * @param  $entities array of topologies
-     * @return array of topologies
+     * @param array<Topology> $entities array of topologies
+     *
+     * @return array<mixed> of topologies
      */
-    private function extractGroups($entities)
+    private function extractGroups(array $entities): array
     {
         $groups = [];
         foreach ($entities as $entity) {
-            if (null === $entity->getTopologyPage() && $entity->getIsReact() == "0") {
+            if (null === $entity->getTopologyPage() && $entity->getIsReact() === '0') {
                 $groups[$entity->getTopologyParent()][$entity->getTopologyGroup()] = [
-                    'name' => $entity->getTopologyName()
+                    'name' => $entity->getTopologyName(),
                 ];
             }
         }
+
         return $groups;
     }
 
     /**
-     * Generate level list of menu
+     * Tells whether the Topology entity should be excluded because of feature flags.
      *
-     * @param  $entities
-     * @param  $groups
-     * @return array
+     * @param Topology $entity
      */
-    private function generateLevels($entities, $groups)
+    private function isFeatureFlagExcluded(Topology $entity): bool
     {
-        $naviList = [];
+        $flag = (string) $entity->getTopologyFeatureFlag();
+        if ('' === $flag) {
+            return false;
+        }
+
+        return ! in_array($flag, $this->enabledFeatureFlags, true);
+    }
+
+    /**
+     * Generate level list of menu.
+     *
+     * @param array<Topology> $entities
+     * @param array<mixed> $groups
+     *
+     * @return array<mixed>
+     */
+    private function generateTreeLevels(array $entities, array $groups): array
+    {
+        $tree = [];
 
         foreach ($entities as $entity) {
             if (
-                $entity->getTopologyPage() !== null
-                && preg_match('/^(\d)$/', $entity->getTopologyPage(), $matches)
+                null === ($topologyPage = $entity->getTopologyPage())
+                || $this->isFeatureFlagExcluded($entity)
             ) {
-                $naviList[$entity->getTopologyId()] = [
-                    'page' => $entity->getTopologyPage(),
+                continue;
+            }
+
+            if (
+                preg_match('/^(\d)$/', $topologyPage, $matches)
+            ) {
+                // LEVEL 1 (specific case where topology_id = topology_page)
+                $tree[$matches[1]] = [
+                    'page' => $topologyPage,
                     'label' => $entity->getTopologyName(),
                     'menu_id' => $entity->getTopologyName(),
                     'url' => $entity->getTopologyUrl(),
-                    'color' => static::getColor($entity->getTopologyPage()),
-                    'icon' => static::getIcon($entity->getTopologyPage()),
+                    'color' => $this->getColor($topologyPage),
+                    'icon' => $this->getIcon($topologyPage),
                     'children' => [],
                     'options' => $entity->getTopologyUrlOpt(),
-                    'is_react' => (bool)$entity->getIsReact(),
-                    'show' => (bool)$entity->getTopologyShow()
+                    'is_react' => (bool) $entity->getIsReact(),
+                    'show' => (bool) $entity->getTopologyShow(),
                 ];
             } elseif (
-                $entity->getTopologyPage() !== null
-                && preg_match('/^(\d)(\d\d)$/', $entity->getTopologyPage(), $matches)
-                && !empty($naviList[$matches[1]])
+                preg_match('/^(\d)\d\d$/', $topologyPage, $matches)
+                && ! empty($tree[$matches[1]])
             ) {
-                $naviList[$matches[1]]['children'][$entity->getTopologyPage()] = [
-                    'page' => $entity->getTopologyPage(),
+                // LEVEL 2
+                $tree[$matches[1]]['children'][$topologyPage] = [
+                    'page' => $topologyPage,
                     'label' => $entity->getTopologyName(),
                     'url' => $entity->getTopologyUrl(),
                     'groups' => [],
                     'options' => $entity->getTopologyUrlOpt(),
-                    'is_react' => (bool)$entity->getIsReact(),
-                    'show' => (bool)$entity->getTopologyShow()
+                    'is_react' => (bool) $entity->getIsReact(),
+                    'show' => (bool) $entity->getTopologyShow(),
                 ];
             } elseif (
-                $entity->getTopologyPage() !== null
-                && preg_match('/^(\d)(\d\d)(\d\d)$/', $entity->getTopologyPage(), $matches)
-                && !empty($naviList[$matches[1]]['children'][$matches[1] . $matches[2]])
-            ) { // level 3
+                preg_match('/^(\d)(\d\d)\d\d$/', $topologyPage, $matches)
+                && ! empty($tree[$matches[1]]['children'][$matches[1] . $matches[2]])
+            ) {
+                // LEVEL 3
+                $levelOne = $matches[1];
                 $levelTwo = $matches[1] . $matches[2];
 
-                //level 3 items can be grouped for better display
+                // level 3 items can be grouped for better display
+                // make sure we skip groups (we extracted them above)
+                if ($entity->getIsReact()) {
+                    continue;
+                }
 
-                //make sure we skip groups (we extracted them above)
-                if (!(is_null($entity->getTopologyPage()) && $entity->getIsReact() == '0')) {
-                    //generate the array for the item
-                    $levelThree = [
-                        'page' => $entity->getTopologyPage(),
-                        'label' => $entity->getTopologyName(),
-                        'url' => $entity->getTopologyUrl(),
-                        'options' => $entity->getTopologyUrlOpt(),
-                        'is_react' => (bool)$entity->getIsReact(),
-                        'show' => (bool)$entity->getTopologyShow()
-                    ];
+                // generate the array for the item
+                $levelThree = [
+                    'page' => $topologyPage,
+                    'label' => $entity->getTopologyName(),
+                    'url' => $entity->getTopologyUrl(),
+                    'options' => $entity->getTopologyUrlOpt(),
+                    'is_react' => (bool) $entity->getIsReact(),
+                    'show' => (bool) $entity->getTopologyShow(),
+                ];
 
-                    //check if topology has group index
-                    if (
-                        !is_null(
-                            $entity->getTopologyGroup()
-                        )
-                        && isset(
-                            $groups[$levelTwo][$entity->getTopologyGroup()]
-                        )
-                    ) {
-                        if (
-                            !isset($naviList[$matches[1]]['children'][$levelTwo]['groups']
-                                [$entity->getTopologyGroup()])
-                        ) {
-                            $naviList[$matches[1]]['children'][$levelTwo]['groups'][$entity->getTopologyGroup()] = [
-                                'label' => $groups[$levelTwo][$entity->getTopologyGroup()]['name'],
-                                'children' => []
-                            ];
-                        }
-                        array_push(
-                            $naviList[$matches[1]]['children'][$levelTwo]['groups']
-                                [$entity->getTopologyGroup()]['children'],
-                            $levelThree
-                        );
-                    } else {
-                        if (!isset($naviList[$matches[1]]['children'][$levelTwo]['groups']['default'])) {
-                            $naviList[$matches[1]]['children'][$levelTwo]['groups']['default'] = [
-                                'label' => 'Main Menu',
-                                'children' => []
-                            ];
-                        }
-                        array_push(
-                            $naviList[$matches[1]]['children'][$levelTwo]['groups']['default']['children'],
-                            $levelThree
-                        );
+                // check if topology has group index
+                $topologyGroup = $entity->getTopologyGroup();
+                if (
+                    null !== $topologyGroup
+                    && isset($groups[$levelTwo][$topologyGroup])
+                ) {
+                    if (! isset($tree[$levelOne]['children'][$levelTwo]['groups'][$topologyGroup])) {
+                        $tree[$levelOne]['children'][$levelTwo]['groups'][$topologyGroup] = [
+                            'label' => $groups[$levelTwo][$topologyGroup]['name'],
+                            'children' => [],
+                        ];
                     }
+
+                    $tree[$levelOne]['children'][$levelTwo]['groups'][$topologyGroup]['children'][] = $levelThree;
+                } else {
+                    if (! isset($tree[$levelOne]['children'][$levelTwo]['groups']['default'])) {
+                        $tree[$levelOne]['children'][$levelTwo]['groups']['default'] = [
+                            'label' => 'Main Menu',
+                            'children' => [],
+                        ];
+                    }
+
+                    $tree[$levelOne]['children'][$levelTwo]['groups']['default']['children'][] = $levelThree;
                 }
             }
         }
 
-        return $naviList;
+        return $tree;
     }
 
     /**
-     * Extract the array without keys to avoid serialization into objects
+     * Extract the array without keys to avoid serialization into objects.
      *
-     * @param  array<mixed> $naviList
+     * @param array<mixed> $tree
+     *
      * @return array<mixed>
      */
-    private function removeKeysFromArray(array $naviList): array
+    private function removeKeysFromArray(array $tree): array
     {
-        foreach ($naviList as $key => &$value) {
-            if (!empty($value['children'])) {
-                foreach ($value['children'] as $k => &$c) {
-                    if (!empty($c['groups'])) {
+        foreach ($tree as &$value) {
+            if (! empty($value['children'])) {
+                foreach ($value['children'] as &$c) {
+                    if (! empty($c['groups'])) {
                         $c['groups'] = array_values($c['groups']);
                     }
                 }
@@ -255,8 +260,6 @@ class NavigationList implements JsonSerializable
             }
         }
 
-        $naviList = array_values($naviList);
-
-        return $naviList;
+        return array_values($tree);
     }
 }
