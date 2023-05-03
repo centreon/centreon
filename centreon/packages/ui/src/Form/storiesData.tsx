@@ -20,6 +20,7 @@ export interface BasicForm {
   activeSortableFieldsTable: boolean;
   animals: Array<SelectEntry>;
   anotherText: string;
+  certificate: string;
   class: { id: number; name: string } | null;
   custom: string;
   email: string;
@@ -53,6 +54,7 @@ export const basicFormValidationSchema = Yup.object().shape({
   ),
   animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
   anotherText: Yup.string(),
+  certificate: Yup.string(),
   class: selectEntryValidationSchema.nullable().required('Required'),
   custom: Yup.string().required('Custom is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -103,6 +105,7 @@ export const basicFormInitialValues = {
   active: false,
   activeSortableFieldsTable: false,
   animals: [],
+  certificate: '',
   class: { id: 0, name: 'Class 0' },
   custom: '',
   email: '',
@@ -389,6 +392,15 @@ export const basicFormInputs: Array<InputProps> = [
     group: 'First group',
     label: 'roleMapping',
     type: InputType.FieldsTable
+  },
+  {
+    fieldName: 'certificate',
+    group: 'First group',
+    label: 'Certificate',
+    text: {
+      multilineRows: 4
+    },
+    type: InputType.Text
   }
 ];
 

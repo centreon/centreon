@@ -94,7 +94,7 @@ sub createTempTable {
 	my $db = $self->{"centstorage"};
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"tmpTable"}."`" });
 	my $query = "CREATE TABLE `".$self->{"tmpTable"}."` (";
-	$query .= "`metric_id` int(11) NOT NULL,`metric_name` varchar(255) NOT NULL,`metric_unit` char(10) DEFAULT NULL,";
+	$query .= "`metric_id` int(11) NOT NULL,`metric_name` varchar(255) NOT NULL,`metric_unit` char(32) DEFAULT NULL,";
 	$query .= "`service_id` int(11) NOT NULL,`service_description` varchar(255) DEFAULT NULL,";
 	$query .= "`sc_id` int(11) DEFAULT NULL,`sc_name` varchar(255) DEFAULT NULL,";
 	$query .= "`host_id` int(11) DEFAULT NULL,`host_name` varchar(255) DEFAULT NULL,";

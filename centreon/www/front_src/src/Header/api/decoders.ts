@@ -1,7 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 import type { FromDecoder } from 'ts.data.json';
 
-import type { PollersIssuesList, Alert, AlertDetails } from './models';
+import type { PollersIssuesList, Alert, AlertDetails, Poller } from './models';
 
 const counterDecoder = JsonDecoder.object(
   {
@@ -41,7 +41,7 @@ export const hostStatusDecoder = JsonDecoder.object(
 );
 
 export type HostStatusResponse = FromDecoder<typeof hostStatusDecoder>;
-const AlertDetailPollerJsonDecoder = JsonDecoder.object<AlertDetails['poller']>(
+const AlertDetailPollerJsonDecoder = JsonDecoder.object<Poller>(
   {
     id: JsonDecoder.number,
     name: JsonDecoder.string,
@@ -55,7 +55,7 @@ const AlertDetailPollerJsonDecoder = JsonDecoder.object<AlertDetails['poller']>(
 
 const AlertDetailDecoder = JsonDecoder.object<AlertDetails>(
   {
-    poller: AlertDetailPollerJsonDecoder,
+    poller: JsonDecoder.array(AlertDetailPollerJsonDecoder, 'alerts detail'),
     total: JsonDecoder.number
   },
   'alert detail'

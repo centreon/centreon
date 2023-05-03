@@ -26,6 +26,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -72,7 +73,11 @@ class RolesMapping implements SecurityAccessInterface
         $this->loginLogger->info($this->scope, "Roles mapping is enabled");
         $this->info("Roles mapping is enabled");
 
-        $attributePath = explode(".", $aclConditions->getAttributePath());
+        $attributePath[] = $aclConditions->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $attributePath = explode(".", $aclConditions->getAttributePath());
+        }
+
         foreach ($attributePath as $attribute) {
             $providerConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {

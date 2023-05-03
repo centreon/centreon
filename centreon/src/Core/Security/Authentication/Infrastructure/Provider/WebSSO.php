@@ -33,6 +33,7 @@ use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Provider\WebSSOProvider;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration;
 use DateInterval;
 use DateTimeImmutable;
@@ -91,7 +92,8 @@ class WebSSO implements ProviderAuthenticationInterface
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
-            'contact_theme' => $user->getTheme() ?? 'light'
+            'contact_theme' => $user->getTheme() ?? 'light',
+            'auth_type' => Provider::WEB_SSO
         ];
 
         $this->provider->setLegacySession(new \Centreon($sessionUserInfos));

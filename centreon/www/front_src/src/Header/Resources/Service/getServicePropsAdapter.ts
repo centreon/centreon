@@ -30,10 +30,12 @@ import {
   labelWarning,
   labelPending,
   labelUnknown,
-  labelOk
+  labelOk,
+  labelServices
 } from './translatedLabels';
 
 export interface ServicesPropsAdapterOutput {
+  buttonLabel: string;
   counters: CounterProps['counters'];
   hasPending: boolean;
   items: SubMenuProps['items'];
@@ -157,7 +159,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         criterias: okServicesCriterias,
         link: okServicesLink
       }),
-      severityCode: SeverityCode.Ok,
+      severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: okServicesLink,
       topCounterAriaLabel: t(labelOkStatusServices)
@@ -206,6 +208,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   };
 
   return {
+    buttonLabel: t(labelServices),
     counters: ['critical', 'warning', 'unknown', 'ok'].map((statusName) => {
       const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
         config[statusName];

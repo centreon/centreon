@@ -11,11 +11,25 @@ const getMatchOptions = () => {
 };
 
 const beforeScreenshot = async (page) => {
+  await page.addStyleTag({
+    content: `
+    *,
+    *::before,
+    *::after {
+      animation-delay: -1s !important;
+      animation-duration: 0s !important;
+      animation-iteration-count: 1 !important;
+      background-attachment: initial !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0s !important;
+      transition: none !important;
+    }`
+  });
+
   await page.setViewport({
     height: 1000,
     width: 1000
   });
-  await page.waitForTimeout(600);
 };
 
 const getStoryKindRegex = () => {

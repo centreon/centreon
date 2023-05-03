@@ -36,12 +36,21 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use PDO;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class ServiceRepository extends ServiceEntityRepository
+class ServiceRepository extends AbstractRepositoryRDB
 {
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
+
     /**
      * Export
      *

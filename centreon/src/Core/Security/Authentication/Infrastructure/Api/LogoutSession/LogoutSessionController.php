@@ -26,9 +26,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LogoutSessionController extends AbstractController
 {
+    /**
+     * @param UrlGeneratorInterface $urlGenerator
+     */
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
+
     /**
      * @param LogoutSession $useCase
      * @param Request $request
@@ -42,6 +50,6 @@ class LogoutSessionController extends AbstractController
     ): object {
         $useCase($request->cookies->get('PHPSESSID'), $presenter);
 
-        return $presenter->show();
+        return $this->redirect('/login');
     }
 }

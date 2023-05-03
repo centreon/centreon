@@ -3086,11 +3086,3 @@ ul.module_list {
     position: absolute;
     width: 100%;
 }
-
-#centreonLogo {
-    background-image: var(--centreon-logo-url);
-    background-repeat: no-repeat;
-    object-fit: contain;
-    height: 50px;
-    width: 200px;
-}

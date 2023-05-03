@@ -1,9 +1,13 @@
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
+import fetchMock from 'jest-fetch-mock';
 
+import { TestQueryProvider } from '@centreon/ui';
 import {
+  getFetchCall,
+  mockResponseOnce,
   render,
   RenderResult,
+  resetMocks,
   screen,
   waitFor
 } from '@centreon/ui/src/testRenderer';
@@ -17,6 +21,7 @@ import {
   labelSave
 } from '../Local/translatedLabels';
 import { labelActivation } from '../translatedLabels';
+import { labelMixed } from '../shared/translatedLabels';
 
 import {
   labelBlacklistClientAddresses,
@@ -25,51 +30,74 @@ import {
   labelInvalidIPAddress,
   labelInvalidRegex,
   labelLoginHeaderAttributeName,
-  labelMixed,
   labelPatternMatchLogin,
   labelPatternReplaceLogin,
   labelTrustedClientAddresses,
   labelWebSSOOnly
 } from './translatedLabels';
+import { retrievedWebSSOConfiguration } from './defaults';
 
 import WebSSOConfigurationForm from '.';
 
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
 jest.mock('../logos/providerPadlock.svg');
 
-const cancelTokenRequestParam = { cancelToken: {} };
-
-const cancelTokenPutParams = {
-  ...cancelTokenRequestParam,
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  }
-};
-
 const renderWebSSOConfigurationForm = (): RenderResult =>
-  render(<WebSSOConfigurationForm />);
+  render(
+    <TestQueryProvider>
+      <WebSSOConfigurationForm />
+    </TestQueryProvider>
+  );
 
-const retrievedWebSSOConfiguration = {
-  blacklist_client_addresses: ['127.0.0.1'],
-  is_active: true,
-  is_forced: false,
-  login_header_attribute: '',
-  pattern_matching_login: null,
-  pattern_replace_login: null,
-  trusted_client_addresses: ['127.0.0.1']
-};
-
-describe('Web SSOconfiguration form', () => {
+describe('Web SSO configuration form', () => {
   beforeEach(() => {
-    mockedAxios.get.mockReset();
-    mockedAxios.get.mockResolvedValue({
+    resetMocks();
+    mockResponseOnce({
       data: retrievedWebSSOConfiguration
     });
+  });
 
-    mockedAxios.put.mockReset();
-    mockedAxios.put.mockResolvedValue({
-      data: {}
+  it('saves the web SSO configuration when a field is modified and the "Save" button is clicked', async () => {
+    renderWebSSOConfigurationForm();
+
+    await waitFor(() => {
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.WebSSO)
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(labelActivation)).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(labelEnableWebSSOAuthentication)
+      ).toBeChecked();
+    });
+
+    userEvent.type(
+      screen.getByLabelText(labelLoginHeaderAttributeName),
+      'admin'
+    );
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('save button')).not.toBeDisabled();
+    });
+
+    userEvent.click(screen.getByText(labelSave));
+
+    await waitFor(() => {
+      expect(getFetchCall(1)).toEqual(
+        authenticationProvidersEndpoint(Provider.WebSSO)
+      );
+
+      expect(fetchMock.mock.calls[1][1]?.body).toEqual(
+        JSON.stringify({
+          ...retrievedWebSSOConfiguration,
+          login_header_attribute: 'admin'
+        })
+      );
     });
   });
 
@@ -81,9 +109,8 @@ describe('Web SSOconfiguration form', () => {
     ).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.WebSSO)
       );
     });
 
@@ -117,9 +144,8 @@ describe('Web SSOconfiguration form', () => {
     renderWebSSOConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.WebSSO)
       );
     });
 
@@ -181,64 +207,12 @@ describe('Web SSOconfiguration form', () => {
     expect(screen.getByText(labelReset)).not.toBeDisabled();
   });
 
-  it('saves the web SSO configuration when a field is modified and the "Save" button is clicked', async () => {
-    renderWebSSOConfigurationForm();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam
-      );
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText(labelActivation)).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText(labelEnableWebSSOAuthentication)
-      ).toBeChecked();
-    });
-
-    userEvent.type(
-      screen.getByLabelText(labelLoginHeaderAttributeName),
-      'admin'
-    );
-    userEvent.tab();
-
-    await waitFor(() => {
-      expect(screen.getByText(labelSave)).not.toBeDisabled();
-    });
-
-    userEvent.click(screen.getByText(labelSave));
-
-    await waitFor(() => {
-      expect(mockedAxios.put).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        {
-          ...retrievedWebSSOConfiguration,
-          login_header_attribute: 'admin'
-        },
-        cancelTokenPutParams
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam
-      );
-    });
-  });
-
   it('resets the web SSO configuration when a field is modified and the "Reset" button is clicked', async () => {
     renderWebSSOConfigurationForm();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        authenticationProvidersEndpoint(Provider.WebSSO),
-        cancelTokenRequestParam
+      expect(getFetchCall(0)).toEqual(
+        authenticationProvidersEndpoint(Provider.WebSSO)
       );
     });
 

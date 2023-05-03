@@ -25,6 +25,7 @@ import {
 } from '../../../../api/buildListingEndpoint/models';
 import useDebounce from '../../../../utils/useDebounce';
 import useFetchQuery from '../../../../api/useFetchQuery';
+import { useDeepCompare } from '../../../../utils/useMemoComponent';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   conditionField?: keyof SelectEntry;
@@ -269,7 +270,7 @@ const ConnectedAutocompleteField = (
           ? { conditions: searchConditions }
           : undefined
       );
-    }, [searchConditions]);
+    }, useDeepCompare([searchConditions]));
 
     useEffect(() => {
       if (!optionsOpen) {

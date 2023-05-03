@@ -149,6 +149,8 @@ jobs:
     needs: [get-version, sign-rpm]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -160,20 +162,19 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
+          module_name: perl-filesys-smbclient
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
     needs: [get-version, package-deb]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]
@@ -185,10 +186,9 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: perl-filesys-smbclient
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}

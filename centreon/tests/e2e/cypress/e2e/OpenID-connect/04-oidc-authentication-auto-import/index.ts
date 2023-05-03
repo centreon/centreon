@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { configureOpenIDConnect, getUserContactId } from '../common';
 
 before(() => {
-  cy.startOpenIdProviderContainer();
+  cy.startWebContainer().startOpenIdProviderContainer();
 });
 
 beforeEach(() => {
@@ -103,13 +103,14 @@ Then(
   'the users from the 3rd party authentication service with the contact template are imported',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.visit('/');
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
         .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .logout();
+
+      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
@@ -142,5 +143,5 @@ Then(
 );
 
 after(() => {
-  cy.stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });

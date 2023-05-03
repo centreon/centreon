@@ -300,7 +300,9 @@ class MonitoringResourceController extends AbstractController
             ->setStatusGraph($endpoints['status_graph'] ?? null)
             ->setDowntime($endpoints['downtime'])
             ->setAcknowledgement($endpoints['acknowledgement'])
-            ->setTimeline($endpoints['timeline']);
+            ->setTimeline($endpoints['timeline'])
+            ->setForcedCheck($endpoints['forced_check'])
+            ->setCheck($endpoints['check']);
 
         $resource->getLinks()->getUris()
             ->setConfiguration($uris['configuration'])

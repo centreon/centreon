@@ -1,6 +1,6 @@
 import type { Group } from '@centreon/ui';
 
-import { labelRolesMapping } from './Openid/translatedLabels';
+import { labelRolesMapping } from './shared/translatedLabels';
 import {
   labelActivation,
   labelAuthenticationConditions,

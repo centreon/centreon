@@ -14,26 +14,11 @@ const stepWaitingTime = 250;
 const pollingCheckTimeout = 100000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
-
-const executeActionViaClapi = (
-  bodyContent: ActionClapi,
-  method?: string
-): Cypress.Chainable => {
-  return cy.request({
-    body: bodyContent,
-    headers: {
-      'Content-Type': 'application/json',
-      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-    },
-    method: method || 'POST',
-    url: `${apiActionV1}?action=action&object=centreon_clapi`
-  });
-};
 
 let servicesFoundStepCount = 0;
 
@@ -109,9 +94,11 @@ const checkThatConfigurationIsExported = ({
 };
 
 const applyConfigurationViaClapi = (): Cypress.Chainable => {
-  return executeActionViaClapi({
-    action: 'APPLYCFG',
-    values: '1'
+  return cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'APPLYCFG',
+      values: '1'
+    }
   });
 };
 
@@ -144,41 +131,30 @@ const submitResultsViaClapi = (): Cypress.Chainable => {
 };
 
 const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
-  return cy
-    .fixture('users/admin.json')
-    .then((userAdmin) => {
-      return cy.request({
-        body: {
-          login: userAdmin.login,
-          password: userAdmin.password
-        },
-        method: 'POST',
-        url: apiLoginV2
-      });
-    })
-    .then(() => {
-      Cypress.Cookies.defaults({
-        preserve: 'PHPSESSID'
-      });
+  return cy.fixture('users/admin.json').then((userAdmin) => {
+    return cy.request({
+      body: {
+        login: userAdmin.login,
+        password: userAdmin.password
+      },
+      method: 'POST',
+      url: apiLoginV2
     });
+  });
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {
-  return cy.fixture(file).then(executeActionViaClapi);
+  return cy
+    .fixture(file)
+    .then((fixture) => cy.executeActionViaClapi({ bodyContent: fixture }));
 };
 
-const logout = (): Cypress.Chainable =>
-  cy.request({
-    body: {},
-    method: 'POST',
-    url: apiLogout
-  });
+const logout = (): Cypress.Chainable => cy.visit(apiLogout);
 
 export {
   ActionClapi,
   checkThatConfigurationIsExported,
   checkThatFixtureServicesExistInDatabase,
-  executeActionViaClapi,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,

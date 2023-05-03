@@ -36,6 +36,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
+      commit_hash: ${{ github.sha }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -44,12 +45,13 @@ jobs:
     needs: [get-version, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
+      widget_name: servicegroup-monitoring
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_PASSWORD }}
       artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
       cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
       update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
@@ -77,3 +79,4 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+

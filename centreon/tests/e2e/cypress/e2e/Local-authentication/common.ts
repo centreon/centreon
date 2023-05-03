@@ -1,7 +1,4 @@
-import {
-  applyConfigurationViaClapi,
-  executeActionViaClapi
-} from '../../commons';
+import { applyConfigurationViaClapi } from '../../commons';
 
 interface DataToUseForCheckForm {
   custom?: () => void;
@@ -26,15 +23,19 @@ const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
 
 const removeContact = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user1'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user1'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user2'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user2'
+      }
     });
   });
 };

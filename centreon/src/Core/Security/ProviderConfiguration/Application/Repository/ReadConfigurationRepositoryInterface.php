@@ -30,10 +30,10 @@ interface ReadConfigurationRepositoryInterface
     /**
      * Get provider configuration by name
      *
-     * @param string $providerName
+     * @param string $providerType
      * @return Configuration
      */
-    public function getConfigurationByName(string $providerName): Configuration;
+    public function getConfigurationByType(string $providerType): Configuration;
 
     /**
      * Get provider configuration by id

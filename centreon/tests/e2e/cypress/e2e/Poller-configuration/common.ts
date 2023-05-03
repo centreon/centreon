@@ -1,14 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import { executeActionViaClapi, insertFixture } from '../../commons';
+import { insertFixture } from '../../commons';
 
-let dateBeforeLogin: Date;
+const dateBeforeLogin = new Date();
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;
 const testHostName = 'test_host';
 
 const insertPollerConfigUserAcl = (): Cypress.Chainable => {
-  dateBeforeLogin = new Date();
-
   return cy
     .setUserTokenApiV1()
     .executeCommandsViaClapi(
@@ -41,30 +39,40 @@ const getPoller = (pollerName: string): Cypress.Chainable => {
 
 const removeFixtures = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user1'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user1'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'HOST',
-      values: 'test_host'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLGROUP',
-      values: 'ACL Group test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLGROUP',
+        values: 'ACL Group test'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLMENU',
-      values: 'acl_menu_test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLMENU',
+        values: 'acl_menu_test'
+      }
     });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLACTION',
-      values: 'acl_action_test'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLACTION',
+        values: 'acl_action_test'
+      }
     });
   });
 };
@@ -85,9 +93,9 @@ const checkExportedFileContent = (): Cypress.Chainable<boolean> => {
     });
 };
 
-const checkIfConfigurationIsExported = (): void => {
+const checkIfConfigurationIsExported = (beforeLoginDate: Date): void => {
   cy.log('Checking that configuration is exported');
-  const now = dateBeforeLogin.getTime();
+  const now = beforeLoginDate.getTime();
 
   cy.wait(waitToExport);
 
@@ -180,5 +188,6 @@ export {
   clearCentengineLogs,
   breakSomePollers,
   waitPollerListToLoad,
-  checkIfConfigurationIsNotExported
+  checkIfConfigurationIsNotExported,
+  dateBeforeLogin
 };

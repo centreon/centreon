@@ -1638,7 +1638,7 @@ class CentreonACL
         }
 
         $tab = array();
-        $query = "SELECT DISTINCT s.service_id, s.description "
+        $query = "SELECT DISTINCT s.service_id, s.description, h.name "
             . "FROM hosts h "
             . "LEFT JOIN services s "
             . "ON h.host_id = s.host_id "

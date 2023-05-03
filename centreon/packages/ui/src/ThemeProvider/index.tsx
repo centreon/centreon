@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
 
@@ -32,7 +32,16 @@ declare module '@mui/material/TextField' {
   }
 }
 
-const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
+const getInputBaseRootStyle = ({
+  size,
+  multiline
+}: InputBaseProps): CSSInterpolation => {
+  if (multiline) {
+    return {
+      padding: '0px'
+    };
+  }
+
   if (equals(size, 'compact')) {
     return {
       padding: '8px 8px',

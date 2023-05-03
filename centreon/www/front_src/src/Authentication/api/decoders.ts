@@ -1,18 +1,26 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import { PasswordExpiration, PasswordSecurityPolicy } from '../Local/models';
+import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   AuthConditions,
   Endpoint,
   EndpointType,
   GroupsMapping,
-  GroupsRelation,
-  NamedEntity,
   OpenidConfiguration,
-  RolesMapping,
-  RolesRelation
+  RolesMapping
 } from '../Openid/models';
-import { WebSSOConfiguration } from '../WebSSO/models';
+import {
+  contactTemplateDecoder,
+  groupsRelationsDecoder,
+  rolesRelationsDecoder
+} from '../shared/decoders';
+import { SAMLConfiguration } from '../SAML/models';
+import {
+  SharedAuthenticationConditions,
+  SharedGroupsMapping,
+  SharedRolesMapping
+} from '../shared/models';
 
 const passwordExpirationDecoder = JsonDecoder.object<PasswordExpiration>(
   {
@@ -53,17 +61,6 @@ export const securityPolicyDecoder = JsonDecoder.object<PasswordSecurityPolicy>(
   }
 );
 
-const getNamedEntityDecoder = (
-  title: string
-): JsonDecoder.Decoder<NamedEntity> =>
-  JsonDecoder.object<NamedEntity>(
-    {
-      id: JsonDecoder.number,
-      name: JsonDecoder.string
-    },
-    title
-  );
-
 const endpointDecoder = JsonDecoder.object<Endpoint>(
   {
     customEndpoint: JsonDecoder.nullable(JsonDecoder.string),
@@ -72,32 +69,6 @@ const endpointDecoder = JsonDecoder.object<Endpoint>(
   'Endpoint',
   {
     customEndpoint: 'custom_endpoint'
-  }
-);
-
-const rolesRelation = JsonDecoder.object<RolesRelation>(
-  {
-    accessGroup: getNamedEntityDecoder('Access group'),
-    claimValue: JsonDecoder.string,
-    priority: JsonDecoder.number
-  },
-  'Role Relation',
-  {
-    accessGroup: 'access_group',
-    claimValue: 'claim_value',
-    priority: 'priority'
-  }
-);
-
-const groupsRelationDecoder = JsonDecoder.object<GroupsRelation>(
-  {
-    contactGroup: getNamedEntityDecoder('Contact group'),
-    groupValue: JsonDecoder.string
-  },
-  'Group Relation',
-  {
-    contactGroup: 'contact_group',
-    groupValue: 'group_value'
   }
 );
 
@@ -129,13 +100,13 @@ const authConditions = JsonDecoder.object<AuthConditions>(
   }
 );
 
-const rolesMapping = JsonDecoder.object<RolesMapping>(
+const openIDRolesMapping = JsonDecoder.object<RolesMapping>(
   {
     applyOnlyFirstRole: JsonDecoder.boolean,
     attributePath: JsonDecoder.string,
     endpoint: endpointDecoder,
     isEnabled: JsonDecoder.boolean,
-    relations: JsonDecoder.array(rolesRelation, 'Roles relation')
+    relations: rolesRelationsDecoder
   },
   'Roles mapping',
   {
@@ -145,12 +116,27 @@ const rolesMapping = JsonDecoder.object<RolesMapping>(
   }
 );
 
-const groupsMappingDecoder = JsonDecoder.object<GroupsMapping>(
+const SAMLRolesMapping = JsonDecoder.object<SharedRolesMapping>(
+  {
+    applyOnlyFirstRole: JsonDecoder.boolean,
+    attributePath: JsonDecoder.string,
+    isEnabled: JsonDecoder.boolean,
+    relations: rolesRelationsDecoder
+  },
+  'Roles mapping',
+  {
+    applyOnlyFirstRole: 'apply_only_first_role',
+    attributePath: 'attribute_path',
+    isEnabled: 'is_enabled'
+  }
+);
+
+const openIDGroupsMappingDecoder = JsonDecoder.object<GroupsMapping>(
   {
     attributePath: JsonDecoder.string,
     endpoint: endpointDecoder,
     isEnabled: JsonDecoder.boolean,
-    relations: JsonDecoder.array(groupsRelationDecoder, 'Groups relation')
+    relations: groupsRelationsDecoder
   },
   'Groups mapping',
   {
@@ -159,6 +145,37 @@ const groupsMappingDecoder = JsonDecoder.object<GroupsMapping>(
   }
 );
 
+const SAMLGroupsMappingDecoder = JsonDecoder.object<SharedGroupsMapping>(
+  {
+    attributePath: JsonDecoder.string,
+    isEnabled: JsonDecoder.boolean,
+    relations: groupsRelationsDecoder
+  },
+  'Groups mapping',
+  {
+    attributePath: 'attribute_path',
+    isEnabled: 'is_enabled'
+  }
+);
+
+const SAMLAuthenticationConditions =
+  JsonDecoder.object<SharedAuthenticationConditions>(
+    {
+      attributePath: JsonDecoder.string,
+      authorizedValues: JsonDecoder.array(
+        JsonDecoder.string,
+        'condition authorized value'
+      ),
+      isEnabled: JsonDecoder.boolean
+    },
+    'Authentication conditions',
+    {
+      attributePath: 'attribute_path',
+      authorizedValues: 'authorized_values',
+      isEnabled: 'is_enabled'
+    }
+  );
+
 export const openidConfigurationDecoder =
   JsonDecoder.object<OpenidConfiguration>(
     {
@@ -166,7 +183,6 @@ export const openidConfigurationDecoder =
       authenticationType: JsonDecoder.nullable(JsonDecoder.string),
       authorizationEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       autoImport: JsonDecoder.boolean,
-
       baseUrl: JsonDecoder.nullable(JsonDecoder.string),
       clientId: JsonDecoder.nullable(JsonDecoder.string),
       clientSecret: JsonDecoder.nullable(JsonDecoder.string),
@@ -174,21 +190,17 @@ export const openidConfigurationDecoder =
         JsonDecoder.string,
         'connectionScopes'
       ),
-      contactTemplate: JsonDecoder.nullable(
-        getNamedEntityDecoder('Contact template')
-      ),
+      contactTemplate: contactTemplateDecoder,
       emailBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
       endSessionEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       fullnameBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
-      groupsMapping: groupsMappingDecoder,
+      groupsMapping: openIDGroupsMappingDecoder,
       introspectionTokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       isActive: JsonDecoder.boolean,
-
       isForced: JsonDecoder.boolean,
       loginClaim: JsonDecoder.nullable(JsonDecoder.string),
-
-      rolesMapping,
-
+      redirectUrl: JsonDecoder.nullable(JsonDecoder.string),
+      rolesMapping: openIDRolesMapping,
       tokenEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       userinfoEndpoint: JsonDecoder.nullable(JsonDecoder.string),
       verifyPeer: JsonDecoder.boolean
@@ -212,6 +224,7 @@ export const openidConfigurationDecoder =
       isActive: 'is_active',
       isForced: 'is_forced',
       loginClaim: 'login_claim',
+      redirectUrl: 'redirect_url',
       rolesMapping: 'roles_mapping',
       tokenEndpoint: 'token_endpoint',
       userinfoEndpoint: 'userinfo_endpoint',
@@ -253,3 +266,40 @@ export const webSSOConfigurationDecoder =
       trustedClientAddresses: 'trusted_client_addresses'
     }
   );
+
+export const SAMLConfigurationDecoder = JsonDecoder.object<SAMLConfiguration>(
+  {
+    authenticationConditions: SAMLAuthenticationConditions,
+    autoImport: JsonDecoder.boolean,
+    certificate: JsonDecoder.string,
+    contactTemplate: contactTemplateDecoder,
+    emailBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
+    entityIdUrl: JsonDecoder.string,
+    fullnameBindAttribute: JsonDecoder.nullable(JsonDecoder.string),
+    groupsMapping: SAMLGroupsMappingDecoder,
+    isActive: JsonDecoder.boolean,
+    isForced: JsonDecoder.boolean,
+    logoutFrom: JsonDecoder.boolean,
+    logoutFromUrl: JsonDecoder.nullable(JsonDecoder.string),
+    remoteLoginUrl: JsonDecoder.string,
+    rolesMapping: SAMLRolesMapping,
+    userIdAttribute: JsonDecoder.string
+  },
+  'SAML Configuration',
+  {
+    authenticationConditions: 'authentication_conditions',
+    autoImport: 'auto_import',
+    contactTemplate: 'contact_template',
+    emailBindAttribute: 'email_bind_attribute',
+    entityIdUrl: 'entity_id_url',
+    fullnameBindAttribute: 'fullname_bind_attribute',
+    groupsMapping: 'groups_mapping',
+    isActive: 'is_active',
+    isForced: 'is_forced',
+    logoutFrom: 'logout_from',
+    logoutFromUrl: 'logout_from_url',
+    remoteLoginUrl: 'remote_login_url',
+    rolesMapping: 'roles_mapping',
+    userIdAttribute: 'user_id_attribute'
+  }
+);

@@ -1,5 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+before(() => {
+  cy.startWebContainer();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -38,10 +42,18 @@ Then(
     cy.getByLabel({ label: 'Mixed', tag: 'input' })
       .should('be.checked')
       .and('have.value', 'false');
-    cy.logout().reload();
+
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
   }
 );
+
+after(() => {
+  cy.stopWebContainer();
+});

@@ -48,7 +48,7 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.listingHeader,
     borderBottom: 'none',
     display: 'flex',
-    justifyContent: 'end',
+    justifyContent: 'start',
     minWidth: theme.spacing(51 / 8),
     padding: 0
   },

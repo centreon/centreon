@@ -24,9 +24,9 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -67,7 +67,11 @@ class Conditions implements SecurityAccessInterface
         $customConfiguration = $configuration->getCustomConfiguration();
         $conditionsConfiguration = $customConfiguration->getAuthenticationConditions();
         $localConditions = $conditionsConfiguration->getAuthorizedValues();
-        $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+
+        $authenticationAttributePath[] = $conditionsConfiguration->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+        }
 
         $this->loginLogger->info($scope, "Configured attribute path found", $authenticationAttributePath);
         $this->loginLogger->info($scope, "Configured authorized values", $localConditions);
@@ -76,7 +80,7 @@ class Conditions implements SecurityAccessInterface
             $providerAuthenticationConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {
                 $providerAuthenticationConditions = $identityProviderData[$attribute];
-                $identityProviderData[] = $identityProviderData[$attribute];
+                $identityProviderData = $identityProviderData[$attribute];
             } else {
                 break;
             }

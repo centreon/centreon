@@ -578,6 +578,13 @@ sub service_response_parsing {
     foreach my $attributes (@{$xml->{label}}) {
         $discovery_svc->{service_name} = '';
         $discovery_svc->{attributes} = $attributes;
+
+        $self->custom_variables(
+            discovery_svc => $discovery_svc,
+            rule => $self->{discovery}->{rules}->{ $options{rule_id} },
+            logger_pre_message => $logger_pre_message
+        );
+
         gorgone::modules::centreon::autodiscovery::services::resources::change_vars(
             discovery_svc => $discovery_svc,
             rule => $self->{discovery}->{rules}->{ $options{rule_id} },
@@ -604,11 +611,7 @@ sub service_response_parsing {
                 logger_pre_message => $logger_pre_message
             )
         );
-        $self->custom_variables(
-            discovery_svc => $discovery_svc,
-            rule => $self->{discovery}->{rules}->{ $options{rule_id} },
-            logger_pre_message => $logger_pre_message
-        );
+
         my $macros = gorgone::modules::centreon::autodiscovery::services::resources::get_macros(
             discovery_svc => $discovery_svc,
             rule => $self->{discovery}->{rules}->{ $options{rule_id} }

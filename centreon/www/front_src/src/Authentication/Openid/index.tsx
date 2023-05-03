@@ -1,5 +1,3 @@
-import { useMemo, useEffect } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -8,9 +6,11 @@ import { LinearProgress } from '@mui/material';
 
 import useTab from '../useTab';
 import FormTitle from '../FormTitle';
+import useLoadConfiguration from '../shared/useLoadConfiguration';
+import { Provider } from '../models';
+import { openidConfigurationDecoder } from '../api/decoders';
 
 import { labelDefineOpenIDConnectConfiguration } from './translatedLabels';
-import useOpenid from './useOpenid';
 import Form from './Form';
 import { OpenidConfiguration } from './models';
 
@@ -24,35 +24,28 @@ const OpenidConfigurationForm = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const {
-    sendingGetOpenidConfiguration,
-    initialOpenidConfiguration,
-    loadOpenidConfiguration
-  } = useOpenid();
+  const { loadConfiguration, initialConfiguration, sendingGetConfiguration } =
+    useLoadConfiguration<OpenidConfiguration>({
+      decoder: openidConfigurationDecoder,
+      providerType: Provider.Openid
+    });
 
-  const isOpenidConfigurationEmpty = useMemo(
-    () => isNil(initialOpenidConfiguration),
-    [initialOpenidConfiguration]
-  );
+  const isOpenidConfigurationEmpty = isNil(initialConfiguration);
 
   useTab(isOpenidConfigurationEmpty);
-
-  useEffect(() => {
-    loadOpenidConfiguration();
-  }, []);
 
   return (
     <div>
       <FormTitle title={t(labelDefineOpenIDConnectConfiguration)} />
       <div className={classes.loading}>
-        {not(isOpenidConfigurationEmpty) && sendingGetOpenidConfiguration && (
+        {not(isOpenidConfigurationEmpty) && sendingGetConfiguration && (
           <LinearProgress />
         )}
       </div>
       <Form
-        initialValues={initialOpenidConfiguration as OpenidConfiguration}
+        initialValues={initialConfiguration as OpenidConfiguration}
         isLoading={isOpenidConfigurationEmpty}
-        loadOpenidConfiguration={loadOpenidConfiguration}
+        loadOpenidConfiguration={loadConfiguration}
       />
     </div>
   );

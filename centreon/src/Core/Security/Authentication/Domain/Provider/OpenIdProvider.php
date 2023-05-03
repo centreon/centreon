@@ -39,7 +39,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
@@ -250,8 +250,12 @@ class OpenIdProvider implements OpenIdProviderInterface
 
     /**
      * {@inheritDoc}
+     * @param string|null $authorizationCode
+     * @param string $clientIp
+     * @throws AclConditionsException
+     * @throws AuthenticationConditionsException
+     * @throws ConfigurationException
      * @throws SSOAuthenticationException
-     * @throws OpenIdConfigurationException
      */
     public function authenticateOrFail(?string $authorizationCode, string $clientIp): void
     {
@@ -272,13 +276,13 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         if ($customConfiguration->getTokenEndpoint() === null) {
-            throw OpenIdConfigurationException::missingTokenEndpoint();
+            throw ConfigurationException::missingTokenEndpoint();
         }
         if (
             $customConfiguration->getIntrospectionTokenEndpoint() === null
             && $customConfiguration->getUserInformationEndpoint() === null
         ) {
-            throw OpenIdConfigurationException::missingInformationEndpoint();
+            throw ConfigurationException::missingInformationEndpoint();
         }
 
         $this->sendRequestForConnectionTokenOrFail($authorizationCode);

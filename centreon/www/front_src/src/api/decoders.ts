@@ -1,6 +1,6 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { ThemeMode } from '@centreon/ui-context';
+import { ThemeMode, ListingVariant } from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
 import { PlatformInstallationStatus } from './models';
@@ -18,7 +18,11 @@ export const userDecoder = JsonDecoder.object<User>(
       JsonDecoder.enumeration<ThemeMode>(ThemeMode, 'ThemeMode')
     ),
     timezone: JsonDecoder.string,
-    use_deprecated_pages: JsonDecoder.boolean
+    use_deprecated_pages: JsonDecoder.boolean,
+    user_interface_density: JsonDecoder.enumeration(
+      ListingVariant,
+      ListingVariant.compact
+    )
   },
   'User parameters',
   {

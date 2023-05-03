@@ -98,6 +98,7 @@ class FindOpenIdConfiguration
         $findOpenIdConfigurationResponse->groupsMapping = $findOpenIdConfigurationResponse::groupsMappingToArray(
             $customConfiguration->getGroupsMapping()
         );
+        $findOpenIdConfigurationResponse->redirectUrl = $customConfiguration->getRedirectUrl();
 
         return $findOpenIdConfigurationResponse;
     }

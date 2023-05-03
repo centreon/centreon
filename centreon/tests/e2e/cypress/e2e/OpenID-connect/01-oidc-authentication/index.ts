@@ -2,14 +2,15 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage,
-  removeContact
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -46,10 +47,12 @@ When(
       .click();
 
     cy.wait('@getOIDCProvider');
+
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
       .click({ force: true });
+
     configureOpenIDConnect();
   }
 );
@@ -62,8 +65,9 @@ Then('the configuration is saved and secrets are not visible', () => {
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
     .should('have.attr', 'type', 'password')
-    .logout()
-    .reload();
+    .logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
 When('the administrator configures the authentication mode', () => {
@@ -85,22 +89,21 @@ Then(
       .should('be.checked')
       .and('have.value', 'false');
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-OIDC-authentication'
-    });
-
-    cy.wait('@postLocalAuthentification')
+    })
+      .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
-
-    cy.logout().reload();
   }
 );
 
 Given('an administrator is relogged on the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .navigateTo({
       page: 'Authentication',
       rootItemNumber: 4
@@ -113,14 +116,23 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator activates OpenID Connect authentication on the platform',
   () => {
-    cy.getByLabel({
-      label: 'Enable OpenID Connect authentication',
-      tag: 'input'
+    cy.navigateTo({
+      page: 'Authentication',
+      rootItemNumber: 4
     })
-      .check()
-      .getByLabel({ label: 'save button', tag: 'button' })
-      .click()
-      .wait('@updateOIDCProvider')
+      .get('div[role="tablist"] button:nth-child(2)')
+      .click();
+
+    cy.wait('@getOIDCProvider')
+      .getByLabel({
+        label: 'Enable OpenID Connect authentication',
+        tag: 'input'
+      })
+      .check();
+
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+    cy.wait('@updateOIDCProvider')
       .its('response.statusCode')
       .should('eq', 204)
       .getByLabel({
@@ -129,28 +141,26 @@ When(
       })
       .should('be.checked')
       .and('have.value', 'on')
-      .logout()
-      .reload();
+      .logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then(
   'any user can authenticate using the authentication provider that is configured',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
-      cy.get('a').click();
-      cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .wait('@getNavigationList')
+    const username = 'user-non-admin-for-OIDC-authentication';
+
+    cy.session(username, () => {
+      cy.visit('/').get('a').click();
+      cy.loginKeycloack(username)
         .url()
-        .should('include', '/monitoring/resources')
-        .logout()
-        .reload();
+        .should('include', '/monitoring/resources');
     });
   }
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });

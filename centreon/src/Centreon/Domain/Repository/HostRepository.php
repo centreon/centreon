@@ -1,11 +1,19 @@
 <?php
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
-use PDO;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class HostRepository extends ServiceEntityRepository
+class HostRepository extends AbstractRepositoryRDB
 {
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
+
     /**
      * Export hosts
      *

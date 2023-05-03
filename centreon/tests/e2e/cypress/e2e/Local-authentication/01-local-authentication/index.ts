@@ -11,6 +11,7 @@ import {
 } from '../common';
 
 before(() => {
+  cy.startWebContainer();
   initializeConfigACLAndGetLoginPage();
 });
 
@@ -57,7 +58,7 @@ beforeEach(() => {
 
 Given('an administrator deploying a new Centreon platform', () =>
   cy
-    .loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    .loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
     .navigateTo({
       page: 'Authentication',
@@ -80,25 +81,27 @@ Then(
         custom();
       }
     });
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
 Given(
   'an administrator configuring a Centreon platform and an existing user account',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+    cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: false })
       .wait('@getLastestUserFilters')
-      .isInProfileMenu('Edit profile')
-      .logout()
-      .reload();
+      .isInProfileMenu('Edit profile');
+
+    cy.contains('Logout').click();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 When(
   'the administrator sets a valid password length and sets all the letter cases',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: false })
+    cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: false })
       .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
@@ -126,14 +129,16 @@ When(
     );
     cy.get('#Save').click({ force: true });
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then(
   'the existing user can not define a password that does not match the password case policy defined by the administrator and is notified about it',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+    cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: false })
       .wait('@getLastestUserFilters')
       .isInProfileMenu('Edit profile')
       .should('be.visible');
@@ -158,14 +163,16 @@ Then(
         "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
       );
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Given(
   'an administrator configuring a Centreon platform and an existing user account with password up to date',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
@@ -198,12 +205,14 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then('the existing user can not authenticate and is notified about it', () => {
-  cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+  cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: false })
     .url()
     .should('include', '/reset-password');
 
@@ -222,7 +231,7 @@ Then('the existing user can not authenticate and is notified about it', () => {
 Given(
   'an administrator configuring a Centreon platform and an existing user account with a first password',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
@@ -255,12 +264,14 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then('user can not change password unless the minimum time has passed', () => {
-  cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: true })
     .wait('@getLastestUserFilters')
     .isInProfileMenu('Edit profile')
     .should('be.visible');
@@ -346,11 +357,13 @@ Then('user can not reuse the last passwords more than 3 times', () => {
     });
   });
 
-  cy.logout().reload();
+  cy.logout();
+
+  cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
 Given('an existing password policy configuration and 2 non admin users', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+  cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
     .navigateTo({
       page: 'Authentication',
@@ -396,12 +409,14 @@ When(
       });
     });
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then('the password expiration policy is applied to the removed user', () => {
-  cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: false })
+  cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: false })
     .url()
     .should('include', '/reset-password');
 
@@ -413,19 +428,21 @@ Then(
   () => {
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-local-authentication',
-      preserveToken: false
+      loginViaApi: false
     })
       .url()
       .should('include', '/monitoring/resources');
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Given(
   'an administrator configuring a Centreon platform and an existing user account not blocked',
   () => {
-    cy.loginByTypeOfUser({ jsonName: 'admin', preserveToken: true })
+    cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
       .navigateTo({
         page: 'Authentication',
@@ -448,25 +465,27 @@ When(
       .get('#Save')
       .click({ force: true });
 
-    cy.logout().reload();
+    cy.logout();
+
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
 );
 
 Then('the user is locked after reaching the number of allowed attempts', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
-    preserveToken: false
+    loginViaApi: false
   }).reload();
 
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
-    preserveToken: false
+    loginViaApi: false
   }).reload();
 
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-with-wrong-password',
-    preserveToken: false
-  }).contains('User is blocked');
+    loginViaApi: false
+  }).contains('Authentication failed');
 
   cy.reload();
 });
@@ -483,16 +502,15 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-local-authentication',
-      preserveToken: false
+      loginViaApi: false
     })
       .url()
       .should('include', '/monitoring/resources');
 
-    cy.logout().reload();
+    cy.logout();
   }
 );
 
 after(() => {
-  cy.removeACL();
-  removeContact();
+  cy.stopWebContainer();
 });

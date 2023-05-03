@@ -34,7 +34,9 @@ class Contact implements UserInterface, ContactInterface
 
     // user action roles
     public const ROLE_HOST_CHECK = 'ROLE_HOST_CHECK';
+    public const ROLE_HOST_FORCED_CHECK = 'ROLE_HOST_FORCED_CHECK';
     public const ROLE_SERVICE_CHECK = 'ROLE_SERVICE_CHECK';
+    public const ROLE_SERVICE_FORCED_CHECK = 'ROLE_SERVICE_FORCED_CHECK';
     public const ROLE_HOST_ACKNOWLEDGEMENT = 'ROLE_HOST_ACKNOWLEDGEMENT';
     public const ROLE_HOST_DISACKNOWLEDGEMENT = 'ROLE_HOST_DISACKNOWLEDGEMENT';
     public const ROLE_SERVICE_ACKNOWLEDGEMENT = 'ROLE_SERVICE_ACKNOWLEDGEMENT';
@@ -195,6 +197,9 @@ class Contact implements UserInterface, ContactInterface
      * @var string|null
      */
     private $theme;
+
+    /** @var string|null */
+    private $userInterfaceDensity;
 
     /**
      * @param int $timezoneId
@@ -723,5 +728,25 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    /**
+     * @param string|null $userInterfaceDensity
+     *
+     * @return $this
+     */
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
+    {
+        $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string
+    {
+        return $this->userInterfaceDensity;
     }
 }
