@@ -15,8 +15,8 @@ import {
   labelAddWidget,
   labelCancel
 } from '../translatedLabels';
-import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
-import { FederatedModule } from '../../federatedModules/models';
+import useFederatedWidgets from '../../../federatedModules/useFederatedWidgets';
+import { FederatedModule } from '../../../federatedModules/models';
 import { addPanelDerivedAtom } from '../atoms';
 
 const useStyles = makeStyles()((theme) => ({

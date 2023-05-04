@@ -1,8 +1,8 @@
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 import widgetText2Configuration from 'centreon-widgets/centreon-widget-text2/moduleFederation.json';
 
-import { federatedWidgetsAtom } from '../federatedModules/atoms';
+import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import Dashboard from '.';
 
@@ -21,9 +21,12 @@ describe('Dashboard', () => {
 
     cy.viewport('macbook-13');
 
+    const store = createStore();
+    store.set(federatedWidgetsAtom, federatedWidgets);
+
     cy.mount({
       Component: (
-        <Provider initialValues={[[federatedWidgetsAtom, federatedWidgets]]}>
+        <Provider store={store}>
           <Dashboard />
         </Provider>
       )

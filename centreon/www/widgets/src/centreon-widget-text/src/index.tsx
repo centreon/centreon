@@ -9,7 +9,7 @@ const Text = (): JSX.Element => {
       }}
     >
       <FluidTypography text="Hello world" />
-      <FluidTypography text="Hello world heyy" variant="h2" />
+      <FluidTypography text="Hello world" variant="h2" />
     </div>
   );
 };

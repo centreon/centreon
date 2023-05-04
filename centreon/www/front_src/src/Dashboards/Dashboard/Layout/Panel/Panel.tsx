@@ -9,7 +9,7 @@ import {
   getPanelOptionsDerivedAtom,
   setPanelOptionsDerivedAtom
 } from '../../atoms';
-import FederatedComponent from '../../../components/FederatedComponents';
+import FederatedComponent from '../../../../components/FederatedComponents';
 
 import PanelHeader from './PanelHeader';
 

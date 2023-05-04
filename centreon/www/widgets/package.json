@@ -8,7 +8,10 @@
     "watch": "node build.js watch",
     "build:analyze": "node build.js analyze",
     "eslint": "eslint ./src --ext .ts,.tsx",
-    "eslint:fix": "pnpm eslint --fix"
+    "eslint:fix": "pnpm eslint --fix",
+    "cypress:cli": "../../cypress/scripts/cypress-cli.sh",
+    "cypress:cli:updateSnapshot": "../../cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
+    "cypress:ui": "cypress open --component --browser=chrome"
   },
   "keywords": [],
   "author": "",
