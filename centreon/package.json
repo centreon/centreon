@@ -113,7 +113,7 @@
     "clsx": "^1.2.1",
     "d3-array": "3.2.0",
     "d3-scale": "^4.0.2",
-    "dayjs": "1.10.7",
+    "dayjs": "^1.11.7",
     "dom-serializer": "^2.0.0",
     "dom-to-image": "^2.6.0",
     "dompurify": "^2.4.1",

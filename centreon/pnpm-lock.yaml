@@ -55,7 +55,7 @@ importers:
       cypress-plugin-tab: ^1.0.5
       d3-array: 3.2.0
       d3-scale: ^4.0.2
-      dayjs: 1.10.7
+      dayjs: ^1.11.7
       dom-serializer: ^2.0.0
       dom-to-image: ^2.6.0
       dompurify: ^2.4.1
@@ -138,7 +138,7 @@ importers:
       '@mui/material': 5.12.3_wqnfqfd34o2dkzdg3ncaijduma
       '@mui/styles': 5.12.3_zzzkywpf4w4yo53uube4vlqbnu
       '@mui/system': 5.12.3_cpxdyzjqyvv5cse2cj7u4rmagm
-      '@mui/x-date-pickers': 6.3.0_jlw5gh3wugavl2jq7ms7ecehza
+      '@mui/x-date-pickers': 6.3.0_remqrkmbqrcfsvmiqr7fbvom2i
       '@simonsmith/cypress-image-snapshot': 6.0.1_rkquz2oyebyj4hki6bugtdmrxu
       '@tanstack/react-query': 4.29.5_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-devtools': 4.29.6_6ufraba7zs65ngvban5jjen7be
@@ -151,7 +151,7 @@ importers:
       clsx: 1.2.1
       d3-array: 3.2.0
       d3-scale: 4.0.2
-      dayjs: 1.10.7
+      dayjs: 1.11.7
       dom-serializer: 2.0.0
       dom-to-image: 2.6.0
       dompurify: 2.4.5
@@ -4535,7 +4535,7 @@ packages:
       react-is: 18.2.0
     dev: false
 
-  /@mui/x-date-pickers/6.3.0_jlw5gh3wugavl2jq7ms7ecehza:
+  /@mui/x-date-pickers/6.3.0_remqrkmbqrcfsvmiqr7fbvom2i:
     resolution: {integrity: sha512-Qux/nRGb0HueZU4L0h1QEqmORCrpgLukWWhG1Im6cFCmLtZbBey/0JuAFRa+OgvIXgGktDt8SY/FYsRkfGt2TQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -4581,7 +4581,7 @@ packages:
       '@mui/utils': 5.12.3_react@18.2.0
       '@types/react-transition-group': 4.4.5
       clsx: 1.2.1
-      dayjs: 1.10.7
+      dayjs: 1.11.7
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -10877,7 +10877,7 @@ packages:
       cli-table3: 0.6.3
       commander: 6.2.1
       common-tags: 1.8.2
-      dayjs: 1.10.7
+      dayjs: 1.11.7
       debug: 4.3.4_supports-color@8.1.1
       enquirer: 2.3.6
       eventemitter2: 6.4.7
@@ -11074,8 +11074,8 @@ packages:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
     dev: true
 
-  /dayjs/1.10.7:
-    resolution: {integrity: sha512-P6twpd70BcPK34K26uJ1KT3wlhpuOAPoMwJzpsIWUxHZ7wpmbdZL/hQqBDfz7hGurYSa5PhzdhDHtt319hL3ig==}
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
 
   /debounce/1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
