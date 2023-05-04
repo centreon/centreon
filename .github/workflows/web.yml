@@ -155,7 +155,6 @@ jobs:
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
-          command: centreon:eslint
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
@@ -167,9 +166,8 @@ jobs:
 
       - uses: ./.github/actions/frontend-lint
         with:
-          frontend_directory: ${{ env.base_directory }}
+          frontend_directory: ${{ env.widgets_directory }}
           module_name: centreon-widgets
-          command: widgets:eslint
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
