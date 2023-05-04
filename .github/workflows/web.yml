@@ -96,10 +96,9 @@ jobs:
 
       - uses: ./.github/actions/frontend-build
         with:
-          base_directory: ${{ env.base_directory }}
-          static_directory: ${{ env.base_directory }}/www/widgets/src/
+          base_directory: ${{ env.widgets_directory }}
+          static_directory: ${{ env.widgets_directory }}/src
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          command: widgets:build
 
   backend-dependencies:
     runs-on: ubuntu-22.04
