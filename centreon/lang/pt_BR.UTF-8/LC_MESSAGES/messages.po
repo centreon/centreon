@@ -15902,10 +15902,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Error while creating host severity"
 #  msgstr ""
 
-#  msgid "You are not allowed to create host severities"
+#  msgid "You are not allowed to create/modify a host severity"
 #  msgstr ""
 
-#  msgid "Error while retrieving recently created host severity"
+#  msgid "Error while retrieving host severity"
 #  msgstr ""
 
 #  msgid "Host severity name already exists"
@@ -16153,4 +16153,10 @@ msgstr ""
 # msgstr ""
 
 # msgid "Groups mapping"
+# msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
 # msgstr ""
