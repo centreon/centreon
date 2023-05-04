@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\Repository;
 
+use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
 
 interface WriteHostGroupRepositoryInterface
@@ -42,4 +43,11 @@ interface WriteHostGroupRepositoryInterface
      * @return int
      */
     public function add(NewHostGroup $newHostGroup): int;
+
+    /**
+     * @param HostGroup $hostGroup
+     *
+     * @throws \Throwable
+     */
+    public function update(HostGroup $hostGroup): void;
 }

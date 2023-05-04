@@ -132,10 +132,8 @@ class ContactConfigurationContext extends CentreonContext
                     $this->currentPage = $this->currentPage->inspect($this->updatedProperties['alias']);
                     $object = $this->currentPage->getProperties();
                     foreach ($this->updatedProperties as $key => $value) {
-                        if ($key != 'password' && $key != 'password2') {
-                            if ($key != 'password' && $key != 'password2' && $value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
+                        if ($key != 'password' && $key != 'password2' && $value != $object[$key]) {
+                            $this->tableau[] = $key;
                         }
                     }
                     return count($this->tableau) == 0;

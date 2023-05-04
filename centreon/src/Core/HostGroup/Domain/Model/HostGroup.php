@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,17 @@ use Core\Domain\Common\GeoCoords;
 
 class HostGroup extends NewHostGroup
 {
-    /** @var positive-int */
     private int $id;
 
     /**
-     * @param positive-int $id
+     * @param int $id
      * @param string $name
      * @param string $alias
      * @param string $notes
      * @param string $notesUrl
      * @param string $actionUrl
-     * @param positive-int|null $iconId FK
-     * @param positive-int|null $iconMapId FK
+     * @param int|null $iconId FK
+     * @param int|null $iconMapId FK
      * @param int|null $rrdRetention Days
      * @param GeoCoords|null $geoCoords
      * @param string $comment
@@ -81,7 +80,7 @@ class HostGroup extends NewHostGroup
     }
 
     /**
-     * @return positive-int
+     * @return int
      */
     public function getId(): int
     {

@@ -26,6 +26,6 @@ namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Infrastructure\Common\Presenter\DownloadInterface;
 
-interface FindPerformanceMetricPresenterInterface extends PresenterInterface, DownloadInterface
+interface FindPerformanceMetricPresenterInterface extends PresenterInterface
 {
 }

@@ -1,5 +1,5 @@
 Name:       centreon-gorgone
-Version:    23.04.0
+Version:    23.10.0
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
@@ -44,6 +44,7 @@ Requires:   tar
 AutoReqProv: no
 
 %description
+%{COMMIT_HASH}
 
 %package centreon-config
 Summary:    Configure Centreon Gorgone for use with Centreon Web
@@ -53,6 +54,7 @@ Requires:   centreon-common
 Requires:   centreon-gorgone
 
 %description centreon-config
+%{COMMIT_HASH}
 
 %prep
 %setup -q -n %{name}-%{version}

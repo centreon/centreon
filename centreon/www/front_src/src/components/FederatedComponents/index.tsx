@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { filter, isNil, pathEq } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
 

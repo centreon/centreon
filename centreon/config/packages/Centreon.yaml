@@ -15,7 +15,7 @@ jms_serializer:
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
     api.header: "Api-Version"
-    api.version.latest: "23.04"
+    api.version.latest: "23.10"
     debug_log_file: '%log_path%/centreon-web.log'
     env(DEBUG_LEVEL): !php/const Monolog\Logger::NOTICE
     curl.timeout: 60
@@ -37,8 +37,17 @@ services:
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+    Logger:
+        class: Centreon\Domain\Log\Logger
+
+    Core\Common\Infrastructure\FeatureFlags:
+        arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
+        public: true
+
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
+        bind:
+            $logger: '@Logger'
         arguments:
             $host: '%database_host%'
             $port: '%database_port%'
@@ -99,7 +108,7 @@ services:
         class: Core\Infrastructure\Common\Presenter\DownloadPresenter
         arguments: ['@Core\Infrastructure\Common\Presenter\CsvFormatter']
 
-    Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricPresenterInterface:
+    Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter:
         class: Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
         arguments: ['@presenter.download.csv']
 
@@ -427,7 +436,7 @@ services:
         class: Centreon\Domain\Log\ContactForDebug
         arguments: ['%env(DEBUG_CONTACT)%']
 
-    Centreon\Domain\Log\LegacyLogger:
+    Centreon\Domain\Log\Logger:
         public: true
 
     # Session
