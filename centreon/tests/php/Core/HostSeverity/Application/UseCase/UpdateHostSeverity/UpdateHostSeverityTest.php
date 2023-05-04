@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,61 +21,61 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostSeverity\Application\UseCase\AddHostSeverity;
+namespace Tests\Core\HostSeverity\Application\UseCase\UpdateHostSeverity;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\HostSeverity\Application\Exception\HostSeverityException;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
-use Core\HostSeverity\Application\UseCase\AddHostSeverity\AddHostSeverity;
-use Core\HostSeverity\Application\UseCase\AddHostSeverity\AddHostSeverityRequest;
+use Core\HostSeverity\Application\UseCase\UpdateHostSeverity\UpdateHostSeverity;
+use Core\HostSeverity\Application\UseCase\UpdateHostSeverity\UpdateHostSeverityRequest;
 use Core\HostSeverity\Domain\Model\HostSeverity;
-use Core\HostSeverity\Domain\Model\NewHostSeverity;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
-beforeEach(function (): void {
+beforeEach(function () {
     $this->writeHostSeverityRepository = $this->createMock(WriteHostSeverityRepositoryInterface::class);
     $this->readHostSeverityRepository = $this->createMock(ReadHostSeverityRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->readViewImgRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
-    $this->request = new AddHostSeverityRequest();
-    $this->request->name = 'hc-name';
-    $this->request->alias = 'hc-alias';
-    $this->request->comment = null;
+    $this->originalHostSeverity = new HostSeverity(1, 'hs-name', 'hs-alias', 1, 1);
+    $this->request = new UpdateHostSeverityRequest();
+    $this->request->name = 'hs-name-edit';
+    $this->request->alias = 'hs-alias-edit';
     $this->request->level = 2;
     $this->request->iconId = 1;
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
-    $this->useCase = new AddHostSeverity(
+    $this->useCase = new UpdateHostSeverity(
         $this->writeHostSeverityRepository,
         $this->readHostSeverityRepository,
-        $this->readViewImgRepository = $this->createMock(ReadViewImgRepositoryInterface::class),
+        $this->readViewImgRepository,
+        $this->accessGroupRepository,
         $this->user
-    );
-    $this->hostSeverity = new HostSeverity(
-        1,
-        $this->request->name,
-        $this->request->alias,
-        $this->request->level,
-        $this->request->iconId,
     );
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function (): void {
+it('should present an ErrorResponse when a generic exception is thrown', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+    $this->user
+    ->expects($this->once())
+    ->method('isAdmin')
+    ->willReturn(true);
     $this->readHostSeverityRepository
         ->expects($this->once())
-        ->method('existsByName')
+        ->method('exists')
         ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter);
@@ -83,7 +83,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostSeverityException::addHostSeverity(new \Exception())->getMessage());
+        ->toBe(HostSeverityException::UpdateHostSeverity(new \Exception())->getMessage());
 });
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
@@ -100,91 +100,63 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostSeverityException::writeActionsNotAllowed()->getMessage());
 });
 
-it('should present a ConflictResponse when name is already used', function (): void {
+it('should present a NotFoundResponse when the host severity does not exist (with admin user)', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readHostSeverityRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(true);
-
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostSeverityException::hostNameAlreadyExists()->getMessage());
-});
-
-it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
     $this->user
         ->expects($this->once())
-        ->method('hasTopologyRole')
+        ->method('isAdmin')
         ->willReturn(true);
     $this->readHostSeverityRepository
         ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-    $this->readViewImgRepository
-        ->expects($this->once())
-        ->method('existsOne')
-        ->willReturn(true);
-
-    $this->request->level = NewHostSeverity::MIN_LEVEL_VALUE - 1;
-    $expectedException = AssertionException::min(
-        $this->request->level,
-        NewHostSeverity::MIN_LEVEL_VALUE,
-        'NewHostSeverity::level'
-    );
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe($expectedException->getMessage());
-});
-
-it('should throw a ConflictResponse if the host severity icon does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->readHostSeverityRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-    $this->readViewImgRepository
-        ->expects($this->once())
-        ->method('existsOne')
+        ->method('exists')
         ->willReturn(false);
 
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostSeverityException::iconDoesNotExist($this->request->iconId)->getMessage());
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe('Host severity not found');
 });
 
-it('should present an ErrorResponse if the newly created host severity cannot be retrieved', function (): void {
+it('should present a NotFoundResponse when the host severity does not exist (with non-admin user)', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
     $this->readHostSeverityRepository
         ->expects($this->once())
-        ->method('existsByName')
+        ->method('existsByAccessGroups')
         ->willReturn(false);
-    $this->readViewImgRepository
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe('Host severity not found');
+});
+
+it('should present an ErrorResponse if the existing host severity cannot be retrieved', function () {
+    $this->user
         ->expects($this->once())
-        ->method('existsOne')
+        ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->writeHostSeverityRepository
+    $this->user
         ->expects($this->once())
-        ->method('add')
-        ->willReturn(1);
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
     $this->readHostSeverityRepository
         ->expects($this->once())
         ->method('findById')
@@ -198,11 +170,86 @@ it('should present an ErrorResponse if the newly created host severity cannot be
         ->toBe(HostSeverityException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return created object on success', function (): void {
+it('should present a ConflictResponse when name is already used', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostSeverity);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(true);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->toBe(HostSeverityException::hostNameAlreadyExists()->getMessage());
+});
+
+it('should present an InvalidArgumentResponse when an assertion fails', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostSeverity);
+    $this->readViewImgRepository
+        ->expects($this->once())
+        ->method('existsOne')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+
+    $this->request->alias = '';
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+});
+
+it('should return a NoContentResponse on success', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostSeverity);
     $this->readHostSeverityRepository
         ->expects($this->once())
         ->method('existsByName')
@@ -213,26 +260,9 @@ it('should return created object on success', function (): void {
         ->willReturn(true);
     $this->writeHostSeverityRepository
         ->expects($this->once())
-        ->method('add')
-        ->willReturn(1);
-    $this->readHostSeverityRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->hostSeverity);
+        ->method('update');
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getPresentedData())->toBeInstanceOf(CreatedResponse::class);
-    expect($this->presenter->getPresentedData()->getResourceId())->toBe($this->hostSeverity->getId());
-
-    $payload = $this->presenter->getPresentedData()->getPayload();
-    expect($payload->name)
-        ->toBe($this->hostSeverity->getName())
-        ->and($payload->alias)
-        ->toBe($this->hostSeverity->getAlias())
-        ->and($payload->isActivated)
-        ->toBe($this->hostSeverity->isActivated())
-        ->and($payload->comment)
-        ->toBe($this->hostSeverity->getComment());
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
-

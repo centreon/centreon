@@ -21,28 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Core\HostSeverity\Application\UseCase\AddHostSeverity;
+namespace Core\HostSeverity\Application\UseCase\UpdateHostSeverity;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\HostSeverity\Application\Exception\HostSeverityException;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
-use Core\HostSeverity\Domain\Model\HostSeverity;
-use Core\HostSeverity\Domain\Model\NewHostSeverity;
-use Core\HostSeverity\Infrastructure\API\AddHostSeverity\AddHostSeverityPresenter;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
-final class AddHostSeverity
+final class UpdateHostSeverity
 {
     use LoggerTrait;
 
@@ -50,26 +50,65 @@ final class AddHostSeverity
         private readonly WriteHostSeverityRepositoryInterface $writeHostSeverityRepository,
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user
     ) {
     }
 
     /**
-     * @param AddHostSeverityRequest $request
-     * @param AddHostSeverityPresenter $presenter
+     * @param UpdateHostSeverityRequest $request
+     * @param DefaultPresenter $presenter
      */
-    public function __invoke(AddHostSeverityRequest $request, PresenterInterface $presenter): void
+    public function __invoke(UpdateHostSeverityRequest $request, PresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)) {
                 $this->error(
-                    "User doesn't have sufficient rights to add host severities",
+                    "User doesn't have sufficient rights to update host severities",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed())
                 );
-            } elseif ($this->readHostSeverityRepository->existsByName(new TrimmedString($request->name))) {
+
+                return;
+            }
+
+            if ($this->user->isAdmin()) {
+                if (! $this->readHostSeverityRepository->exists($request->id)) {
+                    $this->error('Host severity not found', [
+                        'hostseverity_id' => $request->id,
+                    ]);
+                    $presenter->setResponseStatus(new NotFoundResponse('Host severity'));
+
+                    return;
+                }
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                if (! $this->readHostSeverityRepository->existsByAccessGroups($request->id, $accessGroups)) {
+                    $this->error('Host severity not found', [
+                        'hostseverity_id' => $request->id,
+                        'accessgroups' => $accessGroups,
+                    ]);
+                    $presenter->setResponseStatus(new NotFoundResponse('Host severity'));
+
+                    return;
+                }
+            }
+
+            $hostSeverity = $this->readHostSeverityRepository->findById($request->id);
+            if (! $hostSeverity) {
+                $presenter->setResponseStatus(
+                    new ErrorResponse(HostSeverityException::errorWhileRetrievingObject())
+                );
+
+                return;
+            }
+
+            if (
+                $hostSeverity->getName() !== $request->name
+                && $this->readHostSeverityRepository->existsByName(new TrimmedString($request->name))
+            ) {
                 $this->error(
                     'Host severity name already exists',
                     ['hostseverity_name' => $request->name]
@@ -77,7 +116,11 @@ final class AddHostSeverity
                 $presenter->setResponseStatus(
                     new ConflictResponse(HostSeverityException::hostNameAlreadyExists())
                 );
-            } elseif (
+
+                return;
+            }
+
+            if (
                 0 === $request->iconId
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
@@ -88,60 +131,28 @@ final class AddHostSeverity
                 $presenter->setResponseStatus(
                     new ConflictResponse(HostSeverityException::iconDoesNotExist($request->iconId))
                 );
-            } else {
-                $newHostSeverity = new NewHostSeverity(
-                    $request->name,
-                    $request->alias,
-                    $request->level,
-                    $request->iconId,
-                );
-                $newHostSeverity->setActivated($request->isActivated);
-                $newHostSeverity->setComment($request->comment);
 
-                $hostSeverityId = $this->writeHostSeverityRepository->add($newHostSeverity);
-                $hostSeverity = $this->readHostSeverityRepository->findById($hostSeverityId);
-                $this->info('Add a new host severity', ['hostseverity_id' => $hostSeverityId]);
-                if (! $hostSeverity) {
-                    $presenter->setResponseStatus(
-                        new ErrorResponse(HostSeverityException::errorWhileRetrievingObject())
-                    );
-
-                    return;
-                }
-
-                $presenter->present(
-                    new CreatedResponse($hostSeverityId, $this->createResponse($hostSeverity))
-                );
+                return;
             }
+
+            $hostSeverity->setName($request->name);
+            $hostSeverity->setAlias($request->alias);
+            $hostSeverity->setIconId($request->iconId);
+            $hostSeverity->setLevel($request->level);
+            $hostSeverity->setActivated($request->isActivated);
+            $hostSeverity->setComment($request->comment);
+
+            $this->writeHostSeverityRepository->update($hostSeverity);
+
+            $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostSeverityException::addHostSeverity($ex))
+                new ErrorResponse(HostSeverityException::updateHostSeverity($ex))
             );
             $this->error($ex->getMessage());
         }
-    }
-
-    /**
-     * @param HostSeverity|null $hostSeverity
-     *
-     * @return AddHostSeverityResponse
-     */
-    private function createResponse(?HostSeverity $hostSeverity): AddHostSeverityResponse
-    {
-        $response = new AddHostSeverityResponse();
-        if ($hostSeverity !== null) {
-            $response->id = $hostSeverity->getId();
-            $response->name = $hostSeverity->getName();
-            $response->alias = $hostSeverity->getAlias();
-            $response->level = $hostSeverity->getLevel();
-            $response->iconId = $hostSeverity->getIconId();
-            $response->isActivated = $hostSeverity->isActivated();
-            $response->comment = $hostSeverity->getComment();
-        }
-
-        return $response;
     }
 }
