@@ -96,12 +96,12 @@ final class FindHostCategory
                     'host_category_id' => $hostCategoryId,
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::accessNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostCategoryException::accessNotAllowed())
                 );
             }
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostCategoryException::findHostCategory($ex, $hostCategoryId)->getMessage())
+                new ErrorResponse(HostCategoryException::findHostCategory($ex, $hostCategoryId))
             );
             $this->error($ex->getMessage());
         }
