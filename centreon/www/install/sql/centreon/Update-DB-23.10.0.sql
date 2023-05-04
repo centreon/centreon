@@ -1,1 +1,4 @@
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`) VALUES ('Dashboard (beta)', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard');
+
+INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('Centreon Text Widget','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text','Centreon');
+INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('Centreon Text2 Widget','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text2','Centreon');
