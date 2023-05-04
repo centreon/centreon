@@ -58,9 +58,9 @@ const DashboardLayout = <T extends Layout>({
                 cols={columns}
                 containerPadding={[4, 0]}
                 layout={getLayout(layout)}
-                margin={[20, 10]}
+                margin={[20, 20]}
                 resizeHandles={['s', 'e', 'se']}
-                rowHeight={32}
+                rowHeight={64}
                 width={width}
                 onLayoutChange={changeLayout}
               >

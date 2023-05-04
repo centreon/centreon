@@ -47,9 +47,9 @@ const dashboardLayout: Array<CustomLayout> = [
 const generateLayout = (maxElements: number) => {
   return Array(maxElements).fill(0).map((_, i): CustomLayout => {
     return {
-      x: (i * 2) % 12,
+      x: (i * 3) % 12,
       y: Math.floor(i / 12),
-      w: 2,
+      w: 3,
       h: 3,
       i: i.toString(),
       content: `${i}`,
