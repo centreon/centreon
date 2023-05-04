@@ -115,6 +115,9 @@ const Graph = ({
   const displayStackedAnchorPoint =
     anchorPoint?.areaStackedLinesAnchorPoint?.display ?? true;
 
+  const displayTimeTick =
+    displayRegularLinesAnchorPoint ?? displayStackedAnchorPoint;
+
   const commonAnchorPoint = {
     displayTimeValues: true,
     graphHeight,
@@ -176,7 +179,11 @@ const Graph = ({
 
   return (
     <>
-      <Header timeTick={timeTick} title={title} />
+      <Header
+        displayTimeTick={displayTimeTick}
+        timeTick={timeTick}
+        title={title}
+      />
       <LoadingProgress display={loading} height={height} width={width} />
       <svg height={height} ref={graphSvgRef} width="100%">
         <Group.Group left={margin.left} top={margin.top}>

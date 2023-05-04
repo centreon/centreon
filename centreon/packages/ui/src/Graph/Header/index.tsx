@@ -1,14 +1,23 @@
+import { isNil } from 'ramda';
+
 import Typography from '@mui/material/Typography';
 
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 
 interface Props {
+  displayTimeTick?: boolean;
   timeTick?: Date;
   title: string;
 }
 
-const Header = ({ title, timeTick }: Props): JSX.Element => {
+const Header = ({
+  title,
+  timeTick,
+  displayTimeTick = true
+}: Props): JSX.Element => {
   const { toDateTime } = useLocaleDateTimeFormat();
+  const time =
+    displayTimeTick && !isNil(timeTick) ? toDateTime(timeTick) : null;
 
   return (
     <>
@@ -17,7 +26,7 @@ const Header = ({ title, timeTick }: Props): JSX.Element => {
       </Typography>
 
       <Typography align="center" style={{ height: 20 }} variant="body1">
-        {timeTick && toDateTime(timeTick)}
+        {time}
       </Typography>
     </>
   );

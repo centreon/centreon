@@ -169,6 +169,57 @@ const propsAxisY = [
 ];
 
 Playground.argTypes = {
+  anchorPoint: {
+    control: 'object',
+    defaultValue: {
+      areaRegularLinesAnchorPoint: {
+        display: true
+      },
+      areaStackedLinesAnchorPoint: {
+        display: true
+      }
+    },
+    description: getDescription({
+      sections: [
+        {
+          description: 'Anchor point for the shape line [areaRegularLines]',
+          name: 'areaRegularLinesAnchorPoint',
+          note: 'coming soon',
+          props: [
+            {
+              display: {
+                description: 'display or not the anchor point',
+                type: 'boolean'
+              }
+            }
+          ],
+          type: 'object'
+        },
+        {
+          description: 'Anchor point for the shape line [areaStackedLines ]',
+          name: 'areaStackedLinesAnchorPoint',
+          note: 'coming soon',
+          props: [
+            {
+              display: {
+                description: 'display or not the anchor point',
+                type: 'boolean'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph interaction',
+      type: {
+        detail:
+          'displays the timing, circle, vertical and horizontal line for each point of the corresponding graph (line) according to the interaction of the mouse with the graph',
+        summary: 'object'
+      }
+    }
+  },
   axis: {
     axisX: {
       xAxisTickFormat: { control: 'text' }
@@ -411,7 +462,9 @@ Playground.argTypes = {
     }),
     table: {
       category: 'Graph interaction',
-      type: { description: 'apply zoom to a specific zoon', summary: 'object' }
+      type: {
+        summary: 'apply zoom to a specific zoon'
+      }
     }
   }
 };
