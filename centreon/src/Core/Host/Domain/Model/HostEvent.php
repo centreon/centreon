@@ -21,21 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Host\Domain;
+
+use Core\Common\Domain\BitmaskEnumTrait;
 
 /**
- * This enum is to be used to handle the notification type events for hosts and host templates.
+ * This enum is to be used to handle the legacy notification events for hosts and host templates.
  */
-enum HostEvent: string
+enum HostEvent
 {
-    use LegacyEventEnumTrait, BitmaskEnumTrait;
+    use BitmaskEnumTrait;
 
-    case Down = 'd';
-    case Unreachable = 'u';
-    case Recovery = 'r';
-    case Flapping = 'f';
-    case DowntimeScheduled = 's';
-    case None = 'n';
+    case Down;
+    case Unreachable;
+    case Recovery;
+    case Flapping;
+    case DowntimeScheduled;
+    case None;
 
     public function toBit(): int
     {

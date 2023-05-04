@@ -30,9 +30,10 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Domain\HostEvent;
+
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Host\Domain\HostEvent;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterOnPrem;
 use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterSaas;
@@ -101,13 +102,11 @@ final class FindHostTemplates
                 'maxCheckAttempts' => $hostTemplate->getMaxCheckAttempts(),
                 'normalCheckInterval' => $hostTemplate->getNormalCheckInterval(),
                 'retryCheckInterval' => $hostTemplate->getretryCheckInterval(),
-                'isActiveCheckEnabled' => $hostTemplate->isActiveCheckEnabled()->toInt(),
-                'isPassiveCheckEnabled' => $hostTemplate->isPassiveCheckEnabled()->toInt(),
-                'isNotificationEnabled' => $hostTemplate->isNotificationEnabled()->toInt(),
+                'isActiveCheckEnabled' => $hostTemplate->getActiveCheckEnabled()->toInt(),
+                'isPassiveCheckEnabled' => $hostTemplate->getPassiveCheckEnabled()->toInt(),
+                'isNotificationEnabled' => $hostTemplate->getNotificationEnabled()->toInt(),
                 /**
-                 * TODO
-                 *  this is related to api (> 23.10) behaviour, where no options is egal to a full bitmask
-                 *  Do we keep this behaviour or do we return null ?
+                 *  Note: In legacy behaviour, no options selected is egal to all options selected, hence a full bitmask
                  */
                 'notificationOptions' => $hostTemplate->getNotificationOptions() !== []
                     ? HostEvent::toBitmask($hostTemplate->getNotificationOptions())
@@ -119,12 +118,12 @@ final class FindHostTemplates
                 'firstNotificationDelay' => $hostTemplate->getfirstNotificationDelay(),
                 'recoveryNotificationDelay' => $hostTemplate->getrecoveryNotificationDelay(),
                 'acknowledgementTimeout' => $hostTemplate->getAcknowledgementTimeout(),
-                'isFreshnessChecked' => $hostTemplate->isFreshnessChecked()->toInt(),
+                'isFreshnessChecked' => $hostTemplate->getFreshnessChecked()->toInt(),
                 'freshnessThreshold' => $hostTemplate->getfreshnessThreshold(),
-                'isFlapDetectionEnabled' => $hostTemplate->isFlapDetectionEnabled()->toInt(),
+                'isFlapDetectionEnabled' => $hostTemplate->getFlapDetectionEnabled()->toInt(),
                 'lowFlapThreshold' => $hostTemplate->getLowFlapThreshold(),
                 'highFlapThreshold' => $hostTemplate->getHighFlapThreshold(),
-                'isEventHandlerEnabled' => $hostTemplate->isEventHandlerEnabled()->toInt(),
+                'isEventHandlerEnabled' => $hostTemplate->getEventHandlerEnabled()->toInt(),
                 'eventHandlerCommandId' => $hostTemplate->getEventHandlerCommandId(),
                 'eventHandlerCommandArgs' => $hostTemplate->getEventHandlerCommandArgs(),
                 'noteUrl' => $hostTemplate->getNoteUrl(),

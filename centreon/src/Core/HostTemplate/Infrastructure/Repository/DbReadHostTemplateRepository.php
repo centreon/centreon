@@ -27,14 +27,14 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Domain\HostEvent;
 use Core\Common\Domain\HostType;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Host\Domain\SnmpVersion;
+use Core\HostTemplate\Infrastructure\Converter\HostEventConverter;
 use Utility\SqlConcatenator;
 
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
@@ -266,8 +266,8 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             YesNoDefault::from($result['host_passive_checks_enabled'] ?? YesNoDefault::Default->value),
             YesNoDefault::from($result['host_notifications_enabled'] ?? YesNoDefault::Default->value),
             match ($result['host_notification_options']) {
-                null, '' => [],
-                default => HostEvent::fromLegacyString($result['host_notification_options']),
+                null => [],
+                default => HostEventConverter::fromString($result['host_notification_options']),
             },
             $result['host_notification_interval'],
             $result['timeperiod_tp_id2'],

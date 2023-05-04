@@ -32,12 +32,12 @@ enum YesNoDefault:string
     case Yes = '1';
     case Default = '2';
 
-	/**
-	 * @param null|bool|int|string $value
-	 *
-	 * @return self
-	 */
-	public static function fromScalar(null|bool|int|string $value): self
+    /**
+     * @param null|bool|int|string $value
+     *
+     * @return self
+    */
+    public static function fromScalar(null|bool|int|string $value): self
     {
         return match ($value) {
             true, '1', 1 => self::Yes,

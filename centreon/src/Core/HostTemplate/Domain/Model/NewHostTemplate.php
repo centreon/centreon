@@ -25,9 +25,9 @@ namespace Core\HostTemplate\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Domain\HostEvent;
+use Core\Host\Domain\SnmpVersion;
 
 class NewHostTemplate
 {
@@ -55,9 +55,9 @@ class NewHostTemplate
      * @param null|int $maxCheckAttempts
      * @param null|int $normalCheckInterval
      * @param null|int $retryCheckInterval
-     * @param YesNoDefault $isActiveCheckEnabled
-     * @param YesNoDefault $isPassiveCheckEnabled
-     * @param YesNoDefault $isNotificationEnabled
+     * @param YesNoDefault $activeCheckEnabled
+     * @param YesNoDefault $passiveCheckEnabled
+     * @param YesNoDefault $notificationEnabled
      * @param HostEvent[] $notificationOptions
      * @param null|int $notificationInterval
      * @param null|int $notificationTimeperiodId
@@ -66,12 +66,12 @@ class NewHostTemplate
      * @param null|int $firstNotificationDelay
      * @param null|int $recoveryNotificationDelay
      * @param null|int $acknowledgementTimeout
-     * @param YesNoDefault $isFreshnessChecked
+     * @param YesNoDefault $freshnessChecked
      * @param null|int $freshnessThreshold
-     * @param YesNoDefault $isFlapDetectionEnabled
+     * @param YesNoDefault $flapDetectionEnabled
      * @param null|int $lowFlapThreshold
      * @param null|int $highFlapThreshold
-     * @param YesNoDefault $isEventHandlerEnabled
+     * @param YesNoDefault $eventHandlerEnabled
      * @param null|int $eventHandlerCommandId
      * @param string $eventHandlerCommandArgs
      * @param string $noteUrl
@@ -98,9 +98,9 @@ class NewHostTemplate
         protected ?int $maxCheckAttempts = null,
         protected ?int $normalCheckInterval = null,
         protected ?int $retryCheckInterval = null,
-        protected YesNoDefault $isActiveCheckEnabled = YesNoDefault::Default,
-        protected YesNoDefault $isPassiveCheckEnabled = YesNoDefault::Default,
-        protected YesNoDefault $isNotificationEnabled = YesNoDefault::Default,
+        protected YesNoDefault $activeCheckEnabled = YesNoDefault::Default,
+        protected YesNoDefault $passiveCheckEnabled = YesNoDefault::Default,
+        protected YesNoDefault $notificationEnabled = YesNoDefault::Default,
         protected array $notificationOptions = [],
         protected ?int $notificationInterval = null,
         protected ?int $notificationTimeperiodId = null,
@@ -109,12 +109,12 @@ class NewHostTemplate
         protected ?int $firstNotificationDelay = null,
         protected ?int $recoveryNotificationDelay = null,
         protected ?int $acknowledgementTimeout = null,
-        protected YesNoDefault $isFreshnessChecked = YesNoDefault::Default,
+        protected YesNoDefault $freshnessChecked = YesNoDefault::Default,
         protected ?int $freshnessThreshold = null,
-        protected YesNoDefault $isFlapDetectionEnabled = YesNoDefault::Default,
+        protected YesNoDefault $flapDetectionEnabled = YesNoDefault::Default,
         protected ?int $lowFlapThreshold = null,
         protected ?int $highFlapThreshold = null,
-        protected YesNoDefault $isEventHandlerEnabled = YesNoDefault::Default,
+        protected YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
         protected ?int $eventHandlerCommandId = null,
         protected string $eventHandlerCommandArgs = '',
         protected string $noteUrl = '',
@@ -335,34 +335,34 @@ class NewHostTemplate
         return $this->notificationOptions;
     }
 
-    public function isActiveCheckEnabled(): YesNoDefault
+    public function getActiveCheckEnabled(): YesNoDefault
     {
-        return $this->isActiveCheckEnabled;
+        return $this->activeCheckEnabled;
     }
 
-    public function isPassiveCheckEnabled(): YesNoDefault
+    public function getPassiveCheckEnabled(): YesNoDefault
     {
-        return $this->isPassiveCheckEnabled;
+        return $this->passiveCheckEnabled;
     }
 
-    public function isNotificationEnabled(): YesNoDefault
+    public function getNotificationEnabled(): YesNoDefault
     {
-        return $this->isNotificationEnabled;
+        return $this->notificationEnabled;
     }
 
-    public function isFreshnessChecked(): YesNoDefault
+    public function getFreshnessChecked(): YesNoDefault
     {
-        return $this->isFreshnessChecked;
+        return $this->freshnessChecked;
     }
 
-    public function isFlapDetectionEnabled(): YesNoDefault
+    public function getFlapDetectionEnabled(): YesNoDefault
     {
-        return $this->isFlapDetectionEnabled;
+        return $this->flapDetectionEnabled;
     }
 
-    public function isEventHandlerEnabled(): YesNoDefault
+    public function getEventHandlerEnabled(): YesNoDefault
     {
-        return $this->isEventHandlerEnabled;
+        return $this->eventHandlerEnabled;
     }
 
     public function addInheritedContactGroup(): bool

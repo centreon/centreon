@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Host\Domain;
 
 /**
  * This enum is to be used to handle snmp version options.

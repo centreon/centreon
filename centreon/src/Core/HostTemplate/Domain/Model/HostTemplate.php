@@ -25,9 +25,9 @@ namespace Core\HostTemplate\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Domain\HostEvent;
+use Core\Host\Domain\SnmpVersion;
 
 class HostTemplate extends NewHostTemplate
 {
@@ -45,9 +45,9 @@ class HostTemplate extends NewHostTemplate
      * @param null|int $maxCheckAttempts
      * @param null|int $normalCheckInterval
      * @param null|int $retryCheckInterval
-     * @param YesNoDefault $isActiveCheckEnabled
-     * @param YesNoDefault $isPassiveCheckEnabled
-     * @param YesNoDefault $isNotificationEnabled
+     * @param YesNoDefault $activeCheckEnabled
+     * @param YesNoDefault $passiveCheckEnabled
+     * @param YesNoDefault $notificationEnabled
      * @param HostEvent[] $notificationOptions
      * @param null|int $notificationInterval
      * @param null|int $notificationTimeperiodId
@@ -56,12 +56,12 @@ class HostTemplate extends NewHostTemplate
      * @param null|int $firstNotificationDelay
      * @param null|int $recoveryNotificationDelay
      * @param null|int $acknowledgementTimeout
-     * @param YesNoDefault $isFreshnessChecked
+     * @param YesNoDefault $freshnessChecked
      * @param null|int $freshnessThreshold
-     * @param YesNoDefault $isFlapDetectionEnabled
+     * @param YesNoDefault $flapDetectionEnabled
      * @param null|int $lowFlapThreshold
      * @param null|int $highFlapThreshold
-     * @param YesNoDefault $isEventHandlerEnabled
+     * @param YesNoDefault $eventHandlerEnabled
      * @param null|int $eventHandlerCommandId
      * @param string $eventHandlerCommandArgs
      * @param string $noteUrl
@@ -89,9 +89,9 @@ class HostTemplate extends NewHostTemplate
         ?int $maxCheckAttempts = null,
         ?int $normalCheckInterval = null,
         ?int $retryCheckInterval = null,
-        YesNoDefault $isActiveCheckEnabled = YesNoDefault::Default,
-        YesNoDefault $isPassiveCheckEnabled = YesNoDefault::Default,
-        YesNoDefault $isNotificationEnabled = YesNoDefault::Default,
+        YesNoDefault $activeCheckEnabled = YesNoDefault::Default,
+        YesNoDefault $passiveCheckEnabled = YesNoDefault::Default,
+        YesNoDefault $notificationEnabled = YesNoDefault::Default,
         array $notificationOptions = [],
         ?int $notificationInterval = null,
         ?int $notificationTimeperiodId = null,
@@ -100,12 +100,12 @@ class HostTemplate extends NewHostTemplate
         ?int $firstNotificationDelay = null,
         ?int $recoveryNotificationDelay = null,
         ?int $acknowledgementTimeout = null,
-        YesNoDefault $isFreshnessChecked = YesNoDefault::Default,
+        YesNoDefault $freshnessChecked = YesNoDefault::Default,
         ?int $freshnessThreshold = null,
-        YesNoDefault $isFlapDetectionEnabled = YesNoDefault::Default,
+        YesNoDefault $flapDetectionEnabled = YesNoDefault::Default,
         ?int $lowFlapThreshold = null,
         ?int $highFlapThreshold = null,
-        YesNoDefault $isEventHandlerEnabled = YesNoDefault::Default,
+        YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
         ?int $eventHandlerCommandId = null,
         string $eventHandlerCommandArgs = '',
         string $noteUrl = '',
@@ -132,9 +132,9 @@ class HostTemplate extends NewHostTemplate
             $maxCheckAttempts,
             $normalCheckInterval,
             $retryCheckInterval,
-            $isActiveCheckEnabled,
-            $isPassiveCheckEnabled,
-            $isNotificationEnabled,
+            $activeCheckEnabled,
+            $passiveCheckEnabled,
+            $notificationEnabled,
             $notificationOptions,
             $notificationInterval,
             $notificationTimeperiodId,
@@ -143,12 +143,12 @@ class HostTemplate extends NewHostTemplate
             $firstNotificationDelay,
             $recoveryNotificationDelay,
             $acknowledgementTimeout,
-            $isFreshnessChecked,
+            $freshnessChecked,
             $freshnessThreshold,
-            $isFlapDetectionEnabled,
+            $flapDetectionEnabled,
             $lowFlapThreshold,
             $highFlapThreshold,
-            $isEventHandlerEnabled,
+            $eventHandlerEnabled,
             $eventHandlerCommandId,
             $eventHandlerCommandArgs,
             $noteUrl,

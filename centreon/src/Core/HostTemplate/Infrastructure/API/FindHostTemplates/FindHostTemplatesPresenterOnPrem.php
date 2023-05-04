@@ -68,7 +68,6 @@ class FindHostTemplatesPresenterOnPrem extends AbstractPresenter
                 'notification_options' => $hostTemplate['notificationOptions'],
                 'notification_interval' => $hostTemplate['notificationInterval'],
                 'notification_timeperiod_id' => $hostTemplate['notificationTimeperiodId'],
-                // TODO : should the following two conditioned by options.inheritance_mode === '1' ?
                 'add_inherited_contact_group' => $hostTemplate['addInheritedContactGroup'],
                 'add_inherited_contact' => $hostTemplate['addInheritedContact'],
                 'first_notification_delay' => $hostTemplate['firstNotificationDelay'],
