@@ -89,11 +89,6 @@ export default {
 
 export const normal = DashboardTemplate.bind({});
 
-export const withGridDisplayed = DashboardTemplate.bind({});
-withGridDisplayed.args = {
-  displayGrid: true
-};
-
 export const withManyPanels = DashboardTemplate.bind({});
 withManyPanels.args = {
   layout: generateLayout(1000)
