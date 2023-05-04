@@ -24,6 +24,7 @@ on:
 
 env:
   base_directory: centreon
+  widgets_directory: centreon/www/widgets
 
 jobs:
   changes:
@@ -72,7 +73,7 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  frontend-build:
+  frontend-web-build:
     runs-on: ubuntu-22.04
 
     steps:
@@ -85,6 +86,20 @@ jobs:
           static_directory: ${{ env.base_directory }}/www/static
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          command: centreon:build
+
+  frontend-widgets-build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.base_directory }}
+          static_directory: ${{ env.base_directory }}/www/widgets/src/**
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+          command: widgets:build
 
   backend-dependencies:
     runs-on: ubuntu-22.04
@@ -128,7 +143,7 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
+  frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
@@ -140,6 +155,21 @@ jobs:
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
+          command: centreon:eslint
+
+  frontend-widgets-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon-widgets
+          command: widgets:eslint
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -180,7 +210,7 @@ jobs:
     with:
       name: component
       module_name: centreon
-      specs_path: www/front_src/src/**
+      specs_path: www/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04
