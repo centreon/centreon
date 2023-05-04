@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unresolved */
+
 import { Provider, createStore } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 import widgetText2Configuration from 'centreon-widgets/centreon-widget-text2/moduleFederation.json';

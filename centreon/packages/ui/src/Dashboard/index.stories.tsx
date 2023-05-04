@@ -6,7 +6,6 @@ import { Typography } from '@mui/material';
 import FluidTypography from '../Typography/FluidTypography';
 
 import { DashboardLayout, DashboardItem } from '.';
-import { map } from 'ramda';
 
 interface CustomLayout extends Layout {
   content: string;
@@ -44,19 +43,21 @@ const dashboardLayout: Array<CustomLayout> = [
   }
 ];
 
-const generateLayout = (maxElements: number) => {
-  return Array(maxElements).fill(0).map((_, i): CustomLayout => {
-    return {
-      x: (i * 3) % 12,
-      y: Math.floor(i / 12),
-      w: 3,
-      h: 3,
-      i: i.toString(),
-      content: `${i}`,
-      shouldUseFluidTypography: false
-    };
-  });
-}
+const generateLayout = (maxElements: number): Array<CustomLayout> => {
+  return Array(maxElements)
+    .fill(0)
+    .map((_, i): CustomLayout => {
+      return {
+        content: `${i}`,
+        h: 3,
+        i: i.toString(),
+        shouldUseFluidTypography: false,
+        w: 3,
+        x: (i * 3) % 12,
+        y: Math.floor(i / 12)
+      };
+    });
+};
 
 interface DashboardTemplateProps {
   displayGrid?: boolean;
@@ -67,21 +68,18 @@ const DashboardTemplate = ({
   displayGrid,
   layout = dashboardLayout
 }: DashboardTemplateProps): JSX.Element => (
-    <DashboardLayout<CustomLayout>
-      displayGrid={displayGrid}
-      layout={layout}
-    >
-      {layout.map(({ i, content, shouldUseFluidTypography }) => (
-        <DashboardItem key={i}>
-          {shouldUseFluidTypography ? (
-            <FluidTypography text={content} />
-          ) : (
-            <Typography>{content}</Typography>
-          )}
-        </DashboardItem>
-      ))}
-    </DashboardLayout>
-  );
+  <DashboardLayout<CustomLayout> displayGrid={displayGrid} layout={layout}>
+    {layout.map(({ i, content, shouldUseFluidTypography }) => (
+      <DashboardItem key={i}>
+        {shouldUseFluidTypography ? (
+          <FluidTypography text={content} />
+        ) : (
+          <Typography>{content}</Typography>
+        )}
+      </DashboardItem>
+    ))}
+  </DashboardLayout>
+);
 
 export default {
   argTypes: {},
@@ -99,4 +97,4 @@ withGridDisplayed.args = {
 export const withManyPanels = DashboardTemplate.bind({});
 withManyPanels.args = {
   layout: generateLayout(1000)
-}
+};

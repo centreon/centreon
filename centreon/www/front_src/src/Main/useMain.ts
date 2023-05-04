@@ -12,12 +12,12 @@ import { platformInstallationStatusEndpoint } from '../api/endpoint';
 import { PlatformInstallationStatus } from '../api/models';
 import reactRoutes from '../reactRoutes/routeMap';
 import useFederatedModules from '../federatedModules/useFederatedModules';
+import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
-import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
 
 export const router = {
   useNavigate

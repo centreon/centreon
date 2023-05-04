@@ -1,9 +1,9 @@
 import ReactGridLayout from 'react-grid-layout';
 
 export interface PanelConfiguration {
-  path: string;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  path: string;
 }
 
 export type Layout = Array<ReactGridLayout.Layout>;

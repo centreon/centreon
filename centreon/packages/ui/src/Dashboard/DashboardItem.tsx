@@ -1,7 +1,9 @@
 import { ForwardedRef, forwardRef } from 'react';
 
 import { Card } from '@mui/material';
+
 import useMemoComponent from '../utils/useMemoComponent';
+
 import { useDashboardItemStyles } from './useDashboardStyles';
 
 interface DashboardItemProps {
@@ -16,13 +18,16 @@ const DashboardItem = forwardRef(
   ): JSX.Element => {
     const { classes } = useDashboardItemStyles();
 
-    return useMemoComponent({ Component: (
-      <div key={key} ref={ref} {...others}>
-        <Card className={classes.widgetContainer}>
-          <div className={classes.widgetContent}>{children}</div>
-        </Card>
-      </div>
-    ), memoProps: [key, others]});
+    return useMemoComponent({
+      Component: (
+        <div key={key} ref={ref} {...others}>
+          <Card className={classes.widgetContainer}>
+            <div className={classes.widgetContent}>{children}</div>
+          </Card>
+        </div>
+      ),
+      memoProps: [key, others]
+    });
   }
 );
 
