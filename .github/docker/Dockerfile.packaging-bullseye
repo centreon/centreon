@@ -2,12 +2,11 @@ FROM debian:bullseye
 
 RUN <<EOF
 
-apt update
-apt install -y debmake pbuilder dh-exec aptitude zstd
-
 echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+
 apt update
-apt install -y nfpm
+
+apt install -y debmake pbuilder dh-exec aptitude zstd nfpm
 
 apt clean
 
