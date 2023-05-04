@@ -4,17 +4,17 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN bash -e <<EOF
 
-apt update
+apt-get update
 
-apt install -y debmake pbuilder dh-exec aptitude zstd ca-certificates
+apt-get install -y debmake pbuilder dh-exec aptitude zstd ca-certificates
 
 echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
 
-apt update
+apt-get update
 
-apt install -y nfpm
+apt-get install -y nfpm
 
-apt clean
+apt-get clean
 
 EOF
 
