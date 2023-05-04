@@ -45,7 +45,7 @@ runs:
               echo "[DEBUG] - Source path found: $SRC_PATH"
             done
           else
-            echo "[DEBUG] - No source path found.
+            echo "[DEBUG] - No source path found."
             continue
           fi
 
