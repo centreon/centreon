@@ -47,7 +47,7 @@ class FindHostCategoryPresenter extends AbstractPresenter
             'id' => $data->id,
             'name' => $data->name,
             'alias' => $data->alias,
-            'is_activated' => $data->is_activated,
+            'is_activated' => $data->isActivated,
             'comment' => $data->comment,
         ]);
     }
