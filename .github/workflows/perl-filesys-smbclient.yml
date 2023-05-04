@@ -28,7 +28,7 @@ jobs:
 
   package-rpm:
     needs: [get-version]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     strategy:
@@ -112,7 +112,7 @@ jobs:
 
   package-deb:
     needs: [get-version]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     strategy:
