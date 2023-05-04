@@ -154,3 +154,11 @@ default:
       paths: [ "%paths.base%/features/CloudHostTemplate.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
+    service_templates_on_prem:
+      paths: [ "%paths.base%/features/ServiceTemplatesOnPrem.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
+    service_template_cloud:
+      paths: [ "%paths.base%/features/ServiceTemplatesCloud.feature" ]
+      contexts:
+      - Centreon\Test\Api\Context\CloudPlatformContext

@@ -16183,3 +16183,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while updating the host category"
 #  msgstr ""
+
+# msgid "You are not allowed to access service templates"
+# msgstr ""
+
+# msgid "Error while searching for service templates"
+# msgstr ""

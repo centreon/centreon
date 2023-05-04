@@ -15711,8 +15711,8 @@ msgstr ""
 # msgid "Error when searching for the host severity #%d"
 # msgstr ""
 
-#  msgid "Error when searching for the host category #%d"
-#  msgstr ""
+# msgid "Error when searching for the host category #%d"
+# msgstr ""
 
 #  msgid "Error while retrieving a host category"
 #  msgstr ""
@@ -15729,3 +15729,9 @@ msgstr ""
 
 #  msgid "Error while updating the host category"
 #  msgstr ""
+
+# msgid "You are not allowed to access service templates"
+# msgstr ""
+
+# msgid "Error while searching for service templates"
+# msgstr ""

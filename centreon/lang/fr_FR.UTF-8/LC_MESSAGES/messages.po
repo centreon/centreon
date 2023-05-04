@@ -17582,3 +17582,9 @@ msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
 
 msgid "Error while updating the host category"
 msgstr "Erreur lors de la mise à jour de la catégorie d'hôte"
+
+msgid "You are not allowed to access service templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
+
+msgid "Error while searching for service templates"
+msgstr "Erreur lors de la recherche de modèles de services"

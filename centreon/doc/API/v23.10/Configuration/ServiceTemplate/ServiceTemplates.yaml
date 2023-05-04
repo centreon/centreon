@@ -1,0 +1,32 @@
+get:
+  tags:
+    - Service template
+  summary: "Find all service templates"
+  description: |
+    Return all service templates configurations.
+    
+    The available parameters to **search** / **sort_by** are:
+    
+    * id
+    * name
+    * alias
+    * is_activated
+    * is_locked
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/ServiceTemplate.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
