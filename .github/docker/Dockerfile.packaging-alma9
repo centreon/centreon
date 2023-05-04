@@ -3,6 +3,14 @@ FROM almalinux:9
 RUN <<EOF
 
 dnf install -y rpm-build rpm-sign zstd perl perl-devel
+
+echo '[goreleaser]
+name=GoReleaser
+baseurl=https://repo.goreleaser.com/yum/
+enabled=1
+gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
+dnf install -y nfpm
+
 dnf clean all
 
 EOF
