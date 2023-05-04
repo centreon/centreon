@@ -97,7 +97,7 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
-          static_directory: ${{ env.base_directory }}/www/widgets/src/**
+          static_directory: ${{ env.base_directory }}/www/widgets/src/
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
           command: widgets:build
 
