@@ -1,5 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
+import { alpha } from '@mui/material';
+
 export const useDashboardLayoutStyles = makeStyles()((theme) => ({
   container: {
     '& .react-grid-item': {
@@ -14,7 +16,7 @@ export const useDashboardLayoutStyles = makeStyles()((theme) => ({
       boxShadow: theme.shadows[3]
     },
     '& .react-grid-item.react-grid-placeholder': {
-      display: 'none'
+      backgroundColor: alpha(theme.palette.primary.main, 0.7)
     },
     '& .react-grid-item.resizing': {
       boxShadow: theme.shadows[3]
@@ -61,7 +63,6 @@ export const useDashboardLayoutStyles = makeStyles()((theme) => ({
     }
   }
 }));
-
 
 export const useDashboardItemStyles = makeStyles()((theme) => ({
   widgetContainer: {
