@@ -39,7 +39,7 @@ use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type ServiceGroupResultSet array{
- *     sg_id: positive-int,
+ *     sg_id: int,
  *     sg_name: string,
  *     sg_alias: string,
  *     geo_coords: ?string,
