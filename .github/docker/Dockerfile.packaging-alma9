@@ -1,6 +1,6 @@
 FROM almalinux:9
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 echo '[goreleaser]
 name=GoReleaser
