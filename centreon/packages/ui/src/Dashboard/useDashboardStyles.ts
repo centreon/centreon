@@ -60,7 +60,8 @@ export const useDashboardLayoutStyles = makeStyles()((theme) => ({
     },
     '& .react-resizable-handle:hover': {
       opacity: 1
-    }
+    },
+    overflowX: 'hidden'
   }
 }));
 
