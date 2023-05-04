@@ -40,8 +40,11 @@ runs:
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
-          SRC_PATHS+=$(jf rt s --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
-          echo "[DEBUG] - Source path: $SRC_PATHS"
+          SRC_PATHS=$(jf rt s --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
+
+          for SRC_PATH in $SRC_PATHS;do
+            echo "[DEBUG] - Source path found: $SRC_PATHS"
+          done
 
           if [[ -z "SRC_PATHS" ]]; then
             continue
@@ -52,12 +55,10 @@ runs:
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
-          for ARTIFACT in $(echo "$SRC_PATHS"); do
+          for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable."
             jf rt cp $ARTIFACT $TARGET_PATH --flat=true
           done
-
-          SRC_PATHS=""
 
         done
 
