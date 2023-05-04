@@ -62,7 +62,6 @@ const useZoomPreview = ({
       return;
     }
 
-    console.log('apply zoom');
     setZoomParameters({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
       start: xScale?.invert(zoomBoundaries?.start || 0)?.toISOString()

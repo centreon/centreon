@@ -51,12 +51,18 @@ export interface GridsModel {
   row?: Record<string, unknown>;
 }
 
+export interface ZoomPreview {
+  [x: string]: unknown;
+  display?: boolean;
+}
+
 export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
   axis?: Axis;
   grids?: GridsModel;
   height: number;
   width: number;
+  zoomPreview?: ZoomPreview;
 }
 
 interface Area {

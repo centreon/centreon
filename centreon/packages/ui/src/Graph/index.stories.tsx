@@ -6,8 +6,6 @@ import dayjs from 'dayjs';
 
 import TimePeriod from '../TimePeriods';
 
-// import graphData from './data.json';
-
 import Graph from './index';
 
 export default {
@@ -384,12 +382,36 @@ Playground.argTypes = {
       type: { summary: 'number' }
     }
   },
-  zoom: {
+  zoomPreview: {
     control: 'object',
-    description: 'zoom preview of the graph',
+    defaultValue: {
+      display: true,
+      y: 0
+    },
+    description: getDescription({
+      sections: [
+        {
+          description: 'control zoomPreview ',
+          name: '',
+          note: getNote({
+            componentName: 'Bar',
+            link: 'https://airbnb.io/visx/docs/shape#Bar'
+          }),
+          props: [
+            {
+              display: {
+                description: 'enable or not the zoomPreview',
+                type: 'boolean'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
     table: {
       category: 'Graph interaction',
-      type: { summary: 'object' }
+      type: { description: 'apply zoom to a specific zoon', summary: 'object' }
     }
   }
 };

@@ -36,7 +36,8 @@ const Graph = ({
   axis,
   grids,
   anchorPoint,
-  loading
+  loading,
+  zoomPreview
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -214,7 +215,8 @@ const Graph = ({
           <InteractionWithGraph
             commonData={{ graphHeight, graphSvgRef, graphWidth }}
             zoomData={{
-              xScale
+              xScale,
+              ...zoomPreview
             }}
           />
         </Group.Group>

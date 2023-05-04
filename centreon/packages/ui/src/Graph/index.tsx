@@ -35,7 +35,8 @@ const WrapperGraph = ({
   shapeLines,
   axis,
   grids,
-  anchorPoint
+  anchorPoint,
+  zoomPreview
 }: Props): JSX.Element | null => {
   const { data, loading } = useGraphData({ baseUrl, end, start });
 
@@ -59,6 +60,7 @@ const WrapperGraph = ({
             loading={loading}
             shapeLines={shapeLines}
             width={width ?? responsiveWidth}
+            zoomPreview={zoomPreview}
           />
         )}
       </Responsive.ParentSize>

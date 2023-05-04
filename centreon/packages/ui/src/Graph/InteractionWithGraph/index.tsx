@@ -2,10 +2,12 @@ import { MutableRefObject } from 'react';
 
 import { useUpdateAtom } from 'jotai/utils';
 import { makeStyles } from 'tss-react/mui';
+import { ScaleTime } from 'd3-scale';
+
+import { ZoomPreview as ZoomPreviewModel } from '../models';
 
 import Bar from './Bar';
 import ZoomPreview from './ZoomPreview';
-import { ZoomPreviewData } from './ZoomPreview/models';
 import {
   eventMouseDownAtom,
   eventMouseMovingAtom,
@@ -24,9 +26,13 @@ interface CommonData {
   graphWidth: number;
 }
 
+interface ZoomData extends ZoomPreviewModel {
+  xScale: ScaleTime<number, number>;
+}
+
 interface Props {
   commonData: CommonData;
-  zoomData: Pick<ZoomPreviewData, 'xScale'>;
+  zoomData: ZoomData;
 }
 
 const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
@@ -37,6 +43,8 @@ const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
   const setEventMouseUp = useUpdateAtom(eventMouseUpAtom);
 
   const { graphHeight, graphWidth, graphSvgRef } = commonData;
+
+  const displayZoomPreview = zoomData?.display ?? true;
 
   const mouseLeave = (): void => {
     setEventMouseMoving(null);
@@ -58,12 +66,14 @@ const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
 
   return (
     <g>
-      <ZoomPreview
-        {...zoomData}
-        graphHeight={graphHeight}
-        graphSvgRef={graphSvgRef}
-        graphWidth={graphWidth}
-      />
+      {displayZoomPreview && (
+        <ZoomPreview
+          {...zoomData}
+          graphHeight={graphHeight}
+          graphSvgRef={graphSvgRef}
+          graphWidth={graphWidth}
+        />
+      )}
       <Bar
         className={classes.overlay}
         fill="transparent"
