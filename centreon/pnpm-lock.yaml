@@ -57,7 +57,11 @@ importers:
       cypress-msw-interceptor: 2.1.0
       cypress-plugin-tab: ^1.0.5
       d3-array: 3.2.0
+      d3-color: ^3.1.0
+      d3-format: ^3.1.0
+      d3-interpolate: ^3.0.1
       d3-scale: ^4.0.2
+      d3-time: ^3.1.0
       dayjs: ^1.11.6
       dom-serializer: ^2.0.0
       dom-to-image: ^2.6.0
@@ -159,7 +163,11 @@ importers:
       classnames: 2.3.2
       clsx: 1.2.1
       d3-array: 3.2.0
+      d3-color: 3.1.0
+      d3-format: 3.1.0
+      d3-interpolate: 3.0.1
       d3-scale: 4.0.2
+      d3-time: 3.1.0
       dayjs: 1.11.7
       dom-serializer: 2.0.0
       dom-to-image: 2.6.0
@@ -7682,7 +7690,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.43
+      '@types/node': 18.16.3
     optional: true
 
   /@typescript-eslint/eslint-plugin/5.59.2_nr77geh6egtp3eynhvdfit4gsu:
