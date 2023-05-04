@@ -8,12 +8,11 @@ import { ZoomPreviewData } from './models';
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
 
-  const { eventMouseDown, positionX, graphHeight, xScale, graphWidth } = data;
+  const { graphHeight, xScale, graphWidth, graphSvgRef } = data;
 
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
-    eventMouseDown: eventMouseDown ?? undefined,
+    graphSvgRef,
     graphWidth,
-    movingMouseX: positionX,
     xScale
   });
 

@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect } from 'react';
+import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
@@ -14,27 +14,33 @@ import {
   mousePositionAtom,
   timeValueAtom
 } from '../mouseTimeValueAtoms';
+import {
+  eventMouseDownAtom,
+  eventMouseMovingAtom
+} from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
-  position: MousePosition;
   positionX?: number;
   positionY?: number;
   timeTick?: Date;
 }
 
 interface Props {
-  event?: MouseEvent;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
 }
 
 const useAnchorPoint = ({
-  event,
   graphSvgRef,
   timeSeries,
   xScale
 }: Props): AnchorPointResult => {
+  const [position, setPosition] = useState<null | MousePosition>(null);
+
+  const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
+  const eventMouseDown = useAtomValue(eventMouseDownAtom);
+
   const mousePosition = useAtomValue(mousePositionAtom);
   const timeValueData = useAtomValue(timeValueAtom);
 
@@ -42,14 +48,19 @@ const useAnchorPoint = ({
     changeMousePositionAndTimeValueDerivedAtom
   );
 
-  const mousePoint = Event.localPoint(
-    graphSvgRef?.current as SVGSVGElement,
-    event
-  );
+  const metrics = getMetrics(timeValueData as TimeValue);
 
-  const position: MousePosition = mousePoint
-    ? [mousePoint.x, mousePoint.y]
-    : null;
+  const containsMetrics = not(isNil(metrics)) && not(isEmpty(metrics));
+
+  const mousePositionTimeTick = position
+    ? getTimeValue({ timeSeries, x: position[0], xScale }).timeTick
+    : 0;
+  const timeTick = containsMetrics
+    ? new Date(mousePositionTimeTick)
+    : undefined;
+
+  const positionX = position ? position[0] - margin.left : undefined;
+  const positionY = position ? position[1] - margin.top : undefined;
 
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
@@ -70,28 +81,26 @@ const useAnchorPoint = ({
   };
 
   useEffect(() => {
+    if (eventMouseDown) {
+      return;
+    }
+    const mousePoint = eventMouseMoving
+      ? Event.localPoint(
+          graphSvgRef?.current as SVGSVGElement,
+          eventMouseMoving
+        )
+      : null;
+    setPosition(mousePoint ? [mousePoint.x, mousePoint.y] : null);
+  }, [eventMouseDown, eventMouseMoving]);
+
+  useEffect(() => {
     if (equals(position, mousePosition) && position) {
       return;
     }
     updateMousePosition(position);
   }, [position]);
 
-  const metrics = getMetrics(timeValueData as TimeValue);
-
-  const containsMetrics = not(isNil(metrics)) && not(isEmpty(metrics));
-
-  const mousePositionTimeTick = position
-    ? getTimeValue({ timeSeries, x: position[0], xScale }).timeTick
-    : 0;
-  const timeTick = containsMetrics
-    ? new Date(mousePositionTimeTick)
-    : undefined;
-
-  const positionX = position ? position[0] - margin.left : undefined;
-  const positionY = position ? position[1] - margin.top : undefined;
-
   return {
-    position: mousePosition,
     positionX,
     positionY,
     timeTick

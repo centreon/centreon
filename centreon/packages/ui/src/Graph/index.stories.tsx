@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { equals, isEmpty, isNil } from 'ramda';
@@ -18,29 +18,35 @@ export default {
 const Template: ComponentStory<typeof Graph> = (args) => {
   const { baseUrl, start, end, height } = args;
 
-  const startTime = start ? new Date(start).toISOString() : '';
-  const endTime = end ? new Date(end).toISOString() : '';
+  const [startTime, setStartTime] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
 
-  // const [endpoint, setEndpoint] = useState<GraphEndpoint | null>();
+  const getGraphParameters = (data): void => {
+    setStartTime(data.start);
+    setEndTime(data.end);
+  };
 
-  // const getGraphParameters = (data): void => {
-  //   setEndpoint({
-  //     baseUrl,
-  //     queryParameters: { ...data }
-  //   });
-  // };
+  const setTimePeriod = (callback): void => {
+    // callback with parameters : timePeriodParameters
+    // console.log({ callback });
+  };
 
-  // const setTimePeriod = (callback): void => {
-  //   // callback with parameters : timePeriodParameters
-  //   // console.log({ callback });
-  // };
+  useEffect(() => {
+    if (equals(typeof start, 'number')) {
+      setStartTime(new Date(start).toISOString());
+    }
+
+    if (equals(typeof end, 'number')) {
+      setEndTime(new Date(start).toISOString());
+    }
+  }, [start, end]);
 
   return (
     <>
-      {/* <TimePeriod
+      <TimePeriod
         getTimePeriodParameters={getGraphParameters}
         setTimePeriod={setTimePeriod}
-      /> */}
+      />
       <Graph
         {...args}
         baseUrl={baseUrl}
@@ -178,7 +184,6 @@ Playground.argTypes = {
     },
     control: 'object',
     defaultValue: {
-      axisX: { xAxisTickFormat: 'LT' },
       axisYLeft: { displayUnit: true },
       axisYRight: { display: true, displayUnit: true }
     },

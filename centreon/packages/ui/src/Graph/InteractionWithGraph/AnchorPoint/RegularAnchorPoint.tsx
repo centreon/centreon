@@ -16,7 +16,6 @@ interface Props {
   graphWidth: number;
   lineColor: string;
   metric: string;
-  position: MousePosition;
   positionX?: number;
   positionY?: number;
   timeSeries: Array<TimeValue>;
@@ -54,6 +53,9 @@ const RegularAnchorPoint = ({
     return null;
   }
 
+  if (isNil(timeTick) || not(displayTimeValues)) {
+    return null;
+  }
   const xAnchorPoint = xScale(timeTick);
 
   const yAnchorPoint = getYAnchorPoint({
@@ -79,10 +81,12 @@ const RegularAnchorPoint = ({
   );
 };
 
-export default memo(
-  RegularAnchorPoint,
-  (prevProps, nextProps) =>
-    equals(prevProps.timeTick, nextProps.timeTick) &&
-    equals(prevProps.timeSeries, nextProps.timeSeries) &&
-    equals(prevProps.position, nextProps.position)
-);
+export default RegularAnchorPoint;
+
+// export default memo(
+//   RegularAnchorPoint,
+//   (prevProps, nextProps) =>
+//     equals(prevProps.timeTick, nextProps.timeTick) &&
+//     equals(prevProps.timeSeries, nextProps.timeSeries) &&
+//     equals(prevProps.position, nextProps.position)
+// );

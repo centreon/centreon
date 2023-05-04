@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
+import {
+  eventMouseDownAtom,
+  eventMouseMovingAtom,
+  eventMouseUpAtom
+} from '../interactionWithGraphAtoms';
 
 import { zoomParametersAtom } from './zoomPreviewAtoms';
 
@@ -19,30 +24,45 @@ interface ZoomPreview {
 }
 
 interface Props {
-  eventMouseDown?: MouseEvent;
+  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-  movingMouseX?: number;
   xScale: ScaleTime<number, number>;
 }
 
 const useZoomPreview = ({
-  eventMouseDown,
-  movingMouseX,
+  graphSvgRef,
   xScale,
   graphWidth
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
+  const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
+  const eventMouseDown = useAtomValue(eventMouseDownAtom);
+  const eventMouseUp = useAtomValue(eventMouseUpAtom);
 
   const setZoomParameters = useUpdateAtom(zoomParametersAtom);
 
-  const mousePoint = eventMouseDown ? Event.localPoint(eventMouseDown) : null;
+  const mousePointDown = eventMouseDown
+    ? Event.localPoint(eventMouseDown)
+    : null;
 
-  const mouseDownX = mousePoint ? mousePoint.x - margin.left : null;
+  const mouseDownPositionX = mousePointDown
+    ? mousePointDown.x - margin.left
+    : null;
+
+  const mousePositionMoving = eventMouseMoving
+    ? Event.localPoint(graphSvgRef.current as SVGSVGElement, eventMouseMoving)
+    : null;
+
+  const movingMousePositionX = mousePositionMoving
+    ? mousePositionMoving.x - margin.left
+    : null;
 
   const applyZoom = (): void => {
     if (equals(zoomBoundaries?.start, zoomBoundaries?.end)) {
       return;
     }
+
+    console.log('apply zoom');
     setZoomParameters({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
       start: xScale?.invert(zoomBoundaries?.start || 0)?.toISOString()
@@ -50,31 +70,27 @@ const useZoomPreview = ({
   };
 
   useEffect(() => {
-    if (isNil(eventMouseDown)) {
-      applyZoom();
-      setZoomBoundaries(null);
-
-      return;
-    }
-    if (!isNil(movingMouseX) || isNil(mouseDownX)) {
+    if (isNil(mouseDownPositionX) || isNil(movingMousePositionX)) {
       return;
     }
 
     setZoomBoundaries({
-      end: mouseDownX,
-      start: mouseDownX
+      end: gte(movingMousePositionX, mouseDownPositionX)
+        ? movingMousePositionX
+        : mouseDownPositionX,
+      start: lt(movingMousePositionX, mouseDownPositionX)
+        ? movingMousePositionX
+        : mouseDownPositionX
     });
-  }, [eventMouseDown]);
+  }, [movingMousePositionX, mouseDownPositionX]);
 
   useEffect(() => {
-    if (isNil(mouseDownX) || isNil(movingMouseX)) {
+    if (isNil(eventMouseUp) || isNil(zoomBoundaries)) {
       return;
     }
-    setZoomBoundaries({
-      end: gte(movingMouseX, mouseDownX) ? movingMouseX : mouseDownX,
-      start: lt(movingMouseX, mouseDownX) ? movingMouseX : mouseDownX
-    });
-  }, [movingMouseX]);
+    applyZoom();
+    setZoomBoundaries(null);
+  }, [eventMouseUp]);
 
   const zoomBarWidth = Math.abs(
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)

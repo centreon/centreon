@@ -16,7 +16,6 @@ interface Props {
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
-  position: MousePosition;
   positionX?: number;
   positionY?: number;
   stackValues: Array<StackValue>;
@@ -94,5 +93,6 @@ export default memo(
   (prevProps, nextProps) =>
     equals(prevProps.timeTick, nextProps.timeTick) &&
     equals(prevProps.stackValues, nextProps.stackValues) &&
-    equals(prevProps.position, nextProps.position)
+    equals(prevProps.positionX, nextProps.positionX) &&
+    equals(prevProps.positionY, nextProps.positionY)
 );

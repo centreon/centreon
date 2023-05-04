@@ -32,7 +32,7 @@ const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
 
   const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
 
-  const prepareData = ({ response, queryParameters }: any): void => {
+  const prepareData = ({ response, queryParameters }): void => {
     const { timeSeries } = adjustGraphData(response);
     const baseAxis = response.global.base;
     const { title } = response.global;
@@ -69,27 +69,47 @@ const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
   const getQueryParameters = ({ startTime, endTime }: QueryParameter): string =>
     `?start=${startTime}&end=${endTime}`;
 
+  const getParameters = (): GraphParameters => {
+    const beginning = zoomParameters ? zoomParameters.start : start;
+    const ending = zoomParameters ? zoomParameters.end : end;
+
+    return { end: ending, start: beginning };
+  };
+
+  const queryParameters = zoomParameters
+    ? getQueryParameters({
+        endTime: zoomParameters.end,
+        startTime: zoomParameters.start
+      })
+    : getQueryParameters({ endTime: end, startTime: start });
   useEffect(() => {
     if (!end || !start || !baseUrl) {
       return;
     }
-
-    const queryParameters = zoomParameters
-      ? getQueryParameters({
-          endTime: zoomParameters.end,
-          startTime: zoomParameters.start
-        })
-      : getQueryParameters({ endTime: end, startTime: start });
 
     const endpoint = `${baseUrl}${queryParameters}`;
 
     sendGetGraphDataRequest({
       endpoint
     }).then((response) => {
-      prepareData({ queryParameters, response });
+      prepareData({ queryParameters: getParameters(), response });
+    });
+  }, [baseUrl, start, end]);
+
+  useEffect(() => {
+    if (!zoomParameters) {
+      return;
+    }
+
+    const endpoint = `${baseUrl}${queryParameters}`;
+
+    sendGetGraphDataRequest({
+      endpoint
+    }).then((response) => {
+      prepareData({ queryParameters: getParameters(), response });
       setZoomParameters(null);
     });
-  }, [baseUrl, start, end, zoomParameters]);
+  }, [zoomParameters]);
 
   return { data, loading };
 };

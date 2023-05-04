@@ -1,3 +1,5 @@
+import { MutableRefObject } from 'react';
+
 import { ScaleTime } from 'd3-scale';
 
 export interface ZoomBoundaries {
@@ -6,9 +8,8 @@ export interface ZoomBoundaries {
 }
 
 export interface ZoomPreviewData {
-  eventMouseDown: MouseEvent | null;
   graphHeight: number;
+  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-  positionX?: number;
   xScale: ScaleTime<number, number>;
 }

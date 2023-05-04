@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
-import { useAtomValue } from 'jotai/utils';
 
 import Axes from './Axes';
 import Grids from './Grids';
@@ -15,14 +14,13 @@ import {
   StackedAnchorPoint as StackedAnchorPointModel
 } from './InteractionWithGraph/AnchorPoint/models';
 import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
-import { eventMouseMovingAtom } from './InteractionWithGraph/interactionWithGraphAtoms';
 import Lines from './Lines';
 import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
+import LoadingProgress from './LoadingProgress';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
-import LoadingProgress from './LoadingProgress';
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -40,8 +38,6 @@ const Graph = ({
   anchorPoint,
   loading
 }: Props): JSX.Element => {
-  const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
-
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
@@ -78,8 +74,7 @@ const Graph = ({
     [timeSeries, lines, graphHeight]
   );
 
-  const { position, timeTick, positionX, positionY } = useAnchorPoint({
-    event: eventMouseMoving ?? undefined,
+  const { timeTick, positionX, positionY } = useAnchorPoint({
     graphSvgRef,
     timeSeries,
     xScale
@@ -123,7 +118,6 @@ const Graph = ({
     displayTimeValues: true,
     graphHeight,
     graphWidth,
-    position,
     positionX,
     positionY,
     timeTick
@@ -218,9 +212,8 @@ const Graph = ({
           />
 
           <InteractionWithGraph
-            commonData={{ graphHeight, graphWidth }}
+            commonData={{ graphHeight, graphSvgRef, graphWidth }}
             zoomData={{
-              positionX,
               xScale
             }}
           />
