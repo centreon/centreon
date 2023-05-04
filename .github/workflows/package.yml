@@ -25,6 +25,12 @@ on:
       frontend_static_directory:
         type: string
         description: The static directory
+      frontend_widgets_cache_key:
+        type: string
+        description: The widgets build cache key
+      frontend_widgets_directory:
+        type: string
+        description: The widgets directory
       backend_vendor_cache_key:
         type: string
         description: The vendor directory cache key
@@ -93,6 +99,8 @@ jobs:
           frontend_index_file: ${{ inputs.frontend_index_file }}
           frontend_static_cache_key: ${{ inputs.frontend_static_cache_key }}
           frontend_static_directory: ${{ inputs.frontend_static_directory }}
+          frontend_widgets_cache_key: ${{ inputs.frontend_widgets_cache_key }}
+          frontend_widgets_directory: ${{ inputs.frontend_widgets_directory }}
           backend_vendor_cache_key: ${{ inputs.backend_vendor_cache_key }}
           backend_vendor_directory: ${{ inputs.backend_vendor_directory }}
           translation_cache_key: ${{ inputs.translation_cache_key }}

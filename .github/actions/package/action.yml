@@ -18,6 +18,10 @@ inputs:
     description: The static directory cache key
   frontend_static_directory:
     description: The static directory
+  frontend_widgets_cache_key:
+    description: The widgets build cache key
+  frontend_widgets_directory:
+    description: The widgets directory
   backend_vendor_cache_key:
     description: The vendor directory cache key
   backend_vendor_directory:
@@ -63,6 +67,14 @@ runs:
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
+        fail-on-cache-miss: true
+    
+    - name: Restore widgets directory cache
+      if: "${{ inputs.frontend_widgets_directory != '' && inputs.frontend_widgets_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.frontend_widgets_directory }}
+        key: ${{ inputs.frontend_widgets_cache_key }}
         fail-on-cache-miss: true
 
     - name: Restore vendor directory cache

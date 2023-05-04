@@ -281,6 +281,8 @@ jobs:
       frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
       frontend_static_directory: centreon/www/static
+      frontend_widgets_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+      frontend_widgets_directory: centreon/www/widgets
       backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
       backend_vendor_directory: centreon/vendor
       translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
