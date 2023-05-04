@@ -149,7 +149,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
@@ -180,7 +180,7 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes, get-version]
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
@@ -190,7 +190,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
@@ -274,7 +274,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package, get-version]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
