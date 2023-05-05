@@ -9,6 +9,7 @@ import {
   changeSelectedTimePeriodDerivedAtom,
   selectedTimePeriodAtom
 } from './timePeriodsAtoms';
+import useSortTimePeriods from './useSortTimePeriods';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -41,7 +42,10 @@ const SelectedTimePeriod = ({
     changeSelectedTimePeriodDerivedAtom
   );
 
-  const currentTimePeriods = [...timePeriods, ...extraTimePeriods];
+  const currentTimePeriods = useSortTimePeriods([
+    ...timePeriods,
+    ...extraTimePeriods
+  ]);
 
   const timePeriodOptions = map(
     pick(['id', 'name', 'largeName']),

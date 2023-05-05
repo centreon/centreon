@@ -25,10 +25,10 @@ Playground.args = {
   extraTimePeriods: [
     {
       dateTimeFormat: dateFormat,
-      getStart: (): Date => dayjs(Date.now()).subtract(2, 'day').toDate(),
-      id: 'last_2_days',
-      largeName: 'last 2 days',
-      name: '2 days',
+      getStart: (): Date => dayjs(Date.now()).subtract(29, 'day').toDate(),
+      id: 'last_29_days',
+      largeName: 'last 29 days',
+      name: '29 days',
       timelineEventsLimit: 100
     }
   ]
