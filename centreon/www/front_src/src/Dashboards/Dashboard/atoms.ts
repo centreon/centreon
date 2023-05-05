@@ -7,6 +7,7 @@ import {
   length,
   lensIndex,
   lensProp,
+  lt,
   lte,
   map,
   prop,
@@ -45,8 +46,10 @@ export const setLayoutModeDerivedAtom = atom(
 );
 
 interface AddPanelDerivedAtom {
+  height?: number;
   options?: object;
   panelConfiguration: PanelConfiguration;
+  width?: number;
 }
 
 interface GetPanelProps {
@@ -61,7 +64,11 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 
 export const addPanelDerivedAtom = atom(
   null,
-  (get, setAtom, { panelConfiguration, options }: AddPanelDerivedAtom) => {
+  (
+    get,
+    setAtom,
+    { panelConfiguration, options, width, height }: AddPanelDerivedAtom
+  ) => {
     const dashboard = get(dashboardAtom);
 
     const id = `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
@@ -71,10 +78,10 @@ export const addPanelDerivedAtom = atom(
       ? 3
       : columnsFromScreenSize;
 
-    const panelWidth = panelConfiguration?.panelMinWidth || maxColumns;
+    const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
     const basePanelLayout = {
-      h: panelConfiguration?.panelMinHeight || 3,
+      h: height || panelConfiguration?.panelMinHeight || 3,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
@@ -124,7 +131,7 @@ export const addPanelDerivedAtom = atom(
         x,
         y: shouldAddPanelAtTheBottom
           ? maxHeight
-          : lineWithEngouhSpaceToReceivePanel
+          : collectPanelsByLine[lineWithEngouhSpaceToReceivePanel][0].y
       }
     ];
 
@@ -206,8 +213,10 @@ export const duplicatePanelDerivedAtom = atom(
     const panel = find(propEq('i', title), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
+      height: panel?.h,
       options: panel?.options,
-      panelConfiguration: panel?.panelConfiguration as PanelConfiguration
+      panelConfiguration: panel?.panelConfiguration as PanelConfiguration,
+      width: panel?.w
     });
   }
 );
