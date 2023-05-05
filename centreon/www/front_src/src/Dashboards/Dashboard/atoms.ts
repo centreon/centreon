@@ -7,7 +7,6 @@ import {
   length,
   lensIndex,
   lensProp,
-  lt,
   lte,
   map,
   prop,
