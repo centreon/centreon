@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import styles from './ListingHeader.module.scss';
-
 import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
@@ -160,8 +158,7 @@ const ListingHeader = ({
       <TableRow className={classes.row} component="div">
         {checkable && (
           <TableCell
-            // className={classes.checkboxHeaderCell}
-            className={styles.checkboxHeaderCell}
+            className={classes.checkboxHeaderCell}
             component={
               'div' as unknown as React.ElementType<TableCellBaseProps>
             }
