@@ -1,6 +1,6 @@
 import { ComponentMeta } from '@storybook/react';
 
-import image from '../@assets/not-authorized-template-background-light.svg';
+import image from '../@assets/images/not-authorized-template-background-light.svg';
 
 import WallpaperPage from '.';
 

@@ -7,8 +7,8 @@ import { Typography } from '@mui/material';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 import { CentreonLogo } from '../Logo/CentreonLogo';
-import NotAuthorizedTemplateBackgroundDark from '../@assets/not-authorized-template-background-dark.svg';
-import NotAuthorizedTemplateBackgroundLight from '../@assets/not-authorized-template-background-light.svg';
+import NotAuthorizedTemplateBackgroundDark from '../@assets/images/not-authorized-template-background-dark.svg';
+import NotAuthorizedTemplateBackgroundLight from '../@assets/images/not-authorized-template-background-light.svg';
 import { Image } from '..';
 import { useThemeMode } from '../utils/useThemeMode';
 import { typedMemo } from '../utils/typedMemo';

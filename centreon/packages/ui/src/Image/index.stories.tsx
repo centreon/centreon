@@ -2,7 +2,7 @@ import { ComponentStory } from '@storybook/react';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg';
-import NotAuthorized from '../@assets/not-authorized-template-background-light.svg';
+import NotAuthorized from '../@assets/images/not-authorized-template-background-light.svg';
 
 import Image, { ImageVariant } from './Image';
 
