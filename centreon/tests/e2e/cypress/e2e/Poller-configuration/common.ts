@@ -1,14 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import { insertFixture } from '../../commons';
 
-let dateBeforeLogin: Date;
+const dateBeforeLogin = new Date();
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;
 const testHostName = 'test_host';
 
 const insertPollerConfigUserAcl = (): Cypress.Chainable => {
-  dateBeforeLogin = new Date();
-
   return cy
     .setUserTokenApiV1()
     .executeCommandsViaClapi(
@@ -95,9 +93,9 @@ const checkExportedFileContent = (): Cypress.Chainable<boolean> => {
     });
 };
 
-const checkIfConfigurationIsExported = (): void => {
+const checkIfConfigurationIsExported = (beforeLoginDate: Date): void => {
   cy.log('Checking that configuration is exported');
-  const now = dateBeforeLogin.getTime();
+  const now = beforeLoginDate.getTime();
 
   cy.wait(waitToExport);
 
@@ -190,5 +188,6 @@ export {
   clearCentengineLogs,
   breakSomePollers,
   waitPollerListToLoad,
-  checkIfConfigurationIsNotExported
+  checkIfConfigurationIsNotExported,
+  dateBeforeLogin
 };

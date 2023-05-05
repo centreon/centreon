@@ -57,6 +57,10 @@ on:
         type: string
         description: The release number
         required: true
+      commit_hash:
+        type: string
+        description: The hash of the commit
+        required: true
       cache_key:
         type: string
         description: The package files cache key
@@ -97,6 +101,7 @@ jobs:
           major_version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
           release: ${{ inputs.release }}
+          commit_hash: ${{ inputs.commit_hash }}
           cache_key: unsigned-${{ inputs.cache_key }}
 
       - if: ${{ inputs.package_extension == 'deb' }}

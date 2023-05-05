@@ -20,17 +20,20 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.base_directory }}
 
     - name: Install dependencies
-      run: pnpm i
-      working-directory: ${{ env.base_directory }}
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.base_directory }}
       shell: bash
 
     - name: Build frontend

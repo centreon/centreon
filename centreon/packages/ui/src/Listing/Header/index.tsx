@@ -3,7 +3,7 @@ import * as React from 'react';
 import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
-import { makeStyles, withStyles } from 'tss-react/mui';
+import { makeStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
@@ -25,14 +25,6 @@ import { labelPredefinedRowsSelectionMenu } from '../translatedLabels';
 import PredefinedSelectionList from './PredefinedSelectionList';
 import SortableHeaderCellContent from './SortableCell/Content';
 
-const height = 28;
-
-const HeaderCell = withStyles(TableCell, (theme) => ({
-  root: {
-    padding: theme.spacing(0)
-  }
-}));
-
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
     '&.Mui-checked': {
@@ -49,6 +41,7 @@ const useStyles = makeStyles()((theme) => ({
     borderBottom: 'none',
     display: 'flex',
     justifyContent: 'start',
+    lineHeight: 'inherit',
     minWidth: theme.spacing(51 / 8),
     padding: 0
   },
@@ -58,6 +51,10 @@ const useStyles = makeStyles()((theme) => ({
   predefinedRowsMenu: {
     color: theme.palette.common.white,
     width: theme.spacing(2)
+  },
+  root: {
+    height: '100%',
+    padding: theme.spacing(0, 1)
   },
   row: {
     display: 'contents'
@@ -240,4 +237,3 @@ const MemoizedListingHeader = React.memo<Props>(
 );
 
 export default MemoizedListingHeader;
-export { height as headerHeight, HeaderCell };

@@ -63,8 +63,8 @@ function generateExpectedResponseData(string $date, float $rta, float $packetLos
 
 it(
     'response contains properly formatted performanceMetrics',
-    function (iterable $performanceMetrics, array $expectedResponseData) {
-        $response = new FindPerformanceMetricResponse($performanceMetrics);
+    function (iterable $performanceMetrics, array $expectedResponseData, string $filename) {
+        $response = new FindPerformanceMetricResponse($performanceMetrics, $filename);
 
         $this->assertTrue(property_exists($response, 'performanceMetrics'));
         $this->assertInstanceOf(\Generator::class, $response->performanceMetrics);
@@ -74,7 +74,7 @@ it(
     }
 )->with([
     [
-        [], []
+        [], [], 'filename'
     ],
     [
         [
@@ -82,7 +82,8 @@ it(
         ],
         [
             generateExpectedResponseData('2022-01-01', 0.039, 0, 0.108, 0.0049)
-        ]
+        ],
+        'filename'
     ],
     [
         [
@@ -92,6 +93,7 @@ it(
         [
             generateExpectedResponseData('2022-01-01', 0.039, 0, 0.108, 0.0049),
             generateExpectedResponseData('2022-01-01 11:00:05', 0.04, 0.1, 0.10, 0.006)
-        ]
+        ],
+        'filename'
     ]
 ]);

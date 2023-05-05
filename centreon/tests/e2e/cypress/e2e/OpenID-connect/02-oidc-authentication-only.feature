@@ -4,6 +4,6 @@ Feature: OpenID Connect authentication
     So that Platform users can use existing authentication services to authenticate
 
 Scenario: OpenID Connect Authentication mode
-    Given an administrator is relogged on the platform
+    Given an administrator is logged on the platform
     When the administrator sets authentication mode to OpenID Connect only
     Then only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate

@@ -8,6 +8,7 @@ ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
 ENV KC_HOSTNAME=172.17.0.3:8080
 RUN /opt/keycloak/bin/kc.sh import --file /realms/openid-config.json
+RUN /opt/keycloak/bin/kc.sh build
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
 # Import the realm on start-up

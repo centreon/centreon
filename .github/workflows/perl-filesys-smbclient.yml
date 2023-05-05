@@ -145,6 +145,8 @@ jobs:
     needs: [get-version, sign-rpm]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -167,6 +169,8 @@ jobs:
     needs: [get-version, package-deb]
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]
@@ -178,6 +182,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: perl-filesys-smbclient
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}

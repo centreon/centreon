@@ -19,8 +19,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   tag: {
     backgroundColor: theme.palette.divider,
-    fontSize: theme.typography.caption.fontSize,
-    height: theme.spacing(1.75)
+    fontSize: theme.typography.caption.fontSize
   }
 }));
 
@@ -54,7 +53,7 @@ const MultiAutocompleteField = ({
         }}
         key={option.id}
         label={option.name}
-        size="small"
+        size="medium"
         {...getTagProps({ index })}
       />
     ));
