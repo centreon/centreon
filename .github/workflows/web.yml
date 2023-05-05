@@ -100,16 +100,6 @@ jobs:
           static_directory: ${{ env.widgets_directory }}/src
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
-      - run: ls ${{ env.widgets_directory }}/src
-        shell: bash
-
-      - name: Restore widgets directory cache
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          fail-on-cache-miss: true
-
   backend-dependencies:
     runs-on: ubuntu-22.04
 
