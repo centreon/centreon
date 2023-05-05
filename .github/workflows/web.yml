@@ -273,15 +273,12 @@ jobs:
 
     strategy:
       matrix:
-        os: [alma9, bullseye]
+        os: [alma9]
         include:
           - project: centreon-web
           - os: alma9
             distrib: el9
             package_extension: rpm
-          - os: bullseye
-            distrib: bullseye
-            package_extension: deb
 
     steps:
       - name: Checkout sources
@@ -351,31 +348,31 @@ jobs:
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      # - name: Setup docker slim
-      #   run: |
-      #     wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
-      #     tar -xf dist_linux.tar.gz
-      #     mv dist_linux/docker-slim /usr/local/bin/
-      #     mv dist_linux/slim-sensor /usr/local/bin/
-      #     mv dist_linux/slim /usr/local/bin/
-      #   shell: bash
+      - name: Setup docker slim
+        run: |
+          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
+          tar -xf dist_linux.tar.gz
+          mv dist_linux/docker-slim /usr/local/bin/
+          mv dist_linux/slim-sensor /usr/local/bin/
+          mv dist_linux/slim /usr/local/bin/
+        shell: bash
 
-      # - name: Build and push slim images
-      #   run: |
-      #     for IMAGE_SUFFIX in "" "-fresh"; do
-      #       slim build --show-clogs --show-blogs \
-      #         --include-shell \
-      #         --http-probe-off \
-      #         --exec-file .github/docker/slim-configuration/exec.txt \
-      #         --include-path-file .github/docker/slim-configuration/include-path.txt \
-      #         --include-bin-file .github/docker/slim-configuration/include-bin.txt \
-      #         --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-      #         --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
-      #         ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-      #       docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-      #       docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-      #     done
-      #   shell: bash
+      - name: Build and push slim images
+        run: |
+          for IMAGE_SUFFIX in "" "-fresh"; do
+            slim build --show-clogs --show-blogs \
+              --include-shell \
+              --http-probe-off \
+              --exec-file .github/docker/slim-configuration/exec.txt \
+              --include-path-file .github/docker/slim-configuration/include-path.txt \
+              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
+              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
+              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          done
+        shell: bash
 
   api-integration-test:
     needs: [dockerize, changes]
