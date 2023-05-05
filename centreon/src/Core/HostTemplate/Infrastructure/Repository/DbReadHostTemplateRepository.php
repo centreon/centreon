@@ -33,8 +33,8 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\Host\Domain\SnmpVersion;
-use Core\HostTemplate\Infrastructure\Converter\HostEventConverter;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\SnmpVersion;
 use Utility\SqlConcatenator;
 
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface

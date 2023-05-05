@@ -23,16 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Common\Domain;
 
-use Core\Common\Domain\LegacyEventEnumTrait;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use ValueError;
 
-/**
- * This stub exists to test the trait {@see LegacyEventEnumTrait}.
- */
-enum EventEnumStub: string
-{
-    use LegacyEventEnumTrait;
-
-    case A = 'a';
-    case B = 'b';
-    case C = 'c';
-}
+it('throw an error when value is invalid for convertion', function (): void {
+    $events = YesNoDefaultConverter::fromScalar('a');
+})->throws(
+    ValueError::class,
+    '"a" is not a valid backing value for enum YesNoDefault'
+);

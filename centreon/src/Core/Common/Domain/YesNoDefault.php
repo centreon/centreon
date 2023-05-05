@@ -26,29 +26,9 @@ namespace Core\Common\Domain;
 /**
  * This enum is to be used to handle properties with only three accepted value : Yes, No and Default.
  */
-enum YesNoDefault:string
+enum YesNoDefault
 {
-    case No = '0';
-    case Yes = '1';
-    case Default = '2';
-
-    /**
-     * @param null|bool|int|string $value
-     *
-     * @return self
-    */
-    public static function fromScalar(null|bool|int|string $value): self
-    {
-        return match ($value) {
-            true, '1', 1 => self::Yes,
-            false, '0', 0 => self::No,
-            null, '2', 2 => self::Default,
-            default => throw new \ValueError("\"{$value}\" is not a valid backing value for enum YesNoDefault")
-        };
-    }
-
-    public function toInt(): int
-    {
-        return (int) $this->value;
-    }
+    case Yes;
+    case No;
+    case Default;
 }

@@ -31,9 +31,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\Host\Domain\HostEvent;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterOnPrem;
 use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterSaas;
@@ -102,15 +103,10 @@ final class FindHostTemplates
                 'maxCheckAttempts' => $hostTemplate->getMaxCheckAttempts(),
                 'normalCheckInterval' => $hostTemplate->getNormalCheckInterval(),
                 'retryCheckInterval' => $hostTemplate->getretryCheckInterval(),
-                'isActiveCheckEnabled' => $hostTemplate->getActiveCheckEnabled()->toInt(),
-                'isPassiveCheckEnabled' => $hostTemplate->getPassiveCheckEnabled()->toInt(),
-                'isNotificationEnabled' => $hostTemplate->getNotificationEnabled()->toInt(),
-                /**
-                 *  Note: In legacy behaviour, no options selected is egal to all options selected, hence a full bitmask
-                 */
-                'notificationOptions' => $hostTemplate->getNotificationOptions() !== []
-                    ? HostEvent::toBitmask($hostTemplate->getNotificationOptions())
-                    : HostEvent::getMaxBitmask(),
+                'isActiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled()),
+                'isPassiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled()),
+                'isNotificationEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled()),
+                'notificationOptions' => HostEventConverter::toBitmask($hostTemplate->getNotificationOptions()),
                 'notificationInterval' => $hostTemplate->getNotificationInterval(),
                 'notificationTimeperiodId' => $hostTemplate->getNotificationTimeperiodId(),
                 'addInheritedContactGroup' => $hostTemplate->addInheritedContactGroup(),
@@ -118,12 +114,12 @@ final class FindHostTemplates
                 'firstNotificationDelay' => $hostTemplate->getfirstNotificationDelay(),
                 'recoveryNotificationDelay' => $hostTemplate->getrecoveryNotificationDelay(),
                 'acknowledgementTimeout' => $hostTemplate->getAcknowledgementTimeout(),
-                'isFreshnessChecked' => $hostTemplate->getFreshnessChecked()->toInt(),
+                'isFreshnessChecked' => YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked()),
                 'freshnessThreshold' => $hostTemplate->getfreshnessThreshold(),
-                'isFlapDetectionEnabled' => $hostTemplate->getFlapDetectionEnabled()->toInt(),
+                'isFlapDetectionEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled()),
                 'lowFlapThreshold' => $hostTemplate->getLowFlapThreshold(),
                 'highFlapThreshold' => $hostTemplate->getHighFlapThreshold(),
-                'isEventHandlerEnabled' => $hostTemplate->getEventHandlerEnabled()->toInt(),
+                'isEventHandlerEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getEventHandlerEnabled()),
                 'eventHandlerCommandId' => $hostTemplate->getEventHandlerCommandId(),
                 'eventHandlerCommandArgs' => $hostTemplate->getEventHandlerCommandArgs(),
                 'noteUrl' => $hostTemplate->getNoteUrl(),

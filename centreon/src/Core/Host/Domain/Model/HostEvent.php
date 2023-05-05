@@ -21,37 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Host\Domain;
-
-use Core\Common\Domain\BitmaskEnumTrait;
+namespace Core\Host\Domain\Model;
 
 /**
  * This enum is to be used to handle the legacy notification events for hosts and host templates.
  */
 enum HostEvent
 {
-    use BitmaskEnumTrait;
-
     case Down;
     case Unreachable;
     case Recovery;
     case Flapping;
     case DowntimeScheduled;
     case None;
-
-    public function toBit(): int
-    {
-        return match ($this) {
-            self::None => 0b00000,
-            self::Down => 0b00001,
-            self::Unreachable => 0b00010,
-            self::Recovery => 0b00100,
-            self::Flapping => 0b01000,
-            self::DowntimeScheduled => 0b10000,
-        };
-    }
-
-    public static function getMaxBitmask(): int {
-        return 0b11111;
-    }
 }

@@ -26,8 +26,8 @@ namespace Core\HostTemplate\Domain\Model;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
-use Core\Host\Domain\HostEvent;
-use Core\Host\Domain\SnmpVersion;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 
 class NewHostTemplate
 {

@@ -25,6 +25,7 @@ namespace Core\HostTemplate\Infrastructure\API\FindHostTemplates;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -62,9 +63,9 @@ class FindHostTemplatesPresenterOnPrem extends AbstractPresenter
                 'max_check_attempts' => $hostTemplate['maxCheckAttempts'],
                 'normal_check_interval' => $hostTemplate['normalCheckInterval'],
                 'retry_check_interval' => $hostTemplate['retryCheckInterval'],
-                'is_active_check_enabled' => $hostTemplate['isActiveCheckEnabled'],
-                'isPassive_check_enabled' => $hostTemplate['isPassiveCheckEnabled'],
-                'is_notification_enabled' => $hostTemplate['isNotificationEnabled'],
+                'is_active_check_enabled' => $hostTemplate['activeCheckEnabled'],
+                'isPassive_check_enabled' => $hostTemplate['passiveCheckEnabled'],
+                'is_notification_enabled' => $hostTemplate['notificationEnabled'],
                 'notification_options' => $hostTemplate['notificationOptions'],
                 'notification_interval' => $hostTemplate['notificationInterval'],
                 'notification_timeperiod_id' => $hostTemplate['notificationTimeperiodId'],
@@ -73,12 +74,12 @@ class FindHostTemplatesPresenterOnPrem extends AbstractPresenter
                 'first_notification_delay' => $hostTemplate['firstNotificationDelay'],
                 'recovery_notification_delay' => $hostTemplate['recoveryNotificationDelay'],
                 'acknowledgement_timeout' => $hostTemplate['acknowledgementTimeout'],
-                'is_freshness_checked' => $hostTemplate['isFreshnessChecked'],
+                'is_freshness_checked' => $hostTemplate['freshnessChecked'],
                 'freshness_threshold' => $hostTemplate['freshnessThreshold'],
-                'is_flap_detection_enabled' => $hostTemplate['isFlapDetectionEnabled'],
+                'is_flap_detection_enabled' => $hostTemplate['flapDetectionEnabled'],
                 'low_flap_threshold' => $hostTemplate['lowFlapThreshold'],
                 'high_flap_threshold' => $hostTemplate['highFlapThreshold'],
-                'is_event_handler_enabled' => $hostTemplate['isEventHandlerEnabled'],
+                'is_event_handler_enabled' => $hostTemplate['eventHandlerEnabled'],
                 'event_handler_command_id' => $hostTemplate['eventHandlerCommandId'],
                 'event_handler_command_args' => $this->emptyStringAsNull($hostTemplate['eventHandlerCommandArgs']),
                 'note_url' => $this->emptyStringAsNull($hostTemplate['noteUrl']),

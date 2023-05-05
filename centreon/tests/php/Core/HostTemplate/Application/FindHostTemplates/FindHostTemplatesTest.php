@@ -28,9 +28,11 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplates;
@@ -106,10 +108,10 @@ beforeEach(function (): void {
         'maxCheckAttempts' => 5,
         'normalCheckInterval' => 5,
         'retryCheckInterval' => 5,
-        'isActiveCheckEnabled' => YesNoDefault::Yes->toInt(),
-        'isPassiveCheckEnabled' => YesNoDefault::Yes->toInt(),
-        'isNotificationEnabled' => YesNoDefault::Yes->toInt(),
-        'notificationOptions' => HostEvent::toBitmask([HostEvent::Down, HostEvent::Unreachable]),
+        'isActiveCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
+        'isPassiveCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
+        'isNotificationEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
+        'notificationOptions' => HostEventConverter::toBitmask([HostEvent::Down, HostEvent::Unreachable]),
         'notificationInterval' => 5,
         'notificationTimeperiodId' => 1,
         'addInheritedContactGroup' => true,
@@ -117,12 +119,12 @@ beforeEach(function (): void {
         'firstNotificationDelay' => 5,
         'recoveryNotificationDelay' => 5,
         'acknowledgementTimeout' => 5,
-        'isFreshnessChecked' => YesNoDefault::Yes->toInt(),
+        'isFreshnessChecked' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'freshnessThreshold' => 5,
-        'isFlapDetectionEnabled' => YesNoDefault::Yes->toInt(),
+        'isFlapDetectionEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'lowFlapThreshold' => 5,
         'highFlapThreshold' => 5,
-        'isEventHandlerEnabled' => YesNoDefault::Yes->toInt(),
+        'isEventHandlerEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'eventHandlerCommandId' => 1,
         'eventHandlerCommandArgs' => 'eventHandlerCommandArgs-value',
         'noteUrl' => 'noteUrl-value',

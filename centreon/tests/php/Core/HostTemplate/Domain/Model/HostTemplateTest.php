@@ -25,9 +25,9 @@ namespace Tests\Core\HostTemplate\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 
 beforeEach(function (): void {
@@ -47,9 +47,9 @@ beforeEach(function (): void {
                 'maxCheckAttempts' => 5,
                 'normalCheckInterval' => 5,
                 'retryCheckInterval' => 5,
-                'isActiveCheckEnabled' => YesNoDefault::Yes,
-                'isPassiveCheckEnabled' => YesNoDefault::Yes,
-                'isNotificationEnabled' => YesNoDefault::Yes,
+                'activeCheckEnabled' => YesNoDefault::Yes,
+                'passiveCheckEnabled' => YesNoDefault::Yes,
+                'notificationEnabled' => YesNoDefault::Yes,
                 'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
                 'notificationInterval' => 5,
                 'notificationTimeperiodId' => 1,
@@ -58,12 +58,12 @@ beforeEach(function (): void {
                 'firstNotificationDelay' => 5,
                 'recoveryNotificationDelay' => 5,
                 'acknowledgementTimeout' => 5,
-                'isFreshnessChecked' => YesNoDefault::Yes,
+                'freshnessChecked' => YesNoDefault::Yes,
                 'freshnessThreshold' => 5,
-                'isFlapDetectionEnabled' => YesNoDefault::Yes,
+                'flapDetectionEnabled' => YesNoDefault::Yes,
                 'lowFlapThreshold' => 5,
                 'highFlapThreshold' => 5,
-                'isEventHandlerEnabled' => YesNoDefault::Yes,
+                'eventHandlerEnabled' => YesNoDefault::Yes,
                 'eventHandlerCommandId' => 1,
                 'eventHandlerCommandArgs' => 'eventHandlerCommandArgs-value',
                 'noteUrl' => 'noteUrl-value',
@@ -98,9 +98,9 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(5)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(5)
         ->and($hostTemplate->getRetryCheckInterval())->toBe(5)
-        ->and($hostTemplate->isActiveCheckEnabled())->toBe(YesNoDefault::Yes)
-        ->and($hostTemplate->isPassiveCheckEnabled())->toBe(YesNoDefault::Yes)
-        ->and($hostTemplate->isNotificationEnabled())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getActiveCheckEnabled())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getPassiveCheckEnabled())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getNotificationEnabled())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getNotificationOptions())->toBe([HostEvent::Down, HostEvent::Unreachable])
         ->and($hostTemplate->getNotificationInterval())->toBe(5)
         ->and($hostTemplate->getNotificationTimeperiodId())->toBe(1)
@@ -109,12 +109,12 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getFirstNotificationDelay())->toBe(5)
         ->and($hostTemplate->getRecoveryNotificationDelay())->toBe(5)
         ->and($hostTemplate->getAcknowledgementTimeout())->toBe(5)
-        ->and($hostTemplate->isFreshnessChecked())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getFreshnessChecked())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getFreshnessThreshold())->toBe(5)
-        ->and($hostTemplate->isFlapDetectionEnabled())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getFlapDetectionEnabled())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getLowFlapThreshold())->toBe(5)
         ->and($hostTemplate->getHighFlapThreshold())->toBe(5)
-        ->and($hostTemplate->isEventHandlerEnabled())->toBe(YesNoDefault::Yes)
+        ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(1)
         ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('eventHandlerCommandArgs-value')
         ->and($hostTemplate->getNoteUrl())->toBe('noteUrl-value')
@@ -143,9 +143,9 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(null)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(null)
         ->and($hostTemplate->getRetryCheckInterval())->toBe(null)
-        ->and($hostTemplate->isActiveCheckEnabled())->toBe(YesNoDefault::Default)
-        ->and($hostTemplate->isPassiveCheckEnabled())->toBe(YesNoDefault::Default)
-        ->and($hostTemplate->isNotificationEnabled())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getActiveCheckEnabled())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getPassiveCheckEnabled())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getNotificationEnabled())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getNotificationOptions())->toBe([])
         ->and($hostTemplate->getNotificationInterval())->toBe(null)
         ->and($hostTemplate->getNotificationTimeperiodId())->toBe(null)
@@ -154,12 +154,12 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getFirstNotificationDelay())->toBe(null)
         ->and($hostTemplate->getRecoveryNotificationDelay())->toBe(null)
         ->and($hostTemplate->getAcknowledgementTimeout())->toBe(null)
-        ->and($hostTemplate->isFreshnessChecked())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getFreshnessChecked())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getFreshnessThreshold())->toBe(null)
-        ->and($hostTemplate->isFlapDetectionEnabled())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getFlapDetectionEnabled())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getLowFlapThreshold())->toBe(null)
         ->and($hostTemplate->getHighFlapThreshold())->toBe(null)
-        ->and($hostTemplate->isEventHandlerEnabled())->toBe(YesNoDefault::Default)
+        ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(null)
         ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('')
         ->and($hostTemplate->getNoteUrl())->toBe('')
