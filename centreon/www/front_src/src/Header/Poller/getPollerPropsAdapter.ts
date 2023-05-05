@@ -43,13 +43,12 @@ const getIssueSeverityCode = ({
     return SeverityCode.High;
   }
 
-  return SeverityCode.Ok;
+  return SeverityCode.OK;
 };
 
 export const pollerConfigurationPageNumber = '60901';
 
 interface GetPollerPropsAdapterProps {
-  allowedPages: Array<string | Array<string>> | undefined;
   data: PollersIssuesList;
   isExportButtonEnabled: boolean;
   navigate: NavigateFunction;
@@ -65,7 +64,6 @@ export interface GetPollerPropsAdapterResult {
 export const getPollerPropsAdapter = ({
   data,
   t,
-  allowedPages,
   navigate,
   isExportButtonEnabled
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
@@ -88,14 +86,14 @@ export const getPollerPropsAdapter = ({
   const topIconProps = {
     database: {
       label:
-        databaseSeverity === SeverityCode.Ok
+        databaseSeverity === SeverityCode.OK
           ? t(labelDatabaseUpdateAndActive)
           : t(labelDatabaseNotActive),
       severity: databaseSeverity
     },
     latency: {
       label:
-        latencySeverity === SeverityCode.Ok
+        latencySeverity === SeverityCode.OK
           ? t(labelNoLatencyDetected)
           : t(labelLatencyDetected),
       severity: latencySeverity
@@ -112,7 +110,6 @@ export const getPollerPropsAdapter = ({
       },
       issues: formatedIssues,
       pollerConfig: {
-        isAllowed: !!allowedPages?.includes(pollerConfigurationPageNumber),
         label: t(labelConfigurePollers),
         redirect: (): void =>
           navigate(`/main.php?p=${pollerConfigurationPageNumber}`),

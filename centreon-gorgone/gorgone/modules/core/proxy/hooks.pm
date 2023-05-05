@@ -272,6 +272,7 @@ sub routing {
             # We put the good time to get        
             my $ctime = $synctime_nodes->{$target}->{ctime};
             $options{frame}->setData({ ctime => $ctime });
+            $options{frame}->setRawData();
             $synctime_nodes->{$target}->{in_progress} = 1;
             $synctime_nodes->{$target}->{in_progress_time} = time();
         }

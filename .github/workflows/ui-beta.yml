@@ -26,6 +26,13 @@ jobs:
           installation_directory: ${{ env.centreon_directory }}
           module_name: centreon-ui
 
+  cypress-component-testing:
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon/packages/ui
+      specs_path: src/**
+
   unit-test:
     runs-on: ubuntu-22.04
 
@@ -63,7 +70,7 @@ jobs:
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test, check-package-version]
+    needs: [lint, unit-test, check-package-version, cypress-component-testing]
 
     steps:
       - uses: actions/checkout@v3

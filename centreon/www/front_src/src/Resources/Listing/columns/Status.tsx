@@ -1,19 +1,20 @@
-import { path, pathEq, isNil } from 'ramda';
+import { equals, isNil, path, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
-import IconAcknowledge from '@mui/icons-material/Person';
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
+import IconAcknowledge from '@mui/icons-material/Person';
 
+import type { ComponentColumnProps } from '@centreon/ui';
 import {
+  IconButton,
   SeverityCode,
   StatusChip,
-  IconButton,
   useStyleTable
 } from '@centreon/ui';
-import type { ComponentColumnProps } from '@centreon/ui';
 
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
 import IconDowntime from '../../icons/Downtime';
 import {
@@ -23,7 +24,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
-import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 
 import { ColumnProps } from '.';
 
@@ -68,7 +68,7 @@ const StatusColumnOnHover = ({
   const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
 
-  const setForcedCheckInlineEndpoint = useUpdateAtom(
+  const setForcedCheckInlineEndpoint = useSetAtom(
     forcedCheckInlineEndpointAtom
   );
 
@@ -76,7 +76,7 @@ const StatusColumnOnHover = ({
 
   const isResourceOk = pathEq(
     ['status', 'severity_code'],
-    SeverityCode.Ok,
+    SeverityCode.OK,
     row
   );
 
@@ -166,6 +166,12 @@ const StatusColumn = ({
 
     const statusName = row.status.name;
 
+    const label = equals(SeverityCode[5], statusName) ? (
+      <>{t(statusName)}</>
+    ) : (
+      t(statusName)
+    );
+
     return (
       <div className={classes.statusColumn}>
         {isHovered ? (
@@ -173,7 +179,7 @@ const StatusColumn = ({
         ) : (
           <StatusChip
             className={classes.statusColumnChip}
-            label={t(statusName)}
+            label={label}
             severityCode={row.status.severity_code}
           />
         )}

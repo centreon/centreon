@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS=":t:v:r:l:"
+OPTIONS="hst:v:r:l:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([23.04]=1)
@@ -39,7 +39,7 @@ function genpasswd() {
   echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
 
   if [ $? -ne 0 ]; then
-    echo "ERROR : Cannot save the random password to [$tmp_passwords_file]"
+    echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
     exit 1
   fi
 
@@ -47,22 +47,6 @@ function genpasswd() {
   echo $_pwd
 
 }
-
-# Set MariaDB password from ENV or random password if not defined
-mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user : root")"}
-
-if [ "$wizard_autoplay" == "true" ]; then
-	# Set from ENV or random MariaDB centreon password
-	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user : centreon")"}
-	# Set from ENV or random Centreon admin password
-	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user : admin")"}
-	# Set from ENV or Administrator first name
-	centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
-	# Set from ENV or Administrator last name
-	centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
-	# Set from ENV or Administrator e-mail
-	centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
-fi
 
 CENTREON_MAJOR_VERSION=$version
 CENTREON_RELEASE_VERSION="$CENTREON_MAJOR_VERSION-1"
@@ -78,7 +62,7 @@ detected_os_version=
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
-RELEASE_RPM_URL=
+RELEASE_REPO_FILE=
 OS_SPEC_SERVICES=
 PKG_MGR=
 has_systemd=
@@ -94,9 +78,9 @@ CENTREON_DOC_URL=
 function usage() {
 
 	echo
-	echo "Usage :"
+	echo "Usage:"
 	echo
-	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
+	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -124,8 +108,8 @@ function log() {
 	TIMESTAMP=$(date --rfc-3339=seconds)
 
 	if [[ -z "${1}" || -z "${2}" ]]; then
-		echo "${TIMESTAMP} - ERROR : Missing argument"
-		echo "${TIMESTAMP} - ERROR : Usage log \"INFO\" \"Message log\" "
+		echo "${TIMESTAMP} - ERROR: Missing argument"
+		echo "${TIMESTAMP} - ERROR: Usage log \"INFO\" \"Message log\" "
 		exit 1
 	fi
 
@@ -163,25 +147,25 @@ function parse_subcommand_options() {
 		case ${opt} in
 		t)
 			requested_topology=$OPTARG
-			log "INFO" "Requested topology   : '$requested_topology'"
+			log "INFO" "Requested topology: '$requested_topology'"
 
 			[[ ! ${SUPPORTED_TOPOLOGY[$requested_topology]} ]] &&
-				log "ERROR" "Unsupported topology : $requested_topology" &&
+				log "ERROR" "Unsupported topology: $requested_topology" &&
 				usage
 			;;
 
 		v)
 			requested_version=$OPTARG
-			log "INFO" "Requested version    : '$requested_version'"
+			log "INFO" "Requested version: '$requested_version'"
 
 			[[ ! ${SUPPORTED_VERSION[$requested_version]} ]] &&
-				log "ERROR" "Unsupported version : $requested_version" &&
+				log "ERROR" "Unsupported version: $requested_version" &&
 				usage
 			;;
 
 		r)
 			requested_repo=$OPTARG
-			log "INFO" "Requested repository : '$requested_repo'"
+			log "INFO" "Requested repository: '$requested_repo'"
 
 			set_centreon_repos $requested_repo
 			;;
@@ -189,17 +173,26 @@ function parse_subcommand_options() {
 		l)
 			log_level=$OPTARG
 			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ]; then
-				log "ERROR" "Unsupported and ignored log level : $log_level"
+				log "ERROR" "Unsupported and ignored log level: $log_level"
 			else
 				runtime_log_level=$log_level
 			fi
-			log "INFO" "Runtime log level set : $runtime_log_level"
+			log "INFO" "Runtime log level set: $runtime_log_level"
 			;;
 
+        s)
+		    wizard_autoplay="true"
+			log "INFO" "The installation wizard will be executed by the script"
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
 			exit 1
+			;;
+
+		h)
+			usage
+			exit 0
 			;;
 
 		:)
@@ -213,19 +206,19 @@ function parse_subcommand_options() {
 
 	## check the configuration parameters
 	if [ -z "${requested_topology}" ]; then
-		log "WARN" "No topology provided : default value [$topology] will be used"
+		log "WARN" "No topology provided: default value [$topology] will be used"
 	else
 		topology=$requested_topology
 	fi
 
 	if [ -z "${requested_version}" ]; then
-		log "WARN" "No version provided : default value [$version] will be used"
+		log "WARN" "No version provided: default value [$version] will be used"
 	else
 		version=$requested_version
 	fi
 
 	if [ -z "${requested_repo}" ]; then
-		log "WARN" "No repository provided : default value [$repo] will be used"
+		log "WARN" "No repository provided: default value [$repo] will be used"
 	else
 		repo=$requested_repo
 	fi
@@ -262,11 +255,11 @@ function get_os_information() {
 	# Unattended install script only support Red Hat or compatible.
 	if ! detected_os_release=$(rpm -q --whatprovides /etc/redhat-release); then
 		log "ERROR" "Unsupported distribution $detected_os_release detected"
-		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
+		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 	fi
 
 	if [ "$(echo "${detected_os_release}" | wc -l)" -ne 1 ]; then
-		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release : $detected_os_release"
+		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release: $detected_os_release"
 	fi
 
 	detected_os_version=$(rpm -q "${detected_os_release}" --qf "%{version}")
@@ -281,6 +274,9 @@ function get_os_information() {
 # then concat the string for $CENTREON_REPO
 #
 function set_centreon_repos() {
+	if ! [ -z $1 ]; then
+		repo=$1
+	fi
 
 	IFS=', ' read -r -a array_repos <<<"$repo"
 
@@ -288,22 +284,37 @@ function set_centreon_repos() {
 	for _repo in "${array_repos[@]}"; do
 
 		[[ ! ${SUPPORTED_REPOSITORY[$_repo]} ]] &&
-			log "ERROR" "Unsupported repository : $_repo" &&
+			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		CENTREON_REPO+="centreon-$_repo*"
+		CENTREON_REPO+="centreon-23.04-$_repo*"
 		if ! [ "$_repo" == "${array_repos[@]:(-1)}" ]; then
 			CENTREON_REPO+=","
 		fi
 	done
 
-	log "INFO" "Following Centreon repo will be used [$CENTREON_REPO]"
+	log "INFO" "Following Centreon repo will be used: [$CENTREON_REPO]"
 
 }
 #========= end of function set_centreon_repos()
 
+#========= begin of function set_mariadb_repos()
+#
+function set_mariadb_repos() {
+	log "INFO" "Install MariaDB repository"
+	curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
+	if [ $? -ne 0 ]; then
+		error_and_exit "Could not install the repository"
+	else
+		log "INFO" "Successfully installed MariaDB repository"
+	fi
+	rm -f -y /etc/yum.repos.d/mariadb.repo.* > /dev/null 2>&1
+
+}
+#========= end of function set_mariadb_repos()
+
 #========= begin of function set_required_prerequisite()
-# check if the target OS is compatible with Red Hat and the version is 7 or 8
+# check if the target OS is compatible with Red Hat and the version is 8 or 9
 # then set the required environment variables accordingly
 #
 function set_required_prerequisite() {
@@ -312,40 +323,10 @@ function set_required_prerequisite() {
 	get_os_information
 
     case "$detected_os_version" in
-    7*)
-        log "INFO" "Setting specific part for v7 ($detected_os_version)"
-
-        case "$detected_os_release" in
-        centos-release* | centos-linux-release*)
-            BASE_PACKAGES=(centos-release-scl)
-            ;;
-
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(oraclelinux-release-el7)
-            ;;
-        esac
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el7/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el7.centos.noarch.rpm"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
-        log "INFO" "Install Centreon from ${RELEASE_RPM_URL}"
-        OS_SPEC_SERVICES="php-fpm httpd24-httpd"
-        PKG_MGR="yum"
-
-        install_remi_repo
-        $PKG_MGR -y -q install yum-utils
-        yum-config-manager --enable remi-php81
-
-        set_centreon_repos
-
-        log "INFO" "Installing required base packages"
-        if ! $PKG_MGR -y -q install ${BASE_PACKAGES[@]}; then
-            error_and_exit "Failed to install required base packages  ${BASE_PACKAGES[@]}"
-        fi
-        ;;
-
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el8/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el8.noarch.rpm"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -374,7 +355,6 @@ function set_required_prerequisite() {
         esac
 
         install_remi_repo
-        $PKG_MGR config-manager --set-enabled 'powertools'
 
         log "INFO" "Installing PHP 8.1 and enable it"
         $PKG_MGR module install php:remi-8.1 -y -q
@@ -387,10 +367,50 @@ function set_required_prerequisite() {
         $PKG_MGR -y -q update gnutls
 
         set_centreon_repos
+        set_mariadb_repos
+        ;;
+
+    9*)
+        log "INFO" "Setting specific part for v9 ($detected_os_version)"
+
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$CENTREON_MAJOR_VERSION/el9/centreon-$CENTREON_MAJOR_VERSION.repo"
+        OS_SPEC_SERVICES="php-fpm httpd"
+        PKG_MGR="dnf"
+
+        case "$detected_os_release" in
+        redhat-release*)
+            BASE_PACKAGES=(dnf-plugins-core epel-release)
+            subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+            ;;
+
+        centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+            BASE_PACKAGES=(dnf-plugins-core epel-release)
+            $PKG_MGR config-manager --set-enabled crb
+            ;;
+
+        oraclelinux-release* | enterprise-release*)
+            BASE_PACKAGES=(dnf-plugins-core)
+            $PKG_MGR config-manager --set-enabled ol9_codeready_builder
+            dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+	    ;;
+        esac
+
+        log "INFO" "Installing PHP 8.1 and enable it"
+        $PKG_MGR module install php:8.1 -y -q
+        $PKG_MGR module enable php:8.1 -y -q
+
+        log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
+        $PKG_MGR -y -q install ${BASE_PACKAGES[@]}
+
+        log "INFO" "Updating package gnutls"
+        $PKG_MGR -y -q update gnutls
+
+        set_centreon_repos
+        set_mariadb_repos
         ;;
 
     *)
-        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v7 and v8). Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
+        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
         ;;
     esac
 }
@@ -412,7 +432,7 @@ function is_systemd_present() {
 #========= end of function is_systemd_present()
 
 #========= begin of function set_selinux_config()
-# change SELinux config : $1 (permissive | enforcing | disabled)
+# change SELinux config: $1 (permissive | enforcing | disabled)
 #
 function set_selinux_config() {
 
@@ -434,7 +454,7 @@ function set_selinux_config() {
 #========= end of function set_selinux_config()
 
 #========= begin of function set_runtime_selinux_mode ()
-# set runtime SELinux mode : $1 (permissive | enforcing)
+# set runtime SELinux mode: $1 (permissive | enforcing)
 #
 function set_runtime_selinux_mode() {
 
@@ -515,16 +535,10 @@ function secure_mariadb_setup() {
 function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
-	$PKG_MGR -q clean all
 
-	rpm -q centreon-release-$CENTREON_MAJOR_VERSION >/dev/null 2>&1
+	$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
 	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Centreon repository"
-		fi
-	else
-		log "INFO" "Centreon repository seems to be already installed"
+		error_and_exit "Could not install Centreon repository"
 	fi
 }
 #========= end of function install_centreon_repo()
@@ -643,7 +657,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step3.php" 'install_dir_engine=%2Fusr%2Fshare%2Fcentreon-engine&centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
@@ -651,7 +665,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview'
+	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
 
 }
@@ -724,7 +738,7 @@ function update_after_installation() {
 	if [ $? -ne 0 ]; then
 		log "ERROR" "Could not install Centreon SELinux packages"
 	else
-		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/administration/secure-platform.html for more details."
+		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
 	fi
 
 	#then change the SELinux mode
@@ -744,6 +758,11 @@ fi
 ## Process the provided arguments in line
 case "$1" in
 
+-h)
+    usage
+	exit 0
+	;;
+
 upgrade)
 	operation="upgrade"
 	parse_subcommand_options "$@"
@@ -755,7 +774,7 @@ install)
 	;;
 
 *)
-	log "WARN" "No provided operation : default value [$operation] will be used"
+	log "WARN" "No provided operation: default value [$operation] will be used"
 	#usage
 	operation="install"
 	parse_subcommand_options "$@"
@@ -763,11 +782,27 @@ install)
 
 esac
 
+# Set MariaDB password from ENV or random password if not defined
+mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
+
+if [ "$wizard_autoplay" == "true" ]; then
+	# Set from ENV or random MariaDB centreon password
+	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
+	# Set from ENV or random Centreon admin password
+	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
+	# Set from ENV or Administrator first name
+	centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
+	# Set from ENV or Administrator last name
+	centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
+	# Set from ENV or Administrator e-mail
+	centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
+fi
+
 ## Display all configured parameters
 log "INFO" "Start to execute operation [$operation] with following configuration parameters:"
-log "INFO" " topology   : \t[$topology]"
-log "INFO" " version    : \t[$version]"
-log "INFO" " repository : \t[$repo]"
+log "INFO" " topology: \t[$topology]"
+log "INFO" " version: \t[$version]"
+log "INFO" " repository: [$repo]"
 
 log "WARN" "It will start in [$default_timeout_in_sec] seconds. If you don't want to wait, press any key to continue or Ctrl-C to exit"
 pause "" $default_timeout_in_sec
@@ -776,7 +811,6 @@ pause "" $default_timeout_in_sec
 # Analyze system and set the variables
 ##
 set_required_prerequisite
-
 ##
 # Check if systemd is present
 ##
@@ -791,13 +825,13 @@ install)
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_central
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/web-and-post-installation.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_poller
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/monitoring/monitoring-servers/add-a-poller-to-configuration.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;
 	esac
 

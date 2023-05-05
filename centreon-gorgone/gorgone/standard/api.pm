@@ -28,7 +28,6 @@ use JSON::XS;
 
 my $module;
 my $socket;
-my $results = {};
 my $action_token;
 
 sub set_module {
@@ -40,10 +39,9 @@ sub root {
 
     $options{logger}->writeLogInfo("[api] Requesting '" . $options{uri} . "' [" . $options{method} . "]");
 
-    $action_token = undef;
+    $options{module}->{tokens} = {};
     $socket = $options{socket};
     $module = $options{module};
-    $results = {};
 
     my $response;
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?log\/(.*)$/) {
@@ -149,14 +147,23 @@ sub call_internal {
         json_encode => 1
     });
 
-    my $watcher_timer = $options{module}->{loop}->timer(5, 0, \&stop_ev);
-    $options{module}->{loop}->run();
+    $options{module}->{break_token} = $action_token;
+
+    my $timeout = 5;
+    my $ctime = time();
+    while (1) {
+        my $watcher_timer = $options{module}->{loop}->timer(1, 0, \&stop_ev);
+        $options{module}->{loop}->run();
+        last if (time() > ($ctime + $timeout) || defined($options{module}->{tokens}->{$action_token}));
+    }
+
+    $options{module}->{break_token} = undef;
 
     my $response = '{"error":"no_result", "message":"No result found for action \'' . $options{action} . '\'"}';
-    if (defined($results->{$action_token}->{data})) {
+    if (defined($options{module}->{tokens}->{$action_token}->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->decode($results->{$action_token}->{data});
+            $content = JSON::XS->new->decode($options{module}->{tokens}->{$action_token}->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
@@ -204,14 +211,23 @@ sub get_log {
         json_encode => 1
     });
 
-    my $watcher_timer = $options{module}->{loop}->timer(5, 0, \&stop_ev);
-    $options{module}->{loop}->run();
+    $options{module}->{break_token} = $token_log;
+
+    my $timeout = 5;
+    my $ctime = time();
+    while (1) {
+        my $watcher_timer = $options{module}->{loop}->timer(1, 0, \&stop_ev);
+        $options{module}->{loop}->run();
+        last if (time() > ($ctime + $timeout) || defined($options{module}->{tokens}->{$token_log}));
+    }
+
+    $options{module}->{break_token} = undef;
 
     my $response = '{"error":"no_log","message":"No log found for token","data":[],"token":"' . $options{token} . '"}';
-    if (defined($results->{ $token_log }) && defined($results->{ $token_log }->{data})) {
+    if (defined($options{module}->{tokens}->{$token_log}) && defined($options{module}->{tokens}->{ $token_log }->{data})) {
         my $content;
         eval {
-            $content = JSON::XS->new->decode($results->{ $token_log }->{data});
+            $content = JSON::XS->new->decode($options{module}->{tokens}->{ $token_log }->{data});
         };
         if ($@) {
             $response = '{"error":"decode_error","message":"Cannot decode response"}';
@@ -232,31 +248,6 @@ sub get_log {
     }
 
     return $response;
-}
-
-sub event {
-    my (%options) = @_;
-
-    my $httpserver = defined($options{httpserver}) ? $options{httpserver} : $module;
-    while ($httpserver->{internal_socket}->has_pollin()) {
-        my ($message) = $httpserver->read_message();
-        next if (!defined($message));
-
-        if ($message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+\[.*?\]\s+(.*)$/m || 
-            $message =~ /^\[(.*?)\]\s+\[([a-zA-Z0-9:\-_]*?)\]\s+(.*)$/m) {
-            my ($action, $token, $data) = ($1, $2, $3);
-            $results->{$token} = {
-                action => $action,
-                token => $token,
-                data => $data
-            };
-            if ((my $method = $httpserver->can('action_' . lc($action)))) {
-                my ($rv, $decoded) = $httpserver->json_decode(argument => $data, token => $token);
-                next if ($rv);
-                $method->($httpserver, token => $token, data => $decoded);
-            }
-        }
-    }
 }
 
 1;

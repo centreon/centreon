@@ -1,0 +1,5 @@
+/usr/libexec/vi
+/usr/lib64/libprocps.so.8
+/usr/lib64/faketime/libfaketime.so.1
+/usr/lib64/libbrotlienc.so.1
+/usr/lib64/libbrotlienc.so.1.0.9
