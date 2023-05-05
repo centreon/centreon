@@ -287,6 +287,9 @@ class CentreonTopCounter extends CentreonWebService
      */
     private function getPasswordRemainingTime(): ?int
     {
+        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+            return null;
+        }
         $passwordRemainingTime = null;
         $contact = new CentreonContact($this->pearDB);
         $passwordCreationDate = $contact->findLastPasswordCreationDate((int) $this->centreon->user->user_id);
