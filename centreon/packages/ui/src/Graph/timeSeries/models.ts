@@ -95,16 +95,6 @@ export interface LinesProps {
   xScale: ScaleTime<number, number, never>;
 }
 
-export interface AdditionalLines {
-  additionalLinesProps: LinesProps;
-  resource: any;
-}
-
-export interface FilterLines {
-  lines: Array<Line>;
-  resource: any;
-}
-
 export interface NewLines {
   newLines: Array<Line>;
   newSortedLines: Array<Line>;

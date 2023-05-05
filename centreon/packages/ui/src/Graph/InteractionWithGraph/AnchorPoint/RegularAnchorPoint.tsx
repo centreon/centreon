@@ -5,7 +5,6 @@ import { ScaleLinear, ScaleTime } from 'd3-scale';
 
 import { getDates, bisectDate } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
-import { MousePosition } from '../mouseTimeValueAtoms';
 
 import AnchorPoint from '.';
 
