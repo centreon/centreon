@@ -177,7 +177,7 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
-  checkIfConfigurationIsExported(dateBeforeLogin, testHostName);
+  checkIfConfigurationIsExported({dateBeforeLogin, hostName: testHostName});
 });
 
 Then('the selected pollers are {string}', (poller_action: string) => {
@@ -229,7 +229,7 @@ Then('a success message is displayed', () => {
 });
 
 Then('the configuration is generated on all pollers', () => {
-  checkIfConfigurationIsExported(dateBeforeLogin, testHostName);
+  checkIfConfigurationIsExported({dateBeforeLogin, hostName: testHostName});
 
   cy.logout();
 

@@ -93,11 +93,11 @@ const insertResourceFixtures = (): Cypress.Chainable => {
       .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
       .then(() => submitResultsViaClapi(submitResults))
       .then(() =>
-        checkThatFixtureServicesExistInDatabase(
-          serviceInAcknowledgementName,
-          'submit_status_2',
+        checkThatFixtureServicesExistInDatabase({
+          outputText: 'submit_status_2',
+          serviceDesc: serviceInAcknowledgementName,
           submitResults
-        )
+        })
       );
   });
 };
@@ -118,11 +118,11 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(() => submitResultsViaClapi(results))
     .then(() =>
-      checkThatFixtureServicesExistInDatabase(
-        serviceInAcknowledgementName,
-        'submit_status_2',
-        results
-      )
+      checkThatFixtureServicesExistInDatabase({
+        outputText: 'submit_status_2',
+        serviceDesc: serviceInAcknowledgementName,
+        submitResults: results
+      })
     );
 };
 

@@ -30,11 +30,11 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
 
-const checkThatFixtureServicesExistInDatabase = (
-  serviceDesc: string,
-  outputText: string,
-  submitResults: SubmitResult
-): void => {
+const checkThatFixtureServicesExistInDatabase = ({
+  serviceDesc,
+  outputText,
+  submitResults
+}): void => {
   cy.log('Checking services in database');
 
   const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%${serviceDesc}%' AND s.output LIKE '%${outputText}%' AND s.enabled=1;`;
@@ -60,13 +60,13 @@ const checkThatFixtureServicesExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi([submitResults]))
+        .then(() => submitResultsViaClapi(submitResults))
         .then(() =>
-          checkThatFixtureServicesExistInDatabase(
-            serviceDesc,
+          checkThatFixtureServicesExistInDatabase({
             outputText,
+            serviceDesc,
             submitResults
-          )
+          })
         );
     }
 
@@ -76,11 +76,11 @@ const checkThatFixtureServicesExistInDatabase = (
   });
 };
 
-const checkThatFixtureHostsExistInDatabase = (
-  hostAlias: string,
-  submitOutput: string,
-  submitResults: SubmitResult
-): void => {
+const checkThatFixtureHostsExistInDatabase = ({
+  hostAlias,
+  submitOutput,
+  submitResults
+}): void => {
   cy.log('Checking hosts in database');
 
   const query = `SELECT COUNT(h.host_id) as count_hosts from hosts as h WHERE h.name LIKE '%${hostAlias}%' AND h.output LIKE '%${submitOutput}%' AND h.enabled=1;`;
@@ -106,13 +106,13 @@ const checkThatFixtureHostsExistInDatabase = (
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi([submitResults]))
+        .then(() => submitResultsViaClapi(submitResults))
         .then(() =>
-          checkThatFixtureHostsExistInDatabase(
+          checkThatFixtureHostsExistInDatabase({
             hostAlias,
             submitOutput,
             submitResults
-          )
+          })
         );
     }
 
@@ -233,10 +233,10 @@ const checkExportedFileContent = (
     });
 };
 
-const checkIfConfigurationIsExported = (
-  dateBeforeLogin: Date,
-  hostName: string
-): void => {
+const checkIfConfigurationIsExported = ({
+  dateBeforeLogin,
+  hostName
+}): void => {
   cy.log('Checking that configuration is exported');
   const now = dateBeforeLogin.getTime();
 
