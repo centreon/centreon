@@ -2,6 +2,8 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
+export { Checkbox, MultiCheckbox } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
