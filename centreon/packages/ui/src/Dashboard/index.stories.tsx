@@ -60,17 +60,21 @@ const generateLayout = (maxElements: number): Array<CustomLayout> => {
 };
 
 interface DashboardTemplateProps {
-  displayGrid?: boolean;
+  header?: JSX.Element;
   layout?: Array<CustomLayout>;
 }
 
+const Header = (): JSX.Element => (
+  <Typography variant="body2">The title</Typography>
+);
+
 const DashboardTemplate = ({
-  displayGrid,
+  header,
   layout = dashboardLayout
 }: DashboardTemplateProps): JSX.Element => (
-  <DashboardLayout<CustomLayout> displayGrid={displayGrid} layout={layout}>
+  <DashboardLayout<CustomLayout> layout={layout}>
     {layout.map(({ i, content, shouldUseFluidTypography }) => (
-      <DashboardItem key={i}>
+      <DashboardItem header={header} key={i}>
         {shouldUseFluidTypography ? (
           <FluidTypography text={content} />
         ) : (
@@ -92,4 +96,9 @@ export const normal = DashboardTemplate.bind({});
 export const withManyPanels = DashboardTemplate.bind({});
 withManyPanels.args = {
   layout: generateLayout(1000)
+};
+
+export const withItemHeader = DashboardTemplate.bind({});
+withItemHeader.args = {
+  header: <Header />
 };

@@ -72,5 +72,12 @@ export const useDashboardItemStyles = makeStyles()((theme) => ({
   widgetContent: {
     height: '100%',
     padding: theme.spacing(1, 2)
+  },
+  widgetHeader: {
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover
+    },
+    cursor: 'move',
+    padding: theme.spacing(0.5, 2)
   }
 }));
