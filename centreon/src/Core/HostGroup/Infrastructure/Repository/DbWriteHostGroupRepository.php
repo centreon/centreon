@@ -61,6 +61,32 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         $statement->execute();
     }
 
+    public function update(HostGroup $hostGroup): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`hostgroup`
+            SET
+                hg_name = :name,
+                hg_alias = :alias,
+                hg_notes = :notes,
+                hg_notes_url = :notes_url,
+                hg_action_url = :action_url,
+                hg_icon_image = :icon_image,
+                hg_map_icon_image = :map_icon_image,
+                hg_rrd_retention = :rrd_retention,
+                geo_coords = :geo_coords,
+                hg_comment = :comment,
+                hg_activate = :activate
+            WHERE
+                hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':hostgroup_id', $hostGroup->getId(), \PDO::PARAM_INT);
+        $this->bindValueOfHostGroup($statement, $hostGroup);
+        $statement->execute();
+    }
+
     /**
      * @inheritDoc
      */

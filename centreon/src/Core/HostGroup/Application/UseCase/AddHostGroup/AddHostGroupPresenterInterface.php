@@ -21,26 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups;
+namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
-final class FindHostGroupsResponse
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface AddHostGroupPresenterInterface
 {
-    /** @var array<
-     *     array{
-     *         id: int,
-     *         name: string,
-     *         alias: string,
-     *         notes: string,
-     *         notesUrl: string,
-     *         actionUrl: string,
-     *         iconId: ?int,
-     *         iconMapId: ?int,
-     *         rrdRetention: ?int,
-     *         geoCoords: ?string,
-     *         comment: string,
-     *         isActivated: bool
-     *     }
-     * >
-     */
-    public array $hostgroups = [];
+    public function presentResponse(AddHostGroupResponse|ResponseStatusInterface $data): void;
 }

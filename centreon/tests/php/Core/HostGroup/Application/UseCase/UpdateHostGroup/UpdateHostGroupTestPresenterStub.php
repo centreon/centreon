@@ -21,26 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups;
+namespace Tests\Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
-final class FindHostGroupsResponse
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostGroup\Application\UseCase\UpdateHostGroup\UpdateHostGroupPresenterInterface;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+
+class UpdateHostGroupTestPresenterStub extends DefaultPresenter implements UpdateHostGroupPresenterInterface
 {
-    /** @var array<
-     *     array{
-     *         id: int,
-     *         name: string,
-     *         alias: string,
-     *         notes: string,
-     *         notesUrl: string,
-     *         actionUrl: string,
-     *         iconId: ?int,
-     *         iconMapId: ?int,
-     *         rrdRetention: ?int,
-     *         geoCoords: ?string,
-     *         comment: string,
-     *         isActivated: bool
-     *     }
-     * >
-     */
-    public array $hostgroups = [];
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
+    {
+        if ($data instanceof NoContentResponse) {
+            $this->present($data);
+        } else {
+            $this->setResponseStatus($data);
+        }
+    }
 }
