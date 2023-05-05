@@ -28,6 +28,5 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface UpdateHostGroupPresenterInterface
 {
-
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
 }
