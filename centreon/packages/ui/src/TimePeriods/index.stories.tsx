@@ -43,6 +43,7 @@ const argTypes = {
     control: 'object',
     description: 'soon',
     table: {
+      defaultValue: { summary: '[]' },
       type: { detail: 'extra selected time periods', summary: 'array' }
     }
   },
