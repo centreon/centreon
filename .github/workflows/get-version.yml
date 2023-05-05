@@ -88,7 +88,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x | MON-18399-handle-deployment-environements-in-all-delivery-pipelines)
+            develop | dev-[2-9][0-9].[0-9][0-9].x)
               STABILITY="unstable"
               ;;
             release* | hotfix*)
@@ -105,6 +105,6 @@ jobs:
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
-          echo "env=$STABILITY-$MAJOR" >> $GITHUB_OUTPUT
-          echo "GH_ENV: $STABILITY-$MAJOR"
+          echo "env=$MAJOR-$STABILITY" >> $GITHUB_OUTPUT
+          echo "GH_ENV: $MAJOR-$STABILITY"
         shell: bash
