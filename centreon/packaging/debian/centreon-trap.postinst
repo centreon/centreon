@@ -11,11 +11,14 @@ if [ "$1" = "configure" ]; then
         cat <<EOF >> /etc/snmp/snmptrapd.conf
 disableAuthorization yes
 EOF
+        echo "updating /etc/snmp/snmptrapd.conf"
         grep centreontrapdforward /etc/snmp/snmptrapd.conf &>/dev/null ||
         cat <<EOF >> /etc/snmp/snmptrapd.conf
 # Centreon custom configuration
 traphandle default su -l centreon -c "/usr/share/centreon/bin/centreontrapdforward"
 EOF
+        echo "displaying /etc/snmp/snmptrapd.conf"
+        cat /etc/snmp/snmptrapd.conf
     fi
 
     # Fix permissions
