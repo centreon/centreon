@@ -15379,3 +15379,6 @@ msgstr ""
 
 # msgid "Groups mapping"
 # msgstr ""
+
+# msgid "Error while retrieving a host group"
+# msgstr ""

@@ -54,6 +54,14 @@ class HostGroupException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving a host group'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileDeleting(): self
     {
         return new self(_('Error while deleting a host group'));

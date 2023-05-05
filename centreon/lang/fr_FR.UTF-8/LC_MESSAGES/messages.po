@@ -17279,6 +17279,9 @@ msgstr "Le groupe d'hôtes '%s' existe déjà"
 msgid "Error while retrieving newly created host group"
 msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être créé"
 
+msgid "Error while retrieving a host group"
+msgstr "Erreur durant la récupération d'un groupe d'hôtes"
+
 msgid "The host group icon '%s' with id '%d' does not exist"
 msgstr "L'icône '%s' avec l'identifiant '%d' n'existe pas"
 

@@ -401,6 +401,27 @@ Feature:
         "is_activated": true
     }
     """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/63'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "id": 63,
+        "name": "test-add2",
+        "alias": null,
+        "notes": null,
+        "notes_url": null,
+        "action_url": null,
+        "icon_id": 1,
+        "icon_map_id": 1,
+        "rrd": null,
+        "geo_coords": null,
+        "comment": null,
+        "is_activated": true
+    }
+    """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/666666'
+    Then the response code should be "404"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {"name": "test-add2"}
