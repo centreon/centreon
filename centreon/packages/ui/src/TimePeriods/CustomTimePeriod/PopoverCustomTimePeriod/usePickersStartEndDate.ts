@@ -2,7 +2,9 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
 import { and, cond, equals, isNil } from 'ramda';
+import { useSetAtom } from 'jotai';
 
+import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
 
 import { AcceptDateProps } from './models';
@@ -19,7 +21,6 @@ interface EndDate {
 export interface PickersStartEndDateModel {
   changeDate: (props: AcceptDateProps) => void;
   endDate: EndDate;
-  error: boolean;
   startDate: StartDate;
 }
 interface Props {
@@ -38,7 +39,7 @@ const usePickersStartEndDate = ({
     !isNil(customTimePeriod) ? customTimePeriod.end : null
   );
 
-  const [error, setError] = useState(false);
+  const setError = useSetAtom(errorTimePeriodAtom);
 
   const isInvalidDate = ({ startDate, endDate }): boolean =>
     dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
@@ -83,7 +84,6 @@ const usePickersStartEndDate = ({
   return {
     changeDate,
     endDate: { end, setEnd },
-    error,
     startDate: { setStart, start }
   };
 };

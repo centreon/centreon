@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, not } from 'ramda';
 
 import { margin } from '../../common';
@@ -44,7 +44,7 @@ const useAnchorPoint = ({
   const mousePosition = useAtomValue(mousePositionAtom);
   const timeValueData = useAtomValue(timeValueAtom);
 
-  const changeMousePositionAndTimeValue = useUpdateAtom(
+  const changeMousePositionAndTimeValue = useSetAtom(
     changeMousePositionAndTimeValueDerivedAtom
   );
 

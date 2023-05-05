@@ -1,6 +1,5 @@
-import dayjs from 'dayjs';
 import { atom } from 'jotai';
-import { T, always, cond, gte } from 'ramda';
+import { isNil, not, pipe } from 'ramda';
 
 import {
   defaultTimePeriod,
@@ -8,12 +7,9 @@ import {
   getTimePeriodFromNow
 } from './helpers';
 import {
-  GetNewCustomTimePeriodProps,
-  TimeLineAxisTickFormat,
+  GraphQueryParametersProps,
   TimePeriod,
-  TimePeriodById,
-  dateFormat,
-  timeFormat
+  TimePeriodById
 } from './models';
 
 export const selectedTimePeriodAtom = atom<TimePeriod | null>(
@@ -23,6 +19,8 @@ export const selectedTimePeriodAtom = atom<TimePeriod | null>(
 const defaultCustomTimePeriod = getTimePeriodFromNow(defaultTimePeriod);
 
 export const customTimePeriodAtom = atom(defaultCustomTimePeriod);
+
+export const errorTimePeriodAtom = atom(false);
 
 export const changeSelectedTimePeriodDerivedAtom = atom(
   null,
@@ -52,28 +50,64 @@ export const changeCustomTimePeriodDerivedAtom = atom(
   }
 );
 
-export const getNewTimeLineLimitAndAxisTickFormat = ({
-  start,
-  end
-}: GetNewCustomTimePeriodProps): TimeLineAxisTickFormat => {
-  const customTimePeriodInDay = dayjs
-    .duration(dayjs(end).diff(dayjs(start)))
-    .asDays();
+export const getDatesDerivedAtom = atom(
+  (get) =>
+    (timePeriod?: TimePeriod | null): [string, string] => {
+      const customTimePeriod = get(customTimePeriodAtom);
 
-  const xAxisTickFormat = gte(customTimePeriodInDay, 2)
-    ? dateFormat
-    : timeFormat;
+      if (isNil(timePeriod)) {
+        return [
+          customTimePeriod.start.toISOString(),
+          customTimePeriod.end.toISOString()
+        ];
+      }
 
-  const timelineLimit = cond<number, number>([
-    [gte(1), always(20)],
-    [gte(7), always(100)],
-    [T, always(500)]
-  ])(customTimePeriodInDay);
+      return [
+        timePeriod.getStart().toISOString(),
+        new Date(Date.now()).toISOString()
+      ];
+    }
+);
 
-  return {
-    end,
-    start,
-    timelineLimit,
-    xAxisTickFormat
-  };
-};
+export const graphQueryParametersDerivedAtom = atom(
+  (get) =>
+    ({ timePeriod, startDate, endDate }: GraphQueryParametersProps): string => {
+      const getDates = get(getDatesDerivedAtom);
+
+      if (pipe(isNil, not)(timePeriod)) {
+        const [start, end] = getDates(timePeriod);
+
+        return `?start=${start}&end=${end}`;
+      }
+
+      return `?start=${startDate?.toISOString()}&end=${endDate?.toISOString()}`;
+    }
+);
+
+// a deplacer le timelinelimit vers le graph
+
+// export const getNewTimeLineLimitAndAxisTickFormat = ({
+//   start,
+//   end
+// }: GetNewCustomTimePeriodProps): TimeLineAxisTickFormat => {
+//   const customTimePeriodInDay = dayjs
+//     .duration(dayjs(end).diff(dayjs(start)))
+//     .asDays();
+
+//   const xAxisTickFormat = gte(customTimePeriodInDay, 2)
+//     ? dateFormat
+//     : timeFormat;
+
+//   const timelineLimit = cond<number, number>([
+//     [gte(1), always(20)],
+//     [gte(7), always(100)],
+//     [T, always(500)]
+//   ])(customTimePeriodInDay);
+
+//   return {
+//     end,
+//     start,
+//     timelineLimit,
+//     xAxisTickFormat
+//   };
+// };

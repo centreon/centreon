@@ -13,6 +13,7 @@ import {
   DateTimePickerInputModel
 } from '../../models';
 import useDateTimePickerAdapter from '../../useDateTimePickerAdapter';
+import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
 import ErrorText from './ErrorText';
 import { PickersData, PickersStartEndDateDirection } from './models';
@@ -97,7 +98,6 @@ interface Props extends PickersDate, PickersStartEndDateModel {
 const PickersStartEndDate = ({
   startDate,
   endDate,
-  error,
   disabled,
   changeDate,
   rangeStartDate,
@@ -105,8 +105,10 @@ const PickersStartEndDate = ({
   direction = PickersStartEndDateDirection.column
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
-  const { locale } = useAtomValue(userAtom);
   const { Adapter } = useDateTimePickerAdapter();
+
+  const { locale } = useAtomValue(userAtom);
+  const error = useAtomValue(errorTimePeriodAtom);
 
   const { start, setStart } = startDate;
   const { end, setEnd } = endDate;

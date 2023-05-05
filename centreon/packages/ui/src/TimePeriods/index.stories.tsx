@@ -16,9 +16,7 @@ export default {
 };
 
 const Template: ComponentStory<typeof AwesomeTimePeriod> = (args) => {
-  const { extraTimePeriods } = args;
-
-  return <AwesomeTimePeriod extraTimePeriods={extraTimePeriods} />;
+  return <AwesomeTimePeriod {...args} />;
 };
 
 export const Playground = Template.bind({});
@@ -34,4 +32,36 @@ Playground.args = {
       timelineEventsLimit: 100
     }
   ]
+};
+Playground.argTypes = {
+  disabled: {
+    control: 'boolean',
+    defaultValue: false,
+    description: 'If true, the component is disabled.'
+  },
+  extraTimePeriods: {
+    control: 'object',
+    description: 'soon',
+    table: {
+      type: { detail: 'extra selected time periods', summary: 'array' }
+    }
+  },
+  getIsError: {
+    description:
+      'Callback fired when The end date is smaller or equal the start date',
+    table: {
+      category: 'Events',
+      type: { detail: '(value:boolean)=>void', summary: 'function' }
+    }
+  },
+  getStartEndParameters: {
+    description: 'Callback fired when the the user select or pick a date',
+    table: {
+      category: 'Events',
+      type: {
+        detail: '({start:isoString,end:isoString})=>void',
+        summary: 'function'
+      }
+    }
+  }
 };

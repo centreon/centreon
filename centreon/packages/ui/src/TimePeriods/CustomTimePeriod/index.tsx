@@ -11,10 +11,11 @@ import CompactCustomTimePeriod from './CompactCustomTimePeriod';
 import PopoverCustomTimePeriod from './PopoverCustomTimePeriod';
 
 interface Props {
+  disabled?: boolean;
   width: number;
 }
 
-const CustomTimePeriod = ({ width }: Props): JSX.Element => {
+const CustomTimePeriod = ({ width, disabled = false }: Props): JSX.Element => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
@@ -36,6 +37,7 @@ const CustomTimePeriod = ({ width }: Props): JSX.Element => {
   return (
     <>
       <CompactCustomTimePeriod
+        disabled={disabled}
         width={width}
         onClick={onClickCompactCustomTimePeriod}
       />
@@ -43,6 +45,8 @@ const CustomTimePeriod = ({ width }: Props): JSX.Element => {
         pickersData={{
           acceptDate,
           customTimePeriod,
+          isDisabledEndPicker: disabled,
+          isDisabledStartPicker: disabled,
           rangeEndDate: { min: customTimePeriod.start },
           rangeStartDate: { max: customTimePeriod.end }
         }}

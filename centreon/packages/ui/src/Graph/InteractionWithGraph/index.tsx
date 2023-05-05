@@ -1,6 +1,6 @@
 import { MutableRefObject } from 'react';
 
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 import { ScaleTime } from 'd3-scale';
 
@@ -38,9 +38,9 @@ interface Props {
 const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const setEventMouseMoving = useUpdateAtom(eventMouseMovingAtom);
-  const setEventMouseDown = useUpdateAtom(eventMouseDownAtom);
-  const setEventMouseUp = useUpdateAtom(eventMouseUpAtom);
+  const setEventMouseMoving = useSetAtom(eventMouseMovingAtom);
+  const setEventMouseDown = useSetAtom(eventMouseDownAtom);
+  const setEventMouseUp = useSetAtom(eventMouseUpAtom);
 
   const { graphHeight, graphWidth, graphSvgRef } = commonData;
 

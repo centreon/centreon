@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
@@ -39,7 +39,7 @@ const useZoomPreview = ({
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
 
-  const setZoomParameters = useUpdateAtom(zoomParametersAtom);
+  const setZoomParameters = useSetAtom(zoomParametersAtom);
 
   const mousePointDown = eventMouseDown
     ? Event.localPoint(eventMouseDown)

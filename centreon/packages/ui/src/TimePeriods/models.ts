@@ -90,3 +90,14 @@ export interface TimeLineAxisTickFormat extends CustomTimePeriod {
   timeLineLimit: number;
   xAxisTickFormat: string;
 }
+
+export interface GraphQueryParametersProps {
+  endDate?: Date;
+  startDate?: Date;
+  timePeriod?: TimePeriod | null;
+}
+
+export interface EndStartInterval {
+  end: string;
+  start: string;
+}

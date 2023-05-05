@@ -16,9 +16,6 @@ dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
-const rootElement = document.getElementById('root');
-rootElement.style.height = '80%';
-
 interface Props extends GraphProps {
   baseUrl: string;
   end: string;
@@ -45,7 +42,7 @@ const WrapperGraph = ({
   }
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div>
       <Responsive.ParentSize>
         {({
           height: responsiveHeight,

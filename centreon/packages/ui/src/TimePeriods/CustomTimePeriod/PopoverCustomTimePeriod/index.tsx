@@ -34,7 +34,7 @@ const PopoverCustomTimePeriod = ({
   const { open, onClose } = popoverData;
   const { acceptDate, customTimePeriod } = pickersData;
 
-  const { error, startDate, endDate, changeDate } = usePickersStartEndDate({
+  const { startDate, endDate, changeDate } = usePickersStartEndDate({
     acceptDate,
     customTimePeriod
   });
@@ -65,7 +65,6 @@ const PopoverCustomTimePeriod = ({
         changeDate={changeDate}
         disabled={disabled}
         endDate={endDate}
-        error={error}
         rangeEndDate={pickersData?.rangeEndDate}
         rangeStartDate={pickersData?.rangeStartDate}
         startDate={startDate}

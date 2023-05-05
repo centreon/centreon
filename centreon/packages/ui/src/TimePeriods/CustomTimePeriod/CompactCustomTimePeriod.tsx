@@ -11,11 +11,16 @@ import { customTimePeriodAtom } from '../timePeriodsAtoms';
 import useStyles from './CompactCustomTimePeriod.styles';
 
 interface Props {
+  disabled?: boolean;
   onClick: (event) => void;
   width: number;
 }
 
-const CompactCustomTimePeriod = ({ width, onClick }: Props): JSX.Element => {
+const CompactCustomTimePeriod = ({
+  width,
+  onClick,
+  disabled = false
+}: Props): JSX.Element => {
   const theme = useTheme();
   const { classes } = useStyles();
 
@@ -31,6 +36,7 @@ const CompactCustomTimePeriod = ({ width, onClick }: Props): JSX.Element => {
       className={classes.button}
       color="primary"
       data-testid="Compact time period"
+      disabled={disabled}
       variant="outlined"
       onClick={onClick}
     >

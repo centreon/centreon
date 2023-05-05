@@ -4,7 +4,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { equals, isEmpty, isNil } from 'ramda';
 import dayjs from 'dayjs';
 
-import TimePeriod from '../TimePeriods';
+import AwesomeTimePeriod from '../TimePeriods';
 
 import Graph from './index';
 
@@ -19,16 +19,6 @@ const Template: ComponentStory<typeof Graph> = (args) => {
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
 
-  const getGraphParameters = (data): void => {
-    setStartTime(data.start);
-    setEndTime(data.end);
-  };
-
-  const setTimePeriod = (callback): void => {
-    // callback with parameters : timePeriodParameters
-    // console.log({ callback });
-  };
-
   useEffect(() => {
     if (equals(typeof start, 'number')) {
       setStartTime(new Date(start).toISOString());
@@ -39,11 +29,19 @@ const Template: ComponentStory<typeof Graph> = (args) => {
     }
   }, [start, end]);
 
+  const getInterval = (data): void => {
+    console.log({ data });
+  };
+
+  const getIsError = (value): void => {
+    console.log({ value });
+  };
+
   return (
     <>
-      <TimePeriod
-        getTimePeriodParameters={getGraphParameters}
-        setTimePeriod={setTimePeriod}
+      <AwesomeTimePeriod
+        getIsError={getIsError}
+        getStartEndParameters={getInterval}
       />
       <Graph
         {...args}
