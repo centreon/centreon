@@ -49,6 +49,18 @@ const preview: Preview = {
       },
     },
   },
+  parameters: {
+    actions: { argTypesRegex: "^on[A-Z].*" },
+    a11y: {
+      manual: true,
+    },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      }
+    }
+  }
 };
 
 export default preview;

@@ -16,11 +16,10 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: ["react", "react-dom", "@emotion/react", "@emotion/styled"],
       output: {
         globals: {
           react: "React",
-          "react-dom": "ReactDOM",
         },
       },
     },
