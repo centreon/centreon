@@ -107,7 +107,7 @@ $centreon->user->setCurrentPage($p);
 global $is_admin;
 $is_admin = $centreon->user->admin;
 
-$query = "SELECT topology_parent,topology_name,topology_id,topology_url,topology_page " .
+$query = "SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_feature_flag " .
     " FROM topology WHERE topology_page = '" . $p . "'";
 $DBRESULT = $pearDB->query($query);
 $redirect = $DBRESULT->fetch();
@@ -121,6 +121,11 @@ $isRemote = false;
 $result = $pearDB->query("SELECT `value` FROM `informations` WHERE `key` = 'isRemote'");
 if ($row = $result->fetch()) {
     $isRemote = $row['value'] === 'yes';
+}
+
+// Disable the page if not enabled.
+if (! is_enabled_feature_flag($redirect['topology_feature_flag'] ?? null)) {
+    $redirect = false;
 }
 
 /*

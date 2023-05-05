@@ -31,11 +31,10 @@ class KnowledgeBaseContext extends CentreonContext
         );
         $this->iAmLoggedIn();
 
-        $containerId = $this->container->getContainerId('mediawiki', false);
         $page = new KBParametersPage($this);
         $page->setProperties(
             array(
-                'kb_wiki_url' => 'http://' . $containerId,
+                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
                 'kb_wiki_account' => 'WikiSysop',
                 'kb_wiki_password' => 'centreon'
             )

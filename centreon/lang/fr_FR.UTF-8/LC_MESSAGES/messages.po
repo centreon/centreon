@@ -2494,7 +2494,6 @@ msgstr "Statut détaillé"
 #: centreon-web/www/install/smarty_translate.php:873
 #: centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2507,7 +2506,6 @@ msgid "Host Name"
 msgstr "Nom de l'hôte"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Description du service"
@@ -6331,21 +6329,17 @@ msgstr "Gestion des hôtes"
 msgid "Services Resources"
 msgstr "Gestion des services"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Utilisateurs Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "L'utilisateur sélectionné ne voit aucune ressource"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."
@@ -15435,8 +15429,8 @@ msgstr "Commande d'acquittement envoyée"
 msgid "Downtime command sent"
 msgstr "Commande de configuration de plage de maintenance envoyée"
 
-msgid "Check command sent"
-msgstr "Commande de contrôle envoyée"
+msgid "Check command sent ! Please refresh the listing to update the data."
+msgstr "Commande de contrôle envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
 msgid "Type of resource"
 msgstr "Type de ressource"
@@ -17315,11 +17309,11 @@ msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
 msgid "Error while creating host severity"
 msgstr "Erreur lors de la création d'une sévérité d'hôtes"
 
-msgid "You are not allowed to create host severities"
-msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+msgid "You are not allowed to create/modify a host severity"
+msgstr "Vous n'êtes pas autorisé à créer/modifier des sévérités d'hôtes"
 
-msgid "Error while retrieving recently created host severity"
-msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+msgid "Error while retrieving host severity"
+msgstr "Error lors de la récupération d'une sévérité d'hôtes"
 
 msgid "Host severity name already exists"
 msgstr "Ce nom de sévérité d'hôtes existe déjà"
@@ -17414,8 +17408,8 @@ msgstr "Vérifier les ressources sélectionnées uniquement pendant la période 
 msgid "Check selected resources even outside configured check period"
 msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
 
-msgid "Forced check command sent"
-msgstr "Commande de vérification forcée envoyée"
+msgid "Forced check command sent ! Please refresh the listing to update the data."
+msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
 msgid "Developed by"
 msgstr "Développé par"
@@ -17530,7 +17524,7 @@ msgstr "Se déconnecter de"
 msgid "Centreon UI only"
 msgstr "Interface Centreon uniquement"
 
-msgid "Both identity Provider and Centreon UI"
+msgid "Both identity provider and Centreon UI"
 msgstr "Fournisseur d'identité et interface Centreon"
 
 msgid "Define relation between roles and ACL access groups"
@@ -17540,3 +17534,21 @@ msgstr "Définir la relation entre les rôles et les groupes d'accès ACL"
 
 msgid "B.Activities"
 msgstr "A.Métier"
+
+msgid "Logout URL"
+msgstr "URL de déconnexion"
+
+msgid "Full name attribute"
+msgstr "Attribut de nom complet"
+
+msgid "Roles mapping"
+msgstr "Association des rôles"
+
+msgid "Groups mapping"
+msgstr "Association des groupes"
+
+msgid "Error while updating host severity"
+msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+msgid "Error when searching for the host severity #%d"
+msgstr "Erreur lors de la recherche de la sévérité d'hôtes #%d"

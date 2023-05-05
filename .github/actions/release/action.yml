@@ -50,7 +50,7 @@ runs:
 
         VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
 
-        curl --request POST \
+        curl --fail --request POST \
           --url 'https://centreon.atlassian.net/rest/api/3/version' \
           --header 'Authorization: Basic ${{ inputs.jira_token }}' \
           --header 'Accept: application/json' \

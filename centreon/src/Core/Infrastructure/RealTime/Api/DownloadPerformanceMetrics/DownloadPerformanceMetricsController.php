@@ -46,7 +46,7 @@ class DownloadPerformanceMetricsController extends AbstractController
         int $serviceId,
         FindPerformanceMetrics $useCase,
         Request $request,
-        FindPerformanceMetricPresenterInterface $presenter
+        DownloadPerformanceMetricsPresenter $presenter
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
