@@ -2,7 +2,7 @@
 
 import { Provider, createStore } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-import widgetText2Configuration from 'centreon-widgets/centreon-widget-text2/moduleFederation.json';
+import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
@@ -16,8 +16,8 @@ describe('Dashboard', () => {
         moduleFederationName: 'centreon-widget-text/src'
       },
       {
-        ...widgetText2Configuration,
-        moduleFederationName: 'centreon-widget-text2/src'
+        ...widgetInputConfiguration,
+        moduleFederationName: 'centreon-widget-input/src'
       }
     ];
 
