@@ -20,10 +20,10 @@ import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import { getPalette } from './palettes';
 
-import RobotoLightWoff2 from '/fonts/roboto-light-webfont.woff2';
-import RobotoRegularWoff2 from '/fonts/roboto-regular-webfont.woff2';
-import RobotoMediumWoff2 from '/fonts/roboto-medium-webfont.woff2';
-import RobotoBoldWoff2 from '/fonts/roboto-bold-webfont.woff2';
+import RobotoLightWoff2 from '@centreon/ui/fonts/roboto-light-webfont.woff2';
+import RobotoRegularWoff2 from '@centreon/ui/fonts/roboto-regular-webfont.woff2';
+import RobotoMediumWoff2 from '@centreon/ui/fonts/roboto-medium-webfont.woff2';
+import RobotoBoldWoff2 from '@centreon/ui/fonts/roboto-bold-webfont.woff2';
 
 
 

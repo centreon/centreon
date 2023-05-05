@@ -12,6 +12,17 @@ module.exports = (jscTransformConfiguration) =>
     getBaseConfiguration({ jscTransformConfiguration, moduleName: 'centreon' }),
     {
       entry: ['./www/front_src/src/index.tsx'],
+      module: {
+        rules: [
+          {
+            generator: {
+              filename: '[name][ext]'
+            },
+            test: /\.(woff|woff2|eot|ttf|otf)$/i,
+            type: 'asset/resource'
+          }
+        ]
+      },
       output: {
         crossOriginLoading: 'anonymous',
         library: ['name'],
@@ -20,8 +31,8 @@ module.exports = (jscTransformConfiguration) =>
       },
       plugins: [
         new webpack.ProvidePlugin({
-          process: 'process/browser',
           React: 'react',
+          process: 'process/browser'
         }),
         new HtmlWebpackPlugin({
           alwaysWriteToDisk: true,

@@ -27,6 +27,11 @@ export default defineConfig({
     sourcemap: true,
   },
   esbuild: {},
+  resolve: {
+    alias: {
+      "@centreon/ui/fonts": path.resolve(__dirname, "/fonts"),
+    }
+  },
   plugins: smvp([
     svgr({
       svgrOptions: {
