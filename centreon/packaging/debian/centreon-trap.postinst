@@ -26,6 +26,6 @@ EOF
 
     # Initial installation
     systemctl --no-reload preset centreontrapd.service || : &>/dev/null || :
-    
+
 fi
 exit 0
