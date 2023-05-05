@@ -39,7 +39,6 @@ const Panel: FC<Props> = ({ id }) => {
         <FederatedComponent
           isFederatedWidget
           id={id}
-          memoProps={[panelOptions, id]}
           panelOptions={panelOptions}
           path={panelConfigurations.path}
           setPanelOptions={changePanelOptions}

@@ -106,6 +106,7 @@
     "@dnd-kit/utilities": "^3.2.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@module-federation/utilities": "1.6.0",
     "@mui/icons-material": "^5.10.9",
     "@mui/lab": "^5.0.0-alpha.107",
     "@mui/material": "^5.11.12",

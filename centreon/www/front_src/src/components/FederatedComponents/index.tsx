@@ -18,7 +18,6 @@ import {
 interface Props extends Record<string, unknown> {
   federatedModulesConfigurations: Array<FederatedModule>;
   isFederatedWidget?: boolean;
-  memoProps?: Array<unknown>;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
@@ -26,7 +25,6 @@ const FederatedModules = ({
   federatedModulesConfigurations,
   styleMenuSkeleton,
   isFederatedWidget,
-  memoProps = [],
   ...rest
 }: Props): JSX.Element | null => {
   return useMemoComponent({
@@ -43,11 +41,10 @@ const FederatedModules = ({
               (component) => {
                 return (
                   <Remote
-                    isFederatedModule
+                    isFederatedComponent
                     component={component}
                     isFederatedWidget={isFederatedWidget}
                     key={component}
-                    memoProps={memoProps}
                     moduleFederationName={moduleFederationName}
                     moduleName={moduleName}
                     remoteEntry={remoteEntry}
@@ -61,14 +58,13 @@ const FederatedModules = ({
         )}
       </>
     ),
-    memoProps: [federatedModulesConfigurations, rest, memoProps]
+    memoProps: [federatedModulesConfigurations, rest]
   });
 };
 
 interface LoadableComponentsContainerProps extends Record<string, unknown> {
   [props: string]: unknown;
   isFederatedWidget?: boolean;
-  memoProps?: Array<unknown>;
   path: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
@@ -105,7 +101,6 @@ const LoadableComponentsContainer = ({
   path,
   styleMenuSkeleton = defaultStyleMenuSkeleton,
   isFederatedWidget,
-  memoProps = [],
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
   const federatedModules = useAtomValue(federatedModulesAtom);
@@ -131,7 +126,6 @@ const LoadableComponentsContainer = ({
     <FederatedModules
       federatedModulesConfigurations={federatedModulesToDisplay}
       isFederatedWidget={isFederatedWidget}
-      memoProps={memoProps}
       styleMenuSkeleton={styleMenuSkeleton}
       {...props}
     />

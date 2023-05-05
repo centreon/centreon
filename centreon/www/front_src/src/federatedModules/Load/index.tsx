@@ -1,206 +1,92 @@
-import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 
-import { atom, useAtom } from 'jotai';
-import { equals, isEmpty, isNil, omit, pick } from 'ramda';
+import { importRemote } from '@module-federation/utilities';
+import { isEmpty, isNil } from 'ramda';
 
 import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
-import NotFoundPage from '../../FallbackPages/NotFoundPage';
 import { StyleMenuSkeleton } from '../models';
 import { store } from '../../Main/Provider';
 
-import loadComponent from './loadComponent';
+import ErrorBoundary from './ErrorBoundary';
+import FederatedComponentFallback from './FederatedComponentFallback';
+import FederatedPageFallback from './FederatedPageFallback';
 
-interface UseDynamicLoadRemoteEntryState {
-  failed: boolean;
-  ready: boolean;
-}
-
-interface UseDynamicLoadRemoteEntryProps {
-  isFederatedWidget?: boolean;
-  moduleName: string;
-  remoteEntry: string;
-}
-
-const remoteEntriesLoadedAtom = atom([] as Array<string>);
-
-const useDynamicLoadRemoteEntry = ({
-  remoteEntry,
-  moduleName,
-  isFederatedWidget
-}: UseDynamicLoadRemoteEntryProps): UseDynamicLoadRemoteEntryState => {
-  const [failed, setFailed] = useState(false);
-
-  const [remoteEntriesLoaded, setRemoteEntriesLoaded] = useAtom(
-    remoteEntriesLoadedAtom
-  );
-
-  useEffect((): (() => void) | undefined => {
-    if (isEmpty(remoteEntry)) {
-      return undefined;
-    }
-
-    const remoteEntryElement = document.getElementById(moduleName);
-
-    if (remoteEntryElement && remoteEntriesLoaded.includes(moduleName)) {
-      return undefined;
-    }
-
-    if (window.Cypress) {
-      setRemoteEntriesLoaded((currentRemoteEntries) => [
-        ...currentRemoteEntries,
-        moduleName
-      ]);
-
-      return undefined;
-    }
-
-    const prefix = isFederatedWidget ? 'widgets' : 'modules';
-
-    const element = document.createElement('script');
-    element.src = `./${prefix}/${moduleName}/static/${remoteEntry}`;
-    element.type = 'text/javascript';
-    element.id = moduleName;
-
-    element.onload = (): void => {
-      setRemoteEntriesLoaded((currentRemoteEntries) => [
-        ...currentRemoteEntries,
-        moduleName
-      ]);
-    };
-
-    element.onerror = (): void => {
-      setFailed(true);
-    };
-
-    document.head.appendChild(element);
-
-    return (): void => {
-      document.head.removeChild(element);
-    };
-  }, []);
-
-  return {
-    failed,
-    ready: remoteEntriesLoaded.includes(moduleName)
-  };
-};
-
-interface LoadComponentProps {
+interface RemoteProps {
   component: string;
-  isFederatedModule?: boolean;
-  memoProps: Array<unknown>;
-  moduleFederationName: string;
-  name: string;
-  styleMenuSkeleton?: StyleMenuSkeleton;
-}
-
-type LazyComponent = Promise<{ default: React.ComponentType }>;
-
-const LoadComponent = ({
-  moduleFederationName,
-  component,
-  isFederatedModule,
-  styleMenuSkeleton,
-  ...props
-}: LoadComponentProps): JSX.Element => {
-  const Component = useMemo(
-    () =>
-      lazy(
-        window.Cypress
-          ? (): LazyComponent =>
-              import(`www/widgets/src/${moduleFederationName}`)
-          : loadComponent({ component, moduleFederationName })
-      ),
-    [moduleFederationName]
-  );
-
-  const componentProps = omit(['name', 'memoProps'], props);
-
-  if (!isNil(styleMenuSkeleton) && !isEmpty(styleMenuSkeleton)) {
-    const { height, width, className } = styleMenuSkeleton;
-
-    return (
-      <Suspense
-        fallback={
-          isFederatedModule ? (
-            <MenuSkeleton className={className} height={height} width={width} />
-          ) : (
-            <PageSkeleton />
-          )
-        }
-      >
-        <Component {...componentProps} store={store} />
-      </Suspense>
-    );
-  }
-
-  return (
-    <Suspense
-      fallback={isFederatedModule ? <MenuSkeleton /> : <PageSkeleton />}
-    >
-      <Component {...componentProps} store={store} />
-    </Suspense>
-  );
-};
-
-const memoizeProps = pick(['name', 'component', 'isFederated', 'memoProps']);
-const MemoizedLoadComponent = memo(LoadComponent, (prevProps, nextProps) =>
-  equals(memoizeProps(prevProps), memoizeProps(nextProps))
-);
-
-interface RemoteProps extends LoadComponentProps {
+  isFederatedComponent?: boolean;
   isFederatedWidget?: boolean;
-  memoProps: Array<unknown>;
+  moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 export const Remote = ({
-  isFederatedWidget,
-  memoProps,
   component,
   remoteEntry,
   moduleName,
   moduleFederationName,
-  isFederatedModule,
+  isFederatedComponent,
+  isFederatedWidget,
   styleMenuSkeleton,
   ...props
 }: RemoteProps): JSX.Element => {
-  const { ready, failed } = useDynamicLoadRemoteEntry({
-    isFederatedWidget,
-    moduleName,
-    remoteEntry
-  });
+  const prefix = isFederatedWidget ? 'widgets' : 'modules';
 
-  if (!ready) {
-    if (!isNil(styleMenuSkeleton) && !isEmpty(styleMenuSkeleton)) {
-      const { height, width, className } = styleMenuSkeleton;
+  const Component = useMemo(
+    () =>
+      lazy(() =>
+        window.Cypress
+          ? import(`www/widgets/src/${moduleFederationName}`)
+          : importRemote({
+              bustRemoteEntryCache: false,
+              module: component,
+              remoteEntryFileName: remoteEntry,
+              scope: moduleFederationName,
+              url: `./${prefix}/${moduleName}/static`
+            })
+      ),
+    [component, moduleName, remoteEntry, moduleFederationName]
+  );
 
-      return isFederatedModule ? (
-        <MenuSkeleton className={className} height={height} width={width} />
-      ) : (
-        <PageSkeleton />
-      );
-    }
+  const fallback = isFederatedComponent ? (
+    <FederatedComponentFallback />
+  ) : (
+    <FederatedPageFallback />
+  );
 
-    return isFederatedModule ? <MenuSkeleton /> : <PageSkeleton />;
-  }
+  if (!isNil(styleMenuSkeleton) && !isEmpty(styleMenuSkeleton)) {
+    const { height, width, className } = styleMenuSkeleton;
 
-  if (failed) {
-    return <NotFoundPage />;
+    return (
+      <ErrorBoundary fallback={fallback}>
+        <Suspense
+          fallback={
+            isFederatedComponent ? (
+              <MenuSkeleton
+                className={className}
+                height={height}
+                width={width}
+              />
+            ) : (
+              <PageSkeleton />
+            )
+          }
+        >
+          <Component {...props} store={store} />
+        </Suspense>
+      </ErrorBoundary>
+    );
   }
 
   return (
-    <MemoizedLoadComponent
-      {...props}
-      component={component}
-      isFederatedModule={isFederatedModule}
-      memoProps={memoProps}
-      moduleFederationName={moduleFederationName}
-      name={moduleName}
-      styleMenuSkeleton={styleMenuSkeleton}
-    />
+    <ErrorBoundary fallback={fallback}>
+      <Suspense
+        fallback={isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />}
+      >
+        <Component {...props} store={store} />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
