@@ -2,6 +2,7 @@ deployments:
   environmentMapping:
     development:
       - "unstable-*"
+      - "canary-*"
     testing:
       - "testing-*"
     production:
