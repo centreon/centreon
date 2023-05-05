@@ -1,6 +1,5 @@
 import { Meta } from '@storybook/addon-docs'
-import { Typography, Accordion, AccordionSummary, AccordionDetails, Link, Stack } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { Typography, Link, Stack } from '@mui/material'
 
 
 <Meta title="Home" />
@@ -38,84 +37,3 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
     <Typography>20.04</Typography>
   </Link>
 </Stack>
-<br />
-
-<Accordion>
-  <AccordionSummary
-    expandIcon={<ExpandMoreIcon />}
-  >
-    <Typography variant="h5">Add stories</Typography>
-  </AccordionSummary>
-  <AccordionDetails>
-    <ul>
-      <li><Typography>Create a file named `index.stories.tsx` along side your component</Typography></li>
-      <li>
-        <Typography>Add a title, the component and argTypes</Typography>
-        <Typography>Example: </Typography>
-
-        ```typescript
-        export default {
-          title: 'MyComponent',
-          Component: MyComponent,
-          argTypes: {
-            propA: { control: 'text' },
-            propB: { control: 'number' },
-          },
-        };
-        ```
-
-      </li>
-      <li>
-        <Typography>Create a playground for your component</Typography>
-
-        ```typescript
-          const Template: ComponentStory<typeof MyComponent> = (args) => (
-            <MyComponent {...args} />
-          );
-
-          export const Playground = Template.bind({});
-        ```
-
-      </li>
-      <li>
-        <Typography>Then add your story</Typography>
-
-        ```typescript
-          export const basic = Template.bind({});
-          basic.args = { propA: 'test', propB: 0 };
-        ```
-
-      </li>
-    </ul>
-  </AccordionDetails>
-</Accordion>
-<Accordion>
-  <AccordionSummary
-    expandIcon={<ExpandMoreIcon />}
-  >
-    <Typography variant="h5">Run tests</Typography>
-  </AccordionSummary>
-  <AccordionDetails>
-    <Typography>There are two kinds of tests in Centreon UI.</Typography>
-    <Typography>Jest + RTL: Component testing</Typography>
-    <Typography>Storyshots: When running them, storybook will capture a snapshot for each and compares them with the older ones</Typography>
-    <br />
-
-    <Typography>Run all the test (Jest + Storyshots)</Typography>
-    `pnpm build:storybook && pnpm t`
-    <br />
-
-    <Typography>Run storyshots following one or more story title</Typography>
-    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent"`
-    <Typography>Or</Typography>
-    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent"`
-    <br />
-
-    <Typography>Update snapshots</Typography>
-    `pnpm build:storybook && pnpm t -- -u`
-    <Typography>Or</Typography>
-    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent" -u`
-    <Typography>Or</Typography>
-    `pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent" -u`
-  </AccordionDetails>
-</Accordion>

@@ -44,3 +44,76 @@ You can also test one or more Components using the following syntax:
 pnpm test:storyshot -- --story "Title" # Run Storyshot tests about Title component
 pnpm test:storyshot -- --story "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
 ```
+
+
+# Add stories
+
+- Create a file named `index.stories.tsx` along side your component
+      
+- Add a title, the component and argTypes
+  
+  ```typescript
+  export default {
+    title: 'MyComponent',
+    Component: MyComponent,
+    argTypes: {
+      propA: { control: 'text' },
+      propB: { control: 'number' },
+    },
+  };
+  ```
+
+- Create a playground for your component
+
+  ```typescript
+    const Template: ComponentStory<typeof MyComponent> = (args) => (
+      <MyComponent {...args} />
+    );
+
+    export const Playground = Template.bind({});
+  ```
+
+- Then add your story
+
+  ```typescript
+    export const basic = Template.bind({});
+    basic.args = { propA: 'test', propB: 0 };
+  ```
+
+# Run tests
+
+There are two kinds of tests in Centreon UI.
+- Jest + RTL: Component testing
+- Storyshots: When running them, storybook will capture a snapshot for each and compares them with the older ones
+
+
+### Run all the test (Jest + Storyshots)
+
+```bash
+pnpm build:storybook && pnpm t
+```
+
+### Run storyshots following one or more story title</Typography>
+
+```bash
+pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent"
+```
+_or_
+```bash
+pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent"
+```
+   
+
+### Update snapshots
+
+```bash
+pnpm build:storybook && pnpm t -- -u
+```
+_or_
+```bash
+pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent" -u
+```
+_or_
+```bash
+pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent" -u
+```
