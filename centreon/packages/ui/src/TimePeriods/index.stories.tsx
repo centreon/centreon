@@ -1,43 +1,43 @@
-import React from 'react';
-
-import { ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 
 import { dateFormat } from './models';
 
 import AwesomeTimePeriod from '.';
 
-export default {
-  Component: AwesomeTimePeriod,
-  argTypes: {
-    extraTimePeriods: { control: 'object' }
-  },
-  title: 'TimePeriod'
+const meta: Meta<typeof AwesomeTimePeriod> = {
+  component: AwesomeTimePeriod,
+  tags: ['autodocs']
 };
 
-const Template: ComponentStory<typeof AwesomeTimePeriod> = (args) => {
-  return <AwesomeTimePeriod {...args} />;
+export default meta;
+
+type Story = StoryObj<typeof AwesomeTimePeriod>;
+
+const Template: Story = {
+  render: (args) => <AwesomeTimePeriod {...args} />
 };
 
-export const Playground = Template.bind({});
-
-Playground.args = {
+const args = {
   extraTimePeriods: [
     {
       dateTimeFormat: dateFormat,
       getStart: (): Date => dayjs(Date.now()).subtract(29, 'day').toDate(),
       id: 'last_29_days',
       largeName: 'last 29 days',
-      name: '29 days',
-      timelineEventsLimit: 100
+      name: '29 days'
     }
   ]
 };
-Playground.argTypes = {
+
+const argTypes = {
   disabled: {
     control: 'boolean',
-    defaultValue: false,
-    description: 'If true, the component is disabled.'
+    description: 'If true, the component is disabled.',
+    table: {
+      defaultValue: { summary: false },
+      type: { summary: 'boolean' }
+    }
   },
   extraTimePeriods: {
     control: 'object',
@@ -48,7 +48,7 @@ Playground.argTypes = {
   },
   getIsError: {
     description:
-      'Callback fired when The end date is smaller or equal the start date',
+      'Callback fired when The end date is smaller or equal to the start date',
     table: {
       category: 'Events',
       type: { detail: '(value:boolean)=>void', summary: 'function' }
@@ -64,4 +64,10 @@ Playground.argTypes = {
       }
     }
   }
+};
+
+export const Playground: Story = {
+  ...Template,
+  argTypes,
+  args
 };
