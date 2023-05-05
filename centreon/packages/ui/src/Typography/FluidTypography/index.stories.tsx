@@ -10,8 +10,8 @@ interface Props extends FluidTypographyProps {
 }
 
 const FluidTypographyTemplate = ({
-  width = '100%',
-  height = '100%',
+  width = '900px',
+  height = '700px',
   text,
   variant
 }: Props): JSX.Element => {
@@ -40,14 +40,15 @@ basic.args = {
 
 export const with200pxWidth = FluidTypographyTemplate.bind({});
 with200pxWidth.args = {
+  height: '200px',
   text: 'Hello world',
   width: '200px'
 };
 
 export const with20pxHeight = FluidTypographyTemplate.bind({});
 with20pxHeight.args = {
-  text: 'Hello world',
-  width: '20px'
+  height: '20px',
+  text: 'Hello world'
 };
 
 export const withLongText = FluidTypographyTemplate.bind({});

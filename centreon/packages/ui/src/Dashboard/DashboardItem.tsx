@@ -55,9 +55,11 @@ const DashboardItem = forwardRef(
           {...cardContainerListeners}
         >
           <Card className={classes.widgetContainer}>
-            <div {...listeners} className={classes.widgetHeader}>
-              {header}
-            </div>
+            {header && (
+              <div {...listeners} className={classes.widgetHeader}>
+                {header}
+              </div>
+            )}
             <div className={classes.widgetContent}>{children}</div>
           </Card>
         </div>
