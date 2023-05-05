@@ -4,6 +4,7 @@ info:
   description: |
     # New features
     + Added host severities endpoints (GET, PUT)
+    + Added host categories endpoint (GET)
     +
     # Updated features
     +
@@ -330,6 +331,27 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/categories/{host_category_id}:
+    get:
+      tags:
+        - Host category
+      summary: "Get a host category"
+      description: |
+        Get a host category configuration
+      parameters:
+        - $ref: '#/components/parameters/HostCategoryId'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Category'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - Host category
