@@ -49,7 +49,7 @@ use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryI
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new AddHostGroupTestPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new AddHostGroup(
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
@@ -143,7 +143,7 @@ it(
 );
 
 it(
-    'should present a InvalidArgumentResponse when a model field value is not valid',
+    'should present an InvalidArgumentResponse when a model field value is not valid',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -172,7 +172,7 @@ it(
 );
 
 it(
-    'should present a InvalidArgumentResponse when the "geoCoords" field value is not valid',
+    'should present an InvalidArgumentResponse when the "geoCoords" field value is not valid',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -294,11 +294,7 @@ it(
 
         ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
-        /** @var CreatedResponse<AddHostGroupResponse> $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
-
-        expect($presentedData)->toBeInstanceOf(CreatedResponse::class)
-            ->and($presentedData->getPayload())->toBeInstanceOf(AddHostGroupResponse::class);
+        expect($this->presenter->getPresentedData())->toBeInstanceOf(AddHostGroupResponse::class);
     }
 );
 
@@ -363,10 +359,6 @@ it(
 
         ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
 
-        /** @var CreatedResponse<AddHostGroupResponse> $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
-
-        expect($presentedData)->toBeInstanceOf(CreatedResponse::class)
-            ->and($presentedData->getPayload())->toBeInstanceOf(AddHostGroupResponse::class);
+        expect($this->presenter->getPresentedData())->toBeInstanceOf(AddHostGroupResponse::class);
     }
 );

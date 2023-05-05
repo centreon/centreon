@@ -1919,6 +1919,7 @@ CREATE TABLE `topology` (
   `topology_style_class` varchar(255) DEFAULT NULL,
   `topology_style_id` varchar(255) DEFAULT NULL,
   `topology_OnClick` varchar(255) DEFAULT NULL,
+  `topology_feature_flag` varchar(255) DEFAULT NULL,
   `readonly` enum('0','1') NOT NULL DEFAULT '1',
   `is_react` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`topology_id`),

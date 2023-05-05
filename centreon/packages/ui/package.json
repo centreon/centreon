@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.4.47",
+  "version": "23.4.49",
   "description": "Centreon UI Components",
   "main": "src/index.ts",
   "scripts": {
@@ -10,7 +10,10 @@
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
     "test:storyshot": "pnpm test storyshots.test.js",
-    "test:ci": "node testRunner.js --silent --reporter=jest-junit"
+    "test:ci": "node testRunner.js --silent --reporter=jest-junit",
+    "cypress:ui": "cypress open --component --browser=chrome",
+    "cypress:cli:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
+    "cypress:cli": "cypress run --component --browser=chrome"
   },
   "sideEffects": false,
   "repository": {
@@ -28,7 +31,10 @@
   },
   "homepage": "https://github.com/centreon/centreon#readme",
   "devDependencies": {
+    "@cypress/react": "^7.0.2",
+    "@cypress/webpack-dev-server": "^3.2.3",
     "@mdx-js/react": "^2.1.4",
+    "@simonsmith/cypress-image-snapshot": "^6.1.0",
     "@storybook/addon-docs": "^6.5.16",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",
@@ -37,13 +43,19 @@
     "@storybook/manager-webpack5": "^6.5.11",
     "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/react": "^6.5.11",
+    "@testing-library/cypress": "^8.0.7",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "^27.5.0",
     "@types/ramda": "^0.28.12",
     "axios-mock-adapter": "^1.20.0",
     "babel-plugin-require-context-hook": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
+    "cypress": "^12.8.0",
     "identity-obj-proxy": "^3.0.0",
+    "mochawesome": "^7.1.3",
     "puppeteer": "^13.7.0",
+    "react": "^18.2.0",
     "react-test-renderer": "^18.1.0",
     "storybook-addon-mock": "^2.4.1",
     "storybook-dark-mode": "^1.1.0"
@@ -76,7 +88,6 @@
     "jotai": "2.x",
     "numeral": "2.x",
     "ramda": "0.x",
-    "react": "18.x",
     "react-dom": "18.x",
     "react-i18next": "12.x",
     "react-router-dom": "6.x",

@@ -2516,7 +2516,6 @@ msgstr "Posição"
 msgid "IP Address"
 msgstr "Endereço IP"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/monitoring/comments/AddHostComment.php:113
 #: centreon-web/www/include/monitoring/comments/listComment.php:185
 #: centreon-web/www/include/monitoring/downtime/listDowntime.php:279
@@ -2531,27 +2530,22 @@ msgstr "Endereço IP"
 msgid "Host Name"
 msgstr "Nome do Host"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:77
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:250
 #: centreon-web/www/install/smarty_translate.php:243
 msgid "Service Description"
 msgstr "Descrição do serviço"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:113
 msgid "Centreon Users"
 msgstr "Usuários Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:159
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:192
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:197
 msgid "The selected user didn't see any resources"
 msgstr "O usuário selecionado não pode ver qualquer recurso"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:160
 msgid "Please select an user in order to display resources"
 msgstr "Por favor selecione o usuário na ordem para visualizar recursos"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:161
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:194
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:199
 msgid "The selected user is not enable."
@@ -15860,6 +15854,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Error while searching for host groups"
 #  msgstr ""
 
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 
@@ -15873,6 +15870,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "Error while updating a host group"
 #  msgstr ""
 
 #  msgid "The host group name '%s' already exists"
@@ -15908,10 +15908,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Error while creating host severity"
 #  msgstr ""
 
-#  msgid "You are not allowed to create host severities"
+#  msgid "You are not allowed to create/modify a host severity"
 #  msgstr ""
 
-#  msgid "Error while retrieving recently created host severity"
+#  msgid "Error while retrieving host severity"
 #  msgstr ""
 
 #  msgid "Host severity name already exists"
@@ -16160,3 +16160,15 @@ msgstr ""
 
 # msgid "Groups mapping"
 # msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+#  msgid "Error when searching for the host category #%d"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""

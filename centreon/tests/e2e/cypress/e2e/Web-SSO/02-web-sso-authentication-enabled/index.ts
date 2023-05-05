@@ -1,11 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeWebSSOUserAndGetLoginPage,
-  removeWebSSOContact
-} from '../common';
+import { initializeWebSSOUserAndGetLoginPage } from '../common';
 
 before(() => {
+  cy.startWebContainer();
+
   initializeWebSSOUserAndGetLoginPage();
 });
 
@@ -80,5 +79,5 @@ Then(
 );
 
 after(() => {
-  removeWebSSOContact();
+  cy.stopWebContainer();
 });

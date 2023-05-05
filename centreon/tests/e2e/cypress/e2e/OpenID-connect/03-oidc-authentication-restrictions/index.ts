@@ -2,14 +2,15 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage,
-  removeContact
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {
-  cy.startOpenIdProviderContainer().then(() => {
-    initializeOIDCUserAndGetLoginPage();
-  });
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      initializeOIDCUserAndGetLoginPage();
+    });
 });
 
 beforeEach(() => {
@@ -46,7 +47,7 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When(
-  'the adminstrator sets valid settings in the Authentication conditions and saves',
+  'the administrator sets valid settings in the Authentication conditions and saves',
   () => {
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
@@ -97,7 +98,7 @@ Then(
   'only users with the valid authentication conditions can access the platform',
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit(`${Cypress.config().baseUrl}`);
+      cy.visit('/');
       cy.get('a').click();
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
         .url()
@@ -107,6 +108,5 @@ Then(
 );
 
 after(() => {
-  removeContact();
-  cy.stopOpenIdProviderContainer();
+  cy.stopWebContainer().stopOpenIdProviderContainer();
 });

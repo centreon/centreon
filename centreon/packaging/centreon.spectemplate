@@ -1,8 +1,8 @@
 %define name centreon
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
-%define thismajor 23.04.0
-%define nextmajor 23.05.0
+%define thismajor 23.10.0
+%define nextmajor 23.11.0
 
 #%define selinuxdevel %{_datadir}/selinux/devel
 
@@ -432,7 +432,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/centcore
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/perfdata
 
-%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon
+%{__install} -d -m 0774 %buildroot%{_localstatedir}/log/centreon
 %{__install} -d -m 0750 %buildroot%{_localstatedir}/run/centreon
 %{__install} -d -m 0750 %buildroot%{_localstatedir}/cache/centreon/backup
 
@@ -766,10 +766,12 @@ fi
 %{_datadir}/centreon/bin/registerServerTopology.sh
 %{_datadir}/centreon/bin/registerServerTopologyTemplate
 
+%defattr(-, centreon, centreon, 0774)
+%dir %{_localstatedir}/log/centreon
+
 %defattr(-, centreon, centreon, 0775)
 %dir %{_localstatedir}/lib/centreon
 %dir %{_localstatedir}/lib/centreon/centplugins
-%dir %{_localstatedir}/log/centreon
 %dir %{_localstatedir}/run/centreon
 
 %attr(0600,root, root) %{_sysconfdir}/sudoers.d/centreon

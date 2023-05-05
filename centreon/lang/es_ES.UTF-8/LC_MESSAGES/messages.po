@@ -2274,7 +2274,6 @@ msgstr "Estado detallado"
 
 #: centreon-web/www/install/smarty_translate.php:873 centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2287,7 +2286,6 @@ msgid "Host Name"
 msgstr "Nombre del anfitrión"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Descripción del servicio."
@@ -5911,21 +5909,17 @@ msgstr "Gestión de host"
 msgid "Services Resources"
 msgstr "Gestión de servicios"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Usuarios de Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "El usuario seleccionado no ve ningún recurso."
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Por favor, seleccione un usuario para ver los recursos"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."
@@ -15399,6 +15393,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while searching for host groups"
 #  msgstr ""
 
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 
@@ -15412,6 +15409,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgstr ""
 
 #  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "Error while updating a host group"
 #  msgstr ""
 
 #  msgid "The host group name '%s' already exists"
@@ -15447,10 +15447,10 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while creating host severity"
 #  msgstr ""
 
-#  msgid "You are not allowed to create host severities"
+#  msgid "You are not allowed to create/modify a host severity"
 #  msgstr ""
 
-#  msgid "Error while retrieving recently created host severity"
+#  msgid "Error while retrieving host severity"
 #  msgstr ""
 
 #  msgid "Host severity name already exists"
@@ -15696,3 +15696,15 @@ msgstr ""
 
 # msgid "Groups mapping"
 # msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+#  msgid "Error when searching for the host category #%d"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""
