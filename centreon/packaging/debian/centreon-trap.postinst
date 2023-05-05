@@ -17,6 +17,8 @@ EOF
     fi
 
     # Fix permissions
+    chmod 0775 /etc/snmp/centreon_traps
+    chown centreon:centreon /etc/snmp/centreon_traps
     chmod 0755 \
         /usr/share/centreon/bin/centreontrapd \
         /usr/share/centreon/bin/centreontrapdforward \
