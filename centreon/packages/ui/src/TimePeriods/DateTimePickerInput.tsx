@@ -1,25 +1,14 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 
 import dayjs from 'dayjs';
 
-import { DesktopDateTimePicker } from '@mui/x-date-pickers';
 import { TextFieldProps } from '@mui/material';
+import { DesktopDateTimePicker } from '@mui/x-date-pickers';
 
 import { TextField } from '@centreon/ui';
 
-import { CustomTimePeriodProperty } from './models';
+import { DateTimePickerInputModel } from './models';
 import useDateTimePickerAdapter from './useDateTimePickerAdapter';
-
-interface Props {
-  changeDate: (props) => void;
-  date: Date | dayjs.Dayjs | null;
-  disabled?: boolean;
-  maxDate?: Date | dayjs.Dayjs;
-  minDate?: Date | dayjs.Dayjs;
-  onClosePicker?: (isClosed: boolean) => void;
-  property: CustomTimePeriodProperty;
-  setDate: Dispatch<SetStateAction<Date | null>>;
-}
 
 const renderDateTimePickerTextField =
   (blur: () => void) =>
@@ -48,7 +37,7 @@ const DateTimePickerInput = ({
   setDate,
   onClosePicker,
   disabled = false
-}: Props): JSX.Element => {
+}: DateTimePickerInputModel): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =

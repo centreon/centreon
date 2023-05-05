@@ -1,36 +1,30 @@
-import { useEffect } from 'react';
-
 import { Responsive } from '@visx/visx';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { lt } from 'ramda';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { makeStyles } from 'tss-react/mui';
+import dayjs from 'dayjs';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
 
-import { Paper, useTheme } from '@mui/material';
+import { Paper } from '@mui/material';
 
-import { useMemoComponent } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import CustomTimePeriod from './CustomTimePeriod';
+import SelectedTimePeriod from './SelectedTimePeriod';
+import { TimePeriod } from './models';
 
-import CustomTimePeriodPickers from './CustomTimePeriod/CustomTimePeriodPickers';
-import TimePeriodButtonGroup from './TimePeriodButton';
-import { LabelDay, LabelTimePeriodPicker } from './models';
-import {
-  adjustTimePeriodDerivedAtom,
-  customTimePeriodAtom,
-  getDatesDerivedAtom,
-  getTimePeriodParametersDerivedAtom,
-  selectedTimePeriodAtom
-} from './timePeriodAtoms';
-
+dayjs.extend(isSameOrAfter);
 interface StylesProps {
-  disablePaper: boolean;
+  disabled: boolean;
 }
 
-const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
+dayjs.extend(utcPlugin);
+dayjs.extend(timezonePlugin);
+
+const useStyles = makeStyles<StylesProps>()((theme, { disabled }) => ({
   header: {
     alignItems: 'center',
-    backgroundColor: disablePaper ? 'transparent' : 'undefined',
-    border: disablePaper ? 'unset' : 'undefined',
-    boxShadow: disablePaper ? 'unset' : 'undefined',
+    backgroundColor: disabled ? 'transparent' : 'undefined',
+    border: disabled ? 'unset' : 'undefined',
+    boxShadow: disabled ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
     display: 'grid',
     gridTemplateColumns: `repeat(4, auto)`,
@@ -39,74 +33,31 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
     padding: theme.spacing(1, 0.5)
   }
 }));
-
 interface Props {
-  // disableGraphOptions?: boolean;
-  disablePaper?: boolean;
-  getDates?: (data) => void;
-  getTimePeriodParameters?: (data) => void;
-  height?: number;
-  labelButtonGroups?: Array<LabelDay>;
-  labelTimePeriodPicker?: LabelTimePeriodPicker;
-  setTimePeriod?: any;
+  disabled?: boolean;
+  extraTimePeriods?: Array<TimePeriod>;
 }
 
-const TimePeriod = ({
-  // disableGraphOptions = false,
-  disablePaper = false,
-  height = 100,
-  labelTimePeriodPicker = { labelEnd: 'To', labelFrom: 'From' },
-  getTimePeriodParameters,
-  getDates,
-  setTimePeriod
+const AwesomeTimePeriod = ({
+  extraTimePeriods,
+  disabled = false
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ disablePaper });
-  const theme = useTheme();
+  const { classes } = useStyles({ disabled });
 
-  const { themeMode } = useAtomValue(userAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
-  const getDatesTimePeriod = useAtomValue(getDatesDerivedAtom);
-  const timePeriodParameters = useAtomValue(getTimePeriodParametersDerivedAtom);
-
-  const adjustTimePeriod = useUpdateAtom(adjustTimePeriodDerivedAtom);
-
-  const parameters = timePeriodParameters({
-    endDate: customTimePeriod.end,
-    startDate: customTimePeriod.start,
-    timePeriod: selectedTimePeriod
-  });
-
-  setTimePeriod?.(adjustTimePeriod);
-
-  useEffect(() => {
-    getTimePeriodParameters?.(parameters);
-    getDates?.(getDatesTimePeriod(selectedTimePeriod));
-  }, [selectedTimePeriod, customTimePeriod]);
-
-  return useMemoComponent({
-    Component: (
-      <div style={{ height }}>
-        <Responsive.ParentSize>
-          {({ width }): JSX.Element => {
-            const isCompact = lt(width, theme.breakpoints.values.sm);
-
-            return (
-              <Paper className={classes.header}>
-                <TimePeriodButtonGroup width={width} />
-                <CustomTimePeriodPickers
-                  isCompact={isCompact}
-                  labelTimePeriodPicker={labelTimePeriodPicker}
-                />
-                {/* {not(disableGraphOptions) && <GraphOptions />} */}
-              </Paper>
-            );
-          }}
-        </Responsive.ParentSize>
-      </div>
-    ),
-    memoProps: [disablePaper, selectedTimePeriod, customTimePeriod, themeMode]
-  });
+  return (
+    <Responsive.ParentSize>
+      {({ width }): JSX.Element => {
+        return (
+          <Paper className={classes.header}>
+            <SelectedTimePeriod
+              extraTimePeriods={extraTimePeriods}
+              width={width}
+            />
+            <CustomTimePeriod width={width} />
+          </Paper>
+        );
+      }}
+    </Responsive.ParentSize>
+  );
 };
-
-export default TimePeriod;
+export default AwesomeTimePeriod;
