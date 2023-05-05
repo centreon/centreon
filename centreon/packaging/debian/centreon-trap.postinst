@@ -1,8 +1,10 @@
 #!/bin/sh
 
 if [ "$1" = "configure" ]; then
+    echo "check /etc/snmp/snmptrapd.conf exists"
 
     if [ -f /etc/snmp/snmptrapd.conf ]; then
+        echo "/etc/snmp/snmptrapd.conf exists"
         grep disableAuthorization /etc/snmp/snmptrapd.conf &>/dev/null && \
         sed -i -e "s/disableAuthorization .*/disableAuthorization yes/g" /etc/snmp/snmptrapd.conf
         grep disableAuthorization /etc/snmp/snmptrapd.conf &>/dev/null || \
