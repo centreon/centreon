@@ -20,6 +20,13 @@ import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import { getPalette } from './palettes';
 
+import RobotoLightWoff2 from '/fonts/roboto-light-webfont.woff2';
+import RobotoRegularWoff2 from '/fonts/roboto-regular-webfont.woff2';
+import RobotoMediumWoff2 from '/fonts/roboto-medium-webfont.woff2';
+import RobotoBoldWoff2 from '/fonts/roboto-bold-webfont.woff2';
+
+
+
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
@@ -179,6 +186,30 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           height: 100%;
           padding: 0;
           width: 100%;
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Roboto'), local('Roboto-Light'), url(${RobotoLightWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 400;
+          src: local('Roboto'), local('Roboto-Regular'), url(${RobotoRegularWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 500;
+          src: local('Roboto'), local('Roboto-Medium'), url(${RobotoMediumWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
         }
       `
     },
