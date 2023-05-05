@@ -128,7 +128,7 @@ if (file_exists($apiConfigurationFile) && is_writable($apiConfigurationFile)) {
  * Gorgone daemon configuration file for a central
  */
 $gorgoneCoreFileForCentral = $centreonEtcPath . '/../centreon-gorgone/config.d/40-gorgoned.yaml';
-if (is_writable($gorgoneCoreFileForCentral)) {
+if (is_writable(dirname($gorgoneCoreFileForCentral))) {
     $contents = file_get_contents('../../var/gorgone/gorgoneCentralTemplate.yaml');
     $contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
     file_put_contents($gorgoneCoreFileForCentral, $contents);
