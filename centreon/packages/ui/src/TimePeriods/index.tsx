@@ -4,6 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import dayjs from 'dayjs';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
+import duration from 'dayjs/plugin/duration';
 
 import { Paper } from '@mui/material';
 
@@ -18,6 +19,7 @@ interface StylesProps {
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
+dayjs.extend(duration);
 
 const useStyles = makeStyles<StylesProps>()((theme, { disabled }) => ({
   header: {
