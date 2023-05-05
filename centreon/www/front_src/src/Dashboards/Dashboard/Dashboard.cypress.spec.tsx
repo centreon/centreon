@@ -50,7 +50,7 @@ describe('Dashboard', () => {
 
     cy.findAllByLabelText('Add a widget').eq(1).click();
 
-    cy.contains('centreon-widget-text2').click();
+    cy.contains('centreon-widget-input').click();
 
     cy.findByLabelText('Add').click();
   });
