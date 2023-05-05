@@ -4,7 +4,7 @@ Feature:
   I want to find host temlates using api
 
   Background:
-    Given a running cloud instance of Centreon Web API
+    Given a running cloud platform instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
   Scenario: Host templates listing

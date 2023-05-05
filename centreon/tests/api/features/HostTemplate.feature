@@ -1,10 +1,10 @@
 Feature:
-  In order to check the shost templates
+  In order to check the host templates
   As a logged in user
   I want to find host templates using api
 
   Background:
-    Given a running cloud instance of Centreon Web API
+    Given a running instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
   Scenario: Host templates listing
@@ -34,9 +34,9 @@ Feature:
               "max_check_attempts": null,
               "normal_check_interval": null,
               "retry_check_interval": null,
-              "is_active_check_enabled": 2,
-              "isPassive_check_enabled": 2,
-              "is_notification_enabled": 2,
+              "active_check_enabled": 2,
+              "passive_check_enabled": 2,
+              "notification_enabled": 2,
               "notification_options": 31,
               "notification_interval": null,
               "notification_timeperiod_id": null,
@@ -45,12 +45,12 @@ Feature:
               "first_notification_delay": null,
               "recovery_notification_delay": null,
               "acknowledgement_timeout": null,
-              "is_freshness_checked": 2,
+              "freshness_checked": 2,
               "freshness_threshold": null,
-              "is_flap_detection_enabled": 2,
+              "flap_detection_enabled": 2,
               "low_flap_threshold": null,
               "high_flap_threshold": null,
-              "is_event_handler_enabled": 2,
+              "event_handler_enabled": 2,
               "event_handler_command_id": null,
               "event_handler_command_args": null,
               "note_url": null,
