@@ -21,26 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups;
+namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
-final class FindHostGroupsResponse
+final class UpdateHostGroupRequest
 {
-    /** @var array<
-     *     array{
-     *         id: int,
-     *         name: string,
-     *         alias: string,
-     *         notes: string,
-     *         notesUrl: string,
-     *         actionUrl: string,
-     *         iconId: ?int,
-     *         iconMapId: ?int,
-     *         rrdRetention: ?int,
-     *         geoCoords: ?string,
-     *         comment: string,
-     *         isActivated: bool
-     *     }
-     * >
-     */
-    public array $hostgroups = [];
+    public string $name = '';
+
+    public string $alias = '';
+
+    public string $notes = '';
+
+    public string $notesUrl = '';
+
+    public string $actionUrl = '';
+
+    public ?int $iconId = null;
+
+    public ?int $iconMapId = null;
+
+    public ?int $rrdRetention = null;
+
+    public ?string $geoCoords = null;
+
+    public string $comment = '';
+
+    public bool $isActivated = true;
 }

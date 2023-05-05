@@ -21,102 +21,106 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
+namespace Core\HostGroup\Infrastructure\API\UpdateHostGroup;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\FeatureFlags;
-use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
-use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
+use Core\HostGroup\Application\UseCase\UpdateHostGroup\UpdateHostGroup;
+use Core\HostGroup\Application\UseCase\UpdateHostGroup\UpdateHostGroupRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final class AddHostGroupController extends AbstractController
+final class UpdateHostGroupController extends AbstractController
 {
     use LoggerTrait;
 
     /**
      * @param Request $request
-     * @param AddHostGroup $useCase
-     * @param AddHostGroupPresenterSaas $saasPresenter
-     * @param AddHostGroupPresenterOnPrem $onPremPresenter
+     * @param UpdateHostGroup $useCase
      * @param FeatureFlags $flags
+     * @param int $hostGroupId
+     * @param UpdateHostGroupPresenter $presenter
      *
      * @throws AccessDeniedException
      *
      * @return Response
      */
     public function __invoke(
+        int $hostGroupId,
         Request $request,
-        AddHostGroup $useCase,
-        AddHostGroupPresenterSaas $saasPresenter,
-        AddHostGroupPresenterOnPrem $onPremPresenter,
+        UpdateHostGroup $useCase,
+        UpdateHostGroupPresenter $presenter,
         FeatureFlags $flags,
     ): Response {
         $this->denyAccessUnlessGrantedForAPIConfiguration();
 
         if ($flags->isCloudPlatform()) {
-            return $this->executeUseCaseSaas($useCase, $saasPresenter, $request);
+            return $this->executeUseCaseSaas($hostGroupId, $useCase, $presenter, $request);
         }
 
-        return $this->executeUseCaseOnPrem($useCase, $onPremPresenter, $request);
+        return $this->executeUseCaseOnPrem($hostGroupId, $useCase, $presenter, $request);
     }
 
     /**
-     * @param AddHostGroup $useCase
-     * @param AddHostGroupPresenterSaas $saasPresenter
+     * @param UpdateHostGroup $useCase
+     * @param UpdateHostGroupPresenter $presenter
      * @param Request $request
+     * @param int $hostGroupId
      *
      * @return Response
      */
     private function executeUseCaseSaas(
-        AddHostGroup $useCase,
-        AddHostGroupPresenterSaas $saasPresenter,
+        int $hostGroupId,
+        UpdateHostGroup $useCase,
+        UpdateHostGroupPresenter $presenter,
         Request $request
     ): Response {
         try {
             /** @var array{
              *     name: string,
              *     alias?: ?string,
-             *     icon_id?: ?int,
+             *     icon_id?: ?positive-int,
              *     geo_coords?: ?string,
              *     is_activated?: bool
              * } $dataSent
              */
-            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostGroupSchemaSaas.json');
+            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateHostGroupSchemaSaas.json');
 
-            $dto = new AddHostGroupRequest();
+            $dto = new UpdateHostGroupRequest();
             $dto->name = $dataSent['name'];
             $dto->alias = $dataSent['alias'] ?? '';
             $dto->iconId = $dataSent['icon_id'] ?? null;
             $dto->geoCoords = $dataSent['geo_coords'] ?? null;
             $dto->isActivated = $dataSent['is_activated'] ?? true;
 
-            $useCase($dto, $saasPresenter);
+            $useCase($hostGroupId, $dto, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $saasPresenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $saasPresenter->setResponseStatus(new ErrorResponse($ex));
+            $presenter->setResponseStatus(new ErrorResponse($ex));
         }
 
-        return $saasPresenter->show();
+        return $presenter->show();
     }
 
     /**
-     * @param AddHostGroup $useCase
-     * @param AddHostGroupPresenterOnPrem $onPremPresenter
+     * @param UpdateHostGroup $useCase
+     * @param UpdateHostGroupPresenter $presenter
      * @param Request $request
+     * @param int $hostGroupId
      *
      * @return Response
      */
     private function executeUseCaseOnPrem(
-        AddHostGroup $useCase,
-        AddHostGroupPresenterOnPrem $onPremPresenter,
+        int $hostGroupId,
+        UpdateHostGroup $useCase,
+        UpdateHostGroupPresenter $presenter,
         Request $request
     ): Response {
         try {
@@ -126,17 +130,17 @@ final class AddHostGroupController extends AbstractController
              *     notes?: ?string,
              *     notes_url?: ?string,
              *     action_url?: ?string,
-             *     icon_id?: ?int,
-             *     icon_map_id?: ?int,
+             *     icon_id?: ?positive-int,
+             *     icon_map_id?: ?positive-int,
              *     rrd?: ?int,
              *     geo_coords?: ?string,
              *     comment?: ?string,
              *     is_activated?: bool
              * } $dataSent
              */
-            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostGroupSchemaOnPrem.json');
+            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateHostGroupSchemaOnPrem.json');
 
-            $dto = new AddHostGroupRequest();
+            $dto = new UpdateHostGroupRequest();
             $dto->name = $dataSent['name'];
             $dto->alias = $dataSent['alias'] ?? '';
             $dto->notes = $dataSent['notes'] ?? '';
@@ -149,15 +153,15 @@ final class AddHostGroupController extends AbstractController
             $dto->comment = $dataSent['comment'] ?? '';
             $dto->isActivated = $dataSent['is_activated'] ?? true;
 
-            $useCase($dto, $onPremPresenter);
+            $useCase($hostGroupId, $dto, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $onPremPresenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $presenter->presentResponse(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $onPremPresenter->setResponseStatus(new ErrorResponse($ex));
+            $presenter->presentResponse(new ErrorResponse($ex));
         }
 
-        return $onPremPresenter->show();
+        return $presenter->show();
     }
 }

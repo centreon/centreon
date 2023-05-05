@@ -17273,6 +17273,9 @@ msgstr "Erreur durant la suppression d'un groupe d'hôtes"
 msgid "Error while adding a host group"
 msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 
+msgid "Error while updating a host group"
+msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
+
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 

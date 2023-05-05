@@ -24,14 +24,16 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupPresenterInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddHostGroupPresenterOnPrem extends AbstractPresenter
+class AddHostGroupPresenterOnPrem extends DefaultPresenter implements AddHostGroupPresenterInterface
 {
     use PresenterTrait;
     use LoggerTrait;
@@ -49,57 +51,43 @@ class AddHostGroupPresenterOnPrem extends AbstractPresenter
         parent::__construct($presenterFormatter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function present(mixed $data): void
+    public function presentResponse(ResponseStatusInterface|AddHostGroupResponse $data): void
     {
-        if (
-            $data instanceof CreatedResponse
-            && ($payload = $data->getPayload()) instanceof AddHostGroupResponse
-        ) {
-            $this->presentCreatedPayload($data, $payload);
-        }
+        if ($data instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($data);
+        } else {
+            $this->present(
+                new CreatedResponse(
+                    $data->id,
+                    [
+                        'id' => $data->id,
+                        'name' => $data->name,
+                        'alias' => $this->emptyStringAsNull($data->alias),
+                        'notes' => $this->emptyStringAsNull($data->notes),
+                        'notes_url' => $this->emptyStringAsNull($data->notesUrl),
+                        'action_url' => $this->emptyStringAsNull($data->actionUrl),
+                        'icon_id' => $data->iconId,
+                        'icon_map_id' => $data->iconMapId,
+                        'rrd' => $data->rrdRetention,
+                        'geo_coords' => $data->geoCoords,
+                        'comment' => $this->emptyStringAsNull($data->comment),
+                        'is_activated' => $data->isActivated,
+                    ]
+                )
+            );
 
-        parent::present($data);
-    }
-
-    /**
-     * @param CreatedResponse<AddHostGroupResponse> $createdResponse
-     * @param AddHostGroupResponse $addHostGroupResponse
-     */
-    private function presentCreatedPayload(
-        CreatedResponse $createdResponse,
-        AddHostGroupResponse $addHostGroupResponse
-    ): void {
-        $createdResponse->setPayload(
-            [
-                'id' => $addHostGroupResponse->id,
-                'name' => $addHostGroupResponse->name,
-                'alias' => $this->emptyStringAsNull($addHostGroupResponse->alias),
-                'notes' => $this->emptyStringAsNull($addHostGroupResponse->notes),
-                'notes_url' => $this->emptyStringAsNull($addHostGroupResponse->notesUrl),
-                'action_url' => $this->emptyStringAsNull($addHostGroupResponse->actionUrl),
-                'icon_id' => $addHostGroupResponse->iconId,
-                'icon_map_id' => $addHostGroupResponse->iconMapId,
-                'rrd' => $addHostGroupResponse->rrdRetention,
-                'geo_coords' => $addHostGroupResponse->geoCoords,
-                'comment' => $this->emptyStringAsNull($addHostGroupResponse->comment),
-                'is_activated' => $addHostGroupResponse->isActivated,
-            ]
-        );
-
-        try {
-            $this->setResponseHeaders([
-                'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $addHostGroupResponse->id]),
-            ]);
-        } catch (\Throwable $ex) {
-            $this->error('Impossible to generate the location header', [
-                'message' => $ex->getMessage(),
-                'trace' => $ex->getTraceAsString(),
-                'route' => self::ROUTE_NAME,
-                'payload' => $addHostGroupResponse,
-            ]);
+            try {
+                $this->setResponseHeaders([
+                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $data->id]),
+                ]);
+            } catch (\Throwable $ex) {
+                $this->error('Impossible to generate the location header', [
+                    'message' => $ex->getMessage(),
+                    'trace' => $ex->getTraceAsString(),
+                    'route' => self::ROUTE_NAME,
+                    'payload' => $data,
+                ]);
+            }
         }
     }
 }

@@ -15411,6 +15411,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while adding a host group"
 #  msgstr ""
 
+#  msgid "Error while updating a host group"
+#  msgstr ""
+
 #  msgid "The host group name '%s' already exists"
 #  msgstr ""
 
