@@ -4,7 +4,5 @@ deployments:
       - ".*-unstable"
     testing:
       - ".*-testing"
-    staging:
-      - ".*-staging"
     production:
       - ".*-stable"
