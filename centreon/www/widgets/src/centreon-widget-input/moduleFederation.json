@@ -1,12 +1,12 @@
 {
   "federatedComponentsConfiguration": {
-    "path": "/widgets/text2",
+    "path": "/widgets/input",
     "federatedComponents": [
-      "./text2"
+      "./input"
     ],
     "panelMinHeight": 3,
     "panelMinWidth": 4
   },
-  "moduleFederationName": "widgettext2",
-  "moduleName": "centreon-widget-text2"
+  "moduleFederationName": "widgetinput",
+  "moduleName": "centreon-widget-input"
 }

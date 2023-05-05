@@ -13,7 +13,11 @@ interface Props {
   store: ReturnType<typeof createStore>;
 }
 
-const Text = ({ panelOptions, setPanelOptions, store }: Props): JSX.Element => {
+const Input = ({
+  panelOptions,
+  setPanelOptions,
+  store
+}: Props): JSX.Element => {
   const changeInput = (event): void => {
     setPanelOptions({ input: event.target.value });
   };
@@ -28,4 +32,4 @@ const Text = ({ panelOptions, setPanelOptions, store }: Props): JSX.Element => {
   );
 };
 
-export default Text;
+export default Input;

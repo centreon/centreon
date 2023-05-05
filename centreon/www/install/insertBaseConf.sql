@@ -1491,4 +1491,4 @@ VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate"
 
 -- Add base widgets to the database
 INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text','Centreon');
-INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text2','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text2','Centreon');
+INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-input','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-input','Centreon');
