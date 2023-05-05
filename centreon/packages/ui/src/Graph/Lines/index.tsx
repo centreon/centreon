@@ -33,15 +33,10 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const {
     lines: regularLines,
     timeSeries: regularLinesTimeSeries,
-    display: displayAreaRegular,
-    ...restAreaRegularLines
+    display: displayAreaRegular
   } = areaRegularLines;
 
-  const {
-    stackedLinesData,
-    invertedStackedLinesData,
-    ...restAreaStackedLines
-  } = areaStackedLines;
+  const { stackedLinesData, invertedStackedLinesData } = areaStackedLines;
 
   const {
     lines: regularStackedLines,
@@ -87,7 +82,6 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
           renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={regularStackedLinesTimeSeries}
           {...commonStackedLinesProps}
-          {...restAreaStackedLines}
         />
       )}
       {displayAreaInvertedStackedLines && (
@@ -96,7 +90,6 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
           renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={invertedStackedLinesTimeSeries}
           {...commonStackedLinesProps}
-          {...restAreaStackedLines}
         />
       )}
 
@@ -147,7 +140,6 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
                     unit={unit}
                     xScale={xScaleRegularLines}
                     yScale={yScale}
-                    {...restAreaRegularLines}
                   />
                 </g>
               );

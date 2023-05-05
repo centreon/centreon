@@ -35,13 +35,9 @@ const RegularLine = ({
   xScale,
   areaColor,
   transparency,
-  graphHeight,
-  ...rest
+  graphHeight
 }: Props): JSX.Element => {
   const isHighlighted = highlight ? 2 : 0.8;
-
-  const shapeAreaClosed = rest?.shapeAreaClosed;
-  const shapeLinePath = rest?.shapeLinePath;
 
   const props = {
     curve: Curve.curveLinear,
@@ -64,12 +60,11 @@ const RegularLine = ({
         y0={Math.min(yScale(0), graphHeight)}
         yScale={yScale}
         {...props}
-        {...shapeAreaClosed}
       />
     );
   }
 
-  return <Shape.LinePath<TimeValue> {...props} {...shapeLinePath} />;
+  return <Shape.LinePath<TimeValue> {...props} />;
 };
 
 export default memo(RegularLine, (prevProps, nextProps) => {

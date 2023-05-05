@@ -31,7 +31,6 @@ const WrapperGraph = ({
   width,
   shapeLines,
   axis,
-  grids,
   anchorPoint,
   zoomPreview
 }: Props): JSX.Element | null => {
@@ -52,7 +51,6 @@ const WrapperGraph = ({
             anchorPoint={anchorPoint}
             axis={axis}
             graphData={data}
-            grids={grids}
             height={height ?? responsiveHeight}
             loading={loading}
             shapeLines={shapeLines}

@@ -34,7 +34,6 @@ const Graph = ({
   width,
   shapeLines,
   axis,
-  grids,
   anchorPoint,
   loading,
   zoomPreview
@@ -147,7 +146,6 @@ const Graph = ({
           xScale={xScaleRegularLines}
           yScale={yScale}
           {...commonAnchorPoint}
-          {...anchorPoint?.areaRegularLinesAnchorPoint}
         />
       )}
     </g>
@@ -171,7 +169,6 @@ const Graph = ({
           xScale={x}
           yScale={y}
           {...commonAnchorPoint}
-          {...anchorPoint?.areaStackedLinesAnchorPoint}
         />
       )}
     </g>
@@ -192,7 +189,6 @@ const Graph = ({
             leftScale={leftScale}
             width={graphWidth}
             xScale={xScale}
-            {...grids}
           />
 
           <Axes

@@ -4,7 +4,6 @@ import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, map, not, pipe } from 'ramda';
 
 import { bisectDate } from '../../timeSeries';
-import { MousePosition } from '../mouseTimeValueAtoms';
 
 import { StackValue } from './models';
 

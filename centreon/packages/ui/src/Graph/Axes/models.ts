@@ -6,7 +6,6 @@ export interface LabelProps {
 }
 
 export interface Axis {
-  [x: string]: unknown;
   displayUnit?: boolean;
 }
 
@@ -15,7 +14,6 @@ export interface AxisYRight extends Axis {
 }
 
 export interface AxisX {
-  [x: string]: unknown;
   xAxisTickFormat?: string;
 }
 export interface Data {

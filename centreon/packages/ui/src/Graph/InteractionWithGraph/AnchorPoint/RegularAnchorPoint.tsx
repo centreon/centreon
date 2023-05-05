@@ -81,12 +81,9 @@ const RegularAnchorPoint = ({
   );
 };
 
-export default RegularAnchorPoint;
-
-// export default memo(
-//   RegularAnchorPoint,
-//   (prevProps, nextProps) =>
-//     equals(prevProps.timeTick, nextProps.timeTick) &&
-//     equals(prevProps.timeSeries, nextProps.timeSeries) &&
-//     equals(prevProps.position, nextProps.position)
-// );
+export default memo(
+  RegularAnchorPoint,
+  (prevProps, nextProps) =>
+    equals(prevProps.timeTick, nextProps.timeTick) &&
+    equals(prevProps.timeSeries, nextProps.timeSeries)
+);

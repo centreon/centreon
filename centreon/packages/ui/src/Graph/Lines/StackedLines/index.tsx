@@ -22,8 +22,7 @@ const StackLines = ({
   lines,
   yScale,
   xScale,
-  renderStackedAnchorPoint,
-  ...rest
+  renderStackedAnchorPoint
 }: Props): JSX.Element => {
   return (
     <Shape.AreaStack
@@ -39,7 +38,6 @@ const StackLines = ({
       x={(d): number => xScale(getTime(d.data)) ?? 0}
       y0={(d): number => yScale(d[0]) ?? 0}
       y1={(d): number => yScale(d[1]) ?? 0}
-      {...rest}
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {
@@ -64,7 +62,6 @@ const StackLines = ({
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeWidth={highlight ? 2 : 1}
-                {...rest}
               />
             </g>
           );

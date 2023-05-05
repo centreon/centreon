@@ -67,7 +67,6 @@ const Axes = ({
         scale={xScale}
         tickFormat={formatAxisTick}
         top={height}
-        {...data?.axisX}
       />
 
       {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}
@@ -79,7 +78,6 @@ const Axes = ({
         tickFormat={axisLeft.tickFormat}
         tickLabelProps={axisLeft.tickLabelProps}
         tickLength={2}
-        {...data?.axisYLeft}
       />
 
       {axisRight.display && (
@@ -91,7 +89,6 @@ const Axes = ({
           tickFormat={axisRight.tickFormat}
           tickLabelProps={axisRight.tickLabelProps}
           tickLength={2}
-          {...data?.axisYRight}
         />
       )}
       {axisRight.displayUnit && <UnitLabel unit={secondUnit} x={width} />}

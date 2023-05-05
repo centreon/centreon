@@ -33,7 +33,6 @@ const Point = ({
         fillOpacity={(1 - transparency * 0.01).toString()}
         r={3}
         stroke={lineColor}
-        {...rest}
       />
 
       <Shape.Line

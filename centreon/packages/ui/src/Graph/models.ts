@@ -26,7 +26,6 @@ export interface GraphParameters {
 }
 
 export interface AnchorPoint {
-  [x: string]: unknown;
   display: boolean;
 }
 
@@ -46,11 +45,6 @@ export interface Axis {
   axisYRight?: AxisYRight;
 }
 
-export interface GridsModel {
-  column?: Record<string, unknown>;
-  row?: Record<string, unknown>;
-}
-
 export interface ZoomPreview {
   [x: string]: unknown;
   display?: boolean;
@@ -59,26 +53,16 @@ export interface ZoomPreview {
 export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
   axis?: Axis;
-  grids?: GridsModel;
   height: number;
   width: number;
   zoomPreview?: ZoomPreview;
 }
 
-interface Area {
-  [x: string]: unknown;
-}
-
-export interface GlobalAreaRegularLines {
-  display: boolean;
-  shapeAreaClosed: Area;
-  shapeLinePath: Area;
-}
-export interface GlobalAreaStackedLines extends Area {
+export interface Area {
   display: boolean;
 }
 
 export interface GlobalAreaLines {
-  areaRegularLines: GlobalAreaRegularLines;
-  areaStackedLines: GlobalAreaStackedLines;
+  areaRegularLines: Area;
+  areaStackedLines: Area;
 }

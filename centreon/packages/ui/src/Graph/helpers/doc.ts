@@ -8,16 +8,10 @@ interface InitialValue {
   type: string;
 }
 
-const initialValue = ({
-  section,
-  type,
-  sectionDescription = ''
-}: InitialValue): string => `
+const getInitialValue = ({ section, type }: InitialValue): string => `
   <details>
   <summary>${section} ${getCustomText(type)}</summary>
-  
-  >${sectionDescription}<br>
-  `;
+  >`;
 
 interface Prop {
   description: string;
@@ -27,7 +21,7 @@ interface Prop {
 interface Section {
   description?: string;
   name: string;
-  note: string;
+  note?: string;
   props: Array<Record<string, Prop>>;
   type: string;
 }
@@ -42,51 +36,38 @@ export const getCustomText = (text: string): string =>
 export const getBodyDescription = ({ key, description, type }): string =>
   `<strong>${key}</strong> : ${description} ${getCustomText(type)} <br>`;
 
-export const getNote = ({ componentName, link }): string =>
-  `You can use ${componentName} props to override the default props of this component [click here](${link})`;
-
 export const getDescription = ({ sections }: Description): string => {
   const descriptionBody = sections.map((item) => {
     const { name, props, type: typeSection } = item;
 
-    const sectionDescription = item?.description;
-
-    const noteSection = item?.note
-      ? `<em>${item?.note}</em><br></details>`
-      : '';
-
     if (isNil(props) || isEmpty(props)) {
-      return `${initialValue({
+      return `${getInitialValue({
         section: name,
-        sectionDescription,
         type: typeSection
-      })}${noteSection}`;
+      })}<br></details>`;
     }
 
     const formattedProps = props.reduce((accumulator, currentValue, index) => {
       const key = Object.keys(currentValue)[0];
       const { description, type } = currentValue[key];
-
-      if (!equals(index, props.length - 1)) {
-        return `${accumulator} ${getBodyDescription({
-          description,
-          key,
-          type
-        })}`;
-      }
-
-      return `${accumulator} ${getBodyDescription({
+      const body = `${accumulator} ${getBodyDescription({
         description,
         key,
         type
-      })} <br>${noteSection}`;
-    }, initialValue({ section: name, sectionDescription, type: typeSection }));
+      })}`;
+
+      if (!equals(index, props.length - 1)) {
+        return body;
+      }
+
+      return `${body}</details>`;
+    }, getInitialValue({ section: name, type: typeSection }));
 
     return formattedProps as string;
   });
 
   const result = descriptionBody.reduce(
-    (accumulateur, currentValue) => `${accumulateur}${currentValue}`
+    (accumulate, currentValue) => `${accumulate}${currentValue}`
   );
 
   return result;
@@ -120,28 +101,13 @@ const defaultStart = new Date(
 
 const defaultEnd = new Date(Date.now()).toISOString();
 
-const enum Test {
-  'string',
-  'number'
-}
-
 export const argTypes = {
   anchorPoint: {
     control: 'object',
-    defaultValue: {
-      areaRegularLinesAnchorPoint: {
-        display: true
-      },
-      areaStackedLinesAnchorPoint: {
-        display: true
-      }
-    },
     description: getDescription({
       sections: [
         {
-          description: 'Anchor point for the shape line [areaRegularLines]',
           name: 'areaRegularLinesAnchorPoint',
-          note: 'coming soon',
           props: [
             {
               display: {
@@ -153,9 +119,7 @@ export const argTypes = {
           type: 'object'
         },
         {
-          description: 'Anchor point for the shape line [areaStackedLines ]',
           name: 'areaStackedLinesAnchorPoint',
-          note: 'coming soon',
           props: [
             {
               display: {
@@ -189,40 +153,20 @@ export const argTypes = {
       displayUnit: { control: 'boolean' }
     },
     control: 'object',
-    defaultValue: {
-      axisYLeft: { displayUnit: true },
-      axisYRight: { display: true, displayUnit: true }
-    },
-
     description: getDescription({
       sections: [
         {
-          description: 'axis bottom ',
           name: 'axisX',
-          note: getNote({
-            componentName: 'AxisBottom',
-            link: 'https://airbnb.io/visx/docs/axis#AxisBottom'
-          }),
           props: propsAxisX,
           type: 'object'
         },
         {
-          description: 'axis left ',
           name: 'axisYLeft',
-          note: getNote({
-            componentName: 'AxisLeft',
-            link: 'https://airbnb.io/visx/docs/axis#AxisLeft'
-          }),
           props: propsAxisY,
           type: 'object'
         },
         {
-          description: 'axis right ',
           name: 'axisYRight',
-          note: getNote({
-            componentName: 'AxisRight',
-            link: 'https://airbnb.io/visx/docs/axis#AxisRight'
-          }),
           props: propsAxisY,
           type: 'object'
         }
@@ -246,7 +190,6 @@ export const argTypes = {
       },
       type: { required: true, summary: 'string' }
     }
-    // type: { name: 'string', required: true }
   },
   end: {
     control: 'text',
@@ -259,45 +202,6 @@ export const argTypes = {
       }
     }
   },
-  grids: {
-    control: 'object',
-    defaultValue: {
-      column: {
-        stroke: '#eaf0f6'
-      },
-      row: {
-        stroke: '#eaf0f6'
-      }
-    },
-    description: getDescription({
-      sections: [
-        {
-          description: 'Grid columns',
-          name: 'row',
-          note: getNote({
-            componentName: 'GridRows',
-            link: 'https://airbnb.io/visx/docs/grid#GridRows'
-          }),
-          props: [],
-          type: 'object'
-        },
-        {
-          description: 'Grid rows',
-          name: 'column',
-          note: getNote({
-            componentName: 'GridColumns',
-            link: 'https://airbnb.io/visx/docs/grid#GridColumns'
-          }),
-          props: [],
-          type: 'object'
-        }
-      ]
-    }),
-    table: {
-      category: 'Graph component',
-      type: { detail: 'control the grid lines of the graph', summary: 'object' }
-    }
-  },
   height: {
     control: 'number',
     description: 'the height of the graph',
@@ -308,54 +212,22 @@ export const argTypes = {
   },
   shapeLines: {
     control: 'object',
-    defaultValue: {
-      areaRegularLines: {
-        display: true,
-        shapeAreaClosed: { stroke: '#2B28D7' },
-        shapeLinePath: { fill: 'transparent' }
-      },
-      areaStackedLines: {
-        display: true
-      }
-    },
     description: getDescription({
       sections: [
         {
-          description:
-            'representing 2 areas (according to the data), filled area (areaClosed) and line path (linePath)',
           name: 'areaRegularLines',
-          note: 'For more information plz visit [click here](https://airbnb.io/visx/docs/shape) for AreaClosed and LinePath components',
           props: [
             {
               display: {
                 description: 'display or not the area regular lines',
                 type: 'boolean'
               }
-            },
-            {
-              shapeAreaClosed: {
-                description:
-                  'represents area filled in the graph. you can use the areaClosed props from visx to override the default props of this component',
-                type: 'object'
-              }
-            },
-            {
-              shapeLinePath: {
-                description:
-                  'represents the single line in the graph. you can use the LinePath props from visx to override the default props of this component',
-                type: 'object'
-              }
             }
           ],
           type: 'object'
         },
         {
-          description: 'representing the area stack in the graph',
           name: 'areaStackedLines',
-          note: getNote({
-            componentName: 'AreaStack',
-            link: 'https://airbnb.io/visx/docs/shape#AreaStack'
-          }),
           props: [
             {
               display: {
@@ -395,19 +267,10 @@ export const argTypes = {
   },
   zoomPreview: {
     control: 'object',
-    defaultValue: {
-      display: true,
-      y: 0
-    },
     description: getDescription({
       sections: [
         {
-          description: 'control zoomPreview ',
           name: '',
-          note: getNote({
-            componentName: 'Bar',
-            link: 'https://airbnb.io/visx/docs/shape#Bar'
-          }),
           props: [
             {
               display: {
@@ -430,8 +293,32 @@ export const argTypes = {
 };
 
 export const args = {
+  anchorPoint: {
+    areaRegularLinesAnchorPoint: {
+      display: true
+    },
+    areaStackedLinesAnchorPoint: {
+      display: true
+    }
+  },
+  axis: {
+    axisX: { xAxisTickFormat: 'LT' },
+    axisYLeft: { displayUnit: true },
+    axisYRight: { display: true, displayUnit: true }
+  },
   baseUrl: defaultBaseUrl,
   end: defaultEnd,
   height: 500,
-  start: defaultStart
+  shapeLines: {
+    areaRegularLines: {
+      display: true
+    },
+    areaStackedLines: {
+      display: true
+    }
+  },
+  start: defaultStart,
+  zoomPreview: {
+    display: true
+  }
 };
