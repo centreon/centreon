@@ -11,8 +11,6 @@ import {
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
 
-import PanelHeader from './PanelHeader';
-
 interface Props {
   id: string;
 }
@@ -35,7 +33,6 @@ const Panel: FC<Props> = ({ id }) => {
   return useMemoComponent({
     Component: (
       <div>
-        <PanelHeader id={id} />
         <FederatedComponent
           isFederatedWidget
           id={id}

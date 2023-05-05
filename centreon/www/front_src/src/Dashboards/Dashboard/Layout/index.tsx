@@ -12,6 +12,7 @@ import { dashboardAtom, isEditingAtom } from '../atoms';
 import { Panel } from '../models';
 
 import DashboardPanel from './Panel/Panel';
+import PanelHeader from './Panel/PanelHeader';
 
 const Layout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
@@ -46,7 +47,7 @@ const Layout = (): JSX.Element => {
     >
       {dashboard.layout.map(({ i }) => {
         return (
-          <DashboardItem key={i}>
+          <DashboardItem header={<PanelHeader id={i} />} key={i}>
             <DashboardPanel id={i} />
           </DashboardItem>
         );
