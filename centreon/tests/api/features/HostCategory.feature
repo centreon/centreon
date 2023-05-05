@@ -421,7 +421,7 @@ Feature:
         }
       }
       """
-    When I send a PUT request to '/api/latest/configuration/hosts/categories' with body:
+    When I send a PUT request to '/api/latest/configuration/hosts/categories/1' with body:
       """
       {
         "name": "host-cat-name-edit   ",
