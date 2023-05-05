@@ -40,7 +40,7 @@ class UserPasswordFactory
      * @param User $user
      * @param SecurityPolicy $securityPolicy
      * @return UserPassword
-     * @throws AssertionException|ConfigurationException
+     * @throws UserPasswordException|ConfigurationException
      */
     public static function create(string $password, User $user, SecurityPolicy $securityPolicy): UserPassword
     {
@@ -66,7 +66,7 @@ class UserPasswordFactory
                     'UserPassword::passwordValue'
                 );
             }
-        } catch (AssertionException $ex) {
+        } catch (AssertionException) {
             //Throw a generic user password exception to avoid returning a plain password in the AssertionException.
             throw UserPasswordException::passwordDoesnotMatchSecurityPolicy();
         }
