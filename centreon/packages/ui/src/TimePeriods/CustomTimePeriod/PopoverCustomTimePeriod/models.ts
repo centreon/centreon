@@ -54,3 +54,8 @@ export const defaultTransformOrigin = {
   horizontal: OriginHorizontalEnum.center,
   vertical: OriginVerticalEnum.top
 };
+
+export enum PickersStartEndDateDirection {
+  column = 'column',
+  row = 'row'
+}

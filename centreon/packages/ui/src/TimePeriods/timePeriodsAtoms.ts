@@ -47,8 +47,6 @@ export const changeCustomTimePeriodDerivedAtom = atom(
       [property]: date
     };
 
-    getNewTimeLineLimitAndAxisTickFormat(newCustomTimePeriod);
-
     set(customTimePeriodAtom, newCustomTimePeriod);
     set(selectedTimePeriodAtom, null);
   }
