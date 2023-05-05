@@ -50,7 +50,7 @@
             <td>
                 {if !$isRemote}
                     {if $can_create_edit == 1}
-                        <a href="{$wizardAddBtn.link}" class="{$wizardAddBtn.class}" isreact="true" target="_top">
+                        <a href="{$wizardAddBtn.link}" class="{$wizardAddBtn.class} " isreact="true" target="_top">
                             {$wizardAddBtn.icon} {$wizardAddBtn.text}
                         </a>
                         <a href="{$addBtn.link}" class="{$addBtn.class}">

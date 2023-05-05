@@ -19,6 +19,7 @@ checkstyle.xml
 centreon/Crashpad
 centreon/**/.X*
 centreon/.com.google.Chrome*
+**/build-storybook.log
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache

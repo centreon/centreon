@@ -8,7 +8,7 @@ import {
   waitFor,
   screen,
   RenderResult
-} from '../testRenderer';
+} from '../../test/testRenderer';
 
 import { StepComponentProps } from './models';
 
