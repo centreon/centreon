@@ -44,6 +44,7 @@
     "@storybook/addon-essentials": "^7.0.8",
     "@storybook/addon-storyshots": "^7.0.8",
     "@storybook/addon-storyshots-puppeteer": "^7.0.8",
+    "@storybook/addon-styling": "^1.0.6",
     "@storybook/builder-vite": "^7.0.8",
     "@storybook/manager-api": "^7.0.8",
     "@storybook/mdx2-csf": "^1.0.0",

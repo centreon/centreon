@@ -7,25 +7,40 @@ import QueryProvider from "../src/api/QueryProvider";
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+
 const withThemeProvider: Decorator = (story, context): JSX.Element => (
   <StoryBookThemeProvider
     themeMode={useDarkMode() ? ThemeMode.dark : ThemeMode.light}
   >
-    <QueryProvider>
-      {story()}
-      {context.globals.reactquerydevtools && <ReactQueryDevtools />}
-    </QueryProvider>
+    {story()}
   </StoryBookThemeProvider>
+);
+// TODO switch to multi-theme provider, deprecate custom StoryBookThemeProvider
+// const withThemeProvider: Decorator = withThemeFromJSXProvider({
+//   themes: { light: getTheme(ThemeMode.light), dark: getTheme(ThemeMode.dark) },
+//   defaultTheme: "light",
+//   Provider: ThemeProvider,
+//   GlobalStyles: CssBaseline,
+// });
+
+const withQueryProvider: Decorator = (story, context): JSX.Element => (
+  <QueryProvider>
+    {story()}
+    {context.globals.reactquerydevtools && <ReactQueryDevtools />}
+  </QueryProvider>
 );
 
 const preview: Preview = {
-  decorators: [withThemeProvider],
+  decorators: [
+    withThemeProvider,
+    withQueryProvider,
+  ],
   globalTypes: {
     reactquerydevtools: {
-      name: "React-Query",
       description: "React-Query devtools",
       defaultValue: false,
       toolbar: {
+        title: "React-Query",
         items: [
           { value: true, icon: "circle", title: "Enable devtools" },
           { value: false, icon: "circlehollow", title: "Disable devtools" },
