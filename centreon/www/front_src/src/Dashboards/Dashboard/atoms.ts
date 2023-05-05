@@ -74,9 +74,9 @@ export const addPanelDerivedAtom = atom(
     const panelWidth = panelConfiguration?.panelMinWidth || maxColumns;
 
     const basePanelLayout = {
-      h: panelConfiguration?.panelMinHeight || 4,
+      h: panelConfiguration?.panelMinHeight || 3,
       i: id,
-      minH: panelConfiguration?.panelMinHeight || 4,
+      minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
       options,
       panelConfiguration,
