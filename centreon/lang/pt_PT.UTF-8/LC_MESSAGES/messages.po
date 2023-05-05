@@ -15844,6 +15844,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Error while searching for host groups"
 #  msgstr ""
 
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 

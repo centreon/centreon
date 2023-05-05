@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,27 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
+use Core\Infrastructure\Common\Api\Router;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
 class AddHostGroupPresenterOnPrem extends AbstractPresenter
 {
     use PresenterTrait;
     use LoggerTrait;
+    private const ROUTE_NAME = 'FindHostGroup';
+
+    /**
+     * @param PresenterFormatterInterface $presenterFormatter
+     * @param Router $router
+     */
+    public function __construct(
+        PresenterFormatterInterface $presenterFormatter,
+        readonly private Router $router
+    ) {
+        $this->presenterFormatter = $presenterFormatter;
+        parent::__construct($presenterFormatter);
+    }
 
     /**
      * {@inheritDoc}
@@ -74,8 +89,17 @@ class AddHostGroupPresenterOnPrem extends AbstractPresenter
             ]
         );
 
-        // 👉️ We SHOULD send a valid header 'Location: <url>'.
-        // But the GET api is not available at the time this UseCase was written.
-        // This is nonsense to send something not usable.
+        try {
+            $this->setResponseHeaders([
+                'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $addHostGroupResponse->id]),
+            ]);
+        } catch (\Throwable $ex) {
+            $this->error('Impossible to generate the location header', [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString(),
+                'route' => self::ROUTE_NAME,
+                'payload' => $addHostGroupResponse,
+            ]);
+        }
     }
 }

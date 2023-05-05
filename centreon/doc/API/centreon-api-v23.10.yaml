@@ -5,6 +5,7 @@ info:
     # New features
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET)
+    + Added host group endpoints (GET)
     +
     # Updated features
     +
@@ -679,6 +680,31 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups/{hostgroup_id}:
+    get:
+      tags:
+        - Host group
+      summary: "Get a host group"
+      description: |
+        `internal`
+
+        `Since Centreon web 23.10`
+
+        Get host group.
+      parameters:
+        - $ref: '#/components/parameters/HostGroupId'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Group'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - Host group

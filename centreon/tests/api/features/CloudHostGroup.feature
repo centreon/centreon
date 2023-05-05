@@ -118,13 +118,28 @@ Feature:
         "is_activated": true
     }
     """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/63'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "id": 63,
+        "name": "test-add2",
+        "alias": null,
+        "icon_id": 1,
+        "geo_coords": null,
+        "is_activated": true
+    }
+    """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/666666'
+    Then the response code should be "404"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {"name": "test-add2"}
     """
     Then the response code should be "409"
 
-  Scenario: Host group add with unknown fields for the cloud platform
+  Scenario: Host group add with unknown fields for the Cloud platform
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
